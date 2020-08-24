@@ -8,7 +8,7 @@ namespace TGC.MonoGame.TP
     public class TGCGame : Game
     {
         public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffect = "Effect/";
+        public const string ContentFolderEffect = "Effects/";
         public const string ContentFolderMusic = "Music/";
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
