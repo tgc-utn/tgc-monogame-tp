@@ -6,8 +6,9 @@ using Microsoft.Xna.Framework.Input;
 namespace TGC.MonoGame.TP
 {
     /// <summary>
-    /// Esta es la clase principal  del juego.
-    /// Inicialmente puede ser renombrado o copiado para hacer más ejemplos chicos, en el caso de copiar para que se ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
+    ///     Esta es la clase principal  del juego.
+    ///     Inicialmente puede ser renombrado o copiado para hacer más ejemplos chicos, en el caso de copiar para que se
+    ///     ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
     /// </summary>
     public class TGCGame : Game
     {
@@ -42,8 +43,8 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
 
         /// <summary>
-        /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
-        /// Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
+        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
+        ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
         protected override void Initialize()
         {
@@ -67,8 +68,9 @@ namespace TGC.MonoGame.TP
         }
 
         /// <summary>
-        /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
-        /// Escribir aquí todo el código de inicialización: cargar modelos, texturas, estructuras de optimización, todo procesamiento que podemos pre calcular para nuestro juego.
+        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
+        ///     Escribir aquí todo el código de inicialización: cargar modelos, texturas, estructuras de optimización, todo
+        ///     procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
         protected override void LoadContent()
         {
@@ -78,7 +80,7 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
             // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
-            var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
+            var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
             modelEffect.EnableDefaultLighting();
 
@@ -86,8 +88,9 @@ namespace TGC.MonoGame.TP
         }
 
         /// <summary>
-        /// Se llama en cada frame.
-        /// Se debe escribir toda la lógica de computo del modelo, así como también verificar entradas del usuario y reacciones ante ellas.
+        ///     Se llama en cada frame.
+        ///     Se debe escribir toda la lógica de computo del modelo, así como también verificar entradas del usuario y reacciones
+        ///     ante ellas.
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
@@ -105,8 +108,8 @@ namespace TGC.MonoGame.TP
         }
 
         /// <summary>
-        /// Se llama cada vez que hay que refrescar la pantalla.
-        /// Escribir aquí todo el código referido al renderizado.
+        ///     Se llama cada vez que hay que refrescar la pantalla.
+        ///     Escribir aquí todo el código referido al renderizado.
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
@@ -120,7 +123,7 @@ namespace TGC.MonoGame.TP
         }
 
         /// <summary>
-        /// Libero los recursos que se cargaron en el juego.
+        ///     Libero los recursos que se cargaron en el juego.
         /// </summary>
         protected override void UnloadContent()
         {
