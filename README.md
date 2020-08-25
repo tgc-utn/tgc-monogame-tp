@@ -1,4 +1,5 @@
 # TGC - MonoGame - TP
+[![BCH compliance](https://bettercodehub.com/edge/badge/tgc-utn/tgc-monogame-tp?branch=master)](https://bettercodehub.com/)
 [![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-monogame-tp.svg)](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/LICENSE)
 
 [#BuiltWithMonoGame](http://www.monogame.net) and [.NET Core](https://dotnet.microsoft.com)
@@ -22,6 +23,8 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
  * [Mac (probado en macOS Catalina)](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_macos.html)
 
 Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq.org) para los shaders, por lo menos por [ahora](https://github.com/MonoGame/MonoGame/issues/2167).
+
+Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de hacer clone del repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer ```git lfs pull```.
 
 ## Integrantes
 TGC, Tgcito  |  Apellido, Nombre
