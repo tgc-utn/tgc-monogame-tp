@@ -69,7 +69,7 @@ namespace TGC.MonoGame.TP
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
-        ///     Escribir aquí todo el código de inicialización: cargar modelos, texturas, estructuras de optimización, todo
+        ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el
         ///     procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
         protected override void LoadContent()
