@@ -1,4 +1,5 @@
 # TGC - MonoGame - TP
+# Proyecto Argos
 [![BCH compliance](https://bettercodehub.com/edge/badge/tgc-utn/tgc-monogame-tp?branch=master)](https://bettercodehub.com/)
 [![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-monogame-tp.svg)](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/LICENSE)
 
@@ -27,9 +28,9 @@ Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq
 Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de hacer clone del repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer ```git lfs pull```.
 
 ## Integrantes
-TGC, Tgcito  |  Apellido, Nombre
------------- | -------------
-<img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500">
+Bandeo, Marcos Luis  |  Hartzstein, Martín Sebastián |  Lose, Ivan Agustin  |  Mejia De La Gala, Rodolfo Humberto | Ramirez Lazo, Willian Eduardo | Telezon, Yair Jordan
+------------ | ------------- | ------------ | ------------- | ------------ | -------------
+<img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="100"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="100"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="100"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="100"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="100"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="100">
 
 ## Capturas
 ![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
