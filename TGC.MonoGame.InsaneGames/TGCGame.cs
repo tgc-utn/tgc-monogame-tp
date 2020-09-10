@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.InsaneGames.Maps;
-
+using TGC.MonoGame.InsaneGames.Entities;
 namespace TGC.MonoGame.InsaneGames
 {
     /// <summary>
@@ -14,6 +14,12 @@ namespace TGC.MonoGame.InsaneGames
     /// </summary>
     public class TGCGame : Game
     {
+        public const string ContentFolder3D = "Models/";
+        public const string ContentFolderEffect = "Effects/";
+        public const string ContentFolderMusic = "Music/";
+        public const string ContentFolderSounds = "Sounds/";
+        public const string ContentFolderSpriteFonts = "SpriteFonts/";
+        private const string ContentFolderTextures = "Textures/";
 
         /// <summary>
         ///     Constructor del juego.
@@ -36,6 +42,7 @@ namespace TGC.MonoGame.InsaneGames
         public Camera Camera { get; private set; }
 
         private Box Box { get; set; }
+        private TGCito TGCito { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -55,7 +62,9 @@ namespace TGC.MonoGame.InsaneGames
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
 
             Box = new Box(this);
-            Box.Initialize(new Vector3(250, 40, 250), new Vector3(0, 20, 0));
+            Box.Initialize(new Vector3(250, 60, 250), new Vector3(0, 30, 0));
+            TGCito = new TGCito(this);
+            TGCito.Initialize(Matrix.CreateTranslation(0, 65, 0) * Matrix.CreateScale(0.2f));
 
             base.Initialize();
         }
@@ -68,6 +77,7 @@ namespace TGC.MonoGame.InsaneGames
         protected override void LoadContent()
         {
             base.LoadContent();
+            TGCito.Load();
         }
 
         /// <summary>
@@ -99,6 +109,7 @@ namespace TGC.MonoGame.InsaneGames
             GraphicsDevice.Clear(Color.Black);
 
             Box.Draw(gameTime);
+            TGCito.Draw(gameTime);
 
             base.Draw(gameTime);
         }
