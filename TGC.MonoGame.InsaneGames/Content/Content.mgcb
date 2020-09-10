@@ -13,8 +13,14 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin 3D/tgcito/tgcito-classic.obj
-/importer:OpenAssetImporter
+#begin Effects/BasicShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/BasicShader.fx
+
+#begin Models/tgcito/tgcito-classic.obj
+/importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -30,13 +36,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:3D/tgcito/tgcito-classic.obj
-
-#begin Effects/BasicShader.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Effects/BasicShader.fx
+/build:Models/tgcito/tgcito-classic.obj
 
 #begin Models/tgc-logo/tgc-logo.fbx
 /importer:FbxImporter
