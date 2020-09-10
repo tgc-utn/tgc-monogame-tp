@@ -2,8 +2,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Cameras;
+using TGC.MonoGame.InsaneGames.Maps;
 
-namespace TGC.MonoGame.TP
+namespace TGC.MonoGame.InsaneGames
 {
     /// <summary>
     ///     Esta es la clase principal  del juego.
@@ -12,12 +14,6 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class TGCGame : Game
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffect = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
-        public const string ContentFolderTextures = "Textures/";
 
         /// <summary>
         ///     Constructor del juego.
@@ -32,16 +28,14 @@ namespace TGC.MonoGame.TP
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
+
+            ContentManager.MakeInstance(Content);
         }
 
         private GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private float Rotation { get; set; }
-        private Matrix World { get; set; }
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
+        public Camera Camera { get; private set; }
 
+        private Box Box { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -58,11 +52,10 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
-            // Configuramos nuestras matrices de la escena.
-            World = Matrix.CreateRotationY(MathHelper.Pi);
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
+
+            Box = new Box(this);
+            Box.Initialize(new Vector3(250, 40, 250), new Vector3(0, 20, 0));
 
             base.Initialize();
         }
@@ -74,16 +67,6 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-            // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
-            var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
-            modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
-            modelEffect.EnableDefaultLighting();
-
             base.LoadContent();
         }
 
@@ -101,9 +84,8 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
 
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
+            Camera.Update(gameTime);
+                
             base.Update(gameTime);
         }
 
@@ -116,8 +98,7 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
-            //Finalmente invocamos al draw del modelo.
-            Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
+            Box.Draw(gameTime);
 
             base.Draw(gameTime);
         }
