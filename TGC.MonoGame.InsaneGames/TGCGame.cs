@@ -39,8 +39,7 @@ namespace TGC.MonoGame.InsaneGames
         private GraphicsDeviceManager Graphics { get; }
         public Camera Camera { get; private set; }
 
-        private Box Box { get; set; }
-        private TGCito TGCito { get; set; }
+        private Map Map { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -58,12 +57,12 @@ namespace TGC.MonoGame.InsaneGames
             // Seria hasta aca.
 
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
-
-            Box = new Box(this);
+            Map = new Map(this);
+            var Box = new Box(this);
             Box.Initialize(new Vector3(250, 60, 250), new Vector3(0, 30, 0));
-            TGCito = new TGCito(this);
+            var TGCito = new TGCito(this);
             TGCito.Initialize(Matrix.CreateTranslation(25, 0, 25));
-
+            Map.Initialize(new Room[] { Box }, new Enemy[] { TGCito });
             base.Initialize();
         }
 
@@ -75,7 +74,7 @@ namespace TGC.MonoGame.InsaneGames
         protected override void LoadContent()
         {
             base.LoadContent();
-            TGCito.Load();
+            Map.Load();
         }
 
         /// <summary>
@@ -106,8 +105,7 @@ namespace TGC.MonoGame.InsaneGames
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
-            Box.Draw(gameTime);
-            TGCito.Draw(gameTime);
+            Map.Draw(gameTime);
 
             base.Draw(gameTime);
         }

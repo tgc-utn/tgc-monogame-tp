@@ -1,26 +1,18 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TGC.MonoGame.Samples.Cameras;
-
 namespace TGC.MonoGame.InsaneGames.Maps
 {
-    class Box : DrawableGameComponent
+    class Box : Room
     {
         private Wall[] Walls;
 
         private BasicEffect Effect { get; set; }
-        
-        protected new TGCGame Game { get; }
 
-        public Box(TGCGame game) : base(game)
-        {
-            Game = game;
-        }
+        public Box(TGCGame game) : base(game) {}
 
-        public void Initialize(Vector3 size, Vector3 center)
+        public override void Initialize(Vector3 size, Vector3 center)
         {
-            Effect = new BasicEffect(GraphicsDevice);
+            Effect = new BasicEffect(Game.GraphicsDevice);
             Effect.VertexColorEnabled = true;
 
             Vector2 floorSize = new Vector2(size.X, size.Z),
@@ -39,7 +31,6 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 Wall.CreateFrontWall(Game, Effect, frontWallSize, new Vector3(0, center.Y, center.Z + zLength), Color.SkyBlue),
                 Wall.CreateFloor(Game, Effect, floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow)
             };
-            base.Initialize();
         }
 
         public override void Draw(GameTime gameTime)
@@ -49,5 +40,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 wall.Draw(gameTime);
             }
         }
+
+        public override void Update(GameTime gameTime) {}
+
+        public override void Load() {}
     }
 }

@@ -3,18 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.InsaneGames.Entities
 {
-    public class TGCito : DrawableGameComponent, IEnemy
+    public class TGCito : Enemy
     {
         private const string ModelName = "tgcito/tgcito-classic";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
-        private new TGCGame Game;
-
-        public TGCito(TGCGame game) : base(game)
-        {
-            Game = game;
-        }
+        public TGCito(TGCGame game) : base(game) {}
         public void Initialize(Matrix spawnPoint, Matrix? scaling = null)
         {
             if(Model is null)
@@ -25,7 +20,7 @@ namespace TGC.MonoGame.InsaneGames.Entities
                         scaling.GetValueOrDefault(Matrix.CreateScale(0.2f)) * 
                         spawnPoint;
         }
-        public void Load()
+        public override void Load()
         {
             if(Model is null)
                 Model = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);

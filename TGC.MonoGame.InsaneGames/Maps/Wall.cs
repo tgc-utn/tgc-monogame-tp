@@ -4,16 +4,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.InsaneGames.Maps
 {
-    class Wall : DrawableGameComponent
+    class Wall : IDrawable
     {
         static Func<Vector3, Vector3> SideWallTrans = (v) => new Vector3(v.Y, v.X, v.Z);
         static Func<Vector3, Vector3> FrontWallTrans = (v) => new Vector3(v.X, v.Z, v.Y);
         static Func<Vector3, Vector3> FloorTrans = (v) => v; 
-        protected  new TGCGame Game;
+        protected TGCGame Game { get; }
         VertexBuffer VertexBuffer;
         IndexBuffer IndexBuffer;
         BasicEffect Effect;
-        public Wall(TGCGame game) : base(game)
+        public Wall(TGCGame game)
         {
             Game = game;
         }
@@ -41,21 +41,21 @@ namespace TGC.MonoGame.InsaneGames.Maps
         public void Initialize(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
         {
             VertexBuffer = CreateVertexBuffer(size, center, trans, color);
-            IndexBuffer = CreateIndexBuffer(GraphicsDevice);
+            IndexBuffer = CreateIndexBuffer(Game.GraphicsDevice);
             Effect = effect;
         }
-        public override void Draw(GameTime gameTime)
+        public void Draw(GameTime gameTime)
         {
             Effect.World = Matrix.Identity;
             Effect.View = Game.Camera.View;
             Effect.Projection = Game.Camera.Projection;
 
-            GraphicsDevice.SetVertexBuffer(VertexBuffer);
-            GraphicsDevice.Indices = IndexBuffer;
+            Game.GraphicsDevice.SetVertexBuffer(VertexBuffer);
+            Game.GraphicsDevice.Indices = IndexBuffer;
             foreach (var pass in Effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 8 / 3);
+                Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 8 / 3);
             }
         }
         private VertexBuffer CreateVertexBuffer(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
@@ -77,7 +77,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
             cubeVertices[3].Position = trans(new Vector3(x + center.X, center.Y, -z + center.Z));
             cubeVertices[3].Color = color;
 
-            VertexBuffer Vertices = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, 4,
+            VertexBuffer Vertices = new VertexBuffer(Game.GraphicsDevice, VertexPositionColor.VertexDeclaration, 4,
                 BufferUsage.WriteOnly);
             Vertices.SetData(cubeVertices);
             return Vertices;
