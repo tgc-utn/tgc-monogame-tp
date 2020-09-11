@@ -1,13 +1,12 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.Samples.Cameras
 {
     internal class FreeCamera : Camera
     {
-        private readonly bool lockMouse;
-
         private readonly Point screenCenter;
         private bool changed;
 
@@ -19,7 +18,6 @@ namespace TGC.MonoGame.Samples.Cameras
 
         public FreeCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
-            lockMouse = true;
             this.screenCenter = screenCenter;
         }
 
@@ -87,33 +85,21 @@ namespace TGC.MonoGame.Samples.Cameras
         private void ProcessMouseMovement(float elapsedTime)
         {
             var mouseState = Mouse.GetState();
+            var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
+            mouseDelta *= MouseSensitivity * elapsedTime;
 
-            if (mouseState.RightButton.Equals(ButtonState.Pressed))
-            {
-                var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
-                mouseDelta *= MouseSensitivity * elapsedTime;
+            yaw -= mouseDelta.X;
+            pitch += mouseDelta.Y;
 
-                yaw -= mouseDelta.X;
-                pitch += mouseDelta.Y;
+            if (pitch > 89.0f)
+                pitch = 89.0f;
+            if (pitch < -89.0f)
+                pitch = -89.0f;
 
-                if (pitch > 89.0f)
-                    pitch = 89.0f;
-                if (pitch < -89.0f)
-                    pitch = -89.0f;
-
-                changed = true;
-                UpdateCameraVectors();
-
-                if (lockMouse)
-                {
-                    Mouse.SetPosition(screenCenter.X, screenCenter.Y);
-                    Mouse.SetCursor(MouseCursor.Crosshair);
-                }
-                else
-                {
-                    Mouse.SetCursor(MouseCursor.Arrow);
-                }
-            }
+            changed = true;
+            UpdateCameraVectors();
+            Mouse.SetPosition(screenCenter.X, screenCenter.Y);
+            Mouse.SetCursor(MouseCursor.Crosshair);
 
             pastMousePosition = Mouse.GetState().Position.ToVector2();
         }
