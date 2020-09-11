@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.InsaneGames.Maps;
 using TGC.MonoGame.InsaneGames.Entities;
+using TGC.MonoGame.InsaneGames.Weapons;
+
 namespace TGC.MonoGame.InsaneGames
 {
     /// <summary>
@@ -14,13 +16,6 @@ namespace TGC.MonoGame.InsaneGames
     /// </summary>
     public class TGCGame : Game
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffect = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
-        private const string ContentFolderTextures = "Textures/";
-
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -40,6 +35,8 @@ namespace TGC.MonoGame.InsaneGames
         public Camera Camera { get; private set; }
 
         private Map Map { get; set; }
+
+        private Weapon Weapon { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -62,6 +59,8 @@ namespace TGC.MonoGame.InsaneGames
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             Map = new Map(new Room[] { Box }, new Enemy[] { TGCito });
             Map.Initialize(this);
+            Weapon = new MachineGun();
+            Weapon.Initialize(this);
             base.Initialize();
         }
 
@@ -73,6 +72,7 @@ namespace TGC.MonoGame.InsaneGames
         protected override void LoadContent()
         {
             Map.Load();
+            Weapon.Load();
             base.LoadContent();
         }
 
@@ -91,6 +91,9 @@ namespace TGC.MonoGame.InsaneGames
                 Exit();
 
             Camera.Update(gameTime);
+
+            Map.Update(gameTime);
+            Weapon.Update(gameTime);
                 
             base.Update(gameTime);
         }
@@ -105,6 +108,7 @@ namespace TGC.MonoGame.InsaneGames
             GraphicsDevice.Clear(Color.Black);
 
             Map.Draw(gameTime);
+            Weapon.Draw(gameTime);
 
             base.Draw(gameTime);
         }
