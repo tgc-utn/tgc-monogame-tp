@@ -8,43 +8,46 @@ namespace TGC.MonoGame.InsaneGames.Maps
     {
         static Func<Vector3, Vector3> SideWallTrans = (v) => new Vector3(v.Y, v.X, v.Z);
         static Func<Vector3, Vector3> FrontWallTrans = (v) => new Vector3(v.X, v.Z, v.Y);
-        static Func<Vector3, Vector3> FloorTrans = (v) => v; 
-        protected TGCGame Game { get; }
-        VertexBuffer VertexBuffer;
-        IndexBuffer IndexBuffer;
-        BasicEffect Effect;
-        public Wall(TGCGame game)
+        static Func<Vector3, Vector3> FloorTrans = (v) => v;
+        protected VertexBuffer VertexBuffer;
+        protected IndexBuffer IndexBuffer;
+        protected BasicEffect Effect;
+        protected Vector2 Size; 
+        protected Vector3 Center; 
+        protected Func<Vector3, Vector3> Trans;
+        protected Color Color;
+    
+        public Wall(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
         {
-            Game = game;
+            Effect = effect;
+            Size = size;
+            Center = center;
+            Trans = trans;
+            Color = color;
         }
 
-        public static Wall CreateSideWall(TGCGame game, BasicEffect effect, Vector2 size, Vector3 center, Color color)
+        public static Wall CreateSideWall(BasicEffect effect, Vector2 size, Vector3 center, Color color)
         {
-            Wall wall = new Wall(game);
             center = SideWallTrans(center);
-            wall.Initialize(effect, size, center, SideWallTrans, color);
-            return wall;
+            return new Wall(effect, size, center, SideWallTrans, color);
         }
-        public static Wall CreateFrontWall(TGCGame game, BasicEffect effect, Vector2 size, Vector3 center, Color color)
+        public static Wall CreateFrontWall(BasicEffect effect, Vector2 size, Vector3 center, Color color)
         {
-            Wall wall = new Wall(game);
             center = FrontWallTrans(center);
-            wall.Initialize(effect, size, center, FrontWallTrans, color);
-            return wall;
+            return new Wall(effect, size, center, FrontWallTrans, color);
         }
-        public static Wall CreateFloor(TGCGame game, BasicEffect effect, Vector2 size, Vector3 center, Color color)
+        public static Wall CreateFloor(BasicEffect effect, Vector2 size, Vector3 center, Color color)
         {
-            Wall wall = new Wall(game);
-            wall.Initialize(effect, size, center, FloorTrans, color);
-            return wall;
+            return new Wall(effect, size, center, FloorTrans, color);
         }
-        public void Initialize(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
+
+        public override void Initialize(TGCGame game)
         {
-            VertexBuffer = CreateVertexBuffer(size, center, trans, color);
-            IndexBuffer = CreateIndexBuffer(Game.GraphicsDevice);
-            Effect = effect;
+            VertexBuffer = CreateVertexBuffer(game, Size, Center, Trans, Color);
+            IndexBuffer = CreateIndexBuffer(game.GraphicsDevice);
+            base.Initialize(game);
         }
-        public void Draw(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
         {
             Effect.World = Matrix.Identity;
             Effect.View = Game.Camera.View;
@@ -58,7 +61,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 8 / 3);
             }
         }
-        private VertexBuffer CreateVertexBuffer(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
+        private VertexBuffer CreateVertexBuffer(TGCGame game, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
         {
             var x = size.X / 2;
             var z = size.Y / 2;
@@ -77,7 +80,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
             cubeVertices[3].Position = trans(new Vector3(x + center.X, center.Y, -z + center.Z));
             cubeVertices[3].Color = color;
 
-            VertexBuffer Vertices = new VertexBuffer(Game.GraphicsDevice, VertexPositionColor.VertexDeclaration, 4,
+            VertexBuffer Vertices = new VertexBuffer(game.GraphicsDevice, VertexPositionColor.VertexDeclaration, 4,
                 BufferUsage.WriteOnly);
             Vertices.SetData(cubeVertices);
             return Vertices;

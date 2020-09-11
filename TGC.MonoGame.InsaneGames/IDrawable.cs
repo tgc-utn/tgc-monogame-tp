@@ -2,10 +2,15 @@ using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.InsaneGames
 {
-    interface IDrawable 
+    abstract class IDrawable 
     {
-        public void Draw(GameTime gameTime) {}
-        public void Update(GameTime gameTime) {}
-        public void Load() {}
+        protected TGCGame Game { get; set; }
+        virtual public void Initialize(TGCGame game) 
+        {
+            Game = game;
+        }
+        virtual public void Draw(GameTime gameTime) {}
+        virtual public void Update(GameTime gameTime) {}
+        virtual public void Load() {}
     }
 }

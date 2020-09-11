@@ -57,12 +57,11 @@ namespace TGC.MonoGame.InsaneGames
             // Seria hasta aca.
 
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
-            Map = new Map(this);
-            var Box = new Box(this);
-            Box.Initialize(new Vector3(250, 60, 250), new Vector3(0, 30, 0));
-            var TGCito = new TGCito(this);
-            TGCito.Initialize(Matrix.CreateTranslation(25, 0, 25));
-            Map.Initialize(new Room[] { Box }, new Enemy[] { TGCito });
+
+            var Box = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, 0));
+            var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
+            Map = new Map(new Room[] { Box }, new Enemy[] { TGCito });
+            Map.Initialize(this);
             base.Initialize();
         }
 
@@ -73,8 +72,8 @@ namespace TGC.MonoGame.InsaneGames
         /// </summary>
         protected override void LoadContent()
         {
-            base.LoadContent();
             Map.Load();
+            base.LoadContent();
         }
 
         /// <summary>
