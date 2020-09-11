@@ -6,7 +6,8 @@ namespace TGC.MonoGame.InsaneGames.Entities
     public class TGCito : DrawableGameComponent, IEnemy
     {
         private const string ModelName = "tgcito/tgcito-classic";
-        private Model Model;
+        static private Model Model;
+        static private Matrix Misalignment;
         private Matrix SpawnPoint;
         private new TGCGame Game;
 
@@ -14,13 +15,20 @@ namespace TGC.MonoGame.InsaneGames.Entities
         {
             Game = game;
         }
-        public void Initialize(Matrix spawnPoint)
+        public void Initialize(Matrix spawnPoint, Matrix? scaling = null)
         {
-            SpawnPoint = spawnPoint;
+            if(Model is null)
+            {
+                Misalignment = Matrix.CreateTranslation(0, 44.5f, 0);
+            }
+            SpawnPoint = Misalignment * 
+                        scaling.GetValueOrDefault(Matrix.CreateScale(0.2f)) * 
+                        spawnPoint;
         }
         public void Load()
         {
-            Model = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
+            if(Model is null)
+                Model = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
         }
         public override void Update(GameTime gameTime)
         {

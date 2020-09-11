@@ -32,8 +32,6 @@ namespace TGC.MonoGame.InsaneGames
             // Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
-            IsMouseVisible = true;
 
             ContentManager.MakeInstance(Content);
         }
@@ -64,7 +62,7 @@ namespace TGC.MonoGame.InsaneGames
             Box = new Box(this);
             Box.Initialize(new Vector3(250, 60, 250), new Vector3(0, 30, 0));
             TGCito = new TGCito(this);
-            TGCito.Initialize(Matrix.CreateTranslation(0, 65, 0) * Matrix.CreateScale(0.2f));
+            TGCito.Initialize(Matrix.CreateTranslation(25, 0, 25));
 
             base.Initialize();
         }
