@@ -22,7 +22,7 @@ namespace TGC.MonoGame.InsaneGames.Entities
         public override void Load()
         {
             if(Model is null)
-                Model = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
+                Model = ContentManager.Instance.LoadModel(ModelName);
         }
         public override void Draw(GameTime gameTime)
         {
