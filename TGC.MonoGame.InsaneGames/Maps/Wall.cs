@@ -20,12 +20,12 @@ namespace TGC.MonoGame.InsaneGames.Maps
         public Wall(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
         {
             Effect = effect;
+            Effect.VertexColorEnabled = true;
             Size = size;
             Center = center;
             Trans = trans;
             Color = color;
         }
-
         public static Wall CreateSideWall(BasicEffect effect, Vector2 size, Vector3 center, Color color)
         {
             center = SideWallTrans(center);
@@ -58,7 +58,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
             foreach (var pass in Effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 8 / 3);
+                Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 6 / 3);
             }
         }
         private VertexBuffer CreateVertexBuffer(TGCGame game, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
