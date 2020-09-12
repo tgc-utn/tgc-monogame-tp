@@ -19,7 +19,7 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
 
-#begin Models/armas/rifle/machine-gun.fbx
+#begin Models/armas/rifle/mp5k.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -36,7 +36,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/armas/rifle/machine-gun.fbx
+/build:Models/armas/rifle/mp5k.obj
 
 #begin Models/tgcito/tgcito-classic.obj
 /importer:FbxImporter

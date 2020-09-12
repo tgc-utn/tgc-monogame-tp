@@ -9,7 +9,8 @@ namespace TGC.MonoGame.InsaneGames.Weapons
         protected string ModelName;
         protected Matrix World;
 
-        static protected Matrix RotationMatrix = Matrix.CreateTranslation(0, -0.5f, 0) *
+        static protected Matrix RotationMatrix = Matrix.CreateScale(0.02f) *
+                                                Matrix.CreateTranslation(0, -0.5f, 0) *
                                                 Matrix.CreateRotationX(MathHelper.ToRadians(15f)) * 
                                                 Matrix.CreateRotationY(MathHelper.ToRadians(-5f));
 
@@ -28,8 +29,8 @@ namespace TGC.MonoGame.InsaneGames.Weapons
             var camera = Game.Camera;
             var x = Game.GraphicsDevice.DisplayMode.Width * 0.3f;
             var y = Game.GraphicsDevice.DisplayMode.Height * 0.1f;
-            World =  RotationMatrix * 
-                    Matrix.CreateTranslation(camera.Position.X + 0.4f, camera.Position.Y - 0.5f, camera.Position.Z - 0.1f);
+            World = RotationMatrix *
+                    Matrix.CreateTranslation(camera.Position.X + 0.4f, camera.Position.Y - 0.2f, camera.Position.Z - 0.5f);
         }
 
         public override void Draw(GameTime gameTime)
