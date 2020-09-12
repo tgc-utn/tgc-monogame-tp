@@ -55,9 +55,11 @@ namespace TGC.MonoGame.InsaneGames
 
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
 
-            var Box = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, 0));
+            var box1 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, 0), new WallId[] {WallId.Front});
+            var box2 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, -250), new WallId[] {WallId.Back, WallId.Left});
+            var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            Map = new Map(new Room[] { Box }, new Enemy[] { TGCito });
+            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito });
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);

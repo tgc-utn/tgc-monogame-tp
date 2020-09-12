@@ -4,6 +4,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.InsaneGames.Maps
 {
+    enum WallId 
+    {
+        Floor,
+        Right,
+        Left,
+        Front,
+        Back,
+        Ceiling
+    }
     class Wall : IDrawable
     {
         static Func<Vector3, Vector3> SideWallTrans = (v) => new Vector3(v.Y, v.X, v.Z);
