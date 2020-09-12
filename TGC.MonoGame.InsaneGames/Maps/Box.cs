@@ -16,6 +16,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
             float xLength = size.X / 2,
                   yLength = size.Y / 2,
                   zLength = size.Z / 2;
+            wallsToRemove ??= new WallId[0];
 
             var allWalls = new ArrayList() { 
                 Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y - yLength, center.Z), Color.White),
@@ -25,9 +26,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 Wall.CreateFrontWall(effect, frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), Color.SkyBlue),
                 Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow)
             };
-            Array.Sort(wallsToRemove, delegate(WallId m, WallId n) { return n - m; });
-            if(!(wallsToRemove is null))  
-                Array.ForEach(wallsToRemove, (w) => allWalls.RemoveAt((int)w));
+            
+            Array.Sort(wallsToRemove, (WallId m, WallId n) => n - m);
+            Array.ForEach(wallsToRemove, (w) => allWalls.RemoveAt((int)w) );
             Walls = (Wall[]) allWalls.ToArray(typeof(Wall));
         }
 
