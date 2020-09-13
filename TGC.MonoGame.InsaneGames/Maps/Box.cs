@@ -8,7 +8,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
     class Box : Room
     {
         private Wall[] Walls;
-        public Box(BasicEffect effect, Vector3 size, Vector3 center, WallId[] wallsToRemove = null)
+
+        private SpawnableSpace SpawnSpace { get; set; }
+        public Box(BasicEffect effect, Vector3 size, Vector3 center, WallId[] wallsToRemove = null, bool spawnable = true)
         {
             Vector2 floorSize = new Vector2(size.X, size.Z),
                     sideWallSize = new Vector2(size.Y, size.Z),
@@ -30,6 +32,11 @@ namespace TGC.MonoGame.InsaneGames.Maps
             Array.Sort(wallsToRemove, (WallId m, WallId n) => n - m);
             Array.ForEach(wallsToRemove, (w) => allWalls.RemoveAt((int)w) );
             Walls = (Wall[]) allWalls.ToArray(typeof(Wall));
+
+            var spawnableArea = !spawnable ? new (Vector3, Vector3)[0] : new (Vector3, Vector3)[] {(size, center)};
+            SpawnSpace = new SpawnableSpace(spawnableArea);
+            
+            Spawnable = spawnable;
         }
 
         public override void Initialize(TGCGame game)
@@ -44,6 +51,11 @@ namespace TGC.MonoGame.InsaneGames.Maps
         {
             foreach (var wall in Walls)
                 wall.Draw(gameTime);
+        }
+
+        public override SpawnableSpace SpawnableSpace()
+        {
+            return SpawnSpace;           
         }
     }
 }

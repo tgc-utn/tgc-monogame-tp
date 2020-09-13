@@ -7,17 +7,13 @@ namespace TGC.MonoGame.InsaneGames.Entities
     {
         private const string ModelName = "tgcito/tgcito-classic";
         static private Model Model;
-        static private Matrix Misalignment;
-        private Matrix SpawnPoint;
-        public TGCito(Matrix spawnPoint, Matrix? scaling = null)
+        private Matrix Misalignment { get; }
+        public TGCito(Matrix? spawnPoint = null, Matrix? scaling = null)
         {
-            if(Model is null)
-            {
-                Misalignment = Matrix.CreateTranslation(0, 44.5f, 0);
-            }
-            SpawnPoint = Misalignment * 
-                        scaling.GetValueOrDefault(Matrix.CreateScale(0.2f)) * 
-                        spawnPoint;
+            Misalignment = Matrix.CreateTranslation(0, 44.5f, 0) * scaling.GetValueOrDefault(Matrix.CreateScale(0.2f));
+            if(spawnPoint.HasValue)
+                position = spawnPoint.Value;
+            floorEnemy = true;
         }
         public override void Load()
         {
@@ -26,7 +22,11 @@ namespace TGC.MonoGame.InsaneGames.Entities
         }
         public override void Draw(GameTime gameTime)
         {
-            Model.Draw(SpawnPoint, Game.Camera.View, Game.Camera.Projection);
+            if(!position.HasValue)
+                throw new System.Exception("The position of the TGCito was not set");
+            var world = Misalignment * position.Value; 
+            Model.Draw(world, Game.Camera.View, Game.Camera.Projection);
         }
+
     }
 }
