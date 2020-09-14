@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,12 +13,18 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class TGCGame : Game
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffect = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
+        public const string ContentFolderModels = "Models/";
+        // public const string ContentFolderEffect = "Effects/";
+        // public const string ContentFolderMusic = "Music/";
+        // public const string ContentFolderSounds = "Sounds/";
+        // public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        public const string ModelMK1 = "Models/Spaceship/SpaceShip";
+        public const string ModelMK2 = "Models/Spaceship/Motorcycle-MK2";
+        public const string ModelMK3 = "Models/Spaceship/SpaceShip-MK-3";
+        public const string TextureMK1 = "Textures/SpaceShip/MK-1/SpaceShip-Texture";
+        public const string TextureMK2 = "Textures/SpaceShip/MK-2/Motorcycle-MK2-BaseColor";
+        public const string TextureMK3 = "Textures/SpaceShip/MK-3/SpaceShip-MK3-Albedo";
 
         /// <summary>
         ///     Constructor del juego.
@@ -36,11 +43,22 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private float Rotation { get; set; }
+        private Model SpaceShipModel { get; set; }
+        private Model VenusModel { get; set; }
+        private float RotationY { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private float VenusRotation { get; set; }
+
+        private Boolean TestRealControls { get; set; } = true;
+
+        private Vector3 Rotation = new Vector3(0,0,0);
+        
+        private float movementSpeed;
+        private float speedUp;
+
+        private Vector3 position;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -48,22 +66,19 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
-
-            // Configuramos nuestras matrices de la escena.
-            World = Matrix.CreateRotationY(MathHelper.Pi);
+            World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
 
+            position = new Vector3(0,0,0);
+            
+            movementSpeed = .5f;
+            speedUp = 1;
+
+            Graphics.PreferredBackBufferWidth = 1024;
+            Graphics.PreferredBackBufferHeight = 768;
+            Graphics.ApplyChanges();
             base.Initialize();
         }
 
@@ -74,15 +89,13 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-            // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
-            var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
-            modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
-            modelEffect.EnableDefaultLighting();
+            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
+
+            var venusEffect = (BasicEffect) VenusModel.Meshes[0].Effects[0];
+            venusEffect.TextureEnabled = true;
+            venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
             base.LoadContent();
         }
@@ -94,16 +107,151 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
+            var state = Keyboard.GetState();
+            var rotationSpeed = .02f;
 
-            // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (state.IsKeyDown(Keys.Escape))
                 //Salgo del juego.
                 Exit();
 
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            if (state.IsKeyDown(Keys.NumPad1))
+            {
+                TestRealControls = true;
+                position = new Vector3(0,0,0);
+                // Rotation = Matrix.Identity;
+                Rotation = new Vector3(0,0,0);
+            }
+            if (state.IsKeyDown(Keys.NumPad2))
+            {
+                TestRealControls = false;
+                position = new Vector3(0,0,0);
+                // Rotation = Matrix.Identity;
+                Rotation = new Vector3(0,0,0);
+            }
 
+            if (TestRealControls)
+            {
+                var isMoving = false;
+                if (state.IsKeyDown(Keys.W)) 
+                {
+                    position.Y += movementSpeed * speedUp;
+                    // Rotation *= Matrix.CreateRotationY(.05f);
+                    
+                    if (Rotation.Y < MathHelper.PiOver4)
+                    {
+                        Rotation.Y += rotationSpeed * (speedUp / 2);
+                    }
+                    isMoving = true;
+
+                }
+                if (state.IsKeyDown(Keys.S))
+                {
+                    position.Y -= movementSpeed * speedUp;
+                    // Rotation.Y = MathHelper.PiOver4 * (-1);
+                    // Rotation *= Matrix.CreateRotationY(-.05f);
+                    if (Rotation.Y > -MathHelper.PiOver4)
+                    {
+                        Rotation.Y += -rotationSpeed * (speedUp / 2);
+                    }
+                    isMoving = true;
+                }
+                if (state.IsKeyDown(Keys.A))
+                {
+                    position.X -= movementSpeed * speedUp;
+                    // Rotation.X = MathHelper.PiOver4;
+                    // Rotation.Z = MathHelper.PiOver4;
+                    // Rotation *= Matrix.CreateRotationZ(.05f);
+                    if (Rotation.Z < MathHelper.PiOver2)
+                    {
+                        Rotation.Z += rotationSpeed * (speedUp / 2);
+                    }
+                    isMoving = true;
+                }
+                if (state.IsKeyDown(Keys.D))
+                {
+                    position.X += movementSpeed * speedUp;
+                    // Rotation.X = MathHelper.PiOver4  * (-1);
+                    // Rotation.Z = MathHelper.PiOver4 * (-1);
+                    // Rotation *= Matrix.CreateRotationZ(-.05f);
+                    if (Rotation.Z > -MathHelper.PiOver2)
+                    {
+                        Rotation.Z += -rotationSpeed * (speedUp / 2);
+                    }
+                    isMoving = true;
+                }
+
+                var pressedKeys = state.GetPressedKeys();
+                if ( pressedKeys.Length == 2 && pressedKeys.Contains(Keys.Space))
+                {
+                    if (speedUp < 5)
+                    {
+                        speedUp += 1;
+                    }
+                }
+
+                if (pressedKeys.Length == 1)
+                {
+                    speedUp = 1;
+                }
+
+                if (!isMoving)
+                {
+                    // Rotation = Matrix.Identity;
+                    Rotation = new Vector3(0,0,0);
+                }
+                
+            }
+            else
+            {
+                if (state.IsKeyDown(Keys.W)) 
+                {
+                    // Adelante eje Z
+                    position.Z -= 1;
+
+                }
+                if (state.IsKeyDown(Keys.S))
+                {
+                    // Atras eje Z
+                    position.Z += 1;
+                }
+                if (state.IsKeyDown(Keys.A))
+                {
+                    // Izquierda eje X (negativo) posicion + giro de nave
+                    position.X -= 1;
+                }
+                if (state.IsKeyDown(Keys.D))
+                {
+                    // Derecha eje X (positivo) posicion + giro de nave
+                    position.X += 1;
+                }
+                if (state.IsKeyDown(Keys.Up))
+                {
+                    // Subo eje Y (positivo) posicion + giro de nave
+                    position.Y += 1;
+                }
+                if (state.IsKeyDown(Keys.Down))
+                {
+                    // Bajo eje Y (negativo) posicion + giro de nave
+                    position.Y -= 1;
+                }
+
+                if (state.IsKeyDown(Keys.Y))
+                {
+                    Rotation.X += .1f;
+                }
+                if (state.IsKeyDown(Keys.U))
+                {
+                    Rotation.Y += .1f;
+                }            
+                if (state.IsKeyDown(Keys.I))
+                {
+                    Rotation.Z += .1f;
+                }
+            }
+            
+
+            RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            VenusRotation += .005f;
             base.Update(gameTime);
         }
 
@@ -113,11 +261,11 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
-
-            //Finalmente invocamos al draw del modelo.
-            Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
+            VenusModel.Draw(World * 
+                            Matrix.CreateScale(.3f) * 
+                            Matrix.CreateRotationY(VenusRotation) * 
+                            Matrix.CreateTranslation(-50f,-25f,0), View, Projection);
 
             base.Draw(gameTime);
         }
