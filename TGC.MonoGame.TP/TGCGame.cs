@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Graphics;
 
 namespace TGC.MonoGame.TP
 {
@@ -60,6 +61,12 @@ namespace TGC.MonoGame.TP
 
         private Vector3 position;
 
+        private float angle;
+
+        Skybox skybox;
+        Vector3 cameraPosition;
+        float distance = 20;
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -101,6 +108,10 @@ namespace TGC.MonoGame.TP
             var venusEffect = (BasicEffect) VenusModel.Meshes[0].Effects[0];
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
+
+            skybox = new Skybox("Skyboxes/SunInSpace", Content);
+            cameraPosition = new Vector3(0, 0, 0);
+            angle = 0;
 
             base.LoadContent();
         }
@@ -260,6 +271,10 @@ namespace TGC.MonoGame.TP
 
             RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             VenusRotation += .005f;
+
+            angle += 0.002f;
+            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
+
             base.Update(gameTime);
         }
 
@@ -269,6 +284,8 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+            skybox.Draw(View, Projection, cameraPosition);
+
             GraphicsDevice.Clear(Color.Black);
             VenusModel.Draw(World * 
                             Matrix.CreateScale(.3f) * 
