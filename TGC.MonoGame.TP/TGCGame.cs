@@ -19,12 +19,12 @@ namespace TGC.MonoGame.TP
         // public const string ContentFolderSounds = "Sounds/";
         // public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
-        public const string ModelMK1 = "Models/Spaceship/SpaceShip";
-        public const string ModelMK2 = "Models/Spaceship/Motorcycle-MK2";
-        public const string ModelMK3 = "Models/Spaceship/SpaceShip-MK-3";
-        public const string TextureMK1 = "Textures/SpaceShip/MK-1/SpaceShip-Texture";
-        public const string TextureMK2 = "Textures/SpaceShip/MK-2/Motorcycle-MK2-BaseColor";
-        public const string TextureMK3 = "Textures/SpaceShip/MK-3/SpaceShip-MK3-Albedo";
+        public const string ModelMK1 = "Models/Spaceships/SpaceShip-MK1";
+        public const string ModelMK2 = "Models/Spaceships/Motorcycle-MK2";
+        public const string ModelMK3 = "Models/Spaceships/SpaceShip-MK3";
+        public const string TextureMK1 = "Textures/Spaceships/MK1/MK1-Texture";
+        public const string TextureMK2 = "Textures/Spaceships/MK2/MK2-BaseColor";
+        public const string TextureMK3 = "Textures/Spaceships/MK3/MK3-Albedo";
 
         /// <summary>
         ///     Constructor del juego.
@@ -91,7 +91,12 @@ namespace TGC.MonoGame.TP
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+            SpaceShipModel = Content.Load<Model>(ModelMK3); // Se puede cambiar por MK2 y MK3
             VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
+            
+            var spaceShipEffect = (BasicEffect)SpaceShipModel.Meshes[0].Effects[0];
+            spaceShipEffect.TextureEnabled = true;
+            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK3); // Se puede cambiar por MK2 y MK3
 
             var venusEffect = (BasicEffect) VenusModel.Meshes[0].Effects[0];
             venusEffect.TextureEnabled = true;
@@ -107,6 +112,9 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            
+            // Con Numpad 1 -> Movimientos simples de nave (a,s,d,w)
+            // Con Numpad 2 -> Movimientos posicion y rotacion (a,s,d,w,Up,Down,y,u,i)
             var state = Keyboard.GetState();
             var rotationSpeed = .02f;
 
@@ -266,6 +274,14 @@ namespace TGC.MonoGame.TP
                             Matrix.CreateScale(.3f) * 
                             Matrix.CreateRotationY(VenusRotation) * 
                             Matrix.CreateTranslation(-50f,-25f,0), View, Projection);
+            
+            // SpaceShipModel.Draw(World * Matrix.CreateScale(.8f) * Matrix.CreateRotationY(RotationY), View, Projection);
+            
+            SpaceShipModel.Draw(World * //Matrix.CreateTranslation(0,-15f,0) * 
+                                Matrix.CreateFromYawPitchRoll(Rotation.X, Rotation.Y, Rotation.Z) *
+                                // Rotation *
+                                Matrix.CreateTranslation(position) 
+                , View, Projection);
 
             base.Draw(gameTime);
         }
