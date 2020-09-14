@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Skyboxes;
 
 namespace TGC.MonoGame.TP
 {
@@ -37,10 +38,17 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
-        private float Rotation { get; set; }
+
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+
+        private float Rotation { get; set; }
+        private float angle;
+
+        Skybox skybox;
+        Vector3 cameraPosition;
+        float distance = 20;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -59,10 +67,9 @@ namespace TGC.MonoGame.TP
             // Seria hasta aca.
 
             // Configuramos nuestras matrices de la escena.
-            World = Matrix.CreateRotationY(MathHelper.Pi);
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+            View = Matrix.CreateLookAt(new Vector3(20, 0, 0), new Vector3(0, 0, 0), Vector3.UnitY);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 600f, 0.1f, 100f);
 
             base.Initialize();
         }
@@ -78,11 +85,11 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-            // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
-            var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
-            modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
-            modelEffect.EnableDefaultLighting();
+            Model = Content.Load<Model>(ContentFolder3D + "ships/simple/Ship");
+            skybox = new Skybox("Skyboxes/SunInSpace", Content);
+
+            cameraPosition = new Vector3(0, 0, 0);
+            angle = 0;
 
             base.LoadContent();
         }
@@ -104,6 +111,11 @@ namespace TGC.MonoGame.TP
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
+            angle += 0.002f;
+            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
+            World = Matrix.CreateRotationY(-angle) /** Matrix.CreateTranslation(position)*/;
+            View = Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0), Vector3.UnitY);
+
             base.Update(gameTime);
         }
 
@@ -117,9 +129,19 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             //Finalmente invocamos al draw del modelo.
-            Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
+            RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
+            RasterizerState rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
+            skybox.Draw(View, Projection, cameraPosition);
+
+            Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
+
+            DrawModel(Model, World, View, Projection);
 
             base.Draw(gameTime);
+
         }
 
         /// <summary>
@@ -131,6 +153,22 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        private void DrawModel(Model model, Matrix world, Matrix view, Matrix projection)
+        {
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.World = world;
+                    effect.View = view;
+                    effect.Projection = projection;
+                }
+
+                mesh.Draw();
+            }
         }
     }
 }
