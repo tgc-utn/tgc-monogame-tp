@@ -43,6 +43,25 @@
 /processorParam:DebugMode=Auto
 /build:Effects/Textured.fx
 
+#begin Models/ships/Intergalactic_Spaceship.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/ships/Intergalactic_Spaceship.fbx
+
 #begin Models/ships/simple/GreenShipTexture.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -85,6 +104,25 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/ships/simple/ShipTexture.png
+
+#begin Models/ships/spaceCraft.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/ships/spaceCraft.fbx
 
 #begin Models/tgc-logo/tgc-logo.fbx
 /importer:FbxImporter
@@ -153,4 +191,100 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Skyboxes/Sunset.dds
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship Ao_Blender.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship Ao_Blender.jpg
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship_color_4.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship_color_4.jpg
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship_curvature.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship_curvature.jpg
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship_emi.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship_emi.jpg
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship_metalness.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship_metalness.jpg
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship_nmap_2_Tris.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship_nmap_2_Tris.jpg
+
+#begin Textures/IntergalacticSpaceship/Intergalactic Spaceship_rough.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/IntergalacticSpaceship/Intergalactic Spaceship_rough.jpg
+
+#begin Textures/SpaceCraft/1.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/SpaceCraft/1.png
 

@@ -38,6 +38,10 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
+        Texture2D texture;
+        Effect effect;
+        Vector3 viewVector;
+        private Texture2D normalMap;
 
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -85,8 +89,11 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "ships/simple/Ship");
+            Model = Content.Load<Model>(ContentFolder3D + "ships/spaceCraft");
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
+            texture = Content.Load<Texture2D>(ContentFolderTextures + "SpaceCraft/1");
+            effect = Content.Load<Effect>(ContentFolderEffect + "BasicShader");
+            normalMap = Content.Load<Texture2D>(ContentFolderTextures + "SpaceCraft/1");
 
             cameraPosition = new Vector3(0, 0, 0);
             angle = 0;
@@ -109,11 +116,13 @@ namespace TGC.MonoGame.TP
                 Exit();
 
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
+            Vector3 cameraTarget = new Vector3(0, 0, 0);
+            viewVector = Vector3.Transform(cameraTarget - cameraPosition, Matrix.CreateRotationY(0));
+            viewVector.Normalize();
 
             angle += 0.002f;
             cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
-            World = Matrix.CreateRotationY(-angle) /** Matrix.CreateTranslation(position)*/;
             View = Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0), Vector3.UnitY);
 
             base.Update(gameTime);
@@ -161,6 +170,7 @@ namespace TGC.MonoGame.TP
             {
                 foreach (BasicEffect effect in mesh.Effects)
                 {
+                    effect.TextureEnabled = true;
                     effect.EnableDefaultLighting();
                     effect.World = world;
                     effect.View = view;
