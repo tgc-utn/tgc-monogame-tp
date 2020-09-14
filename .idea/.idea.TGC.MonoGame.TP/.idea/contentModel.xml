@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\Cristian\AppData\Local\JetBrains\Rider2020.2\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\Cristian\AppData\Local\JetBrains\Rider2020.2\resharper-host\Local\Transient\Rider\v202\SolutionCaches\_TGC.MonoGame.TP.-1487695860.00" t="ExcludeRecursive" />
+    <e p="C:\Users\Cristian\Desktop\TGC\2020_2C_3571_Chinchulines" t="IncludeFlat">
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="TGC.MonoGame.TP" t="IncludeRecursive">
+        <e p="app.manifest" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Content" t="Include">
+          <e p="bin" t="Include">
+            <e p="DesktopGL" t="Include">
+              <e p="Content" t="Include">
+                <e p="Effects" t="Include">
+                  <e p="BasicShader.xnb" t="Include" />
+                </e>
+                <e p="Models" t="Include">
+                  <e p="tgc-logo" t="Include">
+                    <e p="tgc-logo.xnb" t="Include" />
+                  </e>
+                </e>
+              </e>
+              <e p="Effects" t="Include">
+                <e p="BasicShader.xnb" t="Include" />
+              </e>
+              <e p="Models" t="Include">
+                <e p="SpaceShips" t="Include">
+                  <e p="Motorcycle-MK2.xnb" t="Include" />
+                  <e p="Spaceship-MK1.xnb" t="Include" />
+                  <e p="Spaceship-MK3.xnb" t="Include" />
+                </e>
+                <e p="Venus" t="Include">
+                  <e p="Venus.xnb" t="Include" />
+                </e>
+              </e>
+              <e p="Textures" t="Include">
+                <e p="SpaceShips" t="Include">
+                  <e p="MK1" t="Include">
+                    <e p="MK1-Texture.xnb" t="Include" />
+                  </e>
+                  <e p="MK2" t="Include">
+                    <e p="MK2-BaseColor.xnb" t="Include" />
+                    <e p="MK2-Emissive.xnb" t="Include" />
+                    <e p="MK2-Height.xnb" t="Include" />
+                    <e p="MK2-Metallic.xnb" t="Include" />
+                    <e p="MK2-Normal.xnb" t="Include" />
+                    <e p="MK2-Roughness.xnb" t="Include" />
+                  </e>
+                  <e p="MK3" t="Include">
+                    <e p="MK3-Albedo.xnb" t="Include" />
+                    <e p="MK3-Emissive.xnb" t="Include" />
+                    <e p="MK3-Metalness.xnb" t="Include" />
+                    <e p="MK3-Nmap.xnb" t="Include" />
+                  </e>
+                </e>
+                <e p="Venus" t="Include">
+                  <e p="Venus-Texture.xnb" t="Include" />
+                </e>
+              </e>
+            </e>
+          </e>
+          <e p="Content.mgcb" t="Include" />
+          <e p="Effects" t="Include">
+            <e p="BasicShader.fx" t="Include" />
+          </e>
+          <e p="Models" t="Include">
+            <e p="tgc-logo" t="Include">
+              <e p="tgc-logo.fbx" t="Include" />
+            </e>
+          </e>
+          <e p="obj" t="Include">
+            <e p="DesktopGL" t="Include">
+              <e p=".mgcontent" t="Include" />
+              <e p=".mgstats" t="Include" />
+              <e p="Content" t="Include">
+                <e p=".mgcontent" t="Include" />
+                <e p=".mgstats" t="Include" />
+                <e p="Effects" t="Include">
+                  <e p="BasicShader.mgcontent" t="Include" />
+                </e>
+                <e p="Models" t="Include">
+                  <e p="tgc-logo" t="Include">
+                    <e p="tgc-logo.mgcontent" t="Include" />
+                  </e>
+                </e>
+              </e>
+              <e p="Effects" t="Include">
+                <e p="BasicShader.mgcontent" t="Include" />
+              </e>
+              <e p="Models" t="Include">
+                <e p="SpaceShips" t="Include">
+                  <e p="Motorcycle-MK2.mgcontent" t="Include" />
+                  <e p="Spaceship-MK1.mgcontent" t="Include" />
+                  <e p="Spaceship-MK3.mgcontent" t="Include" />
+                </e>
+                <e p="Venus" t="Include">
+                  <e p="Venus.mgcontent" t="Include" />
+                </e>
+              </e>
+              <e p="Textures" t="Include">
+                <e p="SpaceShips" t="Include">
+                  <e p="MK1" t="Include">
+                    <e p="MK1-Texture.mgcontent" t="Include" />
+                  </e>
+                  <e p="MK2" t="Include">
+                    <e p="MK2-BaseColor.mgcontent" t="Include" />
+                    <e p="MK2-Emissive.mgcontent" t="Include" />
+                    <e p="MK2-Height.mgcontent" t="Include" />
+                    <e p="MK2-Metallic.mgcontent" t="Include" />
+                    <e p="MK2-Normal.mgcontent" t="Include" />
+                    <e p="MK2-Roughness.mgcontent" t="Include" />
+                  </e>
+                  <e p="MK3" t="Include">
+                    <e p="MK3-Albedo.mgcontent" t="Include" />
+                    <e p="MK3-Emissive.mgcontent" t="Include" />
+                    <e p="MK3-Metalness.mgcontent" t="Include" />
+                    <e p="MK3-Nmap.mgcontent" t="Include" />
+                  </e>
+                </e>
+                <e p="Venus" t="Include">
+                  <e p="Venus-Texture.mgcontent" t="Include" />
+                </e>
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="Icon.bmp" t="Include" />
+        <e p="Icon.ico" t="Include" />
+        <e p="Microsoft.Xna.Framework.Content.ContentTypeReader" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.1" t="Include">
+              <e p="TGC.MonoGame.TP.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Program.cs" t="Include" />
+        <e p="TGC.MonoGame.TP.csproj" t="IncludeRecursive" />
+        <e p="TGCGame.cs" t="Include" />
+      </e>
+      <e p="TGC.MonoGame.TP.sln" t="IncludeFlat" />
+    </e>
+  </component>
+</project>
