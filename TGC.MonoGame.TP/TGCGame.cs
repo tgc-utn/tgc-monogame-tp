@@ -78,7 +78,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            Model = Content.Load<Model>(ContentFolder3D + "t-22/T-22");
             // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
             var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
