@@ -63,9 +63,9 @@ namespace TGC.MonoGame.TP
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.CreateRotationY(MathHelper.Pi);
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+            View = Matrix.CreateLookAt(Vector3.UnitZ * 500 + Vector3.Up * 150, Vector3.Zero, Vector3.Up);
             Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
 
             base.Initialize();
         }
@@ -84,6 +84,7 @@ namespace TGC.MonoGame.TP
             Model = Content.Load<Model>(ContentFolder3D + "t-22/T-22");
             Model2 = Content.Load<Model>(ContentFolder3D + "nagato/Nagato");
             Model3 = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            Model4 = Content.Load<Model>(ContentFolder3D + "water");
             // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
             var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
@@ -123,9 +124,10 @@ namespace TGC.MonoGame.TP
 
             //Finalmente invocamos al draw del modelo.
             //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
-            Model.Draw(World * Matrix.CreateTranslation(500,10,-100), View, Projection);
-            //Model2.Draw(World * Matrix.CreateTranslation(-100, 0, 0), View, Projection);
+            Model.Draw(World * Matrix.CreateTranslation(120,25,0), View, Projection);
+            Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), View, Projection);
             Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), View, Projection);
+            Model4.Draw(World * Matrix.CreateTranslation(0, 45, 0), View, Projection);
 
             base.Draw(gameTime);
         }
