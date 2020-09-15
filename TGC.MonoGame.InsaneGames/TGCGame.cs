@@ -60,7 +60,7 @@ namespace TGC.MonoGame.InsaneGames
             var box2 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, -250), new WallId[] {WallId.Back, WallId.Left});
             var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            var heart = new Heart(Matrix.CreateTranslation(50, 0, 25));
+            var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
             Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
             Map.Initialize(this);
             Weapon = new MachineGun();

@@ -13,10 +13,10 @@ namespace TGC.MonoGame.InsaneGames.Collectibles
         {
             if (Model is null)
             {
-                Misalignment = Matrix.CreateTranslation(0, 44.5f, 0);
+                Misalignment = Matrix.CreateTranslation(0, 0, 0);
             }
             SpawnPoint = Misalignment *
-                        scaling.GetValueOrDefault(Matrix.CreateScale(0.2f)) *
+                        scaling.GetValueOrDefault(Matrix.CreateScale(20.0f)) *
                         spawnPoint;
         }
         public override void Load()
