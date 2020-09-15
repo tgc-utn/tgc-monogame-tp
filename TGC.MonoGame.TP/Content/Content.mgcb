@@ -13,11 +13,35 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Effects/Ambient.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Ambient.fx
+
 #begin Effects/BasicShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
+
+#begin Effects/NormalMap.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/NormalMap.fx
+
+#begin Effects/Specular.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Specular.fx
+
+#begin Effects/Textured.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Textured.fx
 
 #begin Models/Spaceships/Motorcycle-MK2.fbx
 /importer:FbxImporter

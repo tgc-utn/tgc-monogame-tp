@@ -66,6 +66,7 @@ namespace TGC.MonoGame.TP
         Skybox skybox;
         Vector3 cameraPosition;
         float distance = 20;
+        Vector3 viewVector;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -73,10 +74,15 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
-            World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
+            World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+            View = Matrix.CreateLookAt(new Vector3(20, 0, 0), new Vector3(0, 0, 0), Vector3.UnitY);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 600f, 0.1f, 1000f);
+
+
+            //World = Matrix.Identity;
+            //View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+            //Projection =
+            //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
 
             position = new Vector3(0,0,0);
             
@@ -98,12 +104,12 @@ namespace TGC.MonoGame.TP
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            SpaceShipModel = Content.Load<Model>(ModelMK3); // Se puede cambiar por MK2 y MK3
+            SpaceShipModel = Content.Load<Model>(ModelMK1); // Se puede cambiar por MK2 y MK3
             VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
             
             var spaceShipEffect = (BasicEffect)SpaceShipModel.Meshes[0].Effects[0];
             spaceShipEffect.TextureEnabled = true;
-            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK3); // Se puede cambiar por MK2 y MK3
+            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1); // Se puede cambiar por MK2 y MK3
 
             var venusEffect = (BasicEffect) VenusModel.Meshes[0].Effects[0];
             venusEffect.TextureEnabled = true;
@@ -123,12 +129,34 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            
+            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
+            Vector3 cameraTarget = new Vector3(0, 0, 0);
+            viewVector = Vector3.Transform(cameraTarget - cameraPosition, Matrix.CreateRotationY(0));
+            viewVector.Normalize();
+
+            angle += 0.002f;
+            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
+            View = Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0), Vector3.UnitY);
+
+
+
             // Con Numpad 1 -> Movimientos simples de nave (a,s,d,w)
             // Con Numpad 2 -> Movimientos posicion y rotacion (a,s,d,w,Up,Down,y,u,i)
             var state = Keyboard.GetState();
             var rotationSpeed = .02f;
 
+            InputController(state, rotationSpeed);
+
+            RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            VenusRotation += .005f;
+
+
+
+            base.Update(gameTime);
+        }
+
+        private void InputController(KeyboardState state, float rotationSpeed)
+        {
             if (state.IsKeyDown(Keys.Escape))
                 //Salgo del juego.
                 Exit();
@@ -136,26 +164,26 @@ namespace TGC.MonoGame.TP
             if (state.IsKeyDown(Keys.NumPad1))
             {
                 TestRealControls = true;
-                position = new Vector3(0,0,0);
+                position = new Vector3(0, 0, 0);
                 // Rotation = Matrix.Identity;
-                Rotation = new Vector3(0,0,0);
+                Rotation = new Vector3(0, 0, 0);
             }
             if (state.IsKeyDown(Keys.NumPad2))
             {
                 TestRealControls = false;
-                position = new Vector3(0,0,0);
+                position = new Vector3(0, 0, 0);
                 // Rotation = Matrix.Identity;
-                Rotation = new Vector3(0,0,0);
+                Rotation = new Vector3(0, 0, 0);
             }
 
             if (TestRealControls)
             {
                 var isMoving = false;
-                if (state.IsKeyDown(Keys.W)) 
+                if (state.IsKeyDown(Keys.W))
                 {
                     position.Y += movementSpeed * speedUp;
                     // Rotation *= Matrix.CreateRotationY(.05f);
-                    
+
                     if (Rotation.Y < MathHelper.PiOver4)
                     {
                         Rotation.Y += rotationSpeed * (speedUp / 2);
@@ -200,7 +228,7 @@ namespace TGC.MonoGame.TP
                 }
 
                 var pressedKeys = state.GetPressedKeys();
-                if ( pressedKeys.Length == 2 && pressedKeys.Contains(Keys.Space))
+                if (pressedKeys.Length == 2 && pressedKeys.Contains(Keys.Space))
                 {
                     if (speedUp < 5)
                     {
@@ -216,13 +244,13 @@ namespace TGC.MonoGame.TP
                 if (!isMoving)
                 {
                     // Rotation = Matrix.Identity;
-                    Rotation = new Vector3(0,0,0);
+                    Rotation = new Vector3(0, 0, 0);
                 }
-                
+
             }
             else
             {
-                if (state.IsKeyDown(Keys.W)) 
+                if (state.IsKeyDown(Keys.W))
                 {
                     // Adelante eje Z
                     position.Z -= 1;
@@ -261,21 +289,12 @@ namespace TGC.MonoGame.TP
                 if (state.IsKeyDown(Keys.U))
                 {
                     Rotation.Y += .1f;
-                }            
+                }
                 if (state.IsKeyDown(Keys.I))
                 {
                     Rotation.Z += .1f;
                 }
             }
-            
-
-            RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            VenusRotation += .005f;
-
-            angle += 0.002f;
-            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
-
-            base.Update(gameTime);
         }
 
         /// <summary>
@@ -284,17 +303,31 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
+            //Finalmente invocamos al draw del modelo.
+            RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
+            RasterizerState rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
             skybox.Draw(View, Projection, cameraPosition);
 
-            GraphicsDevice.Clear(Color.Black);
+            Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
+
+
+
+
+
             VenusModel.Draw(World * 
-                            Matrix.CreateScale(.3f) * 
+                            Matrix.CreateScale(.1f) * 
                             Matrix.CreateRotationY(VenusRotation) * 
-                            Matrix.CreateTranslation(-50f,-25f,0), View, Projection);
+                            Matrix.CreateTranslation(-5f,-2f,0), View, Projection);
             
             // SpaceShipModel.Draw(World * Matrix.CreateScale(.8f) * Matrix.CreateRotationY(RotationY), View, Projection);
             
             SpaceShipModel.Draw(World * //Matrix.CreateTranslation(0,-15f,0) * 
+                                Matrix.CreateScale(.05f) *
                                 Matrix.CreateFromYawPitchRoll(Rotation.X, Rotation.Y, Rotation.Z) *
                                 // Rotation *
                                 Matrix.CreateTranslation(position) 
