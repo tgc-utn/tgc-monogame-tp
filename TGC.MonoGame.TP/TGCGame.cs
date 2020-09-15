@@ -44,7 +44,9 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model SpaceShipModel { get; set; }
+        private Model SpaceShipModelMK1 { get; set; }
+        private Model SpaceShipModelMK2 { get; set; }
+        private Model SpaceShipModelMK3 { get; set; }
         private Model VenusModel { get; set; }
         private float RotationY { get; set; }
         private Matrix World { get; set; }
@@ -61,12 +63,7 @@ namespace TGC.MonoGame.TP
 
         private Vector3 position;
 
-        private float angle;
-
         Skybox skybox;
-        Vector3 cameraPosition;
-        float distance = 20;
-        Vector3 viewVector;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -75,7 +72,7 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
-            View = Matrix.CreateLookAt(new Vector3(20, 0, 0), new Vector3(0, 0, 0), Vector3.UnitY);
+            View = Matrix.CreateLookAt(new Vector3(0, 0, 20), Vector3.Zero, Vector3.Up);
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 600f, 0.1f, 1000f);
 
 
@@ -104,20 +101,30 @@ namespace TGC.MonoGame.TP
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            SpaceShipModel = Content.Load<Model>(ModelMK1); // Se puede cambiar por MK2 y MK3
+            SpaceShipModelMK1 = Content.Load<Model>(ModelMK1); // Se puede cambiar por MK2 y MK3
             VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
             
-            var spaceShipEffect = (BasicEffect)SpaceShipModel.Meshes[0].Effects[0];
+            var spaceShipEffect = (BasicEffect)SpaceShipModelMK1.Meshes[0].Effects[0];
             spaceShipEffect.TextureEnabled = true;
             spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1); // Se puede cambiar por MK2 y MK3
+
+            SpaceShipModelMK2 = Content.Load<Model>(ModelMK2);
+
+            var spaceShipEffect2 = (BasicEffect)SpaceShipModelMK2.Meshes[0].Effects[0];
+            spaceShipEffect2.TextureEnabled = true;
+            spaceShipEffect2.Texture = Content.Load<Texture2D>(TextureMK2);
+
+            SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
+
+            var spaceShipEffect3 = (BasicEffect)SpaceShipModelMK3.Meshes[0].Effects[0];
+            spaceShipEffect3.TextureEnabled = true;
+            spaceShipEffect3.Texture = Content.Load<Texture2D>(TextureMK3); // Se puede cambiar por MK2 y MK3
 
             var venusEffect = (BasicEffect) VenusModel.Meshes[0].Effects[0];
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
-            cameraPosition = new Vector3(0, 0, 0);
-            angle = 0;
 
             base.LoadContent();
         }
@@ -129,15 +136,6 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
-            Vector3 cameraTarget = new Vector3(0, 0, 0);
-            viewVector = Vector3.Transform(cameraTarget - cameraPosition, Matrix.CreateRotationY(0));
-            viewVector.Normalize();
-
-            angle += 0.002f;
-            cameraPosition = distance * new Vector3((float)Math.Sin(angle), 0, (float)Math.Cos(angle));
-            View = Matrix.CreateLookAt(cameraPosition, new Vector3(0, 0, 0), Vector3.UnitY);
-
 
 
             // Con Numpad 1 -> Movimientos simples de nave (a,s,d,w)
@@ -311,7 +309,7 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             Graphics.GraphicsDevice.RasterizerState = rasterizerState;
 
-            skybox.Draw(View, Projection, cameraPosition);
+            skybox.Draw(View, Projection, position);
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
 
@@ -320,18 +318,28 @@ namespace TGC.MonoGame.TP
 
 
             VenusModel.Draw(World * 
-                            Matrix.CreateScale(.1f) * 
+                            Matrix.CreateScale(.05f) * 
                             Matrix.CreateRotationY(VenusRotation) * 
-                            Matrix.CreateTranslation(-5f,-2f,0), View, Projection);
+                            Matrix.CreateTranslation(-5f,-2f,-10), View, Projection);
             
             // SpaceShipModel.Draw(World * Matrix.CreateScale(.8f) * Matrix.CreateRotationY(RotationY), View, Projection);
             
-            SpaceShipModel.Draw(World * //Matrix.CreateTranslation(0,-15f,0) * 
-                                Matrix.CreateScale(.05f) *
+            SpaceShipModelMK1.Draw(World * //Matrix.CreateTranslation(0,-15f,0) * 
+                                Matrix.CreateScale(.15f) *
                                 Matrix.CreateFromYawPitchRoll(Rotation.X, Rotation.Y, Rotation.Z) *
                                 // Rotation *
                                 Matrix.CreateTranslation(position) 
                 , View, Projection);
+
+            SpaceShipModelMK2.Draw(World *
+                            Matrix.CreateScale(.08f) *
+                            Matrix.CreateRotationY(VenusRotation) *
+                            Matrix.CreateTranslation(4f, -2f, -10), View, Projection);
+
+            SpaceShipModelMK3.Draw(World *
+                            Matrix.CreateScale(.08f) *
+                            Matrix.CreateRotationY(-VenusRotation) *
+                            Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
 
             base.Draw(gameTime);
         }

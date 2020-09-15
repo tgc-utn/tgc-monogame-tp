@@ -28,7 +28,7 @@ namespace TGC.MonoGame.TP.Graphics
         /// The size of the cube, used so that we can resize the box
         /// for different sized environments.
         /// </summary>
-        private float size = 50f;
+        private float size = 500f;
 
         /// <summary>
         /// Creates a new skybox
@@ -63,11 +63,11 @@ namespace TGC.MonoGame.TP.Graphics
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
                         part.Effect = skyBoxEffect;
+                        part.Effect.Parameters["SkyBoxTexture"].SetValue(skyBoxTexture);
                         part.Effect.Parameters["World"].SetValue(
-                            Matrix.CreateScale(size) * Matrix.CreateTranslation(cameraPosition));
+                            Matrix.CreateScale(size));
                         part.Effect.Parameters["View"].SetValue(view);
                         part.Effect.Parameters["Projection"].SetValue(projection);
-                        part.Effect.Parameters["SkyBoxTexture"].SetValue(skyBoxTexture);
                         part.Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
                     }
 
