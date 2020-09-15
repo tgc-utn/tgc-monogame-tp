@@ -37,6 +37,9 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
+        private Model Model2 { get; set; }
+        private Model Model3 { get; set; }
+        private Model Model4 { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -79,6 +82,8 @@ namespace TGC.MonoGame.TP
 
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "t-22/T-22");
+            Model2 = Content.Load<Model>(ContentFolder3D + "nagato/Nagato");
+            Model3 = Content.Load<Model>(ContentFolder3D + "Isla_V2");
             // Obtengo su efecto para cambiarle el color y activar la luz predeterminada que tiene MonoGame.
             var modelEffect = (BasicEffect) Model.Meshes[0].Effects[0];
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
@@ -102,7 +107,7 @@ namespace TGC.MonoGame.TP
                 Exit();
 
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
@@ -117,7 +122,10 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             //Finalmente invocamos al draw del modelo.
-            Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
+            //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
+            Model.Draw(World * Matrix.CreateTranslation(500,10,-100), View, Projection);
+            //Model2.Draw(World * Matrix.CreateTranslation(-100, 0, 0), View, Projection);
+            Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), View, Projection);
 
             base.Draw(gameTime);
         }
