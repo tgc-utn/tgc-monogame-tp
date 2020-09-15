@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TGC.MonoGame.TP
+namespace TGC.MonoGame.InsaneGames
 {
     public static class Program
     {
