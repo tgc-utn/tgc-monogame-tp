@@ -6,6 +6,7 @@ using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.InsaneGames.Maps;
 using TGC.MonoGame.InsaneGames.Entities;
 using TGC.MonoGame.InsaneGames.Weapons;
+using TGC.MonoGame.InsaneGames.Collectibles;
 
 namespace TGC.MonoGame.InsaneGames
 {
@@ -59,7 +60,8 @@ namespace TGC.MonoGame.InsaneGames
             var box2 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, -250), new WallId[] {WallId.Back, WallId.Left});
             var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito });
+            var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
+            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);

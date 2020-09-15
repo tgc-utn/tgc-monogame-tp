@@ -1,6 +1,7 @@
 using System;
 using TGC.MonoGame.InsaneGames.Entities;
 using Microsoft.Xna.Framework;
+using TGC.MonoGame.InsaneGames.Collectibles;
 
 namespace TGC.MonoGame.InsaneGames.Maps
 {
@@ -8,13 +9,14 @@ namespace TGC.MonoGame.InsaneGames.Maps
     {
         private Room[] Rooms;
         private Enemy[] Enemies;
-
         private Random Random;
-        public Map(Room[] rooms, Enemy[] enemies) 
+        private Collectible[] Collectibles;
+        public Map(Room[] rooms, Enemy[] enemies, Collectible[] collectibles) 
         {
             Rooms = rooms;
             Enemies = enemies;
             Random = new Random();
+            Collectibles = collectibles;
         }
 
         public override void Initialize(TGCGame game)
@@ -35,6 +37,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
                     break;
                 }
             });
+
+            foreach (var collectible in Collectibles)
+                collectible.Initialize(game);
         }
 
         public override void Draw(GameTime gameTime)
@@ -44,6 +49,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
             foreach (var enemy in Enemies)
                 enemy.Draw(gameTime);
+
+            foreach (var collectible in Collectibles)
+                collectible.Draw(gameTime);
         }
         public override void Load()
         {
@@ -52,6 +60,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
             foreach (var enemy in Enemies)
                 enemy.Load();
+
+            foreach (var collectible in Collectibles)
+                collectible.Load();
         }
 
         public override void Update(GameTime gameTime)
