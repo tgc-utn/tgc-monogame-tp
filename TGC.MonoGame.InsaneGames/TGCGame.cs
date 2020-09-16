@@ -128,12 +128,13 @@ namespace TGC.MonoGame.InsaneGames
         {
             var wallsEffect = new BasicEffect(GraphicsDevice);
             wallsEffect.TextureEnabled = true;
-            wallsEffect.Texture = ContentManager.Instance.LoadTexture2D("Wall/Wall");
+            wallsEffect.Texture = ContentManager.Instance.LoadTexture2D("Wall/Wall2");
             var floorEffect = new BasicEffect(GraphicsDevice);
             floorEffect.TextureEnabled = true;
             floorEffect.Texture = ContentManager.Instance.LoadTexture2D("Checked-Floor/Checked-Floor");
             var ceilingEffect = new BasicEffect(GraphicsDevice);
             ceilingEffect.TextureEnabled = true;
+            ceilingEffect.Texture = ContentManager.Instance.LoadTexture2D("ceiling/Ceiling");
             var dict1 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Right, wallsEffect}, {WallId.Back, wallsEffect}};
             var dict2 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Front, wallsEffect}, {WallId.Right, wallsEffect}};
             var dict3 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Front, wallsEffect}, {WallId.Back, wallsEffect}};
