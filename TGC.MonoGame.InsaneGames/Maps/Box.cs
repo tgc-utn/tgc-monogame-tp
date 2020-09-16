@@ -22,11 +22,11 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
             var allWalls = new ArrayList() { 
                 Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y - yLength, center.Z), Color.White),
-                Wall.CreateSideWall(effect, sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), Color.Violet),
+                Wall.CreateSideWall(effect, sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), Color.Violet, true),
                 Wall.CreateSideWall(effect, sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z), Color.Violet),
                 Wall.CreateFrontWall(effect, frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength), Color.SkyBlue),
-                Wall.CreateFrontWall(effect, frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), Color.SkyBlue),
-                Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow)
+                Wall.CreateFrontWall(effect, frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), Color.SkyBlue, true),
+                Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow, true)
             };
             
             Array.Sort(wallsToRemove, (WallId m, WallId n) => n - m);
