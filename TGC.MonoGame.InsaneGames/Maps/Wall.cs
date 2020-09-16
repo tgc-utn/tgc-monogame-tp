@@ -20,18 +20,30 @@ namespace TGC.MonoGame.InsaneGames.Maps
         static Func<Vector3, Vector3> FloorTrans = (v) => v;
         protected VertexBuffer VertexBuffer;
         protected IndexBuffer IndexBuffer;
-        protected BasicEffect Effect;
         protected Vector2 Size; 
         protected Vector3 Center; 
         protected Func<Vector3, Vector3> Trans;
         protected Color Color;
-
         protected bool Reverse;
+        public BasicEffect effect;
+        public BasicEffect Effect 
+        { 
+            protected get { return effect; } 
+            set 
+            {
+                if(effect is null){
+                    effect = value;
+                }
+                else {
+                    throw new Exception("The effect for this wall was already set.");
+                }
+
+            } 
+        }
+
     
-        protected Wall(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color, bool reserve = false)
+        protected Wall(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color, bool reserve = false)
         {
-            Effect = effect;
-            Effect.VertexColorEnabled = true;
             Size = size;
             Center = center;
             Trans = trans;
@@ -40,23 +52,23 @@ namespace TGC.MonoGame.InsaneGames.Maps
         }
         /// The left parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
-        public static Wall CreateSideWall(BasicEffect effect, Vector2 size, Vector3 center, Color color, bool left = false)
+        public static Wall CreateSideWall(Vector2 size, Vector3 center, Color color, bool left = false)
         {
             center = SideWallTrans(center);
-            return new Wall(effect, size, center, SideWallTrans, color, left);
+            return new Wall(size, center, SideWallTrans, color, left);
         }
         /// The back parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
-        public static Wall CreateFrontWall(BasicEffect effect, Vector2 size, Vector3 center, Color color, bool back = false)
+        public static Wall CreateFrontWall(Vector2 size, Vector3 center, Color color, bool back = false)
         {
             center = FrontWallTrans(center);
-            return new Wall(effect, size, center, FrontWallTrans, color, back);
+            return new Wall(size, center, FrontWallTrans, color, back);
         }
         /// The ceiling parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
-        public static Wall CreateFloor(BasicEffect effect, Vector2 size, Vector3 center, Color color, bool ceiling = false)
+        public static Wall CreateFloor(Vector2 size, Vector3 center, Color color, bool ceiling = false)
         {
-            return new Wall(effect, size, center, FloorTrans, color, !ceiling);
+            return new Wall(size, center, FloorTrans, color, !ceiling);
         }
 
         public override void Initialize(TGCGame game)

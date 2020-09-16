@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,7 +11,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
         private Wall[] Walls;
 
         private SpawnableSpace SpawnSpace { get; set; }
-        public Box(BasicEffect effect, Vector3 size, Vector3 center, WallId[] wallsToRemove = null, bool spawnable = true)
+        public Box(Dictionary<WallId, BasicEffect> effects, Vector3 size, Vector3 center, bool spawnable = true)
         {
             Vector2 floorSize = new Vector2(size.X, size.Z),
                     sideWallSize = new Vector2(size.Y, size.Z),
@@ -18,20 +19,25 @@ namespace TGC.MonoGame.InsaneGames.Maps
             float xLength = size.X / 2,
                   yLength = size.Y / 2,
                   zLength = size.Z / 2;
-            wallsToRemove ??= new WallId[0];
 
-            var allWalls = new ArrayList() { 
-                Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y - yLength, center.Z), Color.White),
-                Wall.CreateSideWall(effect, sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), Color.Violet, true),
-                Wall.CreateSideWall(effect, sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z), Color.Violet),
-                Wall.CreateFrontWall(effect, frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength), Color.SkyBlue),
-                Wall.CreateFrontWall(effect, frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), Color.SkyBlue, true),
-                Wall.CreateFloor(effect, floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow, true)
+            var allWalls = new Wall[] { 
+                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y - yLength, center.Z), Color.White),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), Color.Violet, true),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z), Color.Violet),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength), Color.SkyBlue),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), Color.SkyBlue, true),
+                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow, true)
             };
             
-            Array.Sort(wallsToRemove, (WallId m, WallId n) => n - m);
-            Array.ForEach(wallsToRemove, (w) => allWalls.RemoveAt((int)w) );
-            Walls = (Wall[]) allWalls.ToArray(typeof(Wall));
+            Wall[] WallsToKeep = new Wall[effects.Keys.Count];
+            int i = 0;
+            foreach(var key in effects.Keys)
+            {
+                allWalls[(int)key].Effect = effects[key];
+                WallsToKeep[i] = allWalls[(int)key];
+                i++;
+            }
+            Walls = WallsToKeep;
 
             var spawnableArea = !spawnable ? new (Vector3, Vector3)[0] : new (Vector3, Vector3)[] {(size, center)};
             SpawnSpace = new SpawnableSpace(spawnableArea);
