@@ -20,11 +20,11 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
             var allWalls = new Wall[] { 
                 Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y - yLength, center.Z)),
-                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), true),
-                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z)),
-                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength)),
-                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), true),
-                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y + yLength, center.Z), true)
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), true, textureRepeat: (6, 24)),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z), textureRepeat: (6, 24)),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength), textureRepeat: (24, 6)),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), back: true, textureRepeat: (24, 6)),
+                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y + yLength, center.Z), ceiling: true)
             };
             
             Wall[] WallsToKeep = new Wall[effects.Keys.Count];

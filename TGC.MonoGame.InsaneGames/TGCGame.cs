@@ -50,7 +50,7 @@ namespace TGC.MonoGame.InsaneGames
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
             var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
+            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
@@ -128,7 +128,7 @@ namespace TGC.MonoGame.InsaneGames
         {
             var wallsEffect = new BasicEffect(GraphicsDevice);
             wallsEffect.TextureEnabled = true;
-            wallsEffect.Texture = ContentManager.Instance.LoadTexture2D("Concrete-Wall/Concrete-Wall");
+            wallsEffect.Texture = ContentManager.Instance.LoadTexture2D("Wall/Wall");
             var floorEffect = new BasicEffect(GraphicsDevice);
             floorEffect.TextureEnabled = true;
             floorEffect.Texture = ContentManager.Instance.LoadTexture2D("Checked-Floor/Checked-Floor");
