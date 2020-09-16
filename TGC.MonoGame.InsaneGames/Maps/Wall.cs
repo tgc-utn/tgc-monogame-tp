@@ -23,7 +23,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
         protected Vector2 Size; 
         protected Vector3 Center; 
         protected Func<Vector3, Vector3> Trans;
-        protected Color Color;
+        protected float TextureRepeat;
         protected bool Reverse;
         public BasicEffect effect;
         public BasicEffect Effect 
@@ -42,38 +42,38 @@ namespace TGC.MonoGame.InsaneGames.Maps
         }
 
     
-        protected Wall(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color, bool reserve = false)
+        protected Wall(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, bool reserve = false, float textureRepeat = 1)
         {
             Size = size;
             Center = center;
             Trans = trans;
-            Color = color;
             Reverse = reserve;
+            TextureRepeat = textureRepeat;
         }
         /// The left parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
-        public static Wall CreateSideWall(Vector2 size, Vector3 center, Color color, bool left = false)
+        public static Wall CreateSideWall(Vector2 size, Vector3 center, bool left = false, float textureRepeat = 1)
         {
             center = SideWallTrans(center);
-            return new Wall(size, center, SideWallTrans, color, left);
+            return new Wall(size, center, SideWallTrans, left, textureRepeat);
         }
         /// The back parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
-        public static Wall CreateFrontWall(Vector2 size, Vector3 center, Color color, bool back = false)
+        public static Wall CreateFrontWall(Vector2 size, Vector3 center, bool back = false, float textureRepeat = 1)
         {
             center = FrontWallTrans(center);
-            return new Wall(size, center, FrontWallTrans, color, back);
+            return new Wall(size, center, FrontWallTrans, back, textureRepeat);
         }
         /// The ceiling parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
-        public static Wall CreateFloor(Vector2 size, Vector3 center, Color color, bool ceiling = false)
+        public static Wall CreateFloor(Vector2 size, Vector3 center, bool ceiling = false, float textureRepeat = 1)
         {
-            return new Wall(size, center, FloorTrans, color, !ceiling);
+            return new Wall(size, center, FloorTrans, !ceiling, textureRepeat);
         }
 
         public override void Initialize(TGCGame game)
         {
-            VertexBuffer = CreateVertexBuffer(game, Size, Center, Trans, Color);
+            VertexBuffer = CreateVertexBuffer(game, Size, Center, Trans, TextureRepeat);
             IndexBuffer = CreateIndexBuffer(game.GraphicsDevice);
             base.Initialize(game);
         }
@@ -91,26 +91,26 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 6 / 3);
             }
         }
-        private VertexBuffer CreateVertexBuffer(TGCGame game, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
+        private VertexBuffer CreateVertexBuffer(TGCGame game, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, float textureRepeat)
         {
             var x = size.X / 2;
             var z = size.Y / 2;
 
-            var cubeVertices = new VertexPositionColor[4];
+            var cubeVertices = new VertexPositionTexture[4];
             // Bottom-Left Front.
             cubeVertices[0].Position = trans(new Vector3(-x + center.X, center.Y, -z + center.Z));
-            cubeVertices[0].Color = color;
+            cubeVertices[0].TextureCoordinate = Vector2.Zero * textureRepeat;
             // Bottom-Left Back.
             cubeVertices[1].Position = trans(new Vector3(-x + center.X, center.Y, z + center.Z));
-            cubeVertices[1].Color = color;
+            cubeVertices[1].TextureCoordinate = Vector2.UnitY * textureRepeat;
             // Bottom-Right Back.
             cubeVertices[2].Position = trans(new Vector3(x + center.X, center.Y, z + center.Z));
-            cubeVertices[2].Color = color;
+            cubeVertices[2].TextureCoordinate = Vector2.One * textureRepeat;
             // Bottom-Right Front.
             cubeVertices[3].Position = trans(new Vector3(x + center.X, center.Y, -z + center.Z));
-            cubeVertices[3].Color = color;
+            cubeVertices[3].TextureCoordinate = Vector2.UnitX * textureRepeat;
 
-            VertexBuffer Vertices = new VertexBuffer(game.GraphicsDevice, VertexPositionColor.VertexDeclaration, 4,
+            VertexBuffer Vertices = new VertexBuffer(game.GraphicsDevice, VertexPositionTexture.VertexDeclaration, 4,
                 BufferUsage.WriteOnly);
             Vertices.SetData(cubeVertices);
             return Vertices;

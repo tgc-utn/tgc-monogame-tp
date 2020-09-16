@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,12 +19,12 @@ namespace TGC.MonoGame.InsaneGames.Maps
                   zLength = size.Z / 2;
 
             var allWalls = new Wall[] { 
-                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y - yLength, center.Z), Color.White),
-                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), Color.Violet, true),
-                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z), Color.Violet),
-                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength), Color.SkyBlue),
-                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), Color.SkyBlue, true),
-                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y + yLength, center.Z), Color.Yellow, true)
+                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y - yLength, center.Z)),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), true),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z)),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength)),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), true),
+                Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y + yLength, center.Z), true)
             };
             
             Wall[] WallsToKeep = new Wall[effects.Keys.Count];
