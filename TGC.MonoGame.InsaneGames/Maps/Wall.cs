@@ -25,8 +25,10 @@ namespace TGC.MonoGame.InsaneGames.Maps
         protected Vector3 Center; 
         protected Func<Vector3, Vector3> Trans;
         protected Color Color;
+
+        protected bool Reverse;
     
-        public Wall(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color)
+        protected Wall(BasicEffect effect, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, Color color, bool reserve = false)
         {
             Effect = effect;
             Effect.VertexColorEnabled = true;
@@ -34,20 +36,27 @@ namespace TGC.MonoGame.InsaneGames.Maps
             Center = center;
             Trans = trans;
             Color = color;
+            Reverse = reserve;
         }
-        public static Wall CreateSideWall(BasicEffect effect, Vector2 size, Vector3 center, Color color)
+        /// The left parameter is only necessary if you plan on using back-culling
+        /// else it doesn't make a difference
+        public static Wall CreateSideWall(BasicEffect effect, Vector2 size, Vector3 center, Color color, bool left = false)
         {
             center = SideWallTrans(center);
-            return new Wall(effect, size, center, SideWallTrans, color);
+            return new Wall(effect, size, center, SideWallTrans, color, left);
         }
-        public static Wall CreateFrontWall(BasicEffect effect, Vector2 size, Vector3 center, Color color)
+        /// The back parameter is only necessary if you plan on using back-culling
+        /// else it doesn't make a difference
+        public static Wall CreateFrontWall(BasicEffect effect, Vector2 size, Vector3 center, Color color, bool back = false)
         {
             center = FrontWallTrans(center);
-            return new Wall(effect, size, center, FrontWallTrans, color);
+            return new Wall(effect, size, center, FrontWallTrans, color, back);
         }
-        public static Wall CreateFloor(BasicEffect effect, Vector2 size, Vector3 center, Color color)
+        /// The ceiling parameter is only necessary if you plan on using back-culling
+        /// else it doesn't make a difference
+        public static Wall CreateFloor(BasicEffect effect, Vector2 size, Vector3 center, Color color, bool ceiling = false)
         {
-            return new Wall(effect, size, center, FloorTrans, color);
+            return new Wall(effect, size, center, FloorTrans, color, !ceiling);
         }
 
         public override void Initialize(TGCGame game)
@@ -107,6 +116,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
             cubeIndices[4] = 2;
             cubeIndices[5] = 3;
 
+            if(Reverse)
+                Array.Reverse(cubeIndices);
             IndexBuffer Indices = new IndexBuffer(device, IndexElementSize.SixteenBits, 6, BufferUsage.WriteOnly);
             Indices.SetData(cubeIndices);
             return Indices;
