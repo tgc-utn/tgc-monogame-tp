@@ -25,7 +25,7 @@ namespace TGC.MonoGame.InsaneGames
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
             // Descomentar para que el juego sea pantalla completa.
-            // Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
 
@@ -138,8 +138,9 @@ namespace TGC.MonoGame.InsaneGames
             var dict1 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Right, wallsEffect}, {WallId.Back, wallsEffect}};
             var dict2 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Front, wallsEffect}, {WallId.Right, wallsEffect}};
             var dict3 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Front, wallsEffect}, {WallId.Back, wallsEffect}};
+            var textRepet = new Dictionary<WallId, (float, float)> { { WallId.Front, (2, 1)} };
             var box1 = new Box(dict1, new Vector3(250, 60, 250), new Vector3(0, 30, 0));
-            var box2 = new Box(dict2, new Vector3(250, 60, 250), new Vector3(0, 30, -250));
+            var box2 = new Box(dict2, new Vector3(250, 60, 250), new Vector3(0, 30, -250), textureRepeats: textRepet);
             var box3 = new Box(dict3, new Vector3(250, 60, 250), new Vector3(-250, 30, -250));
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));

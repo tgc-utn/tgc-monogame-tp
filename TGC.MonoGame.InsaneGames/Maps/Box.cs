@@ -6,10 +6,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
 {
     class Box : Room
     {
-        private Wall[] Walls;
-
+        private Dictionary<WallId, Wall> Walls = new Dictionary<WallId, Wall>();
         private SpawnableSpace SpawnSpace { get; set; }
-        public Box(Dictionary<WallId, BasicEffect> effects, Vector3 size, Vector3 center, bool spawnable = true)
+        public Box(Dictionary<WallId, BasicEffect> effects, Vector3 size, Vector3 center, bool spawnable = true, Dictionary<WallId, (float, float)> textureRepeats = null)
         {
             Vector2 floorSize = new Vector2(size.X, size.Z),
                     sideWallSize = new Vector2(size.Y, size.Z),
@@ -17,25 +16,27 @@ namespace TGC.MonoGame.InsaneGames.Maps
             float xLength = size.X / 2,
                   yLength = size.Y / 2,
                   zLength = size.Z / 2;
+            
+            textureRepeats ??= new Dictionary<WallId, (float, float)>();
 
             var allWalls = new Wall[] { 
                 Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y - yLength, center.Z)),
-                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), true, textureRepeat: (6, 24)),
-                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z), textureRepeat: (6, 24)),
-                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength), textureRepeat: (24, 6)),
-                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), back: true, textureRepeat: (24, 6)),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X + xLength, center.Y, center.Z), true),
+                Wall.CreateSideWall(sideWallSize, new Vector3(center.X - xLength, center.Y, center.Z)),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z - zLength)),
+                Wall.CreateFrontWall(frontWallSize, new Vector3(center.X, center.Y, center.Z + zLength), back: true),
                 Wall.CreateFloor(floorSize, new Vector3(center.X, center.Y + yLength, center.Z), ceiling: true)
             };
             
-            Wall[] WallsToKeep = new Wall[effects.Keys.Count];
-            int i = 0;
+            (float, float) textureRepeat;
             foreach(var key in effects.Keys)
             {
                 allWalls[(int)key].Effect = effects[key];
-                WallsToKeep[i] = allWalls[(int)key];
-                i++;
+                if(textureRepeats.TryGetValue(key, out textureRepeat))
+                    allWalls[(int)key].TextureRepeat = textureRepeat;
+                Walls.Add(key, allWalls[(int)key]);
+                
             }
-            Walls = WallsToKeep;
 
             var spawnableArea = !spawnable ? new (Vector3, Vector3)[0] : new (Vector3, Vector3)[] {(size, center)};
             SpawnSpace = new SpawnableSpace(spawnableArea);
@@ -45,7 +46,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Initialize(TGCGame game)
         {
-            foreach (var wall in Walls)
+            foreach (var wall in Walls.Values)
                 wall.Initialize(game);
             
             base.Initialize(game);
@@ -53,7 +54,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Draw(GameTime gameTime)
         {
-            foreach (var wall in Walls)
+            foreach (var wall in Walls.Values)
                 wall.Draw(gameTime);
         }
 

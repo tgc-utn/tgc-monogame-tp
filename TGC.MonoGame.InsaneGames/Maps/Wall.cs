@@ -23,23 +23,9 @@ namespace TGC.MonoGame.InsaneGames.Maps
         protected Vector2 Size; 
         protected Vector3 Center; 
         protected Func<Vector3, Vector3> Trans;
-        protected (float, float) TextureRepeat;
+        public (float, float) TextureRepeat { protected get; set; }
         protected bool Reverse;
-        public BasicEffect effect;
-        public BasicEffect Effect 
-        { 
-            protected get { return effect; } 
-            set 
-            {
-                if(effect is null){
-                    effect = value;
-                }
-                else {
-                    throw new Exception("The effect for this wall was already set.");
-                }
-
-            } 
-        }
+        public BasicEffect Effect { protected get; set; }
 
     
         protected Wall(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, bool reserve = false, (float, float)? textureRepeat = null)
