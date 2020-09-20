@@ -104,7 +104,7 @@ namespace TGC.MonoGame.InsaneGames
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.AliceBlue);
 
             Map.Draw(gameTime);
             Weapon.Draw(gameTime);
