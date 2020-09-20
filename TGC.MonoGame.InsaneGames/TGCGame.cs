@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -25,7 +25,7 @@ namespace TGC.MonoGame.InsaneGames
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
             // Descomentar para que el juego sea pantalla completa.
-            // Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
 
@@ -50,18 +50,13 @@ namespace TGC.MonoGame.InsaneGames
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
             var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
+            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
-
-            var box1 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, 0), new WallId[] {WallId.Front});
-            var box2 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, -250), new WallId[] {WallId.Back, WallId.Left});
-            var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
-            var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
-            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
+            
+            Map = CreateMap();
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);
@@ -126,6 +121,30 @@ namespace TGC.MonoGame.InsaneGames
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        //Temporal
+        private Map CreateMap()
+        {
+            var wallsEffect = new BasicEffect(GraphicsDevice);
+            wallsEffect.TextureEnabled = true;
+            wallsEffect.Texture = ContentManager.Instance.LoadTexture2D("Wall/Wall2");
+            var floorEffect = new BasicEffect(GraphicsDevice);
+            floorEffect.TextureEnabled = true;
+            floorEffect.Texture = ContentManager.Instance.LoadTexture2D("Checked-Floor/Checked-Floor");
+            var ceilingEffect = new BasicEffect(GraphicsDevice);
+            ceilingEffect.TextureEnabled = true;
+            ceilingEffect.Texture = ContentManager.Instance.LoadTexture2D("ceiling/Ceiling");
+            var dict1 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Right, wallsEffect}, {WallId.Back, wallsEffect}};
+            var dict2 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Front, wallsEffect}, {WallId.Right, wallsEffect}};
+            var dict3 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Front, wallsEffect}, {WallId.Back, wallsEffect}};
+            var textRepet = new Dictionary<WallId, (float, float)> { { WallId.Front, (2, 1)} };
+            var box1 = new Box(dict1, new Vector3(250, 60, 250), new Vector3(0, 30, 0));
+            var box2 = new Box(dict2, new Vector3(250, 60, 250), new Vector3(0, 30, -250), textureRepeats: textRepet);
+            var box3 = new Box(dict3, new Vector3(250, 60, 250), new Vector3(-250, 30, -250));
+            var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
+            var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
+            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
         }
     }
 }
