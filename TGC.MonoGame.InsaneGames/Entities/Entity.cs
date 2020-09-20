@@ -5,8 +5,8 @@ namespace TGC.MonoGame.InsaneGames.Entities
     {
         public Matrix? position { get; set; }
 
-        public Vector3 BottomVertex { get; protected set; } 
-        public Vector3 UpVertex { get; protected set; }
+        virtual public Vector3 BottomVertex { get; } 
+        virtual public Vector3 UpVertex { get; }
         virtual public bool CollidesWith(Vector3 bBottom, Vector3 bUp)
         {
             if(bUp.X < BottomVertex.X || UpVertex.X < bBottom.X) return false;
