@@ -29,11 +29,17 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 enemy.Initialize(game);
                 while(true)
                 {
+                    if(!(enemy.position is null)) break;
+
                     var room = Rooms[Random.Next(0, Rooms.Length)];
                     if(!room.Spawnable)
                         continue;
                     var spawn = room.SpawnableSpace().GetSpawnPoint(enemy.floorEnemy);
-                    enemy.position ??= Matrix.CreateTranslation(spawn);
+                    
+                    if(room.CollidesWithWall(enemy.BottomVertex + spawn, enemy.UpVertex + spawn) is null)
+                        enemy.position = Matrix.CreateTranslation(spawn);
+                    else
+                        continue;
                     break;
                 }
             });
