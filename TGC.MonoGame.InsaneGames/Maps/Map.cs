@@ -1,7 +1,7 @@
 using System;
-using TGC.MonoGame.InsaneGames.Entities;
+using TGC.MonoGame.InsaneGames.Entities.Collectibles;
+using TGC.MonoGame.InsaneGames.Entities.Enemies;
 using Microsoft.Xna.Framework;
-using TGC.MonoGame.InsaneGames.Collectibles;
 
 namespace TGC.MonoGame.InsaneGames.Maps
 {
