@@ -1,23 +1,23 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TGC.MonoGame.InsaneGames.Collectibles
+namespace TGC.MonoGame.InsaneGames.Obstacles
 {
-    class Armor : Collectible
+    class Sawhorse : Obstacle
     {
-        // TODO: Find an armor model
-        private const string ModelName = "collectibles/armor/??";
+        private const string ModelName = "obstacles/sawhorse/sawhorse";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
-        public Armor(Matrix spawnPoint, Matrix? scaling = null)
+
+        public Sawhorse(Matrix spawnPoint, Matrix? scaling = null)
         {
             if (Model is null)
             {
                 Misalignment = Matrix.CreateTranslation(0, 0, 0);
             }
-            SpawnPoint = Misalignment * 
-                        scaling.GetValueOrDefault(Matrix.CreateScale(2.0f)) *
+            SpawnPoint = Misalignment *
+                        scaling.GetValueOrDefault(Matrix.CreateScale(0.5f)) *
                         spawnPoint;
         }
         public override void Load()

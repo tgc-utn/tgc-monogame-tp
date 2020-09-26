@@ -66,12 +66,12 @@ namespace TGC.MonoGame.InsaneGames
             var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             var life = new Life(Matrix.CreateTranslation(50, 0, -100));
-            var armor = new Armor(Matrix.CreateTranslation(0, 0, -100));
+            //var armor = new Armor(Matrix.CreateTranslation(0, 0, -100));
             var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
             var barrier = new Barrier(Matrix.CreateTranslation(25, 0, -250));
-
+            var sawhorse = new Sawhorse(Matrix.CreateTranslation(-25, 0, -250));
             var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
-            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrel, barrier, cone });
+            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life }, new Obstacle[] { barrel, barrier, cone, sawhorse });
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);

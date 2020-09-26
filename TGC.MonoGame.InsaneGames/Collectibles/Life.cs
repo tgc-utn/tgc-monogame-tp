@@ -5,7 +5,7 @@ namespace TGC.MonoGame.InsaneGames.Collectibles
 {
     class Life : Collectible
     {
-        private const string ModelName = "heart/heart";
+        private const string ModelName = "collectibles/life/heart/heart";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
