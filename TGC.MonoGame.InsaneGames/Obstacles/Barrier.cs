@@ -1,22 +1,24 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TGC.MonoGame.InsaneGames.Collectibles
+namespace TGC.MonoGame.InsaneGames.Obstacles
 {
-    class Heart : Life
+    class Barrier : Obstacle
     {
-        private const string ModelName = "heart/heart";
+        private const string ModelName = "obstacles/obstaclesPack/barrel/crashbarrel";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
-        public Heart(Matrix spawnPoint, Matrix? scaling = null)
+
+
+        public Barrier(Matrix spawnPoint, Matrix? scaling = null)
         {
             if (Model is null)
             {
                 Misalignment = Matrix.CreateTranslation(0, 0, 0);
             }
             SpawnPoint = Misalignment *
-                        scaling.GetValueOrDefault(Matrix.CreateScale(20.0f)) *
+                        scaling.GetValueOrDefault(Matrix.CreateScale(0.5f)) *
                         spawnPoint;
         }
         public override void Load()

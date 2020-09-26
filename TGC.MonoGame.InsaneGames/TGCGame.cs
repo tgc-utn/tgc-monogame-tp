@@ -7,6 +7,7 @@ using TGC.MonoGame.InsaneGames.Maps;
 using TGC.MonoGame.InsaneGames.Entities;
 using TGC.MonoGame.InsaneGames.Weapons;
 using TGC.MonoGame.InsaneGames.Collectibles;
+using TGC.MonoGame.InsaneGames.Obstacles;
 
 namespace TGC.MonoGame.InsaneGames
 {
@@ -38,6 +39,10 @@ namespace TGC.MonoGame.InsaneGames
         private Map Map { get; set; }
 
         private Weapon Weapon { get; set; }
+        private SpriteBatch spriteBatch;
+        private SpriteFont font;
+
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -60,8 +65,13 @@ namespace TGC.MonoGame.InsaneGames
             var box2 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, -250), new WallId[] {WallId.Back, WallId.Left});
             var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
-            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
+            var life = new Life(Matrix.CreateTranslation(50, 0, -100));
+            var armor = new Armor(Matrix.CreateTranslation(0, 0, -100));
+            var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
+            var barrier = new Barrier(Matrix.CreateTranslation(25, 0, -250));
+
+            var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
+            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrel, barrier, cone });
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);
@@ -77,6 +87,10 @@ namespace TGC.MonoGame.InsaneGames
         {
             Map.Load();
             Weapon.Load();
+
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            font = Content.Load<SpriteFont>("Fonts/Basic");
+
             base.LoadContent();
         }
 
@@ -98,7 +112,7 @@ namespace TGC.MonoGame.InsaneGames
 
             Map.Update(gameTime);
             Weapon.Update(gameTime);
-                
+
             base.Update(gameTime);
         }
 
@@ -110,6 +124,12 @@ namespace TGC.MonoGame.InsaneGames
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
+
+            // TODO: Ver porque el string rompe pared
+            //spriteBatch.Begin();
+            //spriteBatch.DrawString(font, "LIFE: 100", new Vector2(0, 0), Color.Blue);
+            //spriteBatch.End();
+
 
             Map.Draw(gameTime);
             Weapon.Draw(gameTime);
