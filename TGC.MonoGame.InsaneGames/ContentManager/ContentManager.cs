@@ -33,5 +33,10 @@ namespace TGC.MonoGame.InsaneGames
         {
             return Content.Load<Model>($"{ContentFolder3D}{modelName}");
         }
+
+        public Texture2D LoadTexture2D(string TextureName)
+        {
+            return Content.Load<Texture2D>($"{ContentFolderTextures}{TextureName}");
+        }
     }
 }
