@@ -164,7 +164,8 @@ namespace TGC.MonoGame.InsaneGames
             var barrier = new Barrier(Matrix.CreateTranslation(25, 0, -250));
             var sawhorse = new Sawhorse(Matrix.CreateTranslation(-50, 0, -250));
             var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
-            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life }, new Obstacle[] { barrel, barrier, cone, sawhorse });
+            var boxObstacle = new BoxObstacle(Matrix.CreateTranslation(-50, 0, -300));
+            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life }, new Obstacle[] { barrel, barrier, cone, sawhorse, boxObstacle });
         }
     }
 }
