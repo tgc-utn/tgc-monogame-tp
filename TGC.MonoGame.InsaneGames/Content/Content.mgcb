@@ -64,7 +64,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/collectibles/life/heart/heart.fbx
 
-#begin Models/obstacles/barrels/barrel/crashbarrel.obj
+#begin Models/obstacles/barrel/barrel.FBX
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -81,28 +81,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/obstacles/barrels/barrel/crashbarrel.obj
+/build:Models/obstacles/barrel/barrel.FBX
 
-#begin Models/obstacles/barrels/barrel2/barrel.FBX
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/obstacles/barrels/barrel2/barrel.FBX
-
-#begin Models/obstacles/barrels/barrel2/textures/Barrel_Ex_diff.tga
+#begin Models/obstacles/barrel/textures/Barrel_Ex_diff.tga
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -112,9 +93,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/obstacles/barrels/barrel2/textures/Barrel_Ex_diff.tga
+/build:Models/obstacles/barrel/textures/Barrel_Ex_diff.tga
 
-#begin Models/obstacles/barrels/barrel2/textures/Barrel_Ex_norm.tga
+#begin Models/obstacles/barrel/textures/Barrel_Ex_norm.tga
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -124,9 +105,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/obstacles/barrels/barrel2/textures/Barrel_Ex_norm.tga
+/build:Models/obstacles/barrel/textures/Barrel_Ex_norm.tga
 
-#begin Models/obstacles/barrier/barrier1.obj
+#begin Models/obstacles/barrier/barrier 1.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -143,7 +124,19 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/obstacles/barrier/barrier1.obj
+/build:Models/obstacles/barrier/barrier 1.fbx
+
+#begin Models/obstacles/barrier/barrier1.bmp
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/obstacles/barrier/barrier1.bmp
 
 #begin Models/obstacles/cone/DIFFUSEH.png
 /importer:TextureImporter
@@ -207,7 +200,19 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/obstacles/cone/TrafficCone.obj
 
-#begin Models/obstacles/sawhorse/sawhorse.obj
+#begin Models/obstacles/sawhorse/sawhorse.bmp
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/obstacles/sawhorse/sawhorse.bmp
+
+#begin Models/obstacles/sawhorse/sawhorse.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -224,7 +229,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/obstacles/sawhorse/sawhorse.obj
+/build:Models/obstacles/sawhorse/sawhorse.fbx
 
 #begin Models/tgcito/tgcito-classic.obj
 /importer:FbxImporter

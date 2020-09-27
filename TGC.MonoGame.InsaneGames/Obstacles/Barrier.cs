@@ -5,7 +5,7 @@ namespace TGC.MonoGame.InsaneGames.Obstacles
 {
     class Barrier : Obstacle
     {
-        private const string ModelName = "obstacles/barrier/barrier1";
+        private const string ModelName = "obstacles/barrier/barrier 1";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
@@ -18,7 +18,7 @@ namespace TGC.MonoGame.InsaneGames.Obstacles
                 Misalignment = Matrix.CreateTranslation(0, 0, 0);
             }
             SpawnPoint = Misalignment *
-                        scaling.GetValueOrDefault(Matrix.CreateScale(0.5f)) *
+                        scaling.GetValueOrDefault(Matrix.CreateScale(0.2f)) *
                         spawnPoint;
         }
         public override void Load()

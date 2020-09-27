@@ -17,7 +17,7 @@ namespace TGC.MonoGame.InsaneGames.Obstacles
                 Misalignment = Matrix.CreateTranslation(0, 0, 0);
             }
             SpawnPoint = Misalignment *
-                        scaling.GetValueOrDefault(Matrix.CreateScale(0.5f)) *
+                        scaling.GetValueOrDefault(Matrix.CreateScale(0.4f)) *
                         spawnPoint;
         }
         public override void Load()

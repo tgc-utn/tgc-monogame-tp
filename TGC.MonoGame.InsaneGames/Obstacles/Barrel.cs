@@ -5,7 +5,7 @@ namespace TGC.MonoGame.InsaneGames.Obstacles
 {
     class Barrel : Obstacle
     {
-        private const string ModelName = "obstacles/barrels/barrel2/barrel";
+        private const string ModelName = "obstacles/barrel/barrel";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
