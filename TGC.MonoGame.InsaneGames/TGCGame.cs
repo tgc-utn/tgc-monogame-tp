@@ -60,19 +60,7 @@ namespace TGC.MonoGame.InsaneGames
             // Seria hasta aca.
 
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
-
-            var box1 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, 0), new WallId[] {WallId.Front});
-            var box2 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(0, 30, -250), new WallId[] {WallId.Back, WallId.Left});
-            var box3 = new Box(new BasicEffect(GraphicsDevice), new Vector3(250, 60, 250), new Vector3(-250, 30, -250), new WallId[] {WallId.Right});
-            var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            var life = new Life(Matrix.CreateTranslation(50, 0, -100));
-            //var armor = new Armor(Matrix.CreateTranslation(0, 0, -100));
-            var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
-            var barrier = new Barrier(Matrix.CreateTranslation(25, 0, -250));
-            var sawhorse = new Sawhorse(Matrix.CreateTranslation(-25, 0, -250));
-            var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
-            Map = new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life }, new Obstacle[] { barrel, barrier, cone, sawhorse });
-            
+           
             Map = CreateMap();
             Map.Initialize(this);
             Weapon = new MachineGun();
@@ -170,8 +158,13 @@ namespace TGC.MonoGame.InsaneGames
             var box2 = new Box(dict2, new Vector3(250, 60, 250), new Vector3(0, 30, -250), textureRepeats: textRepet);
             var box3 = new Box(dict3, new Vector3(250, 60, 250), new Vector3(-250, 30, -250));
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
-            var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
-            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
+            var life = new Life(Matrix.CreateTranslation(50, 0, -100));
+            //var armor = new Armor(Matrix.CreateTranslation(0, 0, -100));
+            var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
+            var barrier = new Barrier(Matrix.CreateTranslation(25, 0, -250));
+            var sawhorse = new Sawhorse(Matrix.CreateTranslation(-25, 0, -250));
+            var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
+            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life }, new Obstacle[] { barrel, barrier, cone, sawhorse });
         }
     }
 }
