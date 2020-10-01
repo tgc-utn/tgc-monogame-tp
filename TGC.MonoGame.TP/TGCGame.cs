@@ -19,6 +19,8 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        
+        private float time;
 
         /// <summary>
         ///     Constructor del juego.
@@ -44,6 +46,7 @@ namespace TGC.MonoGame.TP
 
         private Camera Camera;
 
+        private Effect WaterEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -93,6 +96,14 @@ namespace TGC.MonoGame.TP
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
             modelEffect.EnableDefaultLighting();
 
+            WaterEffect = Content.Load<Effect>(ContentFolderEffect + "WaterShader");
+            
+            WaterEffect.Parameters["KAmbient"]?.SetValue(0.25f);
+            WaterEffect.Parameters["KDiffuse"]?.SetValue(0.75f);
+            
+            WaterEffect.Parameters["AmbientColor"]?.SetValue(new Vector3(0.25f, 0.25f, 0.25f));
+            WaterEffect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.0f, 0.5f, 0.7f));
+
             base.LoadContent();
         }
 
@@ -131,7 +142,25 @@ namespace TGC.MonoGame.TP
             Model.Draw(World * Matrix.CreateTranslation(120,25,0), Camera.View, Camera.Projection);
             Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), Camera.View, Camera.Projection);
             Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
-            Model4.Draw(World * Matrix.CreateTranslation(0, 45, 0), Camera.View, Camera.Projection);
+            //Model4.Draw(World * Matrix.CreateTranslation(0, 45, 0), Camera.View, Camera.Projection);
+            var waterMesh = Model4.Meshes[0];
+           
+           time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+           
+           if (waterMesh != null)
+           {
+                   var part = waterMesh.MeshParts[0];
+                   part.Effect = WaterEffect;
+                   WaterEffect.Parameters["World"].SetValue(waterMesh.ParentBone.Transform);
+                   WaterEffect.Parameters["View"].SetValue(Camera.View);
+                   WaterEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                   WaterEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
+                   WaterEffect.Parameters["Time"]?.SetValue(time);
+                   //Effect.Parameters["WorldViewProjection"].SetValue(Camera.WorldMatrix * Camera.View * Camera.Projection);
+                   //Effect.Parameters["ModelTexture"].SetValue(Texture);
+                 //  Effect.Parameters["Time"]?.SetValue(time);
+                   waterMesh.Draw();
+           }
 
             base.Draw(gameTime);
         }
