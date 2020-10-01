@@ -5,8 +5,7 @@ namespace TGC.MonoGame.InsaneGames.Collectibles
 {
     class Armor : Collectible
     {
-        // TODO: Find an armor model
-        private const string ModelName = "collectibles/armor/??";
+        private const string ModelName = "collectibles/armor/shield/Shield";
         static private Model Model;
         static private Matrix Misalignment;
         private Matrix SpawnPoint;
@@ -17,7 +16,7 @@ namespace TGC.MonoGame.InsaneGames.Collectibles
                 Misalignment = Matrix.CreateTranslation(0, 0, 0);
             }
             SpawnPoint = Misalignment * 
-                        scaling.GetValueOrDefault(Matrix.CreateScale(2.0f)) *
+                        scaling.GetValueOrDefault(Matrix.CreateScale(0.5f)) *
                         spawnPoint;
         }
         public override void Load()
