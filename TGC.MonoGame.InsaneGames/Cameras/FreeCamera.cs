@@ -88,8 +88,8 @@ namespace TGC.MonoGame.Samples.Cameras
             var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
             mouseDelta *= MouseSensitivity * elapsedTime;
 
-            yaw -= mouseDelta.X;
-            pitch += mouseDelta.Y;
+            yaw += mouseDelta.X;
+            pitch -= mouseDelta.Y;
 
             if (pitch > 89.0f)
                 pitch = 89.0f;
@@ -97,8 +97,9 @@ namespace TGC.MonoGame.Samples.Cameras
                 pitch = -89.0f;
 
             changed = true;
-            UpdateCameraVectors();
+            UpdateCameraVectors();            
             Mouse.SetPosition(screenCenter.X, screenCenter.Y);
+            // Mouse cursor should be an sprite in the center of the screen
             Mouse.SetCursor(MouseCursor.Crosshair);
 
             pastMousePosition = Mouse.GetState().Position.ToVector2();
