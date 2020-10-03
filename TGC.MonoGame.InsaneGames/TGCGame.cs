@@ -150,7 +150,14 @@ namespace TGC.MonoGame.InsaneGames
             var box3 = new Box(dict3, new Vector3(250, 60, 250), new Vector3(-250, 30, -250));
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
-            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
+
+            Point center_point;
+            center_point.Y = Graphics.GraphicsDevice.Viewport.Height / 2;
+            center_point.X = Graphics.GraphicsDevice.Viewport.Width / 2;
+
+            var player = new Player(Camera, Matrix.CreateTranslation(1, 0, 60) );
+
+            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart }, player);
         }
     }
 }

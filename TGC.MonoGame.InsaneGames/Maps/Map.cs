@@ -11,17 +11,22 @@ namespace TGC.MonoGame.InsaneGames.Maps
         private Enemy[] Enemies;
         private Random Random;
         private Collectible[] Collectibles;
-        public Map(Room[] rooms, Enemy[] enemies, Collectible[] collectibles) 
+        private Player Player;
+        public Map(Room[] rooms, Enemy[] enemies, Collectible[] collectibles, Player player) 
         {
             Rooms = rooms;
             Enemies = enemies;
             Random = new Random();
             Collectibles = collectibles;
+            Player = player;
         }
 
         public override void Initialize(TGCGame game)
         {
             base.Initialize(game);
+
+            Player.Initialize(game);
+
             foreach (var room in Rooms)
                 room.Initialize(game);
 
@@ -44,6 +49,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Draw(GameTime gameTime)
         {
+            Player.Draw(gameTime);
+
             foreach (var room in Rooms)
                 room.Draw(gameTime);
 
@@ -55,6 +62,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
         }
         public override void Load()
         {
+            Player.Load();
+
             foreach (var room in Rooms)
                 room.Load();
 
@@ -67,6 +76,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Update(GameTime gameTime)
         {
+            Player.Update(gameTime);
+
             foreach (var room in Rooms)
                 room.Update(gameTime);
 
