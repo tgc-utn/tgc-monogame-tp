@@ -79,7 +79,7 @@ namespace TGC.MonoGame.InsaneGames
             Weapon.Load();
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            font = Content.Load<SpriteFont>("Fonts/Basic");
+            font = ContentManager.Instance.LoadSpriteFont("Basic");
 
             base.LoadContent();
         }
@@ -115,14 +115,15 @@ namespace TGC.MonoGame.InsaneGames
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
-            // TODO: Ver porque el string rompe pared
-            //spriteBatch.Begin();
-            //spriteBatch.DrawString(font, "LIFE: 100", new Vector2(0, 0), Color.Blue);
-            //spriteBatch.End();
-
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             Map.Draw(gameTime);
             Weapon.Draw(gameTime);
+
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, "LIFE: 100", new Vector2(0, 0), Color.Blue);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -165,7 +166,9 @@ namespace TGC.MonoGame.InsaneGames
             var sawhorse = new Sawhorse(Matrix.CreateTranslation(-50, 0, -250));
             var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
             var boxObstacle = new BoxObstacle(Matrix.CreateTranslation(-50, 0, -300));
-            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrel, barrier, cone, sawhorse, boxObstacle });
+            var boxObstacle2 = new BoxObstacle(Matrix.CreateTranslation(-50, 25, -300));
+            var boxObstacle3 = new BoxObstacle(Matrix.CreateTranslation(-25, 0, -300));
+            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrel, barrier, cone, sawhorse, boxObstacle, boxObstacle2, boxObstacle3 });
         }
     }
 }

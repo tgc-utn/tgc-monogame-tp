@@ -10,7 +10,7 @@ namespace TGC.MonoGame.InsaneGames
         private const string ContentFolderEffect = "Effects/";
         private const string ContentFolderMusic = "Music/";
         private const string ContentFolderSounds = "Sounds/";
-        private const string ContentFolderSpriteFonts = "SpriteFonts/";
+        private const string ContentFolderSpriteFonts = "Fonts/";
         private const string ContentFolderTextures = "Textures/";
 
         private Microsoft.Xna.Framework.Content.ContentManager Content;
@@ -37,6 +37,10 @@ namespace TGC.MonoGame.InsaneGames
         public Texture2D LoadTexture2D(string TextureName)
         {
             return Content.Load<Texture2D>($"{ContentFolderTextures}{TextureName}");
+        }
+        public SpriteFont LoadSpriteFont(string fontName)
+        {
+            return Content.Load<SpriteFont>($"{ContentFolderSpriteFonts}{fontName}");
         }
     }
 }
