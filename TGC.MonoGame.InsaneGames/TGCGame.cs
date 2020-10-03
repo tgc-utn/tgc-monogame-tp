@@ -122,7 +122,8 @@ namespace TGC.MonoGame.InsaneGames
             Weapon.Draw(gameTime);
 
             spriteBatch.Begin();
-            spriteBatch.DrawString(font, "LIFE: 100", new Vector2(0, 0), Color.Blue);
+            spriteBatch.DrawString(font, "LIFE: 100", new Vector2(0, 0), Color.Red);
+            spriteBatch.DrawString(font, "ARMOR: 100", new Vector2(0, 40), Color.DarkBlue);
             spriteBatch.End();
 
             base.Draw(gameTime);
