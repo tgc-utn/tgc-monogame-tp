@@ -54,13 +54,11 @@ namespace TGC.MonoGame.InsaneGames
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
-            
-            Map = CreateMap();
-
             Point center_point;
             center_point.Y = Graphics.GraphicsDevice.Viewport.Height / 2;
             center_point.X = Graphics.GraphicsDevice.Viewport.Width / 2;
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), center_point);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), center_point);            
+            Map = CreateMap();
 
 
             Map.Initialize(this);

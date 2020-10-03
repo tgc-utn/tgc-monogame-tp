@@ -114,7 +114,7 @@ namespace TGC.MonoGame.InsaneGames.Entities
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            Camera.Update(gameTime);
+            this.Camera.Update(gameTime);
 
             /*
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
