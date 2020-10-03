@@ -45,7 +45,7 @@ namespace TGC.MonoGame.InsaneGames
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
+            IsMouseVisible = true;
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
@@ -54,9 +54,15 @@ namespace TGC.MonoGame.InsaneGames
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
             
             Map = CreateMap();
+
+            Point center_point;
+            center_point.Y = Graphics.GraphicsDevice.Viewport.Height / 2;
+            center_point.X = Graphics.GraphicsDevice.Viewport.Width / 2;
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), center_point);
+
+
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);
