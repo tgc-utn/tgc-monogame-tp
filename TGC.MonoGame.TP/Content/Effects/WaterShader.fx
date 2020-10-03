@@ -39,7 +39,18 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
-	input.Position.y = input.Position.y + (sin(input.Position.x * 50 + Time) + sin(input.Position.z * 50 + Time)) * sin(input.Position.x + input.Position.z) * 20 + 20;
+	input.Position.y = (sin(input.Position.x * 50 + Time) + sin(input.Position.z * 50 + Time))*25;
+	
+	//input.Position.xyz = (input.Position.x, (sin(input.Position.x * 50 + Time) + sin(input.Position.z * 50 + Time))*25 ,input.Position.z)
+	//float3 tangent1 = normalize(float3(1-input.Position.x, input.Position.y - cos(input.Position.x*50+Time)*50*25,-input.Position.z));
+	//float3 tangent2 = normalize(float3(-input.Position.x, input.Position.y - cos(input.Position.z*50+Time)*50*25,1-input.Position.z));
+	
+	float3 tangent1 = normalize(float3(1, cos(input.Position.x*50+Time)*50*25,0));
+    float3 tangent2 = normalize(float3(0, cos(input.Position.z*50+Time)*50*25,1));
+	
+	
+	
+	input.Normal.xyz = normalize(cross(tangent1, tangent2));
 
 	float4 worldPosition = mul(input.Position, World);
 	float4 viewPosition = mul(worldPosition, View);
@@ -55,7 +66,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
     //Simulating sun, use the same direction for every vertex
-    float3 lightDirection = normalize(float3(200,400,0) - input.WorldPosition.xyz);
+    float3 lightDirection = normalize(float3(1000,700, 250) - input.WorldPosition.xyz);
     
     float3 ambientLight = KAmbient * AmbientColor;
     

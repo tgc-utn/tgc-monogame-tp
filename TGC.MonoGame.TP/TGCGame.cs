@@ -98,10 +98,10 @@ namespace TGC.MonoGame.TP
 
             WaterEffect = Content.Load<Effect>(ContentFolderEffect + "WaterShader");
             
-            WaterEffect.Parameters["KAmbient"]?.SetValue(0.25f);
+            WaterEffect.Parameters["KAmbient"]?.SetValue(0.15f);
             WaterEffect.Parameters["KDiffuse"]?.SetValue(0.75f);
             
-            WaterEffect.Parameters["AmbientColor"]?.SetValue(new Vector3(0.25f, 0.25f, 0.25f));
+            WaterEffect.Parameters["AmbientColor"]?.SetValue(new Vector3(1f, 0.98f, 0.98f));
             WaterEffect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.0f, 0.5f, 0.7f));
 
             base.LoadContent();
