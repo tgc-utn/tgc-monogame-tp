@@ -5,7 +5,7 @@ namespace TGC.MonoGame.InsaneGames.Entities
 {
     class Bullet : Entity
     {
-        protected Vector3 Speed, Acceleration, InitialPos;
+        protected Vector3 Speed, InitialPos;
         
         protected Vector3 LastPosition, CurrentPosition;
         protected float Damage;
@@ -17,11 +17,10 @@ namespace TGC.MonoGame.InsaneGames.Entities
         { 
             get { return CurrentPosition; }
         }
-        public Bullet(float damage, Vector3 speed, Vector3 acceleration, Vector3 initialPos)
+        public Bullet(float damage, Vector3 speed, Vector3 initialPos)
         {
             Damage = damage;
             Speed = speed;
-            Acceleration = acceleration;
             InitialPos = initialPos;
             LastPosition = initialPos;
         }
@@ -30,7 +29,7 @@ namespace TGC.MonoGame.InsaneGames.Entities
         {
             LastPosition = CurrentPosition;
             var time = gameTime.ElapsedGameTime.TotalSeconds;
-            CurrentPosition = 0.5f * Acceleration * (float) Math.Pow(time, 2) + Speed * (float) time + InitialPos;
+            CurrentPosition = Speed * (float) time + InitialPos;
         }
     }
 }
