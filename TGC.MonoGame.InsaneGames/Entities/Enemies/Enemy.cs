@@ -1,4 +1,4 @@
-namespace TGC.MonoGame.InsaneGames.Entities
+namespace TGC.MonoGame.InsaneGames.Entities.Enemies
 {
     abstract class Enemy : Entity 
     {

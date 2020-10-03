@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TGC.MonoGame.InsaneGames.Collectibles
+namespace TGC.MonoGame.InsaneGames.Entities.Collectibles
 {
     class Heart : Life
     {

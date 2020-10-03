@@ -6,7 +6,8 @@ using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.InsaneGames.Maps;
 using TGC.MonoGame.InsaneGames.Entities;
 using TGC.MonoGame.InsaneGames.Weapons;
-using TGC.MonoGame.InsaneGames.Collectibles;
+using TGC.MonoGame.InsaneGames.Entities.Collectibles;
+using TGC.MonoGame.InsaneGames.Entities.Enemies;
 
 namespace TGC.MonoGame.InsaneGames
 {
@@ -45,7 +46,7 @@ namespace TGC.MonoGame.InsaneGames
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
+            IsMouseVisible = true;
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
@@ -54,9 +55,14 @@ namespace TGC.MonoGame.InsaneGames
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
             
+            Point center_point;
+            center_point.Y = Graphics.GraphicsDevice.Viewport.Height / 2;
+            center_point.X = Graphics.GraphicsDevice.Viewport.Width / 2;
+
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), center_point);            
             Map = CreateMap();
+
             Map.Initialize(this);
             Weapon = new MachineGun();
             Weapon.Initialize(this);
@@ -144,7 +150,14 @@ namespace TGC.MonoGame.InsaneGames
             var box3 = new Box(dict3, new Vector3(250, 60, 250), new Vector3(-250, 30, -250));
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             var heart = new Heart(Matrix.CreateTranslation(50, 0, -100));
-            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart });
+
+            Point center_point;
+            center_point.Y = Graphics.GraphicsDevice.Viewport.Height / 2;
+            center_point.X = Graphics.GraphicsDevice.Viewport.Width / 2;
+
+            var player = new Player(Camera, Matrix.CreateTranslation(1, 0, 60) );
+
+            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { heart }, player);
         }
     }
 }

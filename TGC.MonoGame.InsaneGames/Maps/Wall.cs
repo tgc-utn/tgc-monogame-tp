@@ -19,22 +19,16 @@ namespace TGC.MonoGame.InsaneGames.Maps
         static Func<Vector3, Vector3> FrontWallTrans = (v) => new Vector3(v.X, v.Z, v.Y);
         static Func<Vector3, Vector3> FloorTrans = (v) => v;
         protected VertexBuffer VertexBuffer;
-        protected IndexBuffer IndexBuffer;
-        protected Vector2 Size; 
-        protected Vector3 Center; 
-        protected Func<Vector3, Vector3> Trans;
+        protected IndexBuffer IndexBuffer; 
+        protected Vector3 BottomRight, BottomLeft, UpperRight, UpperLeft; 
         public (float, float) TextureRepeat { protected get; set; }
         protected bool Reverse;
         public BasicEffect Effect { protected get; set; }
-
-    
-        protected Wall(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, bool reserve = false, (float, float)? textureRepeat = null)
+        protected Wall(Vector2 size, Vector3 center, Func<Vector3, Vector3> trans = null, bool reserve = false, (float, float)? textureRepeat = null)
         {
-            Size = size;
-            Center = center;
-            Trans = trans;
             Reverse = reserve;
             TextureRepeat = textureRepeat.GetValueOrDefault((1,1));
+            CalculateVertex(center, size, trans ?? Wall.FloorTrans);
         }
         /// The left parameter is only necessary if you plan on using back-culling
         /// else it doesn't make a difference
@@ -59,7 +53,7 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Initialize(TGCGame game)
         {
-            VertexBuffer = CreateVertexBuffer(game, Size, Center, Trans, TextureRepeat);
+            VertexBuffer = CreateVertexBuffer(game, TextureRepeat);
             IndexBuffer = CreateIndexBuffer(game.GraphicsDevice);
             base.Initialize(game);
         }
@@ -77,23 +71,40 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 6 / 3);
             }
         }
-        private VertexBuffer CreateVertexBuffer(TGCGame game, Vector2 size, Vector3 center, Func<Vector3, Vector3> trans, (float, float) textureRepeat)
+        public bool Collides(Vector3 lowerPoint, Vector3 higherPoint)
+        {
+            if(higherPoint.X < BottomLeft.X || UpperRight.X < lowerPoint.X) return false;
+            if(higherPoint.Y < BottomLeft.Y || UpperRight.Y < lowerPoint.Y) return false;
+            if(higherPoint.Z < BottomLeft.Z || UpperRight.Z < lowerPoint.Z) return false;
+            return true;
+        }
+
+        private void CalculateVertex(Vector3 center, Vector2 size, Func<Vector3, Vector3> trans)
         {
             var x = size.X / 2;
             var z = size.Y / 2;
 
+            BottomLeft = trans(new Vector3(-x + center.X, center.Y, -z + center.Z));
+            UpperLeft = trans(new Vector3(-x + center.X, center.Y, z + center.Z));
+            UpperRight = trans(new Vector3(x + center.X, center.Y, z + center.Z));
+            BottomRight = trans(new Vector3(x + center.X, center.Y, -z + center.Z));
+        }
+        private VertexBuffer CreateVertexBuffer(TGCGame game, (float, float) textureRepeat)
+        {
+            
+
             var cubeVertices = new VertexPositionTexture[4];
             // Bottom-Left Front.
-            cubeVertices[0].Position = trans(new Vector3(-x + center.X, center.Y, -z + center.Z));
+            cubeVertices[0].Position = BottomLeft;
             cubeVertices[0].TextureCoordinate = Vector2.Zero;
             // Bottom-Left Back.
-            cubeVertices[1].Position = trans(new Vector3(-x + center.X, center.Y, z + center.Z));
+            cubeVertices[1].Position = UpperLeft;
             cubeVertices[1].TextureCoordinate = new Vector2(0, textureRepeat.Item2);
             // Bottom-Right Back.
-            cubeVertices[2].Position = trans(new Vector3(x + center.X, center.Y, z + center.Z));
+            cubeVertices[2].Position = UpperRight;
             cubeVertices[2].TextureCoordinate = new Vector2(textureRepeat.Item1, textureRepeat.Item2);
             // Bottom-Right Front.
-            cubeVertices[3].Position = trans(new Vector3(x + center.X, center.Y, -z + center.Z));
+            cubeVertices[3].Position = BottomRight;
             cubeVertices[3].TextureCoordinate = new Vector2(textureRepeat.Item1, 0);
 
             VertexBuffer Vertices = new VertexBuffer(game.GraphicsDevice, VertexPositionTexture.VertexDeclaration, 4,
