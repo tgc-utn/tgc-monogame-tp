@@ -187,10 +187,11 @@ namespace TGC.MonoGame.InsaneGames
             var sawhorses = ObstaclesBuilder.ObtainSawhorsesObstaclesInLine(4, Matrix.CreateTranslation(-300, 0, 0), true);
             var cones = ObstaclesBuilder.ObtainConesObstaclesInLine(6, Matrix.CreateTranslation(0, 0, -200), true);
 
-            obstacles = obstacles.Union(boxesObstacles).ToList();
-            obstacles = obstacles.Union(barriers).ToList();
-            obstacles = obstacles.Union(sawhorses).ToList();
-            obstacles = obstacles.Union(cones).ToList();
+            obstacles = obstacles
+                .Union(boxesObstacles)
+                .Union(barriers)
+                .Union(sawhorses)
+                .Union(cones).ToList();
 
             return obstacles;
         }
