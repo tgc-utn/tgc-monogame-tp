@@ -182,7 +182,7 @@ namespace TGC.MonoGame.InsaneGames
         {
             List<Obstacle> obstacles = new List<Obstacle>();
 
-            var boxesObstacles = ObstaclesBuilder.ObtainBoxesObstaclesInLine(6, Matrix.CreateTranslation(-50, 0, -300), true);
+            var boxesObstacles = ObstaclesBuilder.ObtainStackedBoxesObstacles(4, Matrix.CreateTranslation(-50, 0, -300));
             var barriers = ObstaclesBuilder.ObtainBarriersObstaclesInLine(4, Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(-250, 0, -500), false);
             var sawhorses = ObstaclesBuilder.ObtainSawhorsesObstaclesInLine(4, Matrix.CreateTranslation(-300, 0, 0), true);
             var cones = ObstaclesBuilder.ObtainConesObstaclesInLine(6, Matrix.CreateTranslation(0, 0, -200), true);

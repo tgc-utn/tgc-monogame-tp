@@ -8,6 +8,26 @@ namespace TGC.MonoGame.InsaneGames.Utils
 {
     public static class ObstaclesBuilder
     {
+        public static List<BoxObstacle> ObtainStackedBoxesObstacles(int quantity, Matrix initialPosition)
+        {
+
+            // add first box
+            List<BoxObstacle> boxes = new List<BoxObstacle>();
+            BoxObstacle initialBox = new BoxObstacle(initialPosition);
+            boxes.Add(initialBox);
+
+            float translationY = 25;
+
+            // add next boxes
+            for (int i = 1; i < quantity; i++)
+            {
+                Matrix position = initialPosition * Matrix.CreateTranslation(0, i * translationY, 0);
+                BoxObstacle box = new BoxObstacle(position);
+                boxes.Add(box);
+            }
+            return boxes;
+        }
+
         public static List<BoxObstacle> ObtainBoxesObstaclesInLine(int quantity, Matrix initialPosition, bool inX)
         {
             // Verify if is in x axis or z axis
