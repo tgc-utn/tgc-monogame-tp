@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.InsaneGames.Obstacles
 {
-    class Cone : Obstacle
+    public class Cone : Obstacle
     {
         private const string ModelName = "obstacles/cone/TrafficCone";
         static private Model Model;

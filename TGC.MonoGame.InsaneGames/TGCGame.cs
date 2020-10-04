@@ -8,6 +8,7 @@ using TGC.MonoGame.InsaneGames.Entities;
 using TGC.MonoGame.InsaneGames.Weapons;
 using TGC.MonoGame.InsaneGames.Collectibles;
 using TGC.MonoGame.InsaneGames.Obstacles;
+using TGC.MonoGame.InsaneGames.Utils;
 
 namespace TGC.MonoGame.InsaneGames
 {
@@ -60,7 +61,7 @@ namespace TGC.MonoGame.InsaneGames
             // Seria hasta aca.
 
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 20, 60), Point.Zero);
-           
+
             Map = CreateMap();
             Map.Initialize(this);
             Weapon = new MachineGun();
@@ -152,24 +153,45 @@ namespace TGC.MonoGame.InsaneGames
             var ceilingEffect = new BasicEffect(GraphicsDevice);
             ceilingEffect.TextureEnabled = true;
             ceilingEffect.Texture = ContentManager.Instance.LoadTexture2D("ceiling/Ceiling");
-            var dict1 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Right, wallsEffect}, {WallId.Back, wallsEffect}};
-            var dict2 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Front, wallsEffect}, {WallId.Right, wallsEffect}};
-            var dict3 = new Dictionary<WallId, BasicEffect> { {WallId.Ceiling, ceilingEffect}, {WallId.Floor, floorEffect}, {WallId.Left, wallsEffect}, {WallId.Front, wallsEffect}, {WallId.Back, wallsEffect}};
-            var textRepet = new Dictionary<WallId, (float, float)> { { WallId.Front, (2, 1)} };
-            var box1 = new Box(dict1, new Vector3(250, 60, 250), new Vector3(0, 30, 0));
-            var box2 = new Box(dict2, new Vector3(250, 60, 250), new Vector3(0, 30, -250), textureRepeats: textRepet);
-            var box3 = new Box(dict3, new Vector3(250, 60, 250), new Vector3(-250, 30, -250));
+            var dict1 = new Dictionary<WallId, BasicEffect> { { WallId.Ceiling, ceilingEffect }, { WallId.Floor, floorEffect }, { WallId.Right, wallsEffect }, { WallId.Back, wallsEffect } };
+            var dict2 = new Dictionary<WallId, BasicEffect> { { WallId.Ceiling, ceilingEffect }, { WallId.Floor, floorEffect }, { WallId.Right, wallsEffect }, { WallId.Front, wallsEffect } };
+            var dict3 = new Dictionary<WallId, BasicEffect> { { WallId.Ceiling, ceilingEffect }, { WallId.Floor, floorEffect }, { WallId.Left, wallsEffect }, { WallId.Front, wallsEffect } };
+            var dict4 = new Dictionary<WallId, BasicEffect> { { WallId.Ceiling, ceilingEffect }, { WallId.Floor, floorEffect }, { WallId.Left, wallsEffect }, { WallId.Back, wallsEffect } };
+            var textRepet = new Dictionary<WallId, (float, float)> { { WallId.Front, (2, 1) } };
+            var box1 = new Box(dict1, new Vector3(500, 100, 500), new Vector3(0, 50, 0));
+            var box2 = new Box(dict2, new Vector3(500, 100, 500), new Vector3(0, 50, -500), textureRepeats: textRepet);
+            var box3 = new Box(dict3, new Vector3(500, 100, 500), new Vector3(-500, 50, -500));
+            var box4 = new Box(dict4, new Vector3(500, 100, 500), new Vector3(-500, 50, 0));
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             var life = new Life(Matrix.CreateTranslation(50, 0, -100));
             var armor = new Armor(Matrix.CreateTranslation(25, 8, -100));
-            var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
-            var barrier = new Barrier(Matrix.CreateTranslation(25, 0, -250));
-            var sawhorse = new Sawhorse(Matrix.CreateTranslation(-50, 0, -250));
-            var cone = new Cone(Matrix.CreateTranslation(0, 0, -200));
-            var boxObstacle = new BoxObstacle(Matrix.CreateTranslation(-50, 0, -300));
-            var boxObstacle2 = new BoxObstacle(Matrix.CreateTranslation(-50, 25, -300));
-            var boxObstacle3 = new BoxObstacle(Matrix.CreateTranslation(-25, 0, -300));
-            return new Map(new Room[] { box1, box2, box3 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrel, barrier, cone, sawhorse, boxObstacle, boxObstacle2, boxObstacle3 });
+            //var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
+            var boxesObstacles = ObstaclesBuilder.ObtainBoxesObstaclesInLine(6, Matrix.CreateTranslation(-50, 0, -300), true);
+            var boxObstacle = boxesObstacles[0];
+            var boxObstacle2 = boxesObstacles[1];
+            var boxObstacle3 = boxesObstacles[2];
+            var boxObstacle4 = boxesObstacles[3];
+            var boxObstacle5 = boxesObstacles[4];
+            var boxObstacle6 = boxesObstacles[5];
+            var barriers = ObstaclesBuilder.ObtainBarriersObstaclesInLine(4, Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(-250, 0, -500), false);
+            var barrier = barriers[0];
+            var barrier2 = barriers[1];
+            var barrier3 = barriers[2];
+            var barrier4 = barriers[3];
+            var sawhorses = ObstaclesBuilder.ObtainSawhorsesObstaclesInLine(4, Matrix.CreateTranslation(-300, 0, 0), true);
+            var sawhorse = sawhorses[0];
+            var sawhorse2 = sawhorses[1];
+            var sawhorse3 = sawhorses[2];
+            var sawhorse4 = sawhorses[3];
+            var cones = ObstaclesBuilder.ObtainConesObstaclesInLine(6, Matrix.CreateTranslation(0, 0, -200), true);
+            var cone = cones[0];
+            var cone2 = cones[1];
+            var cone3 = cones[2];
+            var cone4 = cones[3];
+            var cone5 = cones[4];
+            var cone6 = cones[5];
+
+            return new Map(new Room[] { box1, box2, box3, box4 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrier, barrier2, barrier3, barrier4, cone, cone2, cone3, cone4, cone5, cone6, sawhorse, sawhorse2, sawhorse3, sawhorse4, boxObstacle, boxObstacle2, boxObstacle3, boxObstacle4, boxObstacle5, boxObstacle6 });
         }
     }
 }
