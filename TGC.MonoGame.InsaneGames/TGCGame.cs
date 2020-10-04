@@ -9,6 +9,8 @@ using TGC.MonoGame.InsaneGames.Weapons;
 using TGC.MonoGame.InsaneGames.Collectibles;
 using TGC.MonoGame.InsaneGames.Obstacles;
 using TGC.MonoGame.InsaneGames.Utils;
+using System;
+using System.Linq;
 
 namespace TGC.MonoGame.InsaneGames
 {
@@ -122,9 +124,14 @@ namespace TGC.MonoGame.InsaneGames
             Map.Draw(gameTime);
             Weapon.Draw(gameTime);
 
+
+            Vector2 lifeStringPosition = new Vector2(10, GraphicsDevice.Viewport.Height - 50);
+            Vector2 armorStringPosition = new Vector2(170, GraphicsDevice.Viewport.Height - 50);
+
             spriteBatch.Begin();
-            spriteBatch.DrawString(font, "LIFE: 100", new Vector2(0, 0), Color.Red);
-            spriteBatch.DrawString(font, "ARMOR: 100", new Vector2(0, 40), Color.DarkBlue);
+            // TODO: Take life and armor from player
+            spriteBatch.DrawString(font, "LIFE: 100", lifeStringPosition, Color.Red);
+            spriteBatch.DrawString(font, "ARMOR: 100", armorStringPosition, Color.DarkBlue);
             spriteBatch.End();
 
             base.Draw(gameTime);
@@ -165,33 +172,27 @@ namespace TGC.MonoGame.InsaneGames
             var TGCito = new TGCito(Matrix.CreateTranslation(25, 0, 25));
             var life = new Life(Matrix.CreateTranslation(50, 0, -100));
             var armor = new Armor(Matrix.CreateTranslation(25, 8, -100));
-            //var barrel = new Barrel(Matrix.CreateTranslation(25, 0, -200));
-            var boxesObstacles = ObstaclesBuilder.ObtainBoxesObstaclesInLine(6, Matrix.CreateTranslation(-50, 0, -300), true);
-            var boxObstacle = boxesObstacles[0];
-            var boxObstacle2 = boxesObstacles[1];
-            var boxObstacle3 = boxesObstacles[2];
-            var boxObstacle4 = boxesObstacles[3];
-            var boxObstacle5 = boxesObstacles[4];
-            var boxObstacle6 = boxesObstacles[5];
-            var barriers = ObstaclesBuilder.ObtainBarriersObstaclesInLine(4, Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(-250, 0, -500), false);
-            var barrier = barriers[0];
-            var barrier2 = barriers[1];
-            var barrier3 = barriers[2];
-            var barrier4 = barriers[3];
-            var sawhorses = ObstaclesBuilder.ObtainSawhorsesObstaclesInLine(4, Matrix.CreateTranslation(-300, 0, 0), true);
-            var sawhorse = sawhorses[0];
-            var sawhorse2 = sawhorses[1];
-            var sawhorse3 = sawhorses[2];
-            var sawhorse4 = sawhorses[3];
-            var cones = ObstaclesBuilder.ObtainConesObstaclesInLine(6, Matrix.CreateTranslation(0, 0, -200), true);
-            var cone = cones[0];
-            var cone2 = cones[1];
-            var cone3 = cones[2];
-            var cone4 = cones[3];
-            var cone5 = cones[4];
-            var cone6 = cones[5];
 
-            return new Map(new Room[] { box1, box2, box3, box4 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, new Obstacle[] { barrier, barrier2, barrier3, barrier4, cone, cone2, cone3, cone4, cone5, cone6, sawhorse, sawhorse2, sawhorse3, sawhorse4, boxObstacle, boxObstacle2, boxObstacle3, boxObstacle4, boxObstacle5, boxObstacle6 });
+            List<Obstacle> obstacles = CreateObstacles();
+
+            return new Map(new Room[] { box1, box2, box3, box4 }, new Enemy[] { TGCito }, new Collectible[] { life, armor }, obstacles.ToArray());
+        }
+
+        private List<Obstacle> CreateObstacles()
+        {
+            List<Obstacle> obstacles = new List<Obstacle>();
+
+            var boxesObstacles = ObstaclesBuilder.ObtainBoxesObstaclesInLine(6, Matrix.CreateTranslation(-50, 0, -300), true);
+            var barriers = ObstaclesBuilder.ObtainBarriersObstaclesInLine(4, Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(-250, 0, -500), false);
+            var sawhorses = ObstaclesBuilder.ObtainSawhorsesObstaclesInLine(4, Matrix.CreateTranslation(-300, 0, 0), true);
+            var cones = ObstaclesBuilder.ObtainConesObstaclesInLine(6, Matrix.CreateTranslation(0, 0, -200), true);
+
+            obstacles = obstacles.Union(boxesObstacles).ToList();
+            obstacles = obstacles.Union(barriers).ToList();
+            obstacles = obstacles.Union(sawhorses).ToList();
+            obstacles = obstacles.Union(cones).ToList();
+
+            return obstacles;
         }
     }
 }
