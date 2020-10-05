@@ -6,12 +6,9 @@ using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.InsaneGames.Maps;
 using TGC.MonoGame.InsaneGames.Entities;
 using TGC.MonoGame.InsaneGames.Weapons;
-using TGC.MonoGame.InsaneGames.Collectibles;
 using TGC.MonoGame.InsaneGames.Obstacles;
 using TGC.MonoGame.InsaneGames.Utils;
-using System;
 using System.Linq;
-using System.Threading;
 using TGC.MonoGame.InsaneGames.Entities.Collectibles;
 using TGC.MonoGame.InsaneGames.Entities.Enemies;
 

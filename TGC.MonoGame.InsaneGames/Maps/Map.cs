@@ -3,7 +3,6 @@ using TGC.MonoGame.InsaneGames.Entities.Collectibles;
 using TGC.MonoGame.InsaneGames.Entities.Enemies;
 using TGC.MonoGame.InsaneGames.Entities;
 using Microsoft.Xna.Framework;
-using TGC.MonoGame.InsaneGames.Collectibles;
 using TGC.MonoGame.InsaneGames.Obstacles;
 
 namespace TGC.MonoGame.InsaneGames.Maps

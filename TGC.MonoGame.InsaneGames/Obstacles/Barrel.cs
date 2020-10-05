@@ -1,11 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-<<<<<<< HEAD:TGC.MonoGame.InsaneGames/Obstacles/Barrel.cs
 namespace TGC.MonoGame.InsaneGames.Obstacles
-=======
-namespace TGC.MonoGame.InsaneGames.Entities.Collectibles
->>>>>>> master:TGC.MonoGame.InsaneGames/Entities/Collectibles/Heart.cs
+
 {
     class Barrel : Obstacle
     {
