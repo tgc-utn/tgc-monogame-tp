@@ -1,4 +1,6 @@
 using System;
+using TGC.MonoGame.InsaneGames.Entities.Collectibles;
+using TGC.MonoGame.InsaneGames.Entities.Enemies;
 using TGC.MonoGame.InsaneGames.Entities;
 using Microsoft.Xna.Framework;
 using TGC.MonoGame.InsaneGames.Collectibles;
@@ -13,18 +15,24 @@ namespace TGC.MonoGame.InsaneGames.Maps
         private Random Random;
         private Collectible[] Collectibles;
         private Obstacle[] Obstacles;
-        public Map(Room[] rooms, Enemy[] enemies, Collectible[] collectibles, Obstacle[] obstacles) 
+        private Player Player;
+
+        public Map(Room[] rooms, Enemy[] enemies, Collectible[] collectibles, Obstacle[] obstacles, Player player) 
         {
             Rooms = rooms;
             Enemies = enemies;
             Random = new Random();
             Collectibles = collectibles;
             Obstacles = obstacles;
+            Player = player;
         }
 
         public override void Initialize(TGCGame game)
         {
             base.Initialize(game);
+
+            Player.Initialize(game);
+
             foreach (var room in Rooms)
                 room.Initialize(game);
 
@@ -32,11 +40,17 @@ namespace TGC.MonoGame.InsaneGames.Maps
                 enemy.Initialize(game);
                 while(true)
                 {
+                    if(!(enemy.position is null)) break;
+
                     var room = Rooms[Random.Next(0, Rooms.Length)];
                     if(!room.Spawnable)
                         continue;
                     var spawn = room.SpawnableSpace().GetSpawnPoint(enemy.floorEnemy);
-                    enemy.position ??= Matrix.CreateTranslation(spawn);
+                    
+                    if(room.CollidesWithWall(enemy.BottomVertex + spawn, enemy.UpVertex + spawn) is null)
+                        enemy.position = Matrix.CreateTranslation(spawn);
+                    else
+                        continue;
                     break;
                 }
             });
@@ -50,6 +64,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Draw(GameTime gameTime)
         {
+            Player.Draw(gameTime);
+
             foreach (var room in Rooms)
                 room.Draw(gameTime);
 
@@ -64,6 +80,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
         }
         public override void Load()
         {
+            Player.Load();
+
             foreach (var room in Rooms)
                 room.Load();
 
@@ -79,6 +97,8 @@ namespace TGC.MonoGame.InsaneGames.Maps
 
         public override void Update(GameTime gameTime)
         {
+            Player.Update(gameTime);
+
             foreach (var room in Rooms)
                 room.Update(gameTime);
 
