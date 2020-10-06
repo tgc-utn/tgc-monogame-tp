@@ -65,11 +65,7 @@ namespace Chinchulines
 
         private Vector3 position;
 
-        /*private int CurrentLevel = 0;
-        private bool LastLevel = false;
-        private int[] EnemiesXLevel = { 1, 3, 2 };
-        private List<Enemy> Enemies = new List<Enemy>();*/
-        Enemy a;
+        enemyManager EM;
 
         Skybox skybox;
 
@@ -124,12 +120,7 @@ namespace Chinchulines
             spaceShipEffect2.TextureEnabled = true;
             spaceShipEffect2.Texture = Content.Load<Texture2D>(TextureMK2);
 
-            /*for(int i = 0; i < EnemiesXLevel[CurrentLevel]; i++)
-            {
-                Enemies.Add(new Enemy(new Vector3(10f, i, 10f), SpaceShipModelMK2, World));
-            }*/
-
-            a = new Enemy(position, SpaceShipModelMK2, World);
+            //a = new Enemy(new Vector3(10f, 0f, 5f),  SpaceShipModelMK2);
 
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
@@ -144,7 +135,9 @@ namespace Chinchulines
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
 
+            EM = new enemyManager(SpaceShipModelMK2);
 
+            for(int i = 0; i < 10; i++)EM.CrearEnemigo();
 
             base.LoadContent();
         }
@@ -161,34 +154,11 @@ namespace Chinchulines
             // Con Numpad 1 -> Movimientos simples de nave (a,s,d,w)
             // Con Numpad 2 -> Movimientos posicion y rotacion (a,s,d,w,Up,Down,y,u,i)
             var state = Keyboard.GetState();
-            var rotationSpeed = .02f;
-
-            /*if (LastLevel)
-            {
-                Enemies.Clear();
-
-                if (CurrentLevel > EnemiesXLevel.Count() - 1) CurrentLevel = EnemiesXLevel.Count() - 1;
-
-                for (int i = 0; i < EnemiesXLevel[CurrentLevel]; i++)
-                {
-                    Enemies.Add(new Enemy(new Vector3(0, i, 0), Content, World));
-                }
-
-                CurrentLevel++;
-
-                LastLevel = false;
-            }
-
-            foreach(Enemy enemigo in Enemies)
-            {
-                enemigo.Update(gameTime, position);
-            }*/
-
-            
+            var rotationSpeed = .02f;            
 
             InputController(state, rotationSpeed);
 
-            a.Update(gameTime, position);
+            EM.Update(gameTime, position);
             
             RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             VenusRotation += .005f;
@@ -216,11 +186,6 @@ namespace Chinchulines
                 // Rotation = Matrix.Identity;
                 Rotation = new Vector3(0, 0, 0);
             }
-
-            /*if (state.IsKeyDown(Keys.G))
-            {
-                LastLevel = true;
-            }*/
 
             if (TestRealControls)
             {
@@ -375,12 +340,7 @@ namespace Chinchulines
                                 Matrix.CreateTranslation(position) 
                 , View, Projection);
 
-            /*foreach(Enemy enemigo in Enemies)
-            {
-                enemigo.Draw(View, Projection);
-            }*/
-
-            a.Draw(View, Projection);
+            EM.Draw(View, Projection);
 
             SpaceShipModelMK3.Draw(World *
                             Matrix.CreateScale(.08f) *
