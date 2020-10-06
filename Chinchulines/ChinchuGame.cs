@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Chinchulines.Graphics;
+using Chinchulines.Enemigo;
+using System.Collections.Generic;
 
 namespace Chinchulines
 {
@@ -63,6 +65,12 @@ namespace Chinchulines
 
         private Vector3 position;
 
+        /*private int CurrentLevel = 0;
+        private bool LastLevel = false;
+        private int[] EnemiesXLevel = { 1, 3, 2 };
+        private List<Enemy> Enemies = new List<Enemy>();*/
+        Enemy a;
+
         Skybox skybox;
 
         /// <summary>
@@ -102,17 +110,26 @@ namespace Chinchulines
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             SpaceShipModelMK1 = Content.Load<Model>(ModelMK1); // Se puede cambiar por MK2 y MK3
-            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
-            
+
             var spaceShipEffect = (BasicEffect)SpaceShipModelMK1.Meshes[0].Effects[0];
             spaceShipEffect.TextureEnabled = true;
-            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1); // Se puede cambiar por MK2 y MK3
+            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1);
+
+
+            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
 
             SpaceShipModelMK2 = Content.Load<Model>(ModelMK2);
 
             var spaceShipEffect2 = (BasicEffect)SpaceShipModelMK2.Meshes[0].Effects[0];
             spaceShipEffect2.TextureEnabled = true;
             spaceShipEffect2.Texture = Content.Load<Texture2D>(TextureMK2);
+
+            /*for(int i = 0; i < EnemiesXLevel[CurrentLevel]; i++)
+            {
+                Enemies.Add(new Enemy(new Vector3(10f, i, 10f), SpaceShipModelMK2, World));
+            }*/
+
+            a = new Enemy(position, SpaceShipModelMK2, World);
 
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
@@ -124,7 +141,10 @@ namespace Chinchulines
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
+
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
+
+
 
             base.LoadContent();
         }
@@ -143,12 +163,35 @@ namespace Chinchulines
             var state = Keyboard.GetState();
             var rotationSpeed = .02f;
 
+            /*if (LastLevel)
+            {
+                Enemies.Clear();
+
+                if (CurrentLevel > EnemiesXLevel.Count() - 1) CurrentLevel = EnemiesXLevel.Count() - 1;
+
+                for (int i = 0; i < EnemiesXLevel[CurrentLevel]; i++)
+                {
+                    Enemies.Add(new Enemy(new Vector3(0, i, 0), Content, World));
+                }
+
+                CurrentLevel++;
+
+                LastLevel = false;
+            }
+
+            foreach(Enemy enemigo in Enemies)
+            {
+                enemigo.Update(gameTime, position);
+            }*/
+
+            
+
             InputController(state, rotationSpeed);
 
+            a.Update(gameTime, position);
+            
             RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             VenusRotation += .005f;
-
-
 
             base.Update(gameTime);
         }
@@ -173,6 +216,11 @@ namespace Chinchulines
                 // Rotation = Matrix.Identity;
                 Rotation = new Vector3(0, 0, 0);
             }
+
+            /*if (state.IsKeyDown(Keys.G))
+            {
+                LastLevel = true;
+            }*/
 
             if (TestRealControls)
             {
@@ -313,10 +361,6 @@ namespace Chinchulines
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
 
-
-
-
-
             VenusModel.Draw(World * 
                             Matrix.CreateScale(.05f) * 
                             Matrix.CreateRotationY(VenusRotation) * 
@@ -331,10 +375,12 @@ namespace Chinchulines
                                 Matrix.CreateTranslation(position) 
                 , View, Projection);
 
-            SpaceShipModelMK2.Draw(World *
-                            Matrix.CreateScale(.08f) *
-                            Matrix.CreateRotationY(VenusRotation) *
-                            Matrix.CreateTranslation(4f, -2f, -10), View, Projection);
+            /*foreach(Enemy enemigo in Enemies)
+            {
+                enemigo.Draw(View, Projection);
+            }*/
+
+            a.Draw(View, Projection);
 
             SpaceShipModelMK3.Draw(World *
                             Matrix.CreateScale(.08f) *
