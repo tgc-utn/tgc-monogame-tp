@@ -15,7 +15,7 @@ namespace Chinchulines
     public class ChinchuGame : Game
     {
         public const string ContentFolderModels = "Models/";
-        // public const string ContentFolderEffect = "Effects/";
+        public const string ContentFolderEffect = "Effects/";
         // public const string ContentFolderMusic = "Music/";
         // public const string ContentFolderSounds = "Sounds/";
         // public const string ContentFolderSpriteFonts = "SpriteFonts/";
@@ -64,6 +64,9 @@ namespace Chinchulines
         private Vector3 position;
 
         Skybox skybox;
+        private Trench _trench;
+        private Vector3 _lightDirection = new Vector3(3, -2, 5);
+
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -89,6 +92,9 @@ namespace Chinchulines
             Graphics.PreferredBackBufferWidth = 1024;
             Graphics.PreferredBackBufferHeight = 768;
             Graphics.ApplyChanges();
+
+            _trench = new Trench();
+
             base.Initialize();
         }
 
@@ -125,6 +131,7 @@ namespace Chinchulines
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
+            _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
 
             base.LoadContent();
         }
@@ -340,6 +347,8 @@ namespace Chinchulines
                             Matrix.CreateScale(.08f) *
                             Matrix.CreateRotationY(-VenusRotation) *
                             Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
+
+            _trench.Draw(View, Projection, _lightDirection, Graphics);
 
             base.Draw(gameTime);
         }
