@@ -11,12 +11,18 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float4x4 InverseTransposeWorld;
+float3 CameraPosition;
 
 float3 AmbientColor; 
 float KAmbient;
 
 float3 DiffuseColor;
 float KDiffuse;
+
+float3 SpecularColor; 
+float KSpecular;
+float Shininess;
+
  
 float Time = 0;
 
@@ -38,18 +44,17 @@ struct VertexShaderOutput
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
+    float shaderTime = Time;
+	input.Position.y = (sin(input.Position.x + shaderTime) + sin(input.Position.z + shaderTime))*15 + sin(input.Position.x + input.Position.z + shaderTime)*15 + 50;
+    
+    float3 tangent1 = normalize(float3(1, 
+    (cos(input.Position.x+shaderTime)*15+   cos(input.Position.x + input.Position.z + shaderTime)*15)
+    ,0));
+    float3 tangent2 = normalize(float3(0, 
+    (cos(input.Position.z+shaderTime)*15+   cos(input.Position.x + input.Position.z + shaderTime)*15)
+    ,1));
 
-	input.Position.y = (sin(input.Position.x * 50 + Time) + sin(input.Position.z * 50 + Time))*25;
-	
-	//input.Position.xyz = (input.Position.x, (sin(input.Position.x * 50 + Time) + sin(input.Position.z * 50 + Time))*25 ,input.Position.z)
-	//float3 tangent1 = normalize(float3(1-input.Position.x, input.Position.y - cos(input.Position.x*50+Time)*50*25,-input.Position.z));
-	//float3 tangent2 = normalize(float3(-input.Position.x, input.Position.y - cos(input.Position.z*50+Time)*50*25,1-input.Position.z));
-	
-	float3 tangent1 = normalize(float3(1, cos(input.Position.x*50+Time)*50*25,0));
-    float3 tangent2 = normalize(float3(0, cos(input.Position.z*50+Time)*50*25,1));
-	
-	
-	
+    
 	input.Normal.xyz = normalize(cross(tangent1, tangent2));
 
 	float4 worldPosition = mul(input.Position, World);
@@ -65,15 +70,21 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    //Simulating sun, use the same direction for every vertex
-    float3 lightDirection = normalize(float3(1000,700, 250) - input.WorldPosition.xyz);
+    //Todo: Set light position from game script
+    float3 lightDirection = normalize(float3(1000,700, 0) - input.WorldPosition.xyz);
+    float3 viewDirection = normalize(CameraPosition - input.WorldPosition.xyz);
+    float3 halfVector = normalize(lightDirection + viewDirection);
     
     float3 ambientLight = KAmbient * AmbientColor;
     
     float NdotL = saturate(dot(input.Normal.xyz, lightDirection));
     float3 diffuseLight = KDiffuse * DiffuseColor * NdotL;
+
+    float NdotH = dot(input.Normal.xyz, halfVector);
+    float3 specularLight = sign(NdotL) * KSpecular * SpecularColor * pow(saturate(NdotH), Shininess);
     
-    float4 finalColor = float4(diffuseLight + ambientLight, 1);
+   // float4 finalColor = float4(diffuseLight + ambientLight, 1);
+    float4 finalColor = float4(saturate(ambientLight + diffuseLight) + specularLight, 0);
 
 	return finalColor;
 }
