@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -34,10 +34,8 @@ namespace Chinchulines.Enemigo
         private float RotatedUp;
         private float RotatedDown;
 
-        public Enemy(Vector3 Pos, Model Spaceship, Matrix World)
+        public Enemy(Vector3 Pos, Model Spaceship)
         {
-            EnemyWorld = World;
-
             spaceship = Spaceship;
 
             position = Pos;
