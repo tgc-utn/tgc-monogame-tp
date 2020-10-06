@@ -3,14 +3,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace TGC.MonoGame.TP
+namespace Chinchulines
 {
     /// <summary>
     ///     Esta es la clase principal  del juego.
     ///     Inicialmente puede ser renombrado o copiado para hacer más ejemplos chicos, en el caso de copiar para que se
     ///     ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
     /// </summary>
-    public class TGCGame : Game
+    public class ChinchuGame : Game
     {
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffect = "Effects/";
@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
-        public TGCGame()
+        public ChinchuGame()
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
