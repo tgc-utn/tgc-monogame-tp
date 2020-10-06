@@ -162,6 +162,18 @@
 /processorParam:TextureFormat=Color
 /build:Skyboxes/SunInSpace.dds
 
+#begin Textures/Lasers/doble-laser-verde.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Lasers/doble-laser-verde.jpg
+
 #begin Textures/Spaceships/MK1/MK1-Texture.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

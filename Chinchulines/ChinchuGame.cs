@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Chinchulines.Graphics;
+using Chinchulines.Entities;
 
 namespace Chinchulines
 {
@@ -52,6 +53,8 @@ namespace Chinchulines
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+
+
         private float VenusRotation { get; set; }
 
         private Boolean TestRealControls { get; set; } = true;
@@ -70,6 +73,11 @@ namespace Chinchulines
         private Vector3 _spaceshipPosition = new Vector3(0,0,0);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
         private float _gameSpeed = 1.0f;
+        
+        private Vector3 _cameraPosition;
+        private Vector3 _cameraDirection;
+
+        private LaserManager _laserManager;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -97,6 +105,7 @@ namespace Chinchulines
             Graphics.ApplyChanges();
 
             _trench = new Trench();
+            _laserManager = new LaserManager();
 
             base.Initialize();
         }
@@ -135,7 +144,8 @@ namespace Chinchulines
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
             _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
-            
+            _laserManager.LoadContent(ContentFolderTextures + "Lasers/doble-laser-verde", ContentFolderEffect + "Trench", Content, Graphics);
+
             SetUpCamera();
             base.LoadContent();
         }
@@ -147,9 +157,14 @@ namespace Chinchulines
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            
+            // Capturar Input teclado
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                //Salgo del juego.
+                Exit();
+
             UpdateCamera();
             MoveSpaceship(gameTime);
+            InputController(gameTime);
 
             float moveSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
             MoveForward(ref _spaceshipPosition, _spaceshipRotation, moveSpeed);
@@ -157,11 +172,20 @@ namespace Chinchulines
             RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             VenusRotation += .005f;
 
-
+            _laserManager.UpdateLaser(moveSpeed);
 
             base.Update(gameTime);
         }
-        
+
+        private void InputController(GameTime gameTime)
+        {
+            KeyboardState keystate = Keyboard.GetState();
+            if (keystate.IsKeyDown(Keys.Space))
+            {
+                _laserManager.ShootLaser(gameTime, _spaceshipPosition, _spaceshipRotation);
+            }
+        }
+
         private void SetUpCamera()
         {
             View = Matrix.CreateLookAt(new Vector3(20, 13, -5), new Vector3(8, 0, -7), new Vector3(0, 1, 0));
@@ -216,6 +240,9 @@ namespace Chinchulines
 
             View = Matrix.CreateLookAt(cameraPosition, _spaceshipPosition, cameraUpDirection);
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.2f, 500.0f);
+
+            _cameraPosition = cameraPosition;
+            _cameraDirection = cameraUpDirection;
         }
 
         /// <summary>
@@ -262,6 +289,8 @@ namespace Chinchulines
                             Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
 
             _trench.Draw(View, Projection, _lightDirection, Graphics);
+
+            _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
 
             base.Draw(gameTime);
         }
