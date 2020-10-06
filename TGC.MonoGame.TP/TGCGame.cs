@@ -144,19 +144,16 @@ namespace TGC.MonoGame.TP
 
             Console.Write(newY + "\n");
             
-            var tangent1 = (new Vector3(0, 
-                (MathF.Cos(boatPosition.X+time)*0.5f+   MathF.Cos(boatPosition.X+ boatPosition.Z + time)*0.5f)
-                ,5));
-            var tangent2 = (new Vector3(5, 
-                (MathF.Cos(boatPosition.Z+time)*0.5f+   MathF.Cos(boatPosition.X+ boatPosition.Z + time)*0.5f)
+            var tangent1 = Vector3.Normalize(new Vector3(0, 
+                (MathF.Cos(boatPosition.X+time)*15f+   MathF.Cos(boatPosition.X+ boatPosition.Z + time)*15f) * 0.005f
+                ,1));
+            var tangent2 = Vector3.Normalize(new Vector3(1, 
+                (MathF.Cos(boatPosition.Z+time)*15f+   MathF.Cos(boatPosition.X+ boatPosition.Z + time)*15f) * 0.005f
                 ,0));
 
             boatPosition = (new Vector3(boatPosition.X, newY-10, boatPosition.Z));
-       
-             if(Vector3.Dot(boatPosition, Vector3.Up) < 0.1f) boatPosition = Vector3.Up;
 
-
-            var waterNormal = (Vector3.Cross(tangent1, tangent2));
+            var waterNormal = Vector3.Normalize(Vector3.Cross(tangent1, tangent2));
 
             WaterMatrix = Matrix.CreateLookAt(Vector3.Zero,tangent1 , waterNormal);
             
