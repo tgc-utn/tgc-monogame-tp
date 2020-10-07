@@ -24,8 +24,8 @@ namespace Chinchulines.Enemigo
         public void CrearEnemigo()
         {
             var posx = x.Next(-5, 5);
-            var posy = y.Next(-5, 5);
-            var posz = z.Next(-250, -200);
+            var posy = y.Next(25, 35);
+            var posz = z.Next(-150, -100);
 
             Enemies.Add(new Enemy(new Vector3(posx, posy, posz), mk2));
         }
