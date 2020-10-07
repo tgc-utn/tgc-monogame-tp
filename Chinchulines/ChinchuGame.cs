@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Chinchulines.Graphics;
+using Chinchulines.Enemigo;
+using System.Collections.Generic;
 using Chinchulines.Entities;
 
 namespace Chinchulines
@@ -66,6 +68,8 @@ namespace Chinchulines
 
         private Vector3 position;
 
+        enemyManager EM;
+
         Skybox skybox;
         private Trench _trench;
         private Vector3 _lightDirection = new Vector3(3, -2, 5);
@@ -120,17 +124,21 @@ namespace Chinchulines
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             SpaceShipModelMK1 = Content.Load<Model>(ModelMK1); // Se puede cambiar por MK2 y MK3
-            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
-            
+
             var spaceShipEffect = (BasicEffect)SpaceShipModelMK1.Meshes[0].Effects[0];
             spaceShipEffect.TextureEnabled = true;
-            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1); // Se puede cambiar por MK2 y MK3
+            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1);
+
+
+            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
 
             SpaceShipModelMK2 = Content.Load<Model>(ModelMK2);
 
             var spaceShipEffect2 = (BasicEffect)SpaceShipModelMK2.Meshes[0].Effects[0];
             spaceShipEffect2.TextureEnabled = true;
             spaceShipEffect2.Texture = Content.Load<Texture2D>(TextureMK2);
+
+            //a = new Enemy(new Vector3(10f, 0f, 5f),  SpaceShipModelMK2);
 
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
@@ -142,11 +150,18 @@ namespace Chinchulines
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
+
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
             _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
             _laserManager.LoadContent(ContentFolderTextures + "Lasers/doble-laser-verde", ContentFolderEffect + "Trench", Content, Graphics);
 
+            
+            EM = new enemyManager(SpaceShipModelMK2);
+
+            for(int i = 0; i < 10; i++)EM.CrearEnemigo();
+            
             SetUpCamera();
+            
             base.LoadContent();
         }
 
@@ -168,7 +183,9 @@ namespace Chinchulines
 
             float moveSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
             MoveForward(ref _spaceshipPosition, _spaceshipRotation, moveSpeed);
-
+            
+            EM.Update(gameTime, position);
+            
             RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             VenusRotation += .005f;
 
@@ -263,10 +280,6 @@ namespace Chinchulines
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
 
-
-
-
-
             VenusModel.Draw(World * 
                             Matrix.CreateScale(.05f) * 
                             Matrix.CreateRotationY(VenusRotation) * 
@@ -278,10 +291,7 @@ namespace Chinchulines
                                 Matrix.CreateTranslation(_spaceshipPosition)
                 , View, Projection);
 
-            SpaceShipModelMK2.Draw(
-                            Matrix.CreateScale(.008f) *
-                            Matrix.CreateRotationY(VenusRotation) *
-                            Matrix.CreateTranslation(0,1,-15), View, Projection);
+            EM.Draw(View, Projection);
 
             SpaceShipModelMK3.Draw(
                             Matrix.CreateScale(.008f) *
