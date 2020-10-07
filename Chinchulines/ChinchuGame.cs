@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Chinchulines.Graphics;
+using Chinchulines.Enemigo;
+using System.Collections.Generic;
+using Chinchulines.Entities;
 
 namespace Chinchulines
 {
@@ -15,7 +18,7 @@ namespace Chinchulines
     public class ChinchuGame : Game
     {
         public const string ContentFolderModels = "Models/";
-        // public const string ContentFolderEffect = "Effects/";
+        public const string ContentFolderEffect = "Effects/";
         // public const string ContentFolderMusic = "Music/";
         // public const string ContentFolderSounds = "Sounds/";
         // public const string ContentFolderSpriteFonts = "SpriteFonts/";
@@ -52,6 +55,8 @@ namespace Chinchulines
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+
+
         private float VenusRotation { get; set; }
 
         private Boolean TestRealControls { get; set; } = true;
@@ -63,7 +68,20 @@ namespace Chinchulines
 
         private Vector3 position;
 
+        enemyManager EM;
+
         Skybox skybox;
+        private Trench _trench;
+        private Vector3 _lightDirection = new Vector3(3, -2, 5);
+        
+        private Vector3 _spaceshipPosition = new Vector3(0,0,0);
+        private Quaternion _spaceshipRotation = Quaternion.Identity;
+        private float _gameSpeed = 1.0f;
+        
+        private Vector3 _cameraPosition;
+        private Vector3 _cameraDirection;
+
+        private LaserManager _laserManager;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -71,7 +89,7 @@ namespace Chinchulines
         /// </summary>
         protected override void Initialize()
         {
-            World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
+            // World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
             View = Matrix.CreateLookAt(new Vector3(0, 0, 20), Vector3.Zero, Vector3.Up);
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 600f, 0.1f, 1000f);
 
@@ -89,6 +107,10 @@ namespace Chinchulines
             Graphics.PreferredBackBufferWidth = 1024;
             Graphics.PreferredBackBufferHeight = 768;
             Graphics.ApplyChanges();
+
+            _trench = new Trench();
+            _laserManager = new LaserManager();
+
             base.Initialize();
         }
 
@@ -102,17 +124,21 @@ namespace Chinchulines
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             SpaceShipModelMK1 = Content.Load<Model>(ModelMK1); // Se puede cambiar por MK2 y MK3
-            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
-            
+
             var spaceShipEffect = (BasicEffect)SpaceShipModelMK1.Meshes[0].Effects[0];
             spaceShipEffect.TextureEnabled = true;
-            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1); // Se puede cambiar por MK2 y MK3
+            spaceShipEffect.Texture = Content.Load<Texture2D>(TextureMK1);
+
+
+            VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
 
             SpaceShipModelMK2 = Content.Load<Model>(ModelMK2);
 
             var spaceShipEffect2 = (BasicEffect)SpaceShipModelMK2.Meshes[0].Effects[0];
             spaceShipEffect2.TextureEnabled = true;
             spaceShipEffect2.Texture = Content.Load<Texture2D>(TextureMK2);
+
+            //a = new Enemy(new Vector3(10f, 0f, 5f),  SpaceShipModelMK2);
 
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
@@ -124,8 +150,18 @@ namespace Chinchulines
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
-            skybox = new Skybox("Skyboxes/SunInSpace", Content);
 
+            skybox = new Skybox("Skyboxes/SunInSpace", Content);
+            _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
+            _laserManager.LoadContent(ContentFolderTextures + "Lasers/doble-laser-verde", ContentFolderEffect + "Trench", Content, Graphics);
+
+            
+            EM = new enemyManager(SpaceShipModelMK2);
+
+            for(int i = 0; i < 10; i++)EM.CrearEnemigo();
+            
+            SetUpCamera();
+            
             base.LoadContent();
         }
 
@@ -136,163 +172,94 @@ namespace Chinchulines
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            // Capturar Input teclado
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                //Salgo del juego.
+                Exit();
 
+            UpdateCamera();
+            MoveSpaceship(gameTime);
+            InputController(gameTime);
 
-            // Con Numpad 1 -> Movimientos simples de nave (a,s,d,w)
-            // Con Numpad 2 -> Movimientos posicion y rotacion (a,s,d,w,Up,Down,y,u,i)
-            var state = Keyboard.GetState();
-            var rotationSpeed = .02f;
-
-            InputController(state, rotationSpeed);
-
+            float moveSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
+            MoveForward(ref _spaceshipPosition, _spaceshipRotation, moveSpeed);
+            
+            EM.Update(gameTime, position);
+            
             RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             VenusRotation += .005f;
 
-
+            _laserManager.UpdateLaser(moveSpeed);
 
             base.Update(gameTime);
         }
 
-        private void InputController(KeyboardState state, float rotationSpeed)
+        private void InputController(GameTime gameTime)
         {
-            if (state.IsKeyDown(Keys.Escape))
-                //Salgo del juego.
-                Exit();
-
-            if (state.IsKeyDown(Keys.NumPad1))
+            KeyboardState keystate = Keyboard.GetState();
+            if (keystate.IsKeyDown(Keys.Space))
             {
-                TestRealControls = true;
-                position = new Vector3(0, 0, 0);
-                // Rotation = Matrix.Identity;
-                Rotation = new Vector3(0, 0, 0);
+                _laserManager.ShootLaser(gameTime, _spaceshipPosition, _spaceshipRotation);
             }
-            if (state.IsKeyDown(Keys.NumPad2))
+        }
+
+        private void SetUpCamera()
+        {
+            View = Matrix.CreateLookAt(new Vector3(20, 13, -5), new Vector3(8, 0, -7), new Vector3(0, 1, 0));
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.2f, 500.0f);
+        }
+        
+        private void MoveSpaceship(GameTime gameTime)
+        {
+            float leftRightRotation = 0;
+            float upDownRotation = 0;
+
+            float turningSpeed = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 1000.0f;
+            turningSpeed *= 1.6f * _gameSpeed;
+
+            KeyboardState keys = Keyboard.GetState();
+
+            if (keys.IsKeyDown(Keys.D))
             {
-                TestRealControls = false;
-                position = new Vector3(0, 0, 0);
-                // Rotation = Matrix.Identity;
-                Rotation = new Vector3(0, 0, 0);
+                leftRightRotation += turningSpeed;
             }
-
-            if (TestRealControls)
+            if (keys.IsKeyDown(Keys.A))
             {
-                var isMoving = false;
-                if (state.IsKeyDown(Keys.W))
-                {
-                    position.Y += movementSpeed * speedUp;
-                    // Rotation *= Matrix.CreateRotationY(.05f);
-
-                    if (Rotation.Y < MathHelper.PiOver4)
-                    {
-                        Rotation.Y += rotationSpeed * (speedUp / 2);
-                    }
-                    isMoving = true;
-
-                }
-                if (state.IsKeyDown(Keys.S))
-                {
-                    position.Y -= movementSpeed * speedUp;
-                    // Rotation.Y = MathHelper.PiOver4 * (-1);
-                    // Rotation *= Matrix.CreateRotationY(-.05f);
-                    if (Rotation.Y > -MathHelper.PiOver4)
-                    {
-                        Rotation.Y += -rotationSpeed * (speedUp / 2);
-                    }
-                    isMoving = true;
-                }
-                if (state.IsKeyDown(Keys.A))
-                {
-                    position.X -= movementSpeed * speedUp;
-                    // Rotation.X = MathHelper.PiOver4;
-                    // Rotation.Z = MathHelper.PiOver4;
-                    // Rotation *= Matrix.CreateRotationZ(.05f);
-                    if (Rotation.Z < MathHelper.PiOver2)
-                    {
-                        Rotation.Z += rotationSpeed * (speedUp / 2);
-                    }
-                    isMoving = true;
-                }
-                if (state.IsKeyDown(Keys.D))
-                {
-                    position.X += movementSpeed * speedUp;
-                    // Rotation.X = MathHelper.PiOver4  * (-1);
-                    // Rotation.Z = MathHelper.PiOver4 * (-1);
-                    // Rotation *= Matrix.CreateRotationZ(-.05f);
-                    if (Rotation.Z > -MathHelper.PiOver2)
-                    {
-                        Rotation.Z += -rotationSpeed * (speedUp / 2);
-                    }
-                    isMoving = true;
-                }
-
-                var pressedKeys = state.GetPressedKeys();
-                if (pressedKeys.Length == 2 && pressedKeys.Contains(Keys.Space))
-                {
-                    if (speedUp < 5)
-                    {
-                        speedUp += 1;
-                    }
-                }
-
-                if (pressedKeys.Length == 1)
-                {
-                    speedUp = 1;
-                }
-
-                if (!isMoving)
-                {
-                    // Rotation = Matrix.Identity;
-                    Rotation = new Vector3(0, 0, 0);
-                }
-
+                leftRightRotation -= turningSpeed;
             }
-            else
+            if (keys.IsKeyDown(Keys.S))
             {
-                if (state.IsKeyDown(Keys.W))
-                {
-                    // Adelante eje Z
-                    position.Z -= 1;
-
-                }
-                if (state.IsKeyDown(Keys.S))
-                {
-                    // Atras eje Z
-                    position.Z += 1;
-                }
-                if (state.IsKeyDown(Keys.A))
-                {
-                    // Izquierda eje X (negativo) posicion + giro de nave
-                    position.X -= 1;
-                }
-                if (state.IsKeyDown(Keys.D))
-                {
-                    // Derecha eje X (positivo) posicion + giro de nave
-                    position.X += 1;
-                }
-                if (state.IsKeyDown(Keys.Up))
-                {
-                    // Subo eje Y (positivo) posicion + giro de nave
-                    position.Y += 1;
-                }
-                if (state.IsKeyDown(Keys.Down))
-                {
-                    // Bajo eje Y (negativo) posicion + giro de nave
-                    position.Y -= 1;
-                }
-
-                if (state.IsKeyDown(Keys.Y))
-                {
-                    Rotation.X += .1f;
-                }
-                if (state.IsKeyDown(Keys.U))
-                {
-                    Rotation.Y += .1f;
-                }
-                if (state.IsKeyDown(Keys.I))
-                {
-                    Rotation.Z += .1f;
-                }
+                upDownRotation += turningSpeed;
             }
+            if (keys.IsKeyDown(Keys.W))
+            {
+                upDownRotation -= turningSpeed;
+            }
+
+            Quaternion additionalRotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRotation) * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRotation);
+            _spaceshipRotation *= additionalRotation;
+        }
+        
+        private void MoveForward(ref Vector3 position, Quaternion rotationQuat, float speed)
+        {
+            Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), rotationQuat);
+            position += addVector * speed;
+        }
+
+        
+        private void UpdateCamera()
+        {
+            Vector3 cameraPosition = new Vector3(0, 0.1f, 0.6f);
+            cameraPosition = Vector3.Transform(cameraPosition, Matrix.CreateFromQuaternion(_spaceshipRotation));
+            cameraPosition += _spaceshipPosition;
+            Vector3 cameraUpDirection = new Vector3(0, 1, 0);
+            cameraUpDirection = Vector3.Transform(cameraUpDirection, Matrix.CreateFromQuaternion(_spaceshipRotation));
+
+            View = Matrix.CreateLookAt(cameraPosition, _spaceshipPosition, cameraUpDirection);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.2f, 500.0f);
+
+            _cameraPosition = cameraPosition;
+            _cameraDirection = cameraUpDirection;
         }
 
         /// <summary>
@@ -313,33 +280,27 @@ namespace Chinchulines
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
 
-
-
-
-
             VenusModel.Draw(World * 
                             Matrix.CreateScale(.05f) * 
                             Matrix.CreateRotationY(VenusRotation) * 
                             Matrix.CreateTranslation(-5f,-2f,-10), View, Projection);
             
-            // SpaceShipModel.Draw(World * Matrix.CreateScale(.8f) * Matrix.CreateRotationY(RotationY), View, Projection);
-            
-            SpaceShipModelMK1.Draw(World * //Matrix.CreateTranslation(0,-15f,0) * 
-                                Matrix.CreateScale(.15f) *
-                                Matrix.CreateFromYawPitchRoll(Rotation.X, Rotation.Y, Rotation.Z) *
-                                // Rotation *
-                                Matrix.CreateTranslation(position) 
+            SpaceShipModelMK1.Draw(
+                                Matrix.CreateScale(0.005f) *
+                                Matrix.CreateFromQuaternion(_spaceshipRotation) *
+                                Matrix.CreateTranslation(_spaceshipPosition)
                 , View, Projection);
 
-            SpaceShipModelMK2.Draw(World *
-                            Matrix.CreateScale(.08f) *
-                            Matrix.CreateRotationY(VenusRotation) *
-                            Matrix.CreateTranslation(4f, -2f, -10), View, Projection);
+            EM.Draw(View, Projection);
 
-            SpaceShipModelMK3.Draw(World *
-                            Matrix.CreateScale(.08f) *
+            SpaceShipModelMK3.Draw(
+                            Matrix.CreateScale(.008f) *
                             Matrix.CreateRotationY(-VenusRotation) *
                             Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
+
+            _trench.Draw(View, Projection, _lightDirection, Graphics);
+
+            _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
 
             base.Draw(gameTime);
         }
