@@ -45,19 +45,26 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
     float shaderTime = Time;
-	input.Position.y = (sin(input.Position.x + shaderTime) + sin(input.Position.z + shaderTime))*15 + sin(input.Position.x + input.Position.z + shaderTime)*15 + 50;
+    
+    float4 worldPosition = mul(input.Position, World);
+    float4 zero = mul(float4(0,0,0,1), World);
+        
+    float waveFrequency = 2;
+    float waveAmplitude = 25;
+     float waveAmplitude2 = 25;
+    //worldPosition.y += zero.y;
+	worldPosition.y = zero.y + (sin(worldPosition.x*waveFrequency+ shaderTime) + sin(worldPosition.z*waveFrequency + shaderTime))*waveAmplitude + sin(worldPosition.x + worldPosition.z + shaderTime)*waveAmplitude2;
     
     float3 tangent1 = normalize(float3(1, 
-    (cos(input.Position.x+shaderTime)*15+   cos(input.Position.x + input.Position.z + shaderTime)*15)
+    (cos(input.Position.x*waveFrequency + shaderTime)*waveFrequency*waveAmplitude + cos(worldPosition.x + worldPosition.z + shaderTime)*waveAmplitude2)
     ,0));
     float3 tangent2 = normalize(float3(0, 
-    (cos(input.Position.z+shaderTime)*15+   cos(input.Position.x + input.Position.z + shaderTime)*15)
+    (cos(input.Position.z*waveFrequency + shaderTime)*waveFrequency*waveAmplitude + cos(worldPosition.x + worldPosition.z + shaderTime)*waveAmplitude2)
     ,1));
-
     
 	input.Normal.xyz = normalize(cross(tangent1, tangent2));
 
-	float4 worldPosition = mul(input.Position, World);
+//	float4 worldPosition = mul(input.Position, World);
 	float4 viewPosition = mul(worldPosition, View);
 
     output.Normal = mul(input.Normal, InverseTransposeWorld);
@@ -71,7 +78,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
     //Todo: Set light position from game script
-    float3 lightDirection = normalize(float3(1000,700, 0) - input.WorldPosition.xyz);
+    float3 lightDirection = normalize(float3(1000,700, 0) + input.WorldPosition.xyz - input.WorldPosition.xyz);
     float3 viewDirection = normalize(CameraPosition - input.WorldPosition.xyz);
     float3 halfVector = normalize(lightDirection + viewDirection);
     

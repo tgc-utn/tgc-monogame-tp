@@ -131,6 +131,7 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
 
+            
             // Capturar Input teclado
             Camera.Update(gameTime);
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -138,25 +139,29 @@ namespace TGC.MonoGame.TP
                 Exit();
             
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * 0.5f * timeMultiplier;
-            
-            
-            var newY = (MathF.Sin(boatPosition.X + time) + MathF.Sin(boatPosition.Z + time))*15 + MathF.Sin(boatPosition.X + boatPosition.Z + time)*15 + 50;
 
-            Console.Write(newY + "\n");
+            //   boatPosition.X -= Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * 50f; 
+
+            float waveFrequency = 2;
+            float waveAmplitude = 25;
+            float waveAmplitude2 = 25;
             
+           // boatPosition.Z -= Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * 50f;
+            
+            //var newY = (MathF.Sin(boatPosition.X*waveFrequency + time) + MathF.Sin(boatPosition.Z*waveFrequency + time))*waveAmplitude + MathF.Sin(boatPosition.X + boatPosition.Z + time)*waveAmplitude2;
+
             var tangent1 = Vector3.Normalize(new Vector3(0, 
-                (MathF.Cos(boatPosition.X+time)*15f+   MathF.Cos(boatPosition.X+ boatPosition.Z + time)*15f) * 0.005f
+                (MathF.Cos(boatPosition.X*waveFrequency+time)*waveFrequency*waveAmplitude + MathF.Cos(boatPosition.X + boatPosition.Z + time)*waveAmplitude2) * 0.005f
                 ,1));
             var tangent2 = Vector3.Normalize(new Vector3(1, 
-                (MathF.Cos(boatPosition.Z+time)*15f+   MathF.Cos(boatPosition.X+ boatPosition.Z + time)*15f) * 0.005f
+                (MathF.Cos(boatPosition.Z*waveFrequency+time)*waveFrequency*waveAmplitude + MathF.Cos(boatPosition.X + boatPosition.Z + time)*waveAmplitude2) * 0.005f
                 ,0));
-
-            boatPosition = (new Vector3(boatPosition.X, newY-10, boatPosition.Z));
+            
+           // boatPosition.Y = newY - 10;
 
             var waterNormal = Vector3.Normalize(Vector3.Cross(tangent1, tangent2));
 
-            WaterMatrix = Matrix.CreateLookAt(Vector3.Zero,tangent1 , waterNormal);
-            
+           // WaterMatrix = Matrix.CreateLookAt(Vector3.Zero,tangent1 , waterNormal);
             
             base.Update(gameTime);
         }
@@ -171,7 +176,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             //Finalmente invocamos al draw del modelo.
             //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
-            Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(boatPosition), Camera.View, Camera.Projection);
+             Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(boatPosition), Camera.View, Camera.Projection);
             //Model.Draw(World * WaterMatrix, Camera.View, Camera.Projection);
            // Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), Camera.View, Camera.Projection);
             //Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
