@@ -70,5 +70,16 @@ namespace TGC.MonoGame.Samples.Cameras
         {
             // This camera has no movement, once initialized with position and lookAt it is no longer updated automatically.
         }
+
+        public void UpdatePosition(GameTime gameTime, Vector3 objectPosition) 
+        {
+            TargetPosition = objectPosition;
+            var cameraPosition = Position;
+            cameraPosition.X = objectPosition.X;
+            cameraPosition.Y = objectPosition.Y + 250;
+            cameraPosition.Z = objectPosition.Z - 400;
+            Position = cameraPosition;
+            BuildView();
+        }
     }
 }

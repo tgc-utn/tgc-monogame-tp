@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
+using TGC.MonoGame.TP.Objects;
 
 namespace TGC.MonoGame.TP
 {
@@ -23,13 +24,8 @@ namespace TGC.MonoGame.TP
         private float time;
         private Vector3 boatPosition;
         private Matrix WaterMatrix;
-        private Vector3 boatOriginForward;
-        private Vector3 boatActualForward;
-        private Vector3 boatTargetForward;
-        private float fowardProgress;
-        private Vector3 waterNormal;
 
-        private float timeMultiplier = 1f;
+        private float timeMultiplier = 0.5f;
 
         /// <summary>
         ///     Constructor del juego.
@@ -53,7 +49,10 @@ namespace TGC.MonoGame.TP
         private Model Model3 { get; set; }
         private Model Model4 { get; set; }
 
+        private Ship PlayerShip { get; set; }
         private Camera Camera;
+
+        private TargetCamera TargetCamera;
 
         private Effect WaterEffect { get; set; }
         private float Rotation { get; set; }
@@ -81,8 +80,8 @@ namespace TGC.MonoGame.TP
 
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
-            
             boatPosition = new Vector3(120,25,0);
+            TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(boatPosition.X, boatPosition.Y + 150, boatPosition.Z - 250), boatPosition);
             WaterMatrix = Matrix.Identity;
             base.Initialize();
         }
@@ -108,6 +107,8 @@ namespace TGC.MonoGame.TP
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
             modelEffect.EnableDefaultLighting();
 
+            PlayerShip = new Ship(boatPosition,Model,new Vector3(0,0,1), 20);
+
             WaterEffect = Content.Load<Effect>(ContentFolderEffect + "WaterShader");
             
             WaterEffect.Parameters["KAmbient"]?.SetValue(0.15f);
@@ -129,39 +130,16 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * timeMultiplier;
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            PlayerShip.Update(time, timeMultiplier);
 
+            WaterMatrix = PlayerShip.UpdateShipRegardingWaves(time);
             
             // Capturar Input teclado
-            Camera.Update(gameTime);
+            TargetCamera.UpdatePosition(gameTime, PlayerShip.Position);
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
-                Exit();
-            
-            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * 0.5f * timeMultiplier;
-
-            //   boatPosition.X -= Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * 50f; 
-
-            float waveFrequency = 2;
-            float waveAmplitude = 25;
-            float waveAmplitude2 = 25;
-            
-           // boatPosition.Z -= Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds) * 50f;
-            
-            //var newY = (MathF.Sin(boatPosition.X*waveFrequency + time) + MathF.Sin(boatPosition.Z*waveFrequency + time))*waveAmplitude + MathF.Sin(boatPosition.X + boatPosition.Z + time)*waveAmplitude2;
-
-            var tangent1 = Vector3.Normalize(new Vector3(0, 
-                (MathF.Cos(boatPosition.X*waveFrequency+time)*waveFrequency*waveAmplitude + MathF.Cos(boatPosition.X + boatPosition.Z + time)*waveAmplitude2) * 0.005f
-                ,1));
-            var tangent2 = Vector3.Normalize(new Vector3(1, 
-                (MathF.Cos(boatPosition.Z*waveFrequency+time)*waveFrequency*waveAmplitude + MathF.Cos(boatPosition.X + boatPosition.Z + time)*waveAmplitude2) * 0.005f
-                ,0));
-            
-           // boatPosition.Y = newY - 10;
-
-            var waterNormal = Vector3.Normalize(Vector3.Cross(tangent1, tangent2));
-
-           // WaterMatrix = Matrix.CreateLookAt(Vector3.Zero,tangent1 , waterNormal);
             
             base.Update(gameTime);
         }
@@ -176,7 +154,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             //Finalmente invocamos al draw del modelo.
             //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
-             Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(boatPosition), Camera.View, Camera.Projection);
+            Model.Draw(World * Matrix.CreateTranslation(PlayerShip.Position), TargetCamera.View, TargetCamera.Projection);
             //Model.Draw(World * WaterMatrix, Camera.View, Camera.Projection);
            // Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), Camera.View, Camera.Projection);
             //Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
@@ -188,11 +166,11 @@ namespace TGC.MonoGame.TP
                    var part = waterMesh.MeshParts[0];
                    part.Effect = WaterEffect;
                    WaterEffect.Parameters["World"].SetValue(waterMesh.ParentBone.Transform);
-                   WaterEffect.Parameters["View"].SetValue(Camera.View);
-                   WaterEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                   WaterEffect.Parameters["View"].SetValue(TargetCamera.View);
+                   WaterEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
                    WaterEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
                    WaterEffect.Parameters["Time"]?.SetValue(time);
-                   WaterEffect.Parameters["CameraPosition"]?.SetValue(Camera.Position);
+                   WaterEffect.Parameters["CameraPosition"]?.SetValue(TargetCamera.Position);
                    //Effect.Parameters["WorldViewProjection"].SetValue(Camera.WorldMatrix * Camera.View * Camera.Projection);
                    //Effect.Parameters["ModelTexture"].SetValue(Texture);
                  //  Effect.Parameters["Time"]?.SetValue(time);
