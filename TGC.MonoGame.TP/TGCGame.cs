@@ -80,7 +80,7 @@ namespace TGC.MonoGame.TP
 
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
-            boatPosition = new Vector3(120,25,0);
+            boatPosition = new Vector3(-150, 40, -600);
             TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(boatPosition.X, boatPosition.Y + 150, boatPosition.Z - 250), boatPosition);
             WaterMatrix = Matrix.Identity;
             base.Initialize();
@@ -107,7 +107,7 @@ namespace TGC.MonoGame.TP
             modelEffect.DiffuseColor = Color.DarkBlue.ToVector3();
             modelEffect.EnableDefaultLighting();
 
-            PlayerShip = new Ship(boatPosition,Model,new Vector3(0,0,1), 20);
+            PlayerShip = new Ship(boatPosition,Model,new Vector3(0,0,-1), 20);
 
             WaterEffect = Content.Load<Effect>(ContentFolderEffect + "WaterShader");
             
@@ -154,7 +154,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             //Finalmente invocamos al draw del modelo.
             //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
-            Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(PlayerShip.Position), Camera.View, Camera.Projection);
+            Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(PlayerShip.Position), TargetCamera.View, Camera.Projection);
             //Model.Draw(World * WaterMatrix, Camera.View, Camera.Projection);
            // Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), Camera.View, Camera.Projection);
             //Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
