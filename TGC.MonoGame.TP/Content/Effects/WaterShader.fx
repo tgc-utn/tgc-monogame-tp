@@ -44,25 +44,25 @@ struct VertexShaderOutput
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
 	VertexShaderOutput output = (VertexShaderOutput)0;
-    float shaderTime = Time;
+    float shaderTime = Time * 2;
     
     float4 worldPosition = mul(input.Position, World);
     float4 zero = mul(float4(0,0,0,1), World);
         
-    float waveFrequency = 2;
-    float waveAmplitude = 25;
-     float waveAmplitude2 = 25;
-    //worldPosition.y += zero.y;
-	worldPosition.y = zero.y + (sin(worldPosition.x*waveFrequency+ shaderTime) + sin(worldPosition.z*waveFrequency + shaderTime))*waveAmplitude + sin(worldPosition.x + worldPosition.z + shaderTime)*waveAmplitude2;
+    float waveFrequency = 0.01;
+    float waveAmplitude = 20;
+     float waveAmplitude2 = 20;
+
+	worldPosition.y = zero.y + (sin(worldPosition.x*waveFrequency+ shaderTime) + sin(worldPosition.z*waveFrequency+ shaderTime))*waveAmplitude;
     
     float3 tangent1 = normalize(float3(1, 
-    (cos(input.Position.x*waveFrequency + shaderTime)*waveFrequency*waveAmplitude + cos(worldPosition.x + worldPosition.z + shaderTime)*waveAmplitude2)
+    (cos(worldPosition.x * waveFrequency + shaderTime) * waveFrequency * waveAmplitude)
     ,0));
     float3 tangent2 = normalize(float3(0, 
-    (cos(input.Position.z*waveFrequency + shaderTime)*waveFrequency*waveAmplitude + cos(worldPosition.x + worldPosition.z + shaderTime)*waveAmplitude2)
+    (cos(worldPosition.z * waveFrequency + shaderTime) * waveFrequency * waveAmplitude)
     ,1));
     
-	input.Normal.xyz = normalize(cross(tangent1, tangent2));
+	input.Normal.xyz = normalize(cross(tangent2, tangent1));
 
 //	float4 worldPosition = mul(input.Position, World);
 	float4 viewPosition = mul(worldPosition, View);

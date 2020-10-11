@@ -154,7 +154,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             //Finalmente invocamos al draw del modelo.
             //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
-            Model.Draw(World * Matrix.CreateTranslation(PlayerShip.Position), TargetCamera.View, TargetCamera.Projection);
+            Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(PlayerShip.Position), Camera.View, Camera.Projection);
             //Model.Draw(World * WaterMatrix, Camera.View, Camera.Projection);
            // Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), Camera.View, Camera.Projection);
             //Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
@@ -165,7 +165,7 @@ namespace TGC.MonoGame.TP
            {
                    var part = waterMesh.MeshParts[0];
                    part.Effect = WaterEffect;
-                   WaterEffect.Parameters["World"].SetValue(waterMesh.ParentBone.Transform);
+                   WaterEffect.Parameters["World"].SetValue(World);
                    WaterEffect.Parameters["View"].SetValue(TargetCamera.View);
                    WaterEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
                    WaterEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));

@@ -43,25 +43,29 @@ namespace TGC.MonoGame.TP.Objects
 
         public Matrix UpdateShipRegardingWaves (float time) {
             
-            float waveFrequency = 2;
-            float waveAmplitude = 25;
-            float waveAmplitude2 = 25;
+            float waveFrequency = 0.01f;
+            float waveAmplitude = 20;
+           // float waveAmplitude2 = 50;
+           time *= 2;
+           
+            var worldVector = Position;
             
-            
-            var newY = (MathF.Sin(Position.X*waveFrequency + time) + MathF.Sin(Position.Z*waveFrequency + time))*waveAmplitude + MathF.Sin(Position.X + Position.Z + time)*waveAmplitude2;
+            var newY = (MathF.Sin(worldVector.X*waveFrequency + time) + MathF.Sin(worldVector.Z*waveFrequency + time))*waveAmplitude;
 
-            var tangent1 = Vector3.Normalize(new Vector3(0, 
-                (MathF.Cos(Position.X*waveFrequency+time)*waveFrequency*waveAmplitude + MathF.Cos(Position.X + Position.Z + time)*waveAmplitude2) * 0.005f
-                ,1));
-            var tangent2 = Vector3.Normalize(new Vector3(1, 
-                (MathF.Cos(Position.Z*waveFrequency+time)*waveFrequency*waveAmplitude + MathF.Cos(Position.X + Position.Z + time)*waveAmplitude2) * 0.005f
+            var tangent1 = Vector3.Normalize(new Vector3(1, 
+                (MathF.Cos(worldVector.X*waveFrequency+time)*waveFrequency*waveAmplitude) * 0.5f
                 ,0));
+            var tangent2 = Vector3.Normalize(new Vector3(0, 
+                (MathF.Cos(worldVector.Z*waveFrequency+time)*waveFrequency*waveAmplitude) * 0.5f
+                ,1));
             
-           // Position = (new Vector3(Position.X, newY-10, Position.Z));
+            worldVector = new Vector3(worldVector.X, newY, worldVector.Z);
             
-            var waterNormal = Vector3.Normalize(Vector3.Cross(tangent1, tangent2));
+            Position = worldVector;
+            
+            var waterNormal = Vector3.Normalize(Vector3.Cross(tangent2, tangent1));
 
-            return Matrix.CreateLookAt(Vector3.Zero,tangent1 , waterNormal);
+            return Matrix.CreateLookAt(Vector3.Zero,tangent2, waterNormal);
         }
         
         
