@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace TGC.MonoGame.Samples.Cameras
 {
@@ -11,6 +13,15 @@ namespace TGC.MonoGame.Samples.Cameras
         ///     The direction that is "up" from the camera's point of view.
         /// </summary>
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
+        
+        public float MovementSpeed { get; set; } = 100f;
+        public float MouseSensitivity { get; set; } = 5f;
+        private float lastScrollValue = 0;
+        public float scrollSensitivity = 100;
+        public float maxZoom = 1200;
+        public float minZoom = 240;
+
+        private float zoom = 400f;
 
         /// <summary>
         ///     Camera looking at a particular direction, which has the up vector (0,1,0).
@@ -69,15 +80,37 @@ namespace TGC.MonoGame.Samples.Cameras
         public override void Update(GameTime gameTime)
         {
             // This camera has no movement, once initialized with position and lookAt it is no longer updated automatically.
+            var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            ProcessMouseMovement(elapsedTime);
         }
+        
+        private void ProcessMouseMovement(float elapsedTime)
+        {
+            var mouseState = Mouse.GetState();
+
+            if(lastScrollValue == mouseState.ScrollWheelValue) return;
+            if (lastScrollValue < mouseState.ScrollWheelValue)
+            {
+                zoom = MathF.Min(MathF.Max(minZoom,zoom + scrollSensitivity), maxZoom);
+            }
+            else
+            {
+                zoom = MathF.Min(MathF.Max(minZoom,zoom - scrollSensitivity), maxZoom);
+            }
+            lastScrollValue = mouseState.ScrollWheelValue;
+            Console.Write(mouseState.ScrollWheelValue + "\n");   
+
+        }
+        
+        
 
         public void UpdatePosition(GameTime gameTime, Vector3 objectPosition) 
         {
             TargetPosition = objectPosition;
             var cameraPosition = Position;
             cameraPosition.X = objectPosition.X;
-            cameraPosition.Y = objectPosition.Y + 250;
-            cameraPosition.Z = objectPosition.Z - 400;
+            cameraPosition.Y = objectPosition.Y + zoom * 0.5f;
+            cameraPosition.Z = objectPosition.Z - zoom;
             Position = cameraPosition;
             BuildView();
         }

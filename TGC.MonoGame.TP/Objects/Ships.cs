@@ -30,14 +30,19 @@ namespace TGC.MonoGame.TP.Objects
 
 
         public void Update(float gameTime, float timeMultiplier) {
+           // Console.Write(anguloDeGiro + "     ");
             ProcessKeyboard(gameTime);
+           // Console.Write(anguloDeGiro + "     Orientacion:  ");
+            
+           // Console.Write(orientacion + "       ");
             Move(gameTime, timeMultiplier);
+           // Console.Write(orientacion + "\n");
         }
         public void Move(float gameTime, float timeMultiplier)
         {
             var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
             orientacion = newOrientacion;
-            var newPosition = new Vector3(Position.X + velocidad*orientacion.X,Position.Y,Position.Z + velocidad*orientacion.Z );
+            var newPosition = new Vector3(Position.X - velocidad*orientacion.X,Position.Y,Position.Z + velocidad*orientacion.Z );
             Position = newPosition;
         }
 
@@ -65,7 +70,7 @@ namespace TGC.MonoGame.TP.Objects
             
             var waterNormal = Vector3.Normalize(Vector3.Cross(tangent2, tangent1));
 
-            return Matrix.CreateLookAt(Vector3.Zero,tangent2, waterNormal);
+            return Matrix.CreateLookAt(Vector3.Zero,orientacion, waterNormal);
         }
         
         
@@ -78,11 +83,11 @@ namespace TGC.MonoGame.TP.Objects
             {
                 if(velocidad == 0){}
                 else {
-                    if(anguloDeGiro+giroBase >= 360){
-                        anguloDeGiro = anguloDeGiro + giroBase - 360f;
+                    if(anguloDeGiro+giroBase >= MathF.PI*2){
+                        anguloDeGiro = anguloDeGiro + giroBase - MathF.PI*2;
                     }
                     else {
-                        anguloDeGiro += giroBase;
+                        anguloDeGiro -= giroBase;
                     } 
                 }
             }
@@ -92,10 +97,10 @@ namespace TGC.MonoGame.TP.Objects
                 if(velocidad == 0){}
                 else {
                     if(anguloDeGiro+giroBase < 0){
-                        anguloDeGiro = anguloDeGiro - giroBase + 360f;
+                        anguloDeGiro = anguloDeGiro - giroBase + MathF.PI*2;
                     }
                     else {
-                        anguloDeGiro -= giroBase;
+                        anguloDeGiro += giroBase;
                     } 
                 }
             }
