@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
+using TGC.MonoGame.TP.SkyboxSimple;
 
 namespace TGC.MonoGame.TP
 {
@@ -57,8 +58,11 @@ namespace TGC.MonoGame.TP
         private Effect WaterEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
+        private Matrix view { get; set; }
+        private SkyBox2 SkyBox { get; set; }
+        private float angle { get; set; }
+        private float distance { get; set; }
+        public Matrix MatrixSkybox { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -83,6 +87,17 @@ namespace TGC.MonoGame.TP
             boatPosition = new Vector3(-150, 40, -600);
             TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(boatPosition.X, boatPosition.Y + 150, boatPosition.Z - 250), boatPosition);
             WaterMatrix = Matrix.Identity;
+
+            /*
+            Matrix world = Matrix.Identity;
+            Matrix view = Matrix.CreateLookAt(new Vector3(20, 0, 0), new Vector3(0, 0, 0), Vector3.UnitY);
+            Matrix projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), 800f / 600f, 0.1f, 100f);
+            Vector3 cameraPosition;
+            */
+
+            angle = 0;
+            distance = 20;
+
             base.Initialize();
         }
 
@@ -97,7 +112,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-           Model = Content.Load<Model>(ContentFolder3D + "t-22/T-22");
+            Model = Content.Load<Model>(ContentFolder3D + "t-22/T-22");
            //Model = Content.Load<Model>(ContentFolder3D + "axis");
             Model2 = Content.Load<Model>(ContentFolder3D + "nagato/Nagato");
             Model3 = Content.Load<Model>(ContentFolder3D + "Isla_V2");
@@ -120,6 +135,13 @@ namespace TGC.MonoGame.TP
             WaterEffect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.0f, 0.5f, 0.7f));
             WaterEffect.Parameters["SpecularColor"]?.SetValue(new Vector3(1f, 1f, 1f));
 
+            var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/sunset/sunset");
+            //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/sun-in-space/sun-in-space");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/skybox/skybox");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffect + "SkyBox");
+            SkyBox = new SkyBox2(skyBox, skyBoxTexture, skyBoxEffect);
+
             base.LoadContent();
         }
 
@@ -137,7 +159,8 @@ namespace TGC.MonoGame.TP
             WaterMatrix = PlayerShip.UpdateShipRegardingWaves(time);
             
             // Capturar Input teclado
-            TargetCamera.UpdatePosition(gameTime, PlayerShip.Position);
+            Camera.Update(gameTime);
+
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
             
@@ -154,7 +177,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             //Finalmente invocamos al draw del modelo.
             //Model.Draw(World * Matrix.CreateRotationY(Rotation), View, Projection);
-            Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(PlayerShip.Position), TargetCamera.View, Camera.Projection);
+            Model.Draw(World * WaterMatrix * Matrix.CreateTranslation(PlayerShip.Position), Camera.View, Camera.Projection);
             //Model.Draw(World * WaterMatrix, Camera.View, Camera.Projection);
            // Model2.Draw(World * Matrix.CreateTranslation(-120, 20, 0), Camera.View, Camera.Projection);
             //Model3.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
@@ -166,16 +189,30 @@ namespace TGC.MonoGame.TP
                    var part = waterMesh.MeshParts[0];
                    part.Effect = WaterEffect;
                    WaterEffect.Parameters["World"].SetValue(World);
-                   WaterEffect.Parameters["View"].SetValue(TargetCamera.View);
-                   WaterEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+                   WaterEffect.Parameters["View"].SetValue(Camera.View);
+                   WaterEffect.Parameters["Projection"].SetValue(Camera.Projection);
                    WaterEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
                    WaterEffect.Parameters["Time"]?.SetValue(time);
-                   WaterEffect.Parameters["CameraPosition"]?.SetValue(TargetCamera.Position);
+                   WaterEffect.Parameters["CameraPosition"]?.SetValue(Camera.Position);
                    //Effect.Parameters["WorldViewProjection"].SetValue(Camera.WorldMatrix * Camera.View * Camera.Projection);
                    //Effect.Parameters["ModelTexture"].SetValue(Texture);
                  //  Effect.Parameters["Time"]?.SetValue(time);
                    waterMesh.Draw();
            }
+
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
+            //MatrixSkybox = Matrix.CreateOrthographic(100, 100, 0.1f, 100f);
+
+            //SkyBox.Draw(Camera.View, MatrixSkybox, Camera.Position);
+            
+            SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
+
+            GraphicsDevice.RasterizerState = originalRasterizerState;
+
 
             base.Draw(gameTime);
         }
