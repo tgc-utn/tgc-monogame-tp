@@ -20,8 +20,12 @@ namespace TGC.MonoGame.Samples.Cameras
         public float scrollSensitivity = 100;
         public float maxZoom = 1200;
         public float minZoom = 240;
-
+        public Vector3 OrientationVector { get; set; }
         private float zoom = 400f;
+        private float minimumYAngle = 15f;
+        private float maximumYAngle = 70f;
+        private float currentYangle = 15f;
+        private float cameraRotation = 0f;
 
         /// <summary>
         ///     Camera looking at a particular direction, which has the up vector (0,1,0).
@@ -82,37 +86,92 @@ namespace TGC.MonoGame.Samples.Cameras
             // This camera has no movement, once initialized with position and lookAt it is no longer updated automatically.
             var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             ProcessMouseMovement(elapsedTime);
+            ProcessKeyboardPresses(elapsedTime);
         }
         
         private void ProcessMouseMovement(float elapsedTime)
         {
             var mouseState = Mouse.GetState();
-
             if(lastScrollValue == mouseState.ScrollWheelValue) return;
             if (lastScrollValue < mouseState.ScrollWheelValue)
             {
-                zoom = MathF.Min(MathF.Max(minZoom,zoom + scrollSensitivity), maxZoom);
+                zoom = MathF.Min(MathF.Max(minZoom,zoom - scrollSensitivity), maxZoom);
             }
             else
             {
-                zoom = MathF.Min(MathF.Max(minZoom,zoom - scrollSensitivity), maxZoom);
+                zoom = MathF.Min(MathF.Max(minZoom,zoom + scrollSensitivity), maxZoom);
             }
             lastScrollValue = mouseState.ScrollWheelValue;
             Console.Write(mouseState.ScrollWheelValue + "\n");   
 
         }
         
+
+        private void ProcessKeyboardPresses(float elapsedTime) {
+            var keyboardState = Keyboard.GetState();
+
+
+            if (keyboardState.IsKeyDown(Keys.Up))
+            {
+                if(currentYangle <= maximumYAngle){
+                    if(currentYangle+0.3f <= maximumYAngle) {
+                        currentYangle += 0.3f;
+                    }
+                    else {
+                        currentYangle = maximumYAngle;
+                    }
+                }
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Down))
+            {
+                if(currentYangle >= minimumYAngle){
+                    if(currentYangle-0.3f >= minimumYAngle) {
+                        currentYangle -= 0.3f;
+                    }
+                    else {
+                        currentYangle = minimumYAngle;
+                    }
+                }
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Right))
+            {
+                if(cameraRotation+0.3f > 360){
+                    cameraRotation = cameraRotation + 0.3f - 360f;
+                }
+                else {
+                    cameraRotation += 0.3f;
+                } 
+            }
+
+            if (keyboardState.IsKeyDown(Keys.Left))
+            {
+                if(cameraRotation-0.3f < 0) {
+                    cameraRotation = cameraRotation - 0.3f + 360f;
+                }
+                else {
+                    cameraRotation -= 0.3f;
+                } 
+            }
+        }
         
 
         public void UpdatePosition(GameTime gameTime, Vector3 objectPosition) 
         {
             TargetPosition = objectPosition;
             var cameraPosition = Position;
-            cameraPosition.X = objectPosition.X;
-            cameraPosition.Y = objectPosition.Y + zoom * 0.5f;
-            cameraPosition.Z = objectPosition.Z - zoom;
+
+            cameraPosition.X = objectPosition.X + zoom * (float)Math.Cos(ConvertToRadians(cameraRotation)) * (float)Math.Sin(ConvertToRadians(90-currentYangle));
+            cameraPosition.Y = objectPosition.Y + zoom * (float)Math.Sin(ConvertToRadians(currentYangle));
+            cameraPosition.Z = objectPosition.Z + zoom * (float)Math.Sin(ConvertToRadians(cameraRotation)) * (float)Math.Sin(ConvertToRadians(90-currentYangle));
             Position = cameraPosition;
             BuildView();
+        }
+
+        public float ConvertToRadians(float angle)
+        {
+            return (float)(Math.PI / 180) * angle;
         }
     }
 }
