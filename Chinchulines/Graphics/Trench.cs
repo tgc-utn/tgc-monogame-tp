@@ -18,6 +18,7 @@ namespace Chinchulines.Graphics
             _texture = Content.Load<Texture2D>(texturePath);
             _effect = Content.Load<Effect>(effect);
             SetUpVertices(graphics);
+            SetUpBoundingBoxes();
         }
 
         public void Draw(Matrix view, Matrix projection, Vector3 lightDirection, GraphicsDeviceManager graphics)
@@ -26,7 +27,7 @@ namespace Chinchulines.Graphics
         }
 
         private int[,] _floorPlan;
-        private int[] _wallHeights = new int[] { 0, 1 };
+        private int[] _wallHeights = new int[] { 0, 2, 2, 6, 5, 4 };
         private Texture2D _texture;
         private Effect _effect;
         private VertexBuffer _wallVertexBuffer;
@@ -35,11 +36,11 @@ namespace Chinchulines.Graphics
         {
             _floorPlan = new int[,]
             {
-                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
                 {1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1},
-                {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1},
                 {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1},
                 {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1},
                 {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1},
@@ -182,6 +183,35 @@ namespace Chinchulines.Graphics
                 graphics.GraphicsDevice.SetVertexBuffer(_wallVertexBuffer);
                 graphics.GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, _wallVertexBuffer.VertexCount / 3);
             }
+        }
+
+        private BoundingBox[] _trenchBoundingBoxes;
+
+        public BoundingBox[] TrenchBoundingBoxes { get => _trenchBoundingBoxes; }
+
+        private void SetUpBoundingBoxes()
+        {
+            int wallWidth = _floorPlan.GetLength(0);
+            int wallLength = _floorPlan.GetLength(1);
+
+            List<BoundingBox> bbList = new List<BoundingBox>();
+            for (int x = 0; x < wallWidth; x++)
+            {
+                for (int z = 0; z < wallLength; z++)
+                {
+                    int floorType = _floorPlan[x, z];
+                    if (floorType != 0)
+                    {
+                        int wallHeight = _wallHeights[floorType];
+                        Vector3[] trenchPoints = new Vector3[2];
+                        trenchPoints[0] = new Vector3(x, 0, -z);
+                        trenchPoints[1] = new Vector3(x + 1, wallHeight, -z - 1);
+                        BoundingBox trenchBox = BoundingBox.CreateFromPoints(trenchPoints);
+                        bbList.Add(trenchBox);
+                    }
+                }
+            }
+            _trenchBoundingBoxes = bbList.ToArray();
         }
     }
 }
