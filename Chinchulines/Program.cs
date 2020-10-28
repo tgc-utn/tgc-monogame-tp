@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chinchulines.Menu;
+using System;
 
 namespace Chinchulines
 {
@@ -7,7 +8,7 @@ namespace Chinchulines
         [STAThread]
         static void Main()
         {
-            using (var game = new ChinchuGame())
+            using (var game = new MenuScreen())
                 game.Run();
         }
     }

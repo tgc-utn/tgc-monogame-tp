@@ -61,8 +61,8 @@ namespace Chinchulines
 
         private Boolean TestRealControls { get; set; } = true;
 
-        private Vector3 Rotation = new Vector3(0,0,0);
-        
+        private Vector3 Rotation = new Vector3(0, 0, 0);
+
         private float movementSpeed;
         private float speedUp;
 
@@ -73,15 +73,19 @@ namespace Chinchulines
         Skybox skybox;
         private Trench _trench;
         private Vector3 _lightDirection = new Vector3(3, -2, 5);
-        
-        private Vector3 _spaceshipPosition = new Vector3(0,0,0);
+
+        private Vector3 _spaceshipPosition = new Vector3(0, 0, 0);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
         private float _gameSpeed = 1.0f;
-        
+
         private Vector3 _cameraPosition;
         private Vector3 _cameraDirection;
 
         private LaserManager _laserManager;
+
+        public GameState State { get; private set; }
+
+        private SpriteFont _spriteFont;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -99,8 +103,8 @@ namespace Chinchulines
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
 
-            position = new Vector3(0,0,0);
-            
+            position = new Vector3(0, 0, 0);
+
             movementSpeed = .5f;
             speedUp = 1;
 
@@ -110,6 +114,8 @@ namespace Chinchulines
 
             _trench = new Trench();
             _laserManager = new LaserManager();
+
+            State = GameState.Playing;
 
             base.Initialize();
         }
@@ -146,7 +152,7 @@ namespace Chinchulines
             spaceShipEffect3.TextureEnabled = true;
             spaceShipEffect3.Texture = Content.Load<Texture2D>(TextureMK3); // Se puede cambiar por MK2 y MK3
 
-            var venusEffect = (BasicEffect) VenusModel.Meshes[0].Effects[0];
+            var venusEffect = (BasicEffect)VenusModel.Meshes[0].Effects[0];
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
@@ -155,13 +161,15 @@ namespace Chinchulines
             _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
             _laserManager.LoadContent(ContentFolderTextures + "Lasers/doble-laser-verde", ContentFolderEffect + "Trench", Content, Graphics);
 
-            
+
             EM = new enemyManager(SpaceShipModelMK2);
 
-            for(int i = 0; i < 10; i++)EM.CrearEnemigo();
-            
+            for (int i = 0; i < 10; i++) EM.CrearEnemigo();
+
             SetUpCamera();
-            
+
+            _spriteFont = Content.Load<SpriteFont>("Fonts/Font");
+
             base.LoadContent();
         }
 
@@ -174,22 +182,30 @@ namespace Chinchulines
         {
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 //Salgo del juego.
+                State = GameState.GameOver;
+                this.UnloadContent();
                 Exit();
+            }
 
-            UpdateCamera();
-            MoveSpaceship(gameTime);
-            InputController(gameTime);
+            if (State == GameState.Playing)
+            {
 
-            float moveSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
-            MoveForward(ref _spaceshipPosition, _spaceshipRotation, moveSpeed);
-            
-            EM.Update(gameTime, position);
-            
-            RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            VenusRotation += .005f;
+                UpdateCamera();
+                MoveSpaceship(gameTime);
+                InputController(gameTime);
 
-            _laserManager.UpdateLaser(moveSpeed);
+                float moveSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
+                MoveForward(ref _spaceshipPosition, _spaceshipRotation, moveSpeed);
+
+                EM.Update(gameTime, position);
+
+                RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+                VenusRotation += .005f;
+
+                _laserManager.UpdateLaser(moveSpeed);
+            }
 
             base.Update(gameTime);
         }
@@ -208,7 +224,7 @@ namespace Chinchulines
             View = Matrix.CreateLookAt(new Vector3(20, 13, -5), new Vector3(8, 0, -7), new Vector3(0, 1, 0));
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.2f, 500.0f);
         }
-        
+
         private void MoveSpaceship(GameTime gameTime)
         {
             float leftRightRotation = 0;
@@ -239,14 +255,14 @@ namespace Chinchulines
             Quaternion additionalRotation = Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRotation) * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRotation);
             _spaceshipRotation *= additionalRotation;
         }
-        
+
         private void MoveForward(ref Vector3 position, Quaternion rotationQuat, float speed)
         {
             Vector3 addVector = Vector3.Transform(new Vector3(0, 0, -1), rotationQuat);
             position += addVector * speed;
         }
 
-        
+
         private void UpdateCamera()
         {
             Vector3 cameraPosition = new Vector3(0, 0.1f, 0.6f);
@@ -268,39 +284,45 @@ namespace Chinchulines
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
-            //Finalmente invocamos al draw del modelo.
-            RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
-            RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+            if (State == GameState.Playing)
+            {
+                //Finalmente invocamos al draw del modelo.
+                RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
+                RasterizerState rasterizerState = new RasterizerState();
+                rasterizerState.CullMode = CullMode.None;
+                Graphics.GraphicsDevice.RasterizerState = rasterizerState;
 
-            skybox.Draw(View, Projection, position);
+                skybox.Draw(View, Projection, position);
 
-            Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
+                Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
 
-            VenusModel.Draw(World * 
-                            Matrix.CreateScale(.05f) * 
-                            Matrix.CreateRotationY(VenusRotation) * 
-                            Matrix.CreateTranslation(-5f,-2f,-10), View, Projection);
-            
-            SpaceShipModelMK1.Draw(
-                                Matrix.CreateScale(0.005f) *
-                                Matrix.CreateFromQuaternion(_spaceshipRotation) *
-                                Matrix.CreateTranslation(_spaceshipPosition)
-                , View, Projection);
+                VenusModel.Draw(World *
+                                Matrix.CreateScale(.05f) *
+                                Matrix.CreateRotationY(VenusRotation) *
+                                Matrix.CreateTranslation(-5f, -2f, -10), View, Projection);
 
-            EM.Draw(View, Projection);
+                SpaceShipModelMK1.Draw(
+                                    Matrix.CreateScale(0.005f) *
+                                    Matrix.CreateFromQuaternion(_spaceshipRotation) *
+                                    Matrix.CreateTranslation(_spaceshipPosition)
+                    , View, Projection);
 
-            SpaceShipModelMK3.Draw(
-                            Matrix.CreateScale(.008f) *
-                            Matrix.CreateRotationY(-VenusRotation) *
-                            Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
+                EM.Draw(View, Projection);
 
-            _trench.Draw(View, Projection, _lightDirection, Graphics);
+                SpaceShipModelMK3.Draw(
+                                Matrix.CreateScale(.008f) *
+                                Matrix.CreateRotationY(-VenusRotation) *
+                                Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
 
-            _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
+                _trench.Draw(View, Projection, _lightDirection, Graphics);
+
+                _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
+                
+                DrawHUD();
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            }
 
             base.Draw(gameTime);
         }
@@ -314,6 +336,19 @@ namespace Chinchulines
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        // TODO: Agregar variables para el tiempo restante, checkpoints y vida
+        private void DrawHUD()
+        {
+            SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0], rasterizerState: GraphicsDevice.RasterizerState);
+            SpriteBatch.DrawString(_spriteFont, "TIEMPO RESTANTE: 04:32",
+                new Vector2(50, 50), Color.Green);
+            SpriteBatch.DrawString(_spriteFont, "CHECKPOINTS: 1 de 10", 
+                new Vector2(50, 80), Color.Green);
+            SpriteBatch.DrawString(_spriteFont, "VIDA: 100%",
+                new Vector2(50, 110), Color.Green);
+            SpriteBatch.End();
         }
     }
 }

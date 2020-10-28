@@ -7,6 +7,9 @@ namespace Chinchulines.Entities
 {
     public class LaserManager
     {
+        private const int DELAY_BETWEEN_LASERS = 1000;
+        private const float LASER_SPEED = 5.0f;
+
         private List<LaserStruct> _bulletList = new List<LaserStruct>();
         private double _lastBulletTime = 0;
         private Texture2D _texture;
@@ -27,7 +30,7 @@ namespace Chinchulines.Entities
         public void ShootLaser(GameTime gameTime, Vector3 shipPosition, Quaternion shipRotation)
         {
             double currentTime = gameTime.TotalGameTime.TotalMilliseconds;
-            if (currentTime - _lastBulletTime > 100)
+            if (currentTime - _lastBulletTime > DELAY_BETWEEN_LASERS)
             {
                 LaserStruct newBullet = new LaserStruct();
                 newBullet.position = shipPosition;
@@ -43,7 +46,7 @@ namespace Chinchulines.Entities
             for (int i = 0; i < _bulletList.Count; i++)
             {
                 LaserStruct currentBullet = _bulletList[i];
-                MoveForward(ref currentBullet.position, currentBullet.rotation, moveSpeed * 2.0f);
+                MoveForward(ref currentBullet.position, currentBullet.rotation, moveSpeed * LASER_SPEED);
                 _bulletList[i] = currentBullet;
             }
         }
