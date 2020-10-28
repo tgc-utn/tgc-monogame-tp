@@ -85,6 +85,8 @@ namespace Chinchulines
 
         public GameState State { get; private set; }
 
+        private SpriteFont _spriteFont;
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
@@ -165,6 +167,8 @@ namespace Chinchulines
             for (int i = 0; i < 10; i++) EM.CrearEnemigo();
 
             SetUpCamera();
+
+            _spriteFont = Content.Load<SpriteFont>("Fonts/Font");
 
             base.LoadContent();
         }
@@ -280,11 +284,10 @@ namespace Chinchulines
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             if (State == GameState.Playing)
             {
-
                 //Finalmente invocamos al draw del modelo.
                 RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
                 RasterizerState rasterizerState = new RasterizerState();
@@ -316,6 +319,9 @@ namespace Chinchulines
                 _trench.Draw(View, Projection, _lightDirection, Graphics);
 
                 _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
+                
+                DrawHUD();
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             }
 
             base.Draw(gameTime);
@@ -330,6 +336,19 @@ namespace Chinchulines
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        // TODO: Agregar variables para el tiempo restante, checkpoints y vida
+        private void DrawHUD()
+        {
+            SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0], rasterizerState: GraphicsDevice.RasterizerState);
+            SpriteBatch.DrawString(_spriteFont, "TIEMPO RESTANTE: 04:32",
+                new Vector2(50, 50), Color.Green);
+            SpriteBatch.DrawString(_spriteFont, "CHECKPOINTS: 1 de 10", 
+                new Vector2(50, 80), Color.Green);
+            SpriteBatch.DrawString(_spriteFont, "VIDA: 100%",
+                new Vector2(50, 110), Color.Green);
+            SpriteBatch.End();
         }
     }
 }
