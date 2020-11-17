@@ -99,6 +99,10 @@ namespace Chinchulines
 
         private FullScreenQuad FullScreenQuad;
 
+        TimeSpan _timeSpan = TimeSpan.FromMinutes(5);
+        int _actualCheckpoint = 0;
+        int _health = 100;
+
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -223,6 +227,12 @@ namespace Chinchulines
 
             if (State == GameState.Playing)
             {
+                _timeSpan -= gameTime.ElapsedGameTime;
+                if (_timeSpan < TimeSpan.Zero)
+                {
+                    State = GameState.GameOver;
+                }
+
 
                 UpdateCamera();
                 MoveSpaceship(gameTime);
@@ -472,15 +482,13 @@ namespace Chinchulines
         private void DrawHUD()
         {
             SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0], rasterizerState: GraphicsDevice.RasterizerState);
-            SpriteBatch.DrawString(_spriteFont, "TIEMPO RESTANTE: 04:32",
+            SpriteBatch.DrawString(_spriteFont, $"TIEMPO RESTANTE: {_timeSpan.Minutes}:{_timeSpan.Seconds}",
                 new Vector2(50, 50), Color.Green);
-            SpriteBatch.DrawString(_spriteFont, "CHECKPOINTS: 1 de 10",
-                new Vector2(50, 80), Color.Green);
-            SpriteBatch.DrawString(_spriteFont, "VIDA: 100%",
-                new Vector2(50, 110), Color.Green);
+            SpriteBatch.DrawString(_spriteFont, $"CHECKPOINT: {_actualCheckpoint} de 10",
+                new Vector2(GraphicsDevice.Viewport.Width / 3, 50), Color.Green);
+            SpriteBatch.DrawString(_spriteFont, $"VIDA: {_health}%",
+                new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.Green);
             SpriteBatch.End();
         }
-
-
     }
 }
