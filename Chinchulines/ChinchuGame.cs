@@ -89,16 +89,13 @@ namespace Chinchulines
 
         private Effect BloomEffect { get; set; }
         private Effect BlurEffect { get; set; }
-        private Effect DebugTextureEffect { get; set; }
-        
+
         private BasicEffect SpaceShipEffect;
         private RenderTarget2D MainSceneRenderTarget;
         private RenderTarget2D FirstPassBloomRenderTarget;
         private RenderTarget2D SecondPassBloomRenderTarget;
 
         private const int PassCount = 2;
-        private Matrix QuadBloomWorld;
-        private Matrix QuadSceneWorld;
 
         private FullScreenQuad FullScreenQuad;
 
@@ -200,12 +197,7 @@ namespace Chinchulines
             SecondPassBloomRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
                 GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None, 0,
                 RenderTargetUsage.DiscardContents);
-            // Load the debug texture effect to visualize the bloom
-            DebugTextureEffect = Content.Load<Effect>(ContentFolderEffect + "DebugTexture");
-            // Transform the quad to be in a smaller part of the screen
-            QuadSceneWorld = Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(new Vector3(-0.75f, -0.75f, 0f));
-            // Transform the quad to be in a smaller part of the screen
-            QuadBloomWorld = Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(new Vector3(-0.3f, -0.75f, 0f));
+
             // Create a full screen quad to post-process
             FullScreenQuad = new FullScreenQuad(GraphicsDevice);
 
@@ -328,59 +320,132 @@ namespace Chinchulines
 
             if (State == GameState.Playing)
             {
-                ////Finalmente invocamos al draw del modelo.
-                //RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
-                //RasterizerState rasterizerState = new RasterizerState();
-                //rasterizerState.CullMode = CullMode.None;
-                //Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+                #region Pass 1
 
-                //skybox.Draw(View, Projection, position);
+                // Use the default blend and depth configuration
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                GraphicsDevice.BlendState = BlendState.Opaque;
 
-                //Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
+                // Set the main render target, here we'll draw the base scene
+                GraphicsDevice.SetRenderTarget(MainSceneRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
-                //VenusModel.Draw(World *
-                //                Matrix.CreateScale(.05f) *
-                //                Matrix.CreateRotationY(VenusRotation) *
-                //                Matrix.CreateTranslation(-5f, -2f, -10), View, Projection);
+                DrawSkybox();
+                DrawSecondaryObjects();
 
-                ////SpaceShipModelMK1.Draw(
-                ////                    Matrix.CreateScale(0.005f) *
-                ////                    Matrix.CreateFromQuaternion(_spaceshipRotation) *
-                ////                    Matrix.CreateTranslation(_spaceshipPosition)
-                ////    , View, Projection);
 
-                DrawBloom();
+                // Assign the basic effect and draw
+                foreach (var modelMesh in SpaceShipModelMK1.Meshes)
+                    foreach (var part in modelMesh.MeshParts)
+                        part.Effect = SpaceShipEffect;
+                SpaceShipModelMK1.Draw(
+                                        Matrix.CreateScale(0.005f) *
+                                        Matrix.CreateFromQuaternion(_spaceshipRotation) *
+                                        Matrix.CreateTranslation(_spaceshipPosition)
+                        , View, Projection);
 
-                //EM.Draw(View, Projection);
+                EM.Draw(View, Projection);
 
-                //SpaceShipModelMK3.Draw(
-                //                Matrix.CreateScale(.008f) *
-                //                Matrix.CreateRotationY(-VenusRotation) *
-                //                Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
 
-                //_trench.Draw(View, Projection, _lightDirection, Graphics);
+                _trench.Draw(View, Projection, _lightDirection, Graphics);
 
-                //_laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
+                _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
 
-                //DrawHUD();
-                //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                DrawHUD();
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+                #endregion
+
+                #region Pass 2
+
+                // Set the render target as our bloomRenderTarget, we are drawing the bloom color into this texture
+                GraphicsDevice.SetRenderTarget(FirstPassBloomRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+
+                BloomEffect.CurrentTechnique = BloomEffect.Techniques["BloomPass"];
+                BloomEffect.Parameters["baseTexture"].SetValue(SpaceShipEffect.Texture);
+
+                // We get the base transform for each mesh
+                var modelMeshesBaseTransforms = new Matrix[SpaceShipModelMK1.Bones.Count];
+                SpaceShipModelMK1.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+                foreach (var modelMesh in SpaceShipModelMK1.Meshes)
+                {
+                    foreach (var part in modelMesh.MeshParts)
+                        part.Effect = BloomEffect;
+
+                    // We set the main matrices for each mesh to draw
+                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
+
+                    // WorldViewProjection is used to transform from model space to clip space
+                    BloomEffect.Parameters["WorldViewProjection"].SetValue(worldMatrix * Matrix.CreateScale(0.005f) *
+                                        Matrix.CreateFromQuaternion(_spaceshipRotation) *
+                                        Matrix.CreateTranslation(_spaceshipPosition) * View * Projection);
+
+                    // Once we set these matrices we draw
+                    modelMesh.Draw();
+                }
+
+                #endregion
+
+                #region Multipass Bloom
+
+                BlurEffect.CurrentTechnique = BlurEffect.Techniques["Blur"];
+
+                var bloomTexture = FirstPassBloomRenderTarget;
+                var finalBloomRenderTarget = SecondPassBloomRenderTarget;
+
+                for (var index = 0; index < PassCount; index++)
+                {
+                    GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
+                    GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+
+                    BlurEffect.Parameters["baseTexture"].SetValue(bloomTexture);
+                    FullScreenQuad.Draw(BlurEffect);
+
+                    if (index != PassCount - 1)
+                    {
+                        var auxiliar = bloomTexture;
+                        bloomTexture = finalBloomRenderTarget;
+                        finalBloomRenderTarget = auxiliar;
+                    }
+                }
+
+                #endregion
+
+                #region Final Pass
+
+                GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+                GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.Clear(Color.Black);
+
+                BloomEffect.CurrentTechnique = BloomEffect.Techniques["Integrate"];
+                BloomEffect.Parameters["baseTexture"].SetValue(MainSceneRenderTarget);
+                BloomEffect.Parameters["bloomTexture"].SetValue(finalBloomRenderTarget);
+                FullScreenQuad.Draw(BloomEffect);
+
+                #endregion
             }
 
             base.Draw(gameTime);
         }
 
-        private void DrawBloom()
+        private void DrawSecondaryObjects()
         {
-            #region Pass 1
+            VenusModel.Draw(
+                World *
+                Matrix.CreateScale(.5f) *
+                Matrix.CreateRotationY(VenusRotation) *
+                Matrix.CreateTranslation(0, 0, 0), View, Projection);
 
-            // Use the default blend and depth configuration
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            SpaceShipModelMK3.Draw(
+                            Matrix.CreateScale(.008f) *
+                            Matrix.CreateRotationY(-VenusRotation) *
+                            Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
+        }
 
-            // Set the main render target, here we'll draw the base scene
-            GraphicsDevice.SetRenderTarget(MainSceneRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
+        private void DrawSkybox()
+        {
             RasterizerState originalRasterizerState = Graphics.GraphicsDevice.RasterizerState;
             RasterizerState rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
@@ -389,135 +454,8 @@ namespace Chinchulines
             skybox.Draw(View, Projection, position);
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
-
-            VenusModel.Draw(World *
-                            Matrix.CreateScale(.05f) *
-                            Matrix.CreateRotationY(VenusRotation) *
-                            Matrix.CreateTranslation(-5f, -2f, -10), View, Projection);
-
-            // Assign the basic effect and draw
-            foreach (var modelMesh in SpaceShipModelMK1.Meshes)
-                foreach (var part in modelMesh.MeshParts)
-                    part.Effect = SpaceShipEffect;
-            SpaceShipModelMK1.Draw(
-                                    Matrix.CreateScale(0.005f) *
-                                    Matrix.CreateFromQuaternion(_spaceshipRotation) *
-                                    Matrix.CreateTranslation(_spaceshipPosition)
-                    , View, Projection);
-
-            EM.Draw(View, Projection);
-
-            SpaceShipModelMK3.Draw(
-                            Matrix.CreateScale(.008f) *
-                            Matrix.CreateRotationY(-VenusRotation) *
-                            Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
-
-            _trench.Draw(View, Projection, _lightDirection, Graphics);
-
-            _laserManager.DrawLasers(View, Projection, _cameraPosition, _cameraDirection, Graphics);
-
-            DrawHUD();
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-
-            #endregion
-
-            #region Pass 2
-
-            // Set the render target as our bloomRenderTarget, we are drawing the bloom color into this texture
-            GraphicsDevice.SetRenderTarget(FirstPassBloomRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
-            BloomEffect.CurrentTechnique = BloomEffect.Techniques["BloomPass"];
-            BloomEffect.Parameters["baseTexture"].SetValue(SpaceShipEffect.Texture);
-
-            // We get the base transform for each mesh
-            var modelMeshesBaseTransforms = new Matrix[SpaceShipModelMK1.Bones.Count];
-            SpaceShipModelMK1.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-            foreach (var modelMesh in SpaceShipModelMK1.Meshes)
-            {
-                foreach (var part in modelMesh.MeshParts)
-                    part.Effect = BloomEffect;
-
-                // We set the main matrices for each mesh to draw
-                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
-
-                // WorldViewProjection is used to transform from model space to clip space
-                BloomEffect.Parameters["WorldViewProjection"].SetValue(worldMatrix * Matrix.CreateScale(0.005f) *
-                                    Matrix.CreateFromQuaternion(_spaceshipRotation) *
-                                    Matrix.CreateTranslation(_spaceshipPosition) * View * Projection);
-
-                // Once we set these matrices we draw
-                modelMesh.Draw();
-            }
-
-            #endregion
-
-            #region Multipass Bloom
-
-            // Now we apply a blur effect to the bloom texture
-            // Note that we apply this a number of times and we switch
-            // the render target with the source texture
-            // Basically, this applies the blur effect N times
-            BlurEffect.CurrentTechnique = BlurEffect.Techniques["Blur"];
-
-            var bloomTexture = FirstPassBloomRenderTarget;
-            var finalBloomRenderTarget = SecondPassBloomRenderTarget;
-
-            for (var index = 0; index < PassCount; index++)
-            {
-                //Exchange(ref SecondaPassBloomRenderTarget, ref FirstPassBloomRenderTarget);
-
-                // Set the render target as null, we are drawing into the screen now!
-                GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
-                BlurEffect.Parameters["baseTexture"].SetValue(bloomTexture);
-                FullScreenQuad.Draw(BlurEffect);
-
-                if (index != PassCount - 1)
-                {
-                    var auxiliar = bloomTexture;
-                    bloomTexture = finalBloomRenderTarget;
-                    finalBloomRenderTarget = auxiliar;
-                }
-            }
-
-            #endregion
-
-            #region Final Pass
-
-            // Set the depth configuration as none, as we don't use depth in this pass
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
-            // Set the render target as null, we are drawing into the screen now!
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
-
-            // Set the technique to our blur technique
-            // Then draw a texture into a full-screen quad
-            // using our rendertarget as texture
-            BloomEffect.CurrentTechnique = BloomEffect.Techniques["Integrate"];
-            BloomEffect.Parameters["baseTexture"].SetValue(MainSceneRenderTarget);
-            BloomEffect.Parameters["bloomTexture"].SetValue(finalBloomRenderTarget);
-            FullScreenQuad.Draw(BloomEffect);
-
-            #endregion
-
-            // Debug our scene texture!
-            // Show a simple quad with the texture
-            DebugTextureEffect.Parameters["World"].SetValue(QuadSceneWorld);
-            DebugTextureEffect.Parameters["baseTexture"].SetValue(MainSceneRenderTarget);
-            FullScreenQuad.Draw(DebugTextureEffect);
-
-            // Debug our bloom texture!
-            // Show a simple quad with the texture
-            DebugTextureEffect.Parameters["World"].SetValue(QuadBloomWorld);
-            DebugTextureEffect.Parameters["baseTexture"].SetValue(finalBloomRenderTarget);
-            FullScreenQuad.Draw(DebugTextureEffect);
-
-            // Set the render targets as they were
-            // Exchange(ref SecondPassBloomRenderTarget, ref FirstPassBloomRenderTarget);
         }
+
 
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
@@ -536,7 +474,7 @@ namespace Chinchulines
             SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0], rasterizerState: GraphicsDevice.RasterizerState);
             SpriteBatch.DrawString(_spriteFont, "TIEMPO RESTANTE: 04:32",
                 new Vector2(50, 50), Color.Green);
-            SpriteBatch.DrawString(_spriteFont, "CHECKPOINTS: 1 de 10", 
+            SpriteBatch.DrawString(_spriteFont, "CHECKPOINTS: 1 de 10",
                 new Vector2(50, 80), Color.Green);
             SpriteBatch.DrawString(_spriteFont, "VIDA: 100%",
                 new Vector2(50, 110), Color.Green);
