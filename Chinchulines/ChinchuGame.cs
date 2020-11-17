@@ -442,7 +442,9 @@ namespace Chinchulines
                 var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
 
                 // WorldViewProjection is used to transform from model space to clip space
-                BloomEffect.Parameters["WorldViewProjection"].SetValue(worldMatrix * View * Projection);
+                BloomEffect.Parameters["WorldViewProjection"].SetValue(worldMatrix * Matrix.CreateScale(0.005f) *
+                                    Matrix.CreateFromQuaternion(_spaceshipRotation) *
+                                    Matrix.CreateTranslation(_spaceshipPosition) * View * Projection);
 
                 // Once we set these matrices we draw
                 modelMesh.Draw();
