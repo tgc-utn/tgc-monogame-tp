@@ -162,6 +162,24 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Venus/Venus.fbx
 
+#begin Music/Limit 70.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Limit 70.mp3
+
+#begin Music/Rising Tide (faster).mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Rising Tide (faster).mp3
+
+#begin Music/shot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Music/shot.wav
+
 #begin Skyboxes/cube.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
