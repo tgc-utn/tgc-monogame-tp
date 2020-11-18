@@ -1,6 +1,7 @@
 ﻿using Chinchulines.Menu.States;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,6 +28,8 @@ namespace Chinchulines.Menu
             Content.RootDirectory = "Content";
         }
 
+        private Song menuMusic;
+
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
         /// This is where it can query for any required services and load any non-graphic
@@ -50,6 +53,11 @@ namespace Chinchulines.Menu
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _currentState = new States.MenuScreen(this, graphics, Content);
+
+
+            menuMusic = Content.Load<Song>("Music/Limit 70");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(menuMusic);
         }
 
         /// <summary>
