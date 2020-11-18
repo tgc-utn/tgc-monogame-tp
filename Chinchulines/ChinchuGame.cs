@@ -74,7 +74,7 @@ namespace Chinchulines
         private Trench _trench;
         private Vector3 _lightDirection = new Vector3(3, -2, 5);
 
-        private Vector3 _spaceshipPosition = new Vector3(0, 0, 0);
+        private Vector3 _spaceshipPosition = new Vector3(0, 20, 0);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
         private float _gameSpeed = 1.0f;
 
@@ -247,6 +247,13 @@ namespace Chinchulines
                 VenusRotation += .005f;
 
                 _laserManager.UpdateLaser(moveSpeed);
+
+                BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.04f);
+                if (CheckCollision(shipSpere) != CollisionType.None)
+                {
+                    _spaceshipPosition = new Vector3(8, 1, -3);
+                    _spaceshipRotation = Quaternion.Identity;
+                }
             }
 
             base.Update(gameTime);
@@ -489,6 +496,19 @@ namespace Chinchulines
             SpriteBatch.DrawString(_spriteFont, $"VIDA: {_health}%",
                 new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.Green);
             SpriteBatch.End();
+        }
+
+        private CollisionType CheckCollision(BoundingSphere sphere)
+        {
+            for (int i = 0; i < _trench.TrenchBoundingBoxes.Length; i++)
+            {
+                if (_trench.TrenchBoundingBoxes[i].Contains(sphere) != ContainmentType.Disjoint)
+                {
+                    return CollisionType.Trench;
+                }
+            }
+
+            return CollisionType.None;
         }
     }
 }
