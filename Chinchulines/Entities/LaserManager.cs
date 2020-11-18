@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace Chinchulines.Entities
         private Texture2D _texture;
         private Effect _effect;
 
+        private SoundEffect shot;
+
+
         struct LaserStruct
         {
             public Vector3 position;
@@ -25,6 +29,8 @@ namespace Chinchulines.Entities
         {
             _texture = Content.Load<Texture2D>(texturePath);
             _effect = Content.Load<Effect>(effect);
+
+            shot = Content.Load<SoundEffect>("Music/shot");
         }
 
         public void ShootLaser(GameTime gameTime, Vector3 shipPosition, Quaternion shipRotation)
@@ -38,6 +44,8 @@ namespace Chinchulines.Entities
                 _bulletList.Add(newBullet);
 
                 _lastBulletTime = currentTime;
+
+                shot.Play();
             }
         }
 

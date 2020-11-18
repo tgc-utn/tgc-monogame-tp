@@ -1,14 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
+using Chinchulines.Entities;
 using System.Text;
 
 namespace Chinchulines.Enemigo
 {
     class enemyManager
     {
-        private Model mk2;
 
         Random x = new Random();
         Random y = new Random();
@@ -16,9 +17,12 @@ namespace Chinchulines.Enemigo
 
         private List<Enemy> Enemies = new List<Enemy>();
 
-        public enemyManager(Model spaceShipModelMK2)
+        public void LoadContent(ContentManager content)
         {
-            mk2 = spaceShipModelMK2;
+            foreach (Enemy enemigo in Enemies)
+            {
+                enemigo.LoadContent(content);
+            }
         }
 
         public void CrearEnemigo()
@@ -27,7 +31,7 @@ namespace Chinchulines.Enemigo
             var posy = y.Next(25, 35);
             var posz = z.Next(-150, -100);
 
-            Enemies.Add(new Enemy(new Vector3(posx, posy, posz), mk2));
+            Enemies.Add(new Enemy(new Vector3(posx, posy, posz)));
         }
 
         public void Update(GameTime gameTime, Vector3 position)

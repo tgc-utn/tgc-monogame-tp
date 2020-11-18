@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Chinchulines.Graphics;
 using Chinchulines.Enemigo;
+using Chinchulines.Entities;
 using Microsoft.Xna.Framework.Content;
 
 namespace Chinchulines.Enemigo
@@ -14,13 +15,15 @@ namespace Chinchulines.Enemigo
 
         public Matrix EnemyWorld;
 
-        private Quaternion Rotation = Quaternion.Identity;
+        private Quaternion enemyRotation = Quaternion.Identity;
 
-        private Model spaceship;
+        private const string enemyShipPath = "Models/Spaceships/Motorcycle-MK2";
+        private const string enemyTexturePath = "Textures/Spaceships/MK2/MK2-BaseColor";
+        private Model enemySpaceship;
 
-        public Vector3 position;
+        public Vector3 enemyPosition;
 
-        private int health;
+        private int enemyHealth;
 
         private bool FlyLeftNow = false;
         private bool FlyRightNow = false;
@@ -34,13 +37,20 @@ namespace Chinchulines.Enemigo
         private float RotatedUp;
         private float RotatedDown;
 
-        public Enemy(Vector3 Pos, Model Spaceship)
+        public Enemy(Vector3 Pos)
         {
-            spaceship = Spaceship;
+            enemyPosition = Pos;
 
-            position = Pos;
+            enemyHealth = 100;
+        }
 
-            health = 100;
+        public void LoadContent(ContentManager content)
+        {
+            enemySpaceship = content.Load<Model>(enemyShipPath);
+
+            var spaceShipEffect2 = (BasicEffect)enemySpaceship.Meshes[0].Effects[0];
+            spaceShipEffect2.TextureEnabled = true;
+            spaceShipEffect2.Texture = content.Load<Texture2D>(enemyTexturePath);
         }
         
         public void FlyRight()
@@ -53,7 +63,7 @@ namespace Chinchulines.Enemigo
             }
             else
             {
-                Rotation *= Quaternion.CreateFromYawPitchRoll(MathHelper.PiOver2 / 60, 0, 0);
+                enemyRotation *= Quaternion.CreateFromYawPitchRoll(MathHelper.PiOver2 / 60, 0, 0);
                 RotatedRight += MathHelper.PiOver2 / 60;
             }
         }
@@ -68,7 +78,7 @@ namespace Chinchulines.Enemigo
             }
             else
             {
-                Rotation *= Quaternion.CreateFromYawPitchRoll(-MathHelper.PiOver2 / 60, 0, 0);
+                enemyRotation *= Quaternion.CreateFromYawPitchRoll(-MathHelper.PiOver2 / 60, 0, 0);
                 RotatedLeft += (MathHelper.PiOver2 / 60);
             }
         }
@@ -83,7 +93,7 @@ namespace Chinchulines.Enemigo
             }
             else
             {
-                Rotation *= Quaternion.CreateFromYawPitchRoll(0, MathHelper.PiOver2 / 60, 0);
+                enemyRotation *= Quaternion.CreateFromYawPitchRoll(0, MathHelper.PiOver2 / 60, 0);
                 RotatedUp += (MathHelper.PiOver2 / 60);
             }
         }
@@ -98,14 +108,14 @@ namespace Chinchulines.Enemigo
             }
             else
             {
-                Rotation *= Quaternion.CreateFromYawPitchRoll(0, -(MathHelper.PiOver2 / 60), 0);
+                enemyRotation *= Quaternion.CreateFromYawPitchRoll(0, -(MathHelper.PiOver2 / 60), 0);
                 RotatedDown += (MathHelper.PiOver2 / 60);
             }
         }
 
         public void SignalOperation(Vector3 playerpos)
         {
-            var posdifer = position - playerpos;
+            var posdifer = enemyPosition - playerpos;
 
             if (Math.Sign(posdifer.X).Equals(-1))
             {
@@ -162,7 +172,7 @@ namespace Chinchulines.Enemigo
 
             if (MovingForward)
             {
-                MoveForward(ref position, Rotation, 1.5f);
+                MoveForward(ref enemyPosition, enemyRotation, 0.5f);
             }
 
             if (FlyLeftNow)
@@ -183,17 +193,17 @@ namespace Chinchulines.Enemigo
             }
             else
             {
-                Rotation = Quaternion.Identity;
+                enemyRotation = Quaternion.Identity;
             }
 
-            EnemyWorld = Matrix.CreateFromQuaternion(Rotation) * Matrix.CreateTranslation(position);
+            EnemyWorld = Matrix.CreateFromQuaternion(enemyRotation) * Matrix.CreateTranslation(enemyPosition);
         }
 
         public void Draw(Matrix view, Matrix projection)
         {
-            spaceship.Draw(EnemyWorld *
+            enemySpaceship.Draw(EnemyWorld *
                             Matrix.CreateScale(.08f) *
-                            Matrix.CreateTranslation(position), view, projection);
+                            Matrix.CreateTranslation(enemyPosition), view, projection);
         }
     }
 
