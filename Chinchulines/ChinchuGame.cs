@@ -68,7 +68,7 @@ namespace Chinchulines
 
         Skybox skybox;
         private Trench _trench;
-        private Vector3 _lightDirection = new Vector3(3, -2, 5);
+        private Vector3 _lightDirection = new Vector3(3, 40, 5);
 
         private Vector3 _spaceshipPosition = new Vector3(0, 20, 0);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
@@ -247,7 +247,7 @@ namespace Chinchulines
                 BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.04f);
                 if (CheckCollision(shipSpere) != CollisionType.None)
                 {
-                    _spaceshipPosition = new Vector3(8, 1, -3);
+                    _spaceshipPosition = new Vector3(0, 20, 0);
                     _spaceshipRotation = Quaternion.Identity;
                 }
             }
