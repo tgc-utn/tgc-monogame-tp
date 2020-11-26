@@ -70,7 +70,7 @@ namespace Chinchulines
         private Trench _trench;
         private Vector3 _lightDirection = new Vector3(3, 40, 5);
 
-        private Vector3 _spaceshipPosition = new Vector3(0, 20, 0);
+        private Vector3 _spaceshipPosition = new Vector3(8, 7, -3);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
         private float _gameSpeed = 1.0f;
 
@@ -247,7 +247,7 @@ namespace Chinchulines
                 BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.04f);
                 if (CheckCollision(shipSpere) != CollisionType.None)
                 {
-                    _spaceshipPosition = new Vector3(0, 20, 0);
+                    _spaceshipPosition = new Vector3(8, 7, -3);
                     _spaceshipRotation = Quaternion.Identity;
                 }
             }
@@ -540,6 +540,11 @@ namespace Chinchulines
                 {
                     return CollisionType.Trench;
                 }
+            }
+
+            if (_trench.CompleteTrenchBox.Contains(sphere) != ContainmentType.Contains)
+            {
+                return CollisionType.Trench;
             }
 
             return CollisionType.None;
