@@ -245,7 +245,7 @@ namespace Chinchulines.Enemigo
             spaceShipEffect3.Texture = content.Load<Texture2D>(enemyTexture2);
 
             _laserManager = new LaserManager();
-            _laserManager.LoadContent("Textures/Lasers/doble-laser-verde", "Effects/Trench", content, graphics);
+            _laserManager.LoadContent("Textures/Lasers/red-laser", "Effects/Trench", content, graphics);
         }
     }
 }
