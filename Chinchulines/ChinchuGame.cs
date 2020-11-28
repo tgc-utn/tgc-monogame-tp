@@ -159,7 +159,7 @@ namespace Chinchulines
 
             VenusModel = Content.Load<Model>(ContentFolderModels + "Venus/Venus");
 
-            EM.LoadContent(Content);
+            EM.LoadContent(Content, Graphics);
 
             background = Content.Load<Song>(ContentFolderMusic + "Rising Tide (faster)");
             MediaPlayer.IsRepeating = true;
@@ -239,7 +239,7 @@ namespace Chinchulines
                 MoveForward(ref _spaceshipPosition, _spaceshipRotation, movementSpeed);
 
                 EM.Update(gameTime, centerPosition);
-                EM.UpdateEnemigoVigilante(_spaceshipPosition);
+                EM.UpdateEnemigoVigilante(_spaceshipPosition, gameTime, movementSpeed);
 
                 RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
                 VenusRotation += .005f;
@@ -398,7 +398,7 @@ namespace Chinchulines
                         , View, Projection);
 
                 EM.Draw(View, Projection);
-                EM.DrawEnemigoVigilante(View, Projection, _spaceshipPosition, _spaceshipRotation);
+                EM.DrawEnemigoVigilante(View, Projection, _spaceshipPosition, _spaceshipRotation, _cameraPosition, _cameraDirection, Graphics);
 
                 _trench.Draw(View, Projection, _lightDirection, Graphics);
 

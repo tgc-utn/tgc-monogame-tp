@@ -43,6 +43,9 @@ namespace Chinchulines.Enemigo
         private float RotatedUp;
         private float RotatedDown;
 
+        private LaserManager _laserManager;
+
+
         public Enemy(Vector3 Pos)
         {
             enemyPosition = Pos;
@@ -213,27 +216,36 @@ namespace Chinchulines.Enemigo
         }
 
         //TODO: mover metodos a otra clase de otro tipo de enemigo
-        public void Update(Vector3 playerpos)
+        public void Update(Vector3 playerpos, GameTime gameTime, float movementSpeed)
         {
             Enemy2World = Matrix.CreateFromQuaternion(enemyRotation) * Matrix.CreateTranslation(playerpos);
+
+            _laserManager.ShootLaser(gameTime, playerpos + new Vector3(0,0,1), enemyRotation);
+
+            _laserManager.UpdateLaser(movementSpeed);
         }
 
-        public void DrawEnemy2(Matrix view, Matrix projection,Vector3 playerpos, Quaternion playerRotation)
+        public void DrawEnemy2(Matrix view, Matrix projection,Vector3 playerpos, Quaternion playerRotation, Vector3 cameraPosition, Vector3 cameraDirection, GraphicsDeviceManager graphics)
         {
             enemySpaceship2.Draw(Enemy2World *
                             Matrix.CreateScale(.005f) *
                             Matrix.CreateFromQuaternion(playerRotation) *
                             Matrix.CreateTranslation(playerpos.X, playerpos.Y, playerpos.Z + 1)
                             , view, projection);
+
+            _laserManager.DrawLasers(view, projection, cameraPosition, cameraDirection, graphics);
         }
                     
-        public void LoadContentEnemigoVigilante(ContentManager content)
+        public void LoadContentEnemigoVigilante(ContentManager content, GraphicsDeviceManager graphics)
         {
             enemySpaceship2 = content.Load<Model>(enemyShipModel2);
 
             var spaceShipEffect3 = (BasicEffect)enemySpaceship2.Meshes[0].Effects[0];
             spaceShipEffect3.TextureEnabled = true;
             spaceShipEffect3.Texture = content.Load<Texture2D>(enemyTexture2);
+
+            _laserManager = new LaserManager();
+            _laserManager.LoadContent("Textures/Lasers/doble-laser-verde", "Effects/Trench", content, graphics);
         }
     }
 }

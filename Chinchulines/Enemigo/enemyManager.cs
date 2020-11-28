@@ -10,7 +10,6 @@ namespace Chinchulines.Enemigo
 {
     class enemyManager
     {
-
         Random x = new Random();
         Random y = new Random();
         Random z = new Random();
@@ -18,7 +17,7 @@ namespace Chinchulines.Enemigo
         private List<Enemy> Enemies = new List<Enemy>();
         private List<Enemy> EnemigosVigilantes = new List<Enemy>();
 
-        public void LoadContent(ContentManager content)
+        public void LoadContent(ContentManager content, GraphicsDeviceManager graphics)
         {
             foreach (Enemy enemigo in Enemies)
             {
@@ -27,7 +26,7 @@ namespace Chinchulines.Enemigo
 
             foreach (Enemy enemigo in EnemigosVigilantes)
             {
-                enemigo.LoadContentEnemigoVigilante(content);
+                enemigo.LoadContentEnemigoVigilante(content, graphics);
             }
         }
 
@@ -63,19 +62,19 @@ namespace Chinchulines.Enemigo
             EnemigosVigilantes.Add(newEnemyWatcher);
         }
 
-        public void UpdateEnemigoVigilante(Vector3 playerPosition)
+        public void UpdateEnemigoVigilante(Vector3 playerPosition, GameTime gameTime, float movementSpeed)
         {
             foreach (Enemy enemigo in EnemigosVigilantes)
             {
-                enemigo.Update(playerPosition);
+                enemigo.Update(playerPosition, gameTime, movementSpeed);
             }
         }
 
-        public void DrawEnemigoVigilante(Matrix View, Matrix Projection, Vector3 playerpos, Quaternion spaceshipRotation)
+        public void DrawEnemigoVigilante(Matrix View, Matrix Projection, Vector3 playerpos, Quaternion spaceshipRotation, Vector3 cameraPosition, Vector3 cameraDirection, GraphicsDeviceManager graphics)
         {
             foreach (Enemy enemigo in EnemigosVigilantes)
             {
-                enemigo.DrawEnemy2(View, Projection, playerpos, spaceshipRotation);
+                enemigo.DrawEnemy2(View, Projection, playerpos, spaceshipRotation, cameraPosition, cameraDirection, graphics);
             }
         }
     }
