@@ -60,7 +60,7 @@ namespace Chinchulines
         private float movementSpeed;
         private float speedUp;
 
-        private Vector3 position;
+        private Vector3 centerPosition;
 
         float clock = 0f;
 
@@ -125,7 +125,7 @@ namespace Chinchulines
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
 
-            position = new Vector3(0, 0, 0);
+            centerPosition = new Vector3(0, 0, 0);
 
             Graphics.PreferredBackBufferWidth = 1024;
             Graphics.PreferredBackBufferHeight = 768;
@@ -133,6 +133,7 @@ namespace Chinchulines
 
             EM = new enemyManager();
             for (int i = 0; i < 10; i++) EM.CrearEnemigo();
+            EM.CrearEnemigoVigilante(_spaceshipPosition);
 
             _trench = new Trench();
             _laserManager = new LaserManager();
@@ -237,7 +238,8 @@ namespace Chinchulines
                 movementSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
                 MoveForward(ref _spaceshipPosition, _spaceshipRotation, movementSpeed);
 
-                EM.Update(gameTime, position);
+                EM.Update(gameTime, centerPosition);
+                EM.UpdateEnemigoVigilante(_spaceshipPosition);
 
                 RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
                 VenusRotation += .005f;
@@ -396,7 +398,7 @@ namespace Chinchulines
                         , View, Projection);
 
                 EM.Draw(View, Projection);
-
+                EM.DrawEnemigoVigilante(View, Projection, _spaceshipPosition, _spaceshipRotation);
 
                 _trench.Draw(View, Projection, _lightDirection, Graphics);
 
@@ -502,7 +504,7 @@ namespace Chinchulines
             rasterizerState.CullMode = CullMode.None;
             Graphics.GraphicsDevice.RasterizerState = rasterizerState;
 
-            skybox.Draw(View, Projection, position);
+            skybox.Draw(View, Projection, centerPosition);
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
         }

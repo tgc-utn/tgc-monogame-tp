@@ -14,12 +14,18 @@ namespace Chinchulines.Enemigo
     {
 
         public Matrix EnemyWorld;
+        public Matrix Enemy2World;
 
         private Quaternion enemyRotation = Quaternion.Identity;
 
         private const string enemyShipPath = "Models/Spaceships/Motorcycle-MK2";
         private const string enemyTexturePath = "Textures/Spaceships/MK2/MK2-BaseColor";
+
+        private const string enemyShipModel2 = "Models/Spaceships/SpaceShip-MK3";
+        private const string enemyTexture2 = "Textures/Spaceships/MK3/MK3-Albedo";
+
         private Model enemySpaceship;
+        private Model enemySpaceship2;
 
         public Vector3 enemyPosition;
 
@@ -205,6 +211,29 @@ namespace Chinchulines.Enemigo
                             Matrix.CreateScale(.08f) *
                             Matrix.CreateTranslation(enemyPosition), view, projection);
         }
-    }
 
+        //TODO: mover metodos a otra clase de otro tipo de enemigo
+        public void Update(Vector3 playerpos)
+        {
+            Enemy2World = Matrix.CreateFromQuaternion(enemyRotation) * Matrix.CreateTranslation(playerpos);
+        }
+
+        public void DrawEnemy2(Matrix view, Matrix projection,Vector3 playerpos, Quaternion playerRotation)
+        {
+            enemySpaceship2.Draw(Enemy2World *
+                            Matrix.CreateScale(.005f) *
+                            Matrix.CreateFromQuaternion(playerRotation) *
+                            Matrix.CreateTranslation(playerpos.X, playerpos.Y, playerpos.Z + 1)
+                            , view, projection);
+        }
+                    
+        public void LoadContentEnemigoVigilante(ContentManager content)
+        {
+            enemySpaceship2 = content.Load<Model>(enemyShipModel2);
+
+            var spaceShipEffect3 = (BasicEffect)enemySpaceship2.Meshes[0].Effects[0];
+            spaceShipEffect3.TextureEnabled = true;
+            spaceShipEffect3.Texture = content.Load<Texture2D>(enemyTexture2);
+        }
+    }
 }
