@@ -8,23 +8,20 @@ namespace Chinchulines.Menu.Controls
     public class Button : Component
     {
         private MouseState _currentMouse;
-
-        private SpriteFont _font;
-
-        private bool _isHovering;
-
         private MouseState _previousMouse;
 
+        private SpriteFont _font;
         private Texture2D _texture;
 
+        private bool _isHovering;
         public event EventHandler Click;
-
         public bool Clicked { get; private set; }
 
+        public bool visible;
+
+        public string Text { get; set; }
         public Color PenColour { get; set; }
-
         public Vector2 Position { get; set; }
-
         public Rectangle Rectangle
         {
             get
@@ -33,30 +30,33 @@ namespace Chinchulines.Menu.Controls
             }
         }
 
-        public string Text { get; set; }
 
-        public Button(Texture2D texture, SpriteFont font)
+        public Button(Texture2D texture, SpriteFont font, bool _visible)
         {
             _texture = texture;
             _font = font;
             PenColour = Color.Black;
+            visible = _visible;
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            var colour = Color.White;
-
-            if (_isHovering)
-                colour = Color.Gray;
-
-            spriteBatch.Draw(_texture, Rectangle, colour);
-
-            if (!string.IsNullOrEmpty(Text))
+            if (visible)
             {
-                var x = (Rectangle.X + (Rectangle.Width / 2)) - (_font.MeasureString(Text).X / 2);
-                var y = (Rectangle.Y + (Rectangle.Height / 2)) - (_font.MeasureString(Text).Y / 2);
+                var colour = Color.White;
 
-                spriteBatch.DrawString(_font, Text, new Vector2(x, y), PenColour);
+                if (_isHovering)
+                    colour = Color.Gray;
+
+                spriteBatch.Draw(_texture, Rectangle, colour);
+
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    var x = (Rectangle.X + (Rectangle.Width / 2)) - (_font.MeasureString(Text).X / 2);
+                    var y = (Rectangle.Y + (Rectangle.Height / 2)) - (_font.MeasureString(Text).Y / 2);
+
+                    spriteBatch.DrawString(_font, Text, new Vector2(x, y), PenColour);
+                }
             }
         }
 

@@ -16,11 +16,6 @@ namespace Chinchulines.Menu.States
 
         }
 
-        public override void PostUpdate(GameTime gameTime)
-        {
-
-        }
-
         public override void Update(GameTime gameTime)
         {
 

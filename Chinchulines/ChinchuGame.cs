@@ -28,6 +28,7 @@ namespace Chinchulines
         public const string ModelMK3 = "Models/Spaceships/SpaceShip-MK3";
         public const string TextureMK1 = "Textures/Spaceships/MK1/MK1-Texture";
         public const string TextureMK3 = "Textures/Spaceships/MK3/MK3-Albedo";
+        public const string CrossHairTexture = "Textures/Crosshair/crosshair";
 
         /// <summary>
         ///     Constructor del juego.
@@ -49,6 +50,8 @@ namespace Chinchulines
         private Model SpaceShipModelMK1 { get; set; }
         private Model SpaceShipModelMK3 { get; set; }
         private Model VenusModel { get; set; }
+
+        private Texture2D CrossHair;
         private float RotationY { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -59,8 +62,6 @@ namespace Chinchulines
 
         private float movementSpeed;
         private float speedUp;
-
-        private Vector3 position;
 
         float clock = 0f;
 
@@ -74,7 +75,7 @@ namespace Chinchulines
         private Quaternion _spaceshipRotation = Quaternion.Identity;
         private float _gameSpeed = 1.0f;
 
-        private int barrelSide = 0; // -1 for left, 1 for rigth, 0 for nothing
+        private int barrelSide = 0; // -1 for left, 1 for rigth, 0 for nothing, 2 for turnback
 
         private bool turnBack = false;
 
@@ -125,14 +126,12 @@ namespace Chinchulines
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
 
-            position = new Vector3(0, 0, 0);
-
             Graphics.PreferredBackBufferWidth = 1024;
             Graphics.PreferredBackBufferHeight = 768;
             Graphics.ApplyChanges();
 
             EM = new enemyManager();
-            for (int i = 0; i < 10; i++) EM.CrearEnemigo();
+            /*for (int i = 0; i < 10; i++)*/ EM.CrearEnemigo();
 
             _trench = new Trench();
             _laserManager = new LaserManager();
@@ -163,6 +162,8 @@ namespace Chinchulines
             background = Content.Load<Song>(ContentFolderMusic + "Rising Tide (faster)");
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(background);
+
+            CrossHair = Content.Load<Texture2D>(CrossHairTexture);
 
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
@@ -237,17 +238,17 @@ namespace Chinchulines
                 movementSpeed = gameTime.ElapsedGameTime.Milliseconds / 500.0f * _gameSpeed;
                 MoveForward(ref _spaceshipPosition, _spaceshipRotation, movementSpeed);
 
-                EM.Update(gameTime, position);
+                EM.Update(gameTime, _spaceshipPosition, _laserManager);
 
                 RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
                 VenusRotation += .005f;
 
                 _laserManager.UpdateLaser(movementSpeed);
 
-                BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.04f);
+                BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.00004f);
                 if (CheckCollision(shipSpere) != CollisionType.None)
                 {
-                    _spaceshipPosition = new Vector3(8, 1, -3);
+                    _spaceshipPosition = new Vector3(0, 20, 0);
                     _spaceshipRotation = Quaternion.Identity;
                 }
             }
@@ -286,9 +287,9 @@ namespace Chinchulines
             if (keys.IsKeyDown(Keys.W)) upDownRotation -= turningSpeed;
 
             if (keys.IsKeyDown(Keys.LeftShift)) if(speedUp < 0.10f)speedUp += 0.01f;
-            if (keys.IsKeyUp(Keys.LeftShift)) if(speedUp != 0) speedUp -= 0.01f;
+            if (keys.IsKeyDown(Keys.LeftControl)) if(speedUp > 0) speedUp -= 0.01f;
 
-            if (keys.IsKeyDown(Keys.E)) barrelSide= -1;
+            if (keys.IsKeyDown(Keys.E)) barrelSide = -1;
             if (keys.IsKeyDown(Keys.Q)) barrelSide = 1;
             if (keys.IsKeyDown(Keys.X)) turnBack = true;
 
@@ -502,7 +503,7 @@ namespace Chinchulines
             rasterizerState.CullMode = CullMode.None;
             Graphics.GraphicsDevice.RasterizerState = rasterizerState;
 
-            skybox.Draw(View, Projection, position);
+            skybox.Draw(View, Projection, _spaceshipPosition);
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
         }
@@ -529,7 +530,14 @@ namespace Chinchulines
                 new Vector2(GraphicsDevice.Viewport.Width / 3, 50), Color.Green);
             SpriteBatch.DrawString(_spriteFont, $"VIDA: {_health}%",
                 new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.Green);
+
+            SpriteBatch.Draw(CrossHair,
+                new Vector2((Window.ClientBounds.Width / 2) - (CrossHair.Width / 2),
+                (Window.ClientBounds.Height / 2) - (CrossHair.Height / 2) - 150),
+                Color.White);
+
             SpriteBatch.End();
+
         }
 
         private CollisionType CheckCollision(BoundingSphere sphere)

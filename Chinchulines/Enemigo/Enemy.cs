@@ -13,7 +13,7 @@ namespace Chinchulines.Enemigo
     class Enemy
     {
 
-        public Matrix EnemyWorld;
+        public Matrix EnemyWorld = Matrix.Identity;
 
         private Quaternion enemyRotation = Quaternion.Identity;
 
@@ -30,7 +30,6 @@ namespace Chinchulines.Enemigo
         private bool FlyUpNow = false;
         private bool FlyDownNow = false;
         private bool BusyInOperation = false;
-        private bool MovingForward = true;
 
         private float RotatedRight;
         private float RotatedLeft;
@@ -59,7 +58,6 @@ namespace Chinchulines.Enemigo
             {
                 BusyInOperation = false;
                 RotatedRight = 0;
-                MovingForward = true;
             }
             else
             {
@@ -74,11 +72,10 @@ namespace Chinchulines.Enemigo
             {
                 BusyInOperation = false;
                 RotatedLeft = 0;
-                MovingForward = true;
             }
             else
             {
-                enemyRotation *= Quaternion.CreateFromYawPitchRoll(-MathHelper.PiOver2 / 60, 0, 0);
+                enemyRotation *= Quaternion.CreateFromYawPitchRoll(-(MathHelper.PiOver2 / 60), 0, 0);
                 RotatedLeft += (MathHelper.PiOver2 / 60);
             }
         }
@@ -89,7 +86,6 @@ namespace Chinchulines.Enemigo
             {
                 BusyInOperation = false;
                 RotatedUp = 0;
-                MovingForward = true;
             }
             else
             {
@@ -104,7 +100,6 @@ namespace Chinchulines.Enemigo
             {
                 BusyInOperation = false;
                 RotatedDown = 0;
-                MovingForward = true;
             }
             else
             {
@@ -115,49 +110,52 @@ namespace Chinchulines.Enemigo
 
         public void SignalOperation(Vector3 playerpos)
         {
-            var posdifer = enemyPosition - playerpos;
+            Vector3 posdifer = playerpos - enemyPosition;
 
-            if (Math.Sign(posdifer.X).Equals(-1))
+            if (posdifer.Z < 0)
             {
-                FlyRightNow = true;
+                FlyLeftNow = false;
+                FlyRightNow = false;
+                FlyUpNow = false;
+                FlyDownNow = false;
             }
             else
             {
-                if(Math.Sign(posdifer.X).Equals(1))
-                {
-                    FlyLeftNow = true;
-                }
-                else
-                {
-                    FlyRightNow = false;
-                    FlyLeftNow = false;
-                }
-            }
-            
-            if(Math.Sign(posdifer.Y).Equals(-1))
-            {
-                FlyUpNow = true;
-            }
-            else
-            {
-                if(Math.Sign(posdifer.Y).Equals(1))
-                {
-                    FlyDownNow = true;
-                }
-                else
-                {
-                    FlyUpNow = false;
-                    FlyDownNow = false;
-                }
-            }
 
-            if (Math.Sign(posdifer.Z).Equals(0))
-            {
-                 FlyLeftNow = false;
-                 FlyRightNow = false;
-                 FlyUpNow = false;
-                 FlyDownNow = false;
-             }
+                if (posdifer.X < 10 && posdifer.X > 0)
+                {
+                    FlyRightNow = true;
+                }
+                else
+                {
+                    if (posdifer.X > -10 && posdifer.X < 0)
+                    {
+                        FlyLeftNow = true;
+                    }
+                    else
+                    {
+                        FlyRightNow = false;
+                        FlyLeftNow = false;
+                    }
+                }
+
+                if (posdifer.Y < 10)
+                {
+                    FlyUpNow = true;
+                }
+                else
+                {
+                    if (posdifer.Y > -10)
+                    {
+                        FlyDownNow = true;
+                    }
+                    else
+                    {
+                        FlyUpNow = false;
+                        FlyDownNow = false;
+                    }
+                }
+            }
         }
 
         private void MoveForward(ref Vector3 position, Quaternion rotationQuat, float speed)
@@ -166,43 +164,42 @@ namespace Chinchulines.Enemigo
             position += addVector * speed;
         }
 
-        public void Update(GameTime gameTime, Vector3 playerpos)
+        public void Update(GameTime gameTime, Vector3 playerpos, LaserManager ls)
         {
             SignalOperation(playerpos);
 
-            if (MovingForward)
-            {
-                MoveForward(ref enemyPosition, enemyRotation, 0.5f);
-            }
+            MoveForward(ref enemyPosition, enemyRotation, 0.1f);
 
             if (FlyLeftNow)
             {
                 FlyLeft();
+                FlyLeftNow = false;
             }
-            else if (FlyRightNow)
+            if (FlyRightNow)
             {
                 FlyRight();
+                FlyRightNow = false;
             }
-            else if(FlyUpNow)
+            if(FlyUpNow)
             {
                 FlyUp();
+                FlyUpNow = false;
             }
-            else if(FlyDownNow)
+            if(FlyDownNow)
             {
                 FlyDown();
-            }
-            else
-            {
-                enemyRotation = Quaternion.Identity;
+                FlyDownNow = false;
             }
 
             EnemyWorld = Matrix.CreateFromQuaternion(enemyRotation) * Matrix.CreateTranslation(enemyPosition);
+
+            ls.ShootLaser(gameTime, enemyPosition, enemyRotation);
         }
 
         public void Draw(Matrix view, Matrix projection)
         {
             enemySpaceship.Draw(EnemyWorld *
-                            Matrix.CreateScale(.08f) *
+                            Matrix.CreateScale(.05f) *
                             Matrix.CreateTranslation(enemyPosition), view, projection);
         }
     }

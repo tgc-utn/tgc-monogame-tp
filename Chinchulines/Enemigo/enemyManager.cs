@@ -34,11 +34,11 @@ namespace Chinchulines.Enemigo
             Enemies.Add(new Enemy(new Vector3(posx, posy, posz)));
         }
 
-        public void Update(GameTime gameTime, Vector3 position)
+        public void Update(GameTime gameTime, Vector3 position, LaserManager ls)
         {
             foreach (Enemy enemigo in Enemies)
             {
-                enemigo.Update(gameTime, position);
+                enemigo.Update(gameTime, position, ls);
             }
         }
 
