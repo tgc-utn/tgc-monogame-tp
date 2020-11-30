@@ -28,6 +28,7 @@ namespace Chinchulines
         public const string ModelMK3 = "Models/Spaceships/SpaceShip-MK3";
         public const string TextureMK1 = "Textures/Spaceships/MK1/MK1-Texture";
         public const string TextureMK3 = "Textures/Spaceships/MK3/MK3-Albedo";
+        public const string CrossHairTexture = "Textures/Crosshair/crosshair";
 
         /// <summary>
         ///     Constructor del juego.
@@ -49,6 +50,8 @@ namespace Chinchulines
         private Model SpaceShipModelMK1 { get; set; }
         private Model SpaceShipModelMK3 { get; set; }
         private Model VenusModel { get; set; }
+
+        private Texture2D CrossHair;
         private float RotationY { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -74,7 +77,7 @@ namespace Chinchulines
         private Quaternion _spaceshipRotation = Quaternion.Identity;
         private float _gameSpeed = 1.0f;
 
-        private int barrelSide = 0; // -1 for left, 1 for rigth, 0 for nothing
+        private int barrelSide = 0; // -1 for left, 1 for rigth, 0 for nothing, 2 for turnback
 
         private bool turnBack = false;
 
@@ -164,6 +167,8 @@ namespace Chinchulines
             background = Content.Load<Song>(ContentFolderMusic + "Rising Tide (faster)");
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Play(background);
+
+            CrossHair = Content.Load<Texture2D>(CrossHairTexture);
 
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
@@ -299,9 +304,9 @@ namespace Chinchulines
             if (keys.IsKeyDown(Keys.W)) upDownRotation -= turningSpeed;
 
             if (keys.IsKeyDown(Keys.LeftShift)) if(speedUp < 0.10f)speedUp += 0.01f;
-            if (keys.IsKeyUp(Keys.LeftShift)) if(speedUp != 0) speedUp -= 0.01f;
+            if (keys.IsKeyDown(Keys.LeftControl)) if(speedUp > 0) speedUp -= 0.01f;
 
-            if (keys.IsKeyDown(Keys.E)) barrelSide= -1;
+            if (keys.IsKeyDown(Keys.E)) barrelSide = -1;
             if (keys.IsKeyDown(Keys.Q)) barrelSide = 1;
             if (keys.IsKeyDown(Keys.X)) turnBack = true;
 
@@ -542,7 +547,14 @@ namespace Chinchulines
                 new Vector2(GraphicsDevice.Viewport.Width / 3, 50), Color.Green);
             SpriteBatch.DrawString(_spriteFont, $"VIDA: {_health}%",
                 new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.Green);
+
+            SpriteBatch.Draw(CrossHair,
+                new Vector2((Window.ClientBounds.Width / 2) - (CrossHair.Width / 2),
+                (Window.ClientBounds.Height / 2) - (CrossHair.Height / 2) - 150),
+                Color.White);
+
             SpriteBatch.End();
+
         }
 
         private CollisionType CheckCollision(BoundingSphere sphere)

@@ -14,8 +14,6 @@ namespace Chinchulines.Menu.States
 
         public abstract void Draw(GameTime gameTime, SpriteBatch spriteBatch);
 
-        public abstract void PostUpdate(GameTime gameTime);
-
         public Screen(Game game, GraphicsDeviceManager graphics, ContentManager content)
         {
             _game = game;
