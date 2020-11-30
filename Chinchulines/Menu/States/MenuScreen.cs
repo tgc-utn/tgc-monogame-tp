@@ -23,6 +23,7 @@ namespace Chinchulines.Menu.States
         Button manualGameButton;
         Button quitGameButton;
         Button goBackButton;
+        Button nextInstrButton;
 
         public MenuScreen(Game game, GraphicsDeviceManager graphics, ContentManager content)
           : base(game, graphics, content)
@@ -70,10 +71,18 @@ namespace Chinchulines.Menu.States
             goBackButton = new Button(buttonTexture, buttonFont, false)
             {
                 Position = new Vector2(600, 410),
-                Text = "Go Back",
+                Text = "Main Menu",
             };
 
             goBackButton.Click += goBackButton_Click;
+
+            nextInstrButton = new Button(buttonTexture, buttonFont, false)
+            {
+                Position = new Vector2(300, 410),
+                Text = "Controles",
+            };
+
+            nextInstrButton.Click += nextInstrButton_Click;
 
             _ButtonsMainMenu = new List<Button>()
             {
@@ -82,12 +91,25 @@ namespace Chinchulines.Menu.States
                 manualGameButton,
                 quitGameButton,
                 goBackButton,
+                nextInstrButton,
             };
+        }
+
+        private void nextInstrButton_Click(object sender, EventArgs e)
+        {
+            nextInstrButton.visible = false;
         }
 
         private void goBackButton_Click(object sender, EventArgs e)
         {
-            foreach (Button button in _ButtonsMainMenu) button.visible = !button.visible;
+            foreach (Button button in _ButtonsMainMenu)
+            {
+                if (button.Equals(nextInstrButton) && !button.visible)
+                {
+                    button.visible = !button.visible;
+                }
+                button.visible = !button.visible;
+            }
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -99,25 +121,45 @@ namespace Chinchulines.Menu.States
             if(goBackButton.visible)
             {
                 spriteBatch.Draw(BGInstructions, Vector2.Zero, Color.White);
-                spriteBatch.DrawString(buttonFont, $"Movimiento de la nave:\n" +
-                            $"\n" +
-                            $"      W: Rotar hacia arriba\n" +
-                            $"      A: Rotar hacia la izquierda\n" +
-                            $"      S: Rotar hacia abajo\n" +
-                            $"      D: Rotar hacia la derecha\n" +
-                            $"\n" +
-                            $"Barrel Roll:\n" +
-                            $"\n" +
-                            $"      Q: Hacia izquierda\n" +
-                            $"      E: Hacia derecha\n" +
-                            $"\n" +
-                            $"Giro hacia atras: X", new Vector2(300,75), Color.White);
+
+                if (!nextInstrButton.visible)
+                {
+                    spriteBatch.DrawString(buttonFont, $"Movimiento de la nave:\n" +
+                                $"\n" +
+                                $"      W: Rotar hacia arriba\n" +
+                                $"      A: Rotar hacia la izquierda\n" +
+                                $"      S: Rotar hacia abajo\n" +
+                                $"      D: Rotar hacia la derecha\n" +
+                                $"\n" +
+                                $"Barrel Roll:\n" +
+                                $"\n" +
+                                $"      Q: Hacia izquierda\n" +
+                                $"      E: Hacia derecha\n" +
+                                $"\n" +
+                                $"X: Rotar 90 grados hacia atras", new Vector2(50, 75), Color.White);
+
+                    spriteBatch.DrawString(buttonFont, $"Velocidad:\n" +
+                        $"\n" +
+                        $"      Shift: Acelerar\n" +
+                        $"      Ctrl: Desacelerar\n" +
+                        $"\n" +
+                        $"Espacio: Disparar\n" +
+                        $"\n", new Vector2(450, 75), Color.White);
+                }
+                else
+                {
+
+                    spriteBatch.DrawString(buttonFont,
+                        $"Objetivo: Debes cruzar todos los checkpoints antes de que se acabe\n" +
+                        $"el tiempo o tu vida y finalmente, aniquilar a tgccito",
+                        //POR AHORA
+                        new Vector2(50, 50), Color.OrangeRed);
+                }
             }
             else
             {
-
-                spriteBatch.Draw(Title, new Vector2(150, 0), Color.White);
                 spriteBatch.Draw(backGround, new Vector2(0, 0), Color.White);
+                spriteBatch.Draw(Title, new Vector2(150, 0), Color.White);
             }
 
             foreach (Button button in _ButtonsMainMenu)
@@ -128,7 +170,10 @@ namespace Chinchulines.Menu.States
 
         private void ManualGameButton_Click(object sender, EventArgs e)
         {
-            foreach(Button button in _ButtonsMainMenu)button.visible = !button.visible;
+            foreach (Button button in _ButtonsMainMenu)
+            { 
+                button.visible = !button.visible; 
+            }
         }
 
         private void GodGameButton_Click(object sender, EventArgs e)

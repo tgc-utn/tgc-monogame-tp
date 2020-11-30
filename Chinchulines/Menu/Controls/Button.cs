@@ -73,7 +73,7 @@ namespace Chinchulines.Menu.Controls
             {
                 _isHovering = true;
 
-                if (_currentMouse.LeftButton == ButtonState.Released && _previousMouse.LeftButton == ButtonState.Pressed)
+                if (_currentMouse.LeftButton == ButtonState.Released && _previousMouse.LeftButton == ButtonState.Pressed && visible)
                 {
                     Click?.Invoke(this, new EventArgs());
                 }
