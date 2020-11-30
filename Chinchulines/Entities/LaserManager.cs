@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 
 namespace Chinchulines.Entities
@@ -17,7 +18,6 @@ namespace Chinchulines.Entities
         private Effect _effect;
 
         private SoundEffect shot;
-
 
         struct LaserStruct
         {
@@ -49,14 +49,27 @@ namespace Chinchulines.Entities
             }
         }
 
-        public void UpdateLaser(float moveSpeed)
+        public CollisionType UpdateLaserAndCheckCollision(float moveSpeed, Vector3 spaceshipPosition, int spaceshipHealth)
         {
             for (int i = 0; i < _bulletList.Count; i++)
             {
                 LaserStruct currentBullet = _bulletList[i];
                 MoveForward(ref currentBullet.position, currentBullet.rotation, moveSpeed * LASER_SPEED);
                 _bulletList[i] = currentBullet;
+
+                BoundingSphere bulletSphere = new BoundingSphere(currentBullet.position, 0.05f);
+
+                CollisionType colType = CheckCollision(bulletSphere, spaceshipPosition);
+                if (colType != CollisionType.None)
+                {
+                    _bulletList.RemoveAt(i);
+                    i--;
+
+                    return CollisionType.Laser;
+                }
             }
+
+            return CollisionType.None;
         }
 
         private void MoveForward(ref Vector3 position, Quaternion rotationQuat, float speed)
@@ -105,6 +118,16 @@ namespace Chinchulines.Entities
 
             }
 
+        }
+
+        private CollisionType CheckCollision(BoundingSphere laserSphere, Vector3 spaceshipPosition)
+        {
+            BoundingSphere spaceshipSphere = new BoundingSphere(spaceshipPosition, 0.04f);
+
+            if (laserSphere.Intersects(spaceshipSphere))
+                return CollisionType.Laser;
+
+            return CollisionType.None;
         }
     }
 }

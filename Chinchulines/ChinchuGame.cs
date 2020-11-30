@@ -239,18 +239,29 @@ namespace Chinchulines
                 MoveForward(ref _spaceshipPosition, _spaceshipRotation, movementSpeed);
 
                 EM.Update(gameTime, centerPosition);
-                EM.UpdateEnemigoVigilante(_spaceshipPosition, gameTime, movementSpeed);
+
+                CollisionType laserCollision = EM.UpdateEnemigoVigilante(_spaceshipPosition, gameTime, movementSpeed, _health);
+                if (laserCollision == CollisionType.Laser)
+                {
+                    _health -= 2;
+                }
 
                 RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
                 VenusRotation += .005f;
 
-                _laserManager.UpdateLaser(movementSpeed);
+                _laserManager.UpdateLaserAndCheckCollision(movementSpeed, _spaceshipPosition, _health);
 
                 BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.04f);
-                if (CheckCollision(shipSpere) != CollisionType.None)
+                CollisionType collisionType = CheckCollision(shipSpere);
+                if (collisionType != CollisionType.None)
                 {
-                    _spaceshipPosition = new Vector3(8, 7, -3);
-                    _spaceshipRotation = Quaternion.Identity;
+                    if (collisionType == CollisionType.Trench)
+                    {
+                        _spaceshipPosition = new Vector3(8, 7, -3);
+                        _spaceshipRotation = Quaternion.Identity;
+                        _health -= 10;
+                    }
+
                 }
             }
 

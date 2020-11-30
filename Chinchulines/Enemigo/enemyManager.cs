@@ -62,12 +62,17 @@ namespace Chinchulines.Enemigo
             EnemigosVigilantes.Add(newEnemyWatcher);
         }
 
-        public void UpdateEnemigoVigilante(Vector3 playerPosition, GameTime gameTime, float movementSpeed)
+        public CollisionType UpdateEnemigoVigilante(Vector3 playerPosition, GameTime gameTime, float movementSpeed, int playerHealth)
         {
             foreach (Enemy enemigo in EnemigosVigilantes)
             {
-                enemigo.Update(playerPosition, gameTime, movementSpeed);
+                enemigo.Update(playerPosition);
+                CollisionType colision = enemigo.ShootLaser(playerPosition, gameTime, movementSpeed, playerHealth);
+
+                if (colision != CollisionType.None)
+                    return colision;
             }
+            return CollisionType.None;
         }
 
         public void DrawEnemigoVigilante(Matrix View, Matrix Projection, Vector3 playerpos, Quaternion spaceshipRotation, Vector3 cameraPosition, Vector3 cameraDirection, GraphicsDeviceManager graphics)

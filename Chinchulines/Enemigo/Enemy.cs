@@ -216,13 +216,18 @@ namespace Chinchulines.Enemigo
         }
 
         //TODO: mover metodos a otra clase de otro tipo de enemigo
-        public void Update(Vector3 playerpos, GameTime gameTime, float movementSpeed)
+        public void Update(Vector3 playerpos)
         {
             Enemy2World = Matrix.CreateFromQuaternion(enemyRotation) * Matrix.CreateTranslation(playerpos);
 
-            _laserManager.ShootLaser(gameTime, playerpos + new Vector3(0,0,1), enemyRotation);
+            
+        }
 
-            _laserManager.UpdateLaser(movementSpeed);
+        public CollisionType ShootLaser(Vector3 playerpos, GameTime gameTime, float movementSpeed, int playerHealth)
+        {
+            _laserManager.ShootLaser(gameTime, playerpos + new Vector3(0, 0, 1), enemyRotation);
+
+            return _laserManager.UpdateLaserAndCheckCollision(movementSpeed, playerpos, playerHealth);
         }
 
         public void DrawEnemy2(Matrix view, Matrix projection,Vector3 playerpos, Quaternion playerRotation, Vector3 cameraPosition, Vector3 cameraDirection, GraphicsDeviceManager graphics)
