@@ -66,7 +66,7 @@ namespace Chinchulines
 
         private float venusRotation { get; set; }
         BoundingSphere venusSphere;
-        private Vector3 [] checkpoints = { new Vector3(42f, 1f, -8f),
+        private Vector3[] checkpoints = { new Vector3(42f, 1f, -8f),
                                            new Vector3(42f, 1f, -18f),
                                            new Vector3(4f, 1f, -18f),
                                            new Vector3(4f, 1f, -23f),
@@ -113,7 +113,7 @@ namespace Chinchulines
         private BasicEffect SpaceShipEffect;
         private BasicEffect VenusEffect;
         private BasicEffect TGCcitoEffect;
-        
+
         private RenderTarget2D MainSceneRenderTarget;
         private RenderTarget2D FirstPassBloomRenderTarget;
         private RenderTarget2D SecondPassBloomRenderTarget;
@@ -317,12 +317,12 @@ namespace Chinchulines
                     {
                         _spaceshipPosition = new Vector3(8, 7, -3);
                         _spaceshipRotation = Quaternion.Identity;
-                        if(!gmode)_health -= 10;
+                        if (!gmode) _health -= 10;
                     }
 
                 }
 
-                if(_actualCheckpoint < 10)
+                if (_actualCheckpoint < 10)
                 {
                     venusSphere = new BoundingSphere(checkpoints[_actualCheckpoint], 0.5f);
                     if (shipSphere.Intersects(venusSphere))
@@ -331,10 +331,13 @@ namespace Chinchulines
                     }
                 }
 
-                BoundingSphere TgcBound = new BoundingSphere(finalBossPosition, 0.09f);
-                if (shipSphere.Intersects(TgcBound))
+                if (_actualCheckpoint >= 10)
                 {
-                    State = GameState.Win;
+                    BoundingSphere TgcBound = new BoundingSphere(finalBossPosition, 0.09f);
+                    if (shipSphere.Intersects(TgcBound))
+                    {
+                        State = GameState.Win;
+                    }
                 }
             }
 
@@ -371,18 +374,18 @@ namespace Chinchulines
             if (keys.IsKeyDown(Keys.S)) upDownRotation += turningSpeed;
             if (keys.IsKeyDown(Keys.W)) upDownRotation -= turningSpeed;
 
-            if (keys.IsKeyDown(Keys.LeftShift)) if(speedUp < 0.10f)speedUp += 0.01f;
-            if (keys.IsKeyDown(Keys.LeftControl)) if(speedUp > 0) speedUp -= 0.01f;
+            if (keys.IsKeyDown(Keys.LeftShift)) if (speedUp < 0.10f) speedUp += 0.01f;
+            if (keys.IsKeyDown(Keys.LeftControl)) if (speedUp > 0) speedUp -= 0.01f;
 
             if (keys.IsKeyDown(Keys.E)) barrelSide = -1;
             if (keys.IsKeyDown(Keys.Q)) barrelSide = 1;
             if (keys.IsKeyDown(Keys.X)) turnBack = true;
 
-            if(turnBack)
+            if (turnBack)
             {
                 clock++;
                 upDownRotation += turningSpeed;
-                if(clock > 117f)
+                if (clock > 117f)
                 {
                     clock = 0;
                     turnBack = !turnBack;
@@ -391,23 +394,23 @@ namespace Chinchulines
                     barrelSide = 2 * turn;
                 }
             }
-            
-            if(barrelSide != 0)
+
+            if (barrelSide != 0)
             {
-                if(Math.Abs(barrelSide) == 1)BarrelRoll(59f, ref barrelSide);
+                if (Math.Abs(barrelSide) == 1) BarrelRoll(59f, ref barrelSide);
                 else
                 {
-                    if(Math.Abs(barrelSide) == 2)
+                    if (Math.Abs(barrelSide) == 2)
                     {
                         BarrelRoll((59f / 2), ref barrelSide);
-                    }                                         
+                    }
                 }
             }
-            
-            
-            
-                _spaceshipRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRotation)
-                        * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRotation);
+
+
+
+            _spaceshipRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), leftRightRotation)
+                    * Quaternion.CreateFromAxisAngle(new Vector3(1, 0, 0), upDownRotation);
         }
 
         private void MoveForward(ref Vector3 position, Quaternion rotationQuat, float speed)
@@ -420,8 +423,8 @@ namespace Chinchulines
         {
             clock++;
 
-           if(Math.Sign(side) == -1) _spaceshipRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 0, 1), MathHelper.PiOver2 / 15);
-           else if(Math.Sign(side) == 1) _spaceshipRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), MathHelper.PiOver2 / 15);
+            if (Math.Sign(side) == -1) _spaceshipRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 0, 1), MathHelper.PiOver2 / 15);
+            else if (Math.Sign(side) == 1) _spaceshipRotation *= Quaternion.CreateFromAxisAngle(new Vector3(0, 0, -1), MathHelper.PiOver2 / 15);
 
             if (clock > time)
             {
@@ -439,7 +442,7 @@ namespace Chinchulines
             cameraPosition += _spaceshipPosition;
             Vector3 cameraUpDirection = new Vector3(0, 1, 0);
             cameraUpDirection = Vector3.Transform(cameraUpDirection, Matrix.CreateFromQuaternion(_spaceshipRotation));
-            
+
             View = Matrix.CreateLookAt(cameraPosition, _spaceshipPosition, cameraUpDirection);
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.2f, 500.0f);
 
@@ -461,7 +464,7 @@ namespace Chinchulines
         {
             GraphicsDevice.Clear(Color.Black);
 
-            
+
 
             if (State == GameState.Playing)
             {
@@ -576,7 +579,7 @@ namespace Chinchulines
 
             }
             else
-            if(State == GameState.Win)
+            if (State == GameState.Win)
             {
                 SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0],
                     rasterizerState: GraphicsDevice.RasterizerState);
@@ -586,7 +589,7 @@ namespace Chinchulines
                 SpriteBatch.End();
             }
             else
-                if(State == GameState.GameOver)
+                if (State == GameState.GameOver)
             {
                 SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0],
                     rasterizerState: GraphicsDevice.RasterizerState);
@@ -670,10 +673,10 @@ namespace Chinchulines
                 Matrix.CreateRotationY(venusRotation) *
                 Matrix.CreateTranslation(checkpoints[_actualCheckpoint]), VenusEffect);
 
-            /*if(_actualCheckpoint == 10)*/TGCcito.Draw(
-                Matrix.CreateScale(.005f) *
-                Matrix.CreateRotationY(venusRotation) *
-                Matrix.CreateTranslation(finalBossPosition), View, Projection);
+            if (_actualCheckpoint >= 10) TGCcito.Draw(
+                  Matrix.CreateScale(.005f) *
+                  Matrix.CreateRotationY(venusRotation) *
+                  Matrix.CreateTranslation(finalBossPosition), View, Projection);
 
         }
 
@@ -709,7 +712,7 @@ namespace Chinchulines
                 new Vector2(GraphicsDevice.Viewport.Width / 3 + 75, 50), Color.IndianRed);
             SpriteBatch.DrawString(_spriteFont, $"VIDA:",
                 new Vector2(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 50), Color.IndianRed);
-            SpriteBatch.Draw(HealthBar,new Rectangle(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 70, _health,20), Color.White);
+            SpriteBatch.Draw(HealthBar, new Rectangle(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 70, _health, 20), Color.White);
 
             SpriteBatch.Draw(CrossHair,
                 new Vector2((Window.ClientBounds.Width / 2) - (CrossHair.Width / 2),
