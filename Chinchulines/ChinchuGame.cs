@@ -56,6 +56,7 @@ namespace Chinchulines
         private Model TGCcito { get; set; }
 
         private Texture2D CrossHair;
+        private Texture2D HealthBar;
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
@@ -196,6 +197,7 @@ namespace Chinchulines
 
             TGCcito = Content.Load<Model>(ContentFolderModels + "tgc-logo/tgc-logo");
 
+            HealthBar = Content.Load<Texture2D>(ContentFolderTextures + "HealthBar/health-bar");
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
             _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
@@ -574,11 +576,12 @@ namespace Chinchulines
         {
             SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0], rasterizerState: GraphicsDevice.RasterizerState);
             SpriteBatch.DrawString(_spriteFont, $"TIEMPO RESTANTE: {_timeSpan.Minutes}:{_timeSpan.Seconds}",
-                new Vector2(50, 50), Color.Green);
+                new Vector2(50, 50), Color.IndianRed);
             SpriteBatch.DrawString(_spriteFont, $"CHECKPOINT: {_actualCheckpoint} de 10",
-                new Vector2(GraphicsDevice.Viewport.Width / 3, 50), Color.Green);
-            SpriteBatch.DrawString(_spriteFont, $"VIDA: {_health}%",
-                new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.Green);
+                new Vector2(GraphicsDevice.Viewport.Width / 3 + 75, 50), Color.IndianRed);
+            SpriteBatch.DrawString(_spriteFont, $"VIDA:",
+                new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.IndianRed);
+            SpriteBatch.Draw(HealthBar,new Rectangle(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 50, _health,20), Color.White);
 
             SpriteBatch.Draw(CrossHair,
                 new Vector2((Window.ClientBounds.Width / 2) - (CrossHair.Width / 2),
