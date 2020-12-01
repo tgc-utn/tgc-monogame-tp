@@ -97,6 +97,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/NormalMap.fx
 
+#begin Effects/ShadowMap.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ShadowMap.fx
+
 #begin Effects/Specular.fx
 /importer:EffectImporter
 /processor:EffectProcessor

@@ -8,6 +8,7 @@ using Chinchulines.Enemigo;
 using System.Collections.Generic;
 using Chinchulines.Entities;
 using Microsoft.Xna.Framework.Media;
+using Chinchulines.Cameras;
 
 namespace Chinchulines
 {
@@ -106,7 +107,9 @@ namespace Chinchulines
         private Effect BloomEffect { get; set; }
         private Effect BlurEffect { get; set; }
         private BasicEffect SpaceShipEffect;
-
+        private BasicEffect VenusEffect;
+        private BasicEffect TGCcitoEffect;
+        
         private RenderTarget2D MainSceneRenderTarget;
         private RenderTarget2D FirstPassBloomRenderTarget;
         private RenderTarget2D SecondPassBloomRenderTarget;
@@ -122,6 +125,19 @@ namespace Chinchulines
         int _health = 100;
         private float _gameSpeed = 1.0f;
         private Vector3 finalBossPosition;
+
+        private Effect ShadowMapEffect { get; set; }
+        private RenderTarget2D ShadowMapRenderTarget;
+        private const int ShadowmapSize = 2048;
+
+        private readonly float LightCameraFarPlaneDistance = 3000f;
+
+        private readonly float LightCameraNearPlaneDistance = 5f;
+
+        private Vector3 LightPosition = new Vector3(8f, 7f, -3f);
+        private float Timer;
+        private TargetCamera TargetLightCamera { get; set; }
+
 
 
         /// <summary>
@@ -157,6 +173,10 @@ namespace Chinchulines
 
             State = GameState.Playing;
 
+            TargetLightCamera = new TargetCamera(1f, LightPosition, Vector3.Zero);
+            TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
+                MathHelper.PiOver2);
+
             base.Initialize();
         }
         /// <summary>
@@ -190,12 +210,14 @@ namespace Chinchulines
             spaceShipEffect3.TextureEnabled = true;
             spaceShipEffect3.Texture = Content.Load<Texture2D>(TextureMK3); // Se puede cambiar por MK2 y MK3
 
-            var venusEffect = (BasicEffect)VenusModel.Meshes[0].Effects[0];
-            venusEffect.TextureEnabled = true;
-            venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
+            VenusEffect = (BasicEffect)VenusModel.Meshes[0].Effects[0];
+            VenusEffect.TextureEnabled = true;
+            VenusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
 
             TGCcito = Content.Load<Model>(ContentFolderModels + "tgc-logo/tgc-logo");
-
+            TGCcitoEffect = (BasicEffect)TGCcito.Meshes[0].Effects[0];
+            TGCcitoEffect.DiffuseColor = Color.DarkBlue.ToVector3();
+            TGCcitoEffect.EnableDefaultLighting();
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
             _trench.LoadContent(ContentFolderTextures + "Trench/TrenchTexture", ContentFolderEffect + "Trench", Content, Graphics);
@@ -224,6 +246,11 @@ namespace Chinchulines
             FullScreenQuad = new FullScreenQuad(GraphicsDevice);
 
 
+            // Create a shadow map. It stores depth from the light position
+            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+            ShadowMapEffect = Content.Load<Effect>(ContentFolderEffect + "ShadowMap");
+
             base.LoadContent();
         }
 
@@ -245,6 +272,10 @@ namespace Chinchulines
 
             if (State == GameState.Playing)
             {
+                UpdateLightPosition((float)gameTime.ElapsedGameTime.TotalSeconds);
+                TargetLightCamera.Position = LightPosition;
+                TargetLightCamera.BuildView();
+
                 _timeSpan -= gameTime.ElapsedGameTime;
                 if (_timeSpan < TimeSpan.Zero || _health == 0)
                 {
@@ -405,6 +436,12 @@ namespace Chinchulines
             _cameraDirection = cameraUpDirection;
         }
 
+        private void UpdateLightPosition(float elapsedTime)
+        {
+            LightPosition = new Vector3(MathF.Cos(Timer) * 10f, 5f, MathF.Sin(Timer) * 10f);
+            Timer += elapsedTime * 0.5f;
+        }
+
         /// <summary>
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aquí todo el código referido al renderizado.
@@ -425,9 +462,8 @@ namespace Chinchulines
                 GraphicsDevice.SetRenderTarget(MainSceneRenderTarget);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
-                DrawSecondaryObjects();
+                DrawCheckpoints();
                 DrawSkybox();
-
 
                 // Assign the basic effect and draw
                 foreach (var modelMesh in SpaceShipModelMK1.Meshes)
@@ -450,6 +486,10 @@ namespace Chinchulines
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
                 #endregion
+
+                DrawShadows(SpaceShipModelMK1, Matrix.CreateScale(0.005f) *
+                                        Matrix.CreateFromQuaternion(_spaceshipRotation) *
+                                        Matrix.CreateTranslation(_spaceshipPosition), SpaceShipEffect);
 
                 #region Pass 2
 
@@ -520,30 +560,90 @@ namespace Chinchulines
                 FullScreenQuad.Draw(BloomEffect);
 
                 #endregion
+
             }
 
             base.Draw(gameTime);
         }
 
-        private void DrawSecondaryObjects()
+        private void DrawShadows(Model model, Matrix world, BasicEffect basicEffect)
+        {
+            #region Pass 1
+
+            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            // Set the render target as our shadow map, we are drawing the depth into this texture
+            //GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+            //GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+
+            ShadowMapEffect.CurrentTechnique = ShadowMapEffect.Techniques["DepthPass"];
+
+            // We get the base transform for each mesh
+            var modelMeshesBaseTransforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            foreach (var modelMesh in model.Meshes)
+            {
+                foreach (var part in modelMesh.MeshParts)
+                    part.Effect = ShadowMapEffect;
+
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
+
+                // WorldViewProjection is used to transform from model space to clip space
+                ShadowMapEffect.Parameters["WorldViewProjection"]
+                        .SetValue(worldMatrix * world * TargetLightCamera.View * TargetLightCamera.Projection);
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
+
+            #endregion
+
+            #region Pass 2
+
+            // Set the render target as null, we are drawing on the screen!
+            //GraphicsDevice.SetRenderTarget(null);
+            //GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+
+            ShadowMapEffect.CurrentTechnique = ShadowMapEffect.Techniques["DrawShadowedPCF"];
+            ShadowMapEffect.Parameters["baseTexture"].SetValue(basicEffect.Texture);
+            ShadowMapEffect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
+            ShadowMapEffect.Parameters["lightPosition"].SetValue(LightPosition);
+            ShadowMapEffect.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowmapSize);
+            ShadowMapEffect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+            foreach (var modelMesh in model.Meshes)
+            {
+                foreach (var part in modelMesh.MeshParts)
+                    part.Effect = ShadowMapEffect;
+
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
+
+                // WorldViewProjection is used to transform from model space to clip space
+                ShadowMapEffect.Parameters["WorldViewProjection"].SetValue(worldMatrix * world * View * Projection);
+                ShadowMapEffect.Parameters["World"].SetValue(worldMatrix);
+                ShadowMapEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
+
+            #endregion
+
+        }
+
+        private void DrawCheckpoints()
         {
             if (_actualCheckpoint < 10)
-                VenusModel.Draw(
-                Matrix.CreateScale(.01f) *
+                DrawShadows(VenusModel, Matrix.CreateScale(.01f) *
                 Matrix.CreateRotationY(venusRotation) *
-                Matrix.CreateTranslation(checkpoints[_actualCheckpoint]), View, Projection);
+                Matrix.CreateTranslation(checkpoints[_actualCheckpoint]), VenusEffect);
 
             if(_actualCheckpoint == 10)
                 TGCcito.Draw(
                 Matrix.CreateScale(.005f) *
                 Matrix.CreateRotationY(venusRotation) *
                 Matrix.CreateTranslation(finalBossPosition), View, Projection);
-            
 
-            SpaceShipModelMK3.Draw(
-                            Matrix.CreateScale(.008f) *
-                            Matrix.CreateRotationY(-venusRotation) *
-                            Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
         }
 
         private void DrawSkybox()
