@@ -57,6 +57,9 @@ namespace Chinchulines
 
         private Texture2D CrossHair;
         private Texture2D HealthBar;
+
+        private Texture2D Victory;
+        private Texture2D GameOver;
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
@@ -185,6 +188,9 @@ namespace Chinchulines
 
             CrossHair = Content.Load<Texture2D>(CrossHairTexture);
 
+            Victory = Content.Load<Texture2D>(ContentFolderTextures + "/GameStates/Victory");
+            GameOver = Content.Load<Texture2D>(ContentFolderTextures + "/GameStates/GameOver");
+
             SpaceShipModelMK3 = Content.Load<Model>(ModelMK3);
 
             var spaceShipEffect3 = (BasicEffect)SpaceShipModelMK3.Meshes[0].Effects[0];
@@ -239,8 +245,6 @@ namespace Chinchulines
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
-                //Salgo del juego.
-                State = GameState.GameOver;
                 this.UnloadContent();
                 Exit();
             }
@@ -296,6 +300,10 @@ namespace Chinchulines
                 }
 
                 BoundingSphere TgcBound = new BoundingSphere(finalBossPosition, 0.09f);
+                if (shipSphere.Intersects(TgcBound))
+                {
+                    State = GameState.Win;
+                }
             }
 
             base.Update(gameTime);
@@ -415,6 +423,8 @@ namespace Chinchulines
         {
             GraphicsDevice.Clear(Color.Black);
 
+            
+
             if (State == GameState.Playing)
             {
                 #region Pass 1
@@ -523,6 +533,25 @@ namespace Chinchulines
 
                 #endregion
             }
+            else
+            if(State == GameState.Win)
+            {
+                SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0],
+                    rasterizerState: GraphicsDevice.RasterizerState);
+                SpriteBatch.Draw(Victory,
+                    new Rectangle(200, 100, 600, 600),
+                    Color.White);
+                SpriteBatch.End();
+            }
+            else
+                if(State == GameState.GameOver)
+            {
+                SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0],
+                    rasterizerState: GraphicsDevice.RasterizerState);
+                SpriteBatch.Draw(GameOver,
+                    new Rectangle(200, 100, 600, 600), Color.White);
+                SpriteBatch.End();
+            }
 
             base.Draw(gameTime);
         }
@@ -558,8 +587,6 @@ namespace Chinchulines
 
             Graphics.GraphicsDevice.RasterizerState = originalRasterizerState;
         }
-
-
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
         /// </summary>
@@ -575,13 +602,13 @@ namespace Chinchulines
         private void DrawHUD()
         {
             SpriteBatch.Begin(samplerState: GraphicsDevice.SamplerStates[0], rasterizerState: GraphicsDevice.RasterizerState);
-            SpriteBatch.DrawString(_spriteFont, $"TIEMPO RESTANTE: {_timeSpan.Minutes}:{_timeSpan.Seconds}",
+            SpriteBatch.DrawString(_spriteFont, $"TIEMPO RESTANTE:\n    {_timeSpan.Minutes}:{_timeSpan.Seconds}",
                 new Vector2(50, 50), Color.IndianRed);
-            SpriteBatch.DrawString(_spriteFont, $"CHECKPOINT: {_actualCheckpoint} de 10",
+            SpriteBatch.DrawString(_spriteFont, $"CHECKPOINT:\n    {_actualCheckpoint}/10",
                 new Vector2(GraphicsDevice.Viewport.Width / 3 + 75, 50), Color.IndianRed);
             SpriteBatch.DrawString(_spriteFont, $"VIDA:",
-                new Vector2(GraphicsDevice.Viewport.Width / 4 * 3, 50), Color.IndianRed);
-            SpriteBatch.Draw(HealthBar,new Rectangle(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 50, _health,20), Color.White);
+                new Vector2(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 50), Color.IndianRed);
+            SpriteBatch.Draw(HealthBar,new Rectangle(GraphicsDevice.Viewport.Width / 4 * 3 + 75, 70, _health,20), Color.White);
 
             SpriteBatch.Draw(CrossHair,
                 new Vector2((Window.ClientBounds.Width / 2) - (CrossHair.Width / 2),
