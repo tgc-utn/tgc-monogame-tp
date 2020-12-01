@@ -252,7 +252,7 @@ namespace Chinchulines
             if (State == GameState.Playing)
             {
                 _timeSpan -= gameTime.ElapsedGameTime;
-                if (_timeSpan < TimeSpan.Zero || _health == 0)
+                if (_timeSpan < TimeSpan.Zero || _health < 0)
                 {
                     State = GameState.GameOver;
                 }
