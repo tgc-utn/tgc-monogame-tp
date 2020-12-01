@@ -150,10 +150,18 @@ namespace Chinchulines.Menu.States
                 {
 
                     spriteBatch.DrawString(buttonFont,
-                        $"Objetivo: Debes cruzar todos los checkpoints antes de que se acabe\n" +
-                        $"el tiempo o tu vida y finalmente, aniquilar a tgccito",
-                        //POR AHORA
+                        $"Objetivo:\n" +
+                        $" Debes cruzar todos los checkpoints en forma de planetas\n" +
+                        $"antes de que se acabe el tiempo o tu vida\n" +
+                        $"\n" +
+                        $"Tu vida ira bajando si te dejas golpear por el enemigo que tienes\n" +
+                        $"detras o colisionas con el trench\n" +
+                        $"\n" +
+                        $"Cuando hallas cruzado todos los checkpoints, podras ver el nucleo\n" +
+                        $"TGC del enemigo. Disparale para ganar el juego!!!",
                         new Vector2(50, 50), Color.OrangeRed);
+
+
                 }
             }
             else

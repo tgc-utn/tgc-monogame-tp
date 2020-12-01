@@ -85,7 +85,7 @@ namespace Chinchulines
 
         private Vector3 _spaceshipPosition = new Vector3(8f, 7f, -3f);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
-        BoundingSphere shipSpere;
+        BoundingSphere shipSphere;
         private float movementSpeed;
         private float speedUp;
         private int barrelSide = 0;
@@ -271,8 +271,8 @@ namespace Chinchulines
 
                 _laserManager.UpdateLaserAndCheckCollision(movementSpeed, _spaceshipPosition, _health);
 
-                shipSpere = new BoundingSphere(_spaceshipPosition, 0.09f);
-                CollisionType collisionType = CheckCollision(shipSpere);
+                shipSphere = new BoundingSphere(_spaceshipPosition, 0.09f);
+                CollisionType collisionType = CheckCollision(shipSphere);
                 if (collisionType != CollisionType.None)
                 {
                     if (collisionType == CollisionType.Trench)
@@ -287,7 +287,7 @@ namespace Chinchulines
                 if(_actualCheckpoint < 10)
                 {
                     venusSphere = new BoundingSphere(checkpoints[_actualCheckpoint], 0.5f);
-                    if (shipSpere.Intersects(venusSphere))
+                    if (shipSphere.Intersects(venusSphere))
                     {
                         _actualCheckpoint++;
                     }
@@ -533,8 +533,7 @@ namespace Chinchulines
                 Matrix.CreateRotationY(venusRotation) *
                 Matrix.CreateTranslation(checkpoints[_actualCheckpoint]), View, Projection);
 
-            if(_actualCheckpoint == 10)
-                TGCcito.Draw(
+            /*if(_actualCheckpoint == 10)*/TGCcito.Draw(
                 Matrix.CreateScale(.005f) *
                 Matrix.CreateRotationY(venusRotation) *
                 Matrix.CreateTranslation(finalBossPosition), View, Projection);
