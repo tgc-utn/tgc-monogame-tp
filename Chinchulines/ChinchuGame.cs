@@ -284,10 +284,13 @@ namespace Chinchulines
 
                 }
 
-                venusSphere = new BoundingSphere(checkpoints[_actualCheckpoint], 0.09f);
-                if (shipSpere.Intersects(venusSphere))
+                if(_actualCheckpoint < 10)
                 {
-                    _actualCheckpoint++;
+                    venusSphere = new BoundingSphere(checkpoints[_actualCheckpoint], 0.5f);
+                    if (shipSpere.Intersects(venusSphere))
+                    {
+                        _actualCheckpoint++;
+                    }
                 }
 
                 BoundingSphere TgcBound = new BoundingSphere(finalBossPosition, 0.09f);
@@ -524,12 +527,14 @@ namespace Chinchulines
 
         private void DrawSecondaryObjects()
         {
-            VenusModel.Draw(
-                Matrix.CreateScale(.005f) *
+            if (_actualCheckpoint < 10)
+                VenusModel.Draw(
+                Matrix.CreateScale(.01f) *
                 Matrix.CreateRotationY(venusRotation) *
                 Matrix.CreateTranslation(checkpoints[_actualCheckpoint]), View, Projection);
 
-            /*if(_actualCheckpoint == 10)*/TGCcito.Draw(
+            if(_actualCheckpoint == 10)
+                TGCcito.Draw(
                 Matrix.CreateScale(.005f) *
                 Matrix.CreateRotationY(venusRotation) *
                 Matrix.CreateTranslation(finalBossPosition), View, Projection);
