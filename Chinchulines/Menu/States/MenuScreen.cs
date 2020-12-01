@@ -178,12 +178,13 @@ namespace Chinchulines.Menu.States
 
         private void GodGameButton_Click(object sender, EventArgs e)
         {
-            Console.WriteLine("GOD mode");
+            using (var game = new ChinchuGame(true))
+                game.Run();
         }
 
         private void NewGameButton_Click(object sender, EventArgs e)
         {
-            using (var game = new ChinchuGame())
+            using (var game = new ChinchuGame(false))
                 game.Run();
         }
 

@@ -33,7 +33,7 @@ namespace Chinchulines
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
-        public ChinchuGame()
+        public ChinchuGame(bool godmode)
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
@@ -43,6 +43,8 @@ namespace Chinchulines
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
+
+            gmode = godmode;
         }
 
         private GraphicsDeviceManager Graphics { get; }
@@ -51,43 +53,49 @@ namespace Chinchulines
         private Model SpaceShipModelMK3 { get; set; }
         private Model VenusModel { get; set; }
 
+        private Model TGCcito { get; set; }
+
         private Texture2D CrossHair;
-        private float RotationY { get; set; }
-        private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
-
-        private float VenusRotation { get; set; }
-
-        private float movementSpeed;
-        private float speedUp;
-
-        private Vector3 centerPosition;
-
-        float clock = 0f;
+        private float venusRotation { get; set; }
+        BoundingSphere venusSphere;
+        private Vector3 [] checkpoints = { new Vector3(42f, 1f, -8f),
+                                           new Vector3(42f, 1f, -18f),
+                                           new Vector3(4f, 1f, -18f),
+                                           new Vector3(4f, 1f, -23f),
+                                           new Vector3(42f, 1f, -23f),
+                                           new Vector3(42f, 1f, -27f),
+                                           new Vector3(4f, 1f, -27f),
+                                           new Vector3(4f, 1f, -35f),
+                                           new Vector3(42f, 1f, -35f),
+                                           new Vector3(42f, 1f, -43f), };
 
         private enemyManager EM;
 
+        private Song background;
+
         Skybox skybox;
+
+        private Vector3 centerPosition;
         private Trench _trench;
-        private Vector3 _lightDirection = new Vector3(3, 40, 5);
 
-        private Vector3 _spaceshipPosition = new Vector3(8, 7, -3);
+        private Vector3 _lightDirection = new Vector3(3f, 40f, 5f);
+
+        private Vector3 _spaceshipPosition = new Vector3(8f, 7f, -3f);
         private Quaternion _spaceshipRotation = Quaternion.Identity;
-        private float _gameSpeed = 1.0f;
-
-        private int barrelSide = 0; // -1 for left, 1 for rigth, 0 for nothing, 2 for turnback
-
+        BoundingSphere shipSpere;
+        private float movementSpeed;
+        private float speedUp;
+        private int barrelSide = 0;
         private bool turnBack = false;
+        float clock = 0f;
 
         private Vector3 _cameraPosition;
         private Vector3 _cameraDirection;
 
         private Random ran = new Random();
-
-        private Song background;
-
 
         private LaserManager _laserManager;
 
@@ -97,19 +105,23 @@ namespace Chinchulines
 
         private Effect BloomEffect { get; set; }
         private Effect BlurEffect { get; set; }
-
         private BasicEffect SpaceShipEffect;
+
         private RenderTarget2D MainSceneRenderTarget;
         private RenderTarget2D FirstPassBloomRenderTarget;
         private RenderTarget2D SecondPassBloomRenderTarget;
 
         private const int PassCount = 2;
 
+        bool gmode;
+
         private FullScreenQuad FullScreenQuad;
 
         TimeSpan _timeSpan = TimeSpan.FromMinutes(5);
         int _actualCheckpoint = 0;
         int _health = 100;
+        private float _gameSpeed = 1.0f;
+        private Vector3 finalBossPosition;
 
 
         /// <summary>
@@ -140,6 +152,8 @@ namespace Chinchulines
 
             _trench = new Trench();
             _laserManager = new LaserManager();
+
+            finalBossPosition = new Vector3(4f, 1f, -43f);
 
             State = GameState.Playing;
 
@@ -179,6 +193,8 @@ namespace Chinchulines
             var venusEffect = (BasicEffect)VenusModel.Meshes[0].Effects[0];
             venusEffect.TextureEnabled = true;
             venusEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Venus/Venus-Texture");
+
+            TGCcito = Content.Load<Model>(ContentFolderModels + "tgc-logo/tgc-logo");
 
 
             skybox = new Skybox("Skyboxes/SunInSpace", Content);
@@ -230,7 +246,7 @@ namespace Chinchulines
             if (State == GameState.Playing)
             {
                 _timeSpan -= gameTime.ElapsedGameTime;
-                if (_timeSpan < TimeSpan.Zero)
+                if (_timeSpan < TimeSpan.Zero || _health == 0)
                 {
                     State = GameState.GameOver;
                 }
@@ -246,17 +262,16 @@ namespace Chinchulines
                 EM.Update(gameTime, centerPosition);
 
                 CollisionType laserCollision = EM.UpdateEnemigoVigilante(_spaceshipPosition, gameTime, movementSpeed, _health);
-                if (laserCollision == CollisionType.Laser)
+                if (laserCollision == CollisionType.Laser && !gmode)
                 {
                     _health -= 2;
                 }
 
-                RotationY += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-                VenusRotation += .005f;
+                venusRotation += .005f;
 
                 _laserManager.UpdateLaserAndCheckCollision(movementSpeed, _spaceshipPosition, _health);
 
-                BoundingSphere shipSpere = new BoundingSphere(_spaceshipPosition, 0.04f);
+                shipSpere = new BoundingSphere(_spaceshipPosition, 0.09f);
                 CollisionType collisionType = CheckCollision(shipSpere);
                 if (collisionType != CollisionType.None)
                 {
@@ -264,10 +279,18 @@ namespace Chinchulines
                     {
                         _spaceshipPosition = new Vector3(8, 7, -3);
                         _spaceshipRotation = Quaternion.Identity;
-                        _health -= 10;
+                        if(!gmode)_health -= 10;
                     }
 
                 }
+
+                venusSphere = new BoundingSphere(checkpoints[_actualCheckpoint], 0.09f);
+                if (shipSpere.Intersects(venusSphere))
+                {
+                    _actualCheckpoint++;
+                }
+
+                BoundingSphere TgcBound = new BoundingSphere(finalBossPosition, 0.09f);
             }
 
             base.Update(gameTime);
@@ -331,8 +354,8 @@ namespace Chinchulines
                 {
                     if(Math.Abs(barrelSide) == 2)
                     {
-                        BarrelRoll((59f / 2), ref barrelSide);// con esto tendria que manejar para que se ponga en horizontal
-                    }                                         // pero no está acabado
+                        BarrelRoll((59f / 2), ref barrelSide);
+                    }                                         
                 }
             }
             
@@ -399,8 +422,8 @@ namespace Chinchulines
                 GraphicsDevice.SetRenderTarget(MainSceneRenderTarget);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
-                DrawSkybox();
                 DrawSecondaryObjects();
+                DrawSkybox();
 
 
                 // Assign the basic effect and draw
@@ -502,14 +525,19 @@ namespace Chinchulines
         private void DrawSecondaryObjects()
         {
             VenusModel.Draw(
-                World *
-                Matrix.CreateScale(.5f) *
-                Matrix.CreateRotationY(VenusRotation) *
-                Matrix.CreateTranslation(0, 0, 0), View, Projection);
+                Matrix.CreateScale(.005f) *
+                Matrix.CreateRotationY(venusRotation) *
+                Matrix.CreateTranslation(checkpoints[_actualCheckpoint]), View, Projection);
+
+            /*if(_actualCheckpoint == 10)*/TGCcito.Draw(
+                Matrix.CreateScale(.005f) *
+                Matrix.CreateRotationY(venusRotation) *
+                Matrix.CreateTranslation(finalBossPosition), View, Projection);
+            
 
             SpaceShipModelMK3.Draw(
                             Matrix.CreateScale(.008f) *
-                            Matrix.CreateRotationY(-VenusRotation) *
+                            Matrix.CreateRotationY(-venusRotation) *
                             Matrix.CreateTranslation(3f, 2f, -10), View, Projection);
         }
 

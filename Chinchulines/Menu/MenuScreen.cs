@@ -28,6 +28,7 @@ namespace Chinchulines.Menu
             Content.RootDirectory = "Content";
         }
 
+
         private Song menuMusic;
 
         /// <summary>
