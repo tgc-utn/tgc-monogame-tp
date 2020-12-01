@@ -32,9 +32,9 @@ namespace Chinchulines.Enemigo
 
         public void CrearEnemigo()
         {
-            var posx = x.Next(-5, 5);
-            var posy = y.Next(25, 35);
-            var posz = z.Next(-150, -100);
+            var posx = x.Next(0, 150);
+            var posy = y.Next(10, 100);
+            var posz = z.Next(-150, 0);
 
             Enemies.Add(new Enemy(new Vector3(posx, posy, posz)));
         }
