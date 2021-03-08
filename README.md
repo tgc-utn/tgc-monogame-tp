@@ -10,21 +10,25 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
 ## Requisitos
 * [.NET Core SDK](https://docs.microsoft.com/dotnet/core/install/sdk)
 * El IDE que prefieran:
-  * [Visual Studio Code](https://code.visualstudio.com)
-  * [Visual Studio](https://visualstudio.microsoft.com/es/vs) o [Visual Studio for Mac](https://visualstudio.microsoft.com/es/vs/mac)
+  * [Visual Studio Code](https://code.visualstudio.com) y and [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.hlsltools)
+  * [Visual Studio](https://visualstudio.microsoft.com/es/vs) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.HLSLToolsforVisualStudio)
+  * [Visual Studio for Mac](https://visualstudio.microsoft.com/es/vs/mac)
   * [Rider](https://www.jetbrains.com/rider)
 * [MGCB Editor](https://docs.monogame.net/articles/tools/mgcb_editor.html)
+* [MGFXC](https://docs.monogame.net/articles/tools/mgfxc.html)
 * [MonoGame.Framework.DesktopGL](https://www.nuget.org/packages/MonoGame.Framework.DesktopGL) (Se baja automáticamente al hacer build por primera vez)
+
+Más información sobre [.NET Core CLI Tools telemetry](https://aka.ms/dotnet-cli-telemetry) y [Visual Studio Code telemetry](https://code.visualstudio.com/docs/getstarted/telemetry) ya que vienen activas por defecto.
 
 ## Configuración del entorno de desarrollo
  * [Windows 10](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_windows.html)
    * Se puede usar Visual Studio Code o Rider. La documentación oficial solo explica Visual Studio, pero cada uno puede configurar el que les sea más cómodo.
  * [Linux (probado en Ubuntu 20.04)](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_ubuntu.html)
- * [Mac (probado en macOS Catalina)](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_macos.html)
+ * [Mac (probado en macOS Big Sur)](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_macos.html)
 
 Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq.org) para los shaders, por lo menos por [ahora](https://github.com/MonoGame/MonoGame/issues/2167).
 
-Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de hacer clone del repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer ```git lfs pull```.
+Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de clonar el repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer ```git lfs pull```.
 
 ## Integrantes
 TGC, Tgcito  |  Apellido, Nombre
