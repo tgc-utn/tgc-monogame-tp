@@ -10,7 +10,7 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
 ## Requisitos
 * [.NET Core SDK](https://docs.microsoft.com/dotnet/core/install/sdk)
 * El IDE que prefieran:
-  * [Visual Studio Code](https://code.visualstudio.com) y and [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.hlsltools)
+  * [Visual Studio Code](https://code.visualstudio.com) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.hlsltools)
   * [Visual Studio](https://visualstudio.microsoft.com/es/vs) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.HLSLToolsforVisualStudio)
   * [Visual Studio for Mac](https://visualstudio.microsoft.com/es/vs/mac)
   * [Rider](https://www.jetbrains.com/rider)
