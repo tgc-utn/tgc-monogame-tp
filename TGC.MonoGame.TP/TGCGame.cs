@@ -3,11 +3,13 @@
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using Microsoft.Xna.Framework.Input;
+    using Microsoft.Xna.Framework.Media;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using TGC.MonoGame.TP.Components.Bullet;
     using TGC.MonoGame.TP.Components.Camera;
+    using TGC.MonoGame.TP.Components.Enemy;
     using TGC.MonoGame.TP.Components.Map;
     using TGC.MonoGame.TP.Components.Player;
 
@@ -72,6 +74,8 @@
         /// </summary>
         private SpriteBatch SpriteBatch { get; set; }
 
+        private Song Song { get; set; }
+
         /// <summary>
         /// Gets or sets the Column.
         /// </summary>
@@ -100,8 +104,11 @@
         /// Gets or sets the GamePause.
         /// </summary>
         private Boolean GamePause { get; set; }
+        private Boolean ClickPressed { get; set; }
 
         private Player Player { get; set; }
+
+        private Enemy Enemy { get; set; }
 
         /// <summary>
         /// Gets or sets the Map.
@@ -114,13 +121,15 @@
         /// </summary>
         protected override void Initialize()
         {
-            // Adaptamos al tamaño de pantalla
+            // Adapt screen size
             Graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
             Graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
-            // Pnemos en pantalla completa
-            Graphics.IsFullScreen = true;
-            // Aplicamos los cambios
+            // Enable fullscreen 
+            //Graphics.IsFullScreen = true;
+            // Apply changes
             Graphics.ApplyChanges();
+
+            ClickPressed = false;
 
             // Initialize Camera
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
@@ -128,21 +137,19 @@
 
             // Initialize player
             Player = new Player(Camera.Position);
-
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
+            
+            // Enable backface culling
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            // Configuramos nuestras matrices de la escena.
+            // Create World matrix
             World = Matrix.CreateRotationY(MathHelper.Pi);
 
             Map = new Map();
             Bullets = new List<Bullet>();
+            Enemy = new Enemy();
+            Enemy.SetPosition(new Vector3(200, 13, 250));
 
             // Arranco el Game Pause en true para evitar que el jugador se mueva
             GamePause = true;
@@ -157,34 +164,37 @@
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             Column = Content.Load<Model>(ContentFolder3D + "bonecolumn/bonecolumn");
             Map.LoadContent(Column);
 
+            // Load bullet model
             BulletModel = Content.Load<Model>(ContentFolder3D + "bullet/Bullet_9x19");
             var modelEffectBullet = (BasicEffect)BulletModel.Meshes[0].Effects[0];
             modelEffectBullet.DiffuseColor = Color.White.ToVector3();
             modelEffectBullet.EnableDefaultLighting();
 
+            // Load enemy model
             Skull = Content.Load<Model>(ContentFolder3D + "skull/Skull");
             var modelEffectSkull = (BasicEffect)BulletModel.Meshes[0].Effects[0];
             modelEffectSkull.DiffuseColor = Color.White.ToVector3();
             modelEffectSkull.EnableDefaultLighting();
 
+            // Load Spawner model
             Spawner = Content.Load<Model>(ContentFolder3D + "monsterlarge/MonsterLarge");
             var modelEffectSpawner = (BasicEffect)Spawner.Meshes[0].Effects[0];
             modelEffectSpawner.DiffuseColor = Color.White.ToVector3();
             modelEffectSpawner.EnableDefaultLighting();
 
-            // Creamos la escopeta
+            // Load shotgun model
             Shotgun = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
             var modelEffect = (BasicEffect)Shotgun.Meshes[0].Effects[0];
             modelEffect.DiffuseColor = Color.White.ToVector3();
             modelEffect.EnableDefaultLighting();
 
-         
+            Song = Content.Load<Song>(ContentFolderMusic + "doom-ost-damnation");
+            MediaPlayer.IsRepeating = true;
 
             base.LoadContent();
         }
@@ -197,19 +207,19 @@
         /// <param name="gameTime">The gameTime<see cref="GameTime"/>.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
-
-            // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                //Salgo del juego.
+                // Exit game
                 Exit();
 
-            // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.P))
-                //Pauso o reanudo el juego.
+            {
+                MediaPlayer.Play(Song);
+                // Pause/Start game
                 GamePause = !GamePause;
+            }
+                
 
-            // Si el Game Pause esta false puedo jugar y moverme.
+            // If GamePause is false i can move and play
             if (!GamePause)
             {
                 Camera.Update(gameTime);
@@ -217,7 +227,8 @@
             
                 // Creates new bullets when left click
                 var mouse = Mouse.GetState();
-                if (mouse.LeftButton == ButtonState.Pressed && Bullets.Count < 15)
+
+                if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15)
                 {
                     Bullet Bullet = new Bullet();
                     Bullet.SetPosition(Camera.Position + Camera.FrontDirection * 5f);
@@ -225,7 +236,10 @@
                     Bullet.SetUp(Camera.UpDirection);
                     var recentBullet = Bullet;
                     Bullets.Add(recentBullet);
+                    ClickPressed = true;
                 }
+
+                if (mouse.LeftButton == ButtonState.Released && ClickPressed) ClickPressed = false;
 
                 if(Bullets.Count >= 15)
                 {
@@ -236,6 +250,10 @@
                 {
                     bullet.Update();  
                 }
+
+                Enemy.SetUp(Camera.UpDirection);
+                Enemy.SetDirection(-Camera.FrontDirection);
+                Enemy.Update();
 
                 Player.SetPosition(Camera.Position);
             }
@@ -258,7 +276,10 @@
             Map.Draw(World, Camera.View, Camera.Projection);
             Spawner.Draw(World * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateTranslation(300, 13 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds), 850), Camera.View, Camera.Projection);
 
-            Skull.Draw(World * Matrix.CreateFromYawPitchRoll(15 * (float)gameTime.TotalGameTime.TotalSeconds, 13 * (float)gameTime.TotalGameTime.TotalSeconds, 28 * (float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateTranslation(200, 13 * MathF.Sin( (float)gameTime.TotalGameTime.TotalSeconds), 250), Camera.View, Camera.Projection);
+
+            Vector3 SkullRight = Vector3.Cross(Enemy.GetDirection(), Enemy.GetUp());
+            Vector3 SkullPosition = Enemy.GetPosition() + Enemy.GetDirection() + SkullRight - Enemy.GetUp();
+            Skull.Draw(Matrix.CreateWorld(SkullPosition, -SkullRight, -Enemy.GetDirection()), Camera.View, Camera.Projection);
 
             foreach(Bullet bullet in Bullets)
             {

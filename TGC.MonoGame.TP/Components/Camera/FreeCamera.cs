@@ -73,12 +73,12 @@
         /// <summary>
         /// Gets or sets the MovementSpeed.
         /// </summary>
-        public float MovementSpeed { get; set; } = 250f;
+        public float MovementSpeed { get; set; } = 850f;
 
         /// <summary>
         /// Gets or sets the MouseSensitivity.
         /// </summary>
-        public float MouseSensitivity { get; set; } = 7f;
+        public float MouseSensitivity { get; set; } = 12f;
 
         /// <summary>
         /// The CalculateView.

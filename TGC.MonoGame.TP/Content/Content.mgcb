@@ -471,6 +471,18 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/tgc-logo/tgc-logo.fbx
 
+#begin Music/doom-ost-damnation.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/doom-ost-damnation.mp3
+
+#begin Music/doom-ost-rip-tear.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/doom-ost-rip-tear.mp3
+
 #begin Textures/ccreteflr016a_COLOR.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
