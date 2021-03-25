@@ -12,10 +12,14 @@ namespace TGC.MonoGame.TP.Components.Bullet
         private Vector3 Direction { get; set; }
         private Vector3 Up { get; set; }
         private float Velocity { get; set; }
+        private int Damage { get; set; }
+        private bool DidDamage { get; set; }
 
         public Bullet()
         {
             Velocity = 15;
+            Damage = 35;
+            DidDamage = false;
         }
 
         public void SetPosition(Vector3 Position)
@@ -46,6 +50,21 @@ namespace TGC.MonoGame.TP.Components.Bullet
         public Vector3 GetUp()
         {
             return Up;
+        }
+
+        public int GetDamage()
+        {
+            return Damage;
+        }
+
+        public bool GetDidDamage()
+        {
+            return DidDamage;
+        }
+
+        public void DoDamage()
+        {
+            DidDamage = true;
         }
 
         public void Update()
