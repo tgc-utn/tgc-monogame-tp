@@ -198,7 +198,7 @@
 
             Song = Content.Load<Song>(ContentFolderMusic + "doom-ost-damnation");
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(Song);
+            //MediaPlayer.Play(Song);
             base.LoadContent();
         }
 

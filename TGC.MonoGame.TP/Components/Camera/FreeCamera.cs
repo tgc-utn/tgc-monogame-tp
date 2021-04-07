@@ -45,6 +45,12 @@
         /// </summary>
         public float yaw = -90f;
 
+        public Vector2 ColumnPosition = new Vector2(50, 50);
+        public Vector2 Column2Position = new Vector2(50, 2650);
+        public Vector2 Column3Position = new Vector2(2650, 50);
+        public Vector2 Column4Position = new Vector2(2650, 2650);
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FreeCamera"/> class.
         /// </summary>
@@ -119,38 +125,54 @@
             var keyboardState = Keyboard.GetState();
 
             var currentMovementSpeed = MovementSpeed;
+
+            var newPosition = Position;
+
+            
+            
             if (keyboardState.IsKeyDown(Keys.LeftShift))
                 currentMovementSpeed *= 5f;
 
             if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
-                Position += -RightDirection * currentMovementSpeed * elapsedTime;
+                newPosition += -RightDirection * currentMovementSpeed * elapsedTime;
                 bobOscilate = BobingOscilation();
                 changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
             {
-                Position += RightDirection * currentMovementSpeed * elapsedTime;
+                newPosition += RightDirection * currentMovementSpeed * elapsedTime;
                 bobOscilate = BobingOscilation();
                 changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
             {
-                Position += FrontDirection * currentMovementSpeed * elapsedTime;
+                newPosition += FrontDirection * currentMovementSpeed * elapsedTime;
                 bobOscilate = BobingOscilation();
                 changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
             {
-                Position += -FrontDirection * currentMovementSpeed * elapsedTime;
+                newPosition += -FrontDirection * currentMovementSpeed * elapsedTime;
                 bobOscilate = BobingOscilation();
                 changed = true;
             }
 
-            Position = new Vector3(Position.X, bobOscilate, Position.Z);
+            // Collision with external space
+            if (newPosition.X >= 0 && newPosition.Z >= 0 && newPosition.X <= 2750 && newPosition.Z <= 2750)
+            {
+                // Collision with columns
+                if(Vector2.Distance(new Vector2(newPosition.X,newPosition.Z),ColumnPosition) >= 125 
+                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column2Position) >= 125
+                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column3Position) >= 125
+                && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column4Position) >= 125)
+                    Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
+            }
+
+           
         }
 
         /// <summary>
