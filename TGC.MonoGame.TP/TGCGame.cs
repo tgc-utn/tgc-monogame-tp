@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
+
 
 namespace TGC.MonoGame.TP
 {
@@ -36,12 +38,13 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
+        private Model ModelIsland1 { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private FreeCamera Camera { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -54,16 +57,22 @@ namespace TGC.MonoGame.TP
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
+            //var rasterizerState = new RasterizerState();
+            //rasterizerState.CullMode = CullMode.None;
+            //GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+
+            var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 50, 500), screenSize);
+
+            Graphics.PreferredBackBufferWidth = 1280;
+            Graphics.PreferredBackBufferHeight = 720;
+            Graphics.ApplyChanges();
 
             base.Initialize();
         }
@@ -79,7 +88,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            ModelIsland1 = Content.Load<Model>(ContentFolder3D + "Island/IslaGeo");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -87,7 +96,7 @@ namespace TGC.MonoGame.TP
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
+            foreach (var mesh in ModelIsland1.Meshes)
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
             foreach (var meshPart in mesh.MeshParts)
                 meshPart.Effect = Effect;
@@ -103,6 +112,8 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            
+            Camera.Update(gameTime);
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -110,7 +121,7 @@ namespace TGC.MonoGame.TP
                 Exit();
 
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
@@ -122,18 +133,31 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.White);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
+            //var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
-            foreach (var mesh in Model.Meshes)
+            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f));
+            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(600, 0, 300));
+            /*
+            foreach (var mesh in ModelIsland1.Meshes)
             {
-                World = mesh.ParentBone.Transform * rotationMatrix;
+                //World = mesh.ParentBone.Transform * rotationMatrix;
+                World = Matrix.CreateScale(0.1f);
                 Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }*/
+        }
+
+        private void Draw3D(Model geometry, Matrix transform)
+        {
+            foreach (var mesh in geometry.Meshes)
+            {
+                Effect.Parameters["World"].SetValue(transform);
                 mesh.Draw();
             }
         }
