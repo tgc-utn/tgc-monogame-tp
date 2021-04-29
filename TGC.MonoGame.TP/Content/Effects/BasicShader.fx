@@ -1,10 +1,10 @@
 ﻿#if OPENGL
-	#define SV_POSITION POSITION
-	#define VS_SHADERMODEL vs_3_0
-	#define PS_SHADERMODEL ps_3_0
+#define SV_POSITION POSITION
+#define VS_SHADERMODEL vs_3_0
+#define PS_SHADERMODEL ps_3_0
 #else
-	#define VS_SHADERMODEL vs_4_0_level_9_1
-	#define PS_SHADERMODEL ps_4_0_level_9_1
+#define VS_SHADERMODEL vs_4_0_level_9_1
+#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
 // Custom Effects - https://docs.monogame.net/articles/content/custom_effects.html
@@ -33,21 +33,21 @@ struct VertexShaderOutput
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
-    // Clear the output
+	// Clear the output
 	VertexShaderOutput output = (VertexShaderOutput)0;
-    // Model space to World space
-    float4 worldPosition = mul(input.Position, World);
-    // World space to View space
-    float4 viewPosition = mul(worldPosition, View);	
+	// Model space to World space
+	float4 worldPosition = mul(input.Position, World);
+	// World space to View space
+	float4 viewPosition = mul(worldPosition, View);
 	// View space to Projection space
-    output.Position = mul(viewPosition, Projection);
+	output.Position = mul(viewPosition, Projection);
 
-    return output;
+	return output;
 }
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    return float4(DiffuseColor, 1.0);
+	return float4(DiffuseColor, 1.0);
 }
 
 technique BasicColorDrawing

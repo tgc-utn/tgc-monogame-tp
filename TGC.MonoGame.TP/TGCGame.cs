@@ -40,6 +40,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model ModelIsland1 { get; set; }
         private Effect Effect { get; set; }
+        private Effect IslandEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -90,16 +91,22 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             ModelIsland1 = Content.Load<Model>(ContentFolder3D + "Island/IslaGeo");
 
+            //IslandEffect = (BasicEffect)ModelIsland1.Meshes[0].Effects[0];
+            //IslandEffect.TextureEnabled = true;
+            //IslandEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland02Diffuse");
+            //IslandEffect.DiffuseColor = Color.DarkBlue.ToVector3();
+
+            
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            IslandEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             foreach (var mesh in ModelIsland1.Meshes)
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
             foreach (var meshPart in mesh.MeshParts)
-                meshPart.Effect = Effect;
+                meshPart.Effect = IslandEffect;
 
             base.LoadContent();
         }
@@ -136,13 +143,14 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.White);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+            IslandEffect.Parameters["View"].SetValue(Camera.View);
+            IslandEffect.Parameters["Projection"].SetValue(Camera.Projection);
+            IslandEffect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
             //var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
-            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f));
-            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(600, 0, 300));
+            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f), IslandEffect);
+            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(600, 0, 300), IslandEffect);
+            
             /*
             foreach (var mesh in ModelIsland1.Meshes)
             {
@@ -153,11 +161,11 @@ namespace TGC.MonoGame.TP
             }*/
         }
 
-        private void Draw3D(Model geometry, Matrix transform)
+        private void Draw3D(Model geometry,Matrix transform, Effect effect)
         {
             foreach (var mesh in geometry.Meshes)
             {
-                Effect.Parameters["World"].SetValue(transform);
+                effect.Parameters["World"].SetValue(transform);
                 mesh.Draw();
             }
         }
