@@ -38,14 +38,30 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model ModelIsland1 { get; set; }
-        private Effect Effect { get; set; }
+        private Model ModelIsland { get; set; }
         private Effect IslandEffect { get; set; }
+        private Model ModelBoatSM { get; set; }
+        private Effect BoatSMEffect { get; set; }
+        private Model ModelPatrol { get; set; }
+        private Effect PatrolEffect { get; set; }
+        private Model ModelCruiser { get; set; }
+        private Effect CruiserEffect { get; set; }
+        private Model ModelBarquito { get; set; }
+        private Effect BarquitoEffect { get; set; }
+        private Model ModelWater { get; set; }
+        private Effect WaterEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
         private FreeCamera Camera { get; set; }
+
+        public Texture2D IslandTexture;
+        public Texture2D BoatSMTexture;
+        public Texture2D PatrolTexture;
+        public Texture2D CruiserTexture;
+        public Texture2D BarquitoTexture;
+        public Texture2D WaterTexture;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -88,25 +104,30 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del logo.
-            ModelIsland1 = Content.Load<Model>(ContentFolder3D + "Island/IslaGeo");
-
-            //IslandEffect = (BasicEffect)ModelIsland1.Meshes[0].Effects[0];
-            //IslandEffect.TextureEnabled = true;
-            //IslandEffect.Texture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland02Diffuse");
-            //IslandEffect.DiffuseColor = Color.DarkBlue.ToVector3();
-
-            
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
+            // Cargo el modelos
+            ModelIsland = Content.Load<Model>(ContentFolder3D + "Island/IslaGeo");
             IslandEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            IslandTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland02Diffuse");
 
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in ModelIsland1.Meshes)
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            foreach (var meshPart in mesh.MeshParts)
-                meshPart.Effect = IslandEffect;
+            ModelBoatSM = Content.Load<Model>(ContentFolder3D + "Botes/SMGeo");
+            BoatSMEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            BoatSMTexture = Content.Load<Texture2D>(ContentFolderTextures + "Botes/SM_T_Boat_M_Boat_BaseColor");
+
+            ModelPatrol = Content.Load<Model>(ContentFolder3D + "Botes/PatrolGeo");
+            PatrolEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            PatrolTexture = Content.Load<Texture2D>(ContentFolderTextures + "Botes/T_Patrol_Ship_1K_BaseColor");
+
+            ModelCruiser = Content.Load<Model>(ContentFolder3D + "Botes/CruiserGeo");
+            CruiserEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            CruiserTexture = Content.Load<Texture2D>(ContentFolderTextures + "Botes/T_Cruiser_M_Cruiser_BaseColor");
+
+            ModelBarquito = Content.Load<Model>(ContentFolder3D + "Botes/BarquitoGeo");
+            BarquitoEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            BarquitoTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland01Diffuse");
+
+            ModelWater = Content.Load<Model>(ContentFolder3D + "Island/AguaGeo");
+            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            WaterTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/Water01Diffuse");
 
             base.LoadContent();
         }
@@ -143,29 +164,36 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.White);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            IslandEffect.Parameters["View"].SetValue(Camera.View);
-            IslandEffect.Parameters["Projection"].SetValue(Camera.Projection);
-            IslandEffect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            //var rotationMatrix = Matrix.CreateRotationY(Rotation);
-
-            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f), IslandEffect);
-            Draw3D(ModelIsland1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(600, 0, 300), IslandEffect);
+            IslandEffect.Parameters["ModelTexture"].SetValue(IslandTexture);
+            DrawModel(ModelIsland, Matrix.CreateScale(0.1f), IslandEffect);
+            DrawModel(ModelIsland, Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(600, 0, 300), IslandEffect);
             
-            /*
-            foreach (var mesh in ModelIsland1.Meshes)
-            {
-                //World = mesh.ParentBone.Transform * rotationMatrix;
-                World = Matrix.CreateScale(0.1f);
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
-            }*/
+            BoatSMEffect.Parameters["ModelTexture"].SetValue(BoatSMTexture);
+            DrawModel(ModelBoatSM, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-100, 0, 300), BoatSMEffect);
+
+            PatrolEffect.Parameters["ModelTexture"].SetValue(PatrolTexture);
+            DrawModel(ModelPatrol, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-100, 0, 500), PatrolEffect);
+
+            CruiserEffect.Parameters["ModelTexture"].SetValue(CruiserTexture);
+            DrawModel(ModelCruiser, Matrix.CreateScale(0.05f) * Matrix.CreateRotationY(3.14f) * Matrix.CreateTranslation(550, 0, 700), CruiserEffect);
+
+            BarquitoEffect.Parameters["ModelTexture"].SetValue(BarquitoTexture);
+            DrawModel(ModelBarquito, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-100, 0, 700), PatrolEffect);
+
+            WaterEffect.Parameters["ModelTexture"].SetValue(WaterTexture);
+            DrawModel(ModelWater, Matrix.CreateScale(2f,0.01f,2f), WaterEffect);
+
         }
 
-        private void Draw3D(Model geometry,Matrix transform, Effect effect)
+        private void DrawModel(Model geometry, Matrix transform, Effect effect)
         {
             foreach (var mesh in geometry.Meshes)
             {
                 effect.Parameters["World"].SetValue(transform);
+                effect.Parameters["View"].SetValue(Camera.View);
+                effect.Parameters["Projection"].SetValue(Camera.Projection);
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = effect;
                 mesh.Draw();
             }
         }
