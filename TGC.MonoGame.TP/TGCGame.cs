@@ -50,6 +50,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model xWing { get; set; }
         private Model tie { get; set; }
+        private Model tie2 { get; set; }
         private Model trench { get; set; }
         private Model trench2 { get; set; }
 
@@ -57,6 +58,7 @@ namespace TGC.MonoGame.TP
         private float Rotation { get; set; }
         private Matrix xWingWorld { get; set; }
         private Matrix tieWorld { get; set; }
+        private Matrix tie2World { get; set; }
         private Matrix trenchWorld { get; set; }
         private Matrix trench2World { get; set; }
 
@@ -83,6 +85,7 @@ namespace TGC.MonoGame.TP
             // Configuramos nuestras matrices de la escena.
             xWingWorld = Matrix.Identity;
             tieWorld = Matrix.Identity;
+            tie2World = Matrix.Identity;
             trenchWorld = Matrix.Identity;
             trench2World = Matrix.Identity;
 
@@ -111,6 +114,7 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             xWing = Content.Load<Model>(ContentFolder3D+"XWing/model");
             tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
+            tie2 = Content.Load<Model>(ContentFolder3D + "TIE2/TIE");
             trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
             trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -125,6 +129,11 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
 
             foreach (var mesh in tie.Meshes)
+                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
+            
+            foreach (var mesh in tie2.Meshes)
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
@@ -235,6 +244,17 @@ namespace TGC.MonoGame.TP
                 tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale);
 
                 Effect.Parameters["World"].SetValue(tieWorld);
+                mesh.Draw();
+            }
+
+            Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0f));
+            foreach (var mesh in tie2.Meshes)
+            {
+                //World = mesh.ParentBone.Transform * rotationMatrix;
+                //tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(xWingTranslation);
+                tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale);
+
+                Effect.Parameters["World"].SetValue(tie2World);
                 mesh.Draw();
             }
             Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.4f, 0.4f, 0.4f));
