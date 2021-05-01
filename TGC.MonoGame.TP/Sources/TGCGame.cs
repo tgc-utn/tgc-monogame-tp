@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,7 +12,6 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderMusic = "Music/";
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
-        public const string ContentFolderTextures = "Textures/";
 
         private readonly GraphicsDeviceManager graphics;
         private Effect effect;
@@ -35,6 +33,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             ModelManager.LoadModels(Content, effect);
+            TextureManager.LoadTextures(Content);
             base.LoadContent();
         }
 
@@ -71,7 +70,6 @@ namespace TGC.MonoGame.TP
 
             effect.Parameters["View"].SetValue(camera.View);
             effect.Parameters["Projection"].SetValue(camera.Projection);
-            effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
             entities.ForEach(entity => entity.Draw(effect));
         }

@@ -3,17 +3,17 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
 {
-    class Entity
+    abstract class Entity
     {
-        private readonly Model model = ModelManager.XWing;
+        protected abstract Model Model();
+        protected abstract Texture2D[] Textures();
         public Matrix World { get; private set; }
         private Vector3 position;
         private Quaternion rotation;
         private Vector3 scale;
 
-        public Entity(Model model, Vector3 position, Quaternion rotation, Vector3 scale)
+        public Entity(Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            this.model = model;
             this.position = position;
             this.rotation = rotation;
             this.scale = scale;
@@ -21,11 +21,15 @@ namespace TGC.MonoGame.TP
         
         public void Draw(Effect effect)
         {
-            foreach (var mesh in model.Meshes)
+            int index = 0;
+            ModelMeshCollection meshes = Model().Meshes;
+            foreach (var mesh in meshes)
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(scale) * Matrix.CreateFromQuaternion(rotation) * Matrix.CreateTranslation(position);
                 effect.Parameters["World"].SetValue(World);
+                effect.Parameters["ModelTexture"].SetValue(Textures()[index]);
                 mesh.Draw();
+                index++;
             }
         }
     }
