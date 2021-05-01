@@ -5,7 +5,7 @@ namespace TGC.MonoGame.TP
 {
     class Entity
     {
-        private readonly Model model;
+        private readonly Model model = ModelManager.XWing;
         public Matrix World { get; private set; }
         private Vector3 position;
         private Quaternion rotation;
