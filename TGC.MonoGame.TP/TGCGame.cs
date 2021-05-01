@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -38,10 +39,12 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
+        private Model modelXWing;
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
+
+        private List<Entity> entities = new List<Entity>();
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -73,24 +76,26 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            foreach (var meshPart in mesh.MeshParts)
-                meshPart.Effect = Effect;
-
+            var TIE = LoadModel("TIE/TIE");
+            var XWing = LoadModel("XWing/XWing");
+            var Trench = LoadModel("Trench/Trench");
+            var Trench2 = LoadModel("Trench2/Trench2");
+            entities.Add(new Entity(TIE, new Vector3(0f, 0f, 0f), Quaternion.Identity, Vector3.One / 100f));
+            entities.Add(new Entity(XWing, new Vector3(50f, 0f, 0f), Quaternion.Identity, Vector3.One));
+            entities.Add(new Entity(Trench, new Vector3(100f, 0f, 0f), Quaternion.Identity, Vector3.One / 100f));
+            entities.Add(new Entity(Trench2, new Vector3(150f, 0f, 0f), Quaternion.Identity, Vector3.One / 100f));
             base.LoadContent();
+        }
+
+        private Model LoadModel(String modelName)
+        {
+            Model model = Content.Load<Model>(ContentFolder3D + modelName);
+            foreach (var mesh in model.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
+            return model;
         }
 
         /// <summary>
@@ -129,12 +134,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
-            foreach (var mesh in Model.Meshes)
-            {
-                World = mesh.ParentBone.Transform * rotationMatrix;
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
-            }
+            entities.ForEach(entity => entity.Draw(Effect));
         }
 
         /// <summary>

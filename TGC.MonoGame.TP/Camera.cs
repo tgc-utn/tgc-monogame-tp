@@ -11,7 +11,8 @@ namespace TGC.MonoGame.TP
         public Matrix View { get; private set; }
         public Matrix Projection { get; private set; }
 
-        private const float movementSpeed = 100f;
+        private const float walkSpeed = 100f;
+        private const float runSpeed = walkSpeed * 5;
         private const float mouseSensitivity = 5f;
 
         private const float fieldOfView = MathHelper.PiOver4;
@@ -25,8 +26,6 @@ namespace TGC.MonoGame.TP
         private Vector3 upDirection = Vector3.Up;
 
         private bool changed;
-
-        private readonly bool lockMouse = true;
         private Vector2 pastMousePosition;
         private Point screenCenter;
 
@@ -39,45 +38,44 @@ namespace TGC.MonoGame.TP
 
         public void Update(GameTime gameTime)
         {
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            changed = false;
+            var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
-            if (changed)
-                UpdateViewMatrix();
+            UpdateViewMatrix();
         }
 
         private void UpdateViewMatrix()
         {
-            View = Matrix.CreateLookAt(position, position + frontDirection, upDirection);
+            if (changed)
+            {
+                View = Matrix.CreateLookAt(position, position + frontDirection, upDirection);
+                changed = false;
+            }
         }
 
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();
-
-            var currentMovementSpeed = movementSpeed;
-            if (keyboardState.IsKeyDown(Keys.LeftShift))
-                currentMovementSpeed *= 5f;
+            var movementSpeed = keyboardState.IsKeyDown(Keys.LeftShift) ? runSpeed : walkSpeed;
 
             if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
-                position += -rightDirection * currentMovementSpeed * elapsedTime;
+                position += -rightDirection * movementSpeed * elapsedTime;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
             {
-                position += rightDirection * currentMovementSpeed * elapsedTime;
+                position += rightDirection * movementSpeed * elapsedTime;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
             {
-                position += frontDirection * currentMovementSpeed * elapsedTime;
+                position += frontDirection * movementSpeed * elapsedTime;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
             {
-                position += -frontDirection * currentMovementSpeed * elapsedTime;
+                position += -frontDirection * movementSpeed * elapsedTime;
                 changed = true;
             }
         }
@@ -86,9 +84,6 @@ namespace TGC.MonoGame.TP
         {
             var mouseState = Mouse.GetState();
 
-            // if (mouseState.RightButton.Equals(ButtonState.Pressed))
-            //{
-            
             Mouse.SetCursor(MouseCursor.No);
                 var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
                 mouseDelta *= mouseSensitivity * elapsedTime;
@@ -105,17 +100,6 @@ namespace TGC.MonoGame.TP
                 UpdateCameraVectors();
 
             Mouse.SetPosition(screenCenter.X, screenCenter.Y);
-
-            /*if (lockMouse)
-                {
-                    Mouse.SetPosition(screenCenter.X, screenCenter.Y);
-                    Mouse.SetCursor(MouseCursor.Crosshair);
-                }
-                else
-                {
-                    Mouse.SetCursor(MouseCursor.Arrow);
-                }*/
-            //}
 
             pastMousePosition = Mouse.GetState().Position.ToVector2();
         }
