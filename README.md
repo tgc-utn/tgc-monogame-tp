@@ -9,10 +9,10 @@ Videojuego "Star Wars Trench Run" desarrollado por el grupo TheQuinternion.
 
 ## Integrantes
 
+| ---------------- | ------------------- |
 | Lamas, Federico  |  Casadoumecq, Tomas |
 | Mallet, German   | Cabral, Sebastian   |
 | Morelli, Domingo | ----- -----         |
-| ---------------- | ------------------- |
 
 ## Capturas
 
