@@ -114,7 +114,7 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             xWing = Content.Load<Model>(ContentFolder3D+"XWing/model");
             tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            tie2 = Content.Load<Model>(ContentFolder3D + "TIE2/TIE");
+            tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
             trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -247,12 +247,12 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0f));
+            Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0.5f));
             foreach (var mesh in tie2.Meshes)
             {
                 //World = mesh.ParentBone.Transform * rotationMatrix;
                 //tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(xWingTranslation);
-                tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale);
+                tie2World = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(new Vector3(3,0,0));
 
                 Effect.Parameters["World"].SetValue(tie2World);
                 mesh.Draw();
