@@ -48,6 +48,7 @@ namespace TGC.MonoGame.TP
         private Vector3 SpherePosition { get; set; }
         private TorusPrimitive Torus { get; set; }
         private Vector3 TorusPosition { get; set; }
+        private CylinderPrimitive Cylinder { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -71,6 +72,9 @@ namespace TGC.MonoGame.TP
 
             Torus = new TorusPrimitive(GraphicsDevice, 20,1);
             TorusPosition = new Vector3(0, -2, -10);
+
+            Cylinder = new CylinderPrimitive(GraphicsDevice, 20, 5);
+
             /*// Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
@@ -149,7 +153,9 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }*/
             DrawGeometry(Sphere, SpherePosition, 0, 0, 0);
-            DrawGeometry(Torus, TorusPosition, 0, MathHelper.Pi/2, 0);
+            DrawGeometry(Torus, TorusPosition, 0, MathHelper.Pi / 2, 0);
+            DrawGeometry(Cylinder, new Vector3(10, 5, -5), 0, MathHelper.Pi / 2, (float)gameTime.TotalGameTime.TotalSeconds);
+            DrawGeometry(Cylinder, new Vector3(10, 5, -5), (float)gameTime.TotalGameTime.TotalSeconds, 0, 0);
         }
 
         private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll)
