@@ -85,10 +85,15 @@ namespace TGC.MonoGame.TP
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
+            //var rasterizerState = new RasterizerState();
+            //rasterizerState.CullMode = CullMode.None;
+            //GraphicsDevice.RasterizerState = rasterizerState;
+            
+            
+            Graphics.IsFullScreen = true;
+            Graphics.PreferredBackBufferWidth = 1920;
+            Graphics.PreferredBackBufferHeight = 1080;
+            Graphics.ApplyChanges();
 
             // Configuramos nuestras matrices de la escena.
             xWingWorld = Matrix.Identity;
@@ -99,7 +104,7 @@ namespace TGC.MonoGame.TP
 
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 500);
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50000);
 
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
@@ -162,6 +167,7 @@ namespace TGC.MonoGame.TP
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
         ///     ante ellas.
         /// </summary>
+        bool ignoreF11 = false;
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
@@ -172,6 +178,29 @@ namespace TGC.MonoGame.TP
             if (kState.IsKeyDown(Keys.Escape))
                 Exit();
 
+            if(kState.IsKeyDown(Keys.F11))
+            {
+                if (!ignoreF11) //evito que se cambie constantemente manteniendo apretada la tecla
+                {
+                    ignoreF11 = true;
+
+                    if (Graphics.IsFullScreen) //720 windowed
+                    {
+                        Graphics.IsFullScreen = false;
+                        Graphics.PreferredBackBufferWidth = 1280;
+                        Graphics.PreferredBackBufferHeight = 720;
+                    }
+                    else //1080 fullscreen
+                    {
+                        Graphics.IsFullScreen = true;
+                        Graphics.PreferredBackBufferWidth = 1920;
+                        Graphics.PreferredBackBufferHeight = 1080;
+                    }
+                    Graphics.ApplyChanges();
+                }
+            }
+            if (kState.IsKeyUp(Keys.F11))
+                ignoreF11 = false;
             float scaler = 0.01f;
             if(kState.IsKeyDown(Keys.OemPlus))
             {
@@ -207,6 +236,7 @@ namespace TGC.MonoGame.TP
             {
                 xWingTranslation.Z -= 2;
             }
+            
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
