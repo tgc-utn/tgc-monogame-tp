@@ -21,10 +21,10 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderTextures = "Textures/";
 
         private SpriteFont SpriteFont;
-        //public float xWingScale = 4f;
-        public float xWingScale = 7f;
+        public float xWingScale = 4f;
 
         public float tieScale = 0.02f;
+
         public float trenchScale = 0.07f;
         public float trench2Scale = 0.07f;
 
@@ -66,7 +66,11 @@ namespace TGC.MonoGame.TP
 
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+
         private Texture[] xWingTextures;
+        
+        private Texture tieTexture;
+
         private Camera Camera { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -134,18 +138,12 @@ namespace TGC.MonoGame.TP
             // Cargo Texturas a usar en cada modelo
             xWingTextures = new Texture[] {   Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                              Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
-
-
+            tieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
 
             Model[] models = new Model[] { xWing, tie };//...
 
-            //foreach (var mesh in xWing.Meshes)
-            //{
-            //    foreach (var meshPart in mesh.MeshParts)
-            //        meshPart.Effect = Effect;
-            //}
             assignEffectToModels(models, Effect);
            
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
@@ -243,16 +241,18 @@ namespace TGC.MonoGame.TP
 
                 mesh.Draw();
             }
-            //Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0f));
-            //foreach (var mesh in tie.Meshes)
-            //{
-            //    //World = mesh.ParentBone.Transform * rotationMatrix;
-            //    //tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(xWingTranslation);
-            //    tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale);
+            Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0f));
+            foreach (var mesh in tie.Meshes)
+            {
+                //World = mesh.ParentBone.Transform * rotationMatrix;
+                //tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(xWingTranslation);
+                tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateRotationY(MathF.PI) * Matrix.CreateTranslation(new Vector3(40,0,0)) * rotationMatrix;
 
-            //    Effect.Parameters["World"].SetValue(tieWorld);
-            //    mesh.Draw();
-            //}
+                Effect.Parameters["World"].SetValue(tieWorld);
+                Effect.Parameters["Projection"].SetValue(Projection);
+                Effect.Parameters["ModelTexture"].SetValue(tieTexture);
+                mesh.Draw();
+            }
 
             //Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0.5f));
             //foreach (var mesh in tie2.Meshes)
@@ -289,7 +289,7 @@ namespace TGC.MonoGame.TP
             //    Effect.Parameters["World"].SetValue(trench2World);
             //    mesh.Draw();
             //}
-            
+
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
             SpriteBatch.DrawString(SpriteFont, "X " + xWingTranslation.X + " Y " + xWingTranslation.Y + " Z " + xWingTranslation.Z, new Vector2(0, 30), Color.White);
