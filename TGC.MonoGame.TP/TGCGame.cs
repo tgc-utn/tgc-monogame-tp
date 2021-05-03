@@ -21,7 +21,7 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderTextures = "Textures/";
 
         private SpriteFont SpriteFont;
-        public float xWingScale = 4f;
+        public float xWingScale = 2.5f;
 
         public float tieScale = 0.02f;
 
@@ -30,7 +30,7 @@ namespace TGC.MonoGame.TP
 
         public Vector3 trenchTranslation = new Vector3(0, -30, -130);
         public Vector3 trench2Translation = new Vector3(0, -80, -290);
-        public Vector3 xWingTranslation = new Vector3(0,0,0);
+        public Vector3 xWingTranslation = new Vector3(0,-5,-40);
 
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace TGC.MonoGame.TP
 
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
-
+        private BasicEffect BasicEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix xWingWorld { get; set; }
         private Matrix tieWorld { get; set; }
@@ -102,14 +102,14 @@ namespace TGC.MonoGame.TP
             trenchWorld = Matrix.Identity;
             trench2World = Matrix.Identity;
 
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50000);
+            //View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+            //Projection =
+            //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50000);
 
-            var size = GraphicsDevice.Viewport.Bounds.Size;
-            size.X /= 2;
-            size.Y /= 2;
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            
+            //Camera = new SimpleCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            Camera = new SimpleCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), 100, 1.0f, 1,
+                6000);
 
             base.Initialize();
         }
@@ -142,6 +142,12 @@ namespace TGC.MonoGame.TP
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectTexture = Content.Load<Effect>(ContentFolderEffects + "BasicTexture");
+
+            BasicEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = Matrix.Identity,
+                TextureEnabled = false,
+            };
 
             // Cargo Texturas a usar en cada modelo
             xWingTextures = new Texture[] {   Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
@@ -254,11 +260,12 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
+           
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            EffectTexture.Parameters["View"].SetValue(View);
-            EffectTexture.Parameters["Projection"].SetValue(Projection);
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            EffectTexture.Parameters["View"].SetValue(Camera.View);
+            EffectTexture.Parameters["Projection"].SetValue(Camera.Projection);
 
             Effect.Parameters["DiffuseColor"]?.SetValue(Color.DarkBlue.ToVector3());
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
@@ -268,13 +275,11 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in xWing.Meshes)
             {
                 //World = mesh.ParentBone.Transform * rotationMatrix;
-                xWingWorld = mesh.ParentBone.Transform * Matrix.CreateScale(xWingScale) * Matrix.CreateTranslation(xWingTranslation) * rotationMatrix;
+                xWingWorld = mesh.ParentBone.Transform * Matrix.CreateScale(xWingScale) * Matrix.CreateTranslation(xWingTranslation) * Matrix.CreateTranslation(Camera.Position) ;
                 //xWingWorld = mesh.ParentBone.Transform * Matrix.CreateScale(3f)  * rotationMatrix;
-
+                
                 EffectTexture.Parameters["World"].SetValue(xWingWorld);
-                EffectTexture.Parameters["Projection"].SetValue(Projection);
-
-
+                
                 EffectTexture.Parameters["ModelTexture"].SetValue(xWingTextures[meshCount]);
                 meshCount++;
 
@@ -288,7 +293,6 @@ namespace TGC.MonoGame.TP
                 tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateRotationY(MathF.PI) * Matrix.CreateTranslation(new Vector3(40,0,0)) * rotationMatrix;
 
                 EffectTexture.Parameters["World"].SetValue(tieWorld);
-                EffectTexture.Parameters["Projection"].SetValue(Projection);
                 EffectTexture.Parameters["ModelTexture"].SetValue(tieTexture);
                 mesh.Draw();
             }
