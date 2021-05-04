@@ -46,6 +46,8 @@ namespace TGC.MonoGame.TP
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
+            // deberia? desactivar vsync (soluciona? bug de movimiento de mouse)
+            IsFixedTimeStep = false;
         }
 
         private GraphicsDeviceManager Graphics { get; }
@@ -101,7 +103,7 @@ namespace TGC.MonoGame.TP
             Tie2World = Matrix.Identity;
             TrenchWorld = Matrix.Identity;
             Trench2World = Matrix.Identity;
-
+            
             //View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50000);
@@ -127,7 +129,10 @@ namespace TGC.MonoGame.TP
                         meshPart.Effect = effect;
 
         }
-
+        public void setCursorVisible(bool value)
+        {
+            IsMouseVisible = value;
+        }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
@@ -180,6 +185,7 @@ namespace TGC.MonoGame.TP
         ///     ante ellas.
         /// </summary>
         bool ignoreF11 = false;
+        bool ignoreM = false;
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
@@ -213,7 +219,28 @@ namespace TGC.MonoGame.TP
             }
             if (kState.IsKeyUp(Keys.F11))
                 ignoreF11 = false;
-            float scaler = 0.01f;
+            if (kState.IsKeyUp(Keys.M))
+                ignoreM = false;
+            if (kState.IsKeyDown(Keys.M))
+            {
+                if (!ignoreM)
+                {
+                    ignoreM = true;
+                    if (!Camera.MouseLookEnabled)
+                    {
+                        Camera.MouseLookEnabled = true;
+                        IsMouseVisible = false;
+                    }
+                    else
+                    {
+                        Camera.MouseLookEnabled = false;
+                        IsMouseVisible = true;
+                    }
+                }
+            }
+            
+            //float scaler = 0.01f;
+
             //if (kState.IsKeyDown(Keys.OemPlus))
             //{
             //    //xWingScale += scaler;
@@ -356,9 +383,10 @@ namespace TGC.MonoGame.TP
                                                 //" newP " + Math.Floor(pos.X) +
                                                 //"," + Math.Floor(pos.Y) +
                                                 //"," + Math.Floor(pos.Z) +
-                                                " yaw " + Camera.Yaw +
-                                                " pitch " + Camera.Pitch
-                                                
+                                                " yaw " + Math.Floor(Camera.Yaw)+
+                                                " pitch " + Math.Floor(Camera.Pitch) +
+                                                " time " + gameTime.ElapsedGameTime.TotalSeconds
+
                                                 , new Vector2(0, 0), Color.White);
             
             SpriteBatch.End();

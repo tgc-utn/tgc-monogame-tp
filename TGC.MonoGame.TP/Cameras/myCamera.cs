@@ -9,11 +9,11 @@ namespace TGC.MonoGame.Samples.Cameras
         
         private readonly Point screenCenter;
         private bool changed;
+        public bool MouseLookEnabled = false;
 
         public float Pitch;
-
-        // Angles
         public float Yaw = 270f;
+        
         public float turnSpeed = 1f;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
@@ -28,7 +28,7 @@ namespace TGC.MonoGame.Samples.Cameras
         }
 
         public float MovementSpeed { get; set; } = 80f;
-        public float MouseSensitivity { get; set; } = 5f;
+        public float MouseSensitivity { get; set; } = 10f;
 
         private void CalculateView()
         {
@@ -41,11 +41,12 @@ namespace TGC.MonoGame.Samples.Cameras
             var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             changed = false;
             ProcessKeyboard(elapsedTime);
-            
+            if(MouseLookEnabled)
+                ProcessMouse(elapsedTime);
             if (changed)
                 CalculateView();
         }
-
+        
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();
@@ -53,7 +54,7 @@ namespace TGC.MonoGame.Samples.Cameras
             var currentMovementSpeed = MovementSpeed;
             if (keyboardState.IsKeyDown(Keys.LeftShift))
                 currentMovementSpeed *= 5f;
-
+            
             if (keyboardState.IsKeyDown(Keys.A) )
             {
                 Position += -RightDirection * currentMovementSpeed * elapsedTime;
@@ -103,9 +104,41 @@ namespace TGC.MonoGame.Samples.Cameras
                 Yaw %= 360;
                 changed = true;
             }
-
+            
             if (changed)
                 UpdateCameraVectors();
+        }
+        
+        private Vector2 pastMousePosition;
+
+        private void ProcessMouse(float time)
+        {
+            
+            var mouseState = Mouse.GetState();
+            var mousePosition = mouseState.Position.ToVector2();
+            var mouseDelta = mousePosition - pastMousePosition;
+            mouseDelta *= MouseSensitivity * time;
+
+            Yaw += mouseDelta.X;
+            if (Yaw < 0)
+                Yaw += 360;
+            Yaw %= 360;
+
+            Pitch -= mouseDelta.Y;
+
+            if (Pitch > 89.0f)
+                Pitch = 89.0f;
+            if (Pitch < -89.0f)
+                Pitch = -89.0f;
+
+            //MouseManager.Instance.ViewChanged = true;
+            changed = true;
+            UpdateCameraVectors();
+
+            Mouse.SetPosition(screenCenter.X, screenCenter.Y);
+            pastMousePosition = Mouse.GetState().Position.ToVector2();
+            
+
         }
 
         private void UpdateCameraVectors()
@@ -120,8 +153,10 @@ namespace TGC.MonoGame.Samples.Cameras
 
             // Also re-calculate the Right and Up vector
             // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-            RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
-            UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
+            //RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
+            //UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
+            RightDirection = (Vector3.Cross(FrontDirection, Vector3.Up));
+            UpDirection = (Vector3.Cross(RightDirection, FrontDirection));
         }
     }
 }
