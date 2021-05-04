@@ -21,16 +21,16 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderTextures = "Textures/";
 
         private SpriteFont SpriteFont;
-        public float xWingScale = 2.5f;
+        public float XwingScale = 2.5f;
 
-        public float tieScale = 0.02f;
+        public float TieScale = 0.02f;
 
-        public float trenchScale = 0.07f;
-        public float trench2Scale = 0.07f;
+        public float TrenchScale = 0.07f;
+        public float Trench2Scale = 0.07f;
 
-        public Vector3 trenchTranslation = new Vector3(0, -30, -130);
-        public Vector3 trench2Translation = new Vector3(0, -80, -290);
-        public Vector3 xWingTranslation = new Vector3(0, -5, -40);
+        public Vector3 TrenchTranslation = new Vector3(0, -30, -130);
+        public Vector3 Trench2Translation = new Vector3(0, -80, -290);
+        public Vector3 XwingTranslation = new Vector3(0, -5, -40);
 
 
         /// <summary>
@@ -50,28 +50,28 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model xWing { get; set; }
-        private Model tie { get; set; }
-        private Model tie2 { get; set; }
-        private Model trench { get; set; }
-        private Model trench2 { get; set; }
+        private Model Xwing { get; set; }
+        private Model Tie { get; set; }
+        private Model Tie2 { get; set; }
+        private Model Trench { get; set; }
+        private Model Trench2 { get; set; }
 
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
         private BasicEffect BasicEffect { get; set; }
         private float Rotation { get; set; }
-        private Matrix xWingWorld { get; set; }
-        private Matrix tieWorld { get; set; }
-        private Matrix tie2World { get; set; }
-        private Matrix trenchWorld { get; set; }
-        private Matrix trench2World { get; set; }
+        private Matrix XwingWorld { get; set; }
+        private Matrix TieWorld { get; set; }
+        private Matrix Tie2World { get; set; }
+        private Matrix TrenchWorld { get; set; }
+        private Matrix Trench2World { get; set; }
 
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
-        private Texture[] xWingTextures;
+        private Texture[] XwingTextures;
 
-        private Texture tieTexture;
+        private Texture TieTexture;
 
         private MyCamera Camera { get; set; }
         /// <summary>
@@ -96,11 +96,11 @@ namespace TGC.MonoGame.TP
             Graphics.ApplyChanges();
 
             // Configuramos nuestras matrices de la escena.
-            xWingWorld = Matrix.Identity;
-            tieWorld = Matrix.Identity;
-            tie2World = Matrix.Identity;
-            trenchWorld = Matrix.Identity;
-            trench2World = Matrix.Identity;
+            XwingWorld = Matrix.Identity;
+            TieWorld = Matrix.Identity;
+            Tie2World = Matrix.Identity;
+            TrenchWorld = Matrix.Identity;
+            Trench2World = Matrix.Identity;
 
             //View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             //Projection =
@@ -139,11 +139,11 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            xWing = Content.Load<Model>(ContentFolder3D + "XWing/model");
-            tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
-            trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
+            Xwing = Content.Load<Model>(ContentFolder3D + "XWing/model");
+            Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
+            Tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
+            Trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
+            Trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -156,16 +156,16 @@ namespace TGC.MonoGame.TP
             };
 
             // Cargo Texturas a usar en cada modelo
-            xWingTextures = new Texture[] {   Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
+            XwingTextures = new Texture[] {   Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                              Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
-            tieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
+            TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
 
             //Model[] models = new Model[] { xWing, tie };//...
 
-            assignEffectToModels(new Model[] { xWing, tie }, EffectTexture);
-            assignEffectToModels(new Model[] { trench, trench2 }, Effect);
+            assignEffectToModels(new Model[] { Xwing, Tie }, EffectTexture);
+            assignEffectToModels(new Model[] { Trench, Trench2 }, Effect);
 
 
 
@@ -214,40 +214,40 @@ namespace TGC.MonoGame.TP
             if (kState.IsKeyUp(Keys.F11))
                 ignoreF11 = false;
             float scaler = 0.01f;
-            if (kState.IsKeyDown(Keys.OemPlus))
-            {
-                //xWingScale += scaler;
-                xWingScale += scaler;
-            }
-            if (kState.IsKeyDown(Keys.OemMinus))
-            {
-                //xWingScale -= scaler;
-                xWingScale -= scaler;
-            }
-            if (kState.IsKeyDown(Keys.L))
-            {
-                xWingTranslation.X += 2;
-            }
-            if (kState.IsKeyDown(Keys.J))
-            {
-                xWingTranslation.X -= 2;
-            }
-            if (kState.IsKeyDown(Keys.I))
-            {
-                xWingTranslation.Y += 2;
-            }
-            if (kState.IsKeyDown(Keys.K))
-            {
-                xWingTranslation.Y -= 2;
-            }
-            if (kState.IsKeyDown(Keys.Y))
-            {
-                xWingTranslation.Z += 2;
-            }
-            if (kState.IsKeyDown(Keys.H))
-            {
-                xWingTranslation.Z -= 2;
-            }
+            //if (kState.IsKeyDown(Keys.OemPlus))
+            //{
+            //    //xWingScale += scaler;
+            //    xWingScale += scaler;
+            //}
+            //if (kState.IsKeyDown(Keys.OemMinus))
+            //{
+            //    //xWingScale -= scaler;
+            //    xWingScale -= scaler;
+            //}
+            //if (kState.IsKeyDown(Keys.L))
+            //{
+            //    xWingTranslation.X += 2;
+            //}
+            //if (kState.IsKeyDown(Keys.J))
+            //{
+            //    xWingTranslation.X -= 2;
+            //}
+            //if (kState.IsKeyDown(Keys.I))
+            //{
+            //    xWingTranslation.Y += 2;
+            //}
+            //if (kState.IsKeyDown(Keys.K))
+            //{
+            //    xWingTranslation.Y -= 2;
+            //}
+            //if (kState.IsKeyDown(Keys.Y))
+            //{
+            //    xWingTranslation.Z += 2;
+            //}
+            //if (kState.IsKeyDown(Keys.H))
+            //{
+            //    xWingTranslation.Z -= 2;
+            //}
 
 
             // Basado en el tiempo que paso se va generando una rotacion.
@@ -303,52 +303,47 @@ namespace TGC.MonoGame.TP
             // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
             Vector3 pos = Camera.Position + (Camera.FrontDirection*40);
 
+            var pitchRad = Camera.Pitch * MathF.PI / 180;
+            var yawRad = Camera.Yaw * MathF.PI / 180;
+
             //debug
             //Matrix SRT = Matrix.CreateScale(3f) * rotationMatrix;
-            Matrix SRT = 
-                Matrix.CreateScale(xWingScale) *
-                //correccion de angulo inicial, correccion por camara
+            Matrix SRT =
+                Matrix.CreateScale(XwingScale) *
+                //correccion de angulo inicial
                 Matrix.CreateRotationY(-MathF.PI / 2) *
-                Matrix.CreateRotationY(-Camera.yaw * MathF.PI / 180) *
-                //correccion por camara
-                Matrix.CreateRotationX(Camera.pitch * MathF.PI / 180) *
-                //correccion de posicion
-                Matrix.CreateTranslation(pos);
+                //Correccion por yaw
+                Matrix.CreateRotationY(-yawRad) *
+                //correccion por pitch
+                Matrix.CreateRotationX(pitchRad * MathF.Cos(yawRad + MathF.PI / 2)) *
+                Matrix.CreateRotationZ(pitchRad * MathF.Sin(yawRad + MathF.PI / 2)) *
+                //correccion de posicion (camara)
+                Matrix.CreateTranslation(pos)*
+                //correccion de posicion(para vista en tercera persona)
+                Matrix.CreateTranslation(new Vector3(0, -10, 0));
 
-            DrawXWing(xWingWorld, SRT);
+            DrawXWing(XwingWorld, SRT);
 
             SRT =
-                Matrix.CreateScale(tieScale) *
+                Matrix.CreateScale(TieScale) *
                 Matrix.CreateRotationY(MathF.PI) *
                 Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
                 rotationMatrix;
-            DrawTie(tieWorld, SRT);
+            DrawTie(TieWorld, SRT);
 
-           
-            Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.4f, 0.4f, 0.4f));
-            foreach (var mesh in trench.Meshes)
-            {
-                //World = mesh.ParentBone.Transform * rotationMatrix;
-                trenchWorld = mesh.ParentBone.Transform *
-                    Matrix.CreateScale(trenchScale) *
-                    Matrix.CreateRotationY(MathF.PI / 2) *
-                    Matrix.CreateTranslation(trenchTranslation);
+            SRT =
+                Matrix.CreateScale(TrenchScale) *
+                Matrix.CreateRotationY(MathF.PI / 2) *
+                Matrix.CreateTranslation(TrenchTranslation);
 
-                Effect.Parameters["World"].SetValue(trenchWorld);
-                mesh.Draw();
-            }
-            Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.3f, 0.3f, 0.3f));
-            foreach (var mesh in trench2.Meshes)
-            {
-                //World = mesh.ParentBone.Transform * rotationMatrix;
-                trench2World = mesh.ParentBone.Transform *
-                    Matrix.CreateScale(trench2Scale) *
+            DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.4f, 0.4f, 0.4f));
+            SRT=
+                    Matrix.CreateScale(Trench2Scale) *
                     //Matrix.CreateRotationY(MathF.PI / 2) *
-                    Matrix.CreateTranslation(trench2Translation);
+                    Matrix.CreateTranslation(Trench2Translation);
 
-                Effect.Parameters["World"].SetValue(trench2World);
-                mesh.Draw();
-            }
+            DrawModel(Trench2, Trench2World, SRT, new Vector3(0.4f, 0.4f, 0.4f));
+
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             //SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
@@ -361,25 +356,22 @@ namespace TGC.MonoGame.TP
                                                 //" newP " + Math.Floor(pos.X) +
                                                 //"," + Math.Floor(pos.Y) +
                                                 //"," + Math.Floor(pos.Z) +
-                                                " yaw " + Camera.yaw+
-                                                " pitch " + Camera.pitch
+                                                " yaw " + Camera.Yaw +
+                                                " pitch " + Camera.Pitch
                                                 
                                                 , new Vector2(0, 0), Color.White);
-            //SpriteBatch.DrawString(SpriteFont, "X " + xWingTranslation.X + " Y " + xWingTranslation.Y + " Z " + xWingTranslation.Z, new Vector2(0, 30), Color.White);
-
-
-
+            
             SpriteBatch.End();
 
         }
         void DrawXWing(Matrix world, Matrix SRT)
         {
             int meshCount = 0;
-            foreach (var mesh in xWing.Meshes)
+            foreach (var mesh in Xwing.Meshes)
             {
                 world = mesh.ParentBone.Transform * SRT;
                 EffectTexture.Parameters["World"].SetValue(world);
-                EffectTexture.Parameters["ModelTexture"].SetValue(xWingTextures[meshCount]);
+                EffectTexture.Parameters["ModelTexture"].SetValue(XwingTextures[meshCount]);
                 meshCount++;
 
                 mesh.Draw();
@@ -388,12 +380,23 @@ namespace TGC.MonoGame.TP
 
         void DrawTie(Matrix world, Matrix SRT)
         {
-            foreach (var mesh in tie.Meshes)
+            foreach (var mesh in Tie.Meshes)
             {
                 world = mesh.ParentBone.Transform * SRT;
 
                 EffectTexture.Parameters["World"].SetValue(world);
-                EffectTexture.Parameters["ModelTexture"].SetValue(tieTexture);
+                EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);
+                mesh.Draw();
+            }
+        }
+        void DrawModel(Model model, Matrix world, Matrix SRT, Vector3 color)
+        {
+            Effect.Parameters["DiffuseColor"]?.SetValue(color);
+
+            foreach (var mesh in model.Meshes)
+            {
+                world = mesh.ParentBone.Transform * SRT;
+                Effect.Parameters["World"].SetValue(world);
                 mesh.Draw();
             }
         }

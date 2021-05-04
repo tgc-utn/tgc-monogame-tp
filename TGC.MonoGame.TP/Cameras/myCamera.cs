@@ -10,11 +10,11 @@ namespace TGC.MonoGame.Samples.Cameras
         private readonly Point screenCenter;
         private bool changed;
 
-        public float pitch;
+        public float Pitch;
 
         // Angles
-        public float yaw = 270f;
-        public float turnSpeed = 2f;
+        public float Yaw = 270f;
+        public float turnSpeed = 1f;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             this.screenCenter = screenCenter;
@@ -27,7 +27,7 @@ namespace TGC.MonoGame.Samples.Cameras
             CalculateView();
         }
 
-        public float MovementSpeed { get; set; } = 100f;
+        public float MovementSpeed { get; set; } = 80f;
         public float MouseSensitivity { get; set; } = 5f;
 
         private void CalculateView()
@@ -76,31 +76,31 @@ namespace TGC.MonoGame.Samples.Cameras
             }
             if(keyboardState.IsKeyDown(Keys.Up))
             {
-                pitch += turnSpeed;
-                if (pitch > 89.0f)
-                    pitch = 89.0f;
+                Pitch += turnSpeed;
+                if (Pitch > 89.0f)
+                    Pitch = 89.0f;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.Down))
             {
-                pitch -= turnSpeed;
-                if (pitch < -89.0f)
-                    pitch = -89.0f;
+                Pitch -= turnSpeed;
+                if (Pitch < -89.0f)
+                    Pitch = -89.0f;
 
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.Left))
             {
-                yaw -= turnSpeed;
-                if (yaw < 0)
-                    yaw += 360;
-                yaw %= 360;
+                Yaw -= turnSpeed;
+                if (Yaw < 0)
+                    Yaw += 360;
+                Yaw %= 360;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.Right))
             {
-                yaw += turnSpeed;
-                yaw %= 360;
+                Yaw += turnSpeed;
+                Yaw %= 360;
                 changed = true;
             }
 
@@ -112,9 +112,9 @@ namespace TGC.MonoGame.Samples.Cameras
         {
             // Calculate the new Front vector
             Vector3 tempFront;
-            tempFront.X = MathF.Cos(MathHelper.ToRadians(yaw)) * MathF.Cos(MathHelper.ToRadians(pitch));
-            tempFront.Y = MathF.Sin(MathHelper.ToRadians(pitch));
-            tempFront.Z = MathF.Sin(MathHelper.ToRadians(yaw)) * MathF.Cos(MathHelper.ToRadians(pitch));
+            tempFront.X = MathF.Cos(MathHelper.ToRadians(Yaw)) * MathF.Cos(MathHelper.ToRadians(Pitch));
+            tempFront.Y = MathF.Sin(MathHelper.ToRadians(Pitch));
+            tempFront.Z = MathF.Sin(MathHelper.ToRadians(Yaw)) * MathF.Cos(MathHelper.ToRadians(Pitch));
 
             FrontDirection = Vector3.Normalize(tempFront);
 
