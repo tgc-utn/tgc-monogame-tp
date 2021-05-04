@@ -30,7 +30,7 @@ namespace TGC.MonoGame.TP
 
         public Vector3 trenchTranslation = new Vector3(0, -30, -130);
         public Vector3 trench2Translation = new Vector3(0, -80, -290);
-        public Vector3 xWingTranslation = new Vector3(0,-5,-40);
+        public Vector3 xWingTranslation = new Vector3(0, -5, -40);
 
 
         /// <summary>
@@ -70,10 +70,10 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
 
         private Texture[] xWingTextures;
-        
+
         private Texture tieTexture;
 
-        private Camera Camera { get; set; }
+        private MyCamera Camera { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -88,11 +88,11 @@ namespace TGC.MonoGame.TP
             //var rasterizerState = new RasterizerState();
             //rasterizerState.CullMode = CullMode.None;
             //GraphicsDevice.RasterizerState = rasterizerState;
-            
-            
-            Graphics.IsFullScreen = true;
-            Graphics.PreferredBackBufferWidth = 1920;
-            Graphics.PreferredBackBufferHeight = 1080;
+
+
+            Graphics.IsFullScreen = false;
+            Graphics.PreferredBackBufferWidth = 1280;
+            Graphics.PreferredBackBufferHeight = 720;
             Graphics.ApplyChanges();
 
             // Configuramos nuestras matrices de la escena.
@@ -106,14 +106,20 @@ namespace TGC.MonoGame.TP
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50000);
 
-            
+
             //Camera = new SimpleCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
-            Camera = new SimpleCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), 100, 1.0f, 1,
-                6000);
+
+            var size = GraphicsDevice.Viewport.Bounds.Size;
+            size.X /= 2;
+            size.Y /= 2;
+            Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
+
+            //Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), 100, 1.0f, 1,
+            //    6000);
 
             base.Initialize();
         }
-        void assignEffectToModels(Model[] models, Effect effect )
+        void assignEffectToModels(Model[] models, Effect effect)
         {
             foreach (Model model in models)
                 foreach (var mesh in model.Meshes)
@@ -133,7 +139,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            xWing = Content.Load<Model>(ContentFolder3D+"XWing/model");
+            xWing = Content.Load<Model>(ContentFolder3D + "XWing/model");
             tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
@@ -178,13 +184,13 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             Camera.Update(gameTime);
-            
+
             // Capturar Input teclado
             var kState = Keyboard.GetState();
             if (kState.IsKeyDown(Keys.Escape))
                 Exit();
 
-            if(kState.IsKeyDown(Keys.F11))
+            if (kState.IsKeyDown(Keys.F11))
             {
                 if (!ignoreF11) //evito que se cambie constantemente manteniendo apretada la tecla
                 {
@@ -208,7 +214,7 @@ namespace TGC.MonoGame.TP
             if (kState.IsKeyUp(Keys.F11))
                 ignoreF11 = false;
             float scaler = 0.01f;
-            if(kState.IsKeyDown(Keys.OemPlus))
+            if (kState.IsKeyDown(Keys.OemPlus))
             {
                 //xWingScale += scaler;
                 xWingScale += scaler;
@@ -242,7 +248,7 @@ namespace TGC.MonoGame.TP
             {
                 xWingTranslation.Z -= 2;
             }
-            
+
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -254,13 +260,37 @@ namespace TGC.MonoGame.TP
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
+
+        float angleBetweenVectors(Vector3 a, Vector3 b)
+        {
+            return MathF.Acos(Vector3.Dot(a, b) / (a.Length() * b.Length()));
+        }
+        Vector3 directionalAngles(Vector3 v)
+        {
+            return new Vector3(
+                MathF.Acos(v.X / v.Length()),
+                MathF.Acos(v.Y / v.Length()),
+                MathF.Acos(v.Z / v.Length()));
+        }
+        //Vector3 calculateRotation()
+        //{
+        //    Vector3 rot = new Vector3(0,0,0);
+
+        //    Vector3 angles = directionalAngles(Camera.FrontDirection);
+
+        //    rot.X = angles.X;
+        //    rot.Y = angles.Y;
+        //    rot.Z = angles.Z;
+
+        //    return rot;
+        //}
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-           
+
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
@@ -270,45 +300,32 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["DiffuseColor"]?.SetValue(Color.DarkBlue.ToVector3());
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
-            //Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0f, 1f, 0f));
-            int meshCount = 0;
-            foreach (var mesh in xWing.Meshes)
-            {
-                //World = mesh.ParentBone.Transform * rotationMatrix;
-                xWingWorld = mesh.ParentBone.Transform * Matrix.CreateScale(xWingScale) * Matrix.CreateTranslation(xWingTranslation) * Matrix.CreateTranslation(Camera.Position) ;
-                //xWingWorld = mesh.ParentBone.Transform * Matrix.CreateScale(3f)  * rotationMatrix;
-                
-                EffectTexture.Parameters["World"].SetValue(xWingWorld);
-                
-                EffectTexture.Parameters["ModelTexture"].SetValue(xWingTextures[meshCount]);
-                meshCount++;
+            // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
+            Vector3 pos = Camera.Position + (Camera.FrontDirection*40);
 
-                mesh.Draw();
-            }
-            //Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0f));
-            foreach (var mesh in tie.Meshes)
-            {
-                //World = mesh.ParentBone.Transform * rotationMatrix;
-                //tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(xWingTranslation);
-                tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateRotationY(MathF.PI) * Matrix.CreateTranslation(new Vector3(40,0,0)) * rotationMatrix;
+            //debug
+            //Matrix SRT = Matrix.CreateScale(3f) * rotationMatrix;
+            Matrix SRT = 
+                Matrix.CreateScale(xWingScale) *
+                //correccion de angulo inicial, correccion por camara
+                Matrix.CreateRotationY(-MathF.PI / 2) *
+                Matrix.CreateRotationY(-Camera.yaw * MathF.PI / 180) *
+                //correccion por camara
+                Matrix.CreateRotationX(Camera.pitch * MathF.PI / 180) *
+                //correccion de posicion
+                Matrix.CreateTranslation(pos);
 
-                EffectTexture.Parameters["World"].SetValue(tieWorld);
-                EffectTexture.Parameters["ModelTexture"].SetValue(tieTexture);
-                mesh.Draw();
-            }
+            DrawXWing(xWingWorld, SRT);
 
-            //Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.5f, 0f, 0.5f));
-            //foreach (var mesh in tie2.Meshes)
-            //{
-            //    //World = mesh.ParentBone.Transform * rotationMatrix;
-            //    //tieWorld = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(xWingTranslation);
-            //    tie2World = mesh.ParentBone.Transform * Matrix.CreateScale(tieScale) * Matrix.CreateTranslation(new Vector3(3, 0, 0));
+            SRT =
+                Matrix.CreateScale(tieScale) *
+                Matrix.CreateRotationY(MathF.PI) *
+                Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
+                rotationMatrix;
+            DrawTie(tieWorld, SRT);
 
-            //    Effect.Parameters["World"].SetValue(tie2World);
-            //    mesh.Draw();
-            //}
+           
             Effect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.4f, 0.4f, 0.4f));
-
             foreach (var mesh in trench.Meshes)
             {
                 //World = mesh.ParentBone.Transform * rotationMatrix;
@@ -334,15 +351,52 @@ namespace TGC.MonoGame.TP
             }
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
-            SpriteBatch.DrawString(SpriteFont, "X " + xWingTranslation.X + " Y " + xWingTranslation.Y + " Z " + xWingTranslation.Z, new Vector2(0, 30), Color.White);
+            //SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
+            SpriteBatch.DrawString(SpriteFont, "Pos " + Math.Floor(Camera.Position.X) +
+                                                "," + Math.Floor(Camera.Position.Y) +
+                                                "," + Math.Floor(Camera.Position.Z) +
+                                                //" FD " + Camera.FrontDirection.X +
+                                                //"," + Camera.FrontDirection.Y +
+                                                //"," + Camera.FrontDirection.Z +
+                                                //" newP " + Math.Floor(pos.X) +
+                                                //"," + Math.Floor(pos.Y) +
+                                                //"," + Math.Floor(pos.Z) +
+                                                " yaw " + Camera.yaw+
+                                                " pitch " + Camera.pitch
+                                                
+                                                , new Vector2(0, 0), Color.White);
+            //SpriteBatch.DrawString(SpriteFont, "X " + xWingTranslation.X + " Y " + xWingTranslation.Y + " Z " + xWingTranslation.Z, new Vector2(0, 30), Color.White);
 
 
 
             SpriteBatch.End();
 
         }
+        void DrawXWing(Matrix world, Matrix SRT)
+        {
+            int meshCount = 0;
+            foreach (var mesh in xWing.Meshes)
+            {
+                world = mesh.ParentBone.Transform * SRT;
+                EffectTexture.Parameters["World"].SetValue(world);
+                EffectTexture.Parameters["ModelTexture"].SetValue(xWingTextures[meshCount]);
+                meshCount++;
 
+                mesh.Draw();
+            }
+        }
+
+        void DrawTie(Matrix world, Matrix SRT)
+        {
+            foreach (var mesh in tie.Meshes)
+            {
+                world = mesh.ParentBone.Transform * SRT;
+
+                EffectTexture.Parameters["World"].SetValue(world);
+                EffectTexture.Parameters["ModelTexture"].SetValue(tieTexture);
+                mesh.Draw();
+            }
+        }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
         /// </summary>

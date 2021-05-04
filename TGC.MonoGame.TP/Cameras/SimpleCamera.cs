@@ -64,6 +64,10 @@ namespace TGC.MonoGame.Samples.Cameras
         /// <param name="position">The position of the camera.</param>
         /// <param name="speed">The speed of movement.</param>
         /// <param name="angle">The angle of movement.</param>
+        /// 
+        public float Pitch { get; set; }
+        public float Turn{ get; set; }
+
         private void BuildView(Vector3 position, float speed, float angle)
         {
             Position = position;
@@ -83,6 +87,7 @@ namespace TGC.MonoGame.Samples.Cameras
             var pitch = 0f;
             var turn = 0f;
 
+
             if (keyboardState.IsKeyDown(Keys.Up))
                 pitch += time * Angle;
 
@@ -95,6 +100,8 @@ namespace TGC.MonoGame.Samples.Cameras
             if (keyboardState.IsKeyDown(Keys.Right))
                 turn -= time * Angle;
 
+            Pitch = pitch;
+            Turn = turn;
             RightDirection = Vector3.Cross(DefaultWorldUpVector, FrontDirection);
             var flatFront = Vector3.Cross(RightDirection, DefaultWorldUpVector);
 
