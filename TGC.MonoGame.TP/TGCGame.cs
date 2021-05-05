@@ -104,20 +104,11 @@ namespace TGC.MonoGame.TP
             TrenchWorld = Matrix.Identity;
             Trench2World = Matrix.Identity;
             
-            //View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            //Projection =
-            //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50000);
-
-
-            //Camera = new SimpleCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
-
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
+            // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
-
-            //Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), 100, 1.0f, 1,
-            //    6000);
 
             base.Initialize();
         }
@@ -133,24 +124,17 @@ namespace TGC.MonoGame.TP
         {
             IsMouseVisible = value;
         }
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
-        ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
-        ///     que podemos pre calcular para nuestro juego.
-        /// </summary>
+
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del logo.
             Xwing = Content.Load<Model>(ContentFolder3D + "XWing/model");
             Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             Tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             Trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
             Trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
+
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectTexture = Content.Load<Effect>(ContentFolderEffects + "BasicTexture");
 
@@ -160,45 +144,34 @@ namespace TGC.MonoGame.TP
                 TextureEnabled = false,
             };
 
-            // Cargo Texturas a usar en cada modelo
             XwingTextures = new Texture[] {   Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                              Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
 
-            //Model[] models = new Model[] { xWing, tie };//...
-
+            //Asigno los efectos a los modelos correspondientes
             assignEffectToModels(new Model[] { Xwing, Tie }, EffectTexture);
             assignEffectToModels(new Model[] { Trench, Trench2 }, Effect);
 
-
-
+            //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
 
             base.LoadContent();
         }
 
-        /// <summary>
-        ///     Se llama en cada frame.
-        ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
-        ///     ante ellas.
-        /// </summary>
         bool ignoreF11 = false;
         bool ignoreM = false;
         protected override void Update(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
             Camera.Update(gameTime);
 
-            // Capturar Input teclado
             var kState = Keyboard.GetState();
             if (kState.IsKeyDown(Keys.Escape))
                 Exit();
 
             if (kState.IsKeyDown(Keys.F11))
             {
-                if (!ignoreF11) //evito que se cambie constantemente manteniendo apretada la tecla
+                //evito que se cambie constantemente manteniendo apretada la tecla
+                if (!ignoreF11) 
                 {
                     ignoreF11 = true;
 
@@ -223,71 +196,37 @@ namespace TGC.MonoGame.TP
                 ignoreM = false;
             if (kState.IsKeyDown(Keys.M))
             {
+                //evito que se cambie constantemente manteniendo apretada la tecla
                 if (!ignoreM)
                 {
                     ignoreM = true;
-                    if (!Camera.MouseLookEnabled)
+                    if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
                     {
                         Camera.MouseLookEnabled = true;
+                        //correccion inicial para que no salte a un punto cualquiera
+                        Camera.pastMousePosition = Mouse.GetState().Position.ToVector2(); 
                         IsMouseVisible = false;
                     }
-                    else
+                    else if(Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
+                    {
+                        Camera.ArrowsLookEnabled = false;
+                    }
+                    else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
                     {
                         Camera.MouseLookEnabled = false;
+                        Camera.ArrowsLookEnabled = true;
                         IsMouseVisible = true;
                     }
                 }
             }
             
-            //float scaler = 0.01f;
-
-            //if (kState.IsKeyDown(Keys.OemPlus))
-            //{
-            //    //xWingScale += scaler;
-            //    xWingScale += scaler;
-            //}
-            //if (kState.IsKeyDown(Keys.OemMinus))
-            //{
-            //    //xWingScale -= scaler;
-            //    xWingScale -= scaler;
-            //}
-            //if (kState.IsKeyDown(Keys.L))
-            //{
-            //    xWingTranslation.X += 2;
-            //}
-            //if (kState.IsKeyDown(Keys.J))
-            //{
-            //    xWingTranslation.X -= 2;
-            //}
-            //if (kState.IsKeyDown(Keys.I))
-            //{
-            //    xWingTranslation.Y += 2;
-            //}
-            //if (kState.IsKeyDown(Keys.K))
-            //{
-            //    xWingTranslation.Y -= 2;
-            //}
-            //if (kState.IsKeyDown(Keys.Y))
-            //{
-            //    xWingTranslation.Z += 2;
-            //}
-            //if (kState.IsKeyDown(Keys.H))
-            //{
-            //    xWingTranslation.Z -= 2;
-            //}
-
-
+            
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
         }
-
-        /// <summary>
-        ///     Se llama cada vez que hay que refrescar la pantalla.
-        ///     Escribir aqui el codigo referido al renderizado.
-        /// </summary>
-
+        //funciones que pueden ser utiles
         float angleBetweenVectors(Vector3 a, Vector3 b)
         {
             return MathF.Acos(Vector3.Dot(a, b) / (a.Length() * b.Length()));
@@ -299,42 +238,34 @@ namespace TGC.MonoGame.TP
                 MathF.Acos(v.Y / v.Length()),
                 MathF.Acos(v.Z / v.Length()));
         }
-        //Vector3 calculateRotation()
-        //{
-        //    Vector3 rot = new Vector3(0,0,0);
-
-        //    Vector3 angles = directionalAngles(Camera.FrontDirection);
-
-        //    rot.X = angles.X;
-        //    rot.Y = angles.Y;
-        //    rot.Z = angles.Z;
-
-        //    return rot;
-        //}
+        String mensaje1 = "Movimiento: WASD, Camara: flechas, para habilitar mouse apretar M";
+        String mensaje2 = "Movimiento: WASD, Camara: flechas + mouse, para deshabilitar flechas apretar M";
+        String mensaje3 = "Movimiento: WASD, Camara: mouse, para solo flechas apretar M";
+        String mensaje;
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+            //Configuro efectos
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             EffectTexture.Parameters["View"].SetValue(Camera.View);
             EffectTexture.Parameters["Projection"].SetValue(Camera.Projection);
 
-            Effect.Parameters["DiffuseColor"]?.SetValue(Color.DarkBlue.ToVector3());
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
             // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
-            Vector3 pos = Camera.Position + (Camera.FrontDirection*40);
-
+            // para que siempre quede en frente de la camara
+            Vector3 pos = Camera.Position + (Camera.FrontDirection * 40);
+            //pitch y yaw en radianes
             var pitchRad = Camera.Pitch * MathF.PI / 180;
             var yawRad = Camera.Yaw * MathF.PI / 180;
 
+            //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
             //debug
             //Matrix SRT = Matrix.CreateScale(3f) * rotationMatrix;
+            
             Matrix SRT =
                 Matrix.CreateScale(XwingScale) *
                 //correccion de angulo inicial
@@ -344,12 +275,15 @@ namespace TGC.MonoGame.TP
                 //correccion por pitch
                 Matrix.CreateRotationX(pitchRad * MathF.Cos(yawRad + MathF.PI / 2)) *
                 Matrix.CreateRotationZ(pitchRad * MathF.Sin(yawRad + MathF.PI / 2)) *
-                //correccion de posicion (camara)
-                Matrix.CreateTranslation(pos)*
-                //correccion de posicion(para vista en tercera persona)
-                Matrix.CreateTranslation(new Vector3(0, -10, 0));
 
+                //correccion de posicion (camara)
+                Matrix.CreateTranslation(pos) *
+                //correccion de posicion(para vista en tercera persona)
+                Matrix.CreateTranslation(new Vector3(0, -8, 0));
+            // Estas rotaciones son para que el xwing quede en 3ra persona, siguiendo las rotaciones de la camara 
+            // ver error en valores altos de pitch en rotaciones X y Z
             DrawXWing(XwingWorld, SRT);
+
 
             SRT =
                 Matrix.CreateScale(TieScale) *
@@ -362,39 +296,48 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateScale(TrenchScale) *
                 Matrix.CreateRotationY(MathF.PI / 2) *
                 Matrix.CreateTranslation(TrenchTranslation);
-
+            //Ver por que aparecen transparencias en este modelo / cambiar modelo?
             DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.4f, 0.4f, 0.4f));
-            SRT=
+            SRT =
                     Matrix.CreateScale(Trench2Scale) *
                     //Matrix.CreateRotationY(MathF.PI / 2) *
                     Matrix.CreateTranslation(Trench2Translation);
-
+            //Este si se muestra bien
             DrawModel(Trench2, Trench2World, SRT, new Vector3(0.4f, 0.4f, 0.4f));
 
+            if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
+                mensaje = mensaje1;
+            else if (Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
+                mensaje = mensaje2;
+            else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
+                mensaje = mensaje3;
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            //SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
-            SpriteBatch.DrawString(SpriteFont, "Pos " + Math.Floor(Camera.Position.X) +
-                                                "," + Math.Floor(Camera.Position.Y) +
-                                                "," + Math.Floor(Camera.Position.Z) +
-                                                //" FD " + Camera.FrontDirection.X +
-                                                //"," + Camera.FrontDirection.Y +
-                                                //"," + Camera.FrontDirection.Z +
-                                                //" newP " + Math.Floor(pos.X) +
-                                                //"," + Math.Floor(pos.Y) +
-                                                //"," + Math.Floor(pos.Z) +
-                                                " yaw " + Math.Floor(Camera.Yaw)+
-                                                " pitch " + Math.Floor(Camera.Pitch) +
-                                                " time " + gameTime.ElapsedGameTime.TotalSeconds
-
-                                                , new Vector2(0, 0), Color.White);
-            
+            SpriteBatch.DrawString(SpriteFont, mensaje, Vector2.Zero, Color.White);
             SpriteBatch.End();
+            //debug
+            //SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
+            //SpriteBatch.DrawString(SpriteFont, "Pos " + Math.Floor(Camera.Position.X) +
+            //                                    "," + Math.Floor(Camera.Position.Y) +
+            //                                    "," + Math.Floor(Camera.Position.Z) +
+            //                                    //" FD " + Camera.FrontDirection.X +
+            //                                    //"," + Camera.FrontDirection.Y +
+            //                                    //"," + Camera.FrontDirection.Z +
+            //                                    //" newP " + Math.Floor(pos.X) +
+            //                                    //"," + Math.Floor(pos.Y) +
+            //                                    //"," + Math.Floor(pos.Z) +
+            //                                    " yaw " + Math.Floor(Camera.Yaw)+
+            //                                    " pitch " + Math.Floor(Camera.Pitch) +
+            //                                    " time " + gameTime.ElapsedGameTime.TotalSeconds
+
+            //                                    , new Vector2(0, 0), Color.White);
+
+
 
         }
         void DrawXWing(Matrix world, Matrix SRT)
         {
-            int meshCount = 0;
+            int meshCount = 0; //Como el xwing tiene 2 texturas, tengo que dibujarlo de esta manera
             foreach (var mesh in Xwing.Meshes)
             {
                 world = mesh.ParentBone.Transform * SRT;
@@ -428,9 +371,7 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
-        /// <summary>
-        ///     Libero los recursos que se cargaron en el juego.
-        /// </summary>
+
         protected override void UnloadContent()
         {
             // Libero los recursos.

@@ -10,11 +10,12 @@ namespace TGC.MonoGame.Samples.Cameras
         private readonly Point screenCenter;
         private bool changed;
         public bool MouseLookEnabled = false;
-
+        public bool ArrowsLookEnabled = true;
+        
         public float Pitch;
         public float Yaw = 270f;
         
-        public float turnSpeed = 1f;
+        public float turnSpeed = 0.25f;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             this.screenCenter = screenCenter;
@@ -28,7 +29,7 @@ namespace TGC.MonoGame.Samples.Cameras
         }
 
         public float MovementSpeed { get; set; } = 80f;
-        public float MouseSensitivity { get; set; } = 10f;
+        public float MouseSensitivity { get; set; } = 20f;
 
         private void CalculateView()
         {
@@ -75,41 +76,43 @@ namespace TGC.MonoGame.Samples.Cameras
                 Position += -FrontDirection * currentMovementSpeed * elapsedTime;
                 changed = true;
             }
-            if(keyboardState.IsKeyDown(Keys.Up))
+            if (ArrowsLookEnabled)
             {
-                Pitch += turnSpeed;
-                if (Pitch > 89.0f)
-                    Pitch = 89.0f;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.Down))
-            {
-                Pitch -= turnSpeed;
-                if (Pitch < -89.0f)
-                    Pitch = -89.0f;
+                if (keyboardState.IsKeyDown(Keys.Up))
+                {
+                    Pitch += turnSpeed;
+                    if (Pitch > 89.0f)
+                        Pitch = 89.0f;
+                    changed = true;
+                }
+                if (keyboardState.IsKeyDown(Keys.Down))
+                {
+                    Pitch -= turnSpeed;
+                    if (Pitch < -89.0f)
+                        Pitch = -89.0f;
 
-                changed = true;
+                    changed = true;
+                }
+                if (keyboardState.IsKeyDown(Keys.Left))
+                {
+                    Yaw -= turnSpeed;
+                    if (Yaw < 0)
+                        Yaw += 360;
+                    Yaw %= 360;
+                    changed = true;
+                }
+                if (keyboardState.IsKeyDown(Keys.Right))
+                {
+                    Yaw += turnSpeed;
+                    Yaw %= 360;
+                    changed = true;
+                }
             }
-            if (keyboardState.IsKeyDown(Keys.Left))
-            {
-                Yaw -= turnSpeed;
-                if (Yaw < 0)
-                    Yaw += 360;
-                Yaw %= 360;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                Yaw += turnSpeed;
-                Yaw %= 360;
-                changed = true;
-            }
-            
             if (changed)
                 UpdateCameraVectors();
         }
         
-        private Vector2 pastMousePosition;
+        public Vector2 pastMousePosition;
 
         private void ProcessMouse(float time)
         {
@@ -131,10 +134,9 @@ namespace TGC.MonoGame.Samples.Cameras
             if (Pitch < -89.0f)
                 Pitch = -89.0f;
 
-            //MouseManager.Instance.ViewChanged = true;
             changed = true;
             UpdateCameraVectors();
-
+            
             Mouse.SetPosition(screenCenter.X, screenCenter.Y);
             pastMousePosition = Mouse.GetState().Position.ToVector2();
             
@@ -151,10 +153,6 @@ namespace TGC.MonoGame.Samples.Cameras
 
             FrontDirection = Vector3.Normalize(tempFront);
 
-            // Also re-calculate the Right and Up vector
-            // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
-            //RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
-            //UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
             RightDirection = (Vector3.Cross(FrontDirection, Vector3.Up));
             UpDirection = (Vector3.Cross(RightDirection, FrontDirection));
         }
