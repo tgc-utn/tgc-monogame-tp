@@ -64,6 +64,11 @@ namespace TGC.MonoGame.TP
         private Model ModelBarquito { get; set; }
         private Effect IslandMiscEffect { get; set; }
 
+        private Model PlayerBoatModel { get; set; }
+        private Effect PlayerBoatEffect { get; set; }
+        private Matrix PlayerBoatMatrix { get; set; }
+        public Texture2D PlayerBoatTexture;
+        public float PlayerSpeed = 0.5f;
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -97,9 +102,11 @@ namespace TGC.MonoGame.TP
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
-
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 50, 500), screenSize);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 300, 500), screenSize);
+            
+
+            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateTranslation(0,0,600);
 
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
@@ -161,6 +168,9 @@ namespace TGC.MonoGame.TP
             IslandMiscEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             IslandMiscTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland01Diffuse");
 
+            PlayerBoatModel = Content.Load<Model>(ContentFolder3D + "ShipB/Source/Ship");
+            PlayerBoatEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            PlayerBoatTexture = Content.Load<Texture2D>(ContentFolder3D + "ShipB/textures/Battleship_lambert1_AlbedoTransparency.tga");
 
 
             base.LoadContent();
@@ -174,13 +184,36 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-            
+
             Camera.Update(gameTime);
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
                 Exit();
+
+
+            // Player movement
+            Keys[] KeyPressed = Keyboard.GetState().GetPressedKeys();
+            if (KeyPressed.Length > 0)
+            {
+                switch (KeyPressed[0])
+                {
+                    case Keys.I:
+                        MoveForward(PlayerSpeed);
+                        break;
+                    case Keys.K:
+                        MoveBackwards(PlayerSpeed);
+                        break;
+                    case Keys.L:
+                        MoveRight(PlayerSpeed);
+                        break;
+                    case Keys.J:
+                        MoveLeft(PlayerSpeed);
+                        break;
+                }
+
+            }
 
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -240,6 +273,7 @@ namespace TGC.MonoGame.TP
             IslandMiscEffect.Parameters["ModelTexture"].SetValue(IslandMiscTexture);
             DrawModel(ModelBarquito, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-100, 0, 700), IslandMiscEffect);
 
+            DrawModel(PlayerBoatModel, PlayerBoatMatrix, PlayerBoatEffect);
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
@@ -264,6 +298,23 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        private void MoveForward(float amount)
+        {
+            PlayerBoatMatrix *= Matrix.CreateTranslation(Vector3.UnitX * amount);
+        }
+        private void MoveBackwards(float amount)
+        {
+            MoveForward(-amount);
+        }
+        private void MoveRight(float amount)
+        {
+            PlayerBoatMatrix *= Matrix.CreateTranslation(Vector3.UnitZ * amount);
+        }
+        private void MoveLeft(float amount)
+        {
+            MoveRight(-amount);
         }
     }
 }
