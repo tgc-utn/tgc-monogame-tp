@@ -53,31 +53,15 @@ namespace TGC.MonoGame.TP
             }
         }
 
+        private float MovementSpeed() => Input.Turbo() ? runSpeed : walkSpeed;
+
         private void ProcessKeyboard(float elapsedTime)
         {
-            var keyboardState = Keyboard.GetState();
-            var movementSpeed = keyboardState.IsKeyDown(Keys.LeftShift) ? runSpeed : walkSpeed;
+            Vector3 inputDirection = Input.HorizontalAxis() * rightDirection + Input.ForwardAxis() * frontDirection + Input.VerticalAxis() * upDirection;
+            changed = !Equals(inputDirection, Vector3.Zero);
 
-            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
-            {
-                position += -rightDirection * movementSpeed * elapsedTime;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
-            {
-                position += rightDirection * movementSpeed * elapsedTime;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
-            {
-                position += frontDirection * movementSpeed * elapsedTime;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
-            {
-                position += -frontDirection * movementSpeed * elapsedTime;
-                changed = true;
-            }
+            inputDirection.Normalize();
+            position += changed ? inputDirection * MovementSpeed() * elapsedTime : Vector3.Zero;
         }
 
         private void ProcessMouseMovement(float elapsedTime)
