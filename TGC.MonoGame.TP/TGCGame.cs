@@ -246,7 +246,8 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             //Configuro efectos
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
@@ -259,29 +260,24 @@ namespace TGC.MonoGame.TP
             // para que siempre quede en frente de la camara
             Vector3 pos = Camera.Position + (Camera.FrontDirection * 40);
             //pitch y yaw en radianes
-            var pitchRad = Camera.Pitch * MathF.PI / 180;
-            var yawRad = Camera.Yaw * MathF.PI / 180;
+            var pitchRad = MathHelper.ToRadians(Camera.Pitch);
+            var yawRad = MathHelper.ToRadians(Camera.Yaw);
+            var correctedYaw = -yawRad - MathHelper.PiOver2;
 
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
             //debug
             //Matrix SRT = Matrix.CreateScale(3f) * rotationMatrix;
-            
-            Matrix SRT =
-                Matrix.CreateScale(XwingScale) *
-                //correccion de angulo inicial
-                Matrix.CreateRotationY(-MathF.PI / 2) *
-                //Correccion por yaw
-                Matrix.CreateRotationY(-yawRad) *
-                //correccion por pitch
-                Matrix.CreateRotationX(pitchRad * MathF.Cos(yawRad + MathF.PI / 2)) *
-                Matrix.CreateRotationZ(pitchRad * MathF.Sin(yawRad + MathF.PI / 2)) *
 
-                //correccion de posicion (camara)
+
+            Matrix SRT =
+                //correccion de escala
+                Matrix.CreateScale(XwingScale) *
+                //correccion por yaw pitch y roll de la camara
+                Matrix.CreateFromYawPitchRoll(correctedYaw, pitchRad, 0f) *
+                //correccion de posicion de la camara
                 Matrix.CreateTranslation(pos) *
-                //correccion de posicion(para vista en tercera persona)
+                //bajo el modelo para que parezca en tercera persona y no exactamente detras
                 Matrix.CreateTranslation(new Vector3(0, -8, 0));
-            // Estas rotaciones son para que el xwing quede en 3ra persona, siguiendo las rotaciones de la camara 
-            // ver error en valores altos de pitch en rotaciones X y Z
             DrawXWing(XwingWorld, SRT);
 
 
@@ -297,7 +293,7 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateRotationY(MathF.PI / 2) *
                 Matrix.CreateTranslation(TrenchTranslation);
             //Ver por que aparecen transparencias en este modelo / cambiar modelo?
-            DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.4f, 0.4f, 0.4f));
+            DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.8f, 0.0f, 0.0f));
             SRT =
                     Matrix.CreateScale(Trench2Scale) *
                     //Matrix.CreateRotationY(MathF.PI / 2) *
@@ -316,22 +312,11 @@ namespace TGC.MonoGame.TP
             SpriteBatch.DrawString(SpriteFont, mensaje, Vector2.Zero, Color.White);
             SpriteBatch.End();
             //debug
-            //SpriteBatch.DrawString(SpriteFont, "Escala: "+trenchScale, new Vector2(0, 0), Color.White);
-            //SpriteBatch.DrawString(SpriteFont, "Pos " + Math.Floor(Camera.Position.X) +
-            //                                    "," + Math.Floor(Camera.Position.Y) +
-            //                                    "," + Math.Floor(Camera.Position.Z) +
-            //                                    //" FD " + Camera.FrontDirection.X +
-            //                                    //"," + Camera.FrontDirection.Y +
-            //                                    //"," + Camera.FrontDirection.Z +
-            //                                    //" newP " + Math.Floor(pos.X) +
-            //                                    //"," + Math.Floor(pos.Y) +
-            //                                    //"," + Math.Floor(pos.Z) +
-            //                                    " yaw " + Math.Floor(Camera.Yaw)+
-            //                                    " pitch " + Math.Floor(Camera.Pitch) +
-            //                                    " time " + gameTime.ElapsedGameTime.TotalSeconds
-
+            //SpriteBatch.DrawString(SpriteFont, 
+            //                                    " yaw " + Math.Round(Camera.Yaw, 2) +
+            //                                    " pitch " + Math.Round(Camera.Pitch, 2)
             //                                    , new Vector2(0, 0), Color.White);
-
+            //SpriteBatch.End();
 
 
         }

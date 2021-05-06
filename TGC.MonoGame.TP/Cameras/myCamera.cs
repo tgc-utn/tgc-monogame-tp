@@ -14,8 +14,9 @@ namespace TGC.MonoGame.Samples.Cameras
         
         public float Pitch;
         public float Yaw = 270f;
+
         
-        public float turnSpeed = 0.25f;
+        public float turnSpeed = 1.5f;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             this.screenCenter = screenCenter;
@@ -29,7 +30,7 @@ namespace TGC.MonoGame.Samples.Cameras
         }
 
         public float MovementSpeed { get; set; } = 80f;
-        public float MouseSensitivity { get; set; } = 20f;
+        public float MouseSensitivity { get; set; } = 10f;
 
         private void CalculateView()
         {
@@ -53,27 +54,31 @@ namespace TGC.MonoGame.Samples.Cameras
             var keyboardState = Keyboard.GetState();
 
             var currentMovementSpeed = MovementSpeed;
+            var currentTurnSpeed = turnSpeed;
             if (keyboardState.IsKeyDown(Keys.LeftShift))
                 currentMovementSpeed *= 5f;
-            
+
+            currentMovementSpeed *= elapsedTime;
+            currentTurnSpeed *= elapsedTime;
+
             if (keyboardState.IsKeyDown(Keys.A) )
             {
-                Position += -RightDirection * currentMovementSpeed * elapsedTime;
+                Position += -RightDirection * currentMovementSpeed ;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                Position += RightDirection * currentMovementSpeed * elapsedTime;
+                Position += RightDirection * currentMovementSpeed;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.W) )
             {
-                Position += FrontDirection * currentMovementSpeed * elapsedTime;
+                Position += FrontDirection * currentMovementSpeed;
                 changed = true;
             }
             if (keyboardState.IsKeyDown(Keys.S) )
             {
-                Position += -FrontDirection * currentMovementSpeed * elapsedTime;
+                Position += -FrontDirection * currentMovementSpeed;
                 changed = true;
             }
             if (ArrowsLookEnabled)
