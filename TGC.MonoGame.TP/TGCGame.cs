@@ -72,9 +72,8 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
 
         private Texture[] XwingTextures;
-
         private Texture TieTexture;
-
+        private Texture2D[] Crosshairs;
         private MyCamera Camera { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -144,10 +143,11 @@ namespace TGC.MonoGame.TP
                 TextureEnabled = false,
             };
 
-            XwingTextures = new Texture[] {   Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
-                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
+            XwingTextures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
-
+            Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
             //Asigno los efectos a los modelos correspondientes
             assignEffectToModels(new Model[] { Xwing, Tie }, EffectTexture);
             assignEffectToModels(new Model[] { Trench, Trench2 }, Effect);
@@ -293,7 +293,7 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateRotationY(MathF.PI / 2) *
                 Matrix.CreateTranslation(TrenchTranslation);
             //Ver por que aparecen transparencias en este modelo / cambiar modelo?
-            DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.8f, 0.0f, 0.0f));
+            DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.3f, 0.3f, 0.3f));
             SRT =
                     Matrix.CreateScale(Trench2Scale) *
                     //Matrix.CreateRotationY(MathF.PI / 2) *
@@ -308,8 +308,19 @@ namespace TGC.MonoGame.TP
             else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
                 mensaje = mensaje3;
 
-            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             SpriteBatch.DrawString(SpriteFont, mensaje, Vector2.Zero, Color.White);
+            SpriteBatch.End();
+
+            var center= GraphicsDevice.Viewport.Bounds.Size;
+            center.X /= 2;
+            center.Y /= 2;
+
+            var scale = 0.1f;
+            var sz = 512 * scale;
+            
+            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+            SpriteBatch.Draw(Crosshairs[0], new Vector2(center.X - sz/2, center.Y - sz/2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale,scale), SpriteEffects.None, 0f) ;
             SpriteBatch.End();
             //debug
             //SpriteBatch.DrawString(SpriteFont, 

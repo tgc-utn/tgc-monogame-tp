@@ -16,7 +16,7 @@ namespace TGC.MonoGame.Samples.Cameras
         public float Yaw = 270f;
 
         
-        public float turnSpeed = 1.5f;
+        public float turnSpeed = 60f;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             this.screenCenter = screenCenter;
@@ -85,14 +85,14 @@ namespace TGC.MonoGame.Samples.Cameras
             {
                 if (keyboardState.IsKeyDown(Keys.Up))
                 {
-                    Pitch += turnSpeed;
+                    Pitch += currentTurnSpeed;
                     if (Pitch > 89.0f)
                         Pitch = 89.0f;
                     changed = true;
                 }
                 if (keyboardState.IsKeyDown(Keys.Down))
                 {
-                    Pitch -= turnSpeed;
+                    Pitch -= currentTurnSpeed;
                     if (Pitch < -89.0f)
                         Pitch = -89.0f;
 
@@ -100,7 +100,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 }
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
-                    Yaw -= turnSpeed;
+                    Yaw -= currentTurnSpeed;
                     if (Yaw < 0)
                         Yaw += 360;
                     Yaw %= 360;
@@ -108,7 +108,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 }
                 if (keyboardState.IsKeyDown(Keys.Right))
                 {
-                    Yaw += turnSpeed;
+                    Yaw += currentTurnSpeed;
                     Yaw %= 360;
                     changed = true;
                 }
