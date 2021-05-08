@@ -156,10 +156,29 @@ namespace TGC.MonoGame.TP
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
 
+            
+                
+            for (var i = 0; i < 5; i++)
+            { 
+                Matrix SRT = Matrix.CreateScale(TrenchScale) *
+                    Matrix.CreateRotationY(MathF.PI / 2) *
+                    Matrix.CreateTranslation(TrenchTranslation = new Vector3(0, 0, -i * 170));
+
+                trenches.Add(SRT);
+            }
+            List<Matrix> rotation = new List<Matrix>() ;
+            foreach (var t in trenches)
+                rotation.Add(t);
+            
+            foreach(var t in rotation)
+            {
+                trenches.Add(t * Matrix.CreateTranslation(new Vector3(170, 0, 0)));
+            }
+                    
             base.LoadContent();
         }
         List<Keys> ignoredKeys = new List<Keys>();
-        
+        List<Matrix> trenches = new List<Matrix>();
         protected override void Update(GameTime gameTime)
         {
             Camera.Update(gameTime);
@@ -266,10 +285,18 @@ namespace TGC.MonoGame.TP
             // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
             // para que siempre quede en frente de la camara
             Vector3 pos = Camera.Position + (Camera.FrontDirection * 40);
-            // y en tercera persona
-            pos -= new Vector3(0, 8, 0);
-            Xwing.Position = pos;
-            Xwing.FrontDirection = Camera.FrontDirection;
+            Vector3 posb = pos + (Camera.FrontDirection*2);
+            //Vector3 posb = Camera.Position + (Camera.FrontDirection * 42);
+
+            //// y en tercera persona
+            //pos -= new Vector3(0, 8, 0);
+
+            //Xwing.Position = pos;
+            Xwing.GameTime = gameTime;
+            Xwing.TurnDelta = Camera.delta;
+            Xwing.updateRoll();
+            Xwing.updatePosition(pos);
+
             //pitch y yaw en radianes
             var pitchRad = MathHelper.ToRadians(Camera.Pitch);
             var yawRad = MathHelper.ToRadians(Camera.Yaw);
@@ -279,16 +306,16 @@ namespace TGC.MonoGame.TP
             //debug
             //Matrix SRT = Matrix.CreateScale(3f) * rotationMatrix;
 
-
+            
             Matrix SRT =
                 //correccion de escala
                 Matrix.CreateScale(Xwing.Scale) *
                 //correccion por yaw pitch y roll de la camara
-                Matrix.CreateFromYawPitchRoll(correctedYaw, pitchRad, 0f) *
+                Matrix.CreateFromYawPitchRoll(correctedYaw, pitchRad, MathHelper.ToRadians(Xwing.Roll)) *
                 //correccion de posicion de la camara
-                Matrix.CreateTranslation(Xwing.Position)*
+                Matrix.CreateTranslation(Xwing.Position);
 
-                Matrix.CreateFromQuaternion(Xwing.getAnimationQuaternion(gameTime));
+                //Matrix.CreateFromQuaternion();
             DrawXWing(SRT);
 
 
@@ -299,12 +326,16 @@ namespace TGC.MonoGame.TP
                 rotationMatrix;
             DrawTie(TieWorld, SRT);
 
-            SRT =
-                Matrix.CreateScale(TrenchScale) *
-                Matrix.CreateRotationY(MathF.PI / 2) *
-                Matrix.CreateTranslation(TrenchTranslation);
-            //Ver por que aparecen transparencias en este modelo / cambiar modelo?
-            DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.3f, 0.3f, 0.3f));
+            //SRT =
+            //    Matrix.CreateScale(TrenchScale) *
+            //    Matrix.CreateRotationY(MathF.PI / 2) *
+            //    Matrix.CreateTranslation(TrenchTranslation);
+            ////Ver por que aparecen transparencias en este modelo / cambiar modelo?
+            //DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.3f, 0.3f, 0.3f));
+            foreach(var srt in trenches)
+            {
+                DrawModel(Trench, Matrix.Identity, srt, new Vector3(0.8f, 0.3f, 0.3f));
+            }
             SRT =
                     Matrix.CreateScale(Trench2Scale) *
                     //Matrix.CreateRotationY(MathF.PI / 2) *
@@ -320,7 +351,17 @@ namespace TGC.MonoGame.TP
                 mensaje = mensaje3;
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            SpriteBatch.DrawString(SpriteFont, Xwing.barrelRolling + " " + Xwing.barrelRollStep, Vector2.Zero, Color.White);
+            //SpriteBatch.DrawString(SpriteFont, Xwing.barrelRolling + " " + Xwing.barrelRollStep, Vector2.Zero, Color.White);
+            SpriteBatch.DrawString(SpriteFont, 
+                "C "+Math.Round(Camera.FrontDirection.X, 2)+
+                "|" + Math.Round(Camera.FrontDirection.Y, 2) +
+                "|" + Math.Round(Camera.FrontDirection.Z, 2) +
+                "   P " + Math.Round(pos.X, 2) +
+                "|" + Math.Round(pos.Y, 2) +
+                "|" + Math.Round(pos.Z, 2) +
+                "   X " + Math.Round(Xwing.FrontDirection.X, 2) +
+                "|" + Math.Round(Xwing.FrontDirection.Y, 2) +
+                "|" + Math.Round(Xwing.FrontDirection.Z, 2) , Vector2.Zero, Color.White);
             SpriteBatch.End();
 
             var center= GraphicsDevice.Viewport.Bounds.Size;
@@ -331,7 +372,7 @@ namespace TGC.MonoGame.TP
             var sz = 512 * scale;
             
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            SpriteBatch.Draw(Crosshairs[0], new Vector2(center.X - sz/2, center.Y - sz/2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale,scale), SpriteEffects.None, 0f) ;
+            SpriteBatch.Draw(Crosshairs[0], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
             SpriteBatch.End();
             //debug
             //SpriteBatch.DrawString(SpriteFont, 

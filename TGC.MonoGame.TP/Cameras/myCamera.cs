@@ -15,7 +15,7 @@ namespace TGC.MonoGame.Samples.Cameras
         public float Pitch;
         public float Yaw = 270f;
 
-        
+        public Vector2 delta;
         public float turnSpeed = 60f;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
@@ -42,6 +42,9 @@ namespace TGC.MonoGame.Samples.Cameras
         {
             var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             changed = false;
+            
+            delta = Vector2.Zero;
+            
             ProcessKeyboard(elapsedTime);
             if(MouseLookEnabled)
                 ProcessMouse(elapsedTime);
@@ -86,6 +89,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Up))
                 {
                     Pitch += currentTurnSpeed;
+                    delta.Y += currentTurnSpeed;
                     if (Pitch > 89.0f)
                         Pitch = 89.0f;
                     changed = true;
@@ -93,6 +97,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Down))
                 {
                     Pitch -= currentTurnSpeed;
+                    delta.Y -= currentTurnSpeed;
                     if (Pitch < -89.0f)
                         Pitch = -89.0f;
 
@@ -101,6 +106,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
                     Yaw -= currentTurnSpeed;
+                    delta.X -= currentTurnSpeed;
                     if (Yaw < 0)
                         Yaw += 360;
                     Yaw %= 360;
@@ -109,6 +115,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Right))
                 {
                     Yaw += currentTurnSpeed;
+                    delta.X += currentTurnSpeed;
                     Yaw %= 360;
                     changed = true;
                 }
@@ -119,6 +126,7 @@ namespace TGC.MonoGame.Samples.Cameras
         
         public Vector2 pastMousePosition;
 
+        float maxMouseDelta = 3;
         private void ProcessMouse(float time)
         {
             
@@ -127,6 +135,13 @@ namespace TGC.MonoGame.Samples.Cameras
             var mouseDelta = mousePosition - pastMousePosition;
             mouseDelta *= MouseSensitivity * time;
 
+            //Evito movimientos muy rapidos con mouse
+            mouseDelta.X = MathHelper.Clamp(mouseDelta.X, -maxMouseDelta, maxMouseDelta);
+            mouseDelta.Y = MathHelper.Clamp(mouseDelta.Y, -maxMouseDelta, maxMouseDelta);
+
+            delta = mouseDelta;
+            //System.Diagnostics.Debug.WriteLine("delta " + Math.Round(mouseDelta.X, 2) +"|" + Math.Round(mouseDelta.Y, 2));
+            
             Yaw += mouseDelta.X;
             if (Yaw < 0)
                 Yaw += 360;
