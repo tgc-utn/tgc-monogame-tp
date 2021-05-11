@@ -186,8 +186,11 @@ namespace TGC.MonoGame.TP
             var kState = Keyboard.GetState();
             if (kState.IsKeyDown(Keys.Escape))
                 Exit();
-
-            if (kState.IsKeyDown(Keys.F11))
+            if (kState.IsKeyDown(Keys.P))
+            {
+                ignoredKeys.Add(Keys.P);
+            }
+                if (kState.IsKeyDown(Keys.F11))
             {
                 //evito que se cambie constantemente manteniendo apretada la tecla
                 if(!ignoredKeys.Contains(Keys.F11))
@@ -284,41 +287,43 @@ namespace TGC.MonoGame.TP
 
             // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
             // para que siempre quede en frente de la camara
-            Vector3 pos = Camera.Position + (Camera.FrontDirection * 40);
-            Vector3 posb = pos + (Camera.FrontDirection*2);
-            //Vector3 posb = Camera.Position + (Camera.FrontDirection * 42);
-
-            //// y en tercera persona
-            //pos -= new Vector3(0, 8, 0);
-
-            //Xwing.Position = pos;
+           
+            //obtengo la posicion de la camara, y la muevo para adelante 40 unidades
+            Vector3 pos = Camera.Position + Camera.FrontDirection * 40;
+           
             Xwing.GameTime = gameTime;
+            // cuanto tengo que rotar (roll), dependiendo de que tanto giro la camara 
             Xwing.TurnDelta = Camera.delta;
             Xwing.updateRoll();
-            Xwing.updatePosition(pos);
 
+            Xwing.FrontDirection = Camera.FrontDirection;
+            
             //pitch y yaw en radianes
             var pitchRad = MathHelper.ToRadians(Camera.Pitch);
             var yawRad = MathHelper.ToRadians(Camera.Yaw);
             var correctedYaw = -yawRad - MathHelper.PiOver2;
+            //matriz de rotacion dado un quaternion, que me permite hacer la rotacion (roll)
+            Matrix mxQuat = Matrix.CreateFromQuaternion(
+                Quaternion.CreateFromAxisAngle(Camera.FrontDirection, MathHelper.ToRadians(-Xwing.Roll)));
+            
+            Xwing.UpDirection = mxQuat.Up;
+            Xwing.Position = pos - Xwing.UpDirection * 8;
 
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
-            //debug
-            //Matrix SRT = Matrix.CreateScale(3f) * rotationMatrix;
-
-            
             Matrix SRT =
-                //correccion de escala
+                // correccion de escala
                 Matrix.CreateScale(Xwing.Scale) *
-                //correccion por yaw pitch y roll de la camara
-                Matrix.CreateFromYawPitchRoll(correctedYaw, pitchRad, MathHelper.ToRadians(Xwing.Roll)) *
-                //correccion de posicion de la camara
+                // correccion por yaw y pitch de la camara
+                Matrix.CreateFromYawPitchRoll(correctedYaw, pitchRad, 0f) *
+                // correccion por roll con un quaternion, para obtener de el vector direccion que apunta hacia arriba
+                //(del modelo, una vez que giro)
+                mxQuat * 
+                // lo muevo para abajo(del modelo) 8 unidades para que se aleje del centro 
                 Matrix.CreateTranslation(Xwing.Position);
 
-                //Matrix.CreateFromQuaternion();
             DrawXWing(SRT);
 
-
+            //debug de Tie, rotando 
             SRT =
                 Matrix.CreateScale(TieScale) *
                 Matrix.CreateRotationY(MathF.PI) *
@@ -326,12 +331,7 @@ namespace TGC.MonoGame.TP
                 rotationMatrix;
             DrawTie(TieWorld, SRT);
 
-            //SRT =
-            //    Matrix.CreateScale(TrenchScale) *
-            //    Matrix.CreateRotationY(MathF.PI / 2) *
-            //    Matrix.CreateTranslation(TrenchTranslation);
-            ////Ver por que aparecen transparencias en este modelo / cambiar modelo?
-            //DrawModel(Trench, TrenchWorld, SRT, new Vector3(0.3f, 0.3f, 0.3f));
+
             foreach(var srt in trenches)
             {
                 DrawModel(Trench, Matrix.Identity, srt, new Vector3(0.8f, 0.3f, 0.3f));
@@ -352,16 +352,23 @@ namespace TGC.MonoGame.TP
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             //SpriteBatch.DrawString(SpriteFont, Xwing.barrelRolling + " " + Xwing.barrelRollStep, Vector2.Zero, Color.White);
-            SpriteBatch.DrawString(SpriteFont, 
-                "C "+Math.Round(Camera.FrontDirection.X, 2)+
+            SpriteBatch.DrawString(SpriteFont,
+                "C " + Math.Round(Camera.FrontDirection.X, 2) +
                 "|" + Math.Round(Camera.FrontDirection.Y, 2) +
                 "|" + Math.Round(Camera.FrontDirection.Z, 2) +
+                "  up " + Math.Round(Camera.UpDirection.X, 2) +
+                "|" + Math.Round(Camera.UpDirection.Y, 2) +
+                "|" + Math.Round(Camera.UpDirection.Z, 2) +
+
                 "   P " + Math.Round(pos.X, 2) +
                 "|" + Math.Round(pos.Y, 2) +
                 "|" + Math.Round(pos.Z, 2) +
-                "   X " + Math.Round(Xwing.FrontDirection.X, 2) +
-                "|" + Math.Round(Xwing.FrontDirection.Y, 2) +
-                "|" + Math.Round(Xwing.FrontDirection.Z, 2) , Vector2.Zero, Color.White);
+                "   UPX " + Math.Round(mxQuat.Up.X, 2) +
+                "|" + Math.Round(mxQuat.Up.Y, 2) +
+                "|" + Math.Round(mxQuat.Up.Z, 2) +
+                " Roll " + Math.Round(Xwing.Roll, 2)
+                , Vector2.Zero, Color.White); 
+                
             SpriteBatch.End();
 
             var center= GraphicsDevice.Viewport.Bounds.Size;

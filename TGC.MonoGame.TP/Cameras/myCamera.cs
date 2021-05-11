@@ -173,8 +173,8 @@ namespace TGC.MonoGame.Samples.Cameras
 
             FrontDirection = Vector3.Normalize(tempFront);
 
-            RightDirection = (Vector3.Cross(FrontDirection, Vector3.Up));
-            UpDirection = (Vector3.Cross(RightDirection, FrontDirection));
+            RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
+            UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
         }
     }
 }

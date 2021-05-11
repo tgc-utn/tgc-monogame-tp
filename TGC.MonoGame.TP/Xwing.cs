@@ -13,6 +13,9 @@ public class Xwing
 	public float Scale { get; set; }
 	public Vector3 Position { get; set; }
 	public Vector3 FrontDirection { get; set; }
+	public Vector3 UpDirection { get; set; }
+	public Vector3 RightDirection { get; set; }
+
 	public GameTime GameTime { get; set; }
 	public Vector2 TurnDelta;
 	public Xwing()
@@ -23,6 +26,7 @@ public class Xwing
 	float rollSpeed = 100f;
 
 	List<Vector2> deltas = new List<Vector2>();
+	int maxDeltas = 23;
 	Vector2 averageLastDeltas()
     {
 		Vector2 current;
@@ -38,7 +42,7 @@ public class Xwing
 	}
 	public void updateRoll()
 	{
-		if (deltas.Count < 20)
+		if (deltas.Count < maxDeltas)
 			deltas.Add(TurnDelta);
 		else
         	deltas.RemoveAt(0);
@@ -62,8 +66,19 @@ public class Xwing
 			Roll = -currentDelta.X * 30; 
         }
 	}
-	public void updatePosition(Vector3 pos)
+	public Quaternion getAnimationQuaternion()
     {
-		Position = pos - new Vector3(0, 8, 0);
+		updateRoll();
+		return Quaternion.CreateFromAxisAngle(FrontDirection, MathHelper.ToRadians(Roll));
     }
+	public void updateDirectionVectors(Vector3 front)
+	{
+		FrontDirection = front;
+		RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
+		UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
+
+		//Quaternion q = Quaternion.CreateFromAxisAngle(FrontDirection, Roll);
+		
+		//UpDirection *= Matrix.CreateFromYawPitchRoll(0, 0, Roll);
+	}
 }
