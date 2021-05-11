@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.PhysicsAPI;
 using TGC.MonoGame.TP.Sources.Entities;
 
 namespace TGC.MonoGame.TP
@@ -20,12 +25,19 @@ namespace TGC.MonoGame.TP
         private readonly Camera camera = new Camera();
         private readonly List<Entity> entities = new List<Entity>();
 
+        private readonly BufferPool bufferPool = new BufferPool();
+        private readonly SimpleThreadDispatcher threadDispatcher;
+        private Simulation simulation;
+
         public TGCGame()
         {
             graphics = new GraphicsDeviceManager(this);
             // Graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = false;
+
+            int targetThreadCount = Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
+            threadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
         }
 
         protected override void LoadContent()
@@ -45,8 +57,13 @@ namespace TGC.MonoGame.TP
 
             camera.Initialize(GraphicsDevice);
             base.Initialize();
+            InitializePhysicSimulation();
             InitializeWorld();
         }
+
+        private void InitializePhysicSimulation() => simulation = 
+            Simulation.Create(bufferPool, new NarrowPhaseCallbacks(),
+            new PoseIntegratorCallbacks(new System.Numerics.Vector3(0, -100, 0)), new PositionFirstTimestepper());
 
         private void InitializeWorld()
         {
@@ -58,7 +75,9 @@ namespace TGC.MonoGame.TP
 
         protected override void Update(GameTime gameTime)
         {
+            simulation.Timestep(1 / 60f, threadDispatcher);
             camera.Update(gameTime);
+
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             base.Update(gameTime);
