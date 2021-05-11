@@ -73,6 +73,7 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
 
         private Texture TieTexture;
+        private Texture TrenchTexture;
         private Texture2D[] Crosshairs;
         private MyCamera Camera { get; set; }
         /// <summary>
@@ -147,11 +148,12 @@ namespace TGC.MonoGame.TP
             Xwing.Textures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
+            TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/Plates");
             Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
             //Asigno los efectos a los modelos correspondientes
-            assignEffectToModels(new Model[] { Xwing.Model, Tie }, EffectTexture);
-            assignEffectToModels(new Model[] { Trench, Trench2 }, Effect);
+            assignEffectToModels(new Model[] { Xwing.Model, Tie, Trench }, EffectTexture);
+            assignEffectToModels(new Model[] { Trench2 }, Effect);
 
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
@@ -334,7 +336,7 @@ namespace TGC.MonoGame.TP
 
             foreach(var srt in trenches)
             {
-                DrawModel(Trench, Matrix.Identity, srt, new Vector3(0.8f, 0.3f, 0.3f));
+                DrawTrench(Matrix.Identity, srt);
             }
             SRT =
                     Matrix.CreateScale(Trench2Scale) *
@@ -412,6 +414,17 @@ namespace TGC.MonoGame.TP
 
                 EffectTexture.Parameters["World"].SetValue(world);
                 EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);
+                mesh.Draw();
+            }
+        }
+        void DrawTrench(Matrix world, Matrix SRT)
+        {
+            foreach (var mesh in Trench.Meshes)
+            {
+                world = mesh.ParentBone.Transform * SRT;
+
+                EffectTexture.Parameters["World"].SetValue(world);
+                EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
                 mesh.Draw();
             }
         }

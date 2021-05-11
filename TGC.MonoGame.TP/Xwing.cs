@@ -23,7 +23,7 @@ public class Xwing
 	}
 	float angle = 0f;
 	public float Roll = 0;
-	float rollSpeed = 100f;
+	float rollSpeed = 150f;
 
 	List<Vector2> deltas = new List<Vector2>();
 	int maxDeltas = 23;
