@@ -21,9 +21,13 @@ public class Xwing
 	public Xwing()
 	{
 	}
-	float angle = 0f;
+	public float Pitch { get; set; }
+	public float Yaw { get; set; }
+
 	public float Roll = 0;
 	float rollSpeed = 150f;
+	
+	public int LaserFired = 0;
 
 	List<Vector2> deltas = new List<Vector2>();
 	int maxDeltas = 23;
@@ -51,7 +55,7 @@ public class Xwing
 		{
 			float time = Convert.ToSingle(GameTime.ElapsedGameTime.TotalSeconds);
 			if (Roll < 360)
-				Roll += angle + rollSpeed * time;
+				Roll += rollSpeed * time;
 			else
 			{
 				barrelRolling = false;
@@ -71,11 +75,13 @@ public class Xwing
 		updateRoll();
 		return Quaternion.CreateFromAxisAngle(FrontDirection, MathHelper.ToRadians(Roll));
     }
-	public void updateDirectionVectors(Vector3 front)
+	public void updateDirectionVectors(Vector3 front, Vector3 up)
 	{
 		FrontDirection = front;
-		RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
-		UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
+		//RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
+		//UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
+		UpDirection = up;
+		RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, UpDirection));
 
 		//Quaternion q = Quaternion.CreateFromAxisAngle(FrontDirection, Roll);
 		

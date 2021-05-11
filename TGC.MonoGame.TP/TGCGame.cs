@@ -58,7 +58,7 @@ namespace TGC.MonoGame.TP
         private Model Tie2 { get; set; }
         private Model Trench { get; set; }
         private Model Trench2 { get; set; }
-
+        private Model LaserModel { get; set; }
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
         private BasicEffect BasicEffect { get; set; }
@@ -75,6 +75,8 @@ namespace TGC.MonoGame.TP
         private Texture TieTexture;
         private Texture TrenchTexture;
         private Texture2D[] Crosshairs;
+        
+        
         private MyCamera Camera { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -135,6 +137,7 @@ namespace TGC.MonoGame.TP
             Tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             Trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
             Trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
+            LaserModel = Content.Load<Model>(ContentFolder3D + "Laser/Laser");
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectTexture = Content.Load<Effect>(ContentFolderEffects + "BasicTexture");
@@ -153,7 +156,7 @@ namespace TGC.MonoGame.TP
                                             Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
             //Asigno los efectos a los modelos correspondientes
             assignEffectToModels(new Model[] { Xwing.Model, Tie, Trench }, EffectTexture);
-            assignEffectToModels(new Model[] { Trench2 }, Effect);
+            assignEffectToModels(new Model[] { Trench2, LaserModel }, Effect);
 
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
@@ -181,6 +184,7 @@ namespace TGC.MonoGame.TP
         }
         List<Keys> ignoredKeys = new List<Keys>();
         List<Matrix> trenches = new List<Matrix>();
+        List<Laser> fired = new List<Laser>();
         protected override void Update(GameTime gameTime)
         {
             Camera.Update(gameTime);
@@ -192,7 +196,41 @@ namespace TGC.MonoGame.TP
             {
                 ignoredKeys.Add(Keys.P);
             }
-                if (kState.IsKeyDown(Keys.F11))
+            if(kState.IsKeyDown(Keys.F))
+            {
+                if (!ignoredKeys.Contains(Keys.F))
+                {
+                    ignoredKeys.Add(Keys.F);
+                    float laserScale = 0.04f;
+
+                    Matrix SRT = Matrix.CreateScale(laserScale) *
+                        Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Xwing.Yaw), MathHelper.ToRadians(Xwing.Pitch), MathHelper.ToRadians(Xwing.Roll)) *
+                        Matrix.CreateTranslation(Xwing.Position + Xwing.FrontDirection * 4f);
+                    
+                    fired.Clear();
+                    float offsetVtop = 2.5f;
+                    float offsetVbot = 4;
+                    float offsetH = 11.5f;
+                    switch(Xwing.LaserFired)
+                    {
+                        case 0: 
+                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(Xwing.UpDirection * offsetVtop + Xwing.RightDirection * offsetH), Xwing.FrontDirection));
+                            break;
+                        case 1:
+                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(-Xwing.UpDirection * offsetVbot + Xwing.RightDirection * offsetH), Xwing.FrontDirection));
+                            break;
+                        case 2:
+                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(-Xwing.UpDirection * offsetVbot - Xwing.RightDirection * offsetH), Xwing.FrontDirection));
+                            break;
+                        case 3:
+                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(Xwing.UpDirection * offsetVtop - Xwing.RightDirection * offsetH), Xwing.FrontDirection));
+                            break;
+                    }
+                    Xwing.LaserFired++;
+                    Xwing.LaserFired %= 4;
+                }
+            }
+            if (kState.IsKeyDown(Keys.F11))
             {
                 //evito que se cambie constantemente manteniendo apretada la tecla
                 if(!ignoredKeys.Contains(Keys.F11))
@@ -298,7 +336,7 @@ namespace TGC.MonoGame.TP
             Xwing.TurnDelta = Camera.delta;
             Xwing.updateRoll();
 
-            Xwing.FrontDirection = Camera.FrontDirection;
+            //Xwing.FrontDirection = Camera.FrontDirection;
             
             //pitch y yaw en radianes
             var pitchRad = MathHelper.ToRadians(Camera.Pitch);
@@ -307,9 +345,12 @@ namespace TGC.MonoGame.TP
             //matriz de rotacion dado un quaternion, que me permite hacer la rotacion (roll)
             Matrix mxQuat = Matrix.CreateFromQuaternion(
                 Quaternion.CreateFromAxisAngle(Camera.FrontDirection, MathHelper.ToRadians(-Xwing.Roll)));
+
+            Xwing.updateDirectionVectors(Camera.FrontDirection, mxQuat.Up);
             
-            Xwing.UpDirection = mxQuat.Up;
             Xwing.Position = pos - Xwing.UpDirection * 8;
+            Xwing.Pitch = Camera.Pitch;
+            Xwing.Yaw = MathHelper.ToDegrees(correctedYaw);
 
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
             Matrix SRT =
@@ -337,6 +378,17 @@ namespace TGC.MonoGame.TP
             foreach(var srt in trenches)
             {
                 DrawTrench(Matrix.Identity, srt);
+            }
+
+            
+            if (fired.Count > 0)
+            {
+                Matrix moveForward = Matrix.CreateTranslation(fired[0].FrontDirection * 500f * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds));
+                foreach (var laser in fired)
+                {
+                    laser.SRT *= moveForward;
+                    DrawModel(LaserModel, Xwing.World, laser.SRT, new Vector3(0f, 0.8f, 0f));
+                }
             }
             SRT =
                     Matrix.CreateScale(Trench2Scale) *
