@@ -17,20 +17,19 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
 
-        private readonly GraphicsDeviceManager graphics;
-        private Effect effect;
         private SpriteBatch SpriteBatch { get; set; }
 
-        private readonly Camera camera = new Camera();
-        private readonly List<Entity> entities = new List<Entity>();
-
+        internal static readonly EffectManager effectManager = new EffectManager();
         internal static readonly ModelManager modelManager = new ModelManager();
         internal static readonly TextureManager textureManager = new TextureManager();
+
         internal static readonly PhysicSimulation physicSimulation = new PhysicSimulation();
+        internal static readonly World world = new World();
+        private readonly Camera camera = new Camera();
 
         internal TGCGame()
         {
-            graphics = new GraphicsDeviceManager(this);
+            new GraphicsDeviceManager(this);
             // Graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = false;
@@ -39,8 +38,8 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            modelManager.LoadModels(Content, effect);
+            effectManager.LoadEffects(Content);
+            modelManager.LoadModels(Content);
             textureManager.LoadTextures(Content);
             base.LoadContent();
         }
@@ -49,19 +48,12 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None };
             base.Initialize();
-            InitializeWorld();
+            world.Initialize();
+            InitializeCamera();
         }
 
-        private void InitializeWorld()
+        private void InitializeCamera()
         {
-            entities.Add(new XWing(new Vector3(50f, 0f, 0f), Quaternion.Identity));
-            entities.Add(new TIE(new Vector3(100f, 0f, 0f), Quaternion.Identity));
-            entities.Add(new Trench(new Vector3(150f, 0f, 0f), Quaternion.Identity));
-            entities.Add(new Trench2(new Vector3(200f, 0f, 0f), Quaternion.Identity));
-
-            Box box = new Box(50, 50, 50);
-            physicSimulation.CreateStatic(new Vector3(50f, 0f, 0f), Quaternion.Identity, box);
-
             Sphere sphere = new Sphere(5f);
             Vector3 position = new Vector3(0f, 0f, 150f);
             BodyHandle bodyHandle = physicSimulation.CreateDynamic(position, Quaternion.Identity, sphere, 100f);
@@ -81,11 +73,9 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-
-            effect.Parameters["View"].SetValue(camera.View);
-            effect.Parameters["Projection"].SetValue(camera.Projection);
-
-            entities.ForEach(entity => entity.Draw(effect));
+            effectManager.BasicShader.Parameters["View"].SetValue(camera.View);
+            effectManager.BasicShader.Parameters["Projection"].SetValue(camera.Projection);
+            world.Draw();
         }
 
         protected override void UnloadContent()

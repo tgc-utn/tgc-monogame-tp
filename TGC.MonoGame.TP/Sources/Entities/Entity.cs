@@ -9,7 +9,7 @@ namespace TGC.MonoGame.TP.Entities
         protected abstract Texture2D[] Textures();
         protected abstract Matrix GeneralWorldMatrix();
 
-        internal void Draw(Effect effect)
+        internal void Draw()
         {
             Matrix generalWorldMatrix = GeneralWorldMatrix();
 
@@ -18,8 +18,8 @@ namespace TGC.MonoGame.TP.Entities
             foreach (var mesh in meshes)
             {
                 Matrix worldMatrix = mesh.ParentBone.Transform * generalWorldMatrix;
-                effect.Parameters["World"].SetValue(worldMatrix);
-                effect.Parameters["ModelTexture"].SetValue(Textures()[index]);
+                TGCGame.effectManager.BasicShader.Parameters["World"].SetValue(worldMatrix);
+                TGCGame.effectManager.BasicShader.Parameters["ModelTexture"].SetValue(Textures()[index]);
                 mesh.Draw();
                 index++;
             }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using System;
 
 namespace TGC.MonoGame.TP.ResourceManagers
 {
@@ -13,12 +12,12 @@ namespace TGC.MonoGame.TP.ResourceManagers
         internal Model Trench { get; private set; }
         internal Model Trench2 { get; private set; }
 
-        internal void LoadModels(ContentManager contentManager, Effect effect)
+        internal void LoadModels(ContentManager contentManager)
         {
-            XWing = LoadModel("XWing/XWing", contentManager, effect);
-            TIE = LoadModel("TIE/TIE", contentManager, effect);
-            Trench = LoadModel("Trench/Trench", contentManager, effect);
-            Trench2 = LoadModel("Trench2/Trench2", contentManager, effect);
+            XWing = LoadModel("XWing/XWing", contentManager, TGCGame.effectManager.BasicShader);
+            TIE = LoadModel("TIE/TIE", contentManager, TGCGame.effectManager.BasicShader);
+            Trench = LoadModel("Trench/Trench", contentManager, TGCGame.effectManager.BasicShader);
+            Trench2 = LoadModel("Trench2/Trench2", contentManager, TGCGame.effectManager.BasicShader);
         }
 
         private Model LoadModel(string modelName, ContentManager contentManager, Effect effect)
