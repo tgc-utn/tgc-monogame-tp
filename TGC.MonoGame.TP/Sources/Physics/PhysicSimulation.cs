@@ -16,6 +16,8 @@ namespace TGC.MonoGame.TP.Physics
         private readonly BEPUVector3 gravity = new BEPUVector3();
         private const float timestep = 1 / 60f;
 
+        internal readonly CollitionEvents collitionEvents = new CollitionEvents();
+
         internal PhysicSimulation()
         {
             threadDispatcher = new SimpleThreadDispatcher(ThreadCount());

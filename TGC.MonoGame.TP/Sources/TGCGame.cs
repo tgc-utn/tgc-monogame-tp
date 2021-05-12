@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using BepuPhysics;
+﻿using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TGC.MonoGame.TP.Entities;
-using TGC.MonoGame.TP.ConcreteEntities;
 using TGC.MonoGame.TP.ResourceManagers;
 using TGC.MonoGame.TP.Physics;
 
@@ -22,6 +19,7 @@ namespace TGC.MonoGame.TP
         internal static readonly EffectManager effectManager = new EffectManager();
         internal static readonly ModelManager modelManager = new ModelManager();
         internal static readonly TextureManager textureManager = new TextureManager();
+        internal static readonly SoundManager soundManager = new SoundManager();
 
         internal static readonly PhysicSimulation physicSimulation = new PhysicSimulation();
         internal static readonly World world = new World();
@@ -41,6 +39,7 @@ namespace TGC.MonoGame.TP
             effectManager.LoadEffects(Content);
             modelManager.LoadModels(Content);
             textureManager.LoadTextures(Content);
+            soundManager.LoadSounds(Content);
             base.LoadContent();
         }
 

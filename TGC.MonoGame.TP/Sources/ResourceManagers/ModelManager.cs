@@ -5,7 +5,7 @@ namespace TGC.MonoGame.TP.ResourceManagers
 {
     internal class ModelManager
     {
-        private const string ModelsFolder = "Models/";
+        private const string Folder = "Models/";
 
         internal Model XWing { get; private set; }
         internal Model TIE { get; private set; }
@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP.ResourceManagers
 
         private Model LoadModel(string modelName, ContentManager contentManager, Effect effect)
         {
-            Model model = contentManager.Load<Model>(ModelsFolder + modelName);
+            Model model = contentManager.Load<Model>(Folder + modelName);
             foreach (var mesh in model.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = effect;

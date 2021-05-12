@@ -45,6 +45,7 @@ namespace TGC.MonoGame.TP.Physics
             LinearDampingDt = MathF.Pow(MathHelper.Clamp(1 - LinearDamping, 0, 1), dt);
             AngularDampingDt = MathF.Pow(MathHelper.Clamp(1 - AngularDamping, 0, 1), dt);
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void IntegrateVelocity(int bodyIndex, in RigidPose pose, in BodyInertia localInertia, int workerIndex, ref BodyVelocity velocity)
         {
@@ -66,8 +67,8 @@ namespace TGC.MonoGame.TP.Physics
 
             //This is also a handy spot to implement things like position dependent gravity or per-body damping.
         }
-
     }
+
     public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
     {
         public void Initialize(Simulation simulation) { }
@@ -96,7 +97,9 @@ namespace TGC.MonoGame.TP.Physics
                 MaximumRecoveryVelocity = 2, 
                 SpringSettings = new SpringSettings(30, 1) 
             };
-            return true;
+            ICollitionHandler handlerA = TGCGame.physicSimulation.collitionEvents.GetHandler(pair.A.BodyHandle);
+            ICollitionHandler handlerB = TGCGame.physicSimulation.collitionEvents.GetHandler(pair.A.BodyHandle);
+            return handlerA.HandleCollition(handlerB) || handlerB.HandleCollition(handlerA);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

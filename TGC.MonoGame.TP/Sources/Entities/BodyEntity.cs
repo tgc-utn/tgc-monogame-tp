@@ -5,7 +5,7 @@ using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP.Entities
 {
-    internal abstract class BodyEntity<S> : Entity where S: unmanaged, IConvexShape
+    internal abstract class BodyEntity<S> : Entity, ICollitionHandler where S: unmanaged, IConvexShape
     {
         protected Vector3 Position() => TGCGame.physicSimulation.GetBody(handle).Pose.Position.ToVector3();
         protected Quaternion Rotation() => TGCGame.physicSimulation.GetBody(handle).Pose.Orientation.ToQuaternion();
@@ -24,9 +24,12 @@ namespace TGC.MonoGame.TP.Entities
         internal void Instantiate(Vector3 position, Quaternion rotation)
         {
             handle = CreateBody(position, rotation);
+            TGCGame.physicSimulation.collitionEvents.RegisterCollider(handle, this);
             TGCGame.world.Register(this);
         }
 
         protected abstract BodyHandle CreateBody(Vector3 position, Quaternion rotation);
+
+        public virtual bool HandleCollition(ICollitionHandler other) => true;
     }
 }

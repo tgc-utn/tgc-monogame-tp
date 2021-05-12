@@ -6,7 +6,7 @@ namespace TGC.MonoGame.TP.ResourceManagers
 {
     internal class TextureManager
     {
-        private const string TexturesFolder = "Textures/";
+        private const string Folder = "Textures/";
 
         internal Texture2D[] TIE { get; private set; }
         internal Texture2D[] XWing { get; private set; }
@@ -24,6 +24,6 @@ namespace TGC.MonoGame.TP.ResourceManagers
             Trench2 = Enumerable.Repeat(LoadTexture("TIE/TIE_IN_Normal", contentManager), 27).ToArray();
         }
 
-        private Texture2D LoadTexture(string name, ContentManager contentManager) => contentManager.Load<Texture2D>(TexturesFolder + name);
+        private Texture2D LoadTexture(string name, ContentManager contentManager) => contentManager.Load<Texture2D>(Folder + name);
     }
 }
