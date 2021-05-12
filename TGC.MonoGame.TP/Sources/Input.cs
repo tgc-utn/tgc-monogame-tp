@@ -23,5 +23,7 @@ namespace TGC.MonoGame.TP
         internal static int ForwardAxis() => BoolsToAxis(MovingForward(), MovingBackward());
 
         internal static bool Turbo() => KeyboardState.IsKeyDown(Keys.LeftShift);
+
+        internal static bool Exit() => KeyboardState.IsKeyDown(Keys.Escape);
     }
 }

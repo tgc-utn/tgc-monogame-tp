@@ -7,7 +7,7 @@ using BepuPhysics.CollisionDetection;
 using BepuPhysics.Constraints;
 using BepuUtilities;
 
-namespace TGC.MonoGame.PhysicsAPI
+namespace TGC.MonoGame.TP.Physics
 {
     public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
     {
@@ -52,7 +52,7 @@ namespace TGC.MonoGame.PhysicsAPI
             if (localInertia.InverseMass > 0)
             {
                 velocity.Linear = (velocity.Linear + GravityDt) * LinearDampingDt;
-                velocity.Angular = velocity.Angular * AngularDampingDt;
+                velocity.Angular *= AngularDampingDt;
             }
             //Implementation sidenote: Why aren't kinematics all bundled together separately from dynamics to avoid this per-body condition?
             //Because kinematics can have a velocity- that is what distinguishes them from a static object. The solver must read velocities of all bodies involved in a constraint.

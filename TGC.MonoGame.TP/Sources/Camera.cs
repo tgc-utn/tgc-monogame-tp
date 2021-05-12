@@ -1,13 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BepuPhysics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP
 {
     internal class Camera
     {
-        private Vector3 position = new Vector3(0f, 0f, 150f);
+        private Vector3 Position() => TGCGame.physicSimulation.GetBody(handle).Pose.Position.ToVector3();
         public Matrix View { get; private set; }
         public Matrix Projection { get; private set; }
 
@@ -27,8 +29,11 @@ namespace TGC.MonoGame.TP
         private Vector2 pastMousePosition;
         private Point screenCenter;
 
-        internal void Initialize(GraphicsDevice graphicsDevice)
+        private BodyHandle handle;
+
+        internal void Initialize(GraphicsDevice graphicsDevice, BodyHandle handle)
         {
+            this.handle = handle;
             screenCenter = new Point(graphicsDevice.Viewport.Width / 2, graphicsDevice.Viewport.Height / 2);
             Projection = CreateProjectionMatrix(graphicsDevice);
             View = CreateViewMatrix();
@@ -45,7 +50,7 @@ namespace TGC.MonoGame.TP
         // Matrix
 
         private Matrix CreateProjectionMatrix(GraphicsDevice graphicsDevice) => Matrix.CreatePerspectiveFieldOfView(fieldOfView, graphicsDevice.Viewport.AspectRatio, nearPlaneDistance, farPlaneDistance);
-        private Matrix CreateViewMatrix() => Matrix.CreateLookAt(position, position + frontDirection, upDirection);
+        private Matrix CreateViewMatrix() => Matrix.CreateLookAt(Position(), Position() + frontDirection, upDirection);
 
         // Keyboard
 
@@ -54,8 +59,13 @@ namespace TGC.MonoGame.TP
         private void ProcessKeyboard(float elapsedTime)
         {
             Vector3 inputDirection = Input.HorizontalAxis() * rightDirection + Input.ForwardAxis() * frontDirection + Input.VerticalAxis() * upDirection;
-            bool changed = !Equals(inputDirection, Vector3.Zero);
-            position += changed ? Vector3.Normalize(inputDirection) * MovementSpeed() * elapsedTime : Vector3.Zero;
+            Vector3 normalizedInput = !Equals(inputDirection, Vector3.Zero) ? Vector3.Normalize(inputDirection) : Vector3.Zero;
+
+            var velocidad = normalizedInput * MovementSpeed() * elapsedTime;
+            var velocidadConvertida = new System.Numerics.Vector3(velocidad.X, velocidad.Y, velocidad.Z);
+
+            TGCGame.physicSimulation.GetBody(handle).Velocity.Linear += velocidadConvertida;
+            //game.GetBodyReference(handle).Velocity.Linear = new System.Numerics.Vector3(-100, 0, 0) * elapsedTime;
         }
 
         // Mouse

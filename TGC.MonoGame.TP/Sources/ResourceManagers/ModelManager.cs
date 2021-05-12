@@ -2,18 +2,18 @@
 using Microsoft.Xna.Framework.Content;
 using System;
 
-namespace TGC.MonoGame.TP
+namespace TGC.MonoGame.TP.ResourceManagers
 {
-    static class ModelManager
+    internal class ModelManager
     {
         private const string ModelsFolder = "Models/";
 
-        public static Model XWing { get; private set; }
-        public static Model TIE { get; private set; }
-        public static Model Trench { get; private set; }
-        public static Model Trench2 { get; private set; }
+        internal Model XWing { get; private set; }
+        internal Model TIE { get; private set; }
+        internal Model Trench { get; private set; }
+        internal Model Trench2 { get; private set; }
 
-        public static void LoadModels(ContentManager contentManager, Effect effect)
+        internal void LoadModels(ContentManager contentManager, Effect effect)
         {
             XWing = LoadModel("XWing/XWing", contentManager, effect);
             TIE = LoadModel("TIE/TIE", contentManager, effect);
@@ -21,7 +21,7 @@ namespace TGC.MonoGame.TP
             Trench2 = LoadModel("Trench2/Trench2", contentManager, effect);
         }
 
-        private static Model LoadModel(String modelName, ContentManager contentManager, Effect effect)
+        private Model LoadModel(string modelName, ContentManager contentManager, Effect effect)
         {
             Model model = contentManager.Load<Model>(ModelsFolder + modelName);
             foreach (var mesh in model.Meshes)

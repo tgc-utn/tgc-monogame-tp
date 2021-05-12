@@ -3,18 +3,18 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Linq;
 
-namespace TGC.MonoGame.TP
+namespace TGC.MonoGame.TP.ResourceManagers
 {
-    static class TextureManager
+    internal class TextureManager
     {
         private const string TexturesFolder = "Textures/";
 
-        public static Texture2D[] TIE { get; private set; }
-        public static Texture2D[] XWing { get; private set; }
-        public static Texture2D[] Trench { get; private set; }
-        public static Texture2D[] Trench2 { get; private set; }
+        internal Texture2D[] TIE { get; private set; }
+        internal Texture2D[] XWing { get; private set; }
+        internal Texture2D[] Trench { get; private set; }
+        internal Texture2D[] Trench2 { get; private set; }
 
-        public static void LoadTextures(ContentManager contentManager)
+        internal void LoadTextures(ContentManager contentManager)
         {
             TIE = new Texture2D[] { LoadTexture("TIE/TIE_IN_DIFF", contentManager) };
             XWing = new Texture2D[] {
@@ -25,6 +25,6 @@ namespace TGC.MonoGame.TP
             Trench2 = Enumerable.Repeat(LoadTexture("TIE/TIE_IN_Normal", contentManager), 27).ToArray();
         }
 
-        private static Texture2D LoadTexture(String name, ContentManager contentManager) => contentManager.Load<Texture2D>(TexturesFolder + name);
+        private Texture2D LoadTexture(string name, ContentManager contentManager) => contentManager.Load<Texture2D>(TexturesFolder + name);
     }
 }

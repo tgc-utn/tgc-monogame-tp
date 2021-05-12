@@ -4,11 +4,11 @@ using System.Threading;
 using BepuUtilities;
 using BepuUtilities.Memory;
 
-namespace TGC.MonoGame.PhysicsAPI
+namespace TGC.MonoGame.TP.Physics
 {
     public class SimpleThreadDispatcher : IThreadDispatcher, IDisposable
     {
-        int threadCount;
+        readonly int threadCount;
         public int ThreadCount => threadCount;
         struct Worker
         {
@@ -16,10 +16,10 @@ namespace TGC.MonoGame.PhysicsAPI
             public AutoResetEvent Signal;
         }
 
-        Worker[] workers;
-        AutoResetEvent finished;
+        readonly Worker[] workers;
+        readonly AutoResetEvent finished;
 
-        BufferPool[] bufferPools;
+        readonly BufferPool[] bufferPools;
 
         public SimpleThreadDispatcher(int threadCount)
         {

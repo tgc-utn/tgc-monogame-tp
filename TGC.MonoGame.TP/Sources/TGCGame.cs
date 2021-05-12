@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BepuPhysics;
 using BepuPhysics.Collidables;
-using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using TGC.MonoGame.PhysicsAPI;
-using TGC.MonoGame.TP.Sources.Entities;
+using TGC.MonoGame.TP.Entities;
+using TGC.MonoGame.TP.ConcreteEntities;
+using TGC.MonoGame.TP.ResourceManagers;
+using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP
 {
-    public class TGCGame : Game
+    internal class TGCGame : Game
     {
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderMusic = "Music/";
@@ -25,45 +24,33 @@ namespace TGC.MonoGame.TP
         private readonly Camera camera = new Camera();
         private readonly List<Entity> entities = new List<Entity>();
 
-        private readonly BufferPool bufferPool = new BufferPool();
-        private readonly SimpleThreadDispatcher threadDispatcher;
-        private Simulation simulation;
+        internal static readonly ModelManager modelManager = new ModelManager();
+        internal static readonly TextureManager textureManager = new TextureManager();
+        internal static readonly PhysicSimulation physicSimulation = new PhysicSimulation();
 
-        public TGCGame()
+        internal TGCGame()
         {
             graphics = new GraphicsDeviceManager(this);
             // Graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
             IsMouseVisible = false;
-
-            int targetThreadCount = Math.Max(1, Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
-            threadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
         }
 
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            ModelManager.LoadModels(Content, effect);
-            TextureManager.LoadTextures(Content);
+            modelManager.LoadModels(Content, effect);
+            textureManager.LoadTextures(Content);
             base.LoadContent();
         }
 
         protected override void Initialize()
         {
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-
-            camera.Initialize(GraphicsDevice);
+            GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None };
             base.Initialize();
-            InitializePhysicSimulation();
             InitializeWorld();
         }
-
-        private void InitializePhysicSimulation() => simulation = 
-            Simulation.Create(bufferPool, new NarrowPhaseCallbacks(),
-            new PoseIntegratorCallbacks(new System.Numerics.Vector3(0, -100, 0)), new PositionFirstTimestepper());
 
         private void InitializeWorld()
         {
@@ -71,15 +58,23 @@ namespace TGC.MonoGame.TP
             entities.Add(new TIE(new Vector3(100f, 0f, 0f), Quaternion.Identity));
             entities.Add(new Trench(new Vector3(150f, 0f, 0f), Quaternion.Identity));
             entities.Add(new Trench2(new Vector3(200f, 0f, 0f), Quaternion.Identity));
+
+            Box box = new Box(50, 50, 50);
+            physicSimulation.CreateStatic(new Vector3(50f, 0f, 0f), Quaternion.Identity, box);
+
+            Sphere sphere = new Sphere(5f);
+            Vector3 position = new Vector3(0f, 0f, 150f);
+            BodyHandle bodyHandle = physicSimulation.CreateDynamic(position, Quaternion.Identity, sphere, 100f);
+            camera.Initialize(GraphicsDevice, bodyHandle);
         }
 
         protected override void Update(GameTime gameTime)
         {
-            simulation.Timestep(1 / 60f, threadDispatcher);
-            camera.Update(gameTime);
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Input.Exit())
                 Exit();
+
+            physicSimulation.Update();
+            camera.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -96,6 +91,7 @@ namespace TGC.MonoGame.TP
         protected override void UnloadContent()
         {
             Content.Unload();
+            physicSimulation.Dispose();
             base.UnloadContent();
         }
     }
