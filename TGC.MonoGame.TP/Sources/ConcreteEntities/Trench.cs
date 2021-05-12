@@ -12,7 +12,6 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         protected override Sphere Shape() => new Sphere(20f);
         protected override float Mass() => 100f;
-
-        internal Trench(Vector3 position, Quaternion rotation) : base(position, rotation, Vector3.One / 100f) { }
+        protected override Vector3 Scale { get; } = Vector3.One / 100f;
     }
 }

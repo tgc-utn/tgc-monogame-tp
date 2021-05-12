@@ -12,7 +12,6 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         protected override Sphere Shape() => new Sphere(20f);
         protected override float Mass() => 100f;
-
-        internal XWing(Vector3 position, Quaternion rotation) : base(position, rotation, Vector3.One) { }
+        protected override Vector3 Scale { get; } = Vector3.One;
     }
 }
