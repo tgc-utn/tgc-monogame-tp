@@ -45,10 +45,7 @@ namespace TGC.MonoGame.TP
             // Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
-            IsMouseVisible = true;
-            // deberia? desactivar vsync (soluciona? bug de movimiento de mouse)
-            IsFixedTimeStep = false;
+            
         }
 
         private GraphicsDeviceManager Graphics { get; }
@@ -93,12 +90,16 @@ namespace TGC.MonoGame.TP
             //rasterizerState.CullMode = CullMode.None;
             //GraphicsDevice.RasterizerState = rasterizerState;
 
+            // Hace que el mouse sea visible.
+            IsMouseVisible = true;
+
+            IsFixedTimeStep = true;
+            TargetElapsedTime = TimeSpan.FromSeconds(1d / 60); //60);
 
             Graphics.IsFullScreen = false;
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
             Graphics.ApplyChanges();
-
             // Configuramos nuestras matrices de la escena.
             TieWorld = Matrix.Identity;
             Tie2World = Matrix.Identity;
@@ -121,11 +122,6 @@ namespace TGC.MonoGame.TP
                 foreach (var mesh in model.Meshes)
                     foreach (var meshPart in mesh.MeshParts)
                         meshPart.Effect = effect;
-
-        }
-        public void setCursorVisible(bool value)
-        {
-            IsMouseVisible = value;
         }
 
         protected override void LoadContent()
@@ -182,14 +178,32 @@ namespace TGC.MonoGame.TP
                     
             base.LoadContent();
         }
+        
         List<Keys> ignoredKeys = new List<Keys>();
         List<Matrix> trenches = new List<Matrix>();
-        List<Laser> fired = new List<Laser>();
         protected override void Update(GameTime gameTime)
         {
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Camera.Update(gameTime);
 
+            // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
+            // para que siempre quede en frente de la camara
+
+            //obtengo la posicion de la camara, y la muevo para adelante 40 unidades
+            
+
+            Xwing.Update(elapsedTime, Camera);
+
+
             var kState = Keyboard.GetState();
+            var mState = Mouse.GetState();
+            if (Camera.MouseLookEnabled)
+            {
+                if (mState.LeftButton.Equals(ButtonState.Pressed))
+                {
+                    Xwing.fireLaser();
+                }
+            }
             if (kState.IsKeyDown(Keys.Escape))
                 Exit();
             if (kState.IsKeyDown(Keys.P))
@@ -198,36 +212,14 @@ namespace TGC.MonoGame.TP
             }
             if(kState.IsKeyDown(Keys.F))
             {
-                if (!ignoredKeys.Contains(Keys.F))
+                Xwing.fireLaser();
+            }
+            if(kState.IsKeyDown(Keys.V))
+            {
+                if(!ignoredKeys.Contains(Keys.V))
                 {
-                    ignoredKeys.Add(Keys.F);
-                    float laserScale = 0.04f;
-
-                    Matrix SRT = Matrix.CreateScale(laserScale) *
-                        Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Xwing.Yaw), MathHelper.ToRadians(Xwing.Pitch), MathHelper.ToRadians(Xwing.Roll)) *
-                        Matrix.CreateTranslation(Xwing.Position + Xwing.FrontDirection * 4f);
-                    
-                    fired.Clear();
-                    float offsetVtop = 2.5f;
-                    float offsetVbot = 4;
-                    float offsetH = 11.5f;
-                    switch(Xwing.LaserFired)
-                    {
-                        case 0: 
-                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(Xwing.UpDirection * offsetVtop + Xwing.RightDirection * offsetH), Xwing.FrontDirection));
-                            break;
-                        case 1:
-                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(-Xwing.UpDirection * offsetVbot + Xwing.RightDirection * offsetH), Xwing.FrontDirection));
-                            break;
-                        case 2:
-                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(-Xwing.UpDirection * offsetVbot - Xwing.RightDirection * offsetH), Xwing.FrontDirection));
-                            break;
-                        case 3:
-                            fired.Add(new Laser(SRT * Matrix.CreateTranslation(Xwing.UpDirection * offsetVtop - Xwing.RightDirection * offsetH), Xwing.FrontDirection));
-                            break;
-                    }
-                    Xwing.LaserFired++;
-                    Xwing.LaserFired %= 4;
+                    ignoredKeys.Add(Keys.V);
+                    IsFixedTimeStep = !IsFixedTimeStep;
                 }
             }
             if (kState.IsKeyDown(Keys.F11))
@@ -310,7 +302,7 @@ namespace TGC.MonoGame.TP
         String mensaje2 = "Movimiento: WASD, Camara: flechas + mouse, para deshabilitar flechas apretar M";
         String mensaje3 = "Movimiento: WASD, Camara: mouse, para solo flechas apretar M";
         String mensaje;
-        
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -324,50 +316,13 @@ namespace TGC.MonoGame.TP
             EffectTexture.Parameters["Projection"].SetValue(Camera.Projection);
 
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
-
-            // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
-            // para que siempre quede en frente de la camara
-           
-            //obtengo la posicion de la camara, y la muevo para adelante 40 unidades
-            Vector3 pos = Camera.Position + Camera.FrontDirection * 40;
-           
-            Xwing.GameTime = gameTime;
-            // cuanto tengo que rotar (roll), dependiendo de que tanto giro la camara 
-            Xwing.TurnDelta = Camera.delta;
-            Xwing.updateRoll();
-
-            //Xwing.FrontDirection = Camera.FrontDirection;
-            
-            //pitch y yaw en radianes
-            var pitchRad = MathHelper.ToRadians(Camera.Pitch);
-            var yawRad = MathHelper.ToRadians(Camera.Yaw);
-            var correctedYaw = -yawRad - MathHelper.PiOver2;
-            //matriz de rotacion dado un quaternion, que me permite hacer la rotacion (roll)
-            Matrix mxQuat = Matrix.CreateFromQuaternion(
-                Quaternion.CreateFromAxisAngle(Camera.FrontDirection, MathHelper.ToRadians(-Xwing.Roll)));
-
-            Xwing.updateDirectionVectors(Camera.FrontDirection, mxQuat.Up);
-            
-            Xwing.Position = pos - Xwing.UpDirection * 8;
-            Xwing.Pitch = Camera.Pitch;
-            Xwing.Yaw = MathHelper.ToDegrees(correctedYaw);
-
+            float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            int fps = (int)Math.Round(1 / deltaTime);
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
-            Matrix SRT =
-                // correccion de escala
-                Matrix.CreateScale(Xwing.Scale) *
-                // correccion por yaw y pitch de la camara
-                Matrix.CreateFromYawPitchRoll(correctedYaw, pitchRad, 0f) *
-                // correccion por roll con un quaternion, para obtener de el vector direccion que apunta hacia arriba
-                //(del modelo, una vez que giro)
-                mxQuat * 
-                // lo muevo para abajo(del modelo) 8 unidades para que se aleje del centro 
-                Matrix.CreateTranslation(Xwing.Position);
-
-            DrawXWing(SRT);
+            DrawXWing(Xwing.SRT);
 
             //debug de Tie, rotando 
-            SRT =
+            Matrix SRT =
                 Matrix.CreateScale(TieScale) *
                 Matrix.CreateRotationY(MathF.PI) *
                 Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
@@ -375,18 +330,18 @@ namespace TGC.MonoGame.TP
             DrawTie(TieWorld, SRT);
 
 
-            foreach(var srt in trenches)
+            foreach (var srt in trenches)
             {
                 DrawTrench(Matrix.Identity, srt);
             }
 
-            
-            if (fired.Count > 0)
+            List<Laser> lasers = Xwing.fired;
+            if (lasers.Count > 0)
             {
-                Matrix moveForward = Matrix.CreateTranslation(fired[0].FrontDirection * 500f * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds));
-                foreach (var laser in fired)
+                foreach (var laser in lasers)
                 {
-                    laser.SRT *= moveForward;
+                    laser.SRT *=
+                        Matrix.CreateTranslation(laser.FrontDirection * 1500f * deltaTime);
                     DrawModel(LaserModel, Xwing.World, laser.SRT, new Vector3(0f, 0.8f, 0f));
                 }
             }
@@ -406,23 +361,23 @@ namespace TGC.MonoGame.TP
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             //SpriteBatch.DrawString(SpriteFont, Xwing.barrelRolling + " " + Xwing.barrelRollStep, Vector2.Zero, Color.White);
-            SpriteBatch.DrawString(SpriteFont,
-                "C " + Math.Round(Camera.FrontDirection.X, 2) +
-                "|" + Math.Round(Camera.FrontDirection.Y, 2) +
-                "|" + Math.Round(Camera.FrontDirection.Z, 2) +
-                "  up " + Math.Round(Camera.UpDirection.X, 2) +
-                "|" + Math.Round(Camera.UpDirection.Y, 2) +
-                "|" + Math.Round(Camera.UpDirection.Z, 2) +
+            //SpriteBatch.DrawString(SpriteFont,
+            //    "C " + Math.Round(Camera.FrontDirection.X, 2) +
+            //    "|" + Math.Round(Camera.FrontDirection.Y, 2) +
+            //    "|" + Math.Round(Camera.FrontDirection.Z, 2) +
+            //    "  up " + Math.Round(Camera.UpDirection.X, 2) +
+            //    "|" + Math.Round(Camera.UpDirection.Y, 2) +
+            //    "|" + Math.Round(Camera.UpDirection.Z, 2) +
 
-                "   P " + Math.Round(pos.X, 2) +
-                "|" + Math.Round(pos.Y, 2) +
-                "|" + Math.Round(pos.Z, 2) +
-                "   UPX " + Math.Round(mxQuat.Up.X, 2) +
-                "|" + Math.Round(mxQuat.Up.Y, 2) +
-                "|" + Math.Round(mxQuat.Up.Z, 2) +
-                " Roll " + Math.Round(Xwing.Roll, 2)
-                , Vector2.Zero, Color.White); 
-                
+            //    "   P " + Math.Round(pos.X, 2) +
+            //    "|" + Math.Round(pos.Y, 2) +
+            //    "|" + Math.Round(pos.Z, 2) +
+            //    "   UPX " + Math.Round(mxQuat.Up.X, 2) +
+            //    "|" + Math.Round(mxQuat.Up.Y, 2) +
+            //    "|" + Math.Round(mxQuat.Up.Z, 2) +
+            //    " Roll " + Math.Round(Xwing.Roll, 2)
+            //    , Vector2.Zero, Color.White); 
+            SpriteBatch.DrawString(SpriteFont, "FPS "+fps, Vector2.Zero, Color.White);
             SpriteBatch.End();
 
             var center= GraphicsDevice.Viewport.Bounds.Size;
