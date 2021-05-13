@@ -7,12 +7,10 @@ namespace TGC.MonoGame.TP.Entities
 {
     internal abstract class BodyEntity<S> : Entity, ICollitionHandler where S: unmanaged, IConvexShape
     {
-        protected Vector3 Position() => TGCGame.physicSimulation.GetBody(handle).Pose.Position.ToVector3();
-        protected Quaternion Rotation() => TGCGame.physicSimulation.GetBody(handle).Pose.Orientation.ToQuaternion();
-        
         protected virtual Vector3 Scale { get; }
         protected abstract S Shape { get; }
         private BodyHandle handle;
+        protected BodyReference Body() => TGCGame.physicSimulation.GetBody(handle);
 
         protected override Matrix GeneralWorldMatrix()
         {
