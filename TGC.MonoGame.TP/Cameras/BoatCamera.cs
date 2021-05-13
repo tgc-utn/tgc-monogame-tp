@@ -1,10 +1,11 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
 using Microsoft.Xna.Framework.Input;
+
 
 namespace TGC.MonoGame.TP.Cameras
 {
-    internal class FreeCamera : Camera
+    internal class BoatCamera : Camera
     {
         private readonly bool lockMouse;
 
@@ -17,13 +18,13 @@ namespace TGC.MonoGame.TP.Cameras
         // Angles
         private float yaw = -90f;
 
-        public FreeCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
+        public BoatCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             lockMouse = true;
             this.screenCenter = screenCenter;
         }
 
-        public FreeCamera(float aspectRatio, Vector3 position) : base(aspectRatio)
+        public BoatCamera(float aspectRatio, Vector3 position) : base(aspectRatio)
         {
             Position = position;
             pastMousePosition = Mouse.GetState().Position.ToVector2();
@@ -43,8 +44,8 @@ namespace TGC.MonoGame.TP.Cameras
         public override void Update(GameTime gameTime)
         {
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            changed = false;
-            ProcessKeyboard(elapsedTime);
+            changed = true;
+            //ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
 
             if (changed)
