@@ -50,6 +50,7 @@ namespace TGC.MonoGame.TP
             if (Input.Exit())
                 Exit();
 
+            world.Update(gameTime.ElapsedGameTime.TotalMilliseconds);
             physicSimulation.Update();
             camera.Update(gameTime);
             base.Update(gameTime);

@@ -97,10 +97,16 @@ namespace TGC.MonoGame.TP.Physics
                 MaximumRecoveryVelocity = 2, 
                 SpringSettings = new SpringSettings(30, 1) 
             };
-            ICollitionHandler handlerA = TGCGame.physicSimulation.collitionEvents.GetHandler(pair.A.BodyHandle);
-            ICollitionHandler handlerB = TGCGame.physicSimulation.collitionEvents.GetHandler(pair.A.BodyHandle);
-            return handlerA.HandleCollition(handlerB) || handlerB.HandleCollition(handlerA);
+
+            ICollitionHandler handlerA = GetCollitionHandler(pair.A);
+            ICollitionHandler handlerB = GetCollitionHandler(pair.B);
+            return (handlerA != null && handlerA.HandleCollition(handlerB)) || (handlerB != null && handlerB.HandleCollition(handlerA));
         }
+
+        private ICollitionHandler GetCollitionHandler(CollidableReference collider) =>
+            collider.Mobility == CollidableMobility.Static ?
+            TGCGame.physicSimulation.collitionEvents.GetHandler(collider.StaticHandle) :
+            TGCGame.physicSimulation.collitionEvents.GetHandler(collider.BodyHandle);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ConfigureContactManifold(int workerIndex, CollidablePair pair, int childIndexA, int childIndexB, ref ConvexContactManifold manifold)

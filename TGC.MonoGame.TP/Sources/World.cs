@@ -13,11 +13,12 @@ namespace TGC.MonoGame.TP
 
         internal void Initialize()
         {
+            new DeathStar().Create();
             new XWing().Instantiate(new Vector3(50f, 0f, 0f));
             new TIE().Instantiate(new Vector3(100f, 0f, 0f));
-            new Trench().Instantiate(new Vector3(150f, 0f, 0f));
-            new Trench2().Instantiate(new Vector3(200f, 0f, 0f));
         }
+
+        internal void Update(double elapsedTime) => entities.ForEach(entity => entity.Update(elapsedTime));
 
         internal void Draw() => entities.ForEach(entity => entity.Draw());
     }

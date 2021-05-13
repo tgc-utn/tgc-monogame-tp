@@ -9,6 +9,8 @@ namespace TGC.MonoGame.TP.Entities
         protected abstract Texture2D[] Textures();
         protected abstract Matrix GeneralWorldMatrix();
 
+        internal virtual void Update(double elapsedTime) { }
+
         internal void Draw()
         {
             Matrix generalWorldMatrix = GeneralWorldMatrix();
