@@ -13,6 +13,8 @@ namespace TGC.MonoGame.TP
         private const string ModelsFolder = "Models/";
         private const string TexturesFolder = "Textures/";
         private const string SoundsFolder = "Sounds/";
+        //private const string MusicFolder = "Music/";
+        //private const string SpriteFontsFolder = "SpriteFonts/";
 
         internal readonly Effect E_BasicShader;
         internal readonly Model M_XWing, M_TIE, M_Trench, M_Trench2;

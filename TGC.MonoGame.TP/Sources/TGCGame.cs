@@ -8,11 +8,6 @@ namespace TGC.MonoGame.TP
 {
     internal class TGCGame : Game
     {
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
-
         private SpriteBatch SpriteBatch { get; set; }
 
         internal static Content content;
