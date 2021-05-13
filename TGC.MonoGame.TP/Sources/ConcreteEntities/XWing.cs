@@ -8,8 +8,8 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 {
     internal class XWing : DynamicEntity<Sphere>
     {
-        protected override Model Model() => TGCGame.modelManager.XWing;
-        protected override Texture2D[] Textures() => TGCGame.textureManager.XWing;
+        protected override Model Model() => TGCGame.content.M_XWing;
+        protected override Texture2D[] Textures() => TGCGame.content.T_XWing;
 
         protected override Vector3 Scale => Vector3.One;
         protected override Sphere Shape => new Sphere(20f);
@@ -17,7 +17,7 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         public override bool HandleCollition(ICollitionHandler other)
         {
-            TGCGame.soundManager.Explotion.CreateInstance().Play();
+            TGCGame.content.S_Explotion.CreateInstance().Play();
             return false;
         }
     }

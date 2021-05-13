@@ -7,8 +7,8 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 {
     internal class Trench : StaticPhysicEntity<Sphere>
     {
-        protected override Model Model() => TGCGame.modelManager.Trench;
-        protected override Texture2D[] Textures() => TGCGame.textureManager.Trench;
+        protected override Model Model() => TGCGame.content.M_Trench;
+        protected override Texture2D[] Textures() => TGCGame.content.T_Trench;
         protected override Vector3 Scale => Vector3.One / 100f;
         protected override Sphere Shape => new Sphere(20f);
     }

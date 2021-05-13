@@ -2,7 +2,6 @@
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TGC.MonoGame.TP.ResourceManagers;
 using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP
@@ -16,11 +15,7 @@ namespace TGC.MonoGame.TP
 
         private SpriteBatch SpriteBatch { get; set; }
 
-        internal static readonly EffectManager effectManager = new EffectManager();
-        internal static readonly ModelManager modelManager = new ModelManager();
-        internal static readonly TextureManager textureManager = new TextureManager();
-        internal static readonly SoundManager soundManager = new SoundManager();
-
+        internal static Content content;
         internal static readonly PhysicSimulation physicSimulation = new PhysicSimulation();
         internal static readonly World world = new World();
         private readonly Camera camera = new Camera();
@@ -35,11 +30,7 @@ namespace TGC.MonoGame.TP
 
         protected override void LoadContent()
         {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-            effectManager.LoadEffects(Content);
-            modelManager.LoadModels(Content);
-            textureManager.LoadTextures(Content);
-            soundManager.LoadSounds(Content);
+            content = new Content(Content);
             base.LoadContent();
         }
 
@@ -72,8 +63,8 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            effectManager.BasicShader.Parameters["View"].SetValue(camera.View);
-            effectManager.BasicShader.Parameters["Projection"].SetValue(camera.Projection);
+            content.E_BasicShader.Parameters["View"].SetValue(camera.View);
+            content.E_BasicShader.Parameters["Projection"].SetValue(camera.Projection);
             world.Draw();
         }
 

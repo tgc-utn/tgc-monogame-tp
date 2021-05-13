@@ -18,8 +18,8 @@ namespace TGC.MonoGame.TP.Entities
             foreach (var mesh in meshes)
             {
                 Matrix worldMatrix = mesh.ParentBone.Transform * generalWorldMatrix;
-                TGCGame.effectManager.BasicShader.Parameters["World"].SetValue(worldMatrix);
-                TGCGame.effectManager.BasicShader.Parameters["ModelTexture"].SetValue(Textures()[index]);
+                TGCGame.content.E_BasicShader.Parameters["World"].SetValue(worldMatrix);
+                TGCGame.content.E_BasicShader.Parameters["ModelTexture"].SetValue(Textures()[index]);
                 mesh.Draw();
                 index++;
             }
