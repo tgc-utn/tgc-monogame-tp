@@ -14,7 +14,7 @@ namespace TGC.MonoGame.TP.Entities
 
         protected override Matrix GeneralWorldMatrix()
         {
-            RigidPose pose = TGCGame.physicSimulation.GetBody(handle).Pose;
+            RigidPose pose = Body().Pose;
             return Matrix.CreateScale(Scale) * Matrix.CreateFromQuaternion(pose.Orientation.ToQuaternion()) * Matrix.CreateTranslation(pose.Position.ToVector3());
         }
 

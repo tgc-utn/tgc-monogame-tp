@@ -2,9 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Linq;
-using System.Numerics;
 using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP
