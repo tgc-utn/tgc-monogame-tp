@@ -6,7 +6,7 @@ namespace TGC.MonoGame.TP
     internal class DeathStar
     {
         internal const float trenchScale = 15f;
-        private const float trenchSize = 28.2857f * trenchScale;
+        internal const float trenchSize = 28.2857f * trenchScale;
         private const int radius = 20;
 
         internal void Create()

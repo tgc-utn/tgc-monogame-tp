@@ -19,6 +19,6 @@ namespace TGC.MonoGame.TP.Entities
             TGCGame.world.Register(this);
         }
 
-        public virtual bool HandleCollition(ICollitionHandler other) => false;
+        public virtual bool HandleCollition(ICollitionHandler other) => true;
     }
 }
