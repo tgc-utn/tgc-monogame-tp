@@ -6,13 +6,13 @@ using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP.ConcreteEntities
 {
-    internal class XWing : DynamicEntity<Sphere>
+    internal class XWing : DynamicEntity<ConvexHull>
     {
         protected override Model Model() => TGCGame.content.M_XWing;
         protected override Texture2D[] Textures() => TGCGame.content.T_XWing;
 
         protected override Vector3 Scale => Vector3.One;
-        protected override Sphere Shape => new Sphere(20f);
+        protected override ConvexHull Shape => TGCGame.content.CH_XWing;
         protected override float Mass => 100f;
 
         public override bool HandleCollition(ICollitionHandler other)

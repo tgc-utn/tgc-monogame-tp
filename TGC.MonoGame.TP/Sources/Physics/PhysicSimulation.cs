@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP.Physics
     internal class PhysicSimulation
     {
         private readonly Simulation simulation;
-        private readonly BufferPool bufferPool = new BufferPool();
+        internal readonly BufferPool bufferPool = new BufferPool();
         private readonly SimpleThreadDispatcher threadDispatcher;
 
         private readonly BEPUVector3 gravity = new BEPUVector3();

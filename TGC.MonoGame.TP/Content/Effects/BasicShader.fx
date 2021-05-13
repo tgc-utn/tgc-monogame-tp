@@ -23,8 +23,8 @@ sampler2D textureSampler = sampler_state
 	Texture = (ModelTexture);
 	MagFilter = Linear;
 	MinFilter = Linear;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
 
 float Time = 0;
