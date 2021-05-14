@@ -20,7 +20,7 @@ namespace TGC.MonoGame.TP
 
         internal readonly Effect E_BasicShader;
         internal readonly Model M_XWing, M_TIE, M_Trench_Plain, M_Trench, M_Trench2;
-        internal readonly ConvexHull CH_XWing;
+        internal readonly TypedIndex Sh_Sphere20, SH_XWing, Sh_Trench_Plain;
         internal readonly Texture2D[] T_DeathStar, T_XWing, T_TIE, T_Trench, T_Trench2;
         internal readonly SoundEffect S_Explotion;
 
@@ -39,7 +39,11 @@ namespace TGC.MonoGame.TP
             M_Trench2 = LoadModel("DeathStar/Trench2", E_BasicShader);
 
             // Convex Hulls
-            CH_XWing = LoadConvexHull("XWing/XWing");
+
+            // Shapes
+            Sh_Sphere20 = LoadShape(new Sphere(20f));
+            SH_XWing = LoadConvexHull("XWing/XWing");
+            Sh_Trench_Plain = LoadShape(new Box(DeathStar.trenchSize, 20f, DeathStar.trenchSize));
 
             // Textures
             T_DeathStar = new Texture2D[] { LoadTexture("DeathStar/DeathStar") };
@@ -64,7 +68,8 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = effect;
             return model;
         }
-        private ConvexHull LoadConvexHull(string name) => ConvexHullGenerator.Generate(contentManager.Load<Model>(ModelsFolder + name));
+        private TypedIndex LoadShape<S>(S shape) where S : unmanaged, IShape => TGCGame.physicSimulation.LoadShape(shape);
+        private TypedIndex LoadConvexHull(string name) => LoadShape(ConvexHullGenerator.Generate(contentManager.Load<Model>(ModelsFolder + name)));
         private Texture2D LoadTexture(string name) => contentManager.Load<Texture2D>(TexturesFolder + name);
         private SoundEffect LoadSound(string name) => contentManager.Load<SoundEffect>(SoundsFolder + name);
     }

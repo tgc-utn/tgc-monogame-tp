@@ -5,10 +5,10 @@ using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP.Entities
 {
-    internal abstract class BodyEntity<S> : Entity, ICollitionHandler where S: unmanaged, IConvexShape
+    internal abstract class BodyEntity : Entity, ICollitionHandler
     {
         protected virtual Vector3 Scale { get; }
-        protected abstract S Shape { get; }
+        protected abstract TypedIndex Shape { get; }
         private BodyHandle handle;
         protected BodyReference Body() => TGCGame.physicSimulation.GetBody(handle);
 

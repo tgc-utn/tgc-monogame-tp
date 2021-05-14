@@ -33,33 +33,35 @@ namespace TGC.MonoGame.TP.Physics
 
         internal void Update() => simulation.Timestep(timestep, threadDispatcher);
 
+        internal TypedIndex LoadShape<S>(S shape) where S : unmanaged, IShape => simulation.Shapes.Add(shape);
+
         internal BodyReference GetBody(BodyHandle handle) => simulation.Bodies.GetBodyReference(handle);
 
-        internal StaticHandle CreateStatic<S>(Vector3 position, Quaternion rotation, in S shape) where S : unmanaged, IConvexShape =>
+        internal StaticHandle CreateStatic(Vector3 position, Quaternion rotation, TypedIndex shape) =>
             simulation.Statics.Add(new StaticDescription(
                 position.ToBEPU(),
                 rotation.ToBEPU(),
-                new CollidableDescription(simulation.Shapes.Add(shape), 0.1f))
+                new CollidableDescription(shape, 0.1f))
             );
 
-        internal BodyHandle CreateDynamic<S>(Vector3 position, Quaternion rotation, in S shape, float mass) where S : unmanaged, IConvexShape
+        internal BodyHandle CreateDynamic(Vector3 position, Quaternion rotation, TypedIndex shape, float mass)
         {
-            shape.ComputeInertia(mass, out BodyInertia inertia);
+            simulation.Shapes.GetShape<Sphere>(shape.Index).ComputeInertia(mass, out BodyInertia inertia);
             BodyDescription bodyDescription = BodyDescription.CreateDynamic(
                 new RigidPose(position.ToBEPU(),  rotation.ToBEPU()),
                 new BodyVelocity(new BEPUVector3(0f, 0f, 0f)),
                 inertia,
-                new CollidableDescription(simulation.Shapes.Add(shape), 0.1f),
+                new CollidableDescription(shape, 0.1f),
                 new BodyActivityDescription(-1));
             return simulation.Bodies.Add(bodyDescription);
         }
 
-        internal BodyHandle CreateKinematic<S>(Vector3 position, Quaternion rotation, in S shape) where S : unmanaged, IConvexShape
+        internal BodyHandle CreateKinematic(Vector3 position, Quaternion rotation, TypedIndex shape)
         {
             BodyDescription bodyDescription = BodyDescription.CreateKinematic(
                 new RigidPose(position.ToBEPU(), rotation.ToBEPU()),
                 new BodyVelocity(new BEPUVector3(0f, 0f, 0f)),
-                new CollidableDescription(simulation.Shapes.Add(shape), 0.1f),
+                new CollidableDescription(shape, 0.1f),
                 new BodyActivityDescription(-1));
             return simulation.Bodies.Add(bodyDescription);
         }

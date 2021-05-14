@@ -5,9 +5,9 @@ using TGC.MonoGame.TP.Physics;
 
 namespace TGC.MonoGame.TP.Entities
 {
-    internal abstract class StaticPhysicEntity<S> : StaticEntity, ICollitionHandler where S : unmanaged, IConvexShape
+    internal abstract class StaticPhysicEntity : StaticEntity, ICollitionHandler
     {
-        protected abstract S Shape { get; }
+        protected abstract TypedIndex Shape { get; }
 
         internal void Instantiate(Vector3 position) => Instantiate(position, Quaternion.Identity);
         internal void Instantiate(Vector3 position, Quaternion rotation)

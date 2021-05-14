@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.TP.Entities
 {
-    internal abstract class DynamicEntity<S> : BodyEntity<S> where S : unmanaged, IConvexShape
+    internal abstract class DynamicEntity : BodyEntity
     {
         protected abstract float Mass { get; }
 

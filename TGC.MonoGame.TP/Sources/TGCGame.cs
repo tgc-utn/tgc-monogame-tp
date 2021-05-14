@@ -39,9 +39,8 @@ namespace TGC.MonoGame.TP
 
         private void InitializeCamera()
         {
-            Sphere sphere = new Sphere(5f);
             Vector3 position = new Vector3(0f, 0f, 150f);
-            BodyHandle bodyHandle = physicSimulation.CreateDynamic(position, Quaternion.Identity, sphere, 100f);
+            BodyHandle bodyHandle = physicSimulation.CreateDynamic(position, Quaternion.Identity, content.Sh_Sphere20, 100f);
             camera.Initialize(GraphicsDevice, bodyHandle);
         }
 
