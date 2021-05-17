@@ -17,7 +17,7 @@ namespace TGC.MonoGame.TP
                         new TrenchPlain().Instantiate(new Vector3(x * trenchSize, -100f, z * trenchSize));
 
             for (int x = -radius; x < radius; x++)
-                new Trench().Instantiate(new Vector3(x * trenchSize, -100f, 0));
+                new Trench_Line().Instantiate(new Vector3(x * trenchSize, -100f, 0));
         }
     }
 }

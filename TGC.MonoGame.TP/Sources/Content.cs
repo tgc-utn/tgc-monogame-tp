@@ -19,7 +19,7 @@ namespace TGC.MonoGame.TP
         //private const string SpriteFontsFolder = "SpriteFonts/";
 
         internal readonly Effect E_BasicShader;
-        internal readonly Model M_XWing, M_TIE, M_Trench_Plain, M_Trench, M_Trench2;
+        internal readonly Model M_XWing, M_TIE, M_Trench_Plain, M_Trench_Line, M_Trench_Corner, M_Trench_T, M_Trench_Cross, M_Trench_End, M_Trench2;
         internal readonly TypedIndex Sh_Sphere20, SH_XWing, Sh_Trench_Plain;
         internal readonly Texture2D[] T_DeathStar, T_XWing, T_TIE, T_Trench, T_Trench2;
         internal readonly SoundEffect S_Explotion;
@@ -35,7 +35,11 @@ namespace TGC.MonoGame.TP
             M_XWing = LoadModel("XWing/XWing", E_BasicShader);
             M_TIE = LoadModel("TIE/TIE", E_BasicShader);
             M_Trench_Plain = LoadModel("DeathStar/Trench_Plain", E_BasicShader);
-            M_Trench = LoadModel("DeathStar/Trench", E_BasicShader);
+            M_Trench_Line = LoadModel("DeathStar/Trench_Line", E_BasicShader);
+            M_Trench_Corner = LoadModel("DeathStar/Trench_Corner", E_BasicShader);
+            M_Trench_T = LoadModel("DeathStar/Trench_T", E_BasicShader);
+            M_Trench_Cross = LoadModel("DeathStar/Trench_Cross", E_BasicShader);
+            M_Trench_End = LoadModel("DeathStar/Trench_End", E_BasicShader);
             M_Trench2 = LoadModel("DeathStar/Trench2", E_BasicShader);
 
             // Convex Hulls
