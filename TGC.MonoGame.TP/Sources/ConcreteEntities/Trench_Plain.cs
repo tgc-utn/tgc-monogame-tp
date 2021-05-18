@@ -5,7 +5,7 @@ using TGC.MonoGame.TP.Entities;
 
 namespace TGC.MonoGame.TP.ConcreteEntities
 {
-    internal class TrenchPlain : StaticPhysicEntity
+    internal class Trench_Plain : StaticPhysicEntity
     {
         protected override Model Model() => TGCGame.content.M_Trench_Plain;
         protected override Texture2D[] Textures() => TGCGame.content.T_DeathStar;

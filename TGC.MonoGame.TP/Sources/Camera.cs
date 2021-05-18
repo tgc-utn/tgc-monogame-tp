@@ -19,7 +19,7 @@ namespace TGC.MonoGame.TP
 
         private const float fieldOfView = MathHelper.PiOver4;
         private const float nearPlaneDistance = 0.1f;
-        private const float farPlaneDistance = 2000f;
+        private const float farPlaneDistance = 10000f;
 
         private float pitch, yaw = -90f;
         private Vector3 frontDirection = -Vector3.UnitZ;
