@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using TGC.MonoGame.Samples.Cameras;
+using System.Timers;
 
 namespace TGC.MonoGame.TP
 {
@@ -33,6 +34,7 @@ namespace TGC.MonoGame.TP
         public Vector3 Trench2Translation = new Vector3(0, -80, -290);
         public Vector3 XwingTranslation = new Vector3(0, -5, -40);
 
+        Timer camUpdateTimer;
 
         /// <summary>
         ///     Constructor del juego.
@@ -45,9 +47,10 @@ namespace TGC.MonoGame.TP
             // Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
+
             
         }
-
+    
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         
@@ -72,8 +75,8 @@ namespace TGC.MonoGame.TP
         private Texture TieTexture;
         private Texture TrenchTexture;
         private Texture2D[] Crosshairs;
-        
-        
+
+        List<TieFighter> enemies = new List<TieFighter>();
         private MyCamera Camera { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -90,6 +93,16 @@ namespace TGC.MonoGame.TP
             //rasterizerState.CullMode = CullMode.None;
             //GraphicsDevice.RasterizerState = rasterizerState;
 
+      
+            // Configuramos nuestras matrices de la escena.
+            TieWorld = Matrix.Identity;
+            Tie2World = Matrix.Identity;
+            TrenchWorld = Matrix.Identity;
+            Trench2World = Matrix.Identity;
+
+            Xwing.World = Matrix.Identity;
+            Xwing.Scale = 2.5f;
+
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
 
@@ -100,22 +113,28 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
             Graphics.ApplyChanges();
-            // Configuramos nuestras matrices de la escena.
-            TieWorld = Matrix.Identity;
-            Tie2World = Matrix.Identity;
-            TrenchWorld = Matrix.Identity;
-            Trench2World = Matrix.Identity;
 
-            Xwing.World = Matrix.Identity;
-            Xwing.Scale = 2.5f;
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
+            camUpdateTimer = new Timer(5);
+            camUpdateTimer.Elapsed += CamUpdateTimerTick;
+            camUpdateTimer.AutoReset = true;
+            camUpdateTimer.Enabled = true;
+
+            generateEnemies();
 
             base.Initialize();
         }
+
+        private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
+        {
+            if(Camera.MouseLookEnabled)
+                Camera.ProcessMouse(Xwing);
+        }
+
         void assignEffectToModels(Model[] models, Effect effect)
         {
             foreach (Model model in models)
@@ -130,7 +149,6 @@ namespace TGC.MonoGame.TP
 
             Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
             Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            Tie2 = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             Trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
             Trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
             LaserModel = Content.Load<Model>(ContentFolder3D + "Laser/Laser");
@@ -157,7 +175,6 @@ namespace TGC.MonoGame.TP
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
 
-            
                 
             for (var i = 0; i < 5; i++)
             { 
@@ -181,6 +198,41 @@ namespace TGC.MonoGame.TP
         
         List<Keys> ignoredKeys = new List<Keys>();
         List<Matrix> trenches = new List<Matrix>();
+        void generateEnemies()
+        {
+            Random rnd = new Random();
+            if (enemies.Count < 4)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Vector3 random = new Vector3(rnd.Next(-1000, 1000), 0f, rnd.Next(-1000, 1000));
+                    Vector3 pos = Xwing.Position + random;
+                    Vector3 dir = Vector3.Normalize(Xwing.Position - pos);
+
+
+                    Matrix SRT = Matrix.CreateScale(TieScale) * Matrix.CreateTranslation(pos);
+                    enemies.Add(new TieFighter(pos, dir, Matrix.Identity, SRT, TieScale));
+                }
+      
+            }
+        }
+        void updateEnemies(float time)
+        {
+            foreach(var enemy in enemies)
+            {
+                enemy.Update(Xwing, time);
+                enemy.fireLaser();
+            }
+
+            //System.Diagnostics.Debug.WriteLine(
+            //    "P " +
+            //    enemies[0].Pitch+
+            //    " Y " +
+            //    enemies[0].Yaw);
+            
+        }
+
+
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -193,8 +245,8 @@ namespace TGC.MonoGame.TP
             
 
             Xwing.Update(elapsedTime, Camera);
-
-
+            
+            updateEnemies(elapsedTime);
             var kState = Keyboard.GetState();
             var mState = Mouse.GetState();
             if (Camera.MouseLookEnabled)
@@ -287,10 +339,7 @@ namespace TGC.MonoGame.TP
         }
 
         //funciones que pueden ser utiles
-        float angleBetweenVectors(Vector3 a, Vector3 b)
-        {
-            return MathF.Acos(Vector3.Dot(a, b) / (a.Length() * b.Length()));
-        }
+        
         Vector3 directionalAngles(Vector3 v)
         {
             return new Vector3(
@@ -318,6 +367,7 @@ namespace TGC.MonoGame.TP
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             int fps = (int)Math.Round(1 / deltaTime);
+            
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
             DrawXWing(Xwing.SRT);
 
@@ -327,7 +377,7 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateRotationY(MathF.PI) *
                 Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
                 rotationMatrix;
-            DrawTie(TieWorld, SRT);
+            //DrawTie(TieWorld, SRT);
 
 
             foreach (var srt in trenches)
@@ -335,22 +385,29 @@ namespace TGC.MonoGame.TP
                 DrawTrench(Matrix.Identity, srt);
             }
 
-            List<Laser> lasers = Xwing.fired;
-            if (lasers.Count > 0)
+
+            foreach (var laser in Xwing.fired)
             {
-                foreach (var laser in lasers)
-                {
-                    laser.SRT *=
-                        Matrix.CreateTranslation(laser.FrontDirection * 1500f * deltaTime);
-                    DrawModel(LaserModel, Xwing.World, laser.SRT, new Vector3(0f, 0.8f, 0f));
-                }
+                laser.Update(deltaTime);
+                DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
             }
+            foreach(var enemy in enemies)
+                foreach (var laser in enemy.fired)
+                {
+                    laser.Update(deltaTime);
+                    DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
+                }
+            foreach (var enemy in enemies)
+            {
+                DrawTie(enemy);
+            }
+
             SRT =
                     Matrix.CreateScale(Trench2Scale) *
                     //Matrix.CreateRotationY(MathF.PI / 2) *
                     Matrix.CreateTranslation(Trench2Translation);
             //Este si se muestra bien
-            DrawModel(Trench2, Trench2World, SRT, new Vector3(0.4f, 0.4f, 0.4f));
+            //DrawModel(Trench2, Trench2World, SRT, new Vector3(0.4f, 0.4f, 0.4f));
 
             if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
                 mensaje = mensaje1;
@@ -413,11 +470,12 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        void DrawTie(Matrix world, Matrix SRT)
+        void DrawTie(TieFighter tie)
         {
+            tie.drawn = true;
             foreach (var mesh in Tie.Meshes)
             {
-                world = mesh.ParentBone.Transform * SRT;
+                var world = mesh.ParentBone.Transform * tie.SRT;
 
                 EffectTexture.Parameters["World"].SetValue(world);
                 EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);

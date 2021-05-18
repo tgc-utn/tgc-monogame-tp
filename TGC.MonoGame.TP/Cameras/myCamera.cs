@@ -45,7 +45,6 @@ namespace TGC.MonoGame.Samples.Cameras
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             changed = false;
 
-            delta = Vector2.Zero;
 
             CurrentMovementSpeed = MovementSpeed * elapsedTime;
             CurrentTurnSpeed = turnSpeed * elapsedTime;
@@ -54,10 +53,10 @@ namespace TGC.MonoGame.Samples.Cameras
             //bool changed = ProcessKeyboard();
             ProcessKeyboard();
             //muevo la camara siempre para adelante
-            Position += FrontDirection * CurrentMovementSpeed;
+            //Position += FrontDirection * CurrentMovementSpeed;
 
-            if (MouseLookEnabled)
-                ProcessMouse(elapsedTime);
+            //if (MouseLookEnabled)
+            //    ProcessMouse(elapsedTime);
 
             //if (changed)
             //{
@@ -78,26 +77,26 @@ namespace TGC.MonoGame.Samples.Cameras
 
 
             //Free cam for debug
-            //if (keyboardState.IsKeyDown(Keys.A) )
-            //{
-            //    Position += -RightDirection * currentMovementSpeed ;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.D))
-            //{
-            //    Position += RightDirection * currentMovementSpeed;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.W) )
-            //{
-            //    Position += FrontDirection * currentMovementSpeed;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.S) )
-            //{
-            //    Position += -FrontDirection * currentMovementSpeed;
-            //    changed = true;
-            //}
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                Position += -RightDirection * CurrentMovementSpeed;
+                changed = true;
+            }
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                Position += RightDirection * CurrentMovementSpeed;
+                changed = true;
+            }
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                Position += FrontDirection * CurrentMovementSpeed;
+                changed = true;
+            }
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                Position += -FrontDirection * CurrentMovementSpeed;
+                changed = true;
+            }
 
 
 
@@ -106,7 +105,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Up))
                 {
                     Pitch += CurrentTurnSpeed;
-                    delta.Y += CurrentTurnSpeed;
+                    delta.Y = CurrentTurnSpeed;
                     if (Pitch > 89.0f)
                         Pitch = 89.0f;
                     //changed = true;
@@ -114,7 +113,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Down))
                 {
                     Pitch -= CurrentTurnSpeed;
-                    delta.Y -= CurrentTurnSpeed;
+                    delta.Y = -CurrentTurnSpeed;
                     if (Pitch < -89.0f)
                         Pitch = -89.0f;
 
@@ -123,7 +122,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
                     Yaw -= CurrentTurnSpeed;
-                    delta.X -= CurrentTurnSpeed;
+                    delta.X = -CurrentTurnSpeed;
                     if (Yaw < 0)
                         Yaw += 360;
                     Yaw %= 360;
@@ -132,7 +131,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 if (keyboardState.IsKeyDown(Keys.Right))
                 {
                     Yaw += CurrentTurnSpeed;
-                    delta.X += CurrentTurnSpeed;
+                    delta.X = CurrentTurnSpeed;
                     Yaw %= 360;
                     //changed = true;
                 }
@@ -145,22 +144,28 @@ namespace TGC.MonoGame.Samples.Cameras
         public Vector2 pastMousePosition;
 
         float maxMouseDelta = 3;
-        private void ProcessMouse(float time)
+        public void ProcessMouse(Xwing Xwing)
         {
 
             var mouseState = Mouse.GetState();
-            var mousePosition = mouseState.Position.ToVector2();
-            var mouseDelta = mousePosition - pastMousePosition;
-            mouseDelta *= MouseSensitivity * time;
+            //var mousePosition = mouseState.Position.ToVector2();
+            //var mouseDelta = mousePosition - pastMousePosition;
+            var mouseDelta = (mouseState.Position - screenCenter).ToVector2();
+            Mouse.SetPosition(screenCenter.X, screenCenter.Y);
+            //System.Diagnostics.Debug.WriteLine(mouseState.ScrollWheelValue);
+            mouseDelta *= MouseSensitivity * 0.010f;
+            
             //System.Diagnostics.Debug.WriteLine(time);
             //Evito movimientos muy rapidos con mouse
-            System.Diagnostics.Debug.WriteLine(mouseDelta.X + " " + mouseDelta.Y);
+            //System.Diagnostics.Debug.WriteLine(mouseDelta.X + " " + mouseDelta.Y);
             mouseDelta.X = MathHelper.Clamp(mouseDelta.X, -maxMouseDelta, maxMouseDelta);
             mouseDelta.Y = MathHelper.Clamp(mouseDelta.Y, -maxMouseDelta, maxMouseDelta);
 
             delta = mouseDelta;
             //System.Diagnostics.Debug.WriteLine("delta " + Math.Round(mouseDelta.X, 2) +"|" + Math.Round(mouseDelta.Y, 2));
             
+            Xwing.updateRoll(delta);
+
             Yaw += mouseDelta.X;
             if (Yaw < 0)
                 Yaw += 360;
@@ -173,11 +178,10 @@ namespace TGC.MonoGame.Samples.Cameras
             if (Pitch < -89.0f)
                 Pitch = -89.0f;
 
-            changed = true;
+            //changed = true;
             UpdateCameraVectors();
             
-            Mouse.SetPosition(screenCenter.X, screenCenter.Y);
-            pastMousePosition = Mouse.GetState().Position.ToVector2();
+            //pastMousePosition = Mouse.GetState().Position.ToVector2();
             
 
         }

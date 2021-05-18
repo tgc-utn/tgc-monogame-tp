@@ -24,19 +24,19 @@ public class Xwing
 	public float Roll = 0;
 	float rollSpeed = 150f;
 
+	Vector3 laserColor = new Vector3(0f, 0.8f, 0f);
 	int LaserFired = 0;
 	public List<Laser> fired = new List<Laser>();
 	List<Vector2> deltas = new List<Vector2>();
-	int maxDeltas = 23;
-	
-	public Xwing(){}
+	int maxDeltas = 22;
+	public Xwing() { }
 
 	public void Update(float elapsedTime, MyCamera camera)
 	{
 		Time = elapsedTime;
 		// cuanto tengo que rotar (roll), dependiendo de que tanto giro la camara 
-		TurnDelta = camera.delta;
-		updateRoll();
+		//TurnDelta = camera.delta;
+		//updateRoll();
 		//actualizo todos los parametros importantes del xwing
 		updateSRT(camera);
 		//actualizo 
@@ -46,8 +46,9 @@ public class Xwing
 	float yawRad, correctedYaw;
 	Vector3 pos;
 
+
 	void updateSRT(MyCamera camera)
-    {
+	{
 		// posicion delante de la camara que uso de referencia
 		pos = camera.Position + camera.FrontDirection * 40;
 		//yaw en radianes, y su correccion inicial
@@ -78,22 +79,23 @@ public class Xwing
 	}
 	Vector2 averageLastDeltas()
 	{
-		Vector2 current;
-		Vector2 sum = Vector2.Zero;
+		Vector2 temp = Vector2.Zero;
+		float mul = 0.6f;
 		foreach (var delta in deltas)
 		{
-			sum.X += delta.X;
-			sum.Y += delta.Y;
+			temp.X += delta.X * mul;
+			temp.Y += delta.Y * mul;
+			mul += 0.025f;
 		}
-		current.X = sum.X / deltas.Count;
-		current.Y = sum.Y / deltas.Count;
-		return current;
+		temp.X /= deltas.Count;
+		temp.Y /= deltas.Count;
+		return temp;
 	}
-	
-	public void updateRoll()
+	Vector2 currentDelta;
+	public void updateRoll(Vector2 turnDelta)
 	{
 		if (deltas.Count < maxDeltas)
-			deltas.Add(TurnDelta);
+			deltas.Add(turnDelta);
 		else
 			deltas.RemoveAt(0);
 
@@ -112,16 +114,12 @@ public class Xwing
 		}
 		else
 		{
-			Vector2 currentDelta = averageLastDeltas();
+			currentDelta = averageLastDeltas();
 			//delta [-3;3] -> [-90;90]
 			Roll = -currentDelta.X * 30;
 		}
 	}
-	public Quaternion getAnimationQuaternion()
-	{
-		updateRoll();
-		return Quaternion.CreateFromAxisAngle(FrontDirection, MathHelper.ToRadians(Roll));
-	}
+	
 	public void updateDirectionVectors(Vector3 front, Vector3 up)
 	{
 		FrontDirection = front;
@@ -145,6 +143,13 @@ public class Xwing
 	{
 		betweenFire += fireRate * 30f * Time;
 	}
+	Matrix scale, translation;
+	Matrix[] rot;
+	Matrix[] t;
+	Matrix[] laserSRT = new Matrix[]{Matrix.Identity, Matrix.Identity, Matrix.Identity, Matrix.Identity };
+	public float yawCorrection =5f;
+	Vector3 laserFront;
+
 	public void fireLaser()
 	{
 		//System.Diagnostics.Debug.WriteLine(Time + " " + betweenFire);
@@ -152,34 +157,40 @@ public class Xwing
 			return;
 		betweenFire = 0;
 
-			Matrix SRT = Matrix.CreateScale(new Vector3(0.07f,0.07f,0.4f)) *
-			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll)) *
-			Matrix.CreateTranslation(Position + FrontDirection * 60f);
 
-		
-		switch (LaserFired)
-		{
-			case 0:
-				fired.Add(
-					new Laser(
-						SRT * Matrix.CreateTranslation(UpDirection * offsetVtop + RightDirection * offsetH), FrontDirection));
-				break;
-			case 1:
-				fired.Add(
-					new Laser(
-						SRT * Matrix.CreateTranslation(-UpDirection * offsetVbot + RightDirection * offsetH), FrontDirection));
-				break;
-			case 2:
-				fired.Add(
-					new Laser(
-						SRT * Matrix.CreateTranslation(-UpDirection * offsetVbot - RightDirection * offsetH), FrontDirection));
-				break;
-			case 3:
-				fired.Add(
-					new Laser(
-						SRT * Matrix.CreateTranslation(UpDirection * offsetVtop - RightDirection * offsetH),FrontDirection));
-				break;
-		}
+		scale = Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f));
+		float[] corr = new float[]{
+			MathHelper.ToRadians(Yaw + yawCorrection),
+			MathHelper.ToRadians(Yaw + yawCorrection),
+			MathHelper.ToRadians(Yaw - yawCorrection),
+			MathHelper.ToRadians(Yaw - yawCorrection)
+		};
+		rot = new Matrix[] {
+			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll)),
+			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll)),
+			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll)),
+			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll))
+		};
+		translation = Matrix.CreateTranslation(Position + FrontDirection * 60f);
+		t = new Matrix[] {
+			Matrix.CreateTranslation(UpDirection * offsetVtop + RightDirection * offsetH),
+			Matrix.CreateTranslation(-UpDirection * offsetVbot + RightDirection * offsetH),
+			Matrix.CreateTranslation(-UpDirection * offsetVbot - RightDirection * offsetH),
+			Matrix.CreateTranslation(UpDirection * offsetVtop - RightDirection * offsetH)
+		};
+
+		laserFront.X = MathF.Cos(MathHelper.ToRadians(Yaw + corr[LaserFired])) * MathF.Cos(MathHelper.ToRadians(Pitch));
+		laserFront.Y = MathF.Sin(MathHelper.ToRadians(Pitch));
+		laserFront.Z = MathF.Sin(MathHelper.ToRadians(Yaw + corr[LaserFired])) * MathF.Cos(MathHelper.ToRadians(Pitch));
+
+		laserFront = Vector3.Normalize(laserFront);
+
+		for (var i = 0; i < 4; i++)
+			laserSRT[i] = scale * rot[i] * translation * t[i];
+
+
+		fired.Add(new Laser(laserSRT[LaserFired], FrontDirection, laserColor));
+
 		LaserFired++;
 		LaserFired %= 4;
 
