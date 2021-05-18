@@ -10,9 +10,12 @@ namespace TGC.MonoGame.TP
         private readonly Random random = new Random();
         private readonly Directions directions = new Directions();
 
-        internal const float trenchScale = 10f;
-        internal const float trenchSize = 28.2857f * trenchScale;
-
+        internal const float originalTrenchSize = 28.2857f;
+        internal const float originalTrenchHeight = 11f;
+        internal const float trenchScale = 1/10f;
+        internal const float trenchSize = originalTrenchSize * trenchScale * 100f;
+        internal const float trenchHeight = originalTrenchHeight * trenchScale * 50f;
+        
         private const int size = 40;
         private const int halfSize = size / 2;
         private const int margin = 1;

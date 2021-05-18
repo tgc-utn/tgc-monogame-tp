@@ -12,6 +12,7 @@ namespace TGC.MonoGame.TP.Physics
         private readonly Simulation simulation;
         internal readonly BufferPool bufferPool = new BufferPool();
         private readonly SimpleThreadDispatcher threadDispatcher;
+        internal Shapes Shapes() => simulation.Shapes;
 
         private readonly BEPUVector3 gravity = new BEPUVector3();
         private const float timestep = 1 / 60f;
