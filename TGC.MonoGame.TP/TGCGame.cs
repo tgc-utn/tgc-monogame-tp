@@ -14,6 +14,8 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class TGCGame : Game
     {
+        private float time;
+
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderMusic = "Music/";
@@ -145,7 +147,7 @@ namespace TGC.MonoGame.TP
             IslandTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland02Diffuse");
 
             ModelWater = Content.Load<Model>(ContentFolder3D + "Island/AguaGeo");
-            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "WaterShader");
             WaterTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/Water01Diffuse");
 
             ModelCasa = Content.Load<Model>(ContentFolder3D + "Island/CasaGeo");
@@ -217,6 +219,7 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.White);
 
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             IslandEffect.Parameters["ModelTexture"].SetValue(IslandTexture);
             DrawModel(ModelIsland, Matrix.CreateScale(0.2f), IslandEffect);
@@ -243,8 +246,9 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(580, 0, -150), IslandMiscEffect);
             DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), IslandMiscEffect);
 
-            WaterEffect.Parameters["ModelTexture"].SetValue(WaterTexture);
             DrawModel(ModelWater, Matrix.CreateScale(2f, 0.01f, 2f), WaterEffect);
+            WaterEffect.Parameters["ModelTexture"]?.SetValue(WaterTexture);
+            WaterEffect.Parameters["Time"]?.SetValue(time);
 
             /// Dibujo Botes
 
@@ -261,6 +265,7 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelBarquito, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-200, 0, 700), IslandMiscEffect);
 
             DrawModel(PlayerBoatModel, Matrix.CreateRotationY((float)PlayerRotation)* PlayerBoatMatrix  , PlayerBoatEffect);
+            base.Draw(gameTime);
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
