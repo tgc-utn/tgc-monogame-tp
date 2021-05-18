@@ -14,6 +14,8 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class TGCGame : Game
     {
+        private float time;
+
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderMusic = "Music/";
@@ -73,7 +75,7 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-        private FreeCamera Camera { get; set; }
+        private BoatCamera Camera { get; set; }
 
         public Texture2D IslandTexture;
         public Texture2D BoatSMTexture;
@@ -82,6 +84,12 @@ namespace TGC.MonoGame.TP
         public Texture2D IslandMiscTexture;
         public Texture2D WaterTexture;
 
+        private Vector3 FrontDirection;
+        private float CameraArm;
+        private double PlayerRotation;
+
+        public float MovementSpeed { get; set; }
+        public float RotationSpeed { get; set; }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -103,10 +111,16 @@ namespace TGC.MonoGame.TP
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 300, 500), screenSize);
-            
 
-            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateTranslation(0,0,600);
+            CameraArm = 60.0f;
+            Camera = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
+
+            MovementSpeed = 100.0f;
+            RotationSpeed = 0.5f;
+            FrontDirection = Vector3.Forward;
+            PlayerRotation = 0;
+            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(0, 0, 600);
+            //PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateTranslation(0,0,600);
 
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
@@ -133,7 +147,7 @@ namespace TGC.MonoGame.TP
             IslandTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland02Diffuse");
 
             ModelWater = Content.Load<Model>(ContentFolder3D + "Island/AguaGeo");
-            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "WaterShader");
             WaterTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/Water01Diffuse");
 
             ModelCasa = Content.Load<Model>(ContentFolder3D + "Island/CasaGeo");
@@ -186,38 +200,13 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logica de actualizacion del juego.
 
             Camera.Update(gameTime);
-
-            // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                //Salgo del juego.
-                Exit();
-
-
-            // Player movement
-            Keys[] KeyPressed = Keyboard.GetState().GetPressedKeys();
-            if (KeyPressed.Length > 0)
-            {
-                switch (KeyPressed[0])
-                {
-                    case Keys.I:
-                        MoveForward(PlayerSpeed);
-                        break;
-                    case Keys.K:
-                        MoveBackwards(PlayerSpeed);
-                        break;
-                    case Keys.L:
-                        MoveRight(PlayerSpeed);
-                        break;
-                    case Keys.J:
-                        MoveLeft(PlayerSpeed);
-                        break;
-                }
-
-            }
+            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            ProcessKeyboard(elapsedTime);
 
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
+            Camera.Position = PlayerBoatMatrix.Translation + new Vector3(0, CameraArm, 0);
+            FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
             base.Update(gameTime);
         }
 
@@ -230,6 +219,7 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.White);
 
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             IslandEffect.Parameters["ModelTexture"].SetValue(IslandTexture);
             DrawModel(ModelIsland, Matrix.CreateScale(0.2f), IslandEffect);
@@ -256,8 +246,9 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(580, 0, -150), IslandMiscEffect);
             DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), IslandMiscEffect);
 
-            WaterEffect.Parameters["ModelTexture"].SetValue(WaterTexture);
             DrawModel(ModelWater, Matrix.CreateScale(2f, 0.01f, 2f), WaterEffect);
+            WaterEffect.Parameters["ModelTexture"]?.SetValue(WaterTexture);
+            WaterEffect.Parameters["Time"]?.SetValue(time);
 
             /// Dibujo Botes
 
@@ -265,15 +256,16 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelBoatSM, Matrix.CreateScale(0.04f) * Matrix.CreateTranslation(-100, 0, 300), BoatSMEffect);
 
             PatrolEffect.Parameters["ModelTexture"].SetValue(PatrolTexture);
-            DrawModel(ModelPatrol, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(-100, 0, 500), PatrolEffect);
+            DrawModel(ModelPatrol, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(-300, 0, 500), PatrolEffect);
 
             CruiserEffect.Parameters["ModelTexture"].SetValue(CruiserTexture);
             DrawModel(ModelCruiser, Matrix.CreateScale(0.03f) * Matrix.CreateTranslation(-100, 0, 900), CruiserEffect);
 
             IslandMiscEffect.Parameters["ModelTexture"].SetValue(IslandMiscTexture);
-            DrawModel(ModelBarquito, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-100, 0, 700), IslandMiscEffect);
+            DrawModel(ModelBarquito, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-200, 0, 700), IslandMiscEffect);
 
-            DrawModel(PlayerBoatModel, PlayerBoatMatrix, PlayerBoatEffect);
+            DrawModel(PlayerBoatModel, Matrix.CreateRotationY((float)PlayerRotation)* PlayerBoatMatrix  , PlayerBoatEffect);
+            base.Draw(gameTime);
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
@@ -300,21 +292,55 @@ namespace TGC.MonoGame.TP
             base.UnloadContent();
         }
 
+        private void ProcessKeyboard(float elapsedTime)
+        {
+            var keyboardState = Keyboard.GetState();
+
+            if (keyboardState.IsKeyDown(Keys.Escape))
+            {
+                Exit();
+            }
+
+            //var currentMovementSpeed = MovementSpeed;
+
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                MoveForward(MovementSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                MoveBackwards(MovementSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                RotateRight(RotationSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                RotateLeft(RotationSpeed * elapsedTime);
+            }
+
+
+        }
+
         private void MoveForward(float amount)
         {
-            PlayerBoatMatrix *= Matrix.CreateTranslation(Vector3.UnitX * amount);
+            PlayerBoatMatrix *= Matrix.CreateTranslation(FrontDirection * amount);
         }
         private void MoveBackwards(float amount)
         {
             MoveForward(-amount);
         }
-        private void MoveRight(float amount)
+        private void RotateRight(float amount)
         {
-            PlayerBoatMatrix *= Matrix.CreateTranslation(Vector3.UnitZ * amount);
+               PlayerRotation += amount;
         }
-        private void MoveLeft(float amount)
+        private void RotateLeft(float amount)
         {
-            MoveRight(-amount);
+            RotateRight(-amount);
         }
     }
 }
