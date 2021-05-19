@@ -10,6 +10,7 @@ namespace TGC.MonoGame.TP.Physics
         internal static Quaternion ToQuaternion(this BEPUQuaternion bepuQuaternion) => new Quaternion(bepuQuaternion.X, bepuQuaternion.Y, bepuQuaternion.Z, bepuQuaternion.W);
 
         internal static BEPUVector3 ToBEPU(this Vector3 vector3) => new BEPUVector3(vector3.X, vector3.Y, vector3.Z);
+
         internal static BEPUQuaternion ToBEPU(this Quaternion quaternion) => new BEPUQuaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W);
     }
 }
