@@ -23,18 +23,18 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         int Health = 100;
 
-        float regulator = 20f;
+        float Regulator = 20f;
 
-        float standarVelocity = 100f;
-        float fastVelocity = 300f;
-        float resetVelocity = 1000f;
+        float StandarVelocity = 100f;
+        float FastVelocity = 300f;
+        float ResetVelocity = 1000f;
 
         internal override void Update(double elapsedTime)
         {
-            stateMachine();
+            StateMachine();
         }
 
-        protected internal void stateMachine() // Podria ser clase con manejo dentro de la misma
+        protected internal void StateMachine() // Podria ser clase con manejo dentro de la misma
         {
             BodyReference body = Body();
 
@@ -46,24 +46,24 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
                     if (XWingInFront(body))
                     {
-                        shootXWing(body);
+                        ShootXWing(body);
                     }
                     else
                     {
                         if (Health < 40)
                         {
                             CurrentState = State.FLEEING;
-                            flee(body);
+                            Flee(body);
                         }
                         else
                         {
-                            getInFront(body);
+                            GetInFront(body);
                         }
                     }
                 }
                 else
                 {
-                    flyAround(body); // Cambiar a que se acerque a XWing
+                    FlyAround(body); // Cambiar a que se acerque a XWing
                 }
             }
 
@@ -71,31 +71,31 @@ namespace TGC.MonoGame.TP.ConcreteEntities
             {
                 if (XWingInFront(body))
                 {
-                    shootXWing(body);
+                    ShootXWing(body);
                 }
                 else
                 {
                     if (Health < 40)
                     {
                         CurrentState = State.FLEEING;
-                        flee(body);
+                        Flee(body);
                     }
                     else
                     {
-                        getInFront(body);
+                        GetInFront(body);
                     }
                 }
             }
 
             else if (CurrentState == State.FLEEING)
             {
-                flee(body);
+                Flee(body);
                 CurrentState = State.SEEKING;
             }
 
         }
 
-        private void flee(BodyReference body)
+        private void Flee(BodyReference body)
         {
 
             Quaternion rotation = body.Pose.Orientation.ToQuaternion();
@@ -103,13 +103,13 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
             while (distanceToXWing(body) < 2000f)
             {
-                body.Velocity.Linear = (forward * fastVelocity).ToBEPU(); // Debe ser mayor a la de XWing
+                body.Velocity.Linear = (forward * FastVelocity).ToBEPU(); // Debe ser mayor a la de XWing
             }
 
             _360Turn(body);
 
             forward = PhysicUtils.Forward(rotation);
-            body.Velocity.Linear = (forward * resetVelocity).ToBEPU(); 
+            body.Velocity.Linear = (forward * ResetVelocity).ToBEPU(); 
 
             
         }
@@ -119,18 +119,18 @@ namespace TGC.MonoGame.TP.ConcreteEntities
             return Vector3.Distance(body.Pose.Position.ToVector3(), XWing.getInstance().XWingPosition().ToVector3()); 
         }
 
-        private void flyAround(BodyReference body)
+        private void FlyAround(BodyReference body)
         {
             Quaternion rotation = body.Pose.Orientation.ToQuaternion();
             Vector3 forward = PhysicUtils.Forward(rotation);
 
-            body.Velocity.Linear = (forward * standarVelocity).ToBEPU();
-            body.Velocity.Angular = new Vector3(0f, regulator, 0).ToBEPU();
+            body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
+            body.Velocity.Angular = new Vector3(0f, Regulator, 0).ToBEPU();
 
-            regulator *= 0.998f;
+            Regulator *= 0.998f;
         }
 
-        private void getInFront(BodyReference body)
+        private void GetInFront(BodyReference body)
         {
             while(!XWingInFront(body))
             {
@@ -144,14 +144,14 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
                 while(timing < 5) // Debe pasar nave para volver a girar
                 {
-                    body.Velocity.Linear = (forward * fastVelocity).ToBEPU();
+                    body.Velocity.Linear = (forward * FastVelocity).ToBEPU();
                 }
 
                 _360Turn(body);
             }
         }
 
-        private void shootXWing(BodyReference body)
+        private void ShootXWing(BodyReference body)
         {
             // Post lasers
         }
