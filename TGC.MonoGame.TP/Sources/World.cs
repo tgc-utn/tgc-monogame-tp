@@ -28,7 +28,7 @@ namespace TGC.MonoGame.TP
             {
                 TIE tie = new TIE();
                 tie.Instantiate(new Vector3(random.Next(-100, 500), 0f, 0f));
-                // Register(tie);
+                Register(tie);
             }
 
             entities.ForEach(entity => entity.Update(elapsedTime));
