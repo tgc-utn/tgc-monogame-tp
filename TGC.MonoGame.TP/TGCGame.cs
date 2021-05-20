@@ -24,7 +24,7 @@ namespace TGC.MonoGame.TP
 
         private SpriteFont SpriteFont;
         Xwing Xwing = new Xwing();
-        
+        SkyBox SkyBox; 
         public float TieScale = 0.02f;
 
         public float TrenchScale = 0.07f;
@@ -119,6 +119,9 @@ namespace TGC.MonoGame.TP
             size.Y /= 2;
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
+            startView = Camera.View;
+            startProj = Camera.Projection;
+
             camUpdateTimer = new Timer(5);
             camUpdateTimer.Elapsed += CamUpdateTimerTick;
             camUpdateTimer.AutoReset = true;
@@ -128,6 +131,7 @@ namespace TGC.MonoGame.TP
 
             base.Initialize();
         }
+        Matrix startView, startProj;
 
         private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
         {
@@ -174,8 +178,19 @@ namespace TGC.MonoGame.TP
 
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
+            System.Diagnostics.Debug.WriteLine("loading skybox.");
+            var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skybox/space_earth_small_skybox");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
 
-                
+            System.Diagnostics.Debug.WriteLine("skybox loaded.");
+            //SkyBox = new SkyBox(
+            //    Content.Load<Model>(ContentFolder3D + "skybox/cube"), 
+            //    Content.Load<TextureCube>(ContentFolderTextures + "/skybox/skybox"),
+            //    Content.Load<Effect>(ContentFolderEffects + "SkyBox"));
+
             for (var i = 0; i < 5; i++)
             { 
                 Matrix SRT = Matrix.CreateScale(TrenchScale) *
@@ -223,15 +238,14 @@ namespace TGC.MonoGame.TP
                 enemy.Update(Xwing, time);
                 enemy.fireLaser();
             }
+            System.Diagnostics.Debug.WriteLine(
+                "P " +
+                enemies[0].Pitch +
+                " Y " +
+                enemies[0].Yaw);
 
-            //System.Diagnostics.Debug.WriteLine(
-            //    "P " +
-            //    enemies[0].Pitch+
-            //    " Y " +
-            //    enemies[0].Yaw);
-            
         }
-
+        public List<Laser> enemyLasers = new List<Laser>();
 
         protected override void Update(GameTime gameTime)
         {
@@ -242,11 +256,20 @@ namespace TGC.MonoGame.TP
             // para que siempre quede en frente de la camara
 
             //obtengo la posicion de la camara, y la muevo para adelante 40 unidades
-            
-
             Xwing.Update(elapsedTime, Camera);
-            
+
+            enemyLasers.Clear();
+            foreach (var enemy in enemies)
+                foreach (var laser in enemy.fired) 
+                {
+                    laser.Update(elapsedTime);
+                    enemyLasers.Add(laser);
+                }
+
+            //Xwing.verifyCollisions(enemyLasers);
             updateEnemies(elapsedTime);
+
+            #region Input
             var kState = Keyboard.GetState();
             var mState = Mouse.GetState();
             if (Camera.MouseLookEnabled)
@@ -261,6 +284,14 @@ namespace TGC.MonoGame.TP
             if (kState.IsKeyDown(Keys.P))
             {
                 ignoredKeys.Add(Keys.P);
+            }
+            if(kState.IsKeyDown(Keys.H))
+            {
+                if(!ignoredKeys.Contains(Keys.H))
+                {
+                    ignoredKeys.Add(Keys.H);
+                    Xwing.hit = !Xwing.hit;
+                }
             }
             if(kState.IsKeyDown(Keys.F))
             {
@@ -331,6 +362,8 @@ namespace TGC.MonoGame.TP
             }
             //remuevo de la lista aquellas teclas que solte
             ignoredKeys.RemoveAll(kState.IsKeyUp);
+            #endregion Input
+
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -339,7 +372,6 @@ namespace TGC.MonoGame.TP
         }
 
         //funciones que pueden ser utiles
-        
         Vector3 directionalAngles(Vector3 v)
         {
             return new Vector3(
@@ -351,12 +383,17 @@ namespace TGC.MonoGame.TP
         String mensaje2 = "Movimiento: WASD, Camara: flechas + mouse, para deshabilitar flechas apretar M";
         String mensaje3 = "Movimiento: WASD, Camara: mouse, para solo flechas apretar M";
         String mensaje;
+        String Vector3ToStr(Vector3 v)
+        {
+            return "X " + v.X + " Y " + v.Y + " Z " + v.Z;
+        }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+
+            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            //GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             //Configuro efectos
             Effect.Parameters["View"].SetValue(Camera.View);
@@ -367,7 +404,13 @@ namespace TGC.MonoGame.TP
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             int fps = (int)Math.Round(1 / deltaTime);
-            
+
+            //BoundingBox bb = new BoundingBox();
+            //System.Diagnostics.Debug.WriteLine("V "+Camera.View);
+            //System.Diagnostics.Debug.WriteLine("Pj " + Camera.Projection);
+            //System.Diagnostics.Debug.WriteLine("P " + Vector3ToStr(Camera.Position));
+            SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
+            //System.Diagnostics.Debug.WriteLine(SkyBox.Effect.Parameters);
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
             DrawXWing(Xwing.SRT);
 
@@ -391,7 +434,7 @@ namespace TGC.MonoGame.TP
                 laser.Update(deltaTime);
                 DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
             }
-            foreach(var enemy in enemies)
+            foreach (var enemy in enemies)
                 foreach (var laser in enemy.fired)
                 {
                     laser.Update(deltaTime);
@@ -434,19 +477,21 @@ namespace TGC.MonoGame.TP
             //    "|" + Math.Round(mxQuat.Up.Z, 2) +
             //    " Roll " + Math.Round(Xwing.Roll, 2)
             //    , Vector2.Zero, Color.White); 
-            SpriteBatch.DrawString(SpriteFont, "FPS "+fps, Vector2.Zero, Color.White);
+            SpriteBatch.DrawString(SpriteFont, "FPS " + fps + " HP "+Xwing.HP, Vector2.Zero, Color.White);
             SpriteBatch.End();
 
-            var center= GraphicsDevice.Viewport.Bounds.Size;
+            var center = GraphicsDevice.Viewport.Bounds.Size;
             center.X /= 2;
             center.Y /= 2;
 
             var scale = 0.1f;
             var sz = 512 * scale;
-            
+
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             SpriteBatch.Draw(Crosshairs[0], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
             SpriteBatch.End();
+
+
             //debug
             //SpriteBatch.DrawString(SpriteFont, 
             //                                    " yaw " + Math.Round(Camera.Yaw, 2) +
@@ -459,15 +504,20 @@ namespace TGC.MonoGame.TP
         void DrawXWing(Matrix SRT)
         {
             int meshCount = 0; //Como el xwing tiene 2 texturas, tengo que dibujarlo de esta manera
+            if (Xwing.hit)
+                EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Right * 0.5f);
+            
             foreach (var mesh in Xwing.Model.Meshes)
             {
                 Xwing.World = mesh.ParentBone.Transform * SRT;
+                
                 EffectTexture.Parameters["World"].SetValue(Xwing.World);
                 EffectTexture.Parameters["ModelTexture"].SetValue(Xwing.Textures[meshCount]);
                 meshCount++;
 
                 mesh.Draw();
             }
+            EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
         }
 
         void DrawTie(TieFighter tie)
@@ -490,6 +540,7 @@ namespace TGC.MonoGame.TP
 
                 EffectTexture.Parameters["World"].SetValue(world);
                 EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
+                
                 mesh.Draw();
             }
         }

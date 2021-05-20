@@ -7,11 +7,13 @@ public class Laser
 	public Vector3 Position { get; set; }
 	public Vector3 FrontDirection{ get; set; }
 	public Vector3 Color;
-	public Laser(Matrix srt, Vector3 fd, Vector3 c)
+	BoundingCylinder boundingCylinder;
+    public Laser(Matrix srt, Vector3 fd, Vector3 c)
 	{
 		SRT = srt;
 		FrontDirection = fd;
 		Color = c;
+		//boundingCylinder = new BoundingCylinder
 	}
 	public void Update(float time)
 	{

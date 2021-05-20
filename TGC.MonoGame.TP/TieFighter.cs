@@ -45,8 +45,8 @@ public class TieFighter
 			Position += FrontDirection * 50f * time;
 		SRT =
 			Matrix.CreateScale(TieScale) *
-			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), 0f)* 
-			Matrix.CreateTranslation(Position);
+			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), 0f) *
+            Matrix.CreateTranslation(Position);
 		updateFireRate();
 		
 	}
@@ -70,16 +70,19 @@ public class TieFighter
 	public float angleToX, angleToZ, y;
 	public void updateDirectionVectors()
 	{
-		angleToX = angleBetweenVectors(FrontDirection, Vector3.Right);
-		angleToZ = angleBetweenVectors(FrontDirection, Vector3.Backward);
+        angleToX = angleBetweenVectors(FrontDirection, Vector3.Right);
+        angleToZ = angleBetweenVectors(FrontDirection, Vector3.Backward);
 
-		if (angleToZ < MathHelper.PiOver2)
-			y = MathHelper.TwoPi - angleToX;
-		else
-			y = angleToX;
-		Yaw = MathHelper.ToDegrees(y - MathHelper.PiOver2);
+        if (angleToZ < MathHelper.PiOver2)
+            y = MathHelper.TwoPi - angleToX;
+        else
+            y = angleToX;
+        Yaw = MathHelper.ToDegrees(y + MathHelper.PiOver2);
 
-		Pitch = MathHelper.ToDegrees(angleBetweenVectors(FrontDirection, Vector3.Up)) - 90;
-        //System.Diagnostics.Debug.WriteLine(yaw + " " + pitch);
+        Pitch = MathHelper.ToDegrees(angleBetweenVectors(FrontDirection, Vector3.Up)) + 90;
+        //Pitch = MathHelper.ToDegrees(MathF.Asin(FrontDirection.Y));
+
+
+        //System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
     }
 }

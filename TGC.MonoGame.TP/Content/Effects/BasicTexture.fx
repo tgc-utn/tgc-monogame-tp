@@ -18,6 +18,7 @@ float4x4 View;
 float4x4 Projection;
 
 //float3 DiffuseColor;
+float3 ModifierColor = float3(0, 0, 0);
 
 
 struct VertexShaderInput
@@ -67,7 +68,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	
     float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
     textureColor.a = 1;
-	
+    textureColor.rgb = textureColor.rgb + ModifierColor;
     return textureColor;
 }
 

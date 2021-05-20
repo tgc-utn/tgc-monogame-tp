@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TGC.MonoGame.Samples.Cameras;
 public class Xwing
 {
+	public int HP { get; set; }
 	public bool barrelRolling { get; set; }
 	public float roll { get; set; }
 	public Model Model { get; set; }
@@ -21,6 +22,7 @@ public class Xwing
 	public float Pitch { get; set; }
 	public float Yaw { get; set; }
 
+	public bool hit { get; set; }
 	public float Roll = 0;
 	float rollSpeed = 150f;
 
@@ -29,7 +31,8 @@ public class Xwing
 	public List<Laser> fired = new List<Laser>();
 	List<Vector2> deltas = new List<Vector2>();
 	int maxDeltas = 22;
-	public Xwing() { }
+
+	public Xwing() { HP = 100; }
 
 	public void Update(float elapsedTime, MyCamera camera)
 	{
@@ -41,6 +44,7 @@ public class Xwing
 		updateSRT(camera);
 		//actualizo 
 		updateFireRate();
+		
 	}
 	Matrix rollQuaternion;
 	float yawRad, correctedYaw;
@@ -197,4 +201,9 @@ public class Xwing
 		if (fired.Count > 4)
 			fired.RemoveAt(0);
 	}
+
+	public void VerifyCollisions()
+    {
+		
+    }
 }
