@@ -13,8 +13,10 @@ public class TieFighter
 	public Model Model { get; set; }
 	public float TieScale { get; set; }
 
+	public int HP = 100;
 	public float Yaw, Pitch;
 	public List<Laser> fired = new List<Laser>();
+	BoundingSphere boundingSphere;
 	public TieFighter(Vector3 pos, Vector3 front, Matrix w, Matrix srt, float s)
 	{
 		Position = pos;
@@ -22,6 +24,7 @@ public class TieFighter
 		World = w;
 		SRT = srt;
 		TieScale = s;
+		boundingSphere = new BoundingSphere(Position, 30f);
 	}
 	float betweenFire = 0f;
 	float fireRate = 0.025f;
@@ -41,7 +44,7 @@ public class TieFighter
 		Time = time;
 		FrontDirection = Vector3.Normalize(xwing.Position - Position);
 		updateDirectionVectors();
-		if (Vector3.Distance(xwing.Position, Position) > 80)
+		if (Vector3.Distance(xwing.Position, Position) > 100)
 			Position += FrontDirection * 50f * time;
 		SRT =
 			Matrix.CreateScale(TieScale) *
@@ -61,11 +64,12 @@ public class TieFighter
 			return;
 
 		betweenFire = 0;
+		Matrix rotation = Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), 0f);
 		Matrix SRT = 
 			Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f)) * 
-			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), 0f) * 
+			rotation * 
 			Matrix.CreateTranslation(Position);
-		fired.Add(new Laser(SRT, FrontDirection, new Vector3(0.8f, 0f, 0f)));
+		fired.Add(new Laser(Position, rotation, SRT, FrontDirection, new Vector3(0.8f, 0f, 0f)));
 	}
 	public float angleToX, angleToZ, y;
 	public void updateDirectionVectors()
@@ -85,4 +89,13 @@ public class TieFighter
 
         //System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
     }
+	public void VerifyCollisions(List<Laser> playerLasers)
+	{
+		Laser hitBy = playerLasers.Find(laser => laser.Hit(boundingSphere));
+		if (hitBy != null)
+		{
+			HP -= 50;
+			playerLasers.Remove(hitBy);
+		}
+	}
 }

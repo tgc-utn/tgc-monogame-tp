@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using TGC.MonoGame.Samples.Cameras;
+
 public class Xwing
 {
 	public int HP { get; set; }
@@ -32,10 +32,16 @@ public class Xwing
 	List<Vector2> deltas = new List<Vector2>();
 	int maxDeltas = 22;
 
-	public Xwing() { HP = 100; }
+	public BoundingSphere boundingSphere;
 
+	public Xwing()
+	{
+		HP = 100;
+		
+	}
 	public void Update(float elapsedTime, MyCamera camera)
 	{
+
 		Time = elapsedTime;
 		// cuanto tengo que rotar (roll), dependiendo de que tanto giro la camara 
 		//TurnDelta = camera.delta;
@@ -44,13 +50,35 @@ public class Xwing
 		updateSRT(camera);
 		//actualizo 
 		updateFireRate();
-		
+		if (boundingSphere == null)
+		{
+			boundingSphere = new BoundingSphere(Position, 60f);
+		}
+		else
+		{
+			boundingSphere.Center = Position;
+			//boundingSphere.Transform(Matrix.CreateTranslation(Position));
+		}
+
+
 	}
 	Matrix rollQuaternion;
 	float yawRad, correctedYaw;
 	Vector3 pos;
 
-
+	
+	public void VerifyCollisions(List<Laser> enemyLasers)
+    {
+		Laser hitBy = enemyLasers.Find(laser => laser.Hit(boundingSphere));
+		if (hitBy != null)
+		{
+			hit = true;
+			HP -= 10;
+			enemyLasers.Remove(hitBy);
+		}
+		else
+			hit = false;
+    }
 	void updateSRT(MyCamera camera)
 	{
 		// posicion delante de la camara que uso de referencia
@@ -193,7 +221,7 @@ public class Xwing
 			laserSRT[i] = scale * rot[i] * translation * t[i];
 
 
-		fired.Add(new Laser(laserSRT[LaserFired], FrontDirection, laserColor));
+		fired.Add(new Laser(Position, rot[LaserFired], laserSRT[LaserFired], FrontDirection, laserColor));
 
 		LaserFired++;
 		LaserFired %= 4;

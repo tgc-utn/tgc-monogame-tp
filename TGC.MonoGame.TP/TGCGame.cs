@@ -56,8 +56,16 @@ namespace TGC.MonoGame.TP
         
         private Model Tie { get; set; }
         private Model Tie2 { get; set; }
-        private Model Trench { get; set; }
+        private static Model TrenchPlatform;
+        private static Model TrenchStraight;
+        private static Model TrenchT;
+        private static Model TrenchIntersection;
+        private static Model TrenchElbow;
+        private static Model TrenchTurret;
+
         private Model Trench2 { get; set; }
+        Model skyboxModel;
+        Model boxModel;
         private Model LaserModel { get; set; }
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
@@ -104,7 +112,7 @@ namespace TGC.MonoGame.TP
             Xwing.Scale = 2.5f;
 
             // Hace que el mouse sea visible.
-            IsMouseVisible = true;
+            IsMouseVisible = false;
 
             IsFixedTimeStep = true;
             TargetElapsedTime = TimeSpan.FromSeconds(1d / 60); //60);
@@ -128,6 +136,35 @@ namespace TGC.MonoGame.TP
             camUpdateTimer.Enabled = true;
 
             generateEnemies();
+            //Trench[,] test = new Trench[,] 
+            //{ 
+            //    { 
+            //        new Trench(Trench.TrenchType.Platform,0),
+            //        new Trench(Trench.TrenchType.Straight,0),
+            //        new Trench(Trench.TrenchType.Intersection,0),
+            //        new Trench(Trench.TrenchType.Elbow,0)
+            //    },
+            //    {
+            //        new Trench(Trench.TrenchType.Platform,0),
+            //        new Trench(Trench.TrenchType.Straight,0),
+            //        new Trench(Trench.TrenchType.Platform,0),
+            //        new Trench(Trench.TrenchType.Platform,0)
+            //    },
+            //    {
+            //        new Trench(Trench.TrenchType.Straight,270f),
+            //        new Trench(Trench.TrenchType.T,0),
+            //        new Trench(Trench.TrenchType.Straight,90),
+            //        new Trench(Trench.TrenchType.Straight,90)
+            //    },
+            //    {
+            //        new Trench(Trench.TrenchType.Platform,0),
+            //        new Trench(Trench.TrenchType.Platform,0),
+            //        new Trench(Trench.TrenchType.Platform,0),
+            //        new Trench(Trench.TrenchType.Platform,0)
+            //    }
+
+            //};
+            //System.Diagnostics.Debug.Write(Trench.ShowMapInConsole(Trench.generateMap(4), 4));
 
             base.Initialize();
         }
@@ -146,14 +183,14 @@ namespace TGC.MonoGame.TP
                     foreach (var meshPart in mesh.MeshParts)
                         meshPart.Effect = effect;
         }
-
+        
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
             Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            Trench = Content.Load<Model>(ContentFolder3D + "Trench/Trench");
+            TrenchPlatform = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Platform-Block");
             Trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
             LaserModel = Content.Load<Model>(ContentFolder3D + "Laser/Laser");
 
@@ -172,33 +209,34 @@ namespace TGC.MonoGame.TP
             TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/Plates");
             Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
-            //Asigno los efectos a los modelos correspondientes
-            assignEffectToModels(new Model[] { Xwing.Model, Tie, Trench }, EffectTexture);
-            assignEffectToModels(new Model[] { Trench2, LaserModel }, Effect);
-
+           
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
             System.Diagnostics.Debug.WriteLine("loading skybox.");
-            var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-            
+            //Skybox
+            skyboxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            boxModel = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Turret");
+
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skybox/space_earth_small_skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+            SkyBox = new SkyBox(skyboxModel, skyBoxTexture, skyBoxEffect);
+
+
+            //Asigno los efectos a los modelos correspondientes
+            assignEffectToModels(new Model[] { Xwing.Model, Tie , boxModel}, EffectTexture);
+            assignEffectToModels(new Model[] { Trench2, LaserModel}, Effect);
 
             System.Diagnostics.Debug.WriteLine("skybox loaded.");
-            //SkyBox = new SkyBox(
-            //    Content.Load<Model>(ContentFolder3D + "skybox/cube"), 
-            //    Content.Load<TextureCube>(ContentFolderTextures + "/skybox/skybox"),
-            //    Content.Load<Effect>(ContentFolderEffects + "SkyBox"));
-
-            for (var i = 0; i < 5; i++)
-            { 
+           
+            //for (var i = 0; i < 5; i++)
+            //{ 
+            var i = 0;
                 Matrix SRT = Matrix.CreateScale(TrenchScale) *
                     Matrix.CreateRotationY(MathF.PI / 2) *
                     Matrix.CreateTranslation(TrenchTranslation = new Vector3(0, 0, -i * 170));
 
                 trenches.Add(SRT);
-            }
+            //}
             List<Matrix> rotation = new List<Matrix>() ;
             foreach (var t in trenches)
                 rotation.Add(t);
@@ -216,19 +254,16 @@ namespace TGC.MonoGame.TP
         void generateEnemies()
         {
             Random rnd = new Random();
-            if (enemies.Count < 4)
+            int maxEnemies = 2;
+            for (int i = 0; i < maxEnemies - enemies.Count; i++)
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    Vector3 random = new Vector3(rnd.Next(-1000, 1000), 0f, rnd.Next(-1000, 1000));
-                    Vector3 pos = Xwing.Position + random;
-                    Vector3 dir = Vector3.Normalize(Xwing.Position - pos);
+                Vector3 random = new Vector3(rnd.Next(-1000, 1000), 0f, rnd.Next(-1000, 1000));
+                Vector3 pos = Xwing.Position + random;
+                Vector3 dir = Vector3.Normalize(Xwing.Position - pos);
 
-
-                    Matrix SRT = Matrix.CreateScale(TieScale) * Matrix.CreateTranslation(pos);
-                    enemies.Add(new TieFighter(pos, dir, Matrix.Identity, SRT, TieScale));
-                }
-      
+                
+                Matrix SRT = Matrix.CreateScale(TieScale) * Matrix.CreateTranslation(pos);
+                enemies.Add(new TieFighter(pos, dir, Matrix.Identity, SRT, TieScale));
             }
         }
         void updateEnemies(float time)
@@ -238,24 +273,22 @@ namespace TGC.MonoGame.TP
                 enemy.Update(Xwing, time);
                 enemy.fireLaser();
             }
-            System.Diagnostics.Debug.WriteLine(
-                "P " +
-                enemies[0].Pitch +
-                " Y " +
-                enemies[0].Yaw);
-
+            //System.Diagnostics.Debug.WriteLine(
+            //    "P " +
+            //    enemies[0].Pitch +
+            //    " Y " +
+            //    enemies[0].Yaw);
         }
         public List<Laser> enemyLasers = new List<Laser>();
 
+        
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             Camera.Update(gameTime);
 
-            // Calculo la posicion del xwing en base a la posicion de la camara, y a donde esta mirando la camara
-            // para que siempre quede en frente de la camara
+            generateEnemies();
 
-            //obtengo la posicion de la camara, y la muevo para adelante 40 unidades
             Xwing.Update(elapsedTime, Camera);
 
             enemyLasers.Clear();
@@ -266,8 +299,11 @@ namespace TGC.MonoGame.TP
                     enemyLasers.Add(laser);
                 }
 
-            //Xwing.verifyCollisions(enemyLasers);
+            Xwing.VerifyCollisions(enemyLasers);
+            enemies.ForEach(enemy=>enemy.VerifyCollisions(Xwing.fired));
+            enemies.RemoveAll(enemy => enemy.HP <= 0);
             updateEnemies(elapsedTime);
+
 
             #region Input
             var kState = Keyboard.GetState();
@@ -414,20 +450,37 @@ namespace TGC.MonoGame.TP
             //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
             DrawXWing(Xwing.SRT);
 
+
             //debug de Tie, rotando 
-            Matrix SRT =
-                Matrix.CreateScale(TieScale) *
-                Matrix.CreateRotationY(MathF.PI) *
-                Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
-                rotationMatrix;
+            //Matrix SRT =
+            //    Matrix.CreateScale(TieScale) *
+            //    Matrix.CreateRotationY(MathF.PI) *
+            //    Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
+            //    rotationMatrix;
             //DrawTie(TieWorld, SRT);
+            Matrix SRT =
+                Matrix.CreateScale(TrenchScale + 0.1f) *
+                Matrix.CreateTranslation(Xwing.Position);
 
-
-            foreach (var srt in trenches)
+            //DrawModel(boxModel,Matrix.Identity, SRT, new Vector3(1f,0f,1f));
+            Matrix world;
+            foreach (var mesh in boxModel.Meshes)
             {
-                DrawTrench(Matrix.Identity, srt);
+                world = mesh.ParentBone.Transform * SRT;
+
+                EffectTexture.Parameters["World"].SetValue(world);
+                EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
+
+                mesh.Draw();
             }
 
+            //foreach (var srt in trenches)
+            //{
+            //    DrawTrench(Matrix.Identity, srt);
+            //}
+            SRT = Matrix.CreateScale(TrenchScale) *
+                    Matrix.CreateRotationY(MathF.PI / 2);
+            //DrawTrench(Matrix.Identity, SRT);
 
             foreach (var laser in Xwing.fired)
             {
@@ -532,18 +585,18 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
-        void DrawTrench(Matrix world, Matrix SRT)
-        {
-            foreach (var mesh in Trench.Meshes)
-            {
-                world = mesh.ParentBone.Transform * SRT;
+        //void DrawTrench(Matrix world, Matrix SRT)
+        //{
+        //    foreach (var mesh in Trench.Meshes)
+        //    {
+        //        world = mesh.ParentBone.Transform * SRT;
 
-                EffectTexture.Parameters["World"].SetValue(world);
-                EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
+        //        EffectTexture.Parameters["World"].SetValue(world);
+        //        EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
                 
-                mesh.Draw();
-            }
-        }
+        //        mesh.Draw();
+        //    }
+        //}
         void DrawModel(Model model, Matrix world, Matrix SRT, Vector3 color)
         {
             Effect.Parameters["DiffuseColor"]?.SetValue(color);
@@ -562,6 +615,19 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+        public static Model GetModelFromType(Trench.TrenchType type)
+        {
+            switch(type)
+            {
+                case Trench.TrenchType.Platform:        return TrenchPlatform;
+                case Trench.TrenchType.Straight:        return TrenchStraight;
+                case Trench.TrenchType.T:               return TrenchT;
+                case Trench.TrenchType.Intersection:    return TrenchIntersection;
+                case Trench.TrenchType.Elbow:           return TrenchElbow;
+                case Trench.TrenchType.Turret:          return TrenchTurret;
+                default:                                return TrenchPlatform;
+            }
         }
     }
 }
