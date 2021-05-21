@@ -8,6 +8,9 @@ namespace TGC.MonoGame.TP
 {
     internal class World
     {
+        int RandomNumber = 0;
+        Random Random = new Random();
+
         private readonly List<Entity> entities = new List<Entity>();
 
         internal void Register(Entity entity) => entities.Add(entity);
@@ -16,18 +19,14 @@ namespace TGC.MonoGame.TP
         {
             new DeathStar().Create();
             XWing.getInstance().Instantiate(new Vector3(50f, 0f, 0f));
-            //new TIE().Instantiate(new Vector3(100f, 0f, 0f));
         }
 
         internal void Update(double elapsedTime)
         {
-            int RandomNumber;
-            Random random = new Random();
-            RandomNumber = random.Next(0, 300000); // 1/300000 Chances * segundoS de que spawnee un Tie
+            RandomNumber = Random.Next(0, 500); // 1/500 Chances * update de que spawnee un Tie
             if (RandomNumber == 1)
             {
-                TIE tie = new TIE();
-                tie.Instantiate(new Vector3(random.Next(-100, 500), 0f, 0f));
+                new TIE().Instantiate(new Vector3((float)Random.Next(0, 300), 0f, 0f));
             }
 
             entities.ForEach(entity => entity.Update(elapsedTime));

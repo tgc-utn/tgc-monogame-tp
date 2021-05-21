@@ -63,7 +63,7 @@ namespace TGC.MonoGame.TP.ConcreteEntities
                 }
                 else
                 {
-                    FlyAround(body); // Cambiar a que se acerque a XWing
+                    GetCloseToXWing(body); // Cambiar a que se acerque a XWing
                 }
             }
 
@@ -90,39 +90,36 @@ namespace TGC.MonoGame.TP.ConcreteEntities
             else if (CurrentState == State.FLEEING)
             {
                 Flee(body);
-                CurrentState = State.SEEKING;
+
+                if (FleeSuccess(body))
+                {
+                    CurrentState = State.SEEKING;
+                }
             }
 
+        }
+
+        private bool FleeSuccess(BodyReference body)
+        {
+            return DistanceToXWing(body) > 1000f;
         }
 
         private void Flee(BodyReference body)
         {
-
             Quaternion rotation = body.Pose.Orientation.ToQuaternion();
             Vector3 forward = PhysicUtils.Forward(rotation);
 
-            while (distanceToXWing(body) < 2000f)
-            {
-                body.Velocity.Linear = (forward * FastVelocity).ToBEPU(); // Debe ser mayor a la de XWing
-            }
-
-            _360Turn(body);
-
-            forward = PhysicUtils.Forward(rotation);
-            body.Velocity.Linear = (forward * ResetVelocity).ToBEPU(); 
-
-            
+            body.Velocity.Linear = (forward * FastVelocity).ToBEPU();
         }
 
-        private float distanceToXWing(BodyReference body)
+        private float DistanceToXWing(BodyReference body)
         {
-            return Vector3.Distance(body.Pose.Position.ToVector3(), XWing.getInstance().XWingPosition().ToVector3()); 
+            return Vector3.Distance(body.Pose.Position.ToVector3(), XWing.getInstance().XWingPosition().ToVector3());
         }
 
-        private void FlyAround(BodyReference body)
+        private void GetCloseToXWing(BodyReference body) // Comportamiento extraño
         {
-            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
-            Vector3 forward = PhysicUtils.Forward(rotation);
+            Vector3 forward = XWing.getInstance().XWingPosition().ToVector3();
 
             body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
             body.Velocity.Angular = new Vector3(0f, Regulator, 0).ToBEPU();
@@ -132,23 +129,7 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         private void GetInFront(BodyReference body)
         {
-            while(!XWingInFront(body))
-            {
-                Quaternion rotation = body.Pose.Orientation.ToQuaternion();
-                Vector3 forward = PhysicUtils.Forward(rotation);
-                Vector3 backwards = -PhysicUtils.Forward(rotation);
-
-                _360Turn(body);
-
-                int timing = 0;
-
-                while(timing < 5) // Debe pasar nave para volver a girar
-                {
-                    body.Velocity.Linear = (forward * FastVelocity).ToBEPU();
-                }
-
-                _360Turn(body);
-            }
+            Turn180FromXWing(body);
         }
 
         private void ShootXWing(BodyReference body)
@@ -158,31 +139,38 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         private bool XWingInFront(BodyReference body)
         {
-            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
+            /* Quaternion rotation = body.Pose.Orientation.ToQuaternion();
             Vector3 forward = PhysicUtils.Forward(rotation); // Puede estar completamente mal, despues revisar
             return (XWing.getInstance().XWingForward().X > 0  && (-forward).X < 0) || (XWing.getInstance().XWingForward().X <= 0 && (-forward).X >= 0) && Math.Abs((-forward).X) > Math.Abs(XWing.getInstance().XWingForward().X); 
+            */
+
+            return false;
         }
 
         private bool XWingInSight(BodyReference body)
         {
-            return distanceToXWing(body) < 1000f;
+            return DistanceToXWing(body) < 1000f;
         }
 
-        private void _360Turn(BodyReference body)
+        private void Turn180FromXWing(BodyReference body) // No funca, ver como saber si ven a lados opuestos
         {
-            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
-            Vector3 forward = PhysicUtils.Forward(rotation);
-            Vector3 backwards = -PhysicUtils.Forward(rotation);
+            Quaternion turn = body.Pose.Orientation.ToQuaternion();
+            Vector3 forward = PhysicUtils.Forward(turn);
+            Vector3 backward = -PhysicUtils.Forward(turn);
+            float dsdf = XWing.getInstance().XWingForward().X;
 
-            while (backwards != forward)
+            if (XWing.getInstance().XWingForward().X != backward.X) 
             {
-                body.Velocity.Angular = new Vector3(0f, 0.8f, 0).ToBEPU();
-                backwards = -PhysicUtils.Forward(rotation);
+                Quaternion change = body.Pose.Orientation.ToQuaternion();
+                forward = PhysicUtils.Forward(change);
+                body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
+                body.Velocity.Angular = (new Vector3(0f, 2f, 0f)).ToBEPU();
             }
-
-            body.Velocity.Angular = new Vector3(0f, 0f, 0).ToBEPU();
+            else
+            {
+                body.Velocity.Linear = (forward * 0).ToBEPU();
+                body.Velocity.Angular = (new Vector3(0f, 0f, 0f)).ToBEPU();
+            }
         }
     }
-
-
 }
