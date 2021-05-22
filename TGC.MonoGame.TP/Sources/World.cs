@@ -26,7 +26,7 @@ namespace TGC.MonoGame.TP
             RandomNumber = Random.Next(0, 500); // 1/500 Chances * update de que spawnee un Tie
             if (RandomNumber == 1)
             {
-                new TIE().Instantiate(new Vector3((float)Random.Next(0, 300), 0f, 0f));
+                new TIE().Instantiate(new Vector3((float)Random.Next(100, 400), 0f, 0f));
             }
 
             entities.ForEach(entity => entity.Update(elapsedTime));

@@ -37,6 +37,14 @@ namespace TGC.MonoGame.TP.ConcreteEntities
             return PhysicUtils.Forward(rotation);
         }
 
+        public Quaternion XWingOrientation()
+        {
+            BodyReference body = Body();
+            Quaternion orientation = body.Pose.Orientation.ToQuaternion();
+
+            return orientation;
+        }
+
 
         public override bool HandleCollition(ICollitionHandler other)
         {

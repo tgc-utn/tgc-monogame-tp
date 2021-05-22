@@ -3,6 +3,7 @@ using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using TGC.MonoGame.TP.Entities;
 using TGC.MonoGame.TP.Physics;
 
@@ -22,12 +23,11 @@ namespace TGC.MonoGame.TP.ConcreteEntities
         protected State CurrentState = State.SEEKING;
 
         int Health = 100;
-
-        float Regulator = 20f;
-
-        float SlowVelocity = 50f;
-        float StandarVelocity = 100f;
-        float FastVelocity = 300f;
+        protected float Regulator = 20f;
+        protected float SlowVelocity = 50f;
+        protected float StandarVelocity = 100f;
+        protected float FastVelocity = 300f;
+        protected double PreviousTime = 0;
 
         internal override void Update(double elapsedTime)
         {
@@ -96,7 +96,6 @@ namespace TGC.MonoGame.TP.ConcreteEntities
                     CurrentState = State.SEEKING;
                 }
             }
-
         }
 
         private bool FleeSuccess(BodyReference body, double elapsedTime)
@@ -129,7 +128,8 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         private void GetInFront(BodyReference body, double elapsedTime)
         {
-            Turn180FromXWing(body, elapsedTime);
+            Turn180(body, elapsedTime);
+            body.Velocity.Angular = new Vector3(0f, 2f, 0f).ToBEPU();
         }
 
         private void ShootXWing(BodyReference body, double elapsedTime)
@@ -151,23 +151,13 @@ namespace TGC.MonoGame.TP.ConcreteEntities
             return DistanceToXWing(body, elapsedTime) < 1000f;
         }
 
-        private void Turn180FromXWing(BodyReference body, double elapsedTime) // No funca, ver como saber si ven a lados opuestos
+        private void Turn180(BodyReference body, double elapsedTime) // No smooth pero funciona
         {
-            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
-            Vector3 forward = PhysicUtils.Forward(rotation);
+            Quaternion turn = new Quaternion(0, 1, 0, 0); 
+            body.Pose.Orientation = turn.ToBEPU();
+            Vector3 forward = PhysicUtils.Forward(turn);
 
-            if (!XWingInFront(body, elapsedTime))
-            {
-                body.Velocity.Angular = new Vector3(0f, 0.3f, 0f).ToBEPU();
-                // body.Velocity.Linear = (forward * SlowVelocity).ToBEPU();
-            }
-            else
-            {
-                body.Velocity.Angular = new Vector3(0f, 0f, 0f).ToBEPU();
-                body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
-            }
-
-            
+            body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
         }
     }
 }
