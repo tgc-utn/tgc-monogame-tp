@@ -11,7 +11,7 @@ public class MyCamera : Camera
     public bool ArrowsLookEnabled = true;
 
     public float Pitch;
-    public float Yaw = 270f;
+    public float Yaw = 0f;
 
     public Vector2 delta;
     public float turnSpeed = 60f;
@@ -68,10 +68,10 @@ public class MyCamera : Camera
         //var changed;
         var keyboardState = Keyboard.GetState();
 
-        if (keyboardState.IsKeyDown(Keys.W))
-            CurrentMovementSpeed *= 2f;
-        if (keyboardState.IsKeyDown(Keys.S))
-            CurrentMovementSpeed *= 0.5f;
+        if (keyboardState.IsKeyDown(Keys.LeftShift))
+            CurrentMovementSpeed *= 10f;
+        //if (keyboardState.IsKeyDown(Keys.S))
+        //    CurrentMovementSpeed *= 0.5f;
 
 
         //Free cam for debug
