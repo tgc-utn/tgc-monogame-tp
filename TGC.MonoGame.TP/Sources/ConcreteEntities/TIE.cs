@@ -24,88 +24,89 @@ namespace TGC.MonoGame.TP.ConcreteEntities
 
         protected int Health = 100;
         protected float Regulator = 20f;
-        protected float SlowVelocity = 50f;
-        protected float StandarVelocity = 100f;
+        protected float SlowVelocity = 75f;
+        protected float StandarVelocity = 120f;
         protected float FastVelocity = 300f;
-        protected double PreviousTime = 0;
 
-        internal override void Update(double elapsedTime)
+        internal override void Update()
         {
-            StateMachine(elapsedTime);
+            StateMachine();
         }
 
-        protected internal void StateMachine(double elapsedTime)
+        protected internal void StateMachine(double )
         {
             BodyReference body = Body();
 
             if (CurrentState == State.SEEKING)
             {
-                if (XWingInSight(body, elapsedTime))
+                if (XWingInSight(body))
                 {
-                    if (XWingInFront(body, elapsedTime))
+                    GetCloseToXWingSlowly(body);
+
+                    if (CloseToXWing(body))
                     {
                         CurrentState = State.ATTACKING;
-                        ShootXWing(body, elapsedTime);
+                        ShootXWing(body);
                     }
                     else
                     {
                         if (Health < 40)
                         {
                             CurrentState = State.FLEEING;
-                            Flee(body, elapsedTime);
+                            Flee(body);
                         }
                         else
                         {
                             CurrentState = State.SEEKING;
-                            GetFarInFront(body, elapsedTime);
+                            GetCloseToXWingSlowly(body);
                         }
                     }
                 }
                 else
                 {
                     CurrentState = State.SEEKING;
-                    GetCloseToXWing(body, elapsedTime); 
+                    GetCloseToXWing(body); 
                 }
             }
 
             else if (CurrentState == State.ATTACKING)
             {
-                if (XWingInFront(body, elapsedTime))
+                if (CloseToXWing(body))
                 {
-                    ShootXWing(body, elapsedTime);
+                    ShootXWing(body);
                 }
                 else
                 {
                     if (Health < 40)
                     {
                         CurrentState = State.FLEEING;
-                        Flee(body, elapsedTime);
+                        Flee(body);
                     }
                     else
                     {
                         CurrentState = State.SEEKING;
-                        GetFarInFront(body, elapsedTime);
+                        GetCloseToXWingSlowly(body);
                     }
                 }
             }
 
             else if (CurrentState == State.FLEEING)
             {
-                Flee(body, elapsedTime);
+                Flee(body);
 
-                if (FleeSuccess(body, elapsedTime))
+                if (FleeSuccess(body))
                 {
                     CurrentState = State.SEEKING;
                 }
             }
         }
 
-        private bool FleeSuccess(BodyReference body, double elapsedTime)
+        private bool FleeSuccess(BodyReference body)
         {
-            return DistanceToXWing(body, elapsedTime) > 1000f;
+            return DistanceToXWing(body) > 100f;
         }
 
-        private void Flee(BodyReference body, double elapsedTime)
+        private void Flee(BodyReference body)
         {
             Quaternion rotation = body.Pose.Orientation.ToQuaternion();
             Vector3 forward = PhysicUtils.Forward(rotation);
@@ -113,62 +114,62 @@ namespace TGC.MonoGame.TP.ConcreteEntities
             body.Velocity.Linear = (forward * FastVelocity).ToBEPU();
         }
 
-        private float DistanceToXWing(BodyReference body, double elapsedTime) // Siempre devuelve 0
+        private float DistanceToXWing(BodyReference body) 
         {
             Vector3 TIEPosition = body.Pose.Position.ToVector3();
             Vector3 XWingPosition = XWing.getInstance().XWingPosition().ToVector3();
-            return Vector3.Distance(TIEPosition, XWingPosition);
+
+            Vector3 DistanceVector = TIEPosition - XWingPosition;
+            DistanceVector.Y = 0f;
+
+            return DistanceVector.Length();
         }
 
-        private void GetCloseToXWing(BodyReference body, double elapsedTime) // Comportamiento extraño
+        private void GetCloseToXWing(BodyReference body) 
         {
-            body.Pose.Orientation = -XWing.getInstance().XWingOrientation().ToBEPU();
+            Vector3 XWingDirection = (XWing.getInstance().XWingPosition() - body.Pose.Position).ToVector3();
+            XWingDirection.Y = 0;
+            Quaternion RotationToXWing = new Quaternion(XWingDirection, 1f);
+            Quaternion FinalRotation = Quaternion.Lerp(RotationToXWing, body.Pose.Orientation.ToQuaternion(), 3f);
+            body.Pose.Orientation = FinalRotation.ToBEPU();
+
             Quaternion rotation = body.Pose.Orientation.ToQuaternion();
             Vector3 forward = PhysicUtils.Forward(rotation);
 
             body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
         }
 
-        private void GetFarInFront(BodyReference body, double elapsedTime)
+        private void GetCloseToXWingSlowly(BodyReference body)
         {
-                Turn180(body, elapsedTime);
-                Quaternion rotation = body.Pose.Orientation.ToQuaternion();
-                Vector3 forward = PhysicUtils.Forward(rotation);
+            Vector3 XWingDirection = (XWing.getInstance().XWingPosition() - body.Pose.Position).ToVector3();
+            XWingDirection.Y = 0;
+            Quaternion RotationToXWing = new Quaternion(XWingDirection, 1f);
+            Quaternion FinalRotation = Quaternion.Lerp(RotationToXWing, body.Pose.Orientation.ToQuaternion(), 3f);
+            body.Pose.Orientation = FinalRotation.ToBEPU();
 
-                body.Velocity.Linear = (forward * FastVelocity).ToBEPU();
+            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
+            Vector3 forward = PhysicUtils.Forward(rotation);
+
+            body.Velocity.Linear = (forward * SlowVelocity).ToBEPU();
         }
 
-        private bool XWingInFront(BodyReference body, double elapsedTime)
+        private bool CloseToXWing(BodyReference body)
         {
-            return XWingOrientedInversely(body, elapsedTime) && DistanceToXWing(body, elapsedTime) > 300f;
+            return DistanceToXWing(body) < 50f;
         }
 
-        private void ShootXWing(BodyReference body, double elapsedTime)
+        private void ShootXWing(BodyReference body)
         {
+            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
+            Vector3 forward = PhysicUtils.Forward(rotation);
+
+            body.Velocity.Linear = (forward * SlowVelocity).ToBEPU();
             // Post lasers
         }
 
-        private bool XWingOrientedInversely(BodyReference body, double elapsedTime)
+        private bool XWingInSight(BodyReference body)
         {
-            Quaternion rotation = body.Pose.Orientation.ToQuaternion();
-            Vector3 forward = PhysicUtils.Forward(rotation);
-            float dotProduct = Vector3.Dot(forward, XWing.getInstance().XWingForward());
-
-            return dotProduct < 0;
-        }
-
-        private bool XWingInSight(BodyReference body, double elapsedTime)
-        {
-            return DistanceToXWing(body, elapsedTime) < 500f;
-        }
-
-        private void Turn180(BodyReference body, double elapsedTime) // No smooth pero funciona
-        {
-            Quaternion turn = new Quaternion(0, 1, 0, 0); 
-            body.Pose.Orientation = turn.ToBEPU();
-            Vector3 forward = PhysicUtils.Forward(turn);
-
-            body.Velocity.Linear = (forward * StandarVelocity).ToBEPU();
+            return DistanceToXWing(body) < 250f;
         }
     }
 }

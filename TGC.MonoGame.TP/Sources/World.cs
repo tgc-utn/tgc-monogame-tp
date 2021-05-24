@@ -23,7 +23,7 @@ namespace TGC.MonoGame.TP
 
         internal void Update(double elapsedTime)
         {
-            RandomNumber = Random.Next(0, 500); // 1/500 Chances * update de que spawnee un Tie
+            RandomNumber = Random.Next(0, 750); // 1/750 Chances * update de que spawnee un Tie
             if (RandomNumber == 1)
             {
                 new TIE().Instantiate(new Vector3((float)Random.Next(100, 400), 0f, 0f));
