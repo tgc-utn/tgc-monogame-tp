@@ -51,6 +51,7 @@ public class TieFighter
 			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), 0f) *
             Matrix.CreateTranslation(Position);
 		updateFireRate();
+		boundingSphere.Center = Position;
 		
 	}
 	public void updateFireRate()
@@ -85,7 +86,6 @@ public class TieFighter
 
         Pitch = MathHelper.ToDegrees(angleBetweenVectors(FrontDirection, Vector3.Up)) + 90;
         //Pitch = MathHelper.ToDegrees(MathF.Asin(FrontDirection.Y));
-
 
         //System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
     }

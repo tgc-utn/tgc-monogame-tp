@@ -11,7 +11,7 @@ public class MyCamera : Camera
     public bool ArrowsLookEnabled = true;
 
     public float Pitch;
-    public float Yaw = 0f;
+    public float Yaw = 90f;
 
     public Vector2 delta;
     public float turnSpeed = 60f;

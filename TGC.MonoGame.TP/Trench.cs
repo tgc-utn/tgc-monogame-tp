@@ -192,7 +192,7 @@ namespace TGC.MonoGame.TP
 			String str = "MAP\n";
 			for (int y = size - 1; y >= 0; y--)
 			{
-				for (int x = 0; x < size; x++)
+				for (int x = size - 1; x >= 0; x--)
 				{
 					if (map[x, y] == null)
 						str += "█ ";

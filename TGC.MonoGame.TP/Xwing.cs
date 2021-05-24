@@ -71,13 +71,13 @@ public class Xwing
 
 	public Vector4 GetZone()
 	{
-		int viewSize = 4;
+		int viewSize = 3;
 		float blockSize = MapLimit / MapSize;
 
 		Vector2 currentBlock = new Vector2(
 			(int)(Position.X/ blockSize), (int)(Position.Z / blockSize));
 
-		System.Diagnostics.Debug.Write("P " + Position.X + " " + Position.Z + " CB " + currentBlock.X +" "+ currentBlock.Y);
+		//System.Diagnostics.Debug.Write("P " + Position.X + " " + Position.Z);
 		var a = currentBlock.X - viewSize;
 		var b = currentBlock.X + viewSize;
 		var c = currentBlock.Y - viewSize;
@@ -87,17 +87,7 @@ public class Xwing
 		b = MathHelper.Clamp(b, 0, MapSize);
 		c = MathHelper.Clamp(c, 0, MapSize);
 		d = MathHelper.Clamp(d, 0, MapSize);
-		System.Diagnostics.Debug.Write(" ABCD " + a+ " " +b + " " + c+ " " + d +"\n");
-
-		//if (a < 0)
-		//	a = 0;
-		//if (c < 0)
-		//	c = 0;
-		//if (b > MapSize)
-		//	b = MapSize;
-		//if (d > MapSize)
-		//	d = 0;
-
+		
 		return new Vector4(a,b,c,d);
     }
 	public void VerifyCollisions(List<Laser> enemyLasers)

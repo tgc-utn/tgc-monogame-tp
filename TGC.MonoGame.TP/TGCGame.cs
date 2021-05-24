@@ -64,7 +64,7 @@ namespace TGC.MonoGame.TP
         private static Model TrenchTurret { get; set; }
         public Trench[,] Map { get; set; }
         public const int MapSize = 21; //21x21
-
+        public float MapLimit;
         private Model Trench2 { get; set; }
         Model skyboxModel;
         private Model LaserModel { get; set; }
@@ -128,7 +128,7 @@ namespace TGC.MonoGame.TP
             size.Y /= 2;
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
-            Camera.Position =new Vector3(100, 0, 100);
+            
             startView = Camera.View;
             startProj = Camera.Projection;
 
@@ -137,11 +137,12 @@ namespace TGC.MonoGame.TP
             camUpdateTimer.AutoReset = true;
             camUpdateTimer.Enabled = true;
 
-            generateEnemies();
+            
 
             //int mapSize = 9; //9x9
             Map = Trench.GenerateMap(MapSize);
             System.Diagnostics.Debug.WriteLine(Trench.ShowMapInConsole(Map, MapSize));
+            
 
             base.Initialize();
         }
@@ -149,7 +150,7 @@ namespace TGC.MonoGame.TP
 
         private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
         {
-            if (Camera.MouseLookEnabled)
+            if (Camera.MouseLookEnabled && IsActive)
                 Camera.ProcessMouse(Xwing);
         }
 
@@ -211,25 +212,10 @@ namespace TGC.MonoGame.TP
 
             //Trench.UpdateModels(ref Map, MapSize);
             UpdateTrenches();
-           
 
-            //for (var i = 0; i < 5; i++)
-            //{ 
-            var i = 0;
-            Matrix SRT = Matrix.CreateScale(TrenchScale) *
-                Matrix.CreateRotationY(MathF.PI / 2) *
-                Matrix.CreateTranslation(TrenchTranslation = new Vector3(0, 0, -i * 170));
-
-            trenches.Add(SRT);
-            //}
-            //List<Matrix> rotation = new List<Matrix>() ;
-            //foreach (var t in trenches)
-            //    rotation.Add(t);
-
-            //foreach(var t in rotation)
-            //{
-            //    trenches.Add(t * Matrix.CreateTranslation(new Vector3(170, 0, 0)));
-            //}
+            var blockSize = MapLimit / MapSize;
+            Camera.Position = new Vector3(MapLimit/2 - blockSize/2, 0, blockSize /2);
+            generateEnemies();
 
             base.LoadContent();
         }
@@ -241,7 +227,8 @@ namespace TGC.MonoGame.TP
 
             float tx = 0;
             float tz = 0;
-            Matrix SR = Matrix.CreateScale(TrenchScale);
+            Matrix S = Matrix.CreateScale(TrenchScale);
+            Matrix R = Matrix.Identity; 
             Matrix T = Matrix.CreateTranslation(new Vector3(0, -50, 0));
             float delta = 395.5f;
             //for (int x = 0; x < MapSize; x++)
@@ -254,16 +241,34 @@ namespace TGC.MonoGame.TP
                 tz = 0;
                 for (int z = 0; z < MapSize; z++)
                 {
-                    Map[x, z].Model = GetModelFromType(Map[x, z].Type);
-                    //Map[x, z].Color = new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
-                    Map[x, z].Color = Vector3.Zero;
-                    Map[x, z].Position = new Vector3(tx, 0, tz);
-                    Map[x, z].SRT = SR * Matrix.CreateTranslation(Map[x, z].Position) * T;
+                    Trench block = Map[x, z];
+
+                    block.Model = GetModelFromType(Map[x, z].Type);
+                    //block.Color = new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
+                    Vector3 color = Vector3.Zero;
+                    var val = 0.4f;
+                    switch(block.Type)
+                    {
+                        case TrenchType.Platform: R = Matrix.Identity;  color = new Vector3(-0.5f, -0.5f, -0.5f); break;
+                        case TrenchType.Straight: R = Matrix.CreateRotationY(-MathHelper.PiOver2); color = new Vector3(val, 0f, val); break;
+                        case TrenchType.T: R = Matrix.CreateRotationY(-MathHelper.PiOver2); color = new Vector3(val, 0f, 0f); break;
+                        case TrenchType.Elbow: R = Matrix.Identity; color = new Vector3(0f, val, 0f); break;
+                        case TrenchType.Intersection: R = Matrix.Identity; color = Vector3.Zero; break;
+
+                    }
+                    block.Color = color;
+                    //Map[x, z].Color = Vector3.Zero;
+                    block.Position = new Vector3(tx, 0, tz);
+                    block.SRT =
+                        S * R * Matrix.CreateRotationY(MathHelper.ToRadians(block.Rotation)) * 
+                        Matrix.CreateTranslation(block.Position) * T;
+                    
                     tz += delta;
                 }
                 tx += delta;
             }
-            Xwing.MapLimit = tz;
+            MapLimit = tz;
+            Xwing.MapLimit = MapLimit;
             Xwing.MapSize = MapSize;
             //}
         }
@@ -565,7 +570,7 @@ namespace TGC.MonoGame.TP
             for (int x = (int)zone.X; x < zone.Y; x++)
                 for (int z = (int)zone.Z; z < zone.W; z++)
                 {
-                    //if (vDistance(Map[x, z].Position, Xwing.Position) < 1000)
+                    //if (!Map[x, z].Type.Equals(TrenchType.Platform))
                         DrawTrench(Map[x, z]);
                 }
             
@@ -581,9 +586,12 @@ namespace TGC.MonoGame.TP
                 EffectTexture.Parameters["World"].SetValue(world);
                 EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
                 EffectTexture.Parameters["ModifierColor"].SetValue(t.Color);
+                EffectTexture.Parameters["TextureMultiplier"].SetValue(50f);
+
                 mesh.Draw();
             }
             EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
+            EffectTexture.Parameters["TextureMultiplier"].SetValue(1f);
         }
         void DrawXWing(Matrix SRT)
         {
