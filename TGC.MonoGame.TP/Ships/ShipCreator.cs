@@ -20,6 +20,7 @@ namespace TGC.MonoGame.TP.Ships
         public string TextureName;
         public Vector3 Position { get; set; }
         public Vector3 Rotation { get; set; }
+        public Vector3 wavesRotation { get; set; }
         public Vector3 Scale { get; set; }
         public float Speed { get; set; }
 
@@ -35,8 +36,6 @@ namespace TGC.MonoGame.TP.Ships
         public bool playerMode = false;
         private Matrix waterMatrix { get; set; }
 
-        private Matrix[] BoneMatrix;
-
         public Ship(TGCGame game, Vector3 pos, Vector3 rot, Vector3 scale, float speed, string modelName, string effect, string textureName)
         {
             Game = game;
@@ -51,16 +50,13 @@ namespace TGC.MonoGame.TP.Ships
             RotationSpeed = 0.5f;
             FrontDirection = Vector3.Forward;
             PlayerRotation = 0;
-            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateTranslation(pos);
+            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * waterMatrix * Matrix.CreateTranslation(pos);
         }
         public void LoadContent()
         {
             ShipModel = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             ShipEffect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + EffectName);
             ShipTexture = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + TextureName);
-
-            BoneMatrix = new Matrix[ShipModel.Bones.Count];
-            ShipModel.CopyAbsoluteBoneTransformsTo(BoneMatrix);
         }
 
 
@@ -87,13 +83,51 @@ namespace TGC.MonoGame.TP.Ships
         
         public void Update(GameTime gameTime)
         {
+            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            UpdateShipRegardingWaves(elapsedTime);
             FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
             if (playerMode)
             {
-                var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
                 ProcessKeyboard(elapsedTime);
             }
         }
+
+        float frac(float val)
+        {
+            return val - MathF.Floor(val);
+        }
+        public void UpdateShipRegardingWaves(float gameTime)
+        {
+
+            float speed = 0.05f;
+            float offset = 10f;
+            float radius = 3f;
+            var worldPosition = Position;
+
+            var posY = 0.4 * MathF.Cos(((float)(worldPosition.X * 0.0075f) * .5f + gameTime * speed) * offset) * radius * 0.5f;
+            posY += (1 - frac(gameTime * 0.1f)) * frac(gameTime * 0.1f) * 0.1f * MathF.Cos((-(float)(worldPosition.Z * 0.0075f) + gameTime * speed * 1.3f) * offset) * radius;
+
+            posY *= 7f;
+
+            var wavetan1 = Vector3.Normalize(new Vector3(1f,
+                0.4f * MathF.Cos(((float)(worldPosition.X) * .5f + gameTime * speed) * offset) * radius * 0.5f
+                , 0f));
+
+            var wavetan2 = Vector3.Normalize(new Vector3(0,
+                (1 - frac(gameTime * 0.1f)) * frac(gameTime * 0.1f) * 0.1f * MathF.Cos((-(float)(worldPosition.Z) + gameTime * speed * 1.3f) * offset) * radius,
+                1));
+
+            worldPosition = new Vector3(worldPosition.X, (float)(posY) * 2, worldPosition.Z);
+
+            Position = worldPosition;
+
+            var waterNormal = Vector3.Normalize(Vector3.Cross(wavetan2, wavetan1));
+
+            wavesRotation = Rotation - Vector3.Dot(Rotation, waterNormal) * waterNormal;
+
+            waterMatrix = Matrix.CreateLookAt(Vector3.Zero, wavesRotation, waterNormal);
+        }
+
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();

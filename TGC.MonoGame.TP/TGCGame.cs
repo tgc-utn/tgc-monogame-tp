@@ -225,6 +225,10 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            SM.Update(gameTime);
+            Patrol.Update(gameTime);
+            Cruiser.Update(gameTime);
+            Barquito.Update(gameTime);
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
