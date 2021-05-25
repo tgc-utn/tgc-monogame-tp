@@ -41,6 +41,9 @@ namespace TGC.MonoGame.TP
             IsMouseVisible = true;
         }
 
+        /// <summary>
+        /// Isla
+        /// </summary>
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model ModelIsland { get; set; }
@@ -60,45 +63,59 @@ namespace TGC.MonoGame.TP
         private Model ModelRock3 { get; set; }
         //private Model ModelRock4 { get; set; }
         private Model ModelRock5 { get; set; }
+        private Effect IslandMiscEffect { get; set; }
+        public Texture2D IslandTexture;
+        public Texture2D IslandMiscTexture;
+        public Texture2D WaterTexture;
 
+        /// <summary>
+        /// Barcos
+        /// </summary>
         private Ship SM { get; set; }
         private Ship Patrol { get; set; }
         private Ship Cruiser { get; set; }
         private Ship Barquito { get; set; }
         private Ship PlayerBoat { get; set; }
-        private Effect IslandMiscEffect { get; set; }
-        private Model PlayerBoatModel { get; set; }
-        private Effect PlayerBoatEffect { get; set; }
-        private Matrix PlayerBoatMatrix { get; set; }
-        
-        public Texture2D PlayerBoatTexture;
-        public float PlayerSpeed = 0.5f;
-        private float Rotation { get; set; }
+
+        /// <summary>
+        /// Camara
+        /// </summary>
+        private BoatCamera Camera { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-        private BoatCamera Camera { get; set; }
+        
+        private float CameraArm;
+        public Camera shotCam;
+        public Camera CurrentCamera => shotCam;
+
+        /// <summary>
+        /// Skydome
+        /// </summary>
         private SkyDome Skydome { get; set; }
         private Model SkyDomeModel { get; set; }
-
         private Effect SkyDomeEffect { get; set; }
         public Texture2D SkyDomeTexture;
 
 
-        public Texture2D IslandTexture;
-        public Texture2D IslandMiscTexture;
-        public Texture2D WaterTexture;
-
-        private Vector3 FrontDirection;
-        private float CameraArm;
-        private double PlayerRotation;
-
-        public Camera shotCam;
-        public Camera CurrentCamera => shotCam;
 
 
-        public float MovementSpeed { get; set; }
-        public float RotationSpeed { get; set; }
+
+
+
+        //private Model PlayerBoatModel { get; set; }
+        //private Effect PlayerBoatEffect { get; set; }
+        private Matrix PlayerBoatMatrix { get; set; }
+
+        //public Texture2D PlayerBoatTexture;
+
+        //public float PlayerSpeed = 0.5f;
+        //private float Rotation { get; set; }
+        //private Vector3 FrontDirection;
+        //private double PlayerRotation;
+        //public float MovementSpeed { get; set; }
+        //public float RotationSpeed { get; set; }
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -123,13 +140,14 @@ namespace TGC.MonoGame.TP
 
             CameraArm = 30.0f;
             shotCam = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
-
+            /*
             MovementSpeed = 100.0f;
             RotationSpeed = 0.5f;
             FrontDirection = Vector3.Forward;
             PlayerRotation = 0;
             PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(0, 0, 600);
             //PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateTranslation(0,0,600);
+            */
 
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
@@ -178,21 +196,25 @@ namespace TGC.MonoGame.TP
 
             //// BOTES ////
 
-            SM = new Ship(this, new Vector3(-100f, 0f, 400f), new Vector3(0f, 0f, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "SMGeo", "BasicShader", "SM_T_Boat_M_Boat_BaseColor");
+            SM = new Ship(this, new Vector3(-100f, 0f, 400f), new Vector3(0f, 0f, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "Botes/SMGeo", "BasicShader", "Botes/SM_T_Boat_M_Boat_BaseColor");
             SM.LoadContent();
 
-            Patrol = new Ship(this, new Vector3(-300f, 0f, 500f), new Vector3(0f, 0f, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "PatrolGeo", "BasicShader", "T_Patrol_Ship_1K_BaseColor");
+            Patrol = new Ship(this, new Vector3(-300f, 0f, 500f), new Vector3(0f, 0f, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "Botes/PatrolGeo", "BasicShader", "Botes/T_Patrol_Ship_1K_BaseColor");
             Patrol.LoadContent();
 
-            Cruiser = new Ship(this, new Vector3(-100f, 0f, 900f), new Vector3(0f, 0f, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "CruiserGeo", "BasicShader", "T_Cruiser_M_Cruiser_BaseColor");
+            Cruiser = new Ship(this, new Vector3(-100f, 0f, 900f), new Vector3(0f, 0f, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "Botes/CruiserGeo", "BasicShader", "Botes/T_Cruiser_M_Cruiser_BaseColor");
             Cruiser.LoadContent();
 
-            Barquito = new Ship(this, new Vector3(-200f, 0f, 700f), new Vector3(0f, 0f, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "BarquitoGeo", "BasicShader", "Barquito_BaseColor");
+            Barquito = new Ship(this, new Vector3(-200f, 0f, 700f), new Vector3(0f, 0f, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "Botes/BarquitoGeo", "BasicShader", "Botes/Barquito_BaseColor");
             Barquito.LoadContent();
 
-            PlayerBoatModel = Content.Load<Model>(ContentFolder3D + "ShipB/Source/Ship");
-            PlayerBoatEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            PlayerBoatTexture = Content.Load<Texture2D>(ContentFolder3D + "ShipB/textures/Battleship_lambert1_AlbedoTransparency.tga");
+            PlayerBoat = new Ship(this, new Vector3(0f, 0f, 600f), new Vector3(0f, 0f, 0f), new Vector3(0.1f, 0.1f, 0.1f), 0.5f, "ShipB/Source/Ship", "BasicShader", "Botes/Battleship_lambert1_AlbedoTransparency.tga");
+            PlayerBoat.playerMode = true;
+            PlayerBoat.LoadContent();
+            
+            //PlayerBoatModel = Content.Load<Model>(ContentFolder3D + "ShipB/Source/Ship");
+            //PlayerBoatEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            //PlayerBoatTexture = Content.Load<Texture2D>(ContentFolder3D + "ShipB/textures/Battleship_lambert1_AlbedoTransparency.tga");
 
             SkyDomeModel = Content.Load<Model>(ContentFolder3D + "Skydome/SkyDome");
             SkyDomeTexture = Content.Load<Texture2D>(ContentFolder3D + "Skydome/Sky");
@@ -213,12 +235,12 @@ namespace TGC.MonoGame.TP
 
             shotCam.Update(gameTime);
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ProcessKeyboard(elapsedTime);
+            //ProcessKeyboard(elapsedTime);
 
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            shotCam.Position = PlayerBoatMatrix.Translation + new Vector3(0, CameraArm, 0);
-            FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+            shotCam.Position = PlayerBoat.PlayerBoatMatrix.Translation + new Vector3(0, CameraArm, 0);
+            //PlayerBoat.FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
             base.Update(gameTime);
         }
 
@@ -275,8 +297,9 @@ namespace TGC.MonoGame.TP
             Patrol.Draw();
             Cruiser.Draw();
             Barquito.Draw();
+            PlayerBoat.Draw();
 
-            DrawModel(PlayerBoatModel, Matrix.CreateRotationY((float)PlayerRotation)* PlayerBoatMatrix  , PlayerBoatEffect);
+            //DrawModel(PlayerBoatModel, Matrix.CreateRotationY((float)PlayerRotation)* PlayerBoatMatrix  , PlayerBoatEffect);
 
             /// Skydome
             Skydome.Draw(shotCam.View, shotCam.Projection, shotCam.Position);
@@ -307,7 +330,8 @@ namespace TGC.MonoGame.TP
 
             base.UnloadContent();
         }
-
+        
+        /*
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();
@@ -357,6 +381,6 @@ namespace TGC.MonoGame.TP
         private void RotateLeft(float amount)
         {
             RotateRight(-amount);
-        }
+        }*/
     }
 }

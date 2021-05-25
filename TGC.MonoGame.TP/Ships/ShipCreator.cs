@@ -22,6 +22,11 @@ namespace TGC.MonoGame.TP.Ships
         public Vector3 Rotation { get; set; }
         public Vector3 Scale { get; set; }
         public float Speed { get; set; }
+        //private float Rotation { get; set; }
+
+        private Vector3 FrontDirection;
+
+        private float PlayerRotation;
         //public Vector3 WaveOrientation { get; set; }
 
         //public float anguloDeGiro { get; set; }
@@ -34,6 +39,11 @@ namespace TGC.MonoGame.TP.Ships
         //private float _shootingCooldownTime = 0.8f;
 
         //private float _timeToCooldown = 0f;
+
+        private float MovementSpeed { get; set; }
+        private float RotationSpeed { get; set; }
+
+        public Matrix PlayerBoatMatrix { get; set; }
 
         public bool playerMode = false;
 
@@ -52,22 +62,29 @@ namespace TGC.MonoGame.TP.Ships
             ModelName = modelName;
             EffectName = effect;
             TextureName = textureName;
+            MovementSpeed = 100.0f;
+            RotationSpeed = 0.5f;
+            FrontDirection = Vector3.Forward;
+            PlayerRotation = 0;
+            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateTranslation(pos);
         }
-
         public void LoadContent()
         {
-            ShipModel = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "Botes/" + ModelName);
+            ShipModel = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             ShipEffect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + EffectName);
-            ShipTexture = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + "Botes/" + TextureName);
+            ShipTexture = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + TextureName);
 
             BoneMatrix = new Matrix[ShipModel.Bones.Count];
             ShipModel.CopyAbsoluteBoneTransformsTo(BoneMatrix);
         }
 
+
         public void Draw()
         {
             ShipEffect.Parameters["ModelTexture"].SetValue(ShipTexture);
-            DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
+            DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
+            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
+
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
@@ -82,172 +99,66 @@ namespace TGC.MonoGame.TP.Ships
                 mesh.Draw();
             }
         }
-        /*
+        
         public void Update(GameTime gameTime)
         {
-            
-            UpdateShipRegardingWaves(_game.ElapsedTime);
-            if (CanBeControlled)
+            FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+            //UpdateShipRegardingWaves(_game.ElapsedTime);
+            if (playerMode)
             {
-                ProcessKeyboard(_game.ElapsedTime);
-                UpdateMovementSpeed(_game.ElapsedTime);
-                Move();
-                if (_timeToCooldown >= float.Epsilon)
-                {
-                    _timeToCooldown -= Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-                }
-            }
-        }*/
-
-    /*
-    public void Move()
-    {
-        var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
-        orientacion = newOrientacion;
-
-        //TODO improve wave speed modification
-        var extraSpeed = 10;
-        if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
-        var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
-
-        var newPosition = new Vector3(Position.X - speed * orientacion.X, Position.Y, Position.Z + speed * orientacion.Z);
-
-        Position = newPosition;
-    }
-
-    public void UpdateShipRegardingWaves(float time)
-    {
-        float waveFrequency = 0.01f;
-        float waveAmplitude = 20;
-        time *= 2;
-
-        var worldVector = Position;
-
-        var newY = (MathF.Sin(worldVector.X * waveFrequency + time) + MathF.Sin(worldVector.Z * waveFrequency + time)) * waveAmplitude;
-
-        var tangent1 = Vector3.Normalize(new Vector3(1,
-            (MathF.Cos(worldVector.X * waveFrequency + time) * waveFrequency * waveAmplitude) * 0.5f
-            , 0));
-        var tangent2 = Vector3.Normalize(new Vector3(0,
-            (MathF.Cos(worldVector.Z * waveFrequency + time) * waveFrequency * waveAmplitude) * 0.5f
-            , 1));
-
-        worldVector = new Vector3(worldVector.X, newY + 10, worldVector.Z);
-
-        Position = worldVector;
-
-        var waterNormal = Vector3.Normalize(Vector3.Cross(tangent2, tangent1));
-
-        //Proyectamos la orientacion sobre el plano formado con la normal del agua para subir o bajar la proa del barco
-        orientacionSobreOla = orientacion - Vector3.Dot(orientacion, waterNormal) * waterNormal;
-
-        waterMatrix = Matrix.CreateLookAt(Vector3.Zero, orientacionSobreOla, waterNormal);
-    }
-
-    private void UpdateMovementSpeed(float gameTime)
-    {
-        float acceleration;
-        if (HandBrake) acceleration = maxacceleration;
-        else acceleration = maxacceleration * 8;
-        float GearMaxSpeed = (maxspeed * currentGear / 3);
-        if (speed > GearMaxSpeed)
-        {
-            if (speed - acceleration < GearMaxSpeed)
-            {
-                speed = GearMaxSpeed;
-            }
-            else
-            {
-                speed -= acceleration;
+                var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                ProcessKeyboard(elapsedTime);
             }
         }
-        else if (speed < GearMaxSpeed)
+        private void ProcessKeyboard(float elapsedTime)
         {
-            if (speed + acceleration > GearMaxSpeed)
+            var keyboardState = Keyboard.GetState();
+
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
-                speed = GearMaxSpeed;
+                Game.Exit();
             }
-            else
+
+            //var currentMovementSpeed = MovementSpeed;
+
+            if (keyboardState.IsKeyDown(Keys.W))
             {
-                speed += acceleration;
+                MoveForward(MovementSpeed * elapsedTime);
             }
+
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                MoveBackwards(MovementSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                RotateRight(RotationSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                RotateLeft(RotationSpeed * elapsedTime);
+            }
+
+
+        }
+
+        private void MoveForward(float amount)
+        {
+            PlayerBoatMatrix *= Matrix.CreateTranslation(FrontDirection * amount);
+        }
+        private void MoveBackwards(float amount)
+        {
+            MoveForward(-amount);
+        }
+        private void RotateRight(float amount)
+        {
+            PlayerRotation += amount;
+        }
+        private void RotateLeft(float amount)
+        {
+            RotateRight(-amount);
         }
     }
-    private void ProcessKeyboard(float elapsedTime)
-    {
-        var keyboardState = Keyboard.GetState();
-
-
-        if (keyboardState.IsKeyDown(Keys.A))
-        {
-            if (speed == 0) { }
-            else
-            {
-                if (anguloDeGiro + giroBase >= MathF.PI * 2)
-                {
-                    anguloDeGiro = anguloDeGiro + giroBase - MathF.PI * 2;
-                }
-                else
-                {
-                    anguloDeGiro -= giroBase;
-                }
-            }
-        }
-
-        if (keyboardState.IsKeyDown(Keys.D))
-        {
-            if (speed == 0) { }
-            else
-            {
-                if (anguloDeGiro + giroBase < 0)
-                {
-                    anguloDeGiro = anguloDeGiro - giroBase + MathF.PI * 2;
-                }
-                else
-                {
-                    anguloDeGiro += giroBase;
-                }
-            }
-        }
-
-        if (this.pressedAccelerator == false && keyboardState.IsKeyDown(Keys.W) && currentGear < 3)
-        {
-            currentGear++;
-            Console.WriteLine("b");
-            pressedAccelerator = true;
-            if (HandBrake) HandBrake = false;
-        }
-        if (this.pressedAccelerator == true && keyboardState.IsKeyUp(Keys.W))
-        {
-            Console.WriteLine("a");
-            pressedAccelerator = false;
-        }
-
-        if (this.pressedReverse == false && keyboardState.IsKeyDown(Keys.S) && currentGear > -2)
-        {
-            currentGear--;
-            pressedReverse = true;
-            if (HandBrake) HandBrake = false;
-        }
-        if (this.pressedReverse == true && keyboardState.IsKeyUp(Keys.S))
-        {
-            pressedReverse = false;
-        }
-
-        if (HandBrake == false && keyboardState.IsKeyDown(Keys.Space))
-        {
-            HandBrake = true;
-            currentGear = 0;
-        }
-
-        if (Mouse.GetState().LeftButton == ButtonState.Pressed && _timeToCooldown < float.Epsilon)
-        {
-            var bulletOrientation = orientacion;
-            bulletOrientation.X = -bulletOrientation.X;
-            _game.Bullets.Add(new Bullet(_game, Position, bulletOrientation + Vector3.Up * 0.2f));
-            _timeToCooldown = _shootingCooldownTime;
-        }
-
-    }*/
-}
 }

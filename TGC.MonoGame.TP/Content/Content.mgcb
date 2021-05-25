@@ -1465,6 +1465,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Botes/Barquito_BaseColor.tga
 
+#begin Textures/Botes/Battleship_lambert1_AlbedoTransparency.tga.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Botes/Battleship_lambert1_AlbedoTransparency.tga.png
+
 #begin Textures/Botes/SM_T_Boat_M_Boat_BaseColor.TGA
 /importer:TextureImporter
 /processor:TextureProcessor
