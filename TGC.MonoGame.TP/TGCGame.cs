@@ -3,6 +3,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Skydome;
+using TGC.MonoGame.TP.Ships;
+
 
 
 namespace TGC.MonoGame.TP
@@ -57,18 +60,17 @@ namespace TGC.MonoGame.TP
         private Model ModelRock3 { get; set; }
         //private Model ModelRock4 { get; set; }
         private Model ModelRock5 { get; set; }
-        private Model ModelBoatSM { get; set; }
-        private Effect BoatSMEffect { get; set; }
-        private Model ModelPatrol { get; set; }
-        private Effect PatrolEffect { get; set; }
-        private Model ModelCruiser { get; set; }
-        private Effect CruiserEffect { get; set; }
-        private Model ModelBarquito { get; set; }
-        private Effect IslandMiscEffect { get; set; }
 
+        private Ship SM { get; set; }
+        private Ship Patrol { get; set; }
+        private Ship Cruiser { get; set; }
+        private Ship Barquito { get; set; }
+        private Ship PlayerBoat { get; set; }
+        private Effect IslandMiscEffect { get; set; }
         private Model PlayerBoatModel { get; set; }
         private Effect PlayerBoatEffect { get; set; }
         private Matrix PlayerBoatMatrix { get; set; }
+        
         public Texture2D PlayerBoatTexture;
         public float PlayerSpeed = 0.5f;
         private float Rotation { get; set; }
@@ -76,17 +78,24 @@ namespace TGC.MonoGame.TP
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
         private BoatCamera Camera { get; set; }
+        private SkyDome Skydome { get; set; }
+        private Model SkyDomeModel { get; set; }
+
+        private Effect SkyDomeEffect { get; set; }
+        public Texture2D SkyDomeTexture;
+
 
         public Texture2D IslandTexture;
-        public Texture2D BoatSMTexture;
-        public Texture2D PatrolTexture;
-        public Texture2D CruiserTexture;
         public Texture2D IslandMiscTexture;
         public Texture2D WaterTexture;
 
         private Vector3 FrontDirection;
         private float CameraArm;
         private double PlayerRotation;
+
+        public Camera shotCam;
+        public Camera CurrentCamera => shotCam;
+
 
         public float MovementSpeed { get; set; }
         public float RotationSpeed { get; set; }
@@ -109,11 +118,11 @@ namespace TGC.MonoGame.TP
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
 
-            CameraArm = 60.0f;
-            Camera = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
+            CameraArm = 30.0f;
+            shotCam = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
 
             MovementSpeed = 100.0f;
             RotationSpeed = 0.5f;
@@ -146,7 +155,10 @@ namespace TGC.MonoGame.TP
             IslandEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             IslandTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland02Diffuse");
 
-            ModelWater = Content.Load<Model>(ContentFolder3D + "Island/AguaGeo");
+            IslandMiscEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            IslandMiscTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland01Diffuse");
+
+            ModelWater = Content.Load<Model>(ContentFolder3D + "Island/waterAltaGeo");
             WaterEffect = Content.Load<Effect>(ContentFolderEffects + "WaterShader");
             WaterTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/Water01Diffuse");
 
@@ -166,26 +178,26 @@ namespace TGC.MonoGame.TP
 
             //// BOTES ////
 
-            ModelBoatSM = Content.Load<Model>(ContentFolder3D + "Botes/SMGeo");
-            BoatSMEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            BoatSMTexture = Content.Load<Texture2D>(ContentFolderTextures + "Botes/SM_T_Boat_M_Boat_BaseColor");
+            SM = new Ship(this, new Vector3(-100f, 0f, 400f), new Vector3(0f, 0f, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "SMGeo", "BasicShader", "SM_T_Boat_M_Boat_BaseColor");
+            SM.LoadContent();
 
-            ModelPatrol = Content.Load<Model>(ContentFolder3D + "Botes/PatrolGeo");
-            PatrolEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            PatrolTexture = Content.Load<Texture2D>(ContentFolderTextures + "Botes/T_Patrol_Ship_1K_BaseColor");
+            Patrol = new Ship(this, new Vector3(-300f, 0f, 500f), new Vector3(0f, 0f, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "PatrolGeo", "BasicShader", "T_Patrol_Ship_1K_BaseColor");
+            Patrol.LoadContent();
 
-            ModelCruiser = Content.Load<Model>(ContentFolder3D + "Botes/CruiserGeo");
-            CruiserEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            CruiserTexture = Content.Load<Texture2D>(ContentFolderTextures + "Botes/T_Cruiser_M_Cruiser_BaseColor");
+            Cruiser = new Ship(this, new Vector3(-100f, 0f, 900f), new Vector3(0f, 0f, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "CruiserGeo", "BasicShader", "T_Cruiser_M_Cruiser_BaseColor");
+            Cruiser.LoadContent();
 
-            ModelBarquito = Content.Load<Model>(ContentFolder3D + "Botes/BarquitoGeo");
-            IslandMiscEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            IslandMiscTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TropicalIsland01Diffuse");
+            Barquito = new Ship(this, new Vector3(-200f, 0f, 700f), new Vector3(0f, 0f, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "BarquitoGeo", "BasicShader", "Barquito_BaseColor");
+            Barquito.LoadContent();
 
             PlayerBoatModel = Content.Load<Model>(ContentFolder3D + "ShipB/Source/Ship");
             PlayerBoatEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             PlayerBoatTexture = Content.Load<Texture2D>(ContentFolder3D + "ShipB/textures/Battleship_lambert1_AlbedoTransparency.tga");
 
+            SkyDomeModel = Content.Load<Model>(ContentFolder3D + "Skydome/SkyDome");
+            SkyDomeTexture = Content.Load<Texture2D>(ContentFolder3D + "Skydome/Sky");
+            SkyDomeEffect = Content.Load<Effect>(ContentFolderEffects + "SkyDome");
+            Skydome = new SkyDome(SkyDomeModel, SkyDomeTexture, SkyDomeEffect, 200);
 
             base.LoadContent();
         }
@@ -199,13 +211,13 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
 
-            Camera.Update(gameTime);
+            shotCam.Update(gameTime);
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             ProcessKeyboard(elapsedTime);
 
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            Camera.Position = PlayerBoatMatrix.Translation + new Vector3(0, CameraArm, 0);
+            shotCam.Position = PlayerBoatMatrix.Translation + new Vector3(0, CameraArm, 0);
             FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
             base.Update(gameTime);
         }
@@ -225,7 +237,7 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelIsland, Matrix.CreateScale(0.2f), IslandEffect);
             DrawModel(ModelIsland, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300), IslandEffect);
             DrawModel(ModelCasa, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(780, 56, 620), IslandEffect);
-
+            
             DrawModel(ModelRock1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(350, -10, 350), IslandEffect);
             DrawModel(ModelRock2, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-350, -10, 350), IslandEffect);
             DrawModel(ModelRock2, Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(0.8f) * Matrix.CreateTranslation(-350, -10, -680), IslandEffect);
@@ -233,8 +245,7 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelRock5, Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(100, -10, -780), IslandEffect);
             DrawModel(ModelRock2, Matrix.CreateScale(0.18f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(530, -10, 780), IslandEffect);
             DrawModel(ModelRock1, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(1050, -10, 300), IslandEffect);
-
-
+            
             IslandMiscEffect.Parameters["ModelTexture"].SetValue(IslandMiscTexture);
             DrawModel(ModelIsland2, Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600), IslandMiscEffect);
             DrawModel(ModelIsland3, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100), IslandMiscEffect);
@@ -246,25 +257,30 @@ namespace TGC.MonoGame.TP
             DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(580, 0, -150), IslandMiscEffect);
             DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), IslandMiscEffect);
 
-            DrawModel(ModelWater, Matrix.CreateScale(2f, 0.01f, 2f), WaterEffect);
             WaterEffect.Parameters["ModelTexture"]?.SetValue(WaterTexture);
             WaterEffect.Parameters["Time"]?.SetValue(time);
+            for (int i = -8; i < 8; i++)
+            {   
+                for (int j = -8; j < 8; j++)
+                {
+                    DrawModel(ModelWater, Matrix.CreateScale(10f, 0f, 10f) * Matrix.CreateTranslation(i * 200, 0, j * 200), WaterEffect);
+                }
+            }
+            //DrawModel(ModelWater, Matrix.CreateScale(10f, 0f, 10f), WaterEffect);
+
 
             /// Dibujo Botes
 
-            BoatSMEffect.Parameters["ModelTexture"].SetValue(BoatSMTexture);
-            DrawModel(ModelBoatSM, Matrix.CreateScale(0.04f) * Matrix.CreateTranslation(-100, 0, 300), BoatSMEffect);
-
-            PatrolEffect.Parameters["ModelTexture"].SetValue(PatrolTexture);
-            DrawModel(ModelPatrol, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(-300, 0, 500), PatrolEffect);
-
-            CruiserEffect.Parameters["ModelTexture"].SetValue(CruiserTexture);
-            DrawModel(ModelCruiser, Matrix.CreateScale(0.03f) * Matrix.CreateTranslation(-100, 0, 900), CruiserEffect);
-
-            IslandMiscEffect.Parameters["ModelTexture"].SetValue(IslandMiscTexture);
-            DrawModel(ModelBarquito, Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(-200, 0, 700), IslandMiscEffect);
+            SM.Draw();
+            Patrol.Draw();
+            Cruiser.Draw();
+            Barquito.Draw();
 
             DrawModel(PlayerBoatModel, Matrix.CreateRotationY((float)PlayerRotation)* PlayerBoatMatrix  , PlayerBoatEffect);
+
+            /// Skydome
+            Skydome.Draw(shotCam.View, shotCam.Projection, shotCam.Position);
+
             base.Draw(gameTime);
         }
 
@@ -273,8 +289,8 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in geometry.Meshes)
             {
                 effect.Parameters["World"].SetValue(transform);
-                effect.Parameters["View"].SetValue(Camera.View);
-                effect.Parameters["Projection"].SetValue(Camera.Projection);
+                effect.Parameters["View"].SetValue(shotCam.View);
+                effect.Parameters["Projection"].SetValue(shotCam.Projection);
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = effect;
                 mesh.Draw();
