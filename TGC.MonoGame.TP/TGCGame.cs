@@ -232,7 +232,7 @@ namespace TGC.MonoGame.TP
 
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            shotCam.Position = PlayerBoat.PlayerBoatMatrix.Translation + new Vector3(0, CameraArm, 0);
+            shotCam.Position = PlayerBoat.Position + new Vector3(0, CameraArm, 0);
             //PlayerBoat.FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
             base.Update(gameTime);
         }

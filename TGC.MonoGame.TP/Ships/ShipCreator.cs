@@ -130,7 +130,7 @@ namespace TGC.MonoGame.TP.Ships
 
         private void MoveForward(float amount)
         {
-            PlayerBoatMatrix *= Matrix.CreateTranslation(FrontDirection * amount);
+            Position += FrontDirection * amount;
         }
         private void MoveBackwards(float amount)
         {
