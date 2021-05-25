@@ -70,7 +70,7 @@ namespace TGC.MonoGame.TP.Ships
             ShipEffect.Parameters["ModelTexture"].SetValue(ShipTexture);
             DrawModel(ShipModel, PlayerBoatMatrix, ShipEffect);
             //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
-            DrawModel(asd1, PlayerBoatMatrix * Matrix.CreateTranslation(0, 50, 0), ShipEffect);
+
 
 
             
@@ -92,7 +92,7 @@ namespace TGC.MonoGame.TP.Ships
         
         public void Update(GameTime gameTime)
         {
-
+            PlayerBoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position);
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             UpdateShipRegardingWaves(elapsedTime);
 
