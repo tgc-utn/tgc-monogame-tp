@@ -36,6 +36,9 @@ namespace TGC.MonoGame.TP.Ships
         public bool playerMode = false;
         private Matrix waterMatrix { get; set; }
 
+
+        private Matrix[] BoneMatrix;
+
         public Ship(TGCGame game, Vector3 pos, Vector3 rot, Vector3 scale, float speed, string modelName, string effect, string textureName)
         {
             Game = game;
@@ -50,6 +53,7 @@ namespace TGC.MonoGame.TP.Ships
             RotationSpeed = 0.5f;
             FrontDirection = Vector3.Forward;
             PlayerRotation = 0;
+
             PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * waterMatrix * Matrix.CreateTranslation(pos);
         }
         public void LoadContent()
@@ -57,15 +61,20 @@ namespace TGC.MonoGame.TP.Ships
             ShipModel = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             ShipEffect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + EffectName);
             ShipTexture = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + TextureName);
+
         }
 
 
         public void Draw()
         {
             ShipEffect.Parameters["ModelTexture"].SetValue(ShipTexture);
-            DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
-            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
+            DrawModel(ShipModel, PlayerBoatMatrix, ShipEffect);
+            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
 
+
+
+            
+            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
@@ -83,9 +92,12 @@ namespace TGC.MonoGame.TP.Ships
         
         public void Update(GameTime gameTime)
         {
+            PlayerBoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position);
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             UpdateShipRegardingWaves(elapsedTime);
+
             FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+
             if (playerMode)
             {
                 ProcessKeyboard(elapsedTime);
