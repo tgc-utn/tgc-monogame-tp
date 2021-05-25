@@ -105,7 +105,7 @@ namespace TGC.MonoGame.TP
 
         //private Model PlayerBoatModel { get; set; }
         //private Effect PlayerBoatEffect { get; set; }
-        private Matrix PlayerBoatMatrix { get; set; }
+        //private Matrix PlayerBoatMatrix { get; set; }
 
         //public Texture2D PlayerBoatTexture;
 
@@ -140,14 +140,7 @@ namespace TGC.MonoGame.TP
 
             CameraArm = 30.0f;
             shotCam = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
-            /*
-            MovementSpeed = 100.0f;
-            RotationSpeed = 0.5f;
-            FrontDirection = Vector3.Forward;
-            PlayerRotation = 0;
-            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(0, 0, 600);
-            //PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(-MathHelper.PiOver2) * Matrix.CreateTranslation(0,0,600);
-            */
+
 
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
@@ -232,7 +225,7 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-
+            PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             //ProcessKeyboard(elapsedTime);
@@ -330,57 +323,5 @@ namespace TGC.MonoGame.TP
 
             base.UnloadContent();
         }
-        
-        /*
-        private void ProcessKeyboard(float elapsedTime)
-        {
-            var keyboardState = Keyboard.GetState();
-
-            if (keyboardState.IsKeyDown(Keys.Escape))
-            {
-                Exit();
-            }
-
-            //var currentMovementSpeed = MovementSpeed;
-
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                MoveForward(MovementSpeed * elapsedTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.S))
-            {
-                MoveBackwards(MovementSpeed * elapsedTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                RotateRight(RotationSpeed * elapsedTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                RotateLeft(RotationSpeed * elapsedTime);
-            }
-
-
-        }
-
-        private void MoveForward(float amount)
-        {
-            PlayerBoatMatrix *= Matrix.CreateTranslation(FrontDirection * amount);
-        }
-        private void MoveBackwards(float amount)
-        {
-            MoveForward(-amount);
-        }
-        private void RotateRight(float amount)
-        {
-               PlayerRotation += amount;
-        }
-        private void RotateLeft(float amount)
-        {
-            RotateRight(-amount);
-        }*/
     }
 }

@@ -22,23 +22,10 @@ namespace TGC.MonoGame.TP.Ships
         public Vector3 Rotation { get; set; }
         public Vector3 Scale { get; set; }
         public float Speed { get; set; }
-        //private float Rotation { get; set; }
 
         private Vector3 FrontDirection;
 
         private float PlayerRotation;
-        //public Vector3 WaveOrientation { get; set; }
-
-        //public float anguloDeGiro { get; set; }
-        //public float giroBase { get; set; }
-
-        // int _maxLife = 100;
-
-        //private int _currentLife = 100;
-
-        //private float _shootingCooldownTime = 0.8f;
-
-        //private float _timeToCooldown = 0f;
 
         private float MovementSpeed { get; set; }
         private float RotationSpeed { get; set; }
@@ -46,9 +33,7 @@ namespace TGC.MonoGame.TP.Ships
         public Matrix PlayerBoatMatrix { get; set; }
 
         public bool playerMode = false;
-
-
-        //private Matrix waterMatrix;
+        private Matrix waterMatrix { get; set; }
 
         private Matrix[] BoneMatrix;
 
@@ -103,7 +88,6 @@ namespace TGC.MonoGame.TP.Ships
         public void Update(GameTime gameTime)
         {
             FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
-            //UpdateShipRegardingWaves(_game.ElapsedTime);
             if (playerMode)
             {
                 var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
