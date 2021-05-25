@@ -37,6 +37,14 @@ namespace TGC.MonoGame.TP.Ships
 
         private Matrix[] BoneMatrix;
 
+        // Son Rays que se usan para calcular la altura del agua en ese punto
+        // Hay un ray en la punta de adelante del barco y otro atras, para poder saber la inclinacion
+        float FrontRayOffset;
+        float BackRayOffset;
+        private Model asd1;
+        private Model asd2;
+
+
         public Ship(TGCGame game, Vector3 pos, Vector3 rot, Vector3 scale, float speed, string modelName, string effect, string textureName)
         {
             Game = game;
@@ -51,7 +59,10 @@ namespace TGC.MonoGame.TP.Ships
             RotationSpeed = 0.5f;
             FrontDirection = Vector3.Forward;
             PlayerRotation = 0;
-            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateTranslation(pos);
+            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateRotationY(rot.Y) * Matrix.CreateTranslation(pos);
+
+            FrontRayOffset = -50;
+            BackRayOffset = 50;
         }
         public void LoadContent()
         {
@@ -61,15 +72,23 @@ namespace TGC.MonoGame.TP.Ships
 
             BoneMatrix = new Matrix[ShipModel.Bones.Count];
             ShipModel.CopyAbsoluteBoneTransformsTo(BoneMatrix);
+
+            asd1 = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "tgc-logo/tgc-logo");
+            asd2 = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "tgc-logo/tgc-logo");
+
         }
 
 
         public void Draw()
         {
             ShipEffect.Parameters["ModelTexture"].SetValue(ShipTexture);
-            DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
-            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
+            DrawModel(ShipModel, PlayerBoatMatrix, ShipEffect);
+            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
+            DrawModel(asd1, PlayerBoatMatrix * Matrix.CreateTranslation(0, 50, 0), ShipEffect);
 
+
+            
+            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
@@ -87,7 +106,9 @@ namespace TGC.MonoGame.TP.Ships
         
         public void Update(GameTime gameTime)
         {
+            PlayerBoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position);
             FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+
             if (playerMode)
             {
                 var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
