@@ -11,6 +11,7 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float3 CameraPosition;
+float Time = 0;
 
 struct VertexShaderInput
 {
@@ -36,7 +37,6 @@ sampler2D SkyDomeSampler = sampler_state
     AddressV = Mirror;
 };
 
-
 VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 {
     VertexShaderOutput output = (VertexShaderOutput)0;
@@ -53,7 +53,12 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 
 float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
 {
-    return float4(tex2D(SkyDomeSampler, input.TextureCoordinate).rgb, 1);
+    float4 textureColor = float4(tex2D(SkyDomeSampler, input.TextureCoordinate).rgb, 1);
+    
+    float fade = clamp(cos(Time * 0.3) + 0.5, 0.15, 1);
+    textureColor = textureColor * float4(fade, fade, fade, 1);
+
+    return textureColor;
 }
 
 technique SkyDome
