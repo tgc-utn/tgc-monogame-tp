@@ -84,8 +84,8 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     //worldPosition.x += sin(Time + 14 * worldPosition.x * .1) * WaveHeight;
     //worldPosition.y += cos(Time + 15 * worldPosition.x * 0.01) * WaveHeight;
 
-    float fade = clamp(cos(Time * 0.3) + 0.5, 0.15, 1) * 0.5 + 0.5;
-    float speed = .05 + (1 - fade) * 0.02;
+    float fade = clamp(cos(Time * 0.3) + 0.5, 0.15, 1);
+    float speed = .05;//+ (1 - fade) * 0.02
     float offset = 10;
     float radius = 3;
     float3 rotateOffset = float3(0, 0, 0);
@@ -101,7 +101,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
     
     worldPosition.xyz += rotateOffset.xyz;
-    worldPosition.xyz *= float3(1, 3/fade * 2.5, 1);
+    worldPosition.xyz *= float3(1, 3 + (1 - fade) * 12, 1);
 
     output.WorldPosition = worldPosition;
 
