@@ -28,12 +28,12 @@ namespace TGC.MonoGame.TP.Ships
 
         private Vector3 FrontDirection;
 
-        private float PlayerRotation;
+        private float RotationRadians;
 
         private float MovementSpeed { get; set; }
         private float RotationSpeed { get; set; }
 
-        public Matrix PlayerBoatMatrix { get; set; }
+        public Matrix BoatMatrix { get; set; }
 
         public bool playerMode = false;
         private Matrix waterMatrix { get; set; }
@@ -56,9 +56,9 @@ namespace TGC.MonoGame.TP.Ships
             MovementSpeed = 100.0f;
             RotationSpeed = 0.5f;
             FrontDirection = Vector3.Forward;
-            PlayerRotation = 0;
+            RotationRadians = 0;
 
-            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateRotationY(rot.Y) * Matrix.CreateTranslation(pos);
+            BoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateRotationY(rot.Y) * Matrix.CreateTranslation(pos);
         }
         public void LoadContent()
         {
@@ -72,12 +72,7 @@ namespace TGC.MonoGame.TP.Ships
         public void Draw()
         {
             ShipEffect.Parameters["ModelTexture"].SetValue(ShipTexture);
-            DrawModel(ShipModel, PlayerBoatMatrix, ShipEffect);
-            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position), ShipEffect);
-
-
-
-            //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
+            DrawModel(ShipModel, BoatMatrix, ShipEffect);
         }
 
         private void DrawModel(Model geometry, Matrix transform, Effect effect)
@@ -94,12 +89,17 @@ namespace TGC.MonoGame.TP.Ships
         }
         public void Update(GameTime gameTime)
         {
+            // Esto es el tiempo que transcurre entre update y update (promedio 0.0166s)
             float elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            // Esto es el tiempo total transcurrido en el tiempo, siempre se incrementa
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            float yPos = GetWaterPositionY(time);
+
+            float yPos = GetWaterPositionY(Position.X, Position.Z);
             Position = new Vector3(Position.X, yPos, Position.Z);
-            PlayerBoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position);
-            FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+            BoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY(Rotation.Y) * Matrix.CreateTranslation(Position);
+            FrontDirection = -new Vector3((float)Math.Sin(RotationRadians), 0.0f, (float)Math.Cos(RotationRadians));
+            //FrontDirection = -new Vector3(Rotation.X, 0, Rotation.Z);
 
             if (playerMode)
             {
@@ -112,7 +112,7 @@ namespace TGC.MonoGame.TP.Ships
             return val - MathF.Floor(val);
         }
 
-        public float GetWaterPositionY(float gameTime)
+        public float GetWaterPositionY(float xPosition, float zPosition)
         {
 
             float speed = 0.05f;
@@ -120,20 +120,20 @@ namespace TGC.MonoGame.TP.Ships
             float radius = 3f;
             var worldPosition = Position;
 
-            var posY = 0.4 * MathF.Cos(((float)(worldPosition.X * 0.0075f) * .5f + gameTime * speed) * offset) * radius * 0.5f;
-            posY += (1 - frac(gameTime * 0.1f)) * frac(gameTime * 0.1f) * 0.1f * MathF.Cos((-(float)(worldPosition.Z * 0.0075f) + gameTime * speed * 1.3f) * offset) * radius;
+            var posY = 0.4 * MathF.Cos(((float)(xPosition * 0.0075f) * .5f + time * speed) * offset) * radius * 0.5f;
+            posY += (1 - frac(time * 0.1f)) * frac(time * 0.1f) * 0.1f * MathF.Cos((-(float)(zPosition * 0.0075f) + time * speed * 1.3f) * offset) * radius;
 
             posY *= 7f;
 
             var wavetan1 = Vector3.Normalize(new Vector3(1f,
-                0.4f * MathF.Cos(((float)(worldPosition.X) * .5f + gameTime * speed) * offset) * radius * 0.5f
+                0.4f * MathF.Cos(((float)(xPosition) * .5f + time * speed) * offset) * radius * 0.5f
                 , 0f));
 
             var wavetan2 = Vector3.Normalize(new Vector3(0,
-                (1 - frac(gameTime * 0.1f)) * frac(gameTime * 0.1f) * 0.1f * MathF.Cos((-(float)(worldPosition.Z) + gameTime * speed * 1.3f) * offset) * radius,
+                (1 - frac(time * 0.1f)) * frac(time * 0.1f) * 0.1f * MathF.Cos((-(float)(zPosition) + time * speed * 1.3f) * offset) * radius,
                 1));
 
-            worldPosition = new Vector3(worldPosition.X, (float)(posY) * 2, worldPosition.Z);
+            worldPosition = new Vector3(xPosition, (float)(posY) * 2, zPosition);
 
             Position = worldPosition;
 
@@ -144,50 +144,6 @@ namespace TGC.MonoGame.TP.Ships
             waterMatrix = Matrix.CreateLookAt(Vector3.Zero, wavesRotation, waterNormal);
             return (float)posY;
         }
-
-        //float noise(in float2 st)
-        //{
-        //    float2 i = floor(st);
-        //    float2 f = frac(st);
-
-        //    // Four corners in 2D of a tile
-        //    float a = random(i);
-        //    float b = random(i + float2(1.0, 0.0));
-        //    float c = random(i + float2(0.0, 1.0));
-        //    float d = random(i + float2(1.0, 1.0));
-
-        //    // Smooth Interpolation
-
-        //    // Cubic Hermine Curve.  Same as SmoothStep()
-        //    float2 u = f * f * (3.0 - 2.0 * f);
-        //    // u = smoothstep(0.,1.,f);
-
-        //    // Mix 4 coorners percentages
-        //    return lerp(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-        //}
-
-
-        //public float GetWaterPositionY(float gameTime)
-        //{
-        //    float WaveHeight = 50;
-        //    float y = (float)Math.Sin(gameTime) * WaveHeight;
-
-        //    //float4 worldPosition = mul(input.Position, World);
-
-        //    //worldPosition.y += cos(Time + 15 * worldPosition.x * 0.01) * WaveHeight;
-
-        //    //output.WorldPosition = worldPosition;
-
-        //    //// World space to View space
-        //    //float4 viewPosition = mul(worldPosition, View);
-        //    //// View space to Projection space
-        //    //output.Position = mul(viewPosition, Projection);
-        //    //// Propagate texture coordinates
-        //    //output.TextureCoordinate = input.TextureCoordinate;
-        //    //// Propagate color by vertex
-        //    //output.Color = input.Color;
-        //    return y;
-        //}
 
         private void ProcessKeyboard(float elapsedTime)
         {
@@ -233,7 +189,8 @@ namespace TGC.MonoGame.TP.Ships
         }
         private void RotateRight(float amount)
         {
-            PlayerRotation += amount;
+            Rotation = new Vector3(Rotation.X, Rotation.Y + amount, Rotation.Z);
+            RotationRadians += amount;
         }
         private void RotateLeft(float amount)
         {

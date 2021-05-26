@@ -237,9 +237,6 @@ namespace TGC.MonoGame.TP
             Cruiser.Update(gameTime);
             Barquito.Update(gameTime);
 
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            var yPos = Convert.ToSingle(Math.Sin(elapsedTime)) * 10000;
-            PlayerBoat.Position = new Vector3(PlayerBoat.Position.X, yPos, PlayerBoat.Position.Z);
 
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
