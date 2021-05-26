@@ -8,6 +8,8 @@ namespace TGC.MonoGame.TP.Ships
     public class Ship
     {
         private TGCGame Game;
+        private float time;
+
         private Model ShipModel { get; set; }
 
         public string ModelName;
@@ -37,7 +39,9 @@ namespace TGC.MonoGame.TP.Ships
         private Matrix waterMatrix { get; set; }
 
 
-        private Matrix[] BoneMatrix;
+        //private Matrix[] BoneMatrix;
+
+
 
         public Ship(TGCGame game, Vector3 pos, Vector3 rot, Vector3 scale, float speed, string modelName, string effect, string textureName)
         {
@@ -54,7 +58,7 @@ namespace TGC.MonoGame.TP.Ships
             FrontDirection = Vector3.Forward;
             PlayerRotation = 0;
 
-            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * waterMatrix * Matrix.CreateTranslation(pos);
+            PlayerBoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateRotationY(rot.Y) * Matrix.CreateTranslation(pos);
         }
         public void LoadContent()
         {
@@ -73,7 +77,6 @@ namespace TGC.MonoGame.TP.Ships
 
 
 
-            
             //DrawModel(ShipModel, Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position), ShipEffect);
         }
 
@@ -89,13 +92,13 @@ namespace TGC.MonoGame.TP.Ships
                 mesh.Draw();
             }
         }
-        
         public void Update(GameTime gameTime)
         {
+            float elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            float yPos = GetWaterPositionY(time);
+            Position = new Vector3(Position.X, yPos, Position.Z);
             PlayerBoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY((float)PlayerRotation) * Matrix.CreateTranslation(Position);
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            UpdateShipRegardingWaves(elapsedTime);
-
             FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
 
             if (playerMode)
@@ -108,7 +111,8 @@ namespace TGC.MonoGame.TP.Ships
         {
             return val - MathF.Floor(val);
         }
-        public void UpdateShipRegardingWaves(float gameTime)
+
+        public float GetWaterPositionY(float gameTime)
         {
 
             float speed = 0.05f;
@@ -138,7 +142,52 @@ namespace TGC.MonoGame.TP.Ships
             wavesRotation = Rotation - Vector3.Dot(Rotation, waterNormal) * waterNormal;
 
             waterMatrix = Matrix.CreateLookAt(Vector3.Zero, wavesRotation, waterNormal);
+            return (float)posY;
         }
+
+        //float noise(in float2 st)
+        //{
+        //    float2 i = floor(st);
+        //    float2 f = frac(st);
+
+        //    // Four corners in 2D of a tile
+        //    float a = random(i);
+        //    float b = random(i + float2(1.0, 0.0));
+        //    float c = random(i + float2(0.0, 1.0));
+        //    float d = random(i + float2(1.0, 1.0));
+
+        //    // Smooth Interpolation
+
+        //    // Cubic Hermine Curve.  Same as SmoothStep()
+        //    float2 u = f * f * (3.0 - 2.0 * f);
+        //    // u = smoothstep(0.,1.,f);
+
+        //    // Mix 4 coorners percentages
+        //    return lerp(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+        //}
+
+
+        //public float GetWaterPositionY(float gameTime)
+        //{
+        //    float WaveHeight = 50;
+        //    float y = (float)Math.Sin(gameTime) * WaveHeight;
+
+        //    //float4 worldPosition = mul(input.Position, World);
+
+        //    //worldPosition.y += cos(Time + 15 * worldPosition.x * 0.01) * WaveHeight;
+
+        //    //output.WorldPosition = worldPosition;
+
+        //    //// World space to View space
+        //    //float4 viewPosition = mul(worldPosition, View);
+        //    //// View space to Projection space
+        //    //output.Position = mul(viewPosition, Projection);
+        //    //// Propagate texture coordinates
+        //    //output.TextureCoordinate = input.TextureCoordinate;
+        //    //// Propagate color by vertex
+        //    //output.Color = input.Color;
+        //    return y;
+        //}
 
         private void ProcessKeyboard(float elapsedTime)
         {

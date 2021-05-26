@@ -68,7 +68,6 @@ float noise(in float2 st) {
     return lerp(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
     // Clear the output

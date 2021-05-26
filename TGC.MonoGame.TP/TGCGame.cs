@@ -98,7 +98,9 @@ namespace TGC.MonoGame.TP
         public Texture2D SkyDomeTexture;
 
 
-
+        // pal debuggin
+        SpriteBatch spriteBatch;
+        SpriteFont font;
 
 
 
@@ -145,6 +147,8 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
             Graphics.ApplyChanges();
+
+            spriteBatch = new SpriteBatch(Graphics.GraphicsDevice);
 
             base.Initialize();
         }
@@ -214,6 +218,9 @@ namespace TGC.MonoGame.TP
             SkyDomeEffect = Content.Load<Effect>(ContentFolderEffects + "SkyDome");
             Skydome = new SkyDome(SkyDomeModel, SkyDomeTexture, SkyDomeEffect, 200);
 
+            font = Content.Load<SpriteFont>("Fonts/Font");
+
+
             base.LoadContent();
         }
 
@@ -229,9 +236,13 @@ namespace TGC.MonoGame.TP
             Patrol.Update(gameTime);
             Cruiser.Update(gameTime);
             Barquito.Update(gameTime);
+
+            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var yPos = Convert.ToSingle(Math.Sin(elapsedTime)) * 10000;
+            PlayerBoat.Position = new Vector3(PlayerBoat.Position.X, yPos, PlayerBoat.Position.Z);
+
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             //ProcessKeyboard(elapsedTime);
 
             // Basado en el tiempo que paso se va generando una rotacion.
@@ -300,6 +311,18 @@ namespace TGC.MonoGame.TP
 
             /// Skydome
             Skydome.Draw(shotCam.View, shotCam.Projection, shotCam.Position);
+
+
+            //var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //string timeString = elapsedTime.ToString();
+
+            //spriteBatch.Begin();
+            //// Finds the center of the string in coordinates inside the text rectangle
+            //Vector2 textMiddlePoint = font.MeasureString("MonoGame Font Test") / 2;
+            //// Places text in center of the screen
+            //Vector2 position = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
+            //spriteBatch.DrawString(font, timeString, position, Color.White, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
+            //spriteBatch.End();
 
             base.Draw(gameTime);
         }
