@@ -14,7 +14,7 @@ namespace TGC.MonoGame.TP.Ships
 
         public string ModelName;
         private Effect ShipEffect { get; set; }
-        
+
         public string EffectName;
 
         public Texture2D ShipTexture;
@@ -26,22 +26,22 @@ namespace TGC.MonoGame.TP.Ships
         public Vector3 Scale { get; set; }
         public float Speed { get; set; }
 
-        private Vector3 FrontDirection;
+        public Vector3 FrontDirection;
 
-        private float RotationRadians;
+        public float RotationRadians;
 
-        private float MovementSpeed { get; set; }
-        private float RotationSpeed { get; set; }
+        public float MovementSpeed { get; set; }
+        public float RotationSpeed { get; set; }
 
         public Matrix BoatMatrix { get; set; }
 
         public bool playerMode = false;
         private Matrix waterMatrix { get; set; }
 
-
         //private Matrix[] BoneMatrix;
 
-
+        public BoundingSphere BoatBox { get; set; }
+        //public BoundingBox BoatBox { get; set; }
 
         public Ship(TGCGame game, Vector3 pos, Vector3 rot, Vector3 scale, float speed, string modelName, string effect, string textureName)
         {
@@ -66,6 +66,8 @@ namespace TGC.MonoGame.TP.Ships
             ShipEffect = Game.Content.Load<Effect>(TGCGame.ContentFolderEffects + EffectName);
             ShipTexture = Game.Content.Load<Texture2D>(TGCGame.ContentFolderTextures + TextureName);
 
+            //BoatBox = new BoundingBox(Vector3.Transform(-Vector3.One * 0.5f, BoatMatrix), Vector3.Transform(Vector3.One * 0.5f, BoatMatrix));
+            BoatBox = new BoundingSphere(Position, 50);
         }
 
 
@@ -95,16 +97,12 @@ namespace TGC.MonoGame.TP.Ships
             // Esto es el tiempo total transcurrido en el tiempo, siempre se incrementa
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            float yPos = GetWaterPositionY(Position.X, Position.Z);
-            Position = new Vector3(Position.X, yPos, Position.Z);
+            float WavePosY = GetWaterPositionY(Position.X, Position.Z);
+            Position = new Vector3(Position.X, WavePosY, Position.Z);
             BoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY(Rotation.Y) * Matrix.CreateTranslation(Position);
             FrontDirection = -new Vector3((float)Math.Sin(RotationRadians), 0.0f, (float)Math.Cos(RotationRadians));
-            //FrontDirection = -new Vector3(Rotation.X, 0, Rotation.Z);
-
-            if (playerMode)
-            {
-                ProcessKeyboard(elapsedTime);
-            }
+            //BoatBox = new BoundingBox(Vector3.Transform(-Vector3.One * 0.5f, BoatMatrix), Vector3.Transform(Vector3.One * 0.5f, BoatMatrix));
+            BoatBox = new BoundingSphere(Position, 50);
         }
 
         float frac(float val)
@@ -143,58 +141,6 @@ namespace TGC.MonoGame.TP.Ships
 
             waterMatrix = Matrix.CreateLookAt(Vector3.Zero, wavesRotation, waterNormal);
             return (float)posY;
-        }
-
-        private void ProcessKeyboard(float elapsedTime)
-        {
-            var keyboardState = Keyboard.GetState();
-
-            if (keyboardState.IsKeyDown(Keys.Escape))
-            {
-                Game.Exit();
-            }
-
-            //var currentMovementSpeed = MovementSpeed;
-
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                MoveForward(MovementSpeed * elapsedTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.S))
-            {
-                MoveBackwards(MovementSpeed * elapsedTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                RotateRight(RotationSpeed * elapsedTime);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                RotateLeft(RotationSpeed * elapsedTime);
-            }
-
-
-        }
-
-        private void MoveForward(float amount)
-        {
-            Position += FrontDirection * amount;
-        }
-        private void MoveBackwards(float amount)
-        {
-            MoveForward(-amount);
-        }
-        private void RotateRight(float amount)
-        {
-            Rotation = new Vector3(Rotation.X, Rotation.Y + amount, Rotation.Z);
-            RotationRadians += amount;
-        }
-        private void RotateLeft(float amount)
-        {
-            RotateRight(-amount);
         }
     }
 }
