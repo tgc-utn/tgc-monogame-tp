@@ -74,6 +74,7 @@ namespace TGC.MonoGame.TP
         Matrix MatrixIsland2;
         Matrix MatrixIsland3;
         Matrix MatrixIsland4;
+        Matrix MatrixIsland5;
         Matrix MatrixCasa;
         Matrix MatrixRock1;
         Matrix MatrixRock2;
@@ -216,14 +217,17 @@ namespace TGC.MonoGame.TP
             ModelRock5 = Content.Load<Model>(ContentFolder3D + "Island/Roca5Geo");
 
 
-            MatrixIsland1 = Matrix.CreateScale(IslandScaleCollisionTest);
-            MatrixIsland2 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300);
-            MatrixIsland3 = Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600);
-            MatrixIsland4 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100);
+            MatrixIsland1 = Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(300, 0, 800f);
+            MatrixIsland2 = Matrix.CreateScale(0.2f);
+            MatrixIsland3 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300);
+            MatrixIsland4 = Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600);
+            MatrixIsland5 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -00);
+
             MatrixCasa = Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(780, 56, 620);
+
             MatrixRock1 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(350, -10, 350);
             MatrixRock2 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-350, -10, 350);
-            MatrixRock3 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50);
+            MatrixRock3 = Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(0.8f) * Matrix.CreateTranslation(-350, -10, -680);
             MatrixRock4 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50);
             MatrixRock5 = Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(100, -10, -780);
             MatrixRock6 = Matrix.CreateScale(0.18f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(530, -10, 780);
@@ -258,9 +262,14 @@ namespace TGC.MonoGame.TP
             float radius = 50f;
             IslandColliders = new BoundingSphere[]
             {
-                new BoundingSphere(MatrixIsland1.Translation, 300), new BoundingSphere(MatrixIsland2.Translation, radius), new BoundingSphere(MatrixIsland3.Translation, radius), new BoundingSphere(MatrixIsland4.Translation, radius), 
-                new BoundingSphere(MatrixCasa.Translation, radius), new BoundingSphere(MatrixRock1.Translation, radius), new BoundingSphere(MatrixRock2.Translation, radius), new BoundingSphere(MatrixRock3.Translation, radius), 
-                new BoundingSphere(MatrixRock4.Translation, radius), new BoundingSphere(MatrixRock5.Translation, radius), new BoundingSphere(MatrixRock6.Translation, radius), new BoundingSphere(MatrixRock7.Translation, radius), 
+                new BoundingSphere(MatrixIsland1.Translation, 100), new BoundingSphere(MatrixIsland2.Translation, 300), new BoundingSphere(MatrixIsland3.Translation, radius),
+                new BoundingSphere(MatrixIsland4.Translation, radius), new BoundingSphere(MatrixIsland5.Translation, radius), 
+
+                new BoundingSphere(MatrixCasa.Translation, radius), 
+
+                new BoundingSphere(MatrixRock1.Translation, radius), new BoundingSphere(MatrixRock2.Translation, radius), new BoundingSphere(MatrixRock3.Translation, radius), 
+                new BoundingSphere(MatrixRock4.Translation, radius), new BoundingSphere(MatrixRock5.Translation, radius), new BoundingSphere(MatrixRock6.Translation, radius), 
+                new BoundingSphere(MatrixRock7.Translation, radius), 
             };
 
 
@@ -338,23 +347,24 @@ namespace TGC.MonoGame.TP
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             IslandEffect.Parameters["ModelTexture"].SetValue(IslandTexture);
-
             LightEffect.Parameters["baseTexture"].SetValue(IslandTexture);
-            DrawModelLight(ModelIsland, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(0, 0, 800f), LightEffect);
-            DrawModelLight(ModelIsland, Matrix.CreateScale(0.2f), LightEffect);
-            DrawModelLight(ModelIsland, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300), LightEffect);
-            DrawModelLight(ModelCasa, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(780, 56, 620), LightEffect);
+
+
+            DrawModelLight(ModelIsland, MatrixIsland1, LightEffect);
+            DrawModelLight(ModelIsland, MatrixIsland2, LightEffect);
+            DrawModelLight(ModelIsland, MatrixIsland3, LightEffect);
+            DrawModelLight(ModelCasa, MatrixCasa, LightEffect);
             
-             DrawModelLight(ModelRock1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(350, -10, 350), LightEffect);
-             DrawModelLight(ModelRock2, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-350, -10, 350), LightEffect);
-            DrawModelLight(ModelRock2, Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(0.8f) * Matrix.CreateTranslation(-350, -10, -680), LightEffect);
-             DrawModelLight(ModelRock3, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50), LightEffect);
-             DrawModelLight(ModelRock5, Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(100, -10, -780), LightEffect);
-             DrawModelLight(ModelRock2, Matrix.CreateScale(0.18f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(530, -10, 780), LightEffect);
-             DrawModelLight(ModelRock1, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(1050, -10, 300), LightEffect);
+            DrawModelLight(ModelRock1, MatrixRock1, LightEffect);
+            DrawModelLight(ModelRock2, MatrixRock2, LightEffect);
+            DrawModelLight(ModelRock2, MatrixRock3, LightEffect);
+            DrawModelLight(ModelRock3, MatrixRock4, LightEffect);
+            DrawModelLight(ModelRock5, MatrixRock5, LightEffect);
+            DrawModelLight(ModelRock2, MatrixRock6, LightEffect);
+            DrawModelLight(ModelRock1, MatrixRock7, LightEffect);
             LightEffect.Parameters["baseTexture"].SetValue(IslandMiscTexture);
-             DrawModelLight(ModelIsland2, Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600), LightEffect);
-             DrawModelLight(ModelIsland3, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100), LightEffect);
+            DrawModelLight(ModelIsland2, MatrixIsland4, LightEffect);
+            DrawModelLight(ModelIsland3, MatrixIsland5, LightEffect);
             
 
             DrawModelLight(ModelPalm1, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(60, 10, 280), LightEffect);
