@@ -226,7 +226,7 @@ namespace TGC.MonoGame.TP
             LightEffect.Parameters["KDiffuse"].SetValue(1f);
             LightEffect.Parameters["KSpecular"].SetValue(0.08f);
             LightEffect.Parameters["shininess"].SetValue(2.0f);
-            lightBox = new CubePrimitive(GraphicsDevice, 150, Color.Yellow);
+            lightBox = new CubePrimitive(GraphicsDevice, 70, Color.Yellow);
             lightBox2 = new CubePrimitive(GraphicsDevice, 25, Color.White);
             base.LoadContent();
         }
