@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Skydome;
+using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Ships;
 
 
@@ -88,7 +89,7 @@ namespace TGC.MonoGame.TP
         private float CameraArm;
         public Camera shotCam;
         public Camera CurrentCamera => shotCam;
-
+      
         /// <summary>
         /// Skydome
         /// </summary>
@@ -97,11 +98,13 @@ namespace TGC.MonoGame.TP
         private Effect SkyDomeEffect { get; set; }
         public Texture2D SkyDomeTexture;
 
-
-
-
-
-
+        // Iluminacion
+        private Effect LightEffect{ get; set; }
+        private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
+        private Matrix LightBoxWorld2 { get; set; } = Matrix.Identity;
+        private CubePrimitive lightBox;
+        private CubePrimitive lightBox2;
+        private float Timer { get; set; }
 
         //private Model PlayerBoatModel { get; set; }
         //private Effect PlayerBoatEffect { get; set; }
@@ -204,7 +207,7 @@ namespace TGC.MonoGame.TP
             PlayerBoat = new Ship(this, new Vector3(0f, 0f, 600f), new Vector3(0f, 0f, 0f), new Vector3(0.1f, 0.1f, 0.1f), 0.5f, "ShipB/Source/Ship", "BasicShader", "Botes/Battleship_lambert1_AlbedoTransparency.tga");
             PlayerBoat.playerMode = true;
             PlayerBoat.LoadContent();
-            
+
             //PlayerBoatModel = Content.Load<Model>(ContentFolder3D + "ShipB/Source/Ship");
             //PlayerBoatEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             //PlayerBoatTexture = Content.Load<Texture2D>(ContentFolder3D + "ShipB/textures/Battleship_lambert1_AlbedoTransparency.tga");
@@ -213,7 +216,18 @@ namespace TGC.MonoGame.TP
             SkyDomeTexture = Content.Load<Texture2D>(ContentFolder3D + "Skydome/Sky");
             SkyDomeEffect = Content.Load<Effect>(ContentFolderEffects + "SkyDome");
             Skydome = new SkyDome(SkyDomeModel, SkyDomeTexture, SkyDomeEffect, 200);
+            //Valores de Iluminacion 
+            LightEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhong"); 
 
+            LightEffect.Parameters["ambientColor"].SetValue(new Vector3(1f, 1f, 0.0f));
+            LightEffect.Parameters["diffuseColor"].SetValue(new Vector3(1f, 1f, 0.0f));
+            LightEffect.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
+            LightEffect.Parameters["KAmbient"].SetValue(0.6f);
+            LightEffect.Parameters["KDiffuse"].SetValue(1f);
+            LightEffect.Parameters["KSpecular"].SetValue(0.08f);
+            LightEffect.Parameters["shininess"].SetValue(2.0f);
+            lightBox = new CubePrimitive(GraphicsDevice, 150, Color.Yellow);
+            lightBox2 = new CubePrimitive(GraphicsDevice, 25, Color.White);
             base.LoadContent();
         }
 
@@ -227,13 +241,24 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var elapsedTime =+ (float)gameTime.ElapsedGameTime.TotalSeconds;
             //ProcessKeyboard(elapsedTime);
 
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             shotCam.Position = PlayerBoat.Position + new Vector3(0, CameraArm, 0);
             //PlayerBoat.FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+
+            //Iluminacion 
+            var posicionY = (float)Math.Cos(Timer/5) * 1500;
+            var posicionZ = (float) Math.Sin(Timer/5)* 1500f;
+            var lightPosition = new Vector3(1000f,posicionY, posicionZ);
+            Timer += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            var lightPosition2 = new Vector3(1000f,posicionY * -1f,posicionZ * -1);
+            LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+            LightBoxWorld2 = Matrix.CreateTranslation(lightPosition2);
+            LightEffect.Parameters["lightPosition"].SetValue(lightPosition);
+            LightEffect.Parameters["eyePosition"].SetValue(shotCam.Position);
             base.Update(gameTime);
         }
 
@@ -249,28 +274,29 @@ namespace TGC.MonoGame.TP
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             IslandEffect.Parameters["ModelTexture"].SetValue(IslandTexture);
-            DrawModel(ModelIsland, Matrix.CreateScale(0.2f), IslandEffect);
-            DrawModel(ModelIsland, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300), IslandEffect);
-            DrawModel(ModelCasa, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(780, 56, 620), IslandEffect);
+            LightEffect.Parameters["baseTexture"].SetValue(IslandTexture);
+            DrawModelLight(ModelIsland, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(0, 0, 800f), LightEffect);
+            DrawModelLight(ModelIsland, Matrix.CreateScale(0.2f), LightEffect);
+            DrawModelLight(ModelIsland, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300), LightEffect);
+            DrawModelLight(ModelCasa, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(780, 56, 620), LightEffect);
             
-            DrawModel(ModelRock1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(350, -10, 350), IslandEffect);
-            DrawModel(ModelRock2, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-350, -10, 350), IslandEffect);
-            DrawModel(ModelRock2, Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(0.8f) * Matrix.CreateTranslation(-350, -10, -680), IslandEffect);
-            DrawModel(ModelRock3, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50), IslandEffect);
-            DrawModel(ModelRock5, Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(100, -10, -780), IslandEffect);
-            DrawModel(ModelRock2, Matrix.CreateScale(0.18f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(530, -10, 780), IslandEffect);
-            DrawModel(ModelRock1, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(1050, -10, 300), IslandEffect);
+             DrawModelLight(ModelRock1, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(350, -10, 350), LightEffect);
+             DrawModelLight(ModelRock2, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-350, -10, 350), LightEffect);
+            DrawModelLight(ModelRock2, Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(0.8f) * Matrix.CreateTranslation(-350, -10, -680), LightEffect);
+             DrawModelLight(ModelRock3, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50), LightEffect);
+             DrawModelLight(ModelRock5, Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(100, -10, -780), LightEffect);
+             DrawModelLight(ModelRock2, Matrix.CreateScale(0.18f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(530, -10, 780), LightEffect);
+             DrawModelLight(ModelRock1, Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(1050, -10, 300), LightEffect);
+            LightEffect.Parameters["baseTexture"].SetValue(IslandMiscTexture);
+             DrawModelLight(ModelIsland2, Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600), LightEffect);
+             DrawModelLight(ModelIsland3, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100), LightEffect);
             
-            IslandMiscEffect.Parameters["ModelTexture"].SetValue(IslandMiscTexture);
-            DrawModel(ModelIsland2, Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600), IslandMiscEffect);
-            DrawModel(ModelIsland3, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100), IslandMiscEffect);
-
-            DrawModel(ModelPalm1, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(60, 10, 280), IslandMiscEffect);
-            DrawModel(ModelPalm2, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(110, 0, 300), IslandMiscEffect);
-            DrawModel(ModelPalm3, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(-50, 48, 150), IslandMiscEffect);
-            DrawModel(ModelPalm4, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(750, 0, -60), IslandMiscEffect);
-            DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(580, 0, -150), IslandMiscEffect);
-            DrawModel(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), IslandMiscEffect);
+            DrawModelLight(ModelPalm1, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(60, 10, 280), LightEffect);
+            DrawModelLight(ModelPalm2, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(110, 0, 300), LightEffect);
+            DrawModelLight(ModelPalm3, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(-50, 48, 150), LightEffect);
+            DrawModelLight(ModelPalm4, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(750, 0, -60), LightEffect);
+            DrawModelLight(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(580, 0, -150), LightEffect);
+            DrawModelLight(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), LightEffect);
 
             WaterEffect.Parameters["ModelTexture"]?.SetValue(WaterTexture);
             WaterEffect.Parameters["Time"]?.SetValue(time);
@@ -291,7 +317,9 @@ namespace TGC.MonoGame.TP
             Cruiser.Draw();
             Barquito.Draw();
             PlayerBoat.Draw();
-
+            //Iluminacion
+            lightBox.Draw(LightBoxWorld, shotCam.View, shotCam.Projection);
+            lightBox2.Draw(LightBoxWorld2, shotCam.View, shotCam.Projection);
             //DrawModel(PlayerBoatModel, Matrix.CreateRotationY((float)PlayerRotation)* PlayerBoatMatrix  , PlayerBoatEffect);
 
             /// Skydome
@@ -308,11 +336,35 @@ namespace TGC.MonoGame.TP
                 effect.Parameters["View"].SetValue(shotCam.View);
                 effect.Parameters["Projection"].SetValue(shotCam.Projection);
                 foreach (var meshPart in mesh.MeshParts)
+                {
                     meshPart.Effect = effect;
+
+                }
                 mesh.Draw();
             }
         }
+        private void DrawModelLight(Model geometry, Matrix transform, Effect light)
+        {
+            var modelMeshesBaseTransforms = new Matrix[geometry.Bones.Count];
+            geometry.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            foreach (var modelMesh in geometry.Meshes)
+            {
+                // We set the main matrices for each mesh to draw
+                // World is used to transform from model space to world space
+                light.Parameters["World"].SetValue(transform);
+                // InverseTransposeWorld is used to rotate normals
+                light.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(transform)));
+                // WorldViewProjection is used to transform from model space to clip space
+                light.Parameters["WorldViewProjection"].SetValue(transform * shotCam.View * shotCam.Projection);
+                    foreach (var meshPart in modelMesh.MeshParts) {
+                        meshPart.Effect = light;
 
+                }
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
+        }
+      
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
         /// </summary>
