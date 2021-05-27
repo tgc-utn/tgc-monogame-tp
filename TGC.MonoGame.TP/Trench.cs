@@ -13,6 +13,13 @@ namespace TGC.MonoGame.TP
 		public Vector3 Position { get; set; }
 		public Vector3 Color { get; set; }
 		public TrenchType Type { get; set; }
+		public List<TrenchTurret> Turrets = new List<TrenchTurret>();
+		public List<BoundingBox> boundingBoxes = new List<BoundingBox>();
+		public Trench(TrenchType t, Model m)
+        {
+			Type = t;
+			Model = m;
+        }
 		public Trench(TrenchType t, float r)
 		{
 			Type = t;
@@ -20,6 +27,17 @@ namespace TGC.MonoGame.TP
 			//Model = TGCGame.GetModelFromType(Type); //always null, models not loaded, update in loadcontent
 		}
 		
+		public bool IsInTrench(BoundingSphere element)
+        {
+			var hit = false;
+			foreach(var box in boundingBoxes)
+            	hit |= box.Intersects(element);
+
+			return hit;
+
+			//BoundingBox hit = boundingBoxes.Find(box => box.Intersects(element));
+			//return !(hit.Min.Equals(Vector3.Zero) && (hit.Max.Equals(Vector3.Zero)));
+        }
 		private static Trench GetNextTrench(Trench input, float rotation)
 		{
 			//Si es bloque de estos y no esta alineado, entonces es un straight
@@ -246,7 +264,6 @@ namespace TGC.MonoGame.TP
 		Straight,
 		T,
 		Intersection,
-		Elbow,
-		Turret
+		Elbow
 	}
 }

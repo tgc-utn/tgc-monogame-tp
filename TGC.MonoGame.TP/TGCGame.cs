@@ -3,9 +3,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using TGC.MonoGame.Samples.Cameras;
 using System.Timers;
-
+using System.Threading;
 namespace TGC.MonoGame.TP
 {
     /// <summary>
@@ -22,6 +21,9 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
 
+
+        public static Mutex MutexDeltas = new Mutex();
+
         private SpriteFont SpriteFont;
         Xwing Xwing = new Xwing();
         SkyBox SkyBox;
@@ -34,7 +36,7 @@ namespace TGC.MonoGame.TP
         public Vector3 Trench2Translation = new Vector3(0, -80, -290);
         public Vector3 XwingTranslation = new Vector3(0, -5, -40);
 
-        Timer camUpdateTimer;
+        System.Timers.Timer camUpdateTimer;
 
         /// <summary>
         ///     Constructor del juego.
@@ -70,6 +72,8 @@ namespace TGC.MonoGame.TP
         private Model LaserModel { get; set; }
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
+        private Effect EffectLight { get; set; }
+
         private BasicEffect BasicEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix XwingWorld { get; set; }
@@ -128,25 +132,21 @@ namespace TGC.MonoGame.TP
             size.Y /= 2;
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
-            
-            startView = Camera.View;
-            startProj = Camera.Projection;
 
-            camUpdateTimer = new Timer(5);
+            camUpdateTimer = new System.Timers.Timer(5);
             camUpdateTimer.Elapsed += CamUpdateTimerTick;
             camUpdateTimer.AutoReset = true;
             camUpdateTimer.Enabled = true;
 
             
-
             //int mapSize = 9; //9x9
+            //Algoritmo de generacion de mapa recursivo (ver debug output)
             Map = Trench.GenerateMap(MapSize);
             System.Diagnostics.Debug.WriteLine(Trench.ShowMapInConsole(Map, MapSize));
             
 
             base.Initialize();
         }
-        Matrix startView, startProj;
 
         private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
         {
@@ -179,7 +179,7 @@ namespace TGC.MonoGame.TP
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectTexture = Content.Load<Effect>(ContentFolderEffects + "BasicTexture");
-
+            EffectLight = Content.Load<Effect>(ContentFolderEffects + "BlinnPhong");
             BasicEffect = new BasicEffect(GraphicsDevice)
             {
                 World = Matrix.Identity,
@@ -207,9 +207,22 @@ namespace TGC.MonoGame.TP
 
 
             //Asigno los efectos a los modelos correspondientes
-            assignEffectToModels(new Model[] { Xwing.Model, Tie, TrenchPlatform, TrenchStraight, TrenchElbow, TrenchT, TrenchIntersection, TrenchTurret }, EffectTexture);
+            assignEffectToModels(new Model[] { Xwing.Model, Tie}, EffectTexture);
+            assignEffectToModels(new Model[] { TrenchPlatform, TrenchStraight, TrenchElbow, TrenchT, TrenchIntersection, TrenchTurret }, EffectLight);
             assignEffectToModels(new Model[] { Trench2, LaserModel }, Effect);
 
+            EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
+            EffectTexture.Parameters["TextureMultiplier"].SetValue(1f);
+
+            EffectLight.Parameters["baseTexture"].SetValue(TrenchTexture);
+            EffectLight.Parameters["ambientColor"].SetValue(new Vector3(0.25f, 0.25f, 0.25f));
+            EffectLight.Parameters["diffuseColor"].SetValue(new Vector3(0.6f, 0.6f, 0.6f));
+            EffectLight.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
+
+            EffectLight.Parameters["KAmbient"].SetValue(0.5f);
+            EffectLight.Parameters["KDiffuse"].SetValue(5.0f);
+            EffectLight.Parameters["KSpecular"].SetValue(20f);
+            EffectLight.Parameters["shininess"].SetValue(40f);
             //Trench.UpdateModels(ref Map, MapSize);
             UpdateTrenches();
 
@@ -224,44 +237,130 @@ namespace TGC.MonoGame.TP
         List<Matrix> trenches = new List<Matrix>();
         void UpdateTrenches()
         {
-
+            //Inicializo valores importantes del mapa
             float tx = 0;
             float tz = 0;
             Matrix S = Matrix.CreateScale(TrenchScale);
-            Matrix R = Matrix.Identity; 
-            Matrix T = Matrix.CreateTranslation(new Vector3(0, -50, 0));
+            Matrix R = Matrix.Identity;
+            Matrix T = Matrix.CreateTranslation(new Vector3(0, -35, 0));
             float delta = 395.5f;
-            //for (int x = 0; x < MapSize; x++)
-            //{
-            Random rnd = new Random();
 
-            
+            Random rnd = new Random();
             for (int x = 0; x < MapSize; x++)
             {
+
                 tz = 0;
                 for (int z = 0; z < MapSize; z++)
                 {
+                    var r = rnd.Next(0, 100);
+
                     Trench block = Map[x, z];
 
+                    
                     block.Model = GetModelFromType(Map[x, z].Type);
-                    //block.Color = new Vector3((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
-                    Vector3 color = Vector3.Zero;
-                    var val = 0.4f;
-                    switch(block.Type)
+                    
+                    block.Position = new Vector3(tx, 0, tz);
+
+                    var boxWidth = 20;
+                    
+                    var VerticalFullBox = new BoundingBox(
+                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
+                    var HorizontalFullBox = new BoundingBox(
+                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
+                    
+                    var VerticalHalfBox = new BoundingBox(
+                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta * 0.5f));
+                    var VerticalHalfBox2 = new BoundingBox(
+                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta * 0.5f), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
+
+                    var HorizontalHalfBox = new BoundingBox(
+                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta * 0.5f, 0, boxWidth * 0.5f));
+                    var HorizontalHalfBox2 = new BoundingBox(
+                        block.Position - new Vector3(delta * 0.5f, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
+
+                    switch (block.Type)
                     {
-                        case TrenchType.Platform: R = Matrix.Identity;  color = new Vector3(-0.5f, -0.5f, -0.5f); break;
-                        case TrenchType.Straight: R = Matrix.CreateRotationY(-MathHelper.PiOver2); color = new Vector3(val, 0f, val); break;
-                        case TrenchType.T: R = Matrix.CreateRotationY(-MathHelper.PiOver2); color = new Vector3(val, 0f, 0f); break;
-                        case TrenchType.Elbow: R = Matrix.Identity; color = new Vector3(0f, val, 0f); break;
-                        case TrenchType.Intersection: R = Matrix.Identity; color = Vector3.Zero; break;
+                        case TrenchType.Platform: 
+                            R = Matrix.Identity;  
+                            break;
+                        case TrenchType.Straight: 
+                            R = Matrix.CreateRotationY(-MathHelper.PiOver2);
+                            if (block.Rotation == 0f || block.Rotation == 180f)
+                                block.boundingBoxes.Add(VerticalFullBox);
+                            else
+                                block.boundingBoxes.Add(HorizontalFullBox);
+                            break;
+                        case TrenchType.T: 
+                            R = Matrix.CreateRotationY(MathHelper.PiOver2);
+                            switch(block.Rotation)
+                            {
+                                case 0f:
+                                    block.boundingBoxes.Add(VerticalHalfBox);
+                                    block.boundingBoxes.Add(HorizontalFullBox);
+                                    break;
+                                case 90f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox);
+                                    block.boundingBoxes.Add(VerticalFullBox);
+                                    break;
+                                case 180f:
+                                    block.boundingBoxes.Add(VerticalHalfBox2);
+                                    block.boundingBoxes.Add(HorizontalFullBox);
+                                    break;
+                                case 270f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox2);
+                                    block.boundingBoxes.Add(VerticalFullBox);
+                                    break;
+                            }
+                            break;
+                        case TrenchType.Elbow: 
+                            R = Matrix.Identity;
+                            switch (block.Rotation)
+                            {
+                                case 0f:
+                                    block.boundingBoxes.Add(VerticalHalfBox);
+                                    block.boundingBoxes.Add(HorizontalHalfBox);
+                                    break;
+                                case 90f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox);
+                                    block.boundingBoxes.Add(VerticalHalfBox2);
+                                    break;
+                                case 180f:
+                                    block.boundingBoxes.Add(VerticalHalfBox2);
+                                    block.boundingBoxes.Add(HorizontalHalfBox2);
+                                    break;
+                                case 270f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox2);
+                                    block.boundingBoxes.Add(VerticalHalfBox);
+                                    break;
+                            }
+                            break;
+                        case TrenchType.Intersection: 
+                            R = Matrix.Identity;
+                            block.boundingBoxes.Add(HorizontalFullBox);
+                            block.boundingBoxes.Add(VerticalFullBox);
+                            break;
 
                     }
-                    block.Color = color;
-                    //Map[x, z].Color = Vector3.Zero;
-                    block.Position = new Vector3(tx, 0, tz);
+
                     block.SRT =
                         S * R * Matrix.CreateRotationY(MathHelper.ToRadians(block.Rotation)) * 
                         Matrix.CreateTranslation(block.Position) * T;
+
+                    //TODO: Corregir valores para cada trench distinto
+                    var turretPos = block.Position - new Vector3(0,15,0);
+
+                    if (r < 50) // %50 chance de tener una torre
+                        block.Turrets.Add(new TrenchTurret());
+                    if (r < 20) // %20 chance de tener dos
+                        block.Turrets.Add(new TrenchTurret());
+
+                    foreach (var turret in block.Turrets)
+                    {
+                        turret.S = S;
+                        turret.SRT = S * R * Matrix.CreateTranslation(turretPos);
+                        turret.Position = turretPos;
+                        turretPos += new Vector3(0, 0, 20);
+                    }
                     
                     tz += delta;
                 }
@@ -276,9 +375,10 @@ namespace TGC.MonoGame.TP
         {
             Random rnd = new Random();
             int maxEnemies = 2;
+            int distance = 500;
             for (int i = 0; i < maxEnemies - enemies.Count; i++)
             {
-                Vector3 random = new Vector3(rnd.Next(-1000, 1000), 0f, rnd.Next(-1000, 1000));
+                Vector3 random = new Vector3(rnd.Next(-distance, distance), 0f, rnd.Next(-distance, distance));
                 Vector3 pos = Xwing.Position + random;
                 Vector3 dir = Vector3.Normalize(Xwing.Position - pos);
 
@@ -294,6 +394,7 @@ namespace TGC.MonoGame.TP
                 enemy.Update(Xwing, time);
                 enemy.fireLaser();
             }
+            //TODO: ver calculos pitch y yaw, lasers ok
             //System.Diagnostics.Debug.WriteLine(
             //    "P " +
             //    enemies[0].Pitch +
@@ -306,13 +407,33 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //Update camara
             Camera.Update(gameTime);
-
+            //Generacion de enemigos, de ser necesario
             generateEnemies();
-
+            //Update Xwing
             Xwing.Update(elapsedTime, Camera);
 
+            Vector4 zone = Xwing.GetZone();
+
             enemyLasers.Clear();
+
+            //TODO: Corregir YAW torres
+            for (int x = (int)zone.X; x < zone.Y; x++)
+                for (int z = (int)zone.Z; z < zone.W; z++)
+                    foreach(var turret in Map[x, z].Turrets)
+                    {
+                        turret.Update(Xwing, elapsedTime);
+                        foreach(var laser in turret.fired)
+                        {
+                            laser.Update(elapsedTime);
+                            enemyLasers.Add(laser);
+                        }
+                    }
+                   
+
+            //Movimiento de lasers, copia en una sola lista
+            
             foreach (var enemy in enemies)
                 foreach (var laser in enemy.fired)
                 {
@@ -320,12 +441,17 @@ namespace TGC.MonoGame.TP
                     enemyLasers.Add(laser);
                 }
 
-            Xwing.VerifyCollisions(enemyLasers);
+            //Colisiones
+            Xwing.VerifyCollisions(enemyLasers, Map);
             enemies.ForEach(enemy => enemy.VerifyCollisions(Xwing.fired));
             enemies.RemoveAll(enemy => enemy.HP <= 0);
+            //TODO: Corregir YAW enemigos
             updateEnemies(elapsedTime);
 
+            EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left* 500 + Vector3.Up * 500);
+            EffectLight.Parameters["eyePosition"].SetValue(Camera.Position);
 
+            //Teclado
             #region Input
             var kState = Keyboard.GetState();
             var mState = Mouse.GetState();
@@ -421,7 +547,6 @@ namespace TGC.MonoGame.TP
             ignoredKeys.RemoveAll(kState.IsKeyUp);
             #endregion Input
 
-
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -442,9 +567,20 @@ namespace TGC.MonoGame.TP
         String mensaje;
         String Vector3ToStr(Vector3 v)
         {
-            return "X " + v.X + " Y " + v.Y + " Z " + v.Z;
+            return "(" + v.X + " " + v.Y + " " + v.Z +")";
         }
-
+        String IntVector3ToStr(Vector3 v)
+        {
+            return "(" + (int)v.X + " " + (int)v.Y + " " + (int)v.Z + ")";
+        }
+        String Vector2ToStr(Vector2 v)
+        {
+            return "(" + v.X + " " + v.Y + ")";
+        }
+        String IntVector2ToStr(Vector2 v)
+        {
+            return "(" + (int)v.X + " " + (int)v.Y + ")";
+        }
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
@@ -462,14 +598,9 @@ namespace TGC.MonoGame.TP
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             int fps = (int)Math.Round(1 / deltaTime);
 
-            //BoundingBox bb = new BoundingBox();
-            //System.Diagnostics.Debug.WriteLine("V "+Camera.View);
-            //System.Diagnostics.Debug.WriteLine("Pj " + Camera.Projection);
-            //System.Diagnostics.Debug.WriteLine("P " + Vector3ToStr(Camera.Position));
             SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
-            //System.Diagnostics.Debug.WriteLine(SkyBox.Effect.Parameters);
-            //SRT contiene la matriz final que queremos aplicarle al modelo al dibujarlo
-            DrawXWing(Xwing.SRT);
+
+            DrawXWing();
 
             DrawMap();
             //debug de Tie, rotando 
@@ -480,34 +611,21 @@ namespace TGC.MonoGame.TP
             //    rotationMatrix;
             //DrawTie(TieWorld, SRT);
 
-
-            //foreach (var srt in trenches)
-            //{
-            //    DrawTrench(Matrix.Identity, srt);
-            //}
-
             foreach (var laser in Xwing.fired)
             {
                 laser.Update(deltaTime);
                 DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
             }
+            
             foreach (var enemy in enemies)
+            {
+                DrawTie(enemy);
                 foreach (var laser in enemy.fired)
                 {
                     laser.Update(deltaTime);
                     DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
                 }
-            foreach (var enemy in enemies)
-            {
-                DrawTie(enemy);
             }
-
-            //SRT =
-            //        Matrix.CreateScale(Trench2Scale) *
-            //        //Matrix.CreateRotationY(MathF.PI / 2) *
-            //        Matrix.CreateTranslation(Trench2Translation);
-            //Este si se muestra bien
-            //DrawModel(Trench2, Trench2World, SRT, new Vector3(0.4f, 0.4f, 0.4f));
 
             if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
                 mensaje = mensaje1;
@@ -517,24 +635,8 @@ namespace TGC.MonoGame.TP
                 mensaje = mensaje3;
 
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            //SpriteBatch.DrawString(SpriteFont, Xwing.barrelRolling + " " + Xwing.barrelRollStep, Vector2.Zero, Color.White);
-            //SpriteBatch.DrawString(SpriteFont,
-            //    "C " + Math.Round(Camera.FrontDirection.X, 2) +
-            //    "|" + Math.Round(Camera.FrontDirection.Y, 2) +
-            //    "|" + Math.Round(Camera.FrontDirection.Z, 2) +
-            //    "  up " + Math.Round(Camera.UpDirection.X, 2) +
-            //    "|" + Math.Round(Camera.UpDirection.Y, 2) +
-            //    "|" + Math.Round(Camera.UpDirection.Z, 2) +
 
-            //    "   P " + Math.Round(pos.X, 2) +
-            //    "|" + Math.Round(pos.Y, 2) +
-            //    "|" + Math.Round(pos.Z, 2) +
-            //    "   UPX " + Math.Round(mxQuat.Up.X, 2) +
-            //    "|" + Math.Round(mxQuat.Up.Y, 2) +
-            //    "|" + Math.Round(mxQuat.Up.Z, 2) +
-            //    " Roll " + Math.Round(Xwing.Roll, 2)
-            //    , Vector2.Zero, Color.White); 
-            SpriteBatch.DrawString(SpriteFont, "FPS " + fps + " HP " + Xwing.HP, Vector2.Zero, Color.White);
+            SpriteBatch.DrawString(SpriteFont, "FPS " + fps + " HP " + Xwing.HP + " Invulnerable: " + Xwing.barrelRolling, Vector2.Zero, Color.White);
             SpriteBatch.End();
 
             var center = GraphicsDevice.Viewport.Bounds.Size;
@@ -544,17 +646,11 @@ namespace TGC.MonoGame.TP
             var scale = 0.1f;
             var sz = 512 * scale;
 
+            //Crosshair
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             SpriteBatch.Draw(Crosshairs[0], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
             SpriteBatch.End();
 
-
-            //debug
-            //SpriteBatch.DrawString(SpriteFont, 
-            //                                    " yaw " + Math.Round(Camera.Yaw, 2) +
-            //                                    " pitch " + Math.Round(Camera.Pitch, 2)
-            //                                    , new Vector2(0, 0), Color.White);
-            //SpriteBatch.End();
 
 
         }
@@ -564,18 +660,13 @@ namespace TGC.MonoGame.TP
         //}
         void DrawMap()
         {
-            //int x = 0;
             Vector4 zone = Xwing.GetZone();
-            //System.Diagnostics.Debug.WriteLine("z " + zone);
+            //Zona de vision del xwing, para mejorar performance y no tener que renderizar todo el mapa
             for (int x = (int)zone.X; x < zone.Y; x++)
                 for (int z = (int)zone.Z; z < zone.W; z++)
-                {
-                    //if (!Map[x, z].Type.Equals(TrenchType.Platform))
-                        DrawTrench(Map[x, z]);
-                }
-            
-
+                    DrawTrench(Map[x, z]);
         }
+        
         void DrawTrench(Trench t)
         {
             Matrix world;
@@ -583,25 +674,42 @@ namespace TGC.MonoGame.TP
             {
                 world = mesh.ParentBone.Transform * t.SRT;
 
-                EffectTexture.Parameters["World"].SetValue(world);
-                EffectTexture.Parameters["ModelTexture"].SetValue(TrenchTexture);
-                EffectTexture.Parameters["ModifierColor"].SetValue(t.Color);
-                EffectTexture.Parameters["TextureMultiplier"].SetValue(50f);
+                EffectLight.Parameters["World"].SetValue(world);
+                EffectLight.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
+                EffectLight.Parameters["WorldViewProjection"].SetValue(world * Camera.View * Camera.Projection);
 
                 mesh.Draw();
             }
-            EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
-            EffectTexture.Parameters["TextureMultiplier"].SetValue(1f);
+            foreach(var turret in t.Turrets)
+            {
+                foreach(var mesh in TrenchTurret.Meshes)
+                {
+                    world = mesh.ParentBone.Transform * turret.SRT;
+
+                    EffectLight.Parameters["World"].SetValue(world);
+                    EffectLight.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
+                    EffectLight.Parameters["WorldViewProjection"].SetValue(world * Camera.View * Camera.Projection);
+
+                    mesh.Draw();
+                }
+                foreach(var laser in turret.fired)
+                {
+                    DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
+                }
+            }
         }
-        void DrawXWing(Matrix SRT)
+
+        void DrawXWing()
         {
             int meshCount = 0; //Como el xwing tiene 2 texturas, tengo que dibujarlo de esta manera
+            
+            //efecto para verificar colisiones, se pone rojo
             if (Xwing.hit)
                 EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Right * 0.5f);
             
             foreach (var mesh in Xwing.Model.Meshes)
             {
-                Xwing.World = mesh.ParentBone.Transform * SRT;
+                Xwing.World = mesh.ParentBone.Transform * Xwing.SRT;
                 
                 EffectTexture.Parameters["World"].SetValue(Xwing.World);
                 EffectTexture.Parameters["ModelTexture"].SetValue(Xwing.Textures[meshCount]);
@@ -652,7 +760,6 @@ namespace TGC.MonoGame.TP
                 case TrenchType.T:               return TrenchT;
                 case TrenchType.Intersection:    return TrenchIntersection;
                 case TrenchType.Elbow:           return TrenchElbow;
-                case TrenchType.Turret:          return TrenchTurret;
                 default:                         return TrenchPlatform;
             }
         }
