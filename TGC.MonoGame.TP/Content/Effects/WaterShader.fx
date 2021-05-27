@@ -11,6 +11,7 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 float Time = 0;
+float WaterPositionY = 0.0f;
 
 uniform float2 u_resolution;
 uniform float2 u_mouse;
@@ -67,7 +68,6 @@ float noise(in float2 st) {
     return lerp(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
     // Clear the output
@@ -98,7 +98,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     rotateOffset.y += (1 - frac(Time * 0.1)) * frac(Time * 0.1) * 0.1 * cos((-worldPosition.z  + Time * speed * 1.3) * offset) * radius;
 
     //rotateOffset.y *= (noise(worldPosition.z * 1000) * 0.5 + .2) * (noise(worldPosition.x +1000) * 0.5 + .2);
-    rotateOffset.y += noise(worldPosition.x * 10) * 0.05 + noise(worldPosition.z  * 1000) * 0.001;
+    rotateOffset.y += noise(worldPosition.x * 10) * 0.05 + noise(worldPosition.z  * 1000) * 0.01;
     //rotateOffset.y += (noise(worldPosition.z * 0.001) * 0.5);
 
 
@@ -123,7 +123,6 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     output.TextureCoordinate = input.TextureCoordinate;
     // Propagate color by vertex
     output.Color = input.Color;
-
     return output;
 }
 

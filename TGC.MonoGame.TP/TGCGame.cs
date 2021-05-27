@@ -98,6 +98,7 @@ namespace TGC.MonoGame.TP
         private Effect SkyDomeEffect { get; set; }
         public Texture2D SkyDomeTexture;
 
+
         // Iluminacion
         private Effect LightEffect{ get; set; }
         private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
@@ -105,6 +106,13 @@ namespace TGC.MonoGame.TP
         private CubePrimitive lightBox;
         private CubePrimitive lightBox2;
         private float Timer { get; set; }
+
+
+        // pal debuggin
+        SpriteBatch spriteBatch;
+        SpriteFont font;
+
+
 
         //private Model PlayerBoatModel { get; set; }
         //private Effect PlayerBoatEffect { get; set; }
@@ -149,6 +157,8 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferHeight = 720;
             Graphics.ApplyChanges();
 
+            spriteBatch = new SpriteBatch(Graphics.GraphicsDevice);
+
             base.Initialize();
         }
 
@@ -192,16 +202,16 @@ namespace TGC.MonoGame.TP
 
             //// BOTES ////
 
-            SM = new Ship(this, new Vector3(-100f, 0f, 400f), new Vector3(0f, 0f, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "Botes/SMGeo", "BasicShader", "Botes/SM_T_Boat_M_Boat_BaseColor");
+            SM = new Ship(this, new Vector3(-100f, 0f, 400f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "Botes/SMGeo", "BasicShader", "Botes/SM_T_Boat_M_Boat_BaseColor");
             SM.LoadContent();
 
-            Patrol = new Ship(this, new Vector3(-300f, 0f, 500f), new Vector3(0f, 0f, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "Botes/PatrolGeo", "BasicShader", "Botes/T_Patrol_Ship_1K_BaseColor");
+            Patrol = new Ship(this, new Vector3(-300f, 0f, 500f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "Botes/PatrolGeo", "BasicShader", "Botes/T_Patrol_Ship_1K_BaseColor");
             Patrol.LoadContent();
 
-            Cruiser = new Ship(this, new Vector3(-100f, 0f, 900f), new Vector3(0f, 0f, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "Botes/CruiserGeo", "BasicShader", "Botes/T_Cruiser_M_Cruiser_BaseColor");
+            Cruiser = new Ship(this, new Vector3(-100f, 0f, 900f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "Botes/CruiserGeo", "BasicShader", "Botes/T_Cruiser_M_Cruiser_BaseColor");
             Cruiser.LoadContent();
 
-            Barquito = new Ship(this, new Vector3(-200f, 0f, 700f), new Vector3(0f, 0f, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "Botes/BarquitoGeo", "BasicShader", "Botes/Barquito_BaseColor");
+            Barquito = new Ship(this, new Vector3(-200f, 0f, 700f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "Botes/BarquitoGeo", "BasicShader", "Botes/Barquito_BaseColor");
             Barquito.LoadContent();
 
             PlayerBoat = new Ship(this, new Vector3(0f, 0f, 600f), new Vector3(0f, 0f, 0f), new Vector3(0.1f, 0.1f, 0.1f), 0.5f, "ShipB/Source/Ship", "BasicShader", "Botes/Battleship_lambert1_AlbedoTransparency.tga");
@@ -216,6 +226,7 @@ namespace TGC.MonoGame.TP
             SkyDomeTexture = Content.Load<Texture2D>(ContentFolder3D + "Skydome/Sky");
             SkyDomeEffect = Content.Load<Effect>(ContentFolderEffects + "SkyDome");
             Skydome = new SkyDome(SkyDomeModel, SkyDomeTexture, SkyDomeEffect, 200);
+
             //Valores de Iluminacion 
             LightEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhong"); 
 
@@ -228,6 +239,11 @@ namespace TGC.MonoGame.TP
             LightEffect.Parameters["shininess"].SetValue(2.0f);
             lightBox = new CubePrimitive(GraphicsDevice, 70, Color.Yellow);
             lightBox2 = new CubePrimitive(GraphicsDevice, 25, Color.White);
+
+            font = Content.Load<SpriteFont>("Fonts/Font");
+
+
+
             base.LoadContent();
         }
 
@@ -239,9 +255,17 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            SM.Update(gameTime);
+            Patrol.Update(gameTime);
+            Cruiser.Update(gameTime);
+            Barquito.Update(gameTime);
+
+
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
+
             var elapsedTime =+ (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             //ProcessKeyboard(elapsedTime);
 
             // Basado en el tiempo que paso se va generando una rotacion.
@@ -291,12 +315,17 @@ namespace TGC.MonoGame.TP
              DrawModelLight(ModelIsland2, Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600), LightEffect);
              DrawModelLight(ModelIsland3, Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100), LightEffect);
             
+
             DrawModelLight(ModelPalm1, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(60, 10, 280), LightEffect);
             DrawModelLight(ModelPalm2, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(110, 0, 300), LightEffect);
             DrawModelLight(ModelPalm3, Matrix.CreateScale(0.08f) * Matrix.CreateTranslation(-50, 48, 150), LightEffect);
             DrawModelLight(ModelPalm4, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(750, 0, -60), LightEffect);
             DrawModelLight(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateTranslation(580, 0, -150), LightEffect);
             DrawModelLight(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), LightEffect);
+
+
+
+            //float WaterPositionY = WaterEffect.Parameters["WaterPositionY"].GetValueSingle();
 
             WaterEffect.Parameters["ModelTexture"]?.SetValue(WaterTexture);
             WaterEffect.Parameters["Time"]?.SetValue(time);
@@ -324,6 +353,18 @@ namespace TGC.MonoGame.TP
 
             /// Skydome
             Skydome.Draw(shotCam.View, shotCam.Projection, shotCam.Position);
+
+
+            //var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //string timeString = elapsedTime.ToString();
+
+            //spriteBatch.Begin();
+            //// Finds the center of the string in coordinates inside the text rectangle
+            //Vector2 textMiddlePoint = font.MeasureString("MonoGame Font Test") / 2;
+            //// Places text in center of the screen
+            //Vector2 position = new Vector2(Window.ClientBounds.Width / 2, Window.ClientBounds.Height / 2);
+            //spriteBatch.DrawString(font, timeString, position, Color.White, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
+            //spriteBatch.End();
 
             base.Draw(gameTime);
         }
