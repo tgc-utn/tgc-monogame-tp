@@ -353,6 +353,7 @@ namespace TGC.MonoGame.TP
 
             /// Skydome
             Skydome.Draw(shotCam.View, shotCam.Projection, shotCam.Position);
+            SkyDomeEffect.Parameters["Time"].SetValue(time);
 
 
             //var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;

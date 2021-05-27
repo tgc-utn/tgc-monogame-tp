@@ -114,6 +114,9 @@ namespace TGC.MonoGame.TP.Ships
 
         public float GetWaterPositionY(float xPosition, float zPosition)
         {
+            float fade = MathF.Min(MathF.Cos(time * 0.3f) + 0.5f, 1f);
+            fade = MathF.Max(fade, 0.15f);
+
 
             float speed = 0.05f;
             float offset = 10f;
@@ -123,7 +126,13 @@ namespace TGC.MonoGame.TP.Ships
             var posY = 0.4 * MathF.Cos(((float)(xPosition * 0.0075f) * .5f + time * speed) * offset) * radius * 0.5f;
             posY += (1 - frac(time * 0.1f)) * frac(time * 0.1f) * 0.1f * MathF.Cos((-(float)(zPosition * 0.0075f) + time * speed * 1.3f) * offset) * radius;
 
-            posY *= 7f;
+            posY *= 3f + (1 - fade) * 12f;
+
+
+
+            worldPosition = new Vector3(xPosition, (float)(posY) * 2, zPosition);
+
+            Position = worldPosition;
 
             var wavetan1 = Vector3.Normalize(new Vector3(1f,
                 0.4f * MathF.Cos(((float)(xPosition) * .5f + time * speed) * offset) * radius * 0.5f
@@ -133,15 +142,12 @@ namespace TGC.MonoGame.TP.Ships
                 (1 - frac(time * 0.1f)) * frac(time * 0.1f) * 0.1f * MathF.Cos((-(float)(zPosition) + time * speed * 1.3f) * offset) * radius,
                 1));
 
-            worldPosition = new Vector3(xPosition, (float)(posY) * 2, zPosition);
-
-            Position = worldPosition;
-
             var waterNormal = Vector3.Normalize(Vector3.Cross(wavetan2, wavetan1));
 
             wavesRotation = Rotation - Vector3.Dot(Rotation, waterNormal) * waterNormal;
 
             waterMatrix = Matrix.CreateLookAt(Vector3.Zero, wavesRotation, waterNormal);
+
             return (float)posY;
         }
 
