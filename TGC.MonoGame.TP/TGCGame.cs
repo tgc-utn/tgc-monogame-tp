@@ -69,6 +69,21 @@ namespace TGC.MonoGame.TP
         public Texture2D IslandMiscTexture;
         public Texture2D WaterTexture;
 
+
+        Matrix MatrixIsland1;
+        Matrix MatrixIsland2;
+        Matrix MatrixIsland3;
+        Matrix MatrixIsland4;
+        Matrix MatrixCasa;
+        Matrix MatrixRock1;
+        Matrix MatrixRock2;
+        Matrix MatrixRock3;
+        Matrix MatrixRock4;
+        Matrix MatrixRock5;
+        Matrix MatrixRock6;
+        Matrix MatrixRock7;
+
+
         /// <summary>
         /// Barcos
         /// </summary>
@@ -78,6 +93,8 @@ namespace TGC.MonoGame.TP
         private Ship Barquito { get; set; }
         private Ship PlayerBoat { get; set; }
 
+        private Ship PlayerControlledShip { get; set; }
+
         /// <summary>
         /// Camara
         /// </summary>
@@ -85,7 +102,7 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-        
+
         private float CameraArm;
         public Camera shotCam;
         public Camera CurrentCamera => shotCam;
@@ -98,6 +115,14 @@ namespace TGC.MonoGame.TP
         private Effect SkyDomeEffect { get; set; }
         public Texture2D SkyDomeTexture;
 
+        private Ship[] Ships;
+        float IslandScaleCollisionTest;
+        BoundingSphere IslandSphere;
+
+
+        private BoundingSphere[] IslandColliders;
+
+        BoundingBox TestBox;
 
         // Iluminacion
         private Effect LightEffect{ get; set; }
@@ -108,24 +133,12 @@ namespace TGC.MonoGame.TP
         private float Timer { get; set; }
 
 
+
         // pal debuggin
         SpriteBatch spriteBatch;
         SpriteFont font;
 
 
-
-        //private Model PlayerBoatModel { get; set; }
-        //private Effect PlayerBoatEffect { get; set; }
-        //private Matrix PlayerBoatMatrix { get; set; }
-
-        //public Texture2D PlayerBoatTexture;
-
-        //public float PlayerSpeed = 0.5f;
-        //private float Rotation { get; set; }
-        //private Vector3 FrontDirection;
-        //private double PlayerRotation;
-        //public float MovementSpeed { get; set; }
-        //public float RotationSpeed { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -149,9 +162,8 @@ namespace TGC.MonoGame.TP
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
 
-            CameraArm = 30.0f;
+            CameraArm = 100.0f;
             shotCam = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
-
 
             Graphics.PreferredBackBufferWidth = 1280;
             Graphics.PreferredBackBufferHeight = 720;
@@ -159,7 +171,10 @@ namespace TGC.MonoGame.TP
 
             spriteBatch = new SpriteBatch(Graphics.GraphicsDevice);
 
+            IslandScaleCollisionTest = 0.2f;
+            IslandSphere = new BoundingSphere(Vector3.Zero, 400);
             base.Initialize();
+            //Colliders.
         }
 
         /// <summary>
@@ -200,27 +215,54 @@ namespace TGC.MonoGame.TP
             //ModelRock4 = Content.Load<Model>(ContentFolder3D + "Island/Roca4Geo");
             ModelRock5 = Content.Load<Model>(ContentFolder3D + "Island/Roca5Geo");
 
+
+            MatrixIsland1 = Matrix.CreateScale(IslandScaleCollisionTest);
+            MatrixIsland2 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(1.54f) * Matrix.CreateTranslation(800, 0, -300);
+            MatrixIsland3 = Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(800, -2, 600);
+            MatrixIsland4 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-650, -2, -100);
+            MatrixCasa = Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(780, 56, 620);
+            MatrixRock1 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(350, -10, 350);
+            MatrixRock2 = Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-350, -10, 350);
+            MatrixRock3 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50);
+            MatrixRock4 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(3f) * Matrix.CreateTranslation(850, -10, 50);
+            MatrixRock5 = Matrix.CreateScale(0.2f) * Matrix.CreateTranslation(100, -10, -780);
+            MatrixRock6 = Matrix.CreateScale(0.18f) * Matrix.CreateRotationY(2.5f) * Matrix.CreateTranslation(530, -10, 780);
+            MatrixRock7 = Matrix.CreateScale(0.2f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(1050, -10, 300);
+
+
             //// BOTES ////
 
-            SM = new Ship(this, new Vector3(-100f, 0f, 400f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "Botes/SMGeo", "BasicShader", "Botes/SM_T_Boat_M_Boat_BaseColor");
+            SM = new Ship(this, new Vector3(-100f, 0.01f, 400f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.04f, 0.04f, 0.04f), 0.5f, "Botes/SMGeo", "BasicShader", "Botes/SM_T_Boat_M_Boat_BaseColor");
             SM.LoadContent();
 
-            Patrol = new Ship(this, new Vector3(-300f, 0f, 500f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "Botes/PatrolGeo", "BasicShader", "Botes/T_Patrol_Ship_1K_BaseColor");
+            Patrol = new Ship(this, new Vector3(-300f, 0.01f, 500f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.07f, 0.07f, 0.07f), 0.5f, "Botes/PatrolGeo", "BasicShader", "Botes/T_Patrol_Ship_1K_BaseColor");
             Patrol.LoadContent();
 
-            Cruiser = new Ship(this, new Vector3(-100f, 0f, 900f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "Botes/CruiserGeo", "BasicShader", "Botes/T_Cruiser_M_Cruiser_BaseColor");
+            Cruiser = new Ship(this, new Vector3(-100f, 0.01f, 900f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.03f, 0.03f, 0.03f), 0.5f, "Botes/CruiserGeo", "BasicShader", "Botes/T_Cruiser_M_Cruiser_BaseColor");
             Cruiser.LoadContent();
 
-            Barquito = new Ship(this, new Vector3(-200f, 0f, 700f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "Botes/BarquitoGeo", "BasicShader", "Botes/Barquito_BaseColor");
+            Barquito = new Ship(this, new Vector3(-200f, 0.01f, 700f), new Vector3(0f, MathHelper.PiOver2, 0f), new Vector3(0.05f, 0.05f, 0.05f), 0.5f, "Botes/BarquitoGeo", "BasicShader", "Botes/Barquito_BaseColor");
             Barquito.LoadContent();
 
-            PlayerBoat = new Ship(this, new Vector3(0f, 0f, 600f), new Vector3(0f, 0f, 0f), new Vector3(0.1f, 0.1f, 0.1f), 0.5f, "ShipB/Source/Ship", "BasicShader", "Botes/Battleship_lambert1_AlbedoTransparency.tga");
+            PlayerBoat = new Ship(this, new Vector3(0f, 0.01f, 600f), new Vector3(0f, 0f, 0f), new Vector3(0.1f, 0.1f, 0.1f), 0.5f, "ShipB/Source/Ship", "BasicShader", "Botes/Battleship_lambert1_AlbedoTransparency.tga");
             PlayerBoat.playerMode = true;
             PlayerBoat.LoadContent();
 
-            //PlayerBoatModel = Content.Load<Model>(ContentFolder3D + "ShipB/Source/Ship");
-            //PlayerBoatEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            //PlayerBoatTexture = Content.Load<Texture2D>(ContentFolder3D + "ShipB/textures/Battleship_lambert1_AlbedoTransparency.tga");
+            PlayerControlledShip = PlayerBoat;
+
+            Ships = new Ship[]
+            {
+                SM, Patrol, Cruiser, Barquito
+            };
+
+            float radius = 50f;
+            IslandColliders = new BoundingSphere[]
+            {
+                new BoundingSphere(MatrixIsland1.Translation, 300), new BoundingSphere(MatrixIsland2.Translation, radius), new BoundingSphere(MatrixIsland3.Translation, radius), new BoundingSphere(MatrixIsland4.Translation, radius), 
+                new BoundingSphere(MatrixCasa.Translation, radius), new BoundingSphere(MatrixRock1.Translation, radius), new BoundingSphere(MatrixRock2.Translation, radius), new BoundingSphere(MatrixRock3.Translation, radius), 
+                new BoundingSphere(MatrixRock4.Translation, radius), new BoundingSphere(MatrixRock5.Translation, radius), new BoundingSphere(MatrixRock6.Translation, radius), new BoundingSphere(MatrixRock7.Translation, radius), 
+            };
+
 
             SkyDomeModel = Content.Load<Model>(ContentFolder3D + "Skydome/SkyDome");
             SkyDomeTexture = Content.Load<Texture2D>(ContentFolder3D + "Skydome/Sky");
@@ -254,24 +296,20 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            ProcessKeyboard(elapsedTime);
+
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             SM.Update(gameTime);
             Patrol.Update(gameTime);
             Cruiser.Update(gameTime);
             Barquito.Update(gameTime);
-
-
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
 
-            var elapsedTime =+ (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            //ProcessKeyboard(elapsedTime);
-
-            // Basado en el tiempo que paso se va generando una rotacion.
-            //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             shotCam.Position = PlayerBoat.Position + new Vector3(0, CameraArm, 0);
-            //PlayerBoat.FrontDirection = - new Vector3((float)Math.Sin(PlayerRotation), 0.0f, (float)Math.Cos(PlayerRotation));
+
 
             //Iluminacion 
             var posicionY = (float)Math.Cos(Timer/5) * 1500;
@@ -283,7 +321,9 @@ namespace TGC.MonoGame.TP
             LightBoxWorld2 = Matrix.CreateTranslation(lightPosition2);
             LightEffect.Parameters["lightPosition"].SetValue(lightPosition);
             LightEffect.Parameters["eyePosition"].SetValue(shotCam.Position);
+
             base.Update(gameTime);
+
         }
 
         /// <summary>
@@ -298,6 +338,7 @@ namespace TGC.MonoGame.TP
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             IslandEffect.Parameters["ModelTexture"].SetValue(IslandTexture);
+
             LightEffect.Parameters["baseTexture"].SetValue(IslandTexture);
             DrawModelLight(ModelIsland, Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(0, 0, 800f), LightEffect);
             DrawModelLight(ModelIsland, Matrix.CreateScale(0.2f), LightEffect);
@@ -324,8 +365,6 @@ namespace TGC.MonoGame.TP
             DrawModelLight(ModelPalm5, Matrix.CreateScale(0.09f) * Matrix.CreateRotationY(4f) * Matrix.CreateTranslation(-650, 30, -100), LightEffect);
 
 
-
-            //float WaterPositionY = WaterEffect.Parameters["WaterPositionY"].GetValueSingle();
 
             WaterEffect.Parameters["ModelTexture"]?.SetValue(WaterTexture);
             WaterEffect.Parameters["Time"]?.SetValue(time);
@@ -416,6 +455,77 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        private void ProcessKeyboard(float elapsedTime)
+        {
+            var keyboardState = Keyboard.GetState();
+
+            if (keyboardState.IsKeyDown(Keys.Escape))
+            {
+                Exit();
+            }
+
+            //var currentMovementSpeed = MovementSpeed;
+
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                MoveForward(PlayerControlledShip.MovementSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                MoveBackwards(PlayerControlledShip.MovementSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                RotateRight(PlayerControlledShip.RotationSpeed * elapsedTime);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                RotateLeft(PlayerControlledShip.RotationSpeed * elapsedTime);
+            }
+
+
+        }
+
+        private void MoveForward(float amount)
+        {
+            BoundingSphere FuturePosition = new BoundingSphere(PlayerControlledShip.Position + PlayerControlledShip.FrontDirection * amount, 50);
+            bool willCollide = false;
+            for (var index = 0; index < Ships.Length && !willCollide; index++)
+            {
+                if (FuturePosition.Intersects(Ships[index].BoatBox))
+                {
+                    willCollide = true;
+                }
+            }
+
+            for (var index = 0; index < IslandColliders.Length && !willCollide; index++)
+            {
+                if (FuturePosition.Intersects(IslandColliders[index]))
+                {
+                    willCollide = true;
+                }
+            }
+
+            if (!willCollide)
+                PlayerControlledShip.Position += PlayerControlledShip.FrontDirection * amount;
+        }
+        private void MoveBackwards(float amount)
+        {
+            MoveForward(-amount);
+        }
+        private void RotateRight(float amount)
+        {
+            PlayerControlledShip.Rotation = new Vector3(PlayerControlledShip.Rotation.X, PlayerControlledShip.Rotation.Y + amount, PlayerControlledShip.Rotation.Z);
+            PlayerControlledShip.RotationRadians += amount;
+        }
+        private void RotateLeft(float amount)
+        {
+            RotateRight(-amount);
         }
     }
 }
