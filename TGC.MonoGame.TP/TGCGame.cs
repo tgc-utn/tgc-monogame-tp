@@ -424,25 +424,30 @@ namespace TGC.MonoGame.TP
                     foreach(var turret in Map[x, z].Turrets)
                     {
                         turret.Update(Xwing, elapsedTime);
-                        foreach(var laser in turret.fired)
+                        turret.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
+                        foreach (var laser in turret.fired)
                         {
                             laser.Update(elapsedTime);
                             enemyLasers.Add(laser);
                         }
                     }
-                   
+
 
             //Movimiento de lasers, copia en una sola lista
-            
+
             foreach (var enemy in enemies)
+            {
+                enemy.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
                 foreach (var laser in enemy.fired)
                 {
                     laser.Update(elapsedTime);
                     enemyLasers.Add(laser);
                 }
-
+            }
+            
             //Colisiones
             Xwing.VerifyCollisions(enemyLasers, Map);
+            Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
             enemies.ForEach(enemy => enemy.VerifyCollisions(Xwing.fired));
             enemies.RemoveAll(enemy => enemy.HP <= 0);
             //TODO: Corregir YAW enemigos

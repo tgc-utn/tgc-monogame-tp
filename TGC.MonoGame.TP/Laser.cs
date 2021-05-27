@@ -8,6 +8,8 @@ public class Laser
 	public Vector3 FrontDirection{ get; set; }
 	public Vector3 Color;
 	BoundingCylinder BoundingCylinder;
+	public float Age = 0f;
+	public float MaxAge = 1f;
     public Laser(Vector3 pos, Matrix rotation, Matrix srt, Vector3 fd, Vector3 c)
 	{
 		Position = pos;
@@ -17,14 +19,15 @@ public class Laser
 		
 		BoundingCylinder = new BoundingCylinder(Position, 10f, 20f);
 		BoundingCylinder.Rotation = rotation;
-
 	}
 	public void Update(float time)
 	{
         var translation = FrontDirection * 1500f * time;
+		Age += 1f * time;
         //var translation = FrontDirection * 150f * time;
 
         Position += translation;
+
 
 		BoundingCylinder.Move(translation);
 		SRT *= Matrix.CreateTranslation(translation);

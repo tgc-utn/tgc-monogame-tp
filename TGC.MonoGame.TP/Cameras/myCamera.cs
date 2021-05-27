@@ -52,9 +52,9 @@ namespace TGC.MonoGame.TP
 
             //bool changed = ProcessKeyboard();
             ProcessKeyboard();
+            
             //muevo la camara siempre para adelante
-            //Position += FrontDirection * CurrentMovementSpeed;
-            //Position += FrontDirection * CurrentMovementSpeed;
+            Position += FrontDirection * CurrentMovementSpeed;
 
             //if (MouseLookEnabled)
             //    ProcessMouse(elapsedTime);
@@ -72,36 +72,36 @@ namespace TGC.MonoGame.TP
             var keyboardState = Keyboard.GetState();
 
 
-            //if (keyboardState.IsKeyDown(Keys.W))
-            //    CurrentMovementSpeed *= 3f;
-            //if (keyboardState.IsKeyDown(Keys.S))
-            //    CurrentMovementSpeed *= 0.5f;
+            if (keyboardState.IsKeyDown(Keys.W))
+                CurrentMovementSpeed *= 3f;
+            if (keyboardState.IsKeyDown(Keys.S))
+                CurrentMovementSpeed *= 0.5f;
 
 
             //Free cam for debug
-            if (keyboardState.IsKeyDown(Keys.LeftShift))
-                CurrentMovementSpeed *= 10f;
+            //if (keyboardState.IsKeyDown(Keys.LeftShift))
+            //    CurrentMovementSpeed *= 10f;
 
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                Position += -RightDirection * CurrentMovementSpeed;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                Position += RightDirection * CurrentMovementSpeed;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                Position += FrontDirection * CurrentMovementSpeed;
-                changed = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.S))
-            {
-                Position += -FrontDirection * CurrentMovementSpeed;
-                changed = true;
-            }
+            //if (keyboardState.IsKeyDown(Keys.A))
+            //{
+            //    Position += -RightDirection * CurrentMovementSpeed;
+            //    changed = true;
+            //}
+            //if (keyboardState.IsKeyDown(Keys.D))
+            //{
+            //    Position += RightDirection * CurrentMovementSpeed;
+            //    changed = true;
+            //}
+            //if (keyboardState.IsKeyDown(Keys.W))
+            //{
+            //    Position += FrontDirection * CurrentMovementSpeed;
+            //    changed = true;
+            //}
+            //if (keyboardState.IsKeyDown(Keys.S))
+            //{
+            //    Position += -FrontDirection * CurrentMovementSpeed;
+            //    changed = true;
+            //}
 
 
 
