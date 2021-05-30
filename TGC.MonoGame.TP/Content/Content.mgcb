@@ -291,6 +291,13 @@
 /processorParam:TextureFormat=Compressed
 /build:SpriteFonts/Arial.spritefont
 
+#begin SpriteFonts/Starjedi.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/Starjedi.spritefont
+
 #begin Textures/Crosshair/crosshair.png
 /importer:TextureImporter
 /processor:TextureProcessor

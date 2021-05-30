@@ -47,6 +47,7 @@ namespace TGC.MonoGame.TP
 
 			Yaw = MathF.Atan2(FrontDirection.X, FrontDirection.Z);
 			Pitch = MathF.Asin(FrontDirection.Y);
+
 			//System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
 		}
 		float betweenFire = 0f;

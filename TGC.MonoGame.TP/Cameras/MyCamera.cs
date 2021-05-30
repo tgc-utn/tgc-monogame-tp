@@ -54,7 +54,7 @@ namespace TGC.MonoGame.TP
             ProcessKeyboard();
             
             //muevo la camara siempre para adelante
-            Position += FrontDirection * CurrentMovementSpeed;
+            //Position += FrontDirection * CurrentMovementSpeed;
 
             //if (MouseLookEnabled)
             //    ProcessMouse(elapsedTime);
@@ -66,42 +66,42 @@ namespace TGC.MonoGame.TP
             //}
         }
 
-        private void ProcessKeyboard()
+        public void ProcessKeyboard()
         {
             //var changed;
             var keyboardState = Keyboard.GetState();
 
 
-            if (keyboardState.IsKeyDown(Keys.W))
-                CurrentMovementSpeed *= 3f;
-            if (keyboardState.IsKeyDown(Keys.S))
-                CurrentMovementSpeed *= 0.5f;
+            //if (keyboardState.IsKeyDown(Keys.W))
+            //    CurrentMovementSpeed *= 3f;
+            //if (keyboardState.IsKeyDown(Keys.S))
+            //    CurrentMovementSpeed *= 0.5f;
 
 
             //Free cam for debug
-            //if (keyboardState.IsKeyDown(Keys.LeftShift))
-            //    CurrentMovementSpeed *= 10f;
+            if (keyboardState.IsKeyDown(Keys.LeftShift))
+                CurrentMovementSpeed *= 10f;
 
-            //if (keyboardState.IsKeyDown(Keys.A))
-            //{
-            //    Position += -RightDirection * CurrentMovementSpeed;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.D))
-            //{
-            //    Position += RightDirection * CurrentMovementSpeed;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.W))
-            //{
-            //    Position += FrontDirection * CurrentMovementSpeed;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.S))
-            //{
-            //    Position += -FrontDirection * CurrentMovementSpeed;
-            //    changed = true;
-            //}
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                Position += -RightDirection * CurrentMovementSpeed;
+                changed = true;
+            }
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                Position += RightDirection * CurrentMovementSpeed;
+                changed = true;
+            }
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                Position += FrontDirection * CurrentMovementSpeed;
+                changed = true;
+            }
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                Position += -FrontDirection * CurrentMovementSpeed;
+                changed = true;
+            }
 
 
 
@@ -166,6 +166,8 @@ namespace TGC.MonoGame.TP
             mouseDelta.X = MathHelper.Clamp(mouseDelta.X, -maxMouseDelta, maxMouseDelta);
             mouseDelta.Y = MathHelper.Clamp(mouseDelta.Y, -maxMouseDelta, maxMouseDelta);
 
+            //if (mouseDelta == Vector2.Zero)
+            //    return;
             TGCGame.MutexDeltas.WaitOne();
             delta = mouseDelta;
             TGCGame.MutexDeltas.ReleaseMutex();

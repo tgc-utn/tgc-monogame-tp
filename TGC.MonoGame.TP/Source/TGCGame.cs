@@ -25,7 +25,7 @@ namespace TGC.MonoGame.TP
         public static Mutex MutexDeltas = new Mutex();
 
         private SpriteFont SpriteFont;
-        Xwing Xwing = new Xwing();
+        public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
         public float TieScale = 0.02f;
 
@@ -49,15 +49,12 @@ namespace TGC.MonoGame.TP
             // Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
-
-
         }
-
-        private GraphicsDeviceManager Graphics { get; }
+        public GmState GameState { get; set; }
+        public GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
 
         private Model Tie { get; set; }
-        private Model Tie2 { get; set; }
         private static Model TrenchPlatform { get; set; }
         private static Model TrenchStraight { get; set; }
         private static Model TrenchT { get; set; }
@@ -73,28 +70,15 @@ namespace TGC.MonoGame.TP
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
         private Effect EffectLight { get; set; }
-
-        private BasicEffect BasicEffect { get; set; }
         private float Rotation { get; set; }
-        private Matrix XwingWorld { get; set; }
-        private Matrix TieWorld { get; set; }
-        private Matrix Tie2World { get; set; }
-        private Matrix TrenchWorld { get; set; }
-        private Matrix Trench2World { get; set; }
-
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
 
         private Texture TieTexture;
         private Texture TrenchTexture;
         private Texture2D[] Crosshairs;
 
         List<TieFighter> enemies = new List<TieFighter>();
-        private MyCamera Camera { get; set; }
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
-        ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
-        /// </summary>
+        public MyCamera Camera { get; set; }
+        Input Input;
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -105,14 +89,9 @@ namespace TGC.MonoGame.TP
             //var rasterizerState = new RasterizerState();
             //rasterizerState.CullMode = CullMode.None;
             //GraphicsDevice.RasterizerState = rasterizerState;
-
-
-            // Configuramos nuestras matrices de la escena.
-            TieWorld = Matrix.Identity;
-            Tie2World = Matrix.Identity;
-            TrenchWorld = Matrix.Identity;
-            Trench2World = Matrix.Identity;
-
+            Input = new Input(this);
+            GameState = GmState.Running;
+            
             Xwing.World = Matrix.Identity;
             Xwing.Scale = 2.5f;
 
@@ -133,10 +112,10 @@ namespace TGC.MonoGame.TP
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
 
-            camUpdateTimer = new System.Timers.Timer(5);
-            camUpdateTimer.Elapsed += CamUpdateTimerTick;
-            camUpdateTimer.AutoReset = true;
-            camUpdateTimer.Enabled = true;
+            //camUpdateTimer = new System.Timers.Timer(5);
+            //camUpdateTimer.Elapsed += CamUpdateTimerTick;
+            //camUpdateTimer.AutoReset = true;
+            //camUpdateTimer.Enabled = true;
 
             
             //int mapSize = 9; //9x9
@@ -148,11 +127,11 @@ namespace TGC.MonoGame.TP
             base.Initialize();
         }
 
-        private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
-        {
-            if (Camera.MouseLookEnabled && IsActive)
-                Camera.ProcessMouse(Xwing);
-        }
+        //private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
+        //{
+        //    if (Camera.MouseLookEnabled && IsActive)
+        //        Camera.ProcessMouse(Xwing);
+        //}
 
         void assignEffectToModels(Model[] models, Effect effect)
         {
@@ -165,9 +144,8 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
             Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
+            Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
             TrenchPlatform = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Platform-Block");
             TrenchStraight = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Straight-Block");
             TrenchT = Content.Load<Model>(ContentFolder3D + "Trench/Trench-T-Block");
@@ -180,11 +158,6 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectTexture = Content.Load<Effect>(ContentFolderEffects + "BasicTexture");
             EffectLight = Content.Load<Effect>(ContentFolderEffects + "BlinnPhong");
-            BasicEffect = new BasicEffect(GraphicsDevice)
-            {
-                World = Matrix.Identity,
-                TextureEnabled = false,
-            };
 
             Xwing.Textures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
@@ -195,7 +168,7 @@ namespace TGC.MonoGame.TP
                                             Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
 
             //Para escribir en la pantalla
-            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Arial");
+            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
             System.Diagnostics.Debug.WriteLine("loading skybox.");
             //Skybox
             skyboxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
@@ -233,8 +206,6 @@ namespace TGC.MonoGame.TP
             base.LoadContent();
         }
 
-        List<Keys> ignoredKeys = new List<Keys>();
-        List<Matrix> trenches = new List<Matrix>();
         void UpdateTrenches()
         {
             //Inicializo valores importantes del mapa
@@ -347,7 +318,7 @@ namespace TGC.MonoGame.TP
                         Matrix.CreateTranslation(block.Position) * T;
 
                     //TODO: Corregir valores para cada trench distinto
-                    var turretPos = block.Position - new Vector3(0,15,0);
+                    var turretPos = block.Position - new Vector3(0,0,0);
 
                     if (r < 50) // %50 chance de tener una torre
                         block.Turrets.Add(new TrenchTurret());
@@ -371,6 +342,7 @@ namespace TGC.MonoGame.TP
             Xwing.MapSize = MapSize;
             //}
         }
+        //move to tiefighter
         void generateEnemies()
         {
             Random rnd = new Random();
@@ -401,160 +373,90 @@ namespace TGC.MonoGame.TP
             //    " Y " +
             //    enemies[0].Yaw);
         }
+        
+        //set this as static in tiefighter?
         public List<Laser> enemyLasers = new List<Laser>();
-
 
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            //Update camara
-            Camera.Update(gameTime);
-            //Generacion de enemigos, de ser necesario
-            generateEnemies();
-            //Update Xwing
-            Xwing.Update(elapsedTime, Camera);
 
-            Vector4 zone = Xwing.GetZone();
+            Input.ProcessInput();
+            // Basado en el tiempo que paso se va generando una rotacion.
+            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            enemyLasers.Clear();
+            switch (GameState)
+            {
+                case GmState.StartScreen:
+                    #region startscreen
+                    #endregion
+                    break;
+                case GmState.Running:
+                    #region running
+                    //Update camara
+                    Camera.Update(gameTime);
+                    //Generacion de enemigos, de ser necesario
+                    generateEnemies();
+                    //Update Xwing
+                    Xwing.Update(elapsedTime, Camera);
 
-            //TODO: Corregir YAW torres
-            for (int x = (int)zone.X; x < zone.Y; x++)
-                for (int z = (int)zone.Z; z < zone.W; z++)
-                    foreach(var turret in Map[x, z].Turrets)
+                    Vector4 zone = Xwing.GetZone();
+
+                    enemyLasers.Clear();
+
+                    //TODO: Corregir YAW torres
+                    for (int x = (int)zone.X; x < zone.Y; x++)
+                        for (int z = (int)zone.Z; z < zone.W; z++)
+                            foreach (var turret in Map[x, z].Turrets)
+                            {
+                                turret.Update(Xwing, elapsedTime);
+                                turret.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
+                                foreach (var laser in turret.fired)
+                                {
+                                    laser.Update(elapsedTime);
+                                    enemyLasers.Add(laser);
+                                }
+                            }
+
+                    //Movimiento de lasers, copia en una sola lista
+
+                    foreach (var enemy in enemies)
                     {
-                        turret.Update(Xwing, elapsedTime);
-                        turret.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-                        foreach (var laser in turret.fired)
+                        enemy.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
+                        foreach (var laser in enemy.fired)
                         {
                             laser.Update(elapsedTime);
                             enemyLasers.Add(laser);
                         }
                     }
 
+                    //Colisiones
+                    Xwing.VerifyCollisions(enemyLasers, Map);
+                    Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
+                    enemies.ForEach(enemy => enemy.VerifyCollisions(Xwing.fired));
+                    enemies.RemoveAll(enemy => enemy.HP <= 0);
+                    //TODO: Corregir YAW enemigos
+                    updateEnemies(elapsedTime);
 
-            //Movimiento de lasers, copia en una sola lista
-
-            foreach (var enemy in enemies)
-            {
-                enemy.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-                foreach (var laser in enemy.fired)
-                {
-                    laser.Update(elapsedTime);
-                    enemyLasers.Add(laser);
-                }
+                    EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left * 500 + Vector3.Up * 500);
+                    EffectLight.Parameters["eyePosition"].SetValue(Camera.Position);
+                    #endregion
+                    break;
+                case GmState.Paused:
+                    #region paused
+                    #endregion
+                    break;
+                case GmState.Victory:
+                    #region victory
+                    #endregion
+                    break;
+                case GmState.Defeat:
+                    #region defeat
+                    #endregion
+                    break;
             }
             
-            //Colisiones
-            Xwing.VerifyCollisions(enemyLasers, Map);
-            Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-            enemies.ForEach(enemy => enemy.VerifyCollisions(Xwing.fired));
-            enemies.RemoveAll(enemy => enemy.HP <= 0);
-            //TODO: Corregir YAW enemigos
-            updateEnemies(elapsedTime);
-
-            EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left* 500 + Vector3.Up * 500);
-            EffectLight.Parameters["eyePosition"].SetValue(Camera.Position);
-
-            //Teclado
-            #region Input
-            var kState = Keyboard.GetState();
-            var mState = Mouse.GetState();
-            if (Camera.MouseLookEnabled)
-            {
-                if (mState.LeftButton.Equals(ButtonState.Pressed))
-                {
-                    Xwing.fireLaser();
-                }
-            }
-            if (kState.IsKeyDown(Keys.Escape))
-                Exit();
-            if (kState.IsKeyDown(Keys.P))
-            {
-                ignoredKeys.Add(Keys.P);
-            }
-            if (kState.IsKeyDown(Keys.H))
-            {
-                if (!ignoredKeys.Contains(Keys.H))
-                {
-                    ignoredKeys.Add(Keys.H);
-                    Xwing.hit = !Xwing.hit;
-                }
-            }
-            if (kState.IsKeyDown(Keys.F))
-            {
-                Xwing.fireLaser();
-            }
-            if (kState.IsKeyDown(Keys.V))
-            {
-                if (!ignoredKeys.Contains(Keys.V))
-                {
-                    ignoredKeys.Add(Keys.V);
-                    IsFixedTimeStep = !IsFixedTimeStep;
-                }
-            }
-            if (kState.IsKeyDown(Keys.F11))
-            {
-                //evito que se cambie constantemente manteniendo apretada la tecla
-                if (!ignoredKeys.Contains(Keys.F11))
-                {
-                    ignoredKeys.Add(Keys.F11);
-                    if (Graphics.IsFullScreen) //720 windowed
-                    {
-                        Graphics.IsFullScreen = false;
-                        Graphics.PreferredBackBufferWidth = 1280;
-                        Graphics.PreferredBackBufferHeight = 720;
-                    }
-                    else //1080 fullscreen
-                    {
-                        Graphics.IsFullScreen = true;
-                        Graphics.PreferredBackBufferWidth = 1920;
-                        Graphics.PreferredBackBufferHeight = 1080;
-                    }
-                    Graphics.ApplyChanges();
-                }
-            }
-
-            if (kState.IsKeyDown(Keys.M))
-            {
-                //evito que se cambie constantemente manteniendo apretada la tecla
-                if (!ignoredKeys.Contains(Keys.M))
-                {
-                    ignoredKeys.Add(Keys.M);
-                    if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
-                    {
-                        Camera.MouseLookEnabled = true;
-                        //correccion inicial para que no salte a un punto cualquiera
-                        Camera.pastMousePosition = Mouse.GetState().Position.ToVector2();
-                        IsMouseVisible = false;
-                    }
-                    else if (Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
-                    {
-                        Camera.ArrowsLookEnabled = false;
-                    }
-                    else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
-                    {
-                        Camera.MouseLookEnabled = false;
-                        Camera.ArrowsLookEnabled = true;
-                        IsMouseVisible = true;
-                    }
-                }
-            }
-            if (kState.IsKeyDown(Keys.R))
-            {
-                if (!ignoredKeys.Contains(Keys.R))
-                {
-                    ignoredKeys.Add(Keys.R);
-                    Xwing.barrelRolling = true;
-                }
-            }
-            //remuevo de la lista aquellas teclas que solte
-            ignoredKeys.RemoveAll(kState.IsKeyUp);
-            #endregion Input
-
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
+            
             base.Update(gameTime);
         }
 
@@ -588,6 +490,7 @@ namespace TGC.MonoGame.TP
         }
         protected override void Draw(GameTime gameTime)
         {
+
             GraphicsDevice.Clear(Color.Black);
 
             //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -621,7 +524,7 @@ namespace TGC.MonoGame.TP
                 laser.Update(deltaTime);
                 DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
             }
-            
+
             foreach (var enemy in enemies)
             {
                 DrawTie(enemy);
@@ -639,9 +542,12 @@ namespace TGC.MonoGame.TP
             else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
                 mensaje = mensaje3;
 
+            String topMessage = "FPS " + fps + " HP " + Xwing.HP + " " +GameState.ToString();
+            
+
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
 
-            SpriteBatch.DrawString(SpriteFont, "FPS " + fps + " HP " + Xwing.HP + " Invulnerable: " + Xwing.barrelRolling, Vector2.Zero, Color.White);
+            SpriteBatch.DrawString(SpriteFont, topMessage, Vector2.Zero, Color.Cyan);
             SpriteBatch.End();
 
             var center = GraphicsDevice.Viewport.Bounds.Size;
@@ -767,6 +673,14 @@ namespace TGC.MonoGame.TP
                 case TrenchType.Elbow:           return TrenchElbow;
                 default:                         return TrenchPlatform;
             }
+        }
+        public enum GmState
+        {
+            StartScreen,
+            Running,
+            Paused,
+            Victory,
+            Defeat
         }
     }
 }
