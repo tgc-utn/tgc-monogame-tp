@@ -2,7 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Threading;
+using System.Diagnostics;
+
 namespace TGC.MonoGame.TP
 {
 	public class Xwing
@@ -29,7 +30,7 @@ namespace TGC.MonoGame.TP
 
 		public bool hit { get; set; }
 		public float Roll = 0;
-		float rollSpeed = 150f;
+		float rollSpeed = 180f;
 
 		Vector3 laserColor = new Vector3(0f, 0.8f, 0f);
 		int LaserFired = 0;
@@ -171,24 +172,52 @@ namespace TGC.MonoGame.TP
 			return temp;
 		}
 		Vector2 currentDelta;
+		public bool clockwise = false;
+		public float PrevRoll;
+		public bool startRolling;
+		float rollError = 3f;
 		public void updateRoll(Vector2 turnDelta)
 		{
 			if (deltas.Count < maxDeltas)
 				deltas.Add(turnDelta);
 			else
 				deltas.RemoveAt(0);
+
+
 			if (barrelRolling)
 			{
+                if (Roll < 0 - rollError || 
+					Roll > 0 + rollError || 
+					startRolling)
+                {
+					if(Roll < 0 - rollError || Roll > 0 + rollError)
+						startRolling = false;
+					if (clockwise)
+						Roll -= rollSpeed * Time;
+					else
+						Roll += rollSpeed * Time;
 
-				//time = Convert.ToSingle(GameTime.ElapsedGameTime.TotalSeconds);
-				if (Roll < 360)
-					Roll += rollSpeed * Time;
-				else
-				{
-					barrelRolling = false;
-					Roll = 0;
-
+					if (Roll <= 0)
+						Roll += 360;
+					Roll %= 360;
 				}
+				else
+                {
+					barrelRolling = false;
+				}
+
+				//if (Roll < 360)
+				//{
+				//	Roll += rollSpeed * Time;
+						
+				//}
+				//else
+				//{
+				//	barrelRolling = false;
+				//	Roll = 0;
+
+				//}
+				
 			}
 			else
 			{

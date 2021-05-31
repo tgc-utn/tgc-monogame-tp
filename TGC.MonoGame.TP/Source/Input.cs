@@ -117,7 +117,12 @@ namespace TGC.MonoGame.TP
                         if (!ignoredKeys.Contains(Keys.R))
                         {
                             ignoredKeys.Add(Keys.R);
+                            float roll = Game.Xwing.Roll;
+                            Game.Xwing.clockwise = roll < 0;
+                            Game.Xwing.PrevRoll = roll;
+                            Game.Xwing.startRolling = true;
                             Game.Xwing.barrelRolling = true;
+                            
                         }
                     }
                     //remuevo de la lista aquellas teclas que solte

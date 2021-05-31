@@ -403,10 +403,7 @@ namespace TGC.MonoGame.TP
                     for (int x = (int)zone.X; x < zone.Y; x++)
                         for (int z = (int)zone.Z; z < zone.W; z++)
                             foreach (var turret in Map[x, z].Turrets)
-                            {
                                 turret.Update(Xwing, elapsedTime);
-                                //turret.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-                            }
                     Laser.UpdateAll(elapsedTime);
 
                     //Colisiones
