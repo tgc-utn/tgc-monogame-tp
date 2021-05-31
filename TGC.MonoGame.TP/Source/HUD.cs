@@ -27,7 +27,7 @@ namespace TGC.MonoGame.TP
         {
             size = Game.GraphicsDevice.Viewport.Bounds.Size;
             center = new Vector2(size.X / 2, size.Y / 2);
-            btnCenter = new Point(size.X / 2 - 180, size.Y / 2 - 90);
+            btnCenter = new Point(size.X / 2 + 200, size.Y / 2 - 90);
             btnDelta = 150;
             btnScale = new Vector2(0.6f, 0.6f);
 
@@ -95,28 +95,12 @@ namespace TGC.MonoGame.TP
 
                 case TGCGame.GmState.Paused:
                     #region paused
-                    //Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    //Game.SpriteBatch.Draw(Game.TopLeftBar, new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
-                    //Game.SpriteBatch.End();
 
-                    topMessage = Game.Vector2ToStr(Game.MouseXY);
-                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    Game.SpriteBatch.DrawString(Game.SpriteFont, topMessage, new Vector2(80, 45), Color.White);
-                    Game.SpriteBatch.End();
 
                     Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    //Game.SpriteBatch.Draw(Game.BtnContinue, btnCenter - new Vector2(0, btnDelta), null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
                     foreach (Button btn in pauseBtns)
                         Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
                     Game.SpriteBatch.End();
-
-                    //Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    //Game.SpriteBatch.Draw(Game.BtnMenu, btnCenter, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
-                    //Game.SpriteBatch.End();
-
-                    //Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    //Game.SpriteBatch.Draw(Game.BtnExit, btnCenter + new Vector2(0, btnDelta), null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
-                    //Game.SpriteBatch.End();
 
                     #endregion
                     break;
@@ -166,11 +150,13 @@ namespace TGC.MonoGame.TP
             switch(clicked[0].Type)
             {
                 case BtnType.Play:
+                    Game.Camera.Reset();
                     Game.GameState = TGCGame.GmState.Running;
                     Game.IsMouseVisible = false;
                     break;
                 case BtnType.Continue:
                     Game.GameState = TGCGame.GmState.Running;
+                    Game.Camera.SoftReset();
                     Game.IsMouseVisible = false;
                     break;
                 case BtnType.Menu:

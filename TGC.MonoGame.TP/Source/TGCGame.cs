@@ -116,7 +116,7 @@ namespace TGC.MonoGame.TP
             size.X /= 2;
             size.Y /= 2;
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
-            Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f, 0f, 0f), size);
+            Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, size);
 
             //camUpdateTimer = new System.Timers.Timer(5);
             //camUpdateTimer.Elapsed += CamUpdateTimerTick;
@@ -224,7 +224,11 @@ namespace TGC.MonoGame.TP
             UpdateTrenches();
 
             var blockSize = MapLimit / MapSize;
+            Camera.MapLimit = MapLimit;
+            Camera.MapSize = MapSize;
+            Camera.BlockSize = blockSize;
             Camera.Position = new Vector3(MapLimit/2 - blockSize/2, 0, blockSize /2);
+
             TieFighter.GenerateEnemies(Xwing);
 
             base.LoadContent();
@@ -379,12 +383,17 @@ namespace TGC.MonoGame.TP
 
             Input.ProcessInput();
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
+            Rotation += elapsedTime * 0.5f;
+            Rotation %= MathHelper.TwoPi;
             switch (GameState)
             {
                 case GmState.StartScreen:
                     #region startscreen
+                    Camera.Yaw += 10f * elapsedTime;
+                    Camera.Yaw %= 360;
+                    Camera.Pitch += 10f * elapsedTime;
+                    Camera.Yaw %= 90;
+                    Camera.UpdateVectorView();
                     #endregion
                     break;
                 case GmState.Running:
@@ -418,6 +427,29 @@ namespace TGC.MonoGame.TP
                     break;
                 case GmState.Paused:
                     #region paused
+
+                    float y;
+
+                    if (Xwing.Position.Y > 0)
+                    {
+                        y = Xwing.Position.Y;
+                        Camera.Pitch = 0f;
+                    }
+                    else
+                    {
+                        y = 30f;
+                        Camera.Pitch = -15f;
+                    }
+                    Camera.Position = new Vector3(
+                        Xwing.Position.X + 100f * MathF.Cos(Rotation),
+                        y,
+                        Xwing.Position.Z + 100f * MathF.Sin(Rotation));
+                    Vector3 frontDirection = Xwing.Position - Camera.Position;
+
+                    Camera.Yaw = MathHelper.ToDegrees(MathF.Atan2(frontDirection.Z, frontDirection.X));
+                    //Camera.Pitch = MathF.Asin(frontDirection.Y);
+                    
+                    Camera.UpdateVectorView();
                     #endregion
                     break;
                 case GmState.Victory:
@@ -480,33 +512,43 @@ namespace TGC.MonoGame.TP
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
 
-            //SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
-            DrawMap();
 
-
-            foreach (var enemy in TieFighter.Enemies)
-                DrawTie(enemy);
-            //DrawModel(Tie, enemy.SRT, new Vector3(0.5f, 0f, 0.5f));
-            foreach (var laser in Laser.AlliedLasers)
-                DrawModel(LaserModel, laser.SRT, laser.Color);
-            foreach (var laser in Laser.EnemyLasers)
-                DrawModel(LaserModel, laser.SRT, laser.Color);
-            DrawXWing();
-            HUD.Draw();
-
-
+            SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
             switch (GameState)
             {
                 case GmState.StartScreen:
                     #region startscreen
+                   
                     #endregion
                     break;
                 case GmState.Running:
                     #region running
+
+                    DrawMap();
+                    foreach (var enemy in TieFighter.Enemies)
+                        DrawTie(enemy);
+                    //DrawModel(Tie, enemy.SRT, new Vector3(0.5f, 0f, 0.5f));
+                    foreach (var laser in Laser.AlliedLasers)
+                        DrawModel(LaserModel, laser.SRT, laser.Color);
+                    foreach (var laser in Laser.EnemyLasers)
+                        DrawModel(LaserModel, laser.SRT, laser.Color);
+                    DrawXWing();
+                   
                     #endregion
                     break;
                 case GmState.Paused:
                     #region paused
+
+                    DrawMap();
+                    foreach (var enemy in TieFighter.Enemies)
+                        DrawTie(enemy);
+                    //DrawModel(Tie, enemy.SRT, new Vector3(0.5f, 0f, 0.5f));
+                    foreach (var laser in Laser.AlliedLasers)
+                        DrawModel(LaserModel, laser.SRT, laser.Color);
+                    foreach (var laser in Laser.EnemyLasers)
+                        DrawModel(LaserModel, laser.SRT, laser.Color);
+                    DrawXWing();
+
                     #endregion
                     break;
                 case GmState.Victory:
@@ -518,16 +560,7 @@ namespace TGC.MonoGame.TP
                     #endregion
                     break;
             }
-            //if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
-            //    mensaje = mensaje1;
-            //else if (Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
-            //    mensaje = mensaje2;
-            //else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
-            //    mensaje = mensaje3;
-
-
-            
-
+            HUD.Draw();
         }
         //float vDistance(Vector3 v, Vector3 w)
         //{

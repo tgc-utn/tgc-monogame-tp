@@ -26,8 +26,10 @@ namespace TGC.MonoGame.TP
                 case TGCGame.GmState.StartScreen:
                     #region start
                     if (kState.IsKeyDown(Keys.Enter))
+                    {
                         Game.GameState = TGCGame.GmState.Running;
-                    
+                        Game.Camera.Reset();
+                    }
                     #endregion
                     break;
                 case TGCGame.GmState.Running:
@@ -50,6 +52,7 @@ namespace TGC.MonoGame.TP
                         {
                             ignoredKeys.Add(Keys.Escape);
                             Game.GameState = TGCGame.GmState.Paused;
+                            Game.Camera.SaveCurrentState();
                             Game.IsMouseVisible = true;
                         }
                     }
@@ -137,6 +140,7 @@ namespace TGC.MonoGame.TP
                         {
                             ignoredKeys.Add(Keys.Escape);
                             Game.GameState = TGCGame.GmState.Running;
+                            Game.Camera.SoftReset();
                             Game.IsMouseVisible = false;
                         }
                     }

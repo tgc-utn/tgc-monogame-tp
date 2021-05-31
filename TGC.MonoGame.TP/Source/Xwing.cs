@@ -46,7 +46,6 @@ namespace TGC.MonoGame.TP
 		public Xwing()
 		{
 			HP = 100;
-
 		}
 		public void Update(float elapsedTime, MyCamera camera)
 		{
@@ -77,6 +76,7 @@ namespace TGC.MonoGame.TP
 			
 
 		}
+
 		Matrix rollQuaternion;
 		float yawRad, correctedYaw;
 		Vector3 pos;
@@ -99,6 +99,7 @@ namespace TGC.MonoGame.TP
 
 			return new Vector4(a, b, c, d);
 		}
+		
 		public void VerifyCollisions(List<Laser> enemyLasers, Trench[,] map)
 		{
 			if (barrelRolling)
@@ -123,6 +124,7 @@ namespace TGC.MonoGame.TP
 
 
         }
+		
 		void updateSRT(MyCamera camera)
 		{
 			// posicion delante de la camara que uso de referencia
@@ -153,6 +155,8 @@ namespace TGC.MonoGame.TP
 				Matrix.CreateTranslation(Position);
 
 		}
+		
+		Vector2 currentDelta;
 		Vector2 averageLastDeltas()
 		{
 			Vector2 temp = Vector2.Zero;
@@ -171,7 +175,7 @@ namespace TGC.MonoGame.TP
 			
 			return temp;
 		}
-		Vector2 currentDelta;
+		
 		public bool clockwise = false;
 		public float PrevRoll;
 		public bool startRolling;
@@ -205,19 +209,6 @@ namespace TGC.MonoGame.TP
                 {
 					barrelRolling = false;
 				}
-
-				//if (Roll < 360)
-				//{
-				//	Roll += rollSpeed * Time;
-						
-				//}
-				//else
-				//{
-				//	barrelRolling = false;
-				//	Roll = 0;
-
-				//}
-				
 			}
 			else
 			{
@@ -251,6 +242,7 @@ namespace TGC.MonoGame.TP
 		{
 			betweenFire += fireRate * 30f * Time;		
 		}
+		
 		float energyTimer = 0f;
 		public void updateEnergyRegen()
         {

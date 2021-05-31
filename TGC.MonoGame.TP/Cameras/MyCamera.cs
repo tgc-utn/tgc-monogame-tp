@@ -16,6 +16,10 @@ namespace TGC.MonoGame.TP
 
         public Vector2 delta;
         public float turnSpeed = 60f;
+
+        public float MapLimit;
+        public int MapSize;
+        public float BlockSize;
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             this.screenCenter = screenCenter;
@@ -36,8 +40,26 @@ namespace TGC.MonoGame.TP
         {
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
-
-
+        float PrevPitch, PrevYaw;
+        Vector3 PrevPosition;
+        public void SaveCurrentState()
+        {
+            PrevPitch = Pitch;
+            PrevYaw = Yaw;
+            PrevPosition = Position;
+        }
+        public void SoftReset()
+        {
+            Pitch = PrevPitch;
+            Yaw = PrevYaw;
+            Position = PrevPosition;
+        }
+        public void Reset()
+        {
+            Pitch = 0f;
+            Yaw = 90f;
+            Position = new Vector3(MapLimit / 2 - BlockSize / 2, 0, BlockSize / 2);
+        }
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
@@ -46,23 +68,16 @@ namespace TGC.MonoGame.TP
             CurrentMovementSpeed = MovementSpeed * elapsedTime * SpeedMultiplier;
             CurrentTurnSpeed = turnSpeed * elapsedTime;
 
-
-            //bool changed = ProcessKeyboard();
-            //ProcessKeyboard();
-
-            //muevo la camara siempre para adelante
             Position += FrontDirection * CurrentMovementSpeed;
 
-            //if (MouseLookEnabled)
-            //    ProcessMouse(elapsedTime);
-
-            //if (changed)
-            //{
             UpdateCameraVectors();
             CalculateView();
-            //}
         }
-
+        public void UpdateVectorView()
+        {
+            UpdateCameraVectors();
+            CalculateView();
+        }
         public void ProcessKeyboard(Xwing xwing)
         {
             //var changed;
