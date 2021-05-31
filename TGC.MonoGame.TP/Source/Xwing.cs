@@ -8,6 +8,9 @@ namespace TGC.MonoGame.TP
 	public class Xwing
 	{
 		public int HP { get; set; }
+		public int Energy { get; set; }
+		public bool Boosting { get; set; }
+		public bool BoostLock { get; set; }
 		public bool barrelRolling { get; set; }
 		public float roll { get; set; }
 		public Model Model { get; set; }
@@ -56,6 +59,7 @@ namespace TGC.MonoGame.TP
 			//actualizo 
 			updateFireRate();
 
+			updateEnergyRegen();
 			if (boundingSphere == null)
 				boundingSphere = new BoundingSphere(Position, 50f);
 			else
@@ -69,6 +73,7 @@ namespace TGC.MonoGame.TP
 			CurrentBlock.X = MathHelper.Clamp(CurrentBlock.X, 0, MapSize-1);
 			CurrentBlock.Y = MathHelper.Clamp(CurrentBlock.Y, 0, MapSize-1);
 
+			
 
 		}
 		Matrix rollQuaternion;
@@ -212,10 +217,39 @@ namespace TGC.MonoGame.TP
 
 		float betweenFire = 0f;
 		float fireRate = 0.25f;
+			
 		public void updateFireRate()
 		{
-			betweenFire += fireRate * 30f * Time;
+			betweenFire += fireRate * 30f * Time;		
 		}
+		float energyTimer = 0f;
+		public void updateEnergyRegen()
+        {
+			if(Boosting)
+			{
+				energyTimer += 0.20f * 60 * Time;
+
+				if (energyTimer > 1)
+				{
+					energyTimer = 0;
+					if (Energy > 0)
+						Energy--;
+				}
+			}
+			else
+            {
+				energyTimer += 0.10f * 60 * Time;
+				
+				if (energyTimer > 1)
+				{
+					energyTimer = 0;
+					if (Energy < 10)
+						Energy++;
+				}
+			}
+			
+        }
+
 		Matrix scale, translation;
 		Matrix[] rot;
 		Matrix[] t;
@@ -229,7 +263,7 @@ namespace TGC.MonoGame.TP
 			if (betweenFire < 1)
 				return;
 			betweenFire = 0;
-
+			
 
 			scale = Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f));
 			float[] corr = new float[]{

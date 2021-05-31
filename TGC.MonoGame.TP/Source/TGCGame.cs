@@ -24,7 +24,7 @@ namespace TGC.MonoGame.TP
 
         public static Mutex MutexDeltas = new Mutex();
 
-        private SpriteFont SpriteFont;
+        public SpriteFont SpriteFont;
         public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
         public float TieScale = 0.02f;
@@ -36,7 +36,6 @@ namespace TGC.MonoGame.TP
         public Vector3 Trench2Translation = new Vector3(0, -80, -290);
         public Vector3 XwingTranslation = new Vector3(0, -5, -40);
 
-        System.Timers.Timer camUpdateTimer;
 
         /// <summary>
         ///     Constructor del juego.
@@ -52,7 +51,7 @@ namespace TGC.MonoGame.TP
         }
         public GmState GameState { get; set; }
         public GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
+        public SpriteBatch SpriteBatch { get; set; }
 
         private Model Tie { get; set; }
         private static Model TrenchPlatform { get; set; }
@@ -74,11 +73,18 @@ namespace TGC.MonoGame.TP
 
         private Texture TieTexture;
         private Texture TrenchTexture;
-        private Texture2D[] Crosshairs;
+        public Texture2D[] Crosshairs;
+        public Texture2D[] HudEnergy;
+        public Texture2D TopLeftBar;
+        public Texture2D BtnPlay, BtnContinue, BtnMenu, BtnExit, BtnOptions;
 
+
+        public int FPS;
         List<TieFighter> enemies = new List<TieFighter>();
         public MyCamera Camera { get; set; }
+        public Vector2 MouseXY;
         Input Input;
+        HUD HUD;
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -90,7 +96,8 @@ namespace TGC.MonoGame.TP
             //rasterizerState.CullMode = CullMode.None;
             //GraphicsDevice.RasterizerState = rasterizerState;
             Input = new Input(this);
-            GameState = GmState.Running;
+            HUD = new HUD(this);
+            GameState = GmState.StartScreen;
             
             Xwing.World = Matrix.Identity;
             Xwing.Scale = 2.5f;
@@ -166,7 +173,24 @@ namespace TGC.MonoGame.TP
             TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/Plates");
             Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
-
+            TopLeftBar = Content.Load<Texture2D>(ContentFolderTextures + "HUD/TopLeftBar");
+            HudEnergy = new Texture2D[]{
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-0"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-1"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-2"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-3"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-4"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-5"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-6"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-7"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-8"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-9"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-10")};
+            BtnPlay = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Jugar");
+            BtnContinue = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Continuar");
+            BtnMenu = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Menu");
+            BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Salir");
+            BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Opciones");
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
             System.Diagnostics.Debug.WriteLine("loading skybox.");
@@ -381,6 +405,9 @@ namespace TGC.MonoGame.TP
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            MouseXY.X = Mouse.GetState().X;
+            MouseXY.Y = Mouse.GetState().Y;
+
             Input.ProcessInput();
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -472,19 +499,19 @@ namespace TGC.MonoGame.TP
         String mensaje2 = "Movimiento: WASD, Camara: flechas + mouse, para deshabilitar flechas apretar M";
         String mensaje3 = "Movimiento: WASD, Camara: mouse, para solo flechas apretar M";
         String mensaje;
-        String Vector3ToStr(Vector3 v)
+        public String Vector3ToStr(Vector3 v)
         {
             return "(" + v.X + " " + v.Y + " " + v.Z +")";
         }
-        String IntVector3ToStr(Vector3 v)
+        public String IntVector3ToStr(Vector3 v)
         {
             return "(" + (int)v.X + " " + (int)v.Y + " " + (int)v.Z + ")";
         }
-        String Vector2ToStr(Vector2 v)
+        public String Vector2ToStr(Vector2 v)
         {
             return "(" + v.X + " " + v.Y + ")";
         }
-        String IntVector2ToStr(Vector2 v)
+        public String IntVector2ToStr(Vector2 v)
         {
             return "(" + (int)v.X + " " + (int)v.Y + ")";
         }
@@ -504,13 +531,39 @@ namespace TGC.MonoGame.TP
 
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            int fps = (int)Math.Round(1 / deltaTime);
+            FPS = (int)Math.Round(1 / deltaTime);
 
             SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
 
             DrawXWing();
 
             DrawMap();
+
+            
+            switch(GameState)
+            {
+                case GmState.StartScreen:
+                    #region startscreen
+                    #endregion
+                    break;
+                case GmState.Running:
+                    #region running
+                    #endregion
+                    break;
+                case GmState.Paused:
+                    #region paused
+                    #endregion
+                    break;
+                case GmState.Victory:
+                    #region victory
+                    #endregion
+                    break;
+                case GmState.Defeat:
+                    #region defeat
+                    #endregion
+                    break;
+            }
+            HUD.Draw();
             //debug de Tie, rotando 
             //Matrix SRT =
             //    Matrix.CreateScale(TieScale) *
@@ -535,32 +588,13 @@ namespace TGC.MonoGame.TP
                 }
             }
 
-            if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
-                mensaje = mensaje1;
-            else if (Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
-                mensaje = mensaje2;
-            else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
-                mensaje = mensaje3;
+            //if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
+            //    mensaje = mensaje1;
+            //else if (Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
+            //    mensaje = mensaje2;
+            //else if (Camera.MouseLookEnabled && !Camera.ArrowsLookEnabled)
+            //    mensaje = mensaje3;
 
-            String topMessage = "FPS " + fps + " HP " + Xwing.HP + " " +GameState.ToString();
-            
-
-            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-
-            SpriteBatch.DrawString(SpriteFont, topMessage, Vector2.Zero, Color.Cyan);
-            SpriteBatch.End();
-
-            var center = GraphicsDevice.Viewport.Bounds.Size;
-            center.X /= 2;
-            center.Y /= 2;
-
-            var scale = 0.1f;
-            var sz = 512 * scale;
-
-            //Crosshair
-            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            SpriteBatch.Draw(Crosshairs[0], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
-            SpriteBatch.End();
 
 
 
