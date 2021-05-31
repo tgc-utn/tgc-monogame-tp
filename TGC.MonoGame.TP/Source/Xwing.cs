@@ -33,7 +33,7 @@ namespace TGC.MonoGame.TP
 
 		Vector3 laserColor = new Vector3(0f, 0.8f, 0f);
 		int LaserFired = 0;
-		public List<Laser> fired = new List<Laser>();
+		//public List<Laser> fired = new List<Laser>();
 		List<Vector2> deltas = new List<Vector2>();
 		int maxDeltas = 22;
 
@@ -296,13 +296,13 @@ namespace TGC.MonoGame.TP
 				laserSRT[i] = scale * rot[i] * translation * t[i];
 
 
-			fired.Add(new Laser(Position, rot[LaserFired], laserSRT[LaserFired], FrontDirection, laserColor));
+			Laser.AlliedLasers.Add(new Laser(Position, rot[LaserFired], laserSRT[LaserFired], FrontDirection, laserColor));
 
 			LaserFired++;
 			LaserFired %= 4;
 
-			if (fired.Count > 4)
-				fired.RemoveAt(0);
+			//if (fired.Count > 4)
+			//	fired.RemoveAt(0);
 		}
 
 

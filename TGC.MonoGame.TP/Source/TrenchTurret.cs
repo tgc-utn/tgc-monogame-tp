@@ -68,7 +68,7 @@ namespace TGC.MonoGame.TP
 				Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f)) *
 				rotation *
 				Matrix.CreateTranslation(Position);
-			fired.Add(new Laser(Position, rotation, SRT, FrontDirection, new Vector3(0.8f, 0f, 0.8f)));
+			Laser.EnemyLasers.Add(new Laser(Position, rotation, SRT, FrontDirection, new Vector3(0.8f, 0f, 0.8f)));
 		}
 	}
 }

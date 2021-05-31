@@ -8,7 +8,6 @@ namespace TGC.MonoGame.TP
     {
 
         private readonly Point screenCenter;
-        private bool changed;
         public bool MouseLookEnabled = true;
         public bool ArrowsLookEnabled = true;
 

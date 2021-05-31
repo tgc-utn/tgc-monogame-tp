@@ -27,8 +27,7 @@ namespace TGC.MonoGame.TP
         public SpriteFont SpriteFont;
         public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
-        public float TieScale = 0.02f;
-
+        
         public float TrenchScale = 0.07f;
         public float Trench2Scale = 0.07f;
 
@@ -80,11 +79,11 @@ namespace TGC.MonoGame.TP
 
 
         public int FPS;
-        List<TieFighter> enemies = new List<TieFighter>();
+        
         public MyCamera Camera { get; set; }
         public Vector2 MouseXY;
-        Input Input;
-        HUD HUD;
+        public Input Input;
+        public HUD HUD;
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -103,7 +102,7 @@ namespace TGC.MonoGame.TP
             Xwing.Scale = 2.5f;
 
             // Hace que el mouse sea visible.
-            IsMouseVisible = false;
+            IsMouseVisible = true;
 
             IsFixedTimeStep = true;
             TargetElapsedTime = TimeSpan.FromSeconds(1d / 60); //60);
@@ -191,6 +190,7 @@ namespace TGC.MonoGame.TP
             BtnMenu = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Menu");
             BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Salir");
             BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Opciones");
+            HUD.Init();
             //Para escribir en la pantalla
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
             System.Diagnostics.Debug.WriteLine("loading skybox.");
@@ -225,7 +225,7 @@ namespace TGC.MonoGame.TP
 
             var blockSize = MapLimit / MapSize;
             Camera.Position = new Vector3(MapLimit/2 - blockSize/2, 0, blockSize /2);
-            generateEnemies();
+            TieFighter.GenerateEnemies(Xwing);
 
             base.LoadContent();
         }
@@ -366,40 +366,9 @@ namespace TGC.MonoGame.TP
             Xwing.MapSize = MapSize;
             //}
         }
-        //move to tiefighter
-        void generateEnemies()
-        {
-            Random rnd = new Random();
-            int maxEnemies = 2;
-            int distance = 500;
-            for (int i = 0; i < maxEnemies - enemies.Count; i++)
-            {
-                Vector3 random = new Vector3(rnd.Next(-distance, distance), 0f, rnd.Next(-distance, distance));
-                Vector3 pos = Xwing.Position + random;
-                Vector3 dir = Vector3.Normalize(Xwing.Position - pos);
-
-
-                Matrix SRT = Matrix.CreateScale(TieScale) * Matrix.CreateTranslation(pos);
-                enemies.Add(new TieFighter(pos, dir, Matrix.Identity, SRT, TieScale));
-            }
-        }
-        void updateEnemies(float time)
-        {
-            foreach (var enemy in enemies)
-            {
-                enemy.Update(Xwing, time);
-                enemy.fireLaser();
-            }
-            //TODO: ver calculos pitch y yaw, lasers ok
-            //System.Diagnostics.Debug.WriteLine(
-            //    "P " +
-            //    enemies[0].Pitch +
-            //    " Y " +
-            //    enemies[0].Yaw);
-        }
+       
         
-        //set this as static in tiefighter?
-        public List<Laser> enemyLasers = new List<Laser>();
+      
 
         protected override void Update(GameTime gameTime)
         {
@@ -423,47 +392,28 @@ namespace TGC.MonoGame.TP
                     //Update camara
                     Camera.Update(gameTime);
                     //Generacion de enemigos, de ser necesario
-                    generateEnemies();
+                    TieFighter.GenerateEnemies(Xwing);
                     //Update Xwing
                     Xwing.Update(elapsedTime, Camera);
 
                     Vector4 zone = Xwing.GetZone();
 
-                    enemyLasers.Clear();
+                    //enemyLasers.Clear();
 
-                    //TODO: Corregir YAW torres
                     for (int x = (int)zone.X; x < zone.Y; x++)
                         for (int z = (int)zone.Z; z < zone.W; z++)
                             foreach (var turret in Map[x, z].Turrets)
                             {
                                 turret.Update(Xwing, elapsedTime);
-                                turret.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-                                foreach (var laser in turret.fired)
-                                {
-                                    laser.Update(elapsedTime);
-                                    enemyLasers.Add(laser);
-                                }
+                                //turret.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
                             }
-
-                    //Movimiento de lasers, copia en una sola lista
-
-                    foreach (var enemy in enemies)
-                    {
-                        enemy.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-                        foreach (var laser in enemy.fired)
-                        {
-                            laser.Update(elapsedTime);
-                            enemyLasers.Add(laser);
-                        }
-                    }
+                    Laser.UpdateAll(elapsedTime);
 
                     //Colisiones
-                    Xwing.VerifyCollisions(enemyLasers, Map);
-                    Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
-                    enemies.ForEach(enemy => enemy.VerifyCollisions(Xwing.fired));
-                    enemies.RemoveAll(enemy => enemy.HP <= 0);
-                    //TODO: Corregir YAW enemigos
-                    updateEnemies(elapsedTime);
+                    Xwing.VerifyCollisions(Laser.EnemyLasers, Map);
+                    //Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
+
+                    TieFighter.UpdateEnemies(elapsedTime, Xwing);
 
                     EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left * 500 + Vector3.Up * 500);
                     EffectLight.Parameters["eyePosition"].SetValue(Camera.Position);
@@ -533,14 +483,22 @@ namespace TGC.MonoGame.TP
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
 
-            SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
-
-            DrawXWing();
-
+            //SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
             DrawMap();
 
-            
-            switch(GameState)
+
+            foreach (var enemy in TieFighter.Enemies)
+                DrawTie(enemy);
+            //DrawModel(Tie, enemy.SRT, new Vector3(0.5f, 0f, 0.5f));
+            foreach (var laser in Laser.AlliedLasers)
+                DrawModel(LaserModel, laser.SRT, laser.Color);
+            foreach (var laser in Laser.EnemyLasers)
+                DrawModel(LaserModel, laser.SRT, laser.Color);
+            DrawXWing();
+            HUD.Draw();
+
+
+            switch (GameState)
             {
                 case GmState.StartScreen:
                     #region startscreen
@@ -563,31 +521,6 @@ namespace TGC.MonoGame.TP
                     #endregion
                     break;
             }
-            HUD.Draw();
-            //debug de Tie, rotando 
-            //Matrix SRT =
-            //    Matrix.CreateScale(TieScale) *
-            //    Matrix.CreateRotationY(MathF.PI) *
-            //    Matrix.CreateTranslation(new Vector3(40, 0, 0)) *
-            //    rotationMatrix;
-            //DrawTie(TieWorld, SRT);
-
-            foreach (var laser in Xwing.fired)
-            {
-                laser.Update(deltaTime);
-                DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
-            }
-
-            foreach (var enemy in enemies)
-            {
-                DrawTie(enemy);
-                foreach (var laser in enemy.fired)
-                {
-                    laser.Update(deltaTime);
-                    DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
-                }
-            }
-
             //if (!Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
             //    mensaje = mensaje1;
             //else if (Camera.MouseLookEnabled && Camera.ArrowsLookEnabled)
@@ -596,7 +529,7 @@ namespace TGC.MonoGame.TP
             //    mensaje = mensaje3;
 
 
-
+            
 
         }
         //float vDistance(Vector3 v, Vector3 w)
@@ -637,10 +570,6 @@ namespace TGC.MonoGame.TP
 
                     mesh.Draw();
                 }
-                foreach(var laser in turret.fired)
-                {
-                    DrawModel(LaserModel, Xwing.World, laser.SRT, laser.Color);
-                }
             }
         }
 
@@ -667,23 +596,25 @@ namespace TGC.MonoGame.TP
 
         void DrawTie(TieFighter tie)
         {
-            tie.drawn = true;
+            Matrix world;
             foreach (var mesh in Tie.Meshes)
             {
-                var world = mesh.ParentBone.Transform * tie.SRT;
+                world = mesh.ParentBone.Transform * tie.SRT;
 
                 EffectTexture.Parameters["World"].SetValue(world);
                 EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);
+                //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.One);
                 mesh.Draw();
             }
+            //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
         }
-        void DrawModel(Model model, Matrix world, Matrix SRT, Vector3 color)
+        void DrawModel(Model model, Matrix SRT, Vector3 color)
         {
             Effect.Parameters["DiffuseColor"]?.SetValue(color);
 
             foreach (var mesh in model.Meshes)
             {
-                world = mesh.ParentBone.Transform * SRT;
+                var world = mesh.ParentBone.Transform * SRT;
                 Effect.Parameters["World"].SetValue(world);
                 mesh.Draw();
             }

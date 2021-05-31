@@ -7,26 +7,28 @@ namespace TGC.MonoGame.TP
 {
 	public class TieFighter
 	{
-		public bool drawn = false;
+		public static List<TieFighter> Enemies = new List<TieFighter>();
+
+		public static float TieScale = 0.02f;
+
 		public Vector3 Position { get; set; }
 		public Vector3 FrontDirection { get; set; }
 		public Matrix World { get; set; }
 		public Matrix SRT { get; set; }
 		float Time;
 		public Model Model { get; set; }
-		public float TieScale { get; set; }
+		
 
 		public int HP = 100;
 		public float Yaw, Pitch;
 		public List<Laser> fired = new List<Laser>();
 		BoundingSphere boundingSphere;
-		public TieFighter(Vector3 pos, Vector3 front, Matrix w, Matrix srt, float s)
+		public TieFighter(Vector3 pos, Vector3 front, Matrix w, Matrix srt)
 		{
 			Position = pos;
 			FrontDirection = front;
 			World = w;
 			SRT = srt;
-			TieScale = s;
 			boundingSphere = new BoundingSphere(Position, 30f);
 		}
 		float betweenFire = 0f;
@@ -73,27 +75,14 @@ namespace TGC.MonoGame.TP
 				Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f)) *
 				rotation *
 				Matrix.CreateTranslation(Position);
-			fired.Add(new Laser(Position, rotation, SRT, FrontDirection, new Vector3(0.8f, 0f, 0f)));
+			Laser.EnemyLasers.Add(new Laser(Position, rotation, SRT, FrontDirection, new Vector3(0.8f, 0f, 0f)));
 		}
 		public float angleToX, angleToZ, y;
 		public void updateDirectionVectors()
 		{
-			//angleToX = angleBetweenVectors(FrontDirection, Vector3.Right);
-			//angleToZ = angleBetweenVectors(FrontDirection, Vector3.Backward);
-
-			//if (angleToZ < MathHelper.PiOver2)
-			//	y = MathHelper.TwoPi - angleToX;
-			//else
-			//	y = angleToX;
-			//Yaw = MathHelper.ToDegrees(y + MathHelper.PiOver2);
-
-			//Pitch = MathHelper.ToDegrees(angleBetweenVectors(FrontDirection, Vector3.Up)) + 90;
-			//Pitch = MathHelper.ToDegrees(MathF.Asin(FrontDirection.Y));
-
-			//System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
 			Yaw = MathF.Atan2(FrontDirection.X, FrontDirection.Z);
+			//TODO: verify
 			Pitch = MathF.Asin(FrontDirection.Y);
-
 		}
 		public void VerifyCollisions(List<Laser> playerLasers)
 		{
@@ -104,5 +93,33 @@ namespace TGC.MonoGame.TP
 				playerLasers.Remove(hitBy);
 			}
 		}
+
+		public static void GenerateEnemies(Xwing xwing)
+		{
+			Random rnd = new Random();
+			int maxEnemies = 2;
+			int distance = 400;
+			for (int i = 0; i < maxEnemies - Enemies.Count; i++)
+			{
+				Vector3 random = new Vector3(rnd.Next(-distance, distance), 0f, rnd.Next(-distance, distance));
+				Vector3 pos = xwing.Position + random;
+				Vector3 dir = Vector3.Normalize(xwing.Position - pos);
+
+
+				Matrix SRT = Matrix.CreateScale(TieScale) * Matrix.CreateTranslation(pos);
+				Enemies.Add(new TieFighter(pos, dir, Matrix.Identity, SRT));
+			}
+		}
+		public static void UpdateEnemies(float time, Xwing xwing)
+		{
+			foreach (var enemy in Enemies)
+			{
+				enemy.Update(xwing, time);
+				enemy.VerifyCollisions(Laser.AlliedLasers);
+				enemy.fireLaser();
+			}
+            Enemies.RemoveAll(enemy => enemy.HP <= 0);
+
+        }
 	}
 }

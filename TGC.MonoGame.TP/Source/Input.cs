@@ -20,6 +20,7 @@ namespace TGC.MonoGame.TP
             var kState = Keyboard.GetState();
             var mState = Mouse.GetState();
 
+            Game.HUD.VerifyBtnClick(mState);
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
@@ -82,6 +83,7 @@ namespace TGC.MonoGame.TP
                                 Game.Graphics.PreferredBackBufferHeight = 1080;
                             }
                             Game.Graphics.ApplyChanges();
+                            Game.HUD.Init();
                         }
                     }
 
