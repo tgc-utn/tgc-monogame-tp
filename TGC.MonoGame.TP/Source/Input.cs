@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Diagnostics;
 namespace TGC.MonoGame.TP
 {
     public class Input
@@ -128,6 +129,7 @@ namespace TGC.MonoGame.TP
                             
                         }
                     }
+                   
                     //remuevo de la lista aquellas teclas que solte
 
                     #endregion
@@ -144,6 +146,7 @@ namespace TGC.MonoGame.TP
                             Game.IsMouseVisible = false;
                         }
                     }
+                    
                     break;
                 case TGCGame.GmState.Victory:
                     break;

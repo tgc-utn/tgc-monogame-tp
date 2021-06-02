@@ -118,11 +118,7 @@ namespace TGC.MonoGame.TP
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, size);
 
-            //camUpdateTimer = new System.Timers.Timer(5);
-            //camUpdateTimer.Elapsed += CamUpdateTimerTick;
-            //camUpdateTimer.AutoReset = true;
-            //camUpdateTimer.Enabled = true;
-
+        
             
             //int mapSize = 9; //9x9
             //Algoritmo de generacion de mapa recursivo (ver debug output)
@@ -132,12 +128,6 @@ namespace TGC.MonoGame.TP
 
             base.Initialize();
         }
-
-        //private void CamUpdateTimerTick(object sender, ElapsedEventArgs e)
-        //{
-        //    if (Camera.MouseLookEnabled && IsActive)
-        //        Camera.ProcessMouse(Xwing);
-        //}
 
         void assignEffectToModels(Model[] models, Effect effect)
         {
@@ -152,6 +142,9 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
+            //Xwing.EngineModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engine");
+            Xwing.EnginesModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engines");
+
             TrenchPlatform = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Platform-Block");
             TrenchStraight = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Straight-Block");
             TrenchT = Content.Load<Model>(ContentFolder3D + "Trench/Trench-T-Block");
@@ -206,7 +199,7 @@ namespace TGC.MonoGame.TP
             //Asigno los efectos a los modelos correspondientes
             assignEffectToModels(new Model[] { Xwing.Model, Tie}, EffectTexture);
             assignEffectToModels(new Model[] { TrenchPlatform, TrenchStraight, TrenchElbow, TrenchT, TrenchIntersection, TrenchTurret }, EffectLight);
-            assignEffectToModels(new Model[] { Trench2, LaserModel }, Effect);
+            assignEffectToModels(new Model[] { Trench2, LaserModel, Xwing.EnginesModel}, Effect);
 
             EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
             EffectTexture.Parameters["TextureMultiplier"].SetValue(1f);
@@ -622,6 +615,8 @@ namespace TGC.MonoGame.TP
 
                 mesh.Draw();
             }
+            DrawModel(Xwing.EnginesModel, Xwing.EnginesSRT, Xwing.EnginesColor);
+            
             EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
         }
 

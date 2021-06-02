@@ -15,9 +15,12 @@ namespace TGC.MonoGame.TP
 		public bool barrelRolling { get; set; }
 		public float roll { get; set; }
 		public Model Model { get; set; }
+		public Model EnginesModel { get; set; }
 		public Texture[] Textures { get; set; }
 		public Matrix World { get; set; }
 		public Matrix SRT { get; set; }
+		public Matrix EnginesSRT;
+		public Vector3 EnginesColor = new Vector3(0.8f, 0.3f, 0f);
 		public float Scale { get; set; }
 		public Vector3 Position { get; set; }
 		public Vector3 FrontDirection { get; set; }
@@ -124,7 +127,10 @@ namespace TGC.MonoGame.TP
 
 
         }
-		
+
+		Matrix YP, T;
+		Vector3 EnginesScale = new Vector3(0.025f, 0.025f, 0.025f);
+
 		void updateSRT(MyCamera camera)
 		{
 			// posicion delante de la camara que uso de referencia
@@ -143,18 +149,25 @@ namespace TGC.MonoGame.TP
 			Pitch = camera.Pitch;
 			Yaw = MathHelper.ToDegrees(correctedYaw);
 			//SRT contiene la matrix de escala, rotacion y traslacion a usar en Draw
+
+			YP = Matrix.CreateFromYawPitchRoll(correctedYaw, MathHelper.ToRadians(Pitch), 0f);			
+			T = Matrix.CreateTranslation(Position);
+
 			SRT =
 				// correccion de escala
 				Matrix.CreateScale(Scale) *
 				// correccion por yaw y pitch de la camara
-				Matrix.CreateFromYawPitchRoll(correctedYaw, MathHelper.ToRadians(Pitch), 0f) *
+				YP *
 				// correccion por roll con un quaternion, para obtener de el vector direccion que apunta hacia arriba
 				//(del modelo, una vez que giro)
 				rollQuaternion *
 				// lo muevo para abajo(del modelo) 8 unidades para que se aleje del centro 
-				Matrix.CreateTranslation(Position);
+				T;
 
-		}
+
+			EnginesSRT = Matrix.CreateScale(EnginesScale) * YP * rollQuaternion * T;
+
+        }
 		
 		Vector2 currentDelta;
 		Vector2 averageLastDeltas()
@@ -221,14 +234,8 @@ namespace TGC.MonoGame.TP
 		public void updateDirectionVectors(Vector3 front, Vector3 up)
 		{
 			FrontDirection = front;
-			//RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
-			//UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
 			UpDirection = up;
 			RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, UpDirection));
-
-			//Quaternion q = Quaternion.CreateFromAxisAngle(FrontDirection, Roll);
-
-			//UpDirection *= Matrix.CreateFromYawPitchRoll(0, 0, Roll);
 		}
 
 		float offsetVtop = 2.5f;
@@ -248,6 +255,7 @@ namespace TGC.MonoGame.TP
         {
 			if(Boosting)
 			{
+				EnginesColor = new Vector3(0f, 0.6f, 0.8f);
 				energyTimer += 0.08f * 60 * Time;
 
 				if (energyTimer > 1)
@@ -259,6 +267,7 @@ namespace TGC.MonoGame.TP
 			}
 			else
             {
+				EnginesColor = new Vector3(0.7f, 0.15f, 0f);
 				energyTimer += 0.10f * 60 * Time;
 				
 				if (energyTimer > 1)
