@@ -229,6 +229,9 @@ namespace TGC.MonoGame.TP
             Camera.BlockSize = blockSize;
             Camera.Position = new Vector3(MapLimit/2 - blockSize/2, 0, blockSize /2);
 
+            Laser.MapLimit = MapLimit;
+            Laser.MapSize = MapSize;
+            Laser.BlockSize = blockSize;
             TieFighter.GenerateEnemies(Xwing);
 
             base.LoadContent();
@@ -348,9 +351,9 @@ namespace TGC.MonoGame.TP
                     //TODO: Corregir valores para cada trench distinto
                     var turretPos = block.Position - new Vector3(0,0,0);
 
-                    if (r < 50) // %50 chance de tener una torre
+                    if (r < 30) // %30 chance de tener una torre
                         block.Turrets.Add(new TrenchTurret());
-                    if (r < 20) // %20 chance de tener dos
+                    if (r < 10) // %10 chance de tener dos
                         block.Turrets.Add(new TrenchTurret());
 
                     foreach (var turret in block.Turrets)
@@ -371,9 +374,7 @@ namespace TGC.MonoGame.TP
             //}
         }
        
-        
-      
-
+       
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -413,7 +414,7 @@ namespace TGC.MonoGame.TP
                         for (int z = (int)zone.Z; z < zone.W; z++)
                             foreach (var turret in Map[x, z].Turrets)
                                 turret.Update(Xwing, elapsedTime);
-                    Laser.UpdateAll(elapsedTime);
+                    Laser.UpdateAll(elapsedTime, Xwing);
 
                     //Colisiones
                     Xwing.VerifyCollisions(Laser.EnemyLasers, Map);

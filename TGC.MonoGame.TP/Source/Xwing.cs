@@ -84,7 +84,7 @@ namespace TGC.MonoGame.TP
 		
 		public Vector4 GetZone()
 		{
-			int viewSize = 3;
+			int viewSize = 2;
 			
 			//System.Diagnostics.Debug.Write("P " + Position.X + " " + Position.Z);
 			var a = CurrentBlock.X - viewSize;
@@ -248,7 +248,7 @@ namespace TGC.MonoGame.TP
         {
 			if(Boosting)
 			{
-				energyTimer += 0.20f * 60 * Time;
+				energyTimer += 0.08f * 60 * Time;
 
 				if (energyTimer > 1)
 				{
