@@ -49,16 +49,17 @@ namespace TGC.MonoGame.TP
 		public Xwing()
 		{
 			HP = 100;
+			ScaleMatrix = Matrix.CreateScale(2.5f);
 		}
 		public void Update(float elapsedTime, MyCamera camera)
 		{
 
 			Time = elapsedTime;
-			// cuanto tengo que rotar (roll), dependiendo de que tanto giro la camara 
-			//TurnDelta = camera.delta;
-			//updateRoll();
-			//actualizo todos los parametros importantes del xwing
-			updateSRT(camera);
+            // cuanto tengo que rotar (roll), dependiendo de que tanto giro la camara 
+            //TurnDelta = camera.delta;
+            //updateRoll();
+            //actualizo todos los parametros importantes del xwing
+            updateSRT(camera);
 			//actualizo 
 			updateFireRate();
 
@@ -80,11 +81,6 @@ namespace TGC.MonoGame.TP
 
 		}
 
-		Matrix rollQuaternion;
-		float yawRad, correctedYaw;
-		Vector3 pos;
-
-		
 		public Vector4 GetZone()
 		{
 			int viewSize = 2;
@@ -128,8 +124,10 @@ namespace TGC.MonoGame.TP
 
         }
 
-		Matrix YP, T;
+		Matrix YPR, T, ScaleMatrix;
 		Vector3 EnginesScale = new Vector3(0.025f, 0.025f, 0.025f);
+		float yawRad, correctedYaw;
+		Vector3 pos;
 
 		void updateSRT(MyCamera camera)
 		{
@@ -138,34 +136,24 @@ namespace TGC.MonoGame.TP
 			//yaw en radianes, y su correccion inicial
 			yawRad = MathHelper.ToRadians(camera.Yaw);
 			correctedYaw = -yawRad - MathHelper.PiOver2;
-			//matriz de rotacion dado un quaternion, que me permite hacer la rotacion (roll)
-			// y obtener de esa matriz la direccion hacia arriba del xwing, una vez que giro
-			rollQuaternion = Matrix.CreateFromQuaternion(
-				Quaternion.CreateFromAxisAngle(camera.FrontDirection, MathHelper.ToRadians(-Roll)));
-			//actualizo los vectores direccion
-			updateDirectionVectors(camera.FrontDirection, rollQuaternion.Up);
-			//actualizo la posicion, pitch y yaw
-			Position = pos - UpDirection * 8;
+			// actualizo pitch y yaw
 			Pitch = camera.Pitch;
 			Yaw = MathHelper.ToDegrees(correctedYaw);
+			// armo la matriz de rotacion en base a pitch, roll, yaw
+			YPR = Matrix.CreateFromYawPitchRoll(correctedYaw, MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll));
+
+			//actualizo los vectores direccion
+			updateDirectionVectors(camera.FrontDirection, YPR.Up);
+			//actualizo la posicion
+			Position = pos - UpDirection * 8;
+			
 			//SRT contiene la matrix de escala, rotacion y traslacion a usar en Draw
-
-			YP = Matrix.CreateFromYawPitchRoll(correctedYaw, MathHelper.ToRadians(Pitch), 0f);			
+			
 			T = Matrix.CreateTranslation(Position);
+			SRT = ScaleMatrix * YPR * T;
 
-			SRT =
-				// correccion de escala
-				Matrix.CreateScale(Scale) *
-				// correccion por yaw y pitch de la camara
-				YP *
-				// correccion por roll con un quaternion, para obtener de el vector direccion que apunta hacia arriba
-				//(del modelo, una vez que giro)
-				rollQuaternion *
-				// lo muevo para abajo(del modelo) 8 unidades para que se aleje del centro 
-				T;
-
-
-			EnginesSRT = Matrix.CreateScale(EnginesScale) * YP * rollQuaternion * T;
+			//Motores (luces)
+			EnginesSRT = Matrix.CreateScale(EnginesScale) * YPR * T;
 
         }
 		
@@ -228,7 +216,11 @@ namespace TGC.MonoGame.TP
 				currentDelta = averageLastDeltas();
 				//delta [-3;3] -> [-90;90]
 				Roll = -currentDelta.X * 30;
-			}
+
+				////delta [-3;3] -> [-12;12]
+				//Pitch += currentDelta.Y * 4;
+
+            }
 		}
 
 		public void updateDirectionVectors(Vector3 front, Vector3 up)

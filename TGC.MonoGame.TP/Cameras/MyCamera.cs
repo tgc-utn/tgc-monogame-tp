@@ -169,6 +169,7 @@ namespace TGC.MonoGame.TP
                     Yaw %= 360;
                     //changed = true;
                 }
+                xwing.updateRoll(delta);
             }
             //debug
             //return changed;

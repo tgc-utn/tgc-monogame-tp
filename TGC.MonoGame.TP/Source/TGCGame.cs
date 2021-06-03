@@ -99,7 +99,6 @@ namespace TGC.MonoGame.TP
             GameState = GmState.StartScreen;
             
             Xwing.World = Matrix.Identity;
-            Xwing.Scale = 2.5f;
 
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
