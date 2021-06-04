@@ -66,7 +66,7 @@ namespace TGC.MonoGame.TP
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
         private Effect EffectLight { get; set; }
-        private float Rotation { get; set; }
+        public float PausedCameraRotation { get; set; }
 
         private Texture TieTexture;
         private Texture TrenchTexture;
@@ -238,9 +238,7 @@ namespace TGC.MonoGame.TP
             MouseXY.Y = Mouse.GetState().Y;
 
             Input.ProcessInput();
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += elapsedTime * 0.5f;
-            Rotation %= MathHelper.TwoPi;
+            
             switch (GameState)
             {
                 case GmState.StartScreen:
@@ -284,28 +282,9 @@ namespace TGC.MonoGame.TP
                 case GmState.Paused:
                     #region paused
 
-                    float y;
+                
+                    Camera.PausedUpdate(elapsedTime, Xwing);
 
-                    if (Xwing.Position.Y > 0)
-                    {
-                        y = Xwing.Position.Y;
-                        Camera.Pitch = 0f;
-                    }
-                    else
-                    {
-                        y = 30f;
-                        Camera.Pitch = -15f;
-                    }
-                    Camera.Position = new Vector3(
-                        Xwing.Position.X + 100f * MathF.Cos(Rotation),
-                        y,
-                        Xwing.Position.Z + 100f * MathF.Sin(Rotation));
-                    Vector3 frontDirection = Xwing.Position - Camera.Position;
-
-                    Camera.Yaw = MathHelper.ToDegrees(MathF.Atan2(frontDirection.Z, frontDirection.X));
-                    //Camera.Pitch = MathF.Asin(frontDirection.Y);
-                    
-                    Camera.UpdateVectorView();
                     #endregion
                     break;
                 case GmState.Victory:
@@ -364,7 +343,6 @@ namespace TGC.MonoGame.TP
             EffectTexture.Parameters["View"].SetValue(Camera.View);
             EffectTexture.Parameters["Projection"].SetValue(Camera.Projection);
 
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
 

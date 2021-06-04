@@ -123,9 +123,6 @@ namespace TGC.MonoGame.TP
 				enemy.fireLaser();
 			}
             Enemies.RemoveAll(enemy => enemy.HP <= 0);
-
-			Debug.WriteLine("Y " + Enemies[0].FrontDirection.Y+" yw "+ MathHelper.ToDegrees(Enemies[0].Yaw) + " P " + MathHelper.ToDegrees(Enemies[0].Pitch));
-
 		}
 	}
 }

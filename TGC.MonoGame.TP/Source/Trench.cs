@@ -449,21 +449,13 @@ namespace TGC.MonoGame.TP
                         S * R * Matrix.CreateRotationY(MathHelper.ToRadians(block.Rotation)) *
                         Matrix.CreateTranslation(block.Position) * T;
 
-                    //TODO: Corregir valores para cada trench distinto
                     var turretPos = block.Position - new Vector3(0, 0, 0);
 
-                    //if (x == MapSize / 2 && z == 0)
-                    //{
-                    block.Turrets.Add(new TrenchTurret());
-                    block.Turrets.Add(new TrenchTurret());
-                    //}
-                    //else
-                    //{
-                    //    if (r < 30) // %30 chance de tener una torre
-                    //        block.Turrets.Add(new TrenchTurret());
-                    //    if (r < 10) // %10 chance de tener dos
-                    //        block.Turrets.Add(new TrenchTurret());
-                    //}
+                    if (r < 30) // %30 chance de tener una torre
+                        block.Turrets.Add(new TrenchTurret());
+                    if (r < 10) // %10 chance de tener dos
+                        block.Turrets.Add(new TrenchTurret());
+                    
                     int index = 0;
                     foreach (var turret in block.Turrets)
                     {

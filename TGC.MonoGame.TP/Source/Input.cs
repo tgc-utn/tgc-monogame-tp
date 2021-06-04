@@ -56,6 +56,7 @@ namespace TGC.MonoGame.TP
                             ignoredKeys.Add(Keys.Escape);
                             Game.GameState = TGCGame.GmState.Paused;
                             Game.Camera.SaveCurrentState();
+                            //Game.Camera.= MathHelper.ToRadians(Game.Camera.Yaw) + MathHelper.Pi;
                             Game.IsMouseVisible = true;
                         }
                     }
@@ -198,7 +199,7 @@ namespace TGC.MonoGame.TP
                         if (!ignoredKeys.Contains(Keys.Escape))
                         {
                             ignoredKeys.Add(Keys.Escape);
-                            Game.GameState = TGCGame.GmState.Running;
+                            //Game.GameState = TGCGame.GmState.Running;
                             Game.Camera.SoftReset();
                             Game.IsMouseVisible = false;
                         }
