@@ -69,6 +69,7 @@ namespace TGC.MonoGame.TP
                         Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
                     Game.SpriteBatch.End();
 
+                    
                     #endregion
                     break;
                 case TGCGame.GmState.Running:
@@ -152,6 +153,7 @@ namespace TGC.MonoGame.TP
             {
                 case BtnType.Play:
                     Game.Camera.Reset();
+                    SoundManager.StopMusic();
                     Game.GameState = TGCGame.GmState.Running;
                     Game.IsMouseVisible = false;
                     break;

@@ -53,7 +53,8 @@ namespace TGC.MonoGame.TP
 			//System.Diagnostics.Debug.WriteLine(Time + " " + betweenFire);
 			if (betweenFire < 1)
 				return;
-
+			var Game = TGCGame.Instance;
+			//SoundManager.Play3DSoundAt(Game.soundTurretLaser, Position);
 			betweenFire = 0;
 			Matrix rotation = Matrix.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
 			Matrix SRT =

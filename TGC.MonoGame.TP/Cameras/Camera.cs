@@ -18,7 +18,12 @@ public abstract class Camera
 
     public Camera(float aspectRatio, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees)
     {
-        BuildProjection(aspectRatio, nearPlaneDistance, farPlaneDistance, fieldOfViewDegrees);
+        AspectRatio = aspectRatio;
+        NearPlane = nearPlaneDistance;
+        FarPlane = farPlaneDistance;
+        FieldOfView = fieldOfViewDegrees;
+        //BuildProjection(aspectRatio, nearPlaneDistance, farPlaneDistance, fieldOfViewDegrees);
+        UpdateProjection();
     }
 
     /// <summary>
@@ -84,6 +89,12 @@ public abstract class Camera
     {
         Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewDegrees, aspectRatio, nearPlaneDistance,
             farPlaneDistance);
+    }
+
+    public void UpdateProjection()
+    {
+        Projection = Matrix.CreatePerspectiveFieldOfView(FieldOfView, AspectRatio, NearPlane,
+            FarPlane);
     }
 
     /// <summary>

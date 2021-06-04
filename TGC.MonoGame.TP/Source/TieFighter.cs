@@ -71,6 +71,9 @@ namespace TGC.MonoGame.TP
 				return;
 
 			betweenFire = 0;
+            var Game = TGCGame.Instance;
+			//SoundManager.Play3DSoundAt(Game.soundLaser, Position, 0.2f) ;
+
 			Matrix rotation = Matrix.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
 			Matrix SRT =
 				Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f)) *

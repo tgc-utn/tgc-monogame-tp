@@ -2,6 +2,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+
 using System.Collections.Generic;
 using System.Timers;
 using System.Threading;
@@ -20,7 +23,7 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
-
+        
 
         public static Mutex MutexDeltas = new Mutex();
 
@@ -82,6 +85,16 @@ namespace TGC.MonoGame.TP
         public Vector2 MouseXY;
         public Input Input;
         public HUD HUD;
+        
+        public SoundEffect soundLaser;
+        public SoundEffect soundTurretLaser;
+        public SoundEffect soundBoost;
+        public SoundEffect soundBoostStop;
+        public SoundEffect soundTieExplosion;
+        public SoundEffect soundTurretExplosion;
+        public Song mainTheme;
+
+
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -123,6 +136,7 @@ namespace TGC.MonoGame.TP
             System.Diagnostics.Debug.WriteLine(Trench.ShowMapInConsole(Map, MapSize));
             
 
+            
             base.Initialize();
         }
 
@@ -181,13 +195,22 @@ namespace TGC.MonoGame.TP
             BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Salir");
             BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Opciones");
             HUD.Init();
-            //Para escribir en la pantalla
+            
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
             System.Diagnostics.Debug.WriteLine("loading skybox.");
+
+            soundLaser = Content.Load<SoundEffect>(ContentFolderSounds + "laser");
+            soundTurretLaser = Content.Load<SoundEffect>(ContentFolderSounds + "turretLaser");
+            soundBoost = Content.Load<SoundEffect>(ContentFolderSounds + "boost");
+            soundBoostStop = Content.Load<SoundEffect>(ContentFolderSounds + "boostStop");
+
+            mainTheme = Content.Load<Song>(ContentFolderMusic + "TheImperialMarch");
+
+            SoundManager.PlayMusic(mainTheme);
+
             //Skybox
             skyboxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             //boxModel = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Turret");
-
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skybox/space_earth_small_skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
             SkyBox = new SkyBox(skyboxModel, skyBoxTexture, skyBoxEffect);

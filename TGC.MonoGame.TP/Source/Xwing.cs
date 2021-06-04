@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +10,8 @@ namespace TGC.MonoGame.TP
 	public class Xwing
 	{
 		public int HP { get; set; }
-		public int Energy { get; set; }
+		public int Energy = 10;
+		public bool prevBoostState = false;
 		public bool Boosting { get; set; }
 		public bool BoostLock { get; set; }
 		public bool barrelRolling { get; set; }
@@ -63,7 +65,7 @@ namespace TGC.MonoGame.TP
 			//actualizo 
 			updateFireRate();
 
-			updateEnergyRegen();
+			updateEnergyRegen(elapsedTime);
 			if (boundingSphere == null)
 				boundingSphere = new BoundingSphere(Position, 50f);
 			else
@@ -243,10 +245,29 @@ namespace TGC.MonoGame.TP
 		}
 		
 		float energyTimer = 0f;
-		public void updateEnergyRegen()
+		SoundEffectInstance soundBoost;
+		public float boostTime = 0f;
+		public void updateEnergyRegen(float elapsedTime)
         {
+			var Game = TGCGame.Instance;
+			if (Boosting != prevBoostState)
+            {
+				boostTime = 0f;
+				if (Boosting)
+					soundBoost = SoundManager.PlaySound(Game.soundBoost, 0.45f);
+				else
+				{
+					SoundManager.StopSound(soundBoost);
+					SoundManager.PlaySound(Game.soundBoostStop, 0.35f);
+			
+				}
+
+			}
+			prevBoostState = Boosting;
+
 			if(Boosting)
 			{
+				boostTime += 0.5f * elapsedTime;
 				EnginesColor = new Vector3(0f, 0.6f, 0.8f);
 				energyTimer += 0.08f * 60 * Time;
 
@@ -285,9 +306,11 @@ namespace TGC.MonoGame.TP
 			if (betweenFire < 1)
 				return;
 			betweenFire = 0;
-			
 
-			scale = Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f));
+			var Game = TGCGame.Instance;
+            SoundManager.Play3DSoundAt(Game.soundLaser, Position, 0.2f);
+
+            scale = Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f));
 			float[] corr = new float[]{
 			MathHelper.ToRadians(Yaw + yawCorrection),
 			MathHelper.ToRadians(Yaw + yawCorrection),

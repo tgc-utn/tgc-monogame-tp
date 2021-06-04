@@ -54,16 +54,26 @@ namespace TGC.MonoGame.TP
             PauseRotation = MathHelper.ToRadians(Yaw) + MathHelper.Pi;
             
         }
-        
+
+        float previousSpeedMul;
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             CurrentMovementSpeed = MovementSpeed * elapsedTime * SpeedMultiplier;
-            CurrentTurnSpeed = turnSpeed * elapsedTime;
+            
+            if (previousSpeedMul != SpeedMultiplier)
+            {
+                FieldOfView = SpeedMultiplier * 0.05f + DefaultFieldOfViewDegrees;
+                UpdateProjection();
+            }
+            previousSpeedMul = SpeedMultiplier;
 
+            CurrentTurnSpeed = turnSpeed * elapsedTime;
+            //continously moving forward
             Position += FrontDirection * CurrentMovementSpeed;
+
 
             UpdateCameraVectors();
             CalculateView();
@@ -182,7 +192,8 @@ namespace TGC.MonoGame.TP
                 if (xwing.Energy > 0 && !xwing.BoostLock)
                 {
                     xwing.Boosting = true;
-                    SpeedMultiplier = 3f;
+                    SpeedMultiplier = 1f + 6f * xwing.boostTime;
+                    //Debug.WriteLine(SpeedMultiplier);
                 }
                 else if (xwing.Energy == 0 && xwing.Boosting)
                 {

@@ -32,6 +32,7 @@ namespace TGC.MonoGame.TP
                     {
                         Game.GameState = TGCGame.GmState.Running;
                         Game.Camera.Reset();
+                        SoundManager.StopMusic();
                     }
                     #endregion
                     break;
