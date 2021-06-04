@@ -36,17 +36,9 @@ namespace TGC.MonoGame.TP
         }
 		public void updateDirectionVectors()
 		{
-			//angleToX = angleBetweenVectors(FrontDirection, Vector3.Right);
-			//angleToZ = angleBetweenVectors(FrontDirection, Vector3.Backward);
-
-			//if (angleToZ < MathHelper.PiOver2)
-			//	y = MathHelper.TwoPi - angleToX;
-			//else
-			//	y = angleToX;
-			//Yaw = MathHelper.ToDegrees(y + MathHelper.PiOver2);
-
+		
 			Yaw = MathF.Atan2(FrontDirection.X, FrontDirection.Z);
-			Pitch = MathF.Asin(FrontDirection.Y);
+			Pitch = -MathF.Asin(FrontDirection.Y);
 
 			//System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
 		}

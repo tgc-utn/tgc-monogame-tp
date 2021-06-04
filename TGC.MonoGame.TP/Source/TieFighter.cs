@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace TGC.MonoGame.TP
 {
@@ -82,7 +83,10 @@ namespace TGC.MonoGame.TP
 		{
 			Yaw = MathF.Atan2(FrontDirection.X, FrontDirection.Z);
 			//TODO: verify
-			Pitch = MathF.Asin(FrontDirection.Y);
+			
+			Pitch = -MathF.Asin(FrontDirection.Y);
+			
+
 		}
 		public void VerifyCollisions(List<Laser> playerLasers)
 		{
@@ -120,6 +124,8 @@ namespace TGC.MonoGame.TP
 			}
             Enemies.RemoveAll(enemy => enemy.HP <= 0);
 
-        }
+			Debug.WriteLine("Y " + Enemies[0].FrontDirection.Y+" yw "+ MathHelper.ToDegrees(Enemies[0].Yaw) + " P " + MathHelper.ToDegrees(Enemies[0].Pitch));
+
+		}
 	}
 }
