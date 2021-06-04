@@ -15,7 +15,9 @@ namespace TGC.MonoGame.TP
         }
 
 
-
+        //float deltaX = 0f;
+        //float deltaZ = 0f;
+        bool selectedFirst = true;
         public void ProcessInput()
         {
             var kState = Keyboard.GetState();
@@ -129,9 +131,64 @@ namespace TGC.MonoGame.TP
                             
                         }
                     }
-                   
-                    //remuevo de la lista aquellas teclas que solte
+                    //parameter debug (i.e. moving models)
+                    #region parameterDebug
+                    //var inputDelta = 0.05f;
+                    //var deltaX = 0f;
+                    //var deltaY = 0f;
+                    //var deltaZ = 0f;
+                    //var update = false;
+                    //if (kState.IsKeyDown(Keys.N))
+                    //    inputDelta = 0.1f;
+                    //else
+                    //    inputDelta = 0.05f;
+                    //if (kState.IsKeyDown(Keys.I))
+                    //{
+                    //    deltaZ = inputDelta;
+                    //    update = true;
+                    //}
+                    //if (kState.IsKeyDown(Keys.K))
+                    //{
+                    //    deltaZ = -inputDelta;
+                    //    update = true;
+                    //}
+                    //if (kState.IsKeyDown(Keys.J))
+                    //{
+                    //    deltaX = inputDelta;
+                    //    update = true;
+                    //}
+                    //if (kState.IsKeyDown(Keys.L))
+                    //{
+                    //    deltaX = -inputDelta;
+                    //    update = true;
+                    //}
+                    //if (kState.IsKeyDown(Keys.Y))
+                    //{
+                    //    deltaY = inputDelta;
+                    //    update = true;
+                    //}
+                    //if (kState.IsKeyDown(Keys.H))
+                    //{
+                    //    deltaY = -inputDelta;
+                    //    update = true;
+                    //}
 
+
+                    //if (kState.IsKeyDown(Keys.U))
+                    //{
+                    //    if(!ignoredKeys.Contains(Keys.U))
+                    //    {
+                    //        ignoredKeys.Add(Keys.U);
+                    //        selectedFirst = !selectedFirst;
+                    //        Debug.WriteLine("SelectedFirst " + selectedFirst);
+                    //    }
+                    //}
+                    //if (update)
+                    //{
+
+                    //    //Debug.WriteLine("DX " + deltaX + " DZ" + deltaZ+ " FST "+ selectedFirst);
+                    //}
+                    #endregion
                     #endregion
                     break;
 

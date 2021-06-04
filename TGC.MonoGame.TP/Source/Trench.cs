@@ -7,7 +7,8 @@ namespace TGC.MonoGame.TP
 {
 	public class Trench
 	{
-		public Model Model { get; set; }
+        public static float TrenchScale = 0.07f;
+        public Model Model { get; set; }
 		public float Rotation { get; set; }
 		public Matrix SRT { get; set; }
 		public Vector3 Position { get; set; }
@@ -24,7 +25,6 @@ namespace TGC.MonoGame.TP
 		{
 			Type = t;
 			Rotation = r;
-			//Model = TGCGame.GetModelFromType(Type); //always null, models not loaded, update in loadcontent
 		}
 		
 		public bool IsInTrench(BoundingSphere element)
@@ -34,9 +34,6 @@ namespace TGC.MonoGame.TP
             	hit |= box.Intersects(element);
 
 			return hit;
-
-			//BoundingBox hit = boundingBoxes.Find(box => box.Intersects(element));
-			//return !(hit.Min.Equals(Vector3.Zero) && (hit.Max.Equals(Vector3.Zero)));
         }
 		private static Trench GetNextTrench(Trench input, float rotation)
 		{
@@ -171,9 +168,9 @@ namespace TGC.MonoGame.TP
 				poiCount = 0;
 				attempt++;
 				ClearMap(ref map, size);
-				map[xi, yi] = new Trench(TrenchType.Straight, 0f);
-
-				var points = GenLine(ref map, xi, yi, 0f, size);
+                map[xi, yi] = new Trench(TrenchType.Straight, 0f);
+                //map[xi, yi] = new Trench(TrenchType.Elbow, 270f);
+                var points = GenLine(ref map, xi, yi, 0f, size);
 
 				recursiveGen(points, ref map, size);
 				
@@ -204,7 +201,6 @@ namespace TGC.MonoGame.TP
 				for (int y = 0; y < size; y++)
 					map[x, y] = null;
 		}
-		
 		public static String ShowMapInConsole(Trench[,] map, int size)
 		{
 			String str = "MAP\n";
@@ -256,9 +252,241 @@ namespace TGC.MonoGame.TP
 			}
 			return str;
 		}
-	}
-	
-	public enum TrenchType
+
+        static Vector3[] calculateTurretDelta(float rotation, Vector3 delta1, Vector3 delta2, TrenchType type)
+        {
+            Vector3[] deltas = new Vector3[] { Vector3.Zero, Vector3.Zero };
+            switch (rotation)
+            {
+                case 0f:
+                    deltas[0] = new Vector3(delta1.X, delta1.Y, delta1.Z);
+                    deltas[1] = new Vector3(delta2.X, delta2.Y, delta2.Z);
+                    break;
+                case 90f:
+                    deltas[0] = new Vector3(delta1.Z, delta1.Y, -delta1.X);
+                    deltas[1] = new Vector3(delta2.Z, delta2.Y, -delta2.X);
+                    break;
+                case 180f:
+                    deltas[0] = new Vector3(-delta1.X, delta1.Y, -delta1.Z);
+                    deltas[1] = new Vector3(-delta2.X, delta2.Y, -delta2.Z);
+                    break;
+                case 270f:
+                    switch (type)
+                    {
+                        case TrenchType.Straight:
+                            deltas[0] = new Vector3(delta1.Z, delta1.Y, -delta1.X);
+                            deltas[1] = new Vector3(delta2.Z, delta2.Y, -delta2.X);
+                            break;
+                        case TrenchType.T:
+                            deltas[0] = new Vector3(-delta1.Z, delta1.Y, delta1.X);
+                            deltas[1] = new Vector3(-delta2.Z, delta2.Y, delta2.X);
+                            break;
+                        case TrenchType.Elbow:
+                            deltas[0] = new Vector3(-delta1.Z, delta1.Y, delta1.X);
+                            deltas[1] = new Vector3(-delta2.Z, delta2.Y, delta2.X);
+                            break;
+                        default:
+                            deltas[0] = new Vector3(delta1.Z, delta1.Y, -delta1.X);
+                            deltas[1] = new Vector3(delta2.Z, delta2.Y, -delta2.X);
+                            break;
+                    }
+                    break;
+
+            }
+            return deltas;
+
+        }
+        public static void UpdateTrenches()
+        {
+            var Game = TGCGame.Instance;
+            //Inicializo valores importantes del mapa
+            float tx = 0;
+            float tz = 0;
+            Matrix S = Matrix.CreateScale(TrenchScale);
+            Matrix R = Matrix.Identity;
+            Matrix T = Matrix.CreateTranslation(new Vector3(0, -35, 0));
+            float delta = 395.5f;
+
+            Random rnd = new Random();
+            for (int x = 0; x < TGCGame.MapSize; x++)
+            {
+
+                tz = 0;
+                for (int z = 0; z < TGCGame.MapSize; z++)
+                {
+                    var r = rnd.Next(0, 100);
+
+                    Trench block = Game.Map[x, z];
+
+
+                    block.Model = TGCGame.GetModelFromType(Game.Map[x, z].Type);
+
+                    block.Position = new Vector3(tx, 0, tz);
+
+                    var boxWidth = 20;
+
+                    var VerticalFullBox = new BoundingBox(
+                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
+                    var HorizontalFullBox = new BoundingBox(
+                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
+
+                    var VerticalHalfBox = new BoundingBox(
+                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta * 0.5f));
+                    var VerticalHalfBox2 = new BoundingBox(
+                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta * 0.5f), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
+
+                    var HorizontalHalfBox = new BoundingBox(
+                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta * 0.5f, 0, boxWidth * 0.5f));
+                    var HorizontalHalfBox2 = new BoundingBox(
+                        block.Position - new Vector3(delta * 0.5f, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
+
+                    Vector3[] turretDelta = new Vector3[] { Vector3.Zero, Vector3.Zero };
+
+
+                    //var turretDeltaY = 8f;
+
+                    switch (block.Type)
+                    {
+                        case TrenchType.Platform:
+                            R = Matrix.Identity;
+
+                            turretDelta = calculateTurretDelta(
+                                block.Rotation,
+                                new Vector3(77.3f, 8f, -82.5f),
+                                new Vector3(-76.9f, 8f, 82.6f),
+                                TrenchType.Platform);
+
+                            break;
+                        case TrenchType.Straight:
+                            R = Matrix.CreateRotationY(-MathHelper.PiOver2);
+
+                            turretDelta = calculateTurretDelta(
+                                block.Rotation,
+                                new Vector3(50.5f, 8f, -159f),
+                                new Vector3(-83.49f, 8f, -77.5f),
+                                TrenchType.Straight);
+
+                            if (block.Rotation == 0f || block.Rotation == 180f)
+                                block.boundingBoxes.Add(VerticalFullBox);
+                            else
+                                block.boundingBoxes.Add(HorizontalFullBox);
+
+                            break;
+
+                        case TrenchType.T:
+                            R = Matrix.CreateRotationY(MathHelper.PiOver2);
+
+                            turretDelta = calculateTurretDelta(
+                               block.Rotation,
+                               new Vector3(22.4f, 8f, 83f),
+                               new Vector3(50.6f, 8f, -159.3f),
+                               TrenchType.T);
+                            switch (block.Rotation)
+                            {
+                                case 0f:
+                                    block.boundingBoxes.Add(VerticalHalfBox);
+                                    block.boundingBoxes.Add(HorizontalFullBox);
+                                    break;
+                                case 90f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox);
+                                    block.boundingBoxes.Add(VerticalFullBox);
+                                    break;
+                                case 180f:
+                                    block.boundingBoxes.Add(VerticalHalfBox2);
+                                    block.boundingBoxes.Add(HorizontalFullBox);
+                                    break;
+                                case 270f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox2);
+                                    block.boundingBoxes.Add(VerticalFullBox);
+                                    break;
+                            }
+                            break;
+                        case TrenchType.Elbow:
+                            R = Matrix.Identity;
+
+                            turretDelta = calculateTurretDelta(
+                                block.Rotation,
+                                new Vector3(83f, 8f, 77f),
+                                new Vector3(-22f, 8f, -82.3f),
+                                TrenchType.Elbow);
+
+                            switch (block.Rotation)
+                            {
+                                case 0f:
+                                    block.boundingBoxes.Add(VerticalHalfBox);
+                                    block.boundingBoxes.Add(HorizontalHalfBox);
+                                    break;
+                                case 90f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox);
+                                    block.boundingBoxes.Add(VerticalHalfBox2);
+                                    break;
+                                case 180f:
+                                    block.boundingBoxes.Add(VerticalHalfBox2);
+                                    block.boundingBoxes.Add(HorizontalHalfBox2);
+                                    break;
+                                case 270f:
+                                    block.boundingBoxes.Add(HorizontalHalfBox2);
+                                    block.boundingBoxes.Add(VerticalHalfBox);
+                                    break;
+                            }
+                            break;
+                        case TrenchType.Intersection:
+                            R = Matrix.Identity;
+
+                            turretDelta = calculateTurretDelta(
+                                block.Rotation,
+                                new Vector3(82.4f, 8f, -145.7f),
+                                new Vector3(-63.3f, 8f, 50.7f),
+                                TrenchType.Intersection);
+
+                            block.boundingBoxes.Add(HorizontalFullBox);
+                            block.boundingBoxes.Add(VerticalFullBox);
+                            break;
+
+                    }
+
+                    block.SRT =
+                        S * R * Matrix.CreateRotationY(MathHelper.ToRadians(block.Rotation)) *
+                        Matrix.CreateTranslation(block.Position) * T;
+
+                    //TODO: Corregir valores para cada trench distinto
+                    var turretPos = block.Position - new Vector3(0, 0, 0);
+
+                    //if (x == MapSize / 2 && z == 0)
+                    //{
+                    block.Turrets.Add(new TrenchTurret());
+                    block.Turrets.Add(new TrenchTurret());
+                    //}
+                    //else
+                    //{
+                    //    if (r < 30) // %30 chance de tener una torre
+                    //        block.Turrets.Add(new TrenchTurret());
+                    //    if (r < 10) // %10 chance de tener dos
+                    //        block.Turrets.Add(new TrenchTurret());
+                    //}
+                    int index = 0;
+                    foreach (var turret in block.Turrets)
+                    {
+
+                        turret.Position = block.Position + turretDelta[index];
+                        turret.S = S;
+                        turret.SRT = S * R * Matrix.CreateTranslation(turret.Position);
+                        turretPos += new Vector3(0, 0, 20);
+                        index++;
+                    }
+
+                    tz += delta;
+                }
+                tx += delta;
+            }
+            Game.MapLimit = tz;
+
+        }
+
+
+    }
+
+    public enum TrenchType
 	{
 		Platform,
 		Straight,

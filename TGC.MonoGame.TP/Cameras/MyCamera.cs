@@ -68,7 +68,7 @@ namespace TGC.MonoGame.TP
             CurrentMovementSpeed = MovementSpeed * elapsedTime * SpeedMultiplier;
             CurrentTurnSpeed = turnSpeed * elapsedTime;
 
-            Position += FrontDirection * CurrentMovementSpeed;
+            //Position += FrontDirection * CurrentMovementSpeed;
 
             UpdateCameraVectors();
             CalculateView();
@@ -80,60 +80,48 @@ namespace TGC.MonoGame.TP
         }
         public void ProcessKeyboard(Xwing xwing)
         {
-            //var changed;
             var keyboardState = Keyboard.GetState();
-            SpeedMultiplier = 1f;
-            //xwing.Boosting = false;
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                if (xwing.Energy > 0 && !xwing.BoostLock)
-                {
-                    xwing.Boosting = true;
-                    SpeedMultiplier = 3f;
-                }
-                else if (xwing.Energy == 0 && xwing.Boosting)
-                {
-                    xwing.BoostLock = true;
-                    xwing.Boosting = false;
-                }
-                else if(xwing.Energy >= 3 && xwing.BoostLock)
-                {
-                    xwing.BoostLock = false;
-                }
-            }
-            else if (keyboardState.IsKeyDown(Keys.S))
-            {
-                xwing.Boosting = false;
-                SpeedMultiplier = 0.5f;
-            }
-            else
-            {
-                xwing.Boosting = false;
-            }
-            //Free cam for debug
-            //if (keyboardState.IsKeyDown(Keys.LeftShift))
-            //    CurrentMovementSpeed *= 10f;
-
-            //if (keyboardState.IsKeyDown(Keys.A))
-            //{
-            //    Position += -RightDirection * CurrentMovementSpeed;
-            //    changed = true;
-            //}
-            //if (keyboardState.IsKeyDown(Keys.D))
-            //{
-            //    Position += RightDirection * CurrentMovementSpeed;
-            //    changed = true;
-            //}
+            //SpeedMultiplier = 1f;
+            ////xwing.Boosting = false;
             //if (keyboardState.IsKeyDown(Keys.W))
             //{
-            //    Position += FrontDirection * CurrentMovementSpeed;
-            //    changed = true;
+            //    if (xwing.Energy > 0 && !xwing.BoostLock)
+            //    {
+            //        xwing.Boosting = true;
+            //        SpeedMultiplier = 3f;
+            //    }
+            //    else if (xwing.Energy == 0 && xwing.Boosting)
+            //    {
+            //        xwing.BoostLock = true;
+            //        xwing.Boosting = false;
+            //    }
+            //    else if(xwing.Energy >= 3 && xwing.BoostLock)
+            //    {
+            //        xwing.BoostLock = false;
+            //    }
             //}
-            //if (keyboardState.IsKeyDown(Keys.S))
+            //else if (keyboardState.IsKeyDown(Keys.S))
             //{
-            //    Position += -FrontDirection * CurrentMovementSpeed;
-            //    changed = true;
+            //    xwing.Boosting = false;
+            //    SpeedMultiplier = 0.5f;
             //}
+            //else
+            //{
+            //    xwing.Boosting = false;
+            //}
+            //Free cam for debug
+            if (keyboardState.IsKeyDown(Keys.LeftShift))
+                CurrentMovementSpeed *= 10f;
+
+            if (keyboardState.IsKeyDown(Keys.A))
+                Position += -RightDirection * CurrentMovementSpeed;
+            if (keyboardState.IsKeyDown(Keys.D))
+                Position += RightDirection * CurrentMovementSpeed;
+            if (keyboardState.IsKeyDown(Keys.W))
+                Position += FrontDirection * CurrentMovementSpeed;
+            if (keyboardState.IsKeyDown(Keys.S))
+                Position += -FrontDirection * CurrentMovementSpeed;
+            
             if (ArrowsLookEnabled)
             {
                 if (keyboardState.IsKeyDown(Keys.Up))

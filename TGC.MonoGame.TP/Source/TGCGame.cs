@@ -28,14 +28,11 @@ namespace TGC.MonoGame.TP
         public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
         
-        public float TrenchScale = 0.07f;
+        
         public float Trench2Scale = 0.07f;
 
-        public Vector3 TrenchTranslation = new Vector3(0, -30, -130);
-        public Vector3 Trench2Translation = new Vector3(0, -80, -290);
-        public Vector3 XwingTranslation = new Vector3(0, -5, -40);
-
-
+        
+        public static TGCGame Instance;
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -47,6 +44,7 @@ namespace TGC.MonoGame.TP
             // Graphics.IsFullScreen = true;
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
+            Instance = this;
         }
         public GmState GameState { get; set; }
         public GraphicsDeviceManager Graphics { get; }
@@ -212,15 +210,17 @@ namespace TGC.MonoGame.TP
             EffectLight.Parameters["KDiffuse"].SetValue(5.0f);
             EffectLight.Parameters["KSpecular"].SetValue(20f);
             EffectLight.Parameters["shininess"].SetValue(40f);
-            //Trench.UpdateModels(ref Map, MapSize);
-            UpdateTrenches();
-
+            
+            Trench.UpdateTrenches();
+            
             var blockSize = MapLimit / MapSize;
             Camera.MapLimit = MapLimit;
             Camera.MapSize = MapSize;
             Camera.BlockSize = blockSize;
             Camera.Position = new Vector3(MapLimit/2 - blockSize/2, 0, blockSize /2);
-
+            Xwing.MapLimit = MapLimit;
+            Xwing.MapSize = MapSize;
+            
             Laser.MapLimit = MapLimit;
             Laser.MapSize = MapSize;
             Laser.BlockSize = blockSize;
@@ -229,144 +229,7 @@ namespace TGC.MonoGame.TP
             base.LoadContent();
         }
 
-        void UpdateTrenches()
-        {
-            //Inicializo valores importantes del mapa
-            float tx = 0;
-            float tz = 0;
-            Matrix S = Matrix.CreateScale(TrenchScale);
-            Matrix R = Matrix.Identity;
-            Matrix T = Matrix.CreateTranslation(new Vector3(0, -35, 0));
-            float delta = 395.5f;
 
-            Random rnd = new Random();
-            for (int x = 0; x < MapSize; x++)
-            {
-
-                tz = 0;
-                for (int z = 0; z < MapSize; z++)
-                {
-                    var r = rnd.Next(0, 100);
-
-                    Trench block = Map[x, z];
-
-                    
-                    block.Model = GetModelFromType(Map[x, z].Type);
-                    
-                    block.Position = new Vector3(tx, 0, tz);
-
-                    var boxWidth = 20;
-                    
-                    var VerticalFullBox = new BoundingBox(
-                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
-                    var HorizontalFullBox = new BoundingBox(
-                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
-                    
-                    var VerticalHalfBox = new BoundingBox(
-                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta * 0.5f));
-                    var VerticalHalfBox2 = new BoundingBox(
-                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta * 0.5f), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
-
-                    var HorizontalHalfBox = new BoundingBox(
-                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta * 0.5f, 0, boxWidth * 0.5f));
-                    var HorizontalHalfBox2 = new BoundingBox(
-                        block.Position - new Vector3(delta * 0.5f, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
-
-                    switch (block.Type)
-                    {
-                        case TrenchType.Platform: 
-                            R = Matrix.Identity;  
-                            break;
-                        case TrenchType.Straight: 
-                            R = Matrix.CreateRotationY(-MathHelper.PiOver2);
-                            if (block.Rotation == 0f || block.Rotation == 180f)
-                                block.boundingBoxes.Add(VerticalFullBox);
-                            else
-                                block.boundingBoxes.Add(HorizontalFullBox);
-                            break;
-                        case TrenchType.T: 
-                            R = Matrix.CreateRotationY(MathHelper.PiOver2);
-                            switch(block.Rotation)
-                            {
-                                case 0f:
-                                    block.boundingBoxes.Add(VerticalHalfBox);
-                                    block.boundingBoxes.Add(HorizontalFullBox);
-                                    break;
-                                case 90f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox);
-                                    block.boundingBoxes.Add(VerticalFullBox);
-                                    break;
-                                case 180f:
-                                    block.boundingBoxes.Add(VerticalHalfBox2);
-                                    block.boundingBoxes.Add(HorizontalFullBox);
-                                    break;
-                                case 270f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox2);
-                                    block.boundingBoxes.Add(VerticalFullBox);
-                                    break;
-                            }
-                            break;
-                        case TrenchType.Elbow: 
-                            R = Matrix.Identity;
-                            switch (block.Rotation)
-                            {
-                                case 0f:
-                                    block.boundingBoxes.Add(VerticalHalfBox);
-                                    block.boundingBoxes.Add(HorizontalHalfBox);
-                                    break;
-                                case 90f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox);
-                                    block.boundingBoxes.Add(VerticalHalfBox2);
-                                    break;
-                                case 180f:
-                                    block.boundingBoxes.Add(VerticalHalfBox2);
-                                    block.boundingBoxes.Add(HorizontalHalfBox2);
-                                    break;
-                                case 270f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox2);
-                                    block.boundingBoxes.Add(VerticalHalfBox);
-                                    break;
-                            }
-                            break;
-                        case TrenchType.Intersection: 
-                            R = Matrix.Identity;
-                            block.boundingBoxes.Add(HorizontalFullBox);
-                            block.boundingBoxes.Add(VerticalFullBox);
-                            break;
-
-                    }
-
-                    block.SRT =
-                        S * R * Matrix.CreateRotationY(MathHelper.ToRadians(block.Rotation)) * 
-                        Matrix.CreateTranslation(block.Position) * T;
-
-                    //TODO: Corregir valores para cada trench distinto
-                    var turretPos = block.Position - new Vector3(0,0,0);
-
-                    if (r < 30) // %30 chance de tener una torre
-                        block.Turrets.Add(new TrenchTurret());
-                    if (r < 10) // %10 chance de tener dos
-                        block.Turrets.Add(new TrenchTurret());
-
-                    foreach (var turret in block.Turrets)
-                    {
-                        turret.S = S;
-                        turret.SRT = S * R * Matrix.CreateTranslation(turretPos);
-                        turret.Position = turretPos;
-                        turretPos += new Vector3(0, 0, 20);
-                    }
-                    
-                    tz += delta;
-                }
-                tx += delta;
-            }
-            MapLimit = tz;
-            Xwing.MapLimit = MapLimit;
-            Xwing.MapSize = MapSize;
-            //}
-        }
-       
-       
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -505,8 +368,8 @@ namespace TGC.MonoGame.TP
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
 
-
             SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
+            
             switch (GameState)
             {
                 case GmState.StartScreen:
