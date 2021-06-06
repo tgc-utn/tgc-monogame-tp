@@ -60,12 +60,13 @@ namespace TGC.MonoGame.TP
         public override void Update(GameTime gameTime)
         {
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+            var Game = TGCGame.Instance;
             CurrentMovementSpeed = MovementSpeed * elapsedTime * SpeedMultiplier;
             
             if (previousSpeedMul != SpeedMultiplier)
             {
                 FieldOfView = SpeedMultiplier * 0.05f + DefaultFieldOfViewDegrees;
+                //Game.Xwing.distanceToCamera = 40 - SpeedMultiplier * 1.6f;
                 UpdateProjection();
             }
             previousSpeedMul = SpeedMultiplier;

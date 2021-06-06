@@ -24,6 +24,29 @@ namespace TGC.MonoGame.TP
             var mState = Mouse.GetState();
 
             Game.HUD.VerifyBtnClick(mState);
+
+            if (kState.IsKeyDown(Keys.F11))
+            {
+                if (!ignoredKeys.Contains(Keys.F11))
+                {
+                    ignoredKeys.Add(Keys.F11);
+                    if (Game.Graphics.IsFullScreen) //720 windowed
+                    {
+                        Game.Graphics.IsFullScreen = false;
+                        Game.Graphics.PreferredBackBufferWidth = 1280;
+                        Game.Graphics.PreferredBackBufferHeight = 720;
+                    }
+                    else //1080 fullscreen
+                    {
+                        Game.Graphics.IsFullScreen = true;
+                        Game.Graphics.PreferredBackBufferWidth = 1920;
+                        Game.Graphics.PreferredBackBufferHeight = 1080;
+                    }
+                    Game.Graphics.ApplyChanges();
+                    Game.HUD.Init();
+                }
+            }
+
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
@@ -73,28 +96,7 @@ namespace TGC.MonoGame.TP
                             Game.IsFixedTimeStep = !Game.IsFixedTimeStep;
                         }
                     }
-                    if (kState.IsKeyDown(Keys.F11))
-                    {
-                        if (!ignoredKeys.Contains(Keys.F11))
-                        {
-                            ignoredKeys.Add(Keys.F11);
-                            if (Game.Graphics.IsFullScreen) //720 windowed
-                            {
-                                Game.Graphics.IsFullScreen = false;
-                                Game.Graphics.PreferredBackBufferWidth = 1280;
-                                Game.Graphics.PreferredBackBufferHeight = 720;
-                            }
-                            else //1080 fullscreen
-                            {
-                                Game.Graphics.IsFullScreen = true;
-                                Game.Graphics.PreferredBackBufferWidth = 1920;
-                                Game.Graphics.PreferredBackBufferHeight = 1080;
-                            }
-                            Game.Graphics.ApplyChanges();
-                            Game.HUD.Init();
-                        }
-                    }
-
+                    
                     if (kState.IsKeyDown(Keys.M))
                     {
                         //evito que se cambie constantemente manteniendo apretada la tecla

@@ -75,6 +75,8 @@ namespace TGC.MonoGame.TP
         private Texture TrenchTexture;
         public Texture2D[] Crosshairs;
         public Texture2D[] HudEnergy;
+        public Texture2D[] HPBar;
+
         public Texture2D TopLeftBar;
         public Texture2D BtnPlay, BtnContinue, BtnMenu, BtnExit, BtnOptions;
 
@@ -147,6 +149,14 @@ namespace TGC.MonoGame.TP
                     foreach (var meshPart in mesh.MeshParts)
                         meshPart.Effect = effect;
         }
+        Texture2D[] loadNumberedTextures(String source, int start, int end, int inc)
+        {
+            List<Texture2D> textures = new List<Texture2D>();
+            for (int n = start; n <= end; n += inc)
+                textures.Add(Content.Load<Texture2D>(ContentFolderTextures + source + n));
+ 
+            return textures.ToArray() ;
+        }
 
         protected override void LoadContent()
         {
@@ -176,24 +186,15 @@ namespace TGC.MonoGame.TP
             TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/Plates");
             Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
-            TopLeftBar = Content.Load<Texture2D>(ContentFolderTextures + "HUD/TopLeftBar");
-            HudEnergy = new Texture2D[]{
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-0"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-1"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-2"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-3"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-4"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-5"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-6"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-7"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-8"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-9"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/Energy-10")};
-            BtnPlay = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Jugar");
-            BtnContinue = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Continuar");
-            BtnMenu = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Menu");
-            BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Salir");
-            BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Opciones");
+            
+            HudEnergy = loadNumberedTextures("HUD/Energy/", 0, 10, 1);
+            HPBar = loadNumberedTextures("HUD/TopLeft/", 0, 100, 10);
+
+            BtnPlay = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Jugar");
+            BtnContinue = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Continuar");
+            BtnMenu = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Menu");
+            BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Salir");
+            BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Opciones");
             HUD.Init();
             
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
@@ -312,10 +313,12 @@ namespace TGC.MonoGame.TP
                     break;
                 case GmState.Victory:
                     #region victory
+                    Camera.PausedUpdate(elapsedTime, Xwing);
                     #endregion
                     break;
                 case GmState.Defeat:
                     #region defeat
+                    Camera.PausedUpdate(elapsedTime, Xwing);
                     #endregion
                     break;
             }
@@ -399,7 +402,6 @@ namespace TGC.MonoGame.TP
                     DrawMap();
                     foreach (var enemy in TieFighter.Enemies)
                         DrawTie(enemy);
-                    //DrawModel(Tie, enemy.SRT, new Vector3(0.5f, 0f, 0.5f));
                     foreach (var laser in Laser.AlliedLasers)
                         DrawModel(LaserModel, laser.SRT, laser.Color);
                     foreach (var laser in Laser.EnemyLasers)
@@ -414,6 +416,14 @@ namespace TGC.MonoGame.TP
                     break;
                 case GmState.Defeat:
                     #region defeat
+                    DrawMap();
+                    foreach (var enemy in TieFighter.Enemies)
+                        DrawTie(enemy);
+                    foreach (var laser in Laser.AlliedLasers)
+                        DrawModel(LaserModel, laser.SRT, laser.Color);
+                    foreach (var laser in Laser.EnemyLasers)
+                        DrawModel(LaserModel, laser.SRT, laser.Color);
+                    DrawXWing();
                     #endregion
                     break;
             }

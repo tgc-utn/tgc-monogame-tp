@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 /// </summary>
 public abstract class Camera
 {
-    public const float DefaultFieldOfViewDegrees = MathHelper.PiOver4;
+    public const float DefaultFieldOfViewDegrees = MathHelper.Pi / 3;
     public const float DefaultNearPlaneDistance = 0.1f;
     public const float DefaultFarPlaneDistance = 2000;
 

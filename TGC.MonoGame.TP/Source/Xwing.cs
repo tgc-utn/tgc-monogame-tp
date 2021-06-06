@@ -100,9 +100,13 @@ namespace TGC.MonoGame.TP
 
 			return new Vector4(a, b, c, d);
 		}
-		
+		public int GetHPIndex()
+        {
+			return HP / 10;
+        }
 		public void VerifyCollisions(List<Laser> enemyLasers, Trench[,] map)
 		{
+			var Game = TGCGame.Instance;
 			if (barrelRolling)
 				return;
 			var laserHit = false;
@@ -110,8 +114,15 @@ namespace TGC.MonoGame.TP
 			if (hitBy != null)
 			{
 				laserHit = true;
-				HP -= 10;
-				enemyLasers.Remove(hitBy);
+				if(HP > 0)
+					HP -= 10;
+                else
+                {
+                    Game.GameState = TGCGame.GmState.Defeat;
+                    Debug.WriteLine("Defeat");
+					return; //no elimino el laser
+                }
+                enemyLasers.Remove(hitBy);
 			}
 			// me fijo si el xwing esta por debajo del eje Y (posible colision con trench)
 			// y adentro (entre las paredes) del bloque actual
@@ -130,11 +141,12 @@ namespace TGC.MonoGame.TP
 		Vector3 EnginesScale = new Vector3(0.025f, 0.025f, 0.025f);
 		float yawRad, correctedYaw;
 		Vector3 pos;
-
+		public float distanceToCamera = 35f;
 		void updateSRT(MyCamera camera)
 		{
+			//Debug.WriteLine(distanceToCamera);
 			// posicion delante de la camara que uso de referencia
-			pos = camera.Position + camera.FrontDirection * 40;
+			pos = camera.Position + camera.FrontDirection * distanceToCamera;
 			//yaw en radianes, y su correccion inicial
 			yawRad = MathHelper.ToRadians(camera.Yaw);
 			correctedYaw = -yawRad - MathHelper.PiOver2;

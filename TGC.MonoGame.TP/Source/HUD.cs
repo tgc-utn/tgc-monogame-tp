@@ -76,7 +76,8 @@ namespace TGC.MonoGame.TP
                     #region running
                     //topleft
                     Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    Game.SpriteBatch.Draw(Game.TopLeftBar, new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
+                    
+                    Game.SpriteBatch.Draw(Game.HPBar[Game.Xwing.GetHPIndex()], new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
 
                     topMessage = "FPS " + Game.FPS + " HP " + Game.Xwing.HP;
                     Game.SpriteBatch.DrawString(Game.SpriteFont, topMessage, new Vector2(80, 45), Color.White);
@@ -107,8 +108,23 @@ namespace TGC.MonoGame.TP
                     #endregion
                     break;
                 case TGCGame.GmState.Victory:
+                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                    foreach (Button btn in startScreenBtns)
+                        Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
+
+                    Game.SpriteBatch.DrawString(Game.SpriteFont, "victoria", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
+
+                    Game.SpriteBatch.End();
+
                     break;
                 case TGCGame.GmState.Defeat:
+                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                    foreach (Button btn in startScreenBtns)
+                        Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
+                    Game.SpriteBatch.DrawString(Game.SpriteFont, "derrota", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
+
+                    Game.SpriteBatch.End();
+
                     break;
             }
 
