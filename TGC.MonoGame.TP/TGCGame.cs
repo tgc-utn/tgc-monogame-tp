@@ -8,7 +8,6 @@ using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Ships;
 
 
-
 namespace TGC.MonoGame.TP
 {
     /// <summary>
@@ -69,7 +68,6 @@ namespace TGC.MonoGame.TP
         public Texture2D IslandMiscTexture;
         public Texture2D WaterTexture;
 
-
         Matrix MatrixIsland1;
         Matrix MatrixIsland2;
         Matrix MatrixIsland3;
@@ -120,7 +118,6 @@ namespace TGC.MonoGame.TP
         float IslandScaleCollisionTest;
         BoundingSphere IslandSphere;
 
-
         private BoundingSphere[] IslandColliders;
 
         BoundingBox TestBox;
@@ -163,7 +160,7 @@ namespace TGC.MonoGame.TP
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 50);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
 
-            CameraArm = 100.0f;
+            CameraArm = 30.0f;
             shotCam = new BoatCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, CameraArm, 600), screenSize);
 
             Graphics.PreferredBackBufferWidth = 1280;
@@ -174,6 +171,7 @@ namespace TGC.MonoGame.TP
 
             IslandScaleCollisionTest = 0.2f;
             IslandSphere = new BoundingSphere(Vector3.Zero, 400);
+
             base.Initialize();
             //Colliders.
         }
@@ -200,7 +198,7 @@ namespace TGC.MonoGame.TP
 
             ModelWater = Content.Load<Model>(ContentFolder3D + "Island/waterAltaGeo");
             WaterEffect = Content.Load<Effect>(ContentFolderEffects + "WaterShader");
-            WaterTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/Water01Diffuse");
+            WaterTexture = Content.Load<Texture2D>(ContentFolderTextures + "Island/TexturesCom_WaterPlain0012_1_seamless_S");
 
             ModelCasa = Content.Load<Model>(ContentFolder3D + "Island/CasaGeo");
 
@@ -215,7 +213,6 @@ namespace TGC.MonoGame.TP
             ModelRock3 = Content.Load<Model>(ContentFolder3D + "Island/Roca3Geo");
             //ModelRock4 = Content.Load<Model>(ContentFolder3D + "Island/Roca4Geo");
             ModelRock5 = Content.Load<Model>(ContentFolder3D + "Island/Roca5Geo");
-
 
             MatrixIsland1 = Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(300, 0, 800f);
             MatrixIsland2 = Matrix.CreateScale(0.2f);
@@ -264,9 +261,7 @@ namespace TGC.MonoGame.TP
             {
                 new BoundingSphere(MatrixIsland1.Translation, 100), new BoundingSphere(MatrixIsland2.Translation, 300), new BoundingSphere(MatrixIsland3.Translation, radius),
                 new BoundingSphere(MatrixIsland4.Translation, radius), new BoundingSphere(MatrixIsland5.Translation, radius), 
-
                 new BoundingSphere(MatrixCasa.Translation, radius), 
-
                 new BoundingSphere(MatrixRock1.Translation, radius), new BoundingSphere(MatrixRock2.Translation, radius), new BoundingSphere(MatrixRock3.Translation, radius), 
                 new BoundingSphere(MatrixRock4.Translation, radius), new BoundingSphere(MatrixRock5.Translation, radius), new BoundingSphere(MatrixRock6.Translation, radius), 
                 new BoundingSphere(MatrixRock7.Translation, radius), 
@@ -293,8 +288,6 @@ namespace TGC.MonoGame.TP
 
             font = Content.Load<SpriteFont>("Fonts/Font");
 
-
-
             base.LoadContent();
         }
 
@@ -315,8 +308,6 @@ namespace TGC.MonoGame.TP
             Barquito.Update(gameTime);
             PlayerBoat.Update(gameTime);
             shotCam.Update(gameTime);
-
-
             shotCam.Position = PlayerBoat.Position + new Vector3(0, CameraArm, 0);
 
 
@@ -449,7 +440,6 @@ namespace TGC.MonoGame.TP
                 light.Parameters["WorldViewProjection"].SetValue(transform * shotCam.View * shotCam.Projection);
                     foreach (var meshPart in modelMesh.MeshParts) {
                         meshPart.Effect = light;
-
                 }
                 // Once we set these matrices we draw
                 modelMesh.Draw();

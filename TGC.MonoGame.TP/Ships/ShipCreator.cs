@@ -8,6 +8,7 @@ namespace TGC.MonoGame.TP.Ships
     public class Ship
     {
         private TGCGame Game;
+        
         private float time;
 
         private Model ShipModel { get; set; }
@@ -97,7 +98,7 @@ namespace TGC.MonoGame.TP.Ships
             // Esto es el tiempo total transcurrido en el tiempo, siempre se incrementa
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            float WavePosY = GetWaterPositionY(Position.X, Position.Z);
+            float WavePosY = GetWaterPositionY(time);
             Position = new Vector3(Position.X, WavePosY, Position.Z);
             BoatMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationY(Rotation.Y) * Matrix.CreateTranslation(Position);
             FrontDirection = -new Vector3((float)Math.Sin(RotationRadians), 0.0f, (float)Math.Cos(RotationRadians));
@@ -110,43 +111,37 @@ namespace TGC.MonoGame.TP.Ships
             return val - MathF.Floor(val);
         }
 
-        public float GetWaterPositionY(float xPosition, float zPosition)
+        public Vector3 createWave(float time, float steepness, float numWaves, Vector2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, Vector3 position)
         {
-            float fade = MathF.Min(MathF.Cos(time * 0.3f) + 0.5f, 1f);
-            fade = MathF.Max(fade, 0.15f);
+            Vector3 wave = new Vector3(0.0f, 0.0f, 0.0f);
 
+            float spaceMult = (float)(2 * 3.14159265359 / waveLength);
+            float timeMult = (float)(speed * 2 * 3.14159265359 / waveLength);
 
-            float speed = 0.05f;
-            float offset = 10f;
-            float radius = 3f;
-            var worldPosition = Position;
+            Vector2 posXZ = new Vector2(position.X, position.Z);
+            wave.X = waveAmplitude * steepness * waveDir.X * MathF.Cos(Vector2.Dot(posXZ, waveDir) * spaceMult + time * timeMult);
+            wave.Y = 2 * waveAmplitude * MathF.Pow((MathF.Sin(Vector2.Dot(posXZ, waveDir) * spaceMult + time * timeMult) + 1) / 2, peak);
+            wave.Z = waveAmplitude * steepness * waveDir.Y * MathF.Cos(Vector2.Dot(posXZ, waveDir) * spaceMult + time * timeMult);
+            return wave;
+        }
 
-            var posY = 0.4 * MathF.Cos(((float)(xPosition * 0.0075f) * .5f + time * speed) * offset) * radius * 0.5f;
-            posY += (1 - frac(time * 0.1f)) * frac(time * 0.1f) * 0.1f * MathF.Cos((-(float)(zPosition * 0.0075f) + time * speed * 1.3f) * offset) * radius;
+        public float GetWaterPositionY(float time)
+        {   
+            Vector3 worldPosition = Position;
 
-            posY *= 3f + (1 - fade) * 12f;
+            //createWave(float steepness, float numWaves, float2 waveDir, float waveAmplitude, float waveLength, float peak, float speed, float4 position) {
 
+            Vector3 wave1 = createWave(time, 4, 5, new Vector2( 0.5f, 0.3f), 40, 160, 3, 10, worldPosition);
+            Vector3 wave2 = createWave(time, 8, 5, new Vector2(0.8f, -0.4f), 12, 120, 1.2f, 20, worldPosition);
+            Vector3 wave3 = createWave(time, 4, 5, new Vector2(0.3f, 0.2f), 2, 90, 5, 25, worldPosition);
+            Vector3 wave4 = createWave(time, 2, 5, new Vector2(0.4f, 0.25f), 2, 60, 15, 15, worldPosition);
+            Vector3 wave5 = createWave(time, 6, 5, new Vector2(0.1f, 0.8f), 20, 250, 2, 40, worldPosition);
 
+            Vector3 wave6 = createWave(time, 4, 5, new Vector2(-0.5f, -0.3f), 0.5f, 8, 0.2f, 4, worldPosition);
+            Vector3 wave7 = createWave(time, 8, 5, new Vector2(-0.8f, 0.4f), 0.3f, 5, 0.3f, 6, worldPosition);
 
-            worldPosition = new Vector3(xPosition, (float)(posY) * 2, zPosition);
-
-            Position = worldPosition;
-
-            var wavetan1 = Vector3.Normalize(new Vector3(1f,
-                0.4f * MathF.Cos(((float)(xPosition) * .5f + time * speed) * offset) * radius * 0.5f
-                , 0f));
-
-            var wavetan2 = Vector3.Normalize(new Vector3(0,
-                (1 - frac(time * 0.1f)) * frac(time * 0.1f) * 0.1f * MathF.Cos((-(float)(zPosition) + time * speed * 1.3f) * offset) * radius,
-                1));
-
-            var waterNormal = Vector3.Normalize(Vector3.Cross(wavetan2, wavetan1));
-
-            wavesRotation = Rotation - Vector3.Dot(Rotation, waterNormal) * waterNormal;
-
-            waterMatrix = Matrix.CreateLookAt(Vector3.Zero, wavesRotation, waterNormal);
-
-            return (float)posY;
+            worldPosition = (wave1 + wave2 + wave3 + wave4 + wave5 + wave6 * 0.4f + wave7 * 0.6f) / 6;
+            return (float)worldPosition.Y;
         }
     }
 }

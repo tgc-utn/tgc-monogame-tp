@@ -37,7 +37,6 @@
 /processorParam:DebugMode=Auto
 /build:Effects/WaterShader.fx
 
-
 #begin Fonts/Font.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
@@ -63,7 +62,6 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Models/Botes/BarquitoCol.fbx
-
 
 #begin Models/Botes/BarquitoGeo.fbx
 /importer:FbxImporter
@@ -1918,6 +1916,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Botes/T_Transport_M_Transport_Details_OcclusionRoughnessMetallic.TGA
+
+#begin Textures/Island/TexturesCom_WaterPlain0008_1_seamless_S.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Island/TexturesCom_WaterPlain0008_1_seamless_S.jpg
+
+#begin Textures/Island/TexturesCom_WaterPlain0012_1_seamless_S.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Island/TexturesCom_WaterPlain0012_1_seamless_S.jpg
 
 #begin Textures/Island/TropicalIsland01Diffuse.TGA
 /importer:TextureImporter
