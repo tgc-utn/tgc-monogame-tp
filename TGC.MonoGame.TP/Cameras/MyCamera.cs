@@ -186,6 +186,7 @@ namespace TGC.MonoGame.TP
             Yaw = PrevYaw;
             Position = PrevPosition;
             Resuming = false;
+
             TGCGame.Instance.GameState = TGCGame.GmState.Running;
         }
         public void Reset()

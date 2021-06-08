@@ -133,10 +133,15 @@ namespace TGC.MonoGame.TP
 			}
 
 			Enemies.FindAll(enemy => enemy.HP <= 0).
-				ForEach(enemy => 
-					SoundManager.Play3DSoundAt(SoundManager.Effect.TieExplosion, enemy.Position));
+				ForEach(enemy => EnemyDeath(enemy.Position, xwing))  ;
 
 			Enemies.RemoveAll(enemy => enemy.HP <= 0);
+		}
+		static void EnemyDeath(Vector3 pos, Xwing xwing)
+        {
+			SoundManager.Play3DSoundAt(SoundManager.Effect.TieExplosion, pos);
+			//explosion effect
+			xwing.Score += 10;
 		}
 	}
 }

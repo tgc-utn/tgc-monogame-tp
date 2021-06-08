@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 using System.Timers;
 using System.Threading;
+using System.Diagnostics;
 namespace TGC.MonoGame.TP
 {
     /// <summary>
@@ -28,6 +29,8 @@ namespace TGC.MonoGame.TP
         public static Mutex MutexDeltas = new Mutex();
 
         public SpriteFont SpriteFont;
+        public SpriteFont BigFont;
+
         public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
         
@@ -547,6 +550,7 @@ namespace TGC.MonoGame.TP
         public enum GmState
         {
             StartScreen,
+            Options,
             Running,
             Paused,
             Victory,
@@ -555,45 +559,43 @@ namespace TGC.MonoGame.TP
 
         public void ChangeGameStateTo(GmState newState)
         {
-            
-            switch(GameState)
+            if (newState.Equals(GmState.StartScreen))
+            {
+                Xwing.Energy = 10;
+                Xwing.HP = 100;
+                Xwing.Score = 0;
+            }
+            bool switchLater = false;
+            switch (GameState)
             {
                 case GmState.StartScreen:
-                    switch(newState)
+                    if(newState.Equals(GmState.Running))
                     {
-                        case GmState.Running:
-                            Camera.Reset();
-                            SoundManager.StopMusic();
-                            IsMouseVisible = false;
-                            break;
+                        Camera.Reset();
+                        SoundManager.StopMusic();
+                        IsMouseVisible = false;
                     }
                     break;
                 case GmState.Running:
+                    if (newState.Equals(GmState.Paused))
+                    {
+                        Camera.SaveCurrentState();
+                        IsMouseVisible = true;
+                    }
                     break;
+                case GmState.Paused:
+                    if(newState.Equals(GmState.Running))
+                    {
+                        Camera.SoftReset();
+                        switchLater = true;
+                        IsMouseVisible = false;
+                    }
+                    break;
+                
+
             }
-
-
-
-
-            //switch (state)
-            //{
-            //    case GmState.Running:
-            //        Camera.Reset();
-            //        SoundManager.StopMusic();
-            //        IsMouseVisible = false;
-            //        break;
-            //    case BtnType.Continue:
-            //        Game.Camera.SoftReset();
-            //        Game.IsMouseVisible = false;
-            //        break;
-            //    case BtnType.Menu:
-            //        Game.GameState = TGCGame.GmState.StartScreen;
-            //        break;
-            //    case BtnType.Exit:
-            //        Game.Exit();
-            //        break;
-            //}
-            GameState = newState;
+            if(!switchLater)
+                GameState = newState;
         }
     }
 }

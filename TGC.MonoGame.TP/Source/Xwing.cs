@@ -10,6 +10,7 @@ namespace TGC.MonoGame.TP
 	public class Xwing
 	{
 		public int HP { get; set; }
+		public int Score { get; set; }
 		public int Energy = 10;
 		public bool prevBoostState = false;
 		public bool Boosting { get; set; }
@@ -51,6 +52,7 @@ namespace TGC.MonoGame.TP
 		public Xwing()
 		{
 			HP = 100;
+			Score = 0;
 			ScaleMatrix = Matrix.CreateScale(2.5f);
 		}
 		public void Update(float elapsedTime, MyCamera camera)

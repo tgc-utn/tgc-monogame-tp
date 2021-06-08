@@ -45,6 +45,8 @@ namespace TGC.MonoGame.TP
 			if(hitBy != null)
             {
 				SoundManager.Play3DSoundAt(SoundManager.Effect.TurretExplosion, Position);
+				//explosion effect
+				TGCGame.Instance.Xwing.Score += 5;
 				needsRemoval = true;
 			}
 		}

@@ -9,6 +9,7 @@ namespace TGC.MonoGame.TP
     public class HUD
     {
         public List<Button> startScreenBtns= new List<Button>();
+        public List<Button> optionsBtns = new List<Button>();
         public List<Button> pauseBtns = new List<Button>();
         public List<Button> endBtns = new List<Button>();
 
@@ -34,6 +35,8 @@ namespace TGC.MonoGame.TP
             startScreenBtns.Clear();
             pauseBtns.Clear();
             endBtns.Clear();
+            optionsBtns.Clear();
+
 
             startScreenBtns.Add(
                 new Button(BtnType.Play, btnCenter - new Point(0, btnDelta), Game.BtnPlay, btnScale));
@@ -54,11 +57,22 @@ namespace TGC.MonoGame.TP
             endBtns.Add(
                 new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), Game.BtnExit, btnScale));
 
+            // + volume sliders
+            optionsBtns.Add(
+                new Button(BtnType.Menu, btnCenter, Game.BtnMenu, btnScale));
+            optionsBtns.Add(
+                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), Game.BtnExit, btnScale));
+
+
         }
         public void Draw()
         {
             String topMessage;
-           
+
+
+            Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+            Game.SpriteBatch.DrawString(Game.SpriteFont, "" + Game.GameState, new Vector2(size.X / 2 - 100f, 45), Color.White);
+            Game.SpriteBatch.End();
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
@@ -72,6 +86,13 @@ namespace TGC.MonoGame.TP
                     
                     #endregion
                     break;
+                case TGCGame.GmState.Options:
+                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                    
+                    Game.SpriteBatch.DrawString(Game.SpriteFont, "proximamente", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
+
+                    Game.SpriteBatch.End();
+                    break;
                 case TGCGame.GmState.Running:
                     #region running
                     //topleft
@@ -81,9 +102,10 @@ namespace TGC.MonoGame.TP
 
                     topMessage = "FPS " + Game.FPS + " HP " + Game.Xwing.HP;
                     Game.SpriteBatch.DrawString(Game.SpriteFont, topMessage, new Vector2(80, 45), Color.White);
-                    
-                   
-                    
+
+
+                    //Game.SpriteBatch.DrawString(Game.SpriteFont, "score " + Game.Xwing.Score, new Vector2(size.X / 2 - 100f, 45), Color.Cyan);
+                    //Game.SpriteBatch.DrawString(Game.SpriteFont, "score",Vector2.Zero, Color.Cyan, 1f, Vector2.Zero, 1f, SpriteEffects.None, 1f);
 
                     //energy
                     Game.SpriteBatch.Draw(Game.HudEnergy[Game.Xwing.Energy], new Vector2(size.X - 300f, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
@@ -146,45 +168,49 @@ namespace TGC.MonoGame.TP
             {
                 case TGCGame.GmState.StartScreen:
                     clicked = startScreenBtns.FindAll(btn => btn.Box.Intersects(mouse));
-                    ChangeGameState(clicked);
+                    ProcessClick(clicked);
                     break;
                 
+                case TGCGame.GmState.Options:
+                    clicked = optionsBtns.FindAll(btn => btn.Box.Intersects(mouse));
+                    ProcessClick(clicked);
+                    break;
+
                 case TGCGame.GmState.Paused:
                     clicked = pauseBtns.FindAll(btn => btn.Box.Intersects(mouse));
-                    ChangeGameState(clicked);
+                    ProcessClick(clicked);
                     
                     break;
                 case TGCGame.GmState.Victory:
                     clicked = endBtns.FindAll(btn => btn.Box.Intersects(mouse));
-                    ChangeGameState(clicked);
+                    ProcessClick(clicked);
 
                     break;
                 case TGCGame.GmState.Defeat:
                     clicked = endBtns.FindAll(btn => btn.Box.Intersects(mouse));
-                    ChangeGameState(clicked);
+                    ProcessClick(clicked);
 
                     break;
             }
         }
-        void ChangeGameState(List<Button> clicked)
+        void ProcessClick(List<Button> clicked)
         {
             if (clicked.Count == 0)
                 return;
-
-            switch(clicked[0].Type)
+ 
+            switch (clicked[0].Type)
             {
                 case BtnType.Play:
-                    Game.Camera.Reset();
-                    SoundManager.StopMusic();
-                    Game.GameState = TGCGame.GmState.Running;
-                    Game.IsMouseVisible = false;
+                    Game.ChangeGameStateTo(TGCGame.GmState.Running);
                     break;
                 case BtnType.Continue:
-                    Game.Camera.SoftReset();
-                    Game.IsMouseVisible = false;
+                    Game.ChangeGameStateTo(TGCGame.GmState.Running);
+                    break;
+                case BtnType.Options:
+                    Game.ChangeGameStateTo(TGCGame.GmState.Options);
                     break;
                 case BtnType.Menu:
-                    Game.GameState = TGCGame.GmState.StartScreen;
+                    Game.ChangeGameStateTo(TGCGame.GmState.StartScreen);
                     break;
                 case BtnType.Exit:
                     Game.Exit();

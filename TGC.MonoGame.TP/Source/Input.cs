@@ -46,16 +46,24 @@ namespace TGC.MonoGame.TP
                     Game.HUD.Init();
                 }
             }
-
+            if (kState.IsKeyDown(Keys.V))
+            {
+                if (!ignoredKeys.Contains(Keys.V))
+                {
+                    ignoredKeys.Add(Keys.V);
+                    Game.IsFixedTimeStep = !Game.IsFixedTimeStep;
+                }
+            }
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
                     #region start
                     if (kState.IsKeyDown(Keys.Enter))
                     {
-                        Game.GameState = TGCGame.GmState.Running;
-                        Game.Camera.Reset();
-                        SoundManager.StopMusic();
+                        Game.ChangeGameStateTo(TGCGame.GmState.Running);
+                        //Game.GameState = TGCGame.GmState.Running;
+                        //Game.Camera.Reset();
+                        //SoundManager.StopMusic();
                     }
                     #endregion
                     break;
@@ -83,24 +91,20 @@ namespace TGC.MonoGame.TP
                         if (!ignoredKeys.Contains(Keys.Escape))
                         {
                             ignoredKeys.Add(Keys.Escape);
-                            Game.GameState = TGCGame.GmState.Paused;
-                            Game.Camera.SaveCurrentState();
-                            //Game.Camera.= MathHelper.ToRadians(Game.Camera.Yaw) + MathHelper.Pi;
-                            Game.IsMouseVisible = true;
+
+                            Game.ChangeGameStateTo(TGCGame.GmState.Paused);
+
+                            //Game.GameState = TGCGame.GmState.Paused;
+                            //Game.Camera.SaveCurrentState();
+                            ////Game.Camera.= MathHelper.ToRadians(Game.Camera.Yaw) + MathHelper.Pi;
+                            //Game.IsMouseVisible = true;
                         }
                     }
                     if (kState.IsKeyDown(Keys.F))
                     {
                         Game.Xwing.fireLaser();
                     }
-                    if (kState.IsKeyDown(Keys.V))
-                    {
-                        if (!ignoredKeys.Contains(Keys.V))
-                        {
-                            ignoredKeys.Add(Keys.V);
-                            Game.IsFixedTimeStep = !Game.IsFixedTimeStep;
-                        }
-                    }
+                    
                     
                     if (kState.IsKeyDown(Keys.M))
                     {
@@ -210,16 +214,23 @@ namespace TGC.MonoGame.TP
                         if (!ignoredKeys.Contains(Keys.Escape))
                         {
                             ignoredKeys.Add(Keys.Escape);
-                            //Game.GameState = TGCGame.GmState.Running;
-                            Game.Camera.SoftReset();
-                            Game.IsMouseVisible = false;
+                            Game.ChangeGameStateTo(TGCGame.GmState.Running);
+                            ////Game.GameState = TGCGame.GmState.Running;
+                            //Game.Camera.SoftReset();
+                            //Game.IsMouseVisible = false;
                         }
                     }
                     
                     break;
                 case TGCGame.GmState.Victory:
-                    break;
+                    if (kState.IsKeyDown(Keys.Escape))
+                        Game.Exit();
+                    
+                        break;
                 case TGCGame.GmState.Defeat:
+                    if (kState.IsKeyDown(Keys.Escape))
+                        Game.Exit();
+
                     break;
             }
             ignoredKeys.RemoveAll(kState.IsKeyUp);
