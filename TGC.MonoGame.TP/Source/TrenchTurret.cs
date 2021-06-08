@@ -14,8 +14,12 @@ namespace TGC.MonoGame.TP
 		public Vector3 FrontDirection { get; set; }
 		public float Time;
 		public List<Laser> fired = new List<Laser>();
+
+		public BoundingBox BoundingBox;
+		public bool needsRemoval = false;
 		public TrenchTurret()
 		{
+			randomFireRate();
 		}
 		float angleBetweenVectors(Vector3 a, Vector3 b)
 		{
@@ -33,7 +37,17 @@ namespace TGC.MonoGame.TP
 			updateFireRate();
 			if(xwing.Position.Y > 0)
 				fireLaser();
+			verifyColision();
         }
+		void verifyColision()
+        {
+			Laser hitBy = Laser.AlliedLasers.Find(laser => laser.Hit(BoundingBox));
+			if(hitBy != null)
+            {
+				SoundManager.Play3DSoundAt(SoundManager.Effect.TurretExplosion, Position);
+				needsRemoval = true;
+			}
+		}
 		public void updateDirectionVectors()
 		{
 		
@@ -43,18 +57,27 @@ namespace TGC.MonoGame.TP
 			//System.Diagnostics.Debug.WriteLine(yaw + " " + pitch); 
 		}
 		float betweenFire = 0f;
-		float fireRate = 0.010f;
+		float fireRate;
 		public void updateFireRate()
 		{
 			betweenFire += fireRate * 30f * Time;
+		}
+		void randomFireRate()
+        {
+			Random r = new Random();
+			fireRate = (float)(0.001d + r.NextDouble() * 0.015d);
 		}
 		public void fireLaser()
 		{
 			//System.Diagnostics.Debug.WriteLine(Time + " " + betweenFire);
 			if (betweenFire < 1)
 				return;
-			var Game = TGCGame.Instance;
-			//SoundManager.Play3DSoundAt(Game.soundTurretLaser, Position);
+
+			randomFireRate();
+
+
+			SoundManager.Play3DSoundAt(SoundManager.Effect.TurretLaser, Position);
+
 			betweenFire = 0;
 			Matrix rotation = Matrix.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
 			Matrix SRT =

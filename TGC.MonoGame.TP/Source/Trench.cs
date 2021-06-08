@@ -449,22 +449,24 @@ namespace TGC.MonoGame.TP
                         S * R * Matrix.CreateRotationY(MathHelper.ToRadians(block.Rotation)) *
                         Matrix.CreateTranslation(block.Position) * T;
 
-                    var turretPos = block.Position - new Vector3(0, 0, 0);
-
+                    
                     if (r < 30) // %30 chance de tener una torre
                         block.Turrets.Add(new TrenchTurret());
                     if (r < 10) // %10 chance de tener dos
                         block.Turrets.Add(new TrenchTurret());
-                    
+
+					var tsize = 10f;
+
                     int index = 0;
                     foreach (var turret in block.Turrets)
                     {
-
-                        turret.Position = block.Position + turretDelta[index];
+						turret.Position = block.Position + turretDelta[index];
                         turret.S = S;
                         turret.SRT = S * R * Matrix.CreateTranslation(turret.Position);
-                        turretPos += new Vector3(0, 0, 20);
-                        index++;
+                        turret.BoundingBox = new BoundingBox(turret.Position - new Vector3(tsize), turret.Position + new Vector3(tsize));
+                        //turret.BoundingBox = BoundingVolumesExtensions.CreateAABBFrom(TGCGame.TrenchTurret);
+                        //turret.BoundingBox
+                        index++;                        
                     }
 
                     tz += delta;

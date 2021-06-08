@@ -18,6 +18,7 @@ namespace TGC.MonoGame.TP
 		public Vector3 Position { get; set; }
 		public Vector3 FrontDirection { get; set; }
 		public Vector3 Color;
+		OrientedBoundingBox BoundingBox;
 		BoundingCylinder BoundingCylinder;
 		public float Age = 0f;
 		public float MaxAge = 1f;
@@ -32,6 +33,12 @@ namespace TGC.MonoGame.TP
 
 			BoundingCylinder = new BoundingCylinder(Position, 10f, 20f);
 			BoundingCylinder.Rotation = rotation;
+
+			var tempAABB = BoundingVolumesExtensions.CreateAABBFrom(TGCGame.Instance.LaserModel);
+			tempAABB = BoundingVolumesExtensions.Scale(tempAABB, 0.5f);
+			BoundingBox = OrientedBoundingBox.FromAABB(tempAABB);
+			BoundingBox.Center = pos;
+			BoundingBox.Orientation = rotation;
 		}
 		public void Update(float time, Vector4 zone)
 		{
@@ -42,13 +49,23 @@ namespace TGC.MonoGame.TP
 			Position += translation;
 
 
-			BoundingCylinder.Move(translation);
+			//BoundingCylinder.Move(translation);
+
+			BoundingBox.Center = Position;
 			SRT *= Matrix.CreateTranslation(translation);
 			UpdateVisibility(zone);
 		}
 		public bool Hit(BoundingSphere sphere)
 		{
-			return BoundingCylinder.Intersects(sphere);
+			//return BoundingCylinder.Intersects(sphere);
+			return BoundingBox.Intersects(sphere);
+		}
+		public bool Hit(BoundingBox box)
+		{
+			return BoundingBox.Intersects(box);
+
+			//var inter = BoundingCylinder.Intersects(box);
+			//return inter.GetType().Equals(BoxCylinderIntersection.Intersecting);
 		}
 		void UpdateVisibility(Vector4 zone)
         {

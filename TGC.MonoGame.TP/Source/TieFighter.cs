@@ -31,19 +31,18 @@ namespace TGC.MonoGame.TP
 			World = w;
 			SRT = srt;
 			boundingSphere = new BoundingSphere(Position, 30f);
+
+			randomFireRate();
 		}
 		float betweenFire = 0f;
-		float fireRate = 0.025f;
+		float fireRate;
 
 		//float angleBetweenVectors(Vector3 a, Vector3 b)
 		//{
 		//	var cross = Vector3.Cross(a, b);
 		//	return MathF.Asin(cross.Length() / (a.Length() * b.Length()));
 		//}
-		float angleBetweenVectors(Vector3 a, Vector3 b)
-		{
-			return MathF.Acos(Vector3.Dot(a, b) / (a.Length() * b.Length()));
-		}
+		
 		public void Update(Xwing xwing, float time)
 		{
 
@@ -64,6 +63,11 @@ namespace TGC.MonoGame.TP
 		{
 			betweenFire += fireRate * 30f * Time;
 		}
+		void randomFireRate()
+		{
+			Random r = new Random();
+			fireRate = (float)(0.001d + r.NextDouble() * 0.05d);
+		}
 		public void fireLaser()
 		{
 			//System.Diagnostics.Debug.WriteLine(Time + " " + betweenFire);
@@ -71,10 +75,12 @@ namespace TGC.MonoGame.TP
 				return;
 
 			betweenFire = 0;
-            var Game = TGCGame.Instance;
-			//SoundManager.Play3DSoundAt(Game.soundLaser, Position, 0.2f) ;
+			randomFireRate();
 
-			Matrix rotation = Matrix.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
+			var Game = TGCGame.Instance;
+            SoundManager.Play3DSoundAt(SoundManager.Effect.Laser, Position);
+            //SoundManager.Play3DSound(Game.soundLaser, Position);
+            Matrix rotation = Matrix.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
 			Matrix SRT =
 				Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f)) *
 				rotation *
@@ -105,7 +111,7 @@ namespace TGC.MonoGame.TP
 		{
 			Random rnd = new Random();
 			int maxEnemies = 2;
-			int distance = 400;
+			int distance = 300;
 			for (int i = 0; i < maxEnemies - Enemies.Count; i++)
 			{
 				Vector3 random = new Vector3(rnd.Next(-distance, distance), 0f, rnd.Next(-distance, distance));
@@ -125,7 +131,12 @@ namespace TGC.MonoGame.TP
 				enemy.VerifyCollisions(Laser.AlliedLasers);
 				enemy.fireLaser();
 			}
-            Enemies.RemoveAll(enemy => enemy.HP <= 0);
+
+			Enemies.FindAll(enemy => enemy.HP <= 0).
+				ForEach(enemy => 
+					SoundManager.Play3DSoundAt(SoundManager.Effect.TieExplosion, enemy.Position));
+
+			Enemies.RemoveAll(enemy => enemy.HP <= 0);
 		}
 	}
 }

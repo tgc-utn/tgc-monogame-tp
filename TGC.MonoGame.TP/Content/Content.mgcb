@@ -321,17 +321,107 @@
 /processorParam:Quality=Best
 /build:Sounds/boostStop.wav
 
+#begin Sounds/distant1L.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/distant1L.wav
+
+#begin Sounds/distant1R.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/distant1R.wav
+
+#begin Sounds/distant2L.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/distant2L.wav
+
+#begin Sounds/distant2R.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/distant2R.wav
+
+#begin Sounds/distant3L.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/distant3L.wav
+
+#begin Sounds/distant3R.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/distant3R.wav
+
 #begin Sounds/laser.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/laser.wav
 
+#begin Sounds/laserL.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/laserL.wav
+
+#begin Sounds/laserR.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/laserR.wav
+
+#begin Sounds/repair.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/repair.wav
+
+#begin Sounds/tieExplosionL.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/tieExplosionL.wav
+
+#begin Sounds/tieExplosionR.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/tieExplosionR.wav
+
+#begin Sounds/turretExplosionL.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/turretExplosionL.wav
+
+#begin Sounds/turretExplosionR.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/turretExplosionR.wav
+
 #begin Sounds/turretLaser.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/turretLaser.wav
+
+#begin Sounds/turretLaserL.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/turretLaserL.wav
+
+#begin Sounds/turretLaserR.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/turretLaserR.wav
 
 #begin SpriteFonts/Arial.spritefont
 /importer:FontDescriptionImporter
@@ -358,6 +448,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Crosshair/crosshair.png
+
+#begin Textures/Crosshair/CrosshairAlpha.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Crosshair/CrosshairAlpha.png
 
 #begin Textures/Crosshair/crosshair-red.png
 /importer:TextureImporter
@@ -718,6 +820,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/TIE/TIE_IN_Diff.png
+
+#begin Textures/Trench/MetalSurface.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Trench/MetalSurface.jpg
 
 #begin Textures/Trench/Plates.png
 /importer:TextureImporter

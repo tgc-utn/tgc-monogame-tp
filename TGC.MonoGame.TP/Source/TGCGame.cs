@@ -59,16 +59,16 @@ namespace TGC.MonoGame.TP
         private static Model TrenchT { get; set; }
         private static Model TrenchIntersection { get; set; }
         private static Model TrenchElbow { get; set; }
-        private static Model TrenchTurret { get; set; }
+        public static Model TrenchTurret { get; set; }
         public Trench[,] Map { get; set; }
         public const int MapSize = 21; //21x21
         public float MapLimit;
         private Model Trench2 { get; set; }
         Model skyboxModel;
-        private Model LaserModel { get; set; }
+        public Model LaserModel { get; set; }
         private Effect EffectTexture { get; set; }
         private Effect Effect { get; set; }
-        private Effect EffectLight { get; set; }
+        public Effect EffectLight { get; set; }
         public float PausedCameraRotation { get; set; }
 
         private Texture TieTexture;
@@ -84,18 +84,13 @@ namespace TGC.MonoGame.TP
         public int FPS;
         
         public MyCamera Camera { get; set; }
+        public MyCamera LookBack { get; set; }
+        public MyCamera SelectedCamera { get; set; }
         public Vector2 MouseXY;
         public Input Input;
         public HUD HUD;
         
-        public SoundEffect soundLaser;
-        public SoundEffect soundTurretLaser;
-        public SoundEffect soundBoost;
-        public SoundEffect soundBoostStop;
-        public SoundEffect soundTieExplosion;
-        public SoundEffect soundTurretExplosion;
-        public Song mainTheme;
-
+        
 
         protected override void Initialize()
         {
@@ -130,8 +125,9 @@ namespace TGC.MonoGame.TP
             // Creo una camara libre con parametros de pitch, yaw que se puede mover con WASD, y rotar con mouse o flechas
             Camera = new MyCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, size);
 
-        
-            
+            LookBack = new MyCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, size);
+
+            SelectedCamera = Camera;
             //int mapSize = 9; //9x9
             //Algoritmo de generacion de mapa recursivo (ver debug output)
             Map = Trench.GenerateMap(MapSize);
@@ -158,6 +154,9 @@ namespace TGC.MonoGame.TP
             return textures.ToArray() ;
         }
 
+        public float kd = 0.8f;
+        public float ks = 0.4f;
+
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
@@ -181,11 +180,13 @@ namespace TGC.MonoGame.TP
 
             Xwing.Textures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
+
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
 
-            TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/Plates");
+            TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/MetalSurface");
             Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red")};
+                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshairAlpha")};
             
             HudEnergy = loadNumberedTextures("HUD/Energy/", 0, 10, 1);
             HPBar = loadNumberedTextures("HUD/TopLeft/", 0, 100, 10);
@@ -200,14 +201,8 @@ namespace TGC.MonoGame.TP
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
             System.Diagnostics.Debug.WriteLine("loading skybox.");
 
-            soundLaser = Content.Load<SoundEffect>(ContentFolderSounds + "laser");
-            soundTurretLaser = Content.Load<SoundEffect>(ContentFolderSounds + "turretLaser");
-            soundBoost = Content.Load<SoundEffect>(ContentFolderSounds + "boost");
-            soundBoostStop = Content.Load<SoundEffect>(ContentFolderSounds + "boostStop");
-
-            mainTheme = Content.Load<Song>(ContentFolderMusic + "TheImperialMarch");
-
-            SoundManager.PlayMusic(mainTheme);
+            SoundManager.LoadContent();
+           
 
             //Skybox
             skyboxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
@@ -225,15 +220,15 @@ namespace TGC.MonoGame.TP
             EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
             EffectTexture.Parameters["TextureMultiplier"].SetValue(1f);
 
-            EffectLight.Parameters["baseTexture"].SetValue(TrenchTexture);
-            EffectLight.Parameters["ambientColor"].SetValue(new Vector3(0.25f, 0.25f, 0.25f));
-            EffectLight.Parameters["diffuseColor"].SetValue(new Vector3(0.6f, 0.6f, 0.6f));
+            
+            EffectLight.Parameters["ambientColor"].SetValue(new Vector3(1f, 1f, 1f));
+            EffectLight.Parameters["diffuseColor"].SetValue(new Vector3(1f, 1f, 1f));
             EffectLight.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
 
-            EffectLight.Parameters["KAmbient"].SetValue(0.5f);
-            EffectLight.Parameters["KDiffuse"].SetValue(5.0f);
-            EffectLight.Parameters["KSpecular"].SetValue(20f);
-            EffectLight.Parameters["shininess"].SetValue(40f);
+            EffectLight.Parameters["KAmbient"].SetValue(0.3f);
+            EffectLight.Parameters["KDiffuse"].SetValue(kd);
+            EffectLight.Parameters["KSpecular"].SetValue(ks) ;
+            EffectLight.Parameters["shininess"].SetValue(3f);
             
             Trench.UpdateTrenches();
             
@@ -248,8 +243,7 @@ namespace TGC.MonoGame.TP
             Laser.MapLimit = MapLimit;
             Laser.MapSize = MapSize;
             Laser.BlockSize = blockSize;
-            TieFighter.GenerateEnemies(Xwing);
-
+            
             base.LoadContent();
         }
 
@@ -286,11 +280,15 @@ namespace TGC.MonoGame.TP
                     Vector4 zone = Xwing.GetZone();
 
                     //enemyLasers.Clear();
+                    
 
                     for (int x = (int)zone.X; x < zone.Y; x++)
                         for (int z = (int)zone.Z; z < zone.W; z++)
-                            foreach (var turret in Map[x, z].Turrets)
-                                turret.Update(Xwing, elapsedTime);
+                        {
+                            Map[x, z].Turrets.ForEach(turret => turret.Update(Xwing, elapsedTime));
+                            Map[x, z].Turrets.RemoveAll(turret => turret.needsRemoval);
+                        }
+
                     Laser.UpdateAll(elapsedTime, Xwing);
 
                     //Colisiones
@@ -299,8 +297,10 @@ namespace TGC.MonoGame.TP
 
                     TieFighter.UpdateEnemies(elapsedTime, Xwing);
 
-                    EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left * 500 + Vector3.Up * 500);
-                    EffectLight.Parameters["eyePosition"].SetValue(Camera.Position);
+                    EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left * 500 + Vector3.Up * 50);
+                    EffectLight.Parameters["eyePosition"].SetValue(SelectedCamera.Position);
+
+                    SoundManager.UpdateRandomDistantSounds(elapsedTime);
                     #endregion
                     break;
                 case GmState.Paused:
@@ -364,15 +364,20 @@ namespace TGC.MonoGame.TP
             //GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             //Configuro efectos
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            EffectTexture.Parameters["View"].SetValue(Camera.View);
-            EffectTexture.Parameters["Projection"].SetValue(Camera.Projection);
+
+            var CameraView = SelectedCamera.View;
+            var CameraProjection = SelectedCamera.Projection;
+            var CameraPosition = SelectedCamera.Position;
+
+            Effect.Parameters["View"].SetValue(CameraView);
+            Effect.Parameters["Projection"].SetValue(CameraProjection);
+            EffectTexture.Parameters["View"].SetValue(CameraView);
+            EffectTexture.Parameters["Projection"].SetValue(CameraProjection);
 
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
 
-            SkyBox.Draw(Camera.View, Camera.Projection, Camera.Position);
+            SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
             
             switch (GameState)
             {
@@ -444,6 +449,7 @@ namespace TGC.MonoGame.TP
         
         void DrawTrench(Trench t)
         {
+            EffectLight.Parameters["baseTexture"].SetValue(TrenchTexture);
             Matrix world;
             foreach (var mesh in t.Model.Meshes)
             {
@@ -451,7 +457,7 @@ namespace TGC.MonoGame.TP
 
                 EffectLight.Parameters["World"].SetValue(world);
                 EffectLight.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
-                EffectLight.Parameters["WorldViewProjection"].SetValue(world * Camera.View * Camera.Projection);
+                EffectLight.Parameters["WorldViewProjection"].SetValue(world * SelectedCamera.View * SelectedCamera.Projection);
 
                 mesh.Draw();
             }
@@ -463,7 +469,7 @@ namespace TGC.MonoGame.TP
 
                     EffectLight.Parameters["World"].SetValue(world);
                     EffectLight.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
-                    EffectLight.Parameters["WorldViewProjection"].SetValue(world * Camera.View * Camera.Projection);
+                    EffectLight.Parameters["WorldViewProjection"].SetValue(world * SelectedCamera.View * SelectedCamera.Projection);
 
                     mesh.Draw();
                 }
@@ -545,6 +551,49 @@ namespace TGC.MonoGame.TP
             Paused,
             Victory,
             Defeat
+        }
+
+        public void ChangeGameStateTo(GmState newState)
+        {
+            
+            switch(GameState)
+            {
+                case GmState.StartScreen:
+                    switch(newState)
+                    {
+                        case GmState.Running:
+                            Camera.Reset();
+                            SoundManager.StopMusic();
+                            IsMouseVisible = false;
+                            break;
+                    }
+                    break;
+                case GmState.Running:
+                    break;
+            }
+
+
+
+
+            //switch (state)
+            //{
+            //    case GmState.Running:
+            //        Camera.Reset();
+            //        SoundManager.StopMusic();
+            //        IsMouseVisible = false;
+            //        break;
+            //    case BtnType.Continue:
+            //        Game.Camera.SoftReset();
+            //        Game.IsMouseVisible = false;
+            //        break;
+            //    case BtnType.Menu:
+            //        Game.GameState = TGCGame.GmState.StartScreen;
+            //        break;
+            //    case BtnType.Exit:
+            //        Game.Exit();
+            //        break;
+            //}
+            GameState = newState;
         }
     }
 }

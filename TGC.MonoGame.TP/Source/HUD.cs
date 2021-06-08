@@ -83,14 +83,20 @@ namespace TGC.MonoGame.TP
                     Game.SpriteBatch.DrawString(Game.SpriteFont, topMessage, new Vector2(80, 45), Color.White);
                     
                    
-                    var scale = 0.1f;
-                    var sz = 512 * scale;
+                    
 
                     //energy
                     Game.SpriteBatch.Draw(Game.HudEnergy[Game.Xwing.Energy], new Vector2(size.X - 300f, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
-                    
+
                     //Crosshair
-                    Game.SpriteBatch.Draw(Game.Crosshairs[0], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
+                    if (Game.SelectedCamera.Equals(Game.Camera))
+                    {
+                        //var scale = 0.1f; 
+                        //var sz = 512 * scale;
+                        var scale = 0.2f;
+                        var sz = 300 * scale;
+                        Game.SpriteBatch.Draw(Game.Crosshairs[2], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
+                    }
                     Game.SpriteBatch.End();
                     #endregion
                     break;
@@ -109,7 +115,7 @@ namespace TGC.MonoGame.TP
                     break;
                 case TGCGame.GmState.Victory:
                     Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    foreach (Button btn in startScreenBtns)
+                    foreach (Button btn in endBtns)
                         Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
 
                     Game.SpriteBatch.DrawString(Game.SpriteFont, "victoria", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
@@ -119,7 +125,7 @@ namespace TGC.MonoGame.TP
                     break;
                 case TGCGame.GmState.Defeat:
                     Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    foreach (Button btn in startScreenBtns)
+                    foreach (Button btn in endBtns)
                         Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
                     Game.SpriteBatch.DrawString(Game.SpriteFont, "derrota", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
 

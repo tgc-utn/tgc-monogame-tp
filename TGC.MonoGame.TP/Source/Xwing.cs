@@ -114,13 +114,16 @@ namespace TGC.MonoGame.TP
 			if (hitBy != null)
 			{
 				laserHit = true;
-				if(HP > 0)
-					HP -= 10;
-                else
+				HP -= 10;
+                
+				if(HP <= 0)
                 {
-                    Game.GameState = TGCGame.GmState.Defeat;
-                    Debug.WriteLine("Defeat");
-					return; //no elimino el laser
+					SoundManager.Play3DSoundAt(SoundManager.Effect.TurretExplosion, Position);
+					SoundManager.StopSound(soundBoost);
+					Game.GameState = TGCGame.GmState.Defeat;
+                    Game.SelectedCamera = Game.Camera;
+                    //               Debug.WriteLine("Defeat");
+                    return; //no elimino el laser
                 }
                 enemyLasers.Remove(hitBy);
 			}
@@ -152,7 +155,8 @@ namespace TGC.MonoGame.TP
 			correctedYaw = -yawRad - MathHelper.PiOver2;
 			// actualizo pitch y yaw
 			Pitch = camera.Pitch;
-			Yaw = MathHelper.ToDegrees(correctedYaw);
+			Yaw = camera.Yaw;
+			
 			// armo la matriz de rotacion en base a pitch, roll, yaw
 			YPR = Matrix.CreateFromYawPitchRoll(correctedYaw, MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll));
 
@@ -266,12 +270,11 @@ namespace TGC.MonoGame.TP
             {
 				boostTime = 0f;
 				if (Boosting)
-					soundBoost = SoundManager.PlaySound(Game.soundBoost, 0.45f);
+					soundBoost = SoundManager.PlaySound(SoundManager.Effect.Boost, 0.35f);
 				else
 				{
 					SoundManager.StopSound(soundBoost);
-					SoundManager.PlaySound(Game.soundBoostStop, 0.35f);
-			
+					SoundManager.PlaySound(SoundManager.Effect.BoostStop, 0.25f);
 				}
 
 			}
@@ -320,8 +323,8 @@ namespace TGC.MonoGame.TP
 			betweenFire = 0;
 
 			var Game = TGCGame.Instance;
-            SoundManager.Play3DSoundAt(Game.soundLaser, Position, 0.2f);
-
+			//SoundManager.Play3DSoundAt(SoundManager.Effect.XwingLaser, Position);
+			SoundManager.PlaySound(SoundManager.Effect.XwingLaser, 0.2f);
             scale = Matrix.CreateScale(new Vector3(0.07f, 0.07f, 0.4f));
 			float[] corr = new float[]{
 			MathHelper.ToRadians(Yaw + yawCorrection),
@@ -350,10 +353,10 @@ namespace TGC.MonoGame.TP
 			laserFront = Vector3.Normalize(laserFront);
 
 			for (var i = 0; i < 4; i++)
-				laserSRT[i] = scale * rot[i] * translation * t[i];
+				laserSRT[i] = scale * YPR * translation * t[i];
 
 
-			Laser.AlliedLasers.Add(new Laser(Position, rot[LaserFired], laserSRT[LaserFired], FrontDirection, laserColor));
+			Laser.AlliedLasers.Add(new Laser(Position, YPR, laserSRT[LaserFired], FrontDirection, laserColor));
 
 			LaserFired++;
 			LaserFired %= 4;

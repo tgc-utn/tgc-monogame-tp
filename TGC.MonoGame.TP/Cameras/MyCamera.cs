@@ -21,6 +21,12 @@ namespace TGC.MonoGame.TP
         public float MapLimit;
         public int MapSize;
         public float BlockSize;
+        public float MovementSpeed { get; set; } = 80f;
+        public float MouseSensitivity { get; set; } = 10f;
+        float CurrentMovementSpeed, CurrentTurnSpeed, SpeedMultiplier = 1f;
+
+        bool debugging = false;
+
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
             this.screenCenter = screenCenter;
@@ -33,10 +39,6 @@ namespace TGC.MonoGame.TP
             CalculateView();
         }
 
-        public float MovementSpeed { get; set; } = 80f;
-        public float MouseSensitivity { get; set; } = 10f;
-
-        float CurrentMovementSpeed, CurrentTurnSpeed, SpeedMultiplier = 1f;
         private void CalculateView()
         {
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
@@ -61,23 +63,32 @@ namespace TGC.MonoGame.TP
         {
             var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             var Game = TGCGame.Instance;
+            var lookBackCamera = Game.LookBack;
             CurrentMovementSpeed = MovementSpeed * elapsedTime * SpeedMultiplier;
             
             if (previousSpeedMul != SpeedMultiplier)
             {
                 FieldOfView = SpeedMultiplier * 0.05f + DefaultFieldOfViewDegrees;
+                
                 //Game.Xwing.distanceToCamera = 40 - SpeedMultiplier * 1.6f;
                 UpdateProjection();
+                lookBackCamera.FieldOfView = FieldOfView;
+                lookBackCamera.UpdateProjection();
             }
             previousSpeedMul = SpeedMultiplier;
 
             CurrentTurnSpeed = turnSpeed * elapsedTime;
             //continously moving forward
-            Position += FrontDirection * CurrentMovementSpeed;
-
+            if(!debugging)
+                Position += FrontDirection * CurrentMovementSpeed;
 
             UpdateCameraVectors();
             CalculateView();
+
+            lookBackCamera.Position = Position + FrontDirection * 80;
+            lookBackCamera.FrontDirection = -FrontDirection;
+            lookBackCamera.CalculateView();
+
         }
         public bool Resuming = false;
         float PauseRotation = 0f;
@@ -187,87 +198,85 @@ namespace TGC.MonoGame.TP
         {
             var keyboardState = Keyboard.GetState();
             SpeedMultiplier = 1f;
-            //xwing.Boosting = false;
-            if (keyboardState.IsKeyDown(Keys.W))
+            if (!debugging)
             {
-                if (xwing.Energy > 0 && !xwing.BoostLock)
+                if (keyboardState.IsKeyDown(Keys.W))
                 {
-                    xwing.Boosting = true;
-                    SpeedMultiplier = 1f + 6f * xwing.boostTime;
-                    //Debug.WriteLine(SpeedMultiplier);
+                    if (xwing.Energy > 0 && !xwing.BoostLock)
+                    {
+                        xwing.Boosting = true;
+                        SpeedMultiplier = 1f + 6f * xwing.boostTime;
+                        //Debug.WriteLine(SpeedMultiplier);
+                    }
+                    else if (xwing.Energy == 0 && xwing.Boosting)
+                    {
+                        xwing.BoostLock = true;
+                        xwing.Boosting = false;
+                    }
+                    else if (xwing.Energy >= 3 && xwing.BoostLock)
+                    {
+                        xwing.BoostLock = false;
+                    }
                 }
-                else if (xwing.Energy == 0 && xwing.Boosting)
+                else if (keyboardState.IsKeyDown(Keys.S))
                 {
-                    xwing.BoostLock = true;
+                    xwing.Boosting = false;
+                    SpeedMultiplier = 0.5f;
+                }
+                else
+                {
                     xwing.Boosting = false;
                 }
-                else if (xwing.Energy >= 3 && xwing.BoostLock)
-                {
-                    xwing.BoostLock = false;
-                }
-            }
-            else if (keyboardState.IsKeyDown(Keys.S))
-            {
-                xwing.Boosting = false;
-                SpeedMultiplier = 0.5f;
             }
             else
             {
-                xwing.Boosting = false;
+                //Free cam for debug
+                if (keyboardState.IsKeyDown(Keys.LeftShift))
+                    CurrentMovementSpeed *= 10f;
+
+                if (keyboardState.IsKeyDown(Keys.A))
+                    Position += -RightDirection * CurrentMovementSpeed;
+                if (keyboardState.IsKeyDown(Keys.D))
+                    Position += RightDirection * CurrentMovementSpeed;
+                if (keyboardState.IsKeyDown(Keys.W))
+                    Position += FrontDirection * CurrentMovementSpeed;
+                if (keyboardState.IsKeyDown(Keys.S))
+                    Position += -FrontDirection * CurrentMovementSpeed;
+
+                if (ArrowsLookEnabled)
+                {
+                    if (keyboardState.IsKeyDown(Keys.Up))
+                    {
+                        Pitch += CurrentTurnSpeed;
+                        delta.Y = CurrentTurnSpeed;
+                        if (Pitch > 89.0f)
+                            Pitch = 89.0f;
+                    }
+                    if (keyboardState.IsKeyDown(Keys.Down))
+                    {
+                        Pitch -= CurrentTurnSpeed;
+                        delta.Y = -CurrentTurnSpeed;
+                        if (Pitch < -89.0f)
+                            Pitch = -89.0f;
+
+                    }
+                    if (keyboardState.IsKeyDown(Keys.Left))
+                    {
+                        Yaw -= CurrentTurnSpeed;
+                        delta.X = -CurrentTurnSpeed;
+                        if (Yaw < 0)
+                            Yaw += 360;
+                        Yaw %= 360;
+                    }
+                    if (keyboardState.IsKeyDown(Keys.Right))
+                    {
+                        Yaw += CurrentTurnSpeed;
+                        delta.X = CurrentTurnSpeed;
+                        Yaw %= 360;
+                    }
+                    xwing.updateRoll(delta);
+                }
             }
-            //Free cam for debug
-            //if (keyboardState.IsKeyDown(Keys.LeftShift))
-            //    CurrentMovementSpeed *= 10f;
-
-            //if (keyboardState.IsKeyDown(Keys.A))
-            //    Position += -RightDirection * CurrentMovementSpeed;
-            //if (keyboardState.IsKeyDown(Keys.D))
-            //    Position += RightDirection * CurrentMovementSpeed;
-            //if (keyboardState.IsKeyDown(Keys.W))
-            //    Position += FrontDirection * CurrentMovementSpeed;
-            //if (keyboardState.IsKeyDown(Keys.S))
-            //    Position += -FrontDirection * CurrentMovementSpeed;
-
-            //if (ArrowsLookEnabled)
-            //{
-            //    if (keyboardState.IsKeyDown(Keys.Up))
-            //    {
-            //        Pitch += CurrentTurnSpeed;
-            //        delta.Y = CurrentTurnSpeed;
-            //        if (Pitch > 89.0f)
-            //            Pitch = 89.0f;
-            //        //changed = true;
-            //    }
-            //    if (keyboardState.IsKeyDown(Keys.Down))
-            //    {
-            //        Pitch -= CurrentTurnSpeed;
-            //        delta.Y = -CurrentTurnSpeed;
-            //        if (Pitch < -89.0f)
-            //            Pitch = -89.0f;
-
-            //        //changed = true;
-            //    }
-            //    if (keyboardState.IsKeyDown(Keys.Left))
-            //    {
-            //        Yaw -= CurrentTurnSpeed;
-            //        delta.X = -CurrentTurnSpeed;
-            //        if (Yaw < 0)
-            //            Yaw += 360;
-            //        Yaw %= 360;
-            //        //changed = true;
-            //    }
-            //    if (keyboardState.IsKeyDown(Keys.Right))
-            //    {
-            //        Yaw += CurrentTurnSpeed;
-            //        delta.X = CurrentTurnSpeed;
-            //        Yaw %= 360;
-            //        //changed = true;
-            //    }
-            //    xwing.updateRoll(delta);
-            //}
-            //debug
-            //return changed;
-
         }
 
         public Vector2 pastMousePosition;

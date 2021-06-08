@@ -66,6 +66,7 @@ namespace TGC.MonoGame.TP
                         Game.Camera.ProcessMouse(Game.Xwing);
                     Game.Camera.ProcessKeyboard(Game.Xwing);
 
+
                     if (Game.Camera.MouseLookEnabled)
                     {
                         if (mState.LeftButton.Equals(ButtonState.Pressed))
@@ -73,6 +74,10 @@ namespace TGC.MonoGame.TP
                             Game.Xwing.fireLaser();
                         }
                     }
+                    if (kState.IsKeyDown(Keys.B))
+                        Game.SelectedCamera = Game.LookBack;
+                    else
+                        Game.SelectedCamera = Game.Camera;
                     if (kState.IsKeyDown(Keys.Escape))
                     {
                         if (!ignoredKeys.Contains(Keys.Escape))
@@ -137,35 +142,35 @@ namespace TGC.MonoGame.TP
                     }
                     //parameter debug (i.e. moving models)
                     #region parameterDebug
-                    //var inputDelta = 0.05f;
-                    //var deltaX = 0f;
+                    var inputDelta = 0.05f;
+                    var deltaX = 0f;
                     //var deltaY = 0f;
-                    //var deltaZ = 0f;
-                    //var update = false;
-                    //if (kState.IsKeyDown(Keys.N))
-                    //    inputDelta = 0.1f;
-                    //else
-                    //    inputDelta = 0.05f;
-                    //if (kState.IsKeyDown(Keys.I))
-                    //{
-                    //    deltaZ = inputDelta;
-                    //    update = true;
-                    //}
-                    //if (kState.IsKeyDown(Keys.K))
-                    //{
-                    //    deltaZ = -inputDelta;
-                    //    update = true;
-                    //}
-                    //if (kState.IsKeyDown(Keys.J))
-                    //{
-                    //    deltaX = inputDelta;
-                    //    update = true;
-                    //}
-                    //if (kState.IsKeyDown(Keys.L))
-                    //{
-                    //    deltaX = -inputDelta;
-                    //    update = true;
-                    //}
+                    var deltaZ = 0f;
+                    var update = false;
+                    if (kState.IsKeyDown(Keys.N))
+                        inputDelta = 0.1f;
+                    else
+                        inputDelta = 0.05f;
+                    if (kState.IsKeyDown(Keys.I))
+                    {
+                        deltaZ = inputDelta;
+                        update = true;
+                    }
+                    if (kState.IsKeyDown(Keys.K))
+                    {
+                        deltaZ = -inputDelta;
+                        update = true;
+                    }
+                    if (kState.IsKeyDown(Keys.J))
+                    {
+                        deltaX = inputDelta;
+                        update = true;
+                    }
+                    if (kState.IsKeyDown(Keys.L))
+                    {
+                        deltaX = -inputDelta;
+                        update = true;
+                    }
                     //if (kState.IsKeyDown(Keys.Y))
                     //{
                     //    deltaY = inputDelta;
@@ -187,11 +192,14 @@ namespace TGC.MonoGame.TP
                     //        Debug.WriteLine("SelectedFirst " + selectedFirst);
                     //    }
                     //}
-                    //if (update)
-                    //{
-
-                    //    //Debug.WriteLine("DX " + deltaX + " DZ" + deltaZ+ " FST "+ selectedFirst);
-                    //}
+                    if (update)
+                    {
+                        Game.kd += deltaX;
+                        Game.ks += deltaZ;
+                        Game.EffectLight.Parameters["KDiffuse"].SetValue(Game.kd);
+                        Game.EffectLight.Parameters["KSpecular"].SetValue(Game.ks);
+                        Debug.WriteLine("KD " + Game.kd+ " KS" + Game.ks);
+                    }
                     #endregion
                     #endregion
                     break;
