@@ -36,6 +36,10 @@ namespace TGC.MonoGame.TP.Ships
         public float MovementSpeed { get; set; }
         public float RotationSpeed { get; set; }
 
+
+        public float BoatVelocity;
+        public float BoatAcceleration;
+
         public Matrix BoatMatrix { get; set; }
 
         public bool playerMode = false;
@@ -64,9 +68,11 @@ namespace TGC.MonoGame.TP.Ships
             TextureName = textureName;
             MovementSpeed = speed;
             RotationSpeed = 0.5f;
+            BoatVelocity = 0.0f;
+            BoatAcceleration = 0.5f;
 
             //BoatMatrix = Matrix.Identity * Matrix.CreateScale(scale) * Matrix.CreateRotationY(rot.Y) * Matrix.CreateTranslation(pos);
-        }
+    }
         public void LoadContent()
         {
             ShipModel = Game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
