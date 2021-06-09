@@ -73,7 +73,7 @@ namespace TGC.MonoGame.TP
 
             MainTheme = Content.Load<Song>(ContentFolderMusic + "TheImperialMarch");
 
-            PlayMusic(MainTheme);
+            //PlayMusic(MainTheme);
         }
         public static void PlayMusic(Song song)
         {

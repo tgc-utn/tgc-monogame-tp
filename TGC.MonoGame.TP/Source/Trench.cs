@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-
+using System.Diagnostics;
 namespace TGC.MonoGame.TP
 {
 	public class Trench
@@ -108,9 +108,27 @@ namespace TGC.MonoGame.TP
 				x += deltaX;
 				y += deltaY;
 				//Si hay algo ahi, freno (reemplazo por T? )
-				if(map[x, y] != null)
-                	return pointsOfInterest;
-                
+				
+				if (map[x, y] != null)
+				{
+					switch(map[x, y].Type)
+                    {
+						case TrenchType.Straight:
+							map[x, y] = new Trench(TrenchType.T, rotation);
+							Debug.WriteLine("set T (from ST) at (" + x + "," + y + ") rot " + rotation);
+							break;
+						case TrenchType.T:
+							map[x, y] = new Trench(TrenchType.Intersection, rotation);
+							Debug.WriteLine("set INT at (" + x + "," + y + ") rot " + rotation);
+							break;
+						case TrenchType.Elbow:
+							map[x, y] = new Trench(TrenchType.T, rotation);
+							Debug.WriteLine("set T (from E) at (" + x + "," + y + ") rot " + rotation);
+							break;
+
+					}
+					return pointsOfInterest;
+				}
 
 				//Obtengo el siguiente bloque (adelante en el mapa)
 				Trench next = Trench.GetNextTrench(map[prevX, prevY], rotation);
@@ -168,6 +186,7 @@ namespace TGC.MonoGame.TP
 				poiCount = 0;
 				attempt++;
 				ClearMap(ref map, size);
+				Debug.WriteLine("----");
                 map[xi, yi] = new Trench(TrenchType.Straight, 0f);
                 //map[xi, yi] = new Trench(TrenchType.Elbow, 270f);
                 var points = GenLine(ref map, xi, yi, 0f, size);
@@ -204,12 +223,29 @@ namespace TGC.MonoGame.TP
 		public static String ShowMapInConsole(Trench[,] map, int size)
 		{
 			String str = "MAP\n";
+			str += "  ";
+			for (int i = 0; i < size; i++)
+			{ 
+				str += i + " ";
+				if (i < 10)
+					str += " ";
+			}		
+			
+			str += "\n";
 			for (int y = size - 1; y >= 0; y--)
 			{
+				
+				str += "" + y + " ";
+				if (y < 10)
+					str += " ";
 				for (int x = size - 1; x >= 0; x--)
 				{
+					if(x < 10)
+                    {
+						//do something
+                    }
 					if (map[x, y] == null)
-						str += "█ ";
+						str += "E ";
 					else
 						switch(map[x,y].Type)
 						{
@@ -229,27 +265,37 @@ namespace TGC.MonoGame.TP
 								if (map[x, y].Rotation == 0f)
 									str += "┬ ";
 								else if (map[x, y].Rotation == 90f)
-									str += "┤ ";
+									str += "├ ";
 								else if (map[x, y].Rotation == 180f)
 									str += "┴ ";
 								else if (map[x, y].Rotation == 270f)
-									str += "├ ";
+									str += "┤ ";
 								break;
 							case TrenchType.Elbow:
-								if (map[x, y].Rotation == 0f)
+								if (map[x, y].Rotation == 0)
 									str += "╔ ";
-								else if (map[x, y].Rotation == 90f)
+								else if (map[x, y].Rotation == 90)
 									str += "╗ ";
-								else if (map[x, y].Rotation == 180f)
+								else if (map[x, y].Rotation == 180)
 									str += "╝ ";
-								else if (map[x, y].Rotation == 270f)
+								else if (map[x, y].Rotation == 270)
 									str += "╚ ";
 								break;
 							default: str += "e ";break;
 						}
+					str += " ";
 				}
-				str += "\n";
+				str += "" + y+ "\n";
 			}
+
+			str += "  ";
+			for (int i = 0; i < size; i++)
+			{
+				str += i + " ";
+				if (i < 10)
+					str += " ";
+			}
+
 			return str;
 		}
 

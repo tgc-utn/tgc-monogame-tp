@@ -28,8 +28,7 @@ namespace TGC.MonoGame.TP
 
         public static Mutex MutexDeltas = new Mutex();
 
-        public SpriteFont SpriteFont;
-        public SpriteFont BigFont;
+        
 
         public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
@@ -54,7 +53,6 @@ namespace TGC.MonoGame.TP
         }
         public GmState GameState { get; set; }
         public GraphicsDeviceManager Graphics { get; }
-        public SpriteBatch SpriteBatch { get; set; }
 
         private Model Tie { get; set; }
         private static Model TrenchPlatform { get; set; }
@@ -76,13 +74,7 @@ namespace TGC.MonoGame.TP
 
         private Texture TieTexture;
         private Texture TrenchTexture;
-        public Texture2D[] Crosshairs;
-        public Texture2D[] HudEnergy;
-        public Texture2D[] HPBar;
-
-        public Texture2D TopLeftBar;
-        public Texture2D BtnPlay, BtnContinue, BtnMenu, BtnExit, BtnOptions;
-
+        
 
         public int FPS;
         
@@ -135,7 +127,7 @@ namespace TGC.MonoGame.TP
             //Algoritmo de generacion de mapa recursivo (ver debug output)
             Map = Trench.GenerateMap(MapSize);
             System.Diagnostics.Debug.WriteLine(Trench.ShowMapInConsole(Map, MapSize));
-            
+
 
             
             base.Initialize();
@@ -148,21 +140,13 @@ namespace TGC.MonoGame.TP
                     foreach (var meshPart in mesh.MeshParts)
                         meshPart.Effect = effect;
         }
-        Texture2D[] loadNumberedTextures(String source, int start, int end, int inc)
-        {
-            List<Texture2D> textures = new List<Texture2D>();
-            for (int n = start; n <= end; n += inc)
-                textures.Add(Content.Load<Texture2D>(ContentFolderTextures + source + n));
- 
-            return textures.ToArray() ;
-        }
+        
 
         public float kd = 0.8f;
         public float ks = 0.4f;
 
         protected override void LoadContent()
         {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
             Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
             Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
             //Xwing.EngineModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engine");
@@ -187,23 +171,9 @@ namespace TGC.MonoGame.TP
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
 
             TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/MetalSurface");
-            Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshairAlpha")};
-            
-            HudEnergy = loadNumberedTextures("HUD/Energy/", 0, 10, 1);
-            HPBar = loadNumberedTextures("HUD/TopLeft/", 0, 100, 10);
 
-            BtnPlay = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Jugar");
-            BtnContinue = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Continuar");
-            BtnMenu = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Menu");
-            BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Salir");
-            BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Opciones");
-            HUD.Init();
+            HUD.LoadContent();
             
-            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
-            System.Diagnostics.Debug.WriteLine("loading skybox.");
-
             SoundManager.LoadContent();
            
 
@@ -580,6 +550,11 @@ namespace TGC.MonoGame.TP
                     if (newState.Equals(GmState.Paused))
                     {
                         Camera.SaveCurrentState();
+                        IsMouseVisible = true;
+                    }
+                    if (newState.Equals(GmState.Victory) ||
+                        newState.Equals(GmState.Defeat))
+                    {
                         IsMouseVisible = true;
                     }
                     break;

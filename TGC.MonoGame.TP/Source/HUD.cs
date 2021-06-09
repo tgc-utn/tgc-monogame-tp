@@ -4,14 +4,33 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Content;
+using System.Diagnostics;
 namespace TGC.MonoGame.TP
 {
+    
     public class HUD
     {
+        Texture2D[] Crosshairs;
+        Texture2D[] HudEnergy;
+        Texture2D[] HPBar;
+        Texture2D[] mmStraight;
+        Texture2D[] mmElbow;
+        Texture2D[] mmT;
+        Texture2D mmIntersection, mmPlatform;
+
+        Texture2D TopLeftBar;
+        Texture2D BtnPlay, BtnContinue, BtnMenu, BtnExit, BtnOptions;
+
+        public SpriteFont SpriteFont;
+        public SpriteFont BigFont;
+        
         public List<Button> startScreenBtns= new List<Button>();
         public List<Button> optionsBtns = new List<Button>();
         public List<Button> pauseBtns = new List<Button>();
         public List<Button> endBtns = new List<Button>();
+
+        SpriteBatch SpriteBatch;
 
         TGCGame Game;
         Point size;
@@ -19,10 +38,137 @@ namespace TGC.MonoGame.TP
         Point btnCenter;
         int btnDelta;
         Vector2 btnScale;
+
+        ContentManager Content;
+        String ContentFolderTextures, ContentFolderSpriteFonts;
+        Texture2D MiniMap;
         public HUD(TGCGame instance)
         {
             Game = instance;
-           
+            SpriteBatch = new SpriteBatch(Game.GraphicsDevice);
+
+        }
+        Texture2D[] loadNumberedTextures(String source, int start, int end, int inc)
+        {
+            List<Texture2D> textures = new List<Texture2D>();
+            for (int n = start; n <= end; n += inc)
+                textures.Add(Content.Load<Texture2D>(ContentFolderTextures + source + n));
+
+            return textures.ToArray();
+        }
+        public void LoadContent()
+        {
+            Content = Game.Content;
+            ContentFolderTextures = TGCGame.ContentFolderTextures;
+            ContentFolderSpriteFonts = TGCGame.ContentFolderSpriteFonts;
+
+            Crosshairs = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshair-red"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "Crosshair/crosshairAlpha")};
+
+            HudEnergy = loadNumberedTextures("HUD/Energy/", 0, 10, 1);
+            HPBar = loadNumberedTextures("HUD/TopLeft/", 0, 100, 10);
+            
+            BtnPlay = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Jugar");
+            BtnContinue = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Continuar");
+            BtnMenu = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Menu");
+            BtnExit = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Salir");
+            BtnOptions = Content.Load<Texture2D>(ContentFolderTextures + "HUD/Buttons/Opciones");
+
+            mmStraight = new Texture2D[] {  Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/straight"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/straight-90")};
+            mmElbow = new Texture2D[] {     Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/elbow-0"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/elbow-90"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/elbow-180"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/elbow-270")};
+            mmT = new Texture2D[] {         Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/T-0"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/T-90"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/T-180"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/T-270")};
+
+            mmIntersection = Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/intersection");
+            mmPlatform = Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/platform");
+            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
+            GenerateMiniMap();
+            Init();
+        }
+        Texture2D getTextureFromBlock (Trench block)
+        {
+            switch(block.Type)
+            {
+                case TrenchType.Straight:
+                    switch(block.Rotation)
+                    {
+                        case 0: return mmStraight[0];
+                        case 90: return mmStraight[1];
+                        case 180: return mmStraight[0];
+                        case 270: return mmStraight[1];
+                    }
+                    break;
+                case TrenchType.Elbow:
+                    return mmElbow[(int)(block.Rotation / 90)]; 
+                    
+                case TrenchType.T:
+                    return mmT[(int)(block.Rotation / 90)];
+                case TrenchType.Intersection:
+                    return mmIntersection;
+                case TrenchType.Platform:
+                    return mmPlatform;
+            }
+            return mmPlatform;
+        }
+        void GenerateMiniMap()
+        {
+            var mapSize = TGCGame.MapSize;
+            RenderTarget2D MiniMapTarget = new RenderTarget2D(Game.GraphicsDevice, 50 * mapSize, 50 * mapSize);
+            Game.Graphics.GraphicsDevice.SetRenderTarget(MiniMapTarget);
+            SpriteBatch.Begin();
+            var map = Game.Map;
+
+            Vector2 pos;
+            for(int x = 0; x < mapSize; x++)
+            {
+                pos.X = x * 50;
+                for (int y = 0; y < mapSize; y++)
+                {
+                    pos.Y = y * 50;
+                    Texture2D selected = getTextureFromBlock(map[x,y]);
+                    SpriteBatch.Draw(selected, pos, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
+                }
+            }
+            
+            SpriteBatch.End();
+
+            Game.Graphics.GraphicsDevice.SetRenderTarget(null);
+
+            MiniMap = (Texture2D) MiniMapTarget;
+            //SpriteBatch.Draw(mmStraight[0], pos, null, Color.White, rotation, rotationCenter, 1f, SpriteEffects.None, 0);
+        }
+        Rectangle CalculateMiniMapRec(out Vector2 recCenter)
+        {
+            var mapSize = TGCGame.MapSize;
+            var mapLimit = Game.MapLimit;
+            var blockSize = mapLimit / mapSize;
+            var xwing = Game.Xwing;
+            
+            var CurrentBlock = new Vector2(
+                xwing.Position.X / blockSize + 0.5f, xwing.Position.Z / blockSize + 0.5f);
+
+            CurrentBlock.X = MathHelper.Clamp(CurrentBlock.X, 0, mapSize - 1);
+            CurrentBlock.Y = MathHelper.Clamp(CurrentBlock.Y, 0, mapSize - 1);
+
+            recCenter.X = (int) MathHelper.Lerp(0, 50 * mapSize, CurrentBlock.X / mapSize);
+            recCenter.Y = (int)MathHelper.Lerp(0, 50 * mapSize, CurrentBlock.Y / mapSize);
+
+            //Debug.WriteLine(Game.Vector2ToStr(CurrentBlock) + " x " + recCenter.X + " y " + recCenter.Y);
+
+            var viewSize = 200;
+            var x = (int)(recCenter.X - viewSize / 2);
+            var y = (int)(recCenter.Y - viewSize / 2);
+            var len = viewSize;
+
+            return new Rectangle(x, y, len, len);
+            
         }
         public void Init()
         {
@@ -39,29 +185,29 @@ namespace TGC.MonoGame.TP
 
 
             startScreenBtns.Add(
-                new Button(BtnType.Play, btnCenter - new Point(0, btnDelta), Game.BtnPlay, btnScale));
+                new Button(BtnType.Play, btnCenter - new Point(0, btnDelta), BtnPlay, btnScale));
             startScreenBtns.Add(
-                new Button(BtnType.Options, btnCenter, Game.BtnOptions, btnScale));
+                new Button(BtnType.Options, btnCenter, BtnOptions, btnScale));
             startScreenBtns.Add(
-                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), Game.BtnExit, btnScale));
+                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), BtnExit, btnScale));
             
             pauseBtns.Add(
-                new Button(BtnType.Continue, btnCenter - new Point(0, btnDelta), Game.BtnContinue, btnScale));
+                new Button(BtnType.Continue, btnCenter - new Point(0, btnDelta), BtnContinue, btnScale));
             pauseBtns.Add(
-                new Button(BtnType.Menu, btnCenter, Game.BtnMenu, btnScale));
+                new Button(BtnType.Menu, btnCenter, BtnMenu, btnScale));
             pauseBtns.Add(
-                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), Game.BtnExit, btnScale));
+                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), BtnExit, btnScale));
 
             endBtns.Add(
-                new Button(BtnType.Menu, btnCenter, Game.BtnMenu, btnScale));
+                new Button(BtnType.Menu, btnCenter, BtnMenu, btnScale));
             endBtns.Add(
-                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), Game.BtnExit, btnScale));
+                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), BtnExit, btnScale));
 
             // + volume sliders
             optionsBtns.Add(
-                new Button(BtnType.Menu, btnCenter, Game.BtnMenu, btnScale));
+                new Button(BtnType.Menu, btnCenter, BtnMenu, btnScale));
             optionsBtns.Add(
-                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), Game.BtnExit, btnScale));
+                new Button(BtnType.Exit, btnCenter + new Point(0, btnDelta), BtnExit, btnScale));
 
 
         }
@@ -70,45 +216,55 @@ namespace TGC.MonoGame.TP
             String topMessage;
 
 
-            Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            Game.SpriteBatch.DrawString(Game.SpriteFont, "" + Game.GameState, new Vector2(size.X / 2 - 100f, 45), Color.White);
-            Game.SpriteBatch.End();
+            //SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+            //SpriteBatch.DrawString(Game.SpriteFont, "" + Game.GameState, new Vector2(size.X / 2 - 100f, 45), Color.White);
+            //SpriteBatch.End();
+            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
                     #region startScreen
 
-                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    foreach(Button btn in startScreenBtns)
-                        Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
-                    Game.SpriteBatch.End();
+                    foreach (Button btn in startScreenBtns)
+                        SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
 
-                    
+                    //debug
+                    //SpriteBatch.Draw(MiniMap,
+                    //    new Vector2(size.X/2 - 100, size.Y/2), null, Color.White, MathHelper.Pi, new Vector2(525,525), 0.5f, SpriteEffects.None, 0);
                     #endregion
                     break;
                 case TGCGame.GmState.Options:
-                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-                    
-                    Game.SpriteBatch.DrawString(Game.SpriteFont, "proximamente", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
 
-                    Game.SpriteBatch.End();
+                    SpriteBatch.DrawString(SpriteFont, "proximamente", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
+
                     break;
                 case TGCGame.GmState.Running:
                     #region running
                     //topleft
-                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
                     
-                    Game.SpriteBatch.Draw(Game.HPBar[Game.Xwing.GetHPIndex()], new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
+                    SpriteBatch.Draw(HPBar[Game.Xwing.GetHPIndex()], new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
 
                     topMessage = "FPS " + Game.FPS + " HP " + Game.Xwing.HP;
-                    Game.SpriteBatch.DrawString(Game.SpriteFont, topMessage, new Vector2(80, 45), Color.White);
+                    SpriteBatch.DrawString(SpriteFont, topMessage, new Vector2(80, 45), Color.White);
 
+                    var rotation = -MathHelper.ToRadians(Game.Xwing.Yaw);
+                  
+                    //var pos = new Vector2(100, size.Y - 150);
 
-                    //Game.SpriteBatch.DrawString(Game.SpriteFont, "score " + Game.Xwing.Score, new Vector2(size.X / 2 - 100f, 45), Color.Cyan);
-                    //Game.SpriteBatch.DrawString(Game.SpriteFont, "score",Vector2.Zero, Color.Cyan, 1f, Vector2.Zero, 1f, SpriteEffects.None, 1f);
+                    var pos = new Vector2(240, size.Y - 100);
+
+                    //TODO: FIX Minimap rotation (non centered rotation)
+                    Vector2 recCenter;
+                    var ViewRec = CalculateMiniMapRec(out recCenter);
+                   
+                    SpriteBatch.Draw(MiniMap,
+                        pos, ViewRec,Color.White, MathHelper.Pi, Vector2.Zero, 1f, SpriteEffects.None, 0);
+                    //SpriteBatch.Draw(MiniMap,
+                    //    pos, ViewRec, Color.White, rotation, recCenter, 1f, SpriteEffects.None, 0);
+
 
                     //energy
-                    Game.SpriteBatch.Draw(Game.HudEnergy[Game.Xwing.Energy], new Vector2(size.X - 300f, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
+                    SpriteBatch.Draw(HudEnergy[Game.Xwing.Energy], new Vector2(size.X - 300f, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
 
                     //Crosshair
                     if (Game.SelectedCamera.Equals(Game.Camera))
@@ -117,9 +273,8 @@ namespace TGC.MonoGame.TP
                         //var sz = 512 * scale;
                         var scale = 0.2f;
                         var sz = 300 * scale;
-                        Game.SpriteBatch.Draw(Game.Crosshairs[2], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
+                        SpriteBatch.Draw(Crosshairs[2], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
                     }
-                    Game.SpriteBatch.End();
                     #endregion
                     break;
 
@@ -128,33 +283,28 @@ namespace TGC.MonoGame.TP
 
                     if (!Game.Camera.Resuming)
                     {
-                        Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
                         foreach (Button btn in pauseBtns)
-                            Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
-                        Game.SpriteBatch.End();
+                            SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
                     }
                     #endregion
                     break;
                 case TGCGame.GmState.Victory:
-                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
                     foreach (Button btn in endBtns)
-                        Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
+                        SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
 
-                    Game.SpriteBatch.DrawString(Game.SpriteFont, "victoria", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
+                    SpriteBatch.DrawString(SpriteFont, "victoria", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
 
-                    Game.SpriteBatch.End();
-
+            
                     break;
                 case TGCGame.GmState.Defeat:
-                    Game.SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
                     foreach (Button btn in endBtns)
-                        Game.SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
-                    Game.SpriteBatch.DrawString(Game.SpriteFont, "derrota", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
+                        SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
+                    SpriteBatch.DrawString(SpriteFont, "derrota", center - new Vector2(size.X / 3, 0f), new Color(255f, 50f, 50f));
 
-                    Game.SpriteBatch.End();
 
                     break;
             }
+            SpriteBatch.End();
 
         }
         public void VerifyBtnClick(MouseState mState)
@@ -173,7 +323,7 @@ namespace TGC.MonoGame.TP
                 
                 case TGCGame.GmState.Options:
                     clicked = optionsBtns.FindAll(btn => btn.Box.Intersects(mouse));
-                    ProcessClick(clicked);
+                    ProcessClick(clicked, mouse);
                     break;
 
                 case TGCGame.GmState.Paused:
@@ -195,10 +345,23 @@ namespace TGC.MonoGame.TP
         }
         void ProcessClick(List<Button> clicked)
         {
+            ProcessClick(clicked, Rectangle.Empty);
+        }
+        void ProcessClick(List<Button> clicked, Rectangle mousePos)
+        {
             if (clicked.Count == 0)
                 return;
- 
-            switch (clicked[0].Type)
+
+            var btn = clicked[0];
+            if (btn.Type.Equals(BtnType.VolMaster) ||
+                btn.Type.Equals(BtnType.VolFX) ||
+                btn.Type.Equals(BtnType.VolMusic))
+            {
+                ProcessVolClick(btn, mousePos);
+                return;
+            }
+
+            switch (btn.Type)
             {
                 case BtnType.Play:
                     Game.ChangeGameStateTo(TGCGame.GmState.Running);
@@ -206,17 +369,23 @@ namespace TGC.MonoGame.TP
                 case BtnType.Continue:
                     Game.ChangeGameStateTo(TGCGame.GmState.Running);
                     break;
-                case BtnType.Options:
-                    Game.ChangeGameStateTo(TGCGame.GmState.Options);
-                    break;
                 case BtnType.Menu:
                     Game.ChangeGameStateTo(TGCGame.GmState.StartScreen);
+                    break;
+                case BtnType.Options:
+                    Game.ChangeGameStateTo(TGCGame.GmState.Options);
                     break;
                 case BtnType.Exit:
                     Game.Exit();
                     break;
             }
         }
+        void ProcessVolClick(Button btn, Rectangle mouse)
+        {
+            //verify where the click was, update vol, ui element
+        }
+
+
     }
     
     public class Button
@@ -240,6 +409,9 @@ namespace TGC.MonoGame.TP
         Pause,
         Menu,
         Options,
+        VolMaster,
+        VolFX,
+        VolMusic,
         Exit
     }
 }
