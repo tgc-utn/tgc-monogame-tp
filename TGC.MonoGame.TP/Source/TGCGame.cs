@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
-
+using Microsoft.Xna.Framework.Content;
 using System.Collections.Generic;
 using System.Timers;
 using System.Threading;
@@ -28,8 +28,8 @@ namespace TGC.MonoGame.TP
 
         public static Mutex MutexDeltas = new Mutex();
 
-        
-
+        public Gizmos Gizmos;
+        public bool ShowGizmos = true;
         public Xwing Xwing = new Xwing();
         SkyBox SkyBox;
         
@@ -50,6 +50,8 @@ namespace TGC.MonoGame.TP
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             Instance = this;
+
+            Gizmos = new Gizmos();
         }
         public GmState GameState { get; set; }
         public GraphicsDeviceManager Graphics { get; }
@@ -128,7 +130,7 @@ namespace TGC.MonoGame.TP
             Map = Trench.GenerateMap(MapSize);
             System.Diagnostics.Debug.WriteLine(Trench.ShowMapInConsole(Map, MapSize));
 
-
+           
             
             base.Initialize();
         }
@@ -175,7 +177,8 @@ namespace TGC.MonoGame.TP
             HUD.LoadContent();
             
             SoundManager.LoadContent();
-           
+            
+            Gizmos.LoadContent(GraphicsDevice);
 
             //Skybox
             skyboxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
@@ -229,6 +232,7 @@ namespace TGC.MonoGame.TP
             MouseXY.Y = Mouse.GetState().Y;
 
             Input.ProcessInput();
+
             
             switch (GameState)
             {
@@ -295,7 +299,8 @@ namespace TGC.MonoGame.TP
                     #endregion
                     break;
             }
-            
+
+            Gizmos.UpdateViewProjection(SelectedCamera.View, SelectedCamera.Projection);
             
             base.Update(gameTime);
         }
@@ -347,6 +352,7 @@ namespace TGC.MonoGame.TP
             EffectTexture.Parameters["View"].SetValue(CameraView);
             EffectTexture.Parameters["Projection"].SetValue(CameraProjection);
 
+            
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
 
@@ -370,8 +376,24 @@ namespace TGC.MonoGame.TP
                         DrawModel(LaserModel, laser.SRT, laser.Color);
                     foreach (var laser in Laser.EnemyLasers)
                         DrawModel(LaserModel, laser.SRT, laser.Color);
+                    
+                    if(ShowGizmos)
+                    {
+                        Matrix SRT;
+                        foreach (var laser in Laser.AlliedLasers) {
+                            var OBB = laser.BoundingBox;
+                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                            Gizmos.DrawCube(SRT, Color.White);
+                        } 
+                        foreach (var laser in Laser.EnemyLasers)
+                        {
+                            var OBB = laser.BoundingBox;
+                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                            Gizmos.DrawCube(SRT, Color.White);
+                        }
+                    }
                     DrawXWing();
-                   
+                    
                     #endregion
                     break;
                 case GmState.Paused:
@@ -384,6 +406,23 @@ namespace TGC.MonoGame.TP
                         DrawModel(LaserModel, laser.SRT, laser.Color);
                     foreach (var laser in Laser.EnemyLasers)
                         DrawModel(LaserModel, laser.SRT, laser.Color);
+
+                    if (ShowGizmos)
+                    {
+                        Matrix SRT;
+                        foreach (var laser in Laser.AlliedLasers)
+                        {
+                            var OBB = laser.BoundingBox;
+                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                            Gizmos.DrawCube(SRT, Color.White);
+                        }
+                        foreach (var laser in Laser.EnemyLasers)
+                        {
+                            var OBB = laser.BoundingBox;
+                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                            Gizmos.DrawCube(SRT, Color.White);
+                        }
+                    }
                     DrawXWing();
 
                     #endregion
@@ -405,6 +444,8 @@ namespace TGC.MonoGame.TP
                     #endregion
                     break;
             }
+            if(ShowGizmos)
+                Gizmos.Draw();
             HUD.Draw();
         }
         //float vDistance(Vector3 v, Vector3 w)
@@ -446,6 +487,34 @@ namespace TGC.MonoGame.TP
 
                     mesh.Draw();
                 }
+                if (ShowGizmos)
+                {
+                    var BB = turret.BoundingBox;
+                    Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), BoundingVolumesExtensions.GetExtents(BB) * 2f, Color.Magenta);
+
+                }
+            }
+            if (ShowGizmos)
+            {
+                var index = 0;
+                Color[] colors = { Color.White, Color.Yellow, Color.Blue, Color.Magenta };
+                //foreach (var BB in t.boundingBoxes)
+                //{
+                //    var color = colors[index];
+
+                //    Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.OBB.Intersects(BB) ? Color.Red : color);
+                //    index++;
+                //}
+                Matrix SRT;
+                foreach (var OBB in t.boundingBoxes)
+                {
+                    var color = colors[index];
+                    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                    Gizmos.DrawCube(SRT, Xwing.OBB.Intersects(OBB) ? Color.Red : color);
+                    index++;
+                }
+
+
             }
         }
 
@@ -456,11 +525,11 @@ namespace TGC.MonoGame.TP
             //efecto para verificar colisiones, se pone rojo
             if (Xwing.hit)
                 EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Right * 0.5f);
-            
+
             foreach (var mesh in Xwing.Model.Meshes)
             {
                 Xwing.World = mesh.ParentBone.Transform * Xwing.SRT;
-                
+
                 EffectTexture.Parameters["World"].SetValue(Xwing.World);
                 EffectTexture.Parameters["ModelTexture"].SetValue(Xwing.Textures[meshCount]);
                 meshCount++;
@@ -468,7 +537,35 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
             DrawModel(Xwing.EnginesModel, Xwing.EnginesSRT, Xwing.EnginesColor);
-            
+
+            var sphere = Xwing.boundingSphere;
+            //Gizmos.DrawSphere(sphere.Center, new Vector3(sphere.Radius), Color.White);
+
+            //Gizmos.DrawCube(Xwing.Position, new Vector3(20f, 20f, 20f), Xwing.hit? Color.Red : Color.Cyan);
+            if (ShowGizmos)
+            {
+                Gizmos.DrawSphere(Xwing.boundingSphere.Center, Xwing.boundingSphere.Radius * Vector3.Zero, Color.White);
+
+                var OBB = Xwing.OBB;
+                Matrix SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.White);
+
+                OBB = Xwing.OBBL;
+                SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Yellow);
+
+                OBB = Xwing.OBBR;
+                SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Cyan);
+
+                OBB = Xwing.OBBU;
+                SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Magenta);
+
+                OBB = Xwing.OBBD;
+                SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Green);
+            }
             EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
         }
 
@@ -483,6 +580,10 @@ namespace TGC.MonoGame.TP
                 EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);
                 //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.One);
                 mesh.Draw();
+            }
+            if(ShowGizmos)
+            {
+                Gizmos.DrawSphere(tie.boundingSphere.Center, tie.boundingSphere.Radius * Vector3.One, Color.White);
             }
             //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
         }

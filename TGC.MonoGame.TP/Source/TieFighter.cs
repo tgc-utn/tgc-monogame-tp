@@ -23,14 +23,14 @@ namespace TGC.MonoGame.TP
 		public int HP = 100;
 		public float Yaw, Pitch;
 		public List<Laser> fired = new List<Laser>();
-		BoundingSphere boundingSphere;
+		public BoundingSphere boundingSphere;
 		public TieFighter(Vector3 pos, Vector3 front, Matrix w, Matrix srt)
 		{
 			Position = pos;
 			FrontDirection = front;
 			World = w;
 			SRT = srt;
-			boundingSphere = new BoundingSphere(Position, 30f);
+			boundingSphere = new BoundingSphere(Position, 10f);
 
 			randomFireRate();
 		}

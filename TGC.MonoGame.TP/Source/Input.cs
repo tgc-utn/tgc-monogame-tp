@@ -54,6 +54,14 @@ namespace TGC.MonoGame.TP
                     Game.IsFixedTimeStep = !Game.IsFixedTimeStep;
                 }
             }
+            if (kState.IsKeyDown(Keys.G))
+            {
+                if (!ignoredKeys.Contains(Keys.G))
+                {
+                    ignoredKeys.Add(Keys.G);
+                    Game.ShowGizmos= !Game.ShowGizmos;
+                }
+            }
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:

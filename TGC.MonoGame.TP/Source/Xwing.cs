@@ -40,11 +40,16 @@ namespace TGC.MonoGame.TP
 
 		Vector3 laserColor = new Vector3(0f, 0.8f, 0f);
 		int LaserFired = 0;
-		//public List<Laser> fired = new List<Laser>();
+		
 		List<Vector2> deltas = new List<Vector2>();
 		int maxDeltas = 22;
 
 		public BoundingSphere boundingSphere;
+		public OrientedBoundingBox OBB;
+		public OrientedBoundingBox OBBL;
+		public OrientedBoundingBox OBBR;
+		public OrientedBoundingBox OBBU;
+		public OrientedBoundingBox OBBD;
 
 		public float MapLimit;
 		public int MapSize;
@@ -54,6 +59,7 @@ namespace TGC.MonoGame.TP
 			HP = 100;
 			Score = 0;
 			ScaleMatrix = Matrix.CreateScale(2.5f);
+	
 		}
 		public void Update(float elapsedTime, MyCamera camera)
 		{
@@ -68,11 +74,44 @@ namespace TGC.MonoGame.TP
 			updateFireRate();
 
 			updateEnergyRegen(elapsedTime);
-			if (boundingSphere == null)
-				boundingSphere = new BoundingSphere(Position, 50f);
-			else
-				boundingSphere.Center = Position;
+            if (boundingSphere == null)
+                boundingSphere = new BoundingSphere(Position, 15f);
+            else
+                boundingSphere.Center = Position;
+
+            if (OBB == null)
+            {
+				var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(Model);
+				// Scale it to match the model's transform
+				temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, 0.026f);
+				// Create an Oriented Bounding Box from the AABB
+				OBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+
+				var halfW = BoundingVolumesExtensions.Scale(temporaryCubeAABB, new Vector3(0.5f, 1f, 1f));
+				var halfH = BoundingVolumesExtensions.Scale(temporaryCubeAABB, new Vector3(1f, 0.5f, 1f));
+
+				OBBL = OrientedBoundingBox.FromAABB(halfW);
+				OBBR = OrientedBoundingBox.FromAABB(halfW);
+				OBBU = OrientedBoundingBox.FromAABB(halfH);
+				OBBD = OrientedBoundingBox.FromAABB(halfH);
+			}
 			
+			OBB.Center = Position;
+
+			OBBL.Center = Position - RightDirection * 7;
+			OBBR.Center = Position + RightDirection * 7;
+			OBBU.Center = Position + UpDirection * 2;
+			OBBD.Center = Position - UpDirection * 2;
+
+
+			OBB.Orientation = YPR;
+
+			OBBL.Orientation = YPR;
+			OBBR.Orientation = YPR;
+			OBBU.Orientation = YPR;
+			OBBD.Orientation = YPR;
+
+
 			float blockSize = MapLimit / MapSize;
 
 			CurrentBlock = new Vector2(
@@ -112,32 +151,32 @@ namespace TGC.MonoGame.TP
 			if (barrelRolling)
 				return;
 			var laserHit = false;
-			Laser hitBy = enemyLasers.Find(laser => laser.Hit(boundingSphere));
+			Laser hitBy = enemyLasers.Find(laser => laser.Hit(OBB));
 			if (hitBy != null)
 			{
 				laserHit = true;
-				HP -= 10;
+				//HP -= 10;
                 
 				if(HP <= 0)
                 {
 					SoundManager.Play3DSoundAt(SoundManager.Effect.TurretExplosion, Position);
 					SoundManager.StopSound(soundBoost);
-					Game.GameState = TGCGame.GmState.Defeat;
-                    Game.SelectedCamera = Game.Camera;
-                    //               Debug.WriteLine("Defeat");
-                    return; //no elimino el laser
+					Game.ChangeGameStateTo(TGCGame.GmState.Defeat);
+					//Game.SelectedCamera = Game.Camera;
+					//               Debug.WriteLine("Defeat");
+					return; //no elimino el laser
                 }
                 enemyLasers.Remove(hitBy);
 			}
 			// me fijo si el xwing esta por debajo del eje Y (posible colision con trench)
 			// y adentro (entre las paredes) del bloque actual
-			bool inTrench = true;
+			bool inTrench = false;
 			if (Position.Y <= 0)
 			{
 				inTrench = map[(int)CurrentBlock.X, (int)CurrentBlock.Y].IsInTrench(boundingSphere);
 				//Colision con pared de trench (rebote/perder/quitar hp/)
 			}
-            hit = !inTrench || laserHit;
+            hit = inTrench || laserHit;
 
 
         }
@@ -340,13 +379,19 @@ namespace TGC.MonoGame.TP
 			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll)),
 			Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(Yaw), MathHelper.ToRadians(Pitch), MathHelper.ToRadians(Roll))
 		};
-			translation = Matrix.CreateTranslation(Position + FrontDirection * 60f);
+			var forwardPos = Position + FrontDirection * 60f;
+			translation = Matrix.CreateTranslation(forwardPos);
+			Vector3[] newPos = new Vector3[] {
+				forwardPos + UpDirection * offsetVtop + RightDirection * offsetH,
+				forwardPos - UpDirection * offsetVbot + RightDirection * offsetH,
+				forwardPos - UpDirection * offsetVbot - RightDirection * offsetH,
+				forwardPos + UpDirection * offsetVtop - RightDirection * offsetH};
 			t = new Matrix[] {
-			Matrix.CreateTranslation(UpDirection * offsetVtop + RightDirection * offsetH),
-			Matrix.CreateTranslation(-UpDirection * offsetVbot + RightDirection * offsetH),
-			Matrix.CreateTranslation(-UpDirection * offsetVbot - RightDirection * offsetH),
-			Matrix.CreateTranslation(UpDirection * offsetVtop - RightDirection * offsetH)
-		};
+				Matrix.CreateTranslation(newPos[0]),
+				Matrix.CreateTranslation(newPos[1]),
+				Matrix.CreateTranslation(newPos[2]),
+				Matrix.CreateTranslation(newPos[3])
+			};
 
 			laserFront.X = MathF.Cos(MathHelper.ToRadians(Yaw + corr[LaserFired])) * MathF.Cos(MathHelper.ToRadians(Pitch));
 			laserFront.Y = MathF.Sin(MathHelper.ToRadians(Pitch));
@@ -354,11 +399,12 @@ namespace TGC.MonoGame.TP
 
 			laserFront = Vector3.Normalize(laserFront);
 
+			
 			for (var i = 0; i < 4; i++)
-				laserSRT[i] = scale * YPR * translation * t[i];
+				laserSRT[i] = scale * YPR *  t[i];
 
 
-			Laser.AlliedLasers.Add(new Laser(Position, YPR, laserSRT[LaserFired], FrontDirection, laserColor));
+			Laser.AlliedLasers.Add(new Laser(newPos[LaserFired], YPR, laserSRT[LaserFired], FrontDirection, laserColor));
 
 			LaserFired++;
 			LaserFired %= 4;

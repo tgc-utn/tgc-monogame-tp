@@ -15,7 +15,8 @@ namespace TGC.MonoGame.TP
 		public Vector3 Color { get; set; }
 		public TrenchType Type { get; set; }
 		public List<TrenchTurret> Turrets = new List<TrenchTurret>();
-		public List<BoundingBox> boundingBoxes = new List<BoundingBox>();
+		//public List<BoundingBox> boundingBoxes = new List<BoundingBox>();
+		public List<OrientedBoundingBox> boundingBoxes = new List<OrientedBoundingBox>();
 		public Trench(TrenchType t, Model m)
         {
 			Type = t;
@@ -35,6 +36,14 @@ namespace TGC.MonoGame.TP
 
 			return hit;
         }
+		public bool IsInTrench(OrientedBoundingBox element)
+		{
+			var hit = false;
+			foreach (var box in boundingBoxes)
+				hit |= box.Intersects(element);
+
+			return hit;
+		}
 		private static Trench GetNextTrench(Trench input, float rotation)
 		{
 			//Si es bloque de estos y no esta alineado, entonces es un straight
@@ -353,71 +362,119 @@ namespace TGC.MonoGame.TP
             Matrix T = Matrix.CreateTranslation(new Vector3(0, -35, 0));
             float delta = 395.5f;
 
+			
+
             Random rnd = new Random();
             for (int x = 0; x < TGCGame.MapSize; x++)
             {
 
                 tz = 0;
-                for (int z = 0; z < TGCGame.MapSize; z++)
-                {
-                    var r = rnd.Next(0, 100);
+				for (int z = 0; z < TGCGame.MapSize; z++)
+				{
+					var r = rnd.Next(0, 100);
 
-                    Trench block = Game.Map[x, z];
-
-
-                    block.Model = TGCGame.GetModelFromType(Game.Map[x, z].Type);
-
-                    block.Position = new Vector3(tx, 0, tz);
-
-                    var boxWidth = 20;
-
-                    var VerticalFullBox = new BoundingBox(
-                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
-                    var HorizontalFullBox = new BoundingBox(
-                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
-
-                    var VerticalHalfBox = new BoundingBox(
-                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta * 0.5f));
-                    var VerticalHalfBox2 = new BoundingBox(
-                        block.Position - new Vector3(boxWidth * 0.5f, 50, delta * 0.5f), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
-
-                    var HorizontalHalfBox = new BoundingBox(
-                        block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta * 0.5f, 0, boxWidth * 0.5f));
-                    var HorizontalHalfBox2 = new BoundingBox(
-                        block.Position - new Vector3(delta * 0.5f, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
-
-                    Vector3[] turretDelta = new Vector3[] { Vector3.Zero, Vector3.Zero };
+					Trench block = Game.Map[x, z];
 
 
-                    //var turretDeltaY = 8f;
+					block.Model = TGCGame.GetModelFromType(Game.Map[x, z].Type);
 
-                    switch (block.Type)
-                    {
-                        case TrenchType.Platform:
-                            R = Matrix.Identity;
+					block.Position = new Vector3(tx, 0, tz);
 
-                            turretDelta = calculateTurretDelta(
-                                block.Rotation,
-                                new Vector3(77.3f, 8f, -82.5f),
-                                new Vector3(-76.9f, 8f, 82.6f),
-                                TrenchType.Platform);
+					var boxWidth = 175f;
+					var boxDepth = 50f;
+					var deltaOver2 = delta * 0.5f;
+					
+					var verticalLeftBoxMin = block.Position + new Vector3(-deltaOver2, 0, -deltaOver2);
+					var verticalLeftBoxMax = verticalLeftBoxMin + new Vector3(boxWidth, -boxDepth, delta);
+					var VerticalLeftBox = new BoundingBox(verticalLeftBoxMin, verticalLeftBoxMax);
 
-                            break;
-                        case TrenchType.Straight:
-                            R = Matrix.CreateRotationY(-MathHelper.PiOver2);
+					var verticalRightBoxMax = block.Position + new Vector3(deltaOver2, 0, deltaOver2);
+					var verticalRightBoxMin = verticalRightBoxMax + new Vector3(-boxWidth, -boxDepth, -delta);
+					var VerticalRightBox = new BoundingBox(verticalRightBoxMin, verticalRightBoxMax);
 
-                            turretDelta = calculateTurretDelta(
-                                block.Rotation,
-                                new Vector3(50.5f, 8f, -159f),
-                                new Vector3(-83.49f, 8f, -77.5f),
-                                TrenchType.Straight);
+					var horizontalTopBoxMin = block.Position + new Vector3(-deltaOver2, 0f, deltaOver2);
+					var horizontalTopBoxMax = horizontalTopBoxMin + new Vector3(delta, -boxDepth, -boxWidth);
+					var HorizontalTopBox = new BoundingBox(horizontalTopBoxMin, horizontalTopBoxMax);
 
-                            if (block.Rotation == 0f || block.Rotation == 180f)
-                                block.boundingBoxes.Add(VerticalFullBox);
-                            else
-                                block.boundingBoxes.Add(HorizontalFullBox);
+					var horizontalBottomBoxMax = block.Position + new Vector3(deltaOver2, 0, -deltaOver2);
+					var horizontalBottomBoxMin = horizontalBottomBoxMax + new Vector3(-delta, -boxDepth, boxWidth);
+					var HorizontalBottomBox = new BoundingBox(horizontalBottomBoxMin, horizontalBottomBoxMax);
 
-                            break;
+					var BottomLeftBox = new BoundingBox(verticalLeftBoxMin, verticalLeftBoxMin + new Vector3(boxWidth, -boxDepth, boxWidth));
+
+					var TopLeftBox = new BoundingBox(horizontalTopBoxMin, horizontalTopBoxMin + new Vector3(boxWidth, -boxDepth, -boxWidth));
+
+					var TopRightBox = new BoundingBox(verticalRightBoxMax, verticalRightBoxMax + new Vector3(-boxWidth, -boxDepth, -boxWidth));
+
+					var BottomRightBox = new BoundingBox(horizontalBottomBoxMax, horizontalBottomBoxMax + new Vector3(-boxWidth, -boxDepth, boxWidth));
+
+					var VLOOB = OrientedBoundingBox.FromAABB(VerticalLeftBox);
+					var VROOB = OrientedBoundingBox.FromAABB(VerticalRightBox);
+					var HTOOB = OrientedBoundingBox.FromAABB(HorizontalTopBox);
+					var HBOOB = OrientedBoundingBox.FromAABB(HorizontalBottomBox);
+					var TLOOB = OrientedBoundingBox.FromAABB(TopLeftBox);
+					var BLOOB = OrientedBoundingBox.FromAABB(BottomLeftBox);
+					var TROOB = OrientedBoundingBox.FromAABB(TopRightBox);
+					var BROOB = OrientedBoundingBox.FromAABB(BottomRightBox);
+
+					//var VerticalFullBox = new BoundingBox(
+					//    block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
+					//var HorizontalFullBox = new BoundingBox(
+					//    block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
+
+					//var VerticalHalfBox = new BoundingBox(
+					//    block.Position - new Vector3(boxWidth * 0.5f, 50, delta), block.Position + new Vector3(boxWidth * 0.5f, 0, delta * 0.5f));
+					//var VerticalHalfBox2 = new BoundingBox(
+					//    block.Position - new Vector3(boxWidth * 0.5f, 50, delta * 0.5f), block.Position + new Vector3(boxWidth * 0.5f, 0, delta));
+
+					//var HorizontalHalfBox = new BoundingBox(
+					//    block.Position - new Vector3(delta, 50, boxWidth * 0.5f), block.Position + new Vector3(delta * 0.5f, 0, boxWidth * 0.5f));
+					//var HorizontalHalfBox2 = new BoundingBox(
+					//    block.Position - new Vector3(delta * 0.5f, 50, boxWidth * 0.5f), block.Position + new Vector3(delta, 0, boxWidth * 0.5f));
+
+					Vector3[] turretDelta = new Vector3[] { Vector3.Zero, Vector3.Zero };
+
+
+					//var turretDeltaY = 8f;
+
+					switch (block.Type)
+					{
+						case TrenchType.Platform:
+							R = Matrix.Identity;
+
+							turretDelta = calculateTurretDelta(
+								block.Rotation,
+								new Vector3(77.3f, 8f, -82.5f),
+								new Vector3(-76.9f, 8f, 82.6f),
+								TrenchType.Platform);
+
+							break;
+						case TrenchType.Straight:
+							R = Matrix.CreateRotationY(-MathHelper.PiOver2);
+
+							turretDelta = calculateTurretDelta(
+								block.Rotation,
+								new Vector3(50.5f, 8f, -159f),
+								new Vector3(-83.49f, 8f, -77.5f),
+								TrenchType.Straight);
+
+							if (block.Rotation == 0f || block.Rotation == 180f)
+							{
+                                //block.boundingBoxes.Add(VerticalLeftBox);
+                                //block.boundingBoxes.Add(VerticalRightBox);
+								block.boundingBoxes.Add(VLOOB);
+								block.boundingBoxes.Add(VROOB);
+
+							}
+							else
+                            {
+								//block.boundingBoxes.Add(HorizontalTopBox);
+								//block.boundingBoxes.Add(HorizontalBottomBox);
+								block.boundingBoxes.Add(HTOOB);
+                                block.boundingBoxes.Add(HBOOB);
+                            }
+
+							break;
 
                         case TrenchType.T:
                             R = Matrix.CreateRotationY(MathHelper.PiOver2);
@@ -430,21 +487,38 @@ namespace TGC.MonoGame.TP
                             switch (block.Rotation)
                             {
                                 case 0f:
-                                    block.boundingBoxes.Add(VerticalHalfBox);
-                                    block.boundingBoxes.Add(HorizontalFullBox);
-                                    break;
+                                    //block.boundingBoxes.Add(HorizontalTopBox);
+                                    //block.boundingBoxes.Add(BottomLeftBox);
+                                    //block.boundingBoxes.Add(BottomRightBox);
+									block.boundingBoxes.Add(HTOOB);
+									block.boundingBoxes.Add(BLOOB);
+									block.boundingBoxes.Add(BROOB);
+
+									break;
                                 case 90f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox);
-                                    block.boundingBoxes.Add(VerticalFullBox);
-                                    break;
+									//block.boundingBoxes.Add(VerticalRightBox);
+									//block.boundingBoxes.Add(TopLeftBox);
+         //                           block.boundingBoxes.Add(BottomLeftBox);
+									block.boundingBoxes.Add(VROOB);
+									block.boundingBoxes.Add(TLOOB);
+									block.boundingBoxes.Add(BLOOB);
+									break;
                                 case 180f:
-                                    block.boundingBoxes.Add(VerticalHalfBox2);
-                                    block.boundingBoxes.Add(HorizontalFullBox);
-                                    break;
+         //                           block.boundingBoxes.Add(HorizontalBottomBox);
+									//block.boundingBoxes.Add(TopLeftBox);
+									//block.boundingBoxes.Add(TopRightBox);
+									block.boundingBoxes.Add(HBOOB);
+									block.boundingBoxes.Add(TLOOB);
+									block.boundingBoxes.Add(TROOB);
+									break;
                                 case 270f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox2);
-                                    block.boundingBoxes.Add(VerticalFullBox);
-                                    break;
+									//block.boundingBoxes.Add(VerticalLeftBox);
+									//block.boundingBoxes.Add(TopRightBox);
+									//block.boundingBoxes.Add(BottomRightBox);
+									block.boundingBoxes.Add(VLOOB);
+									block.boundingBoxes.Add(TROOB);
+									block.boundingBoxes.Add(BROOB);
+									break;
                             }
                             break;
                         case TrenchType.Elbow:
@@ -458,23 +532,47 @@ namespace TGC.MonoGame.TP
 
                             switch (block.Rotation)
                             {
-                                case 0f:
-                                    block.boundingBoxes.Add(VerticalHalfBox);
-                                    block.boundingBoxes.Add(HorizontalHalfBox);
-                                    break;
-                                case 90f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox);
-                                    block.boundingBoxes.Add(VerticalHalfBox2);
-                                    break;
-                                case 180f:
-                                    block.boundingBoxes.Add(VerticalHalfBox2);
-                                    block.boundingBoxes.Add(HorizontalHalfBox2);
-                                    break;
-                                case 270f:
-                                    block.boundingBoxes.Add(HorizontalHalfBox2);
-                                    block.boundingBoxes.Add(VerticalHalfBox);
-                                    break;
-                            }
+         //                       case 0f:
+         //                           block.boundingBoxes.Add(HorizontalTopBox);
+         //                           block.boundingBoxes.Add(VerticalRightBox);
+									//block.boundingBoxes.Add(BottomLeftBox);
+									//break;
+         //                       case 90f:
+									//block.boundingBoxes.Add(HorizontalBottomBox);
+									//block.boundingBoxes.Add(VerticalLeftBox);
+									//block.boundingBoxes.Add(TopRightBox);
+									//break;
+         //                       case 180f:
+									//block.boundingBoxes.Add(HorizontalTopBox);
+									//block.boundingBoxes.Add(VerticalLeftBox);
+									//block.boundingBoxes.Add(BottomRightBox);
+									//break;
+         //                       case 270f:
+									//block.boundingBoxes.Add(HorizontalBottomBox);
+									//block.boundingBoxes.Add(VerticalRightBox);
+									//block.boundingBoxes.Add(TopLeftBox);
+									//break;
+								case 0f:
+									block.boundingBoxes.Add(HTOOB);
+									block.boundingBoxes.Add(VROOB);
+									block.boundingBoxes.Add(BLOOB);
+									break;
+								case 90f:
+									block.boundingBoxes.Add(HBOOB);
+									block.boundingBoxes.Add(VLOOB);
+									block.boundingBoxes.Add(TROOB);
+									break;
+								case 180f:
+									block.boundingBoxes.Add(HTOOB);
+									block.boundingBoxes.Add(VLOOB);
+									block.boundingBoxes.Add(BROOB);
+									break;
+								case 270f:
+									block.boundingBoxes.Add(HBOOB);
+									block.boundingBoxes.Add(VROOB);
+									block.boundingBoxes.Add(TLOOB);
+									break;
+							}
                             break;
                         case TrenchType.Intersection:
                             R = Matrix.Identity;
@@ -485,9 +583,15 @@ namespace TGC.MonoGame.TP
                                 new Vector3(-63.3f, 8f, 50.7f),
                                 TrenchType.Intersection);
 
-                            block.boundingBoxes.Add(HorizontalFullBox);
-                            block.boundingBoxes.Add(VerticalFullBox);
-                            break;
+       //                     block.boundingBoxes.Add(TopLeftBox);
+       //                     block.boundingBoxes.Add(BottomLeftBox);
+							//block.boundingBoxes.Add(TopRightBox);
+							//block.boundingBoxes.Add(BottomRightBox);
+							block.boundingBoxes.Add(TLOOB);
+							block.boundingBoxes.Add(BLOOB);
+							block.boundingBoxes.Add(TROOB);
+							block.boundingBoxes.Add(BROOB);
+							break;
 
                     }
 
@@ -501,7 +605,7 @@ namespace TGC.MonoGame.TP
                     if (r < 10) // %10 chance de tener dos
                         block.Turrets.Add(new TrenchTurret());
 
-					var tsize = 10f;
+					var tsize = 4f;
 
                     int index = 0;
                     foreach (var turret in block.Turrets)
