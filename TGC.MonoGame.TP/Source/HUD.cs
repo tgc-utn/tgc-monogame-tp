@@ -19,8 +19,8 @@ namespace TGC.MonoGame.TP
         Texture2D[] mmT;
         Texture2D mmIntersection, mmPlatform;
 
-        Texture2D TopLeftBar;
         Texture2D BtnPlay, BtnContinue, BtnMenu, BtnExit, BtnOptions;
+        Texture2D Xwing;
 
         public SpriteFont SpriteFont;
         public SpriteFont BigFont;
@@ -30,6 +30,7 @@ namespace TGC.MonoGame.TP
         public List<Button> pauseBtns = new List<Button>();
         public List<Button> endBtns = new List<Button>();
 
+        public bool ShowFullMap = false;
         SpriteBatch SpriteBatch;
 
         TGCGame Game;
@@ -88,6 +89,7 @@ namespace TGC.MonoGame.TP
 
             mmIntersection = Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/intersection");
             mmPlatform = Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/platform");
+            Xwing = Content.Load<Texture2D>(ContentFolderTextures + "HUD/MiniMap/xwing");
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "Starjedi");
             GenerateMiniMap();
             Init();
@@ -144,21 +146,27 @@ namespace TGC.MonoGame.TP
             MiniMap = (Texture2D) MiniMapTarget;
             //SpriteBatch.Draw(mmStraight[0], pos, null, Color.White, rotation, rotationCenter, 1f, SpriteEffects.None, 0);
         }
-        Rectangle CalculateMiniMapRec(out Vector2 recCenter)
+        Vector2 CalculateMiniMapXwingPos()
         {
             var mapSize = TGCGame.MapSize;
             var mapLimit = Game.MapLimit;
             var blockSize = mapLimit / mapSize;
             var xwing = Game.Xwing;
-            
+
             var CurrentBlock = new Vector2(
                 xwing.Position.X / blockSize + 0.5f, xwing.Position.Z / blockSize + 0.5f);
 
             CurrentBlock.X = MathHelper.Clamp(CurrentBlock.X, 0, mapSize - 1);
             CurrentBlock.Y = MathHelper.Clamp(CurrentBlock.Y, 0, mapSize - 1);
-
-            recCenter.X = (int) MathHelper.Lerp(0, 50 * mapSize, CurrentBlock.X / mapSize);
+            Vector2 recCenter;
+            recCenter.X = (int)MathHelper.Lerp(0, 50 * mapSize, CurrentBlock.X / mapSize);
             recCenter.Y = (int)MathHelper.Lerp(0, 50 * mapSize, CurrentBlock.Y / mapSize);
+
+            return recCenter;
+        }
+        Rectangle CalculateMiniMapRec()
+        {
+            var recCenter = CalculateMiniMapXwingPos();
 
             //Debug.WriteLine(Game.Vector2ToStr(CurrentBlock) + " x " + recCenter.X + " y " + recCenter.Y);
 
@@ -173,6 +181,7 @@ namespace TGC.MonoGame.TP
         public void Init()
         {
             size = Game.GraphicsDevice.Viewport.Bounds.Size;
+            
             center = new Vector2(size.X / 2, size.Y / 2);
             btnCenter = new Point(size.X / 2 + 200, size.Y / 2 - 90);
             btnDelta = 150;
@@ -211,6 +220,7 @@ namespace TGC.MonoGame.TP
 
 
         }
+
         public void Draw()
         {
             String topMessage;
@@ -228,9 +238,6 @@ namespace TGC.MonoGame.TP
                     foreach (Button btn in startScreenBtns)
                         SpriteBatch.Draw(btn.Image, btn.Position, null, Color.White, 0f, Vector2.Zero, btnScale, SpriteEffects.None, 0f);
 
-                    //debug
-                    //SpriteBatch.Draw(MiniMap,
-                    //    new Vector2(size.X/2 - 100, size.Y/2), null, Color.White, MathHelper.Pi, new Vector2(525,525), 0.5f, SpriteEffects.None, 0);
                     #endregion
                     break;
                 case TGCGame.GmState.Options:
@@ -244,37 +251,64 @@ namespace TGC.MonoGame.TP
                     
                     SpriteBatch.Draw(HPBar[Game.Xwing.GetHPIndex()], new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
 
-                    topMessage = "FPS " + Game.FPS + " HP " + Game.Xwing.HP;
+                    //topMessage = "FPS " + Game.FPS + " HP " + Game.Xwing.HP;
+                    topMessage = "Trenches drawn "+Game.TrenchesDrawn + "/" + Game.TrenchesInZone;
                     SpriteBatch.DrawString(SpriteFont, topMessage, new Vector2(80, 45), Color.White);
-
-                    var rotation = -MathHelper.ToRadians(Game.Xwing.Yaw);
-                  
-                    //var pos = new Vector2(100, size.Y - 150);
-
-                    var pos = new Vector2(240, size.Y - 100);
-
-                    //TODO: FIX Minimap rotation (non centered rotation)
-                    Vector2 recCenter;
-                    var ViewRec = CalculateMiniMapRec(out recCenter);
-                   
-                    SpriteBatch.Draw(MiniMap,
-                        pos, ViewRec,Color.White, MathHelper.Pi, Vector2.Zero, 1f, SpriteEffects.None, 0);
-                    //SpriteBatch.Draw(MiniMap,
-                    //    pos, ViewRec, Color.White, rotation, recCenter, 1f, SpriteEffects.None, 0);
-
 
                     //energy
                     SpriteBatch.Draw(HudEnergy[Game.Xwing.Energy], new Vector2(size.X - 300f, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
 
-                    //Crosshair
-                    if (Game.SelectedCamera.Equals(Game.Camera))
+                    if (ShowFullMap)
                     {
-                        //var scale = 0.1f; 
-                        //var sz = 512 * scale;
-                        var scale = 0.2f;
-                        var sz = 300 * scale;
-                        SpriteBatch.Draw(Crosshairs[2], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
+                        var pos = new Vector2(size.X / 2, size.Y / 2);
+                        var fullMapScale = 0.5f;
+                        
+                        SpriteBatch.Draw(MiniMap,
+                            pos, null, Color.White, MathHelper.Pi, new Vector2(525, 525), fullMapScale, SpriteEffects.None, 0);
+
+                        Vector2 xwingPos = CalculateMiniMapXwingPos();
+                        xwingPos.X = (int)xwingPos.X * fullMapScale;
+                        xwingPos.Y = (int)xwingPos.Y * fullMapScale;
+
+                        var topleft = pos - new Vector2(262, 262);
+
+                        var finalPos = topleft + new Vector2(525 - xwingPos.X, 525 - xwingPos.Y);
+                        var rotation = MathHelper.ToRadians(Game.Xwing.Yaw) - MathHelper.PiOver2;
+
+                        SpriteBatch.Draw(Xwing,
+                            finalPos, null, Color.White, rotation, new Vector2(226, 226), 0.1f, SpriteEffects.None, 0);
+
                     }
+                    else
+                    {
+                        var rotation = -MathHelper.ToRadians(Game.Xwing.Yaw) - MathHelper.PiOver2;
+
+
+                        var pos = new Vector2(150, size.Y - 150);
+                        var ViewRec = CalculateMiniMapRec();
+
+                        var offset = new Vector2(ViewRec.Width * 0.5f, ViewRec.Height * 0.5f);
+                        SpriteBatch.Draw(MiniMap,
+                            pos, ViewRec, Color.White, rotation, offset, 1f, SpriteEffects.None, 0);
+                        
+                        var xwingpos = new Vector2(126, size.Y - 181);
+                        SpriteBatch.Draw(Xwing,
+                            xwingpos, null, Color.White, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0);
+
+                        //Crosshair
+                        if (Game.SelectedCamera.Equals(Game.Camera))
+                        {
+                            //var scale = 0.1f; 
+                            //var sz = 512 * scale;
+                            var scale = 0.2f;
+                            var sz = 300 * scale;
+                            SpriteBatch.Draw(Crosshairs[2], new Vector2(center.X - sz / 2, center.Y - sz / 2), null, Color.White, 0f, Vector2.Zero, new Vector2(scale, scale), SpriteEffects.None, 0f);
+                        }
+                    }
+                    
+
+                    
+                    
                     #endregion
                     break;
 

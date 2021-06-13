@@ -62,6 +62,17 @@ namespace TGC.MonoGame.TP
                     Game.ShowGizmos= !Game.ShowGizmos;
                 }
             }
+            if (kState.IsKeyDown(Keys.P))
+            {
+                if (!ignoredKeys.Contains(Keys.P))
+                {
+                    ignoredKeys.Add(Keys.P);
+                    Game.ApplyBloom = !Game.ApplyBloom;
+                    Game.saveToFile = true;
+                }
+            }
+
+
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
@@ -82,7 +93,6 @@ namespace TGC.MonoGame.TP
                         Game.Camera.ProcessMouse(Game.Xwing);
                     Game.Camera.ProcessKeyboard(Game.Xwing);
 
-
                     if (Game.Camera.MouseLookEnabled)
                     {
                         if (mState.LeftButton.Equals(ButtonState.Pressed))
@@ -90,10 +100,13 @@ namespace TGC.MonoGame.TP
                             Game.Xwing.fireLaser();
                         }
                     }
-                    if (kState.IsKeyDown(Keys.B))
-                        Game.SelectedCamera = Game.LookBack;
-                    else
-                        Game.SelectedCamera = Game.Camera;
+
+                    Game.SelectedCamera = kState.IsKeyDown(Keys.B) ? Game.LookBack : Game.Camera;
+                    Game.HUD.ShowFullMap = kState.IsKeyDown(Keys.CapsLock);
+                    //if (kState.IsKeyDown(Keys.B))
+                    //    Game.SelectedCamera = Game.LookBack;
+                    //else
+                    //    Game.SelectedCamera = Game.Camera;
                     if (kState.IsKeyDown(Keys.Escape))
                     {
                         if (!ignoredKeys.Contains(Keys.Escape))
@@ -154,15 +167,15 @@ namespace TGC.MonoGame.TP
                     }
                     //parameter debug (i.e. moving models)
                     #region parameterDebug
-                    var inputDelta = 0.05f;
+                    var inputDelta = 1;
                     var deltaX = 0f;
                     //var deltaY = 0f;
                     var deltaZ = 0f;
                     var update = false;
                     if (kState.IsKeyDown(Keys.N))
-                        inputDelta = 0.1f;
+                        inputDelta = 4;
                     else
-                        inputDelta = 0.05f;
+                        inputDelta = 1;
                     if (kState.IsKeyDown(Keys.I))
                     {
                         deltaZ = inputDelta;
@@ -206,11 +219,16 @@ namespace TGC.MonoGame.TP
                     //}
                     if (update)
                     {
-                        Game.kd += deltaX;
-                        Game.ks += deltaZ;
-                        Game.EffectLight.Parameters["KDiffuse"].SetValue(Game.kd);
-                        Game.EffectLight.Parameters["KSpecular"].SetValue(Game.ks);
-                        Debug.WriteLine("KD " + Game.kd+ " KS" + Game.ks);
+                        //Game.kd += deltaX;
+                        //Game.ks += deltaZ;
+                        //Game.EffectLight.Parameters["KDiffuse"].SetValue(Game.kd);
+                        //Game.EffectLight.Parameters["KSpecular"].SetValue(Game.ks);
+                        //Debug.WriteLine("KD " + Game.kd+ " KS" + Game.ks);
+                        //Game.HUD.XwingSpritePos.X += deltaX;
+                        //Game.HUD.XwingSpritePos.Y += deltaZ;
+
+                        //Debug.WriteLine(Game.IntVector2ToStr(Game.HUD.XwingSpritePos));
+
                     }
                     #endregion
                     #endregion
