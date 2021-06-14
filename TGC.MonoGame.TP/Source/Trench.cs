@@ -17,7 +17,7 @@ namespace TGC.MonoGame.TP
 		public List<TrenchTurret> Turrets = new List<TrenchTurret>();
 		//public List<BoundingBox> boundingBoxes = new List<BoundingBox>();
 		public List<OrientedBoundingBox> boundingBoxes = new List<OrientedBoundingBox>();
-		public BoundingSphere BS;
+		public BoundingBox BB;
 		public Trench(TrenchType t, Model m)
         {
 			Type = t;
@@ -363,9 +363,7 @@ namespace TGC.MonoGame.TP
             Matrix T = Matrix.CreateTranslation(new Vector3(0, -35, 0));
             float delta = 395.5f;
 
-			
-
-            Random rnd = new Random();
+			Random rnd = new Random();
             for (int x = 0; x < TGCGame.MapSize; x++)
             {
 
@@ -385,7 +383,10 @@ namespace TGC.MonoGame.TP
 					var boxDepth = 50f;
 					var deltaOver2 = delta * 0.5f;
 
-					block.BS = new BoundingSphere(block.Position, deltaOver2);
+					var BBmin = block.Position - new Vector3(deltaOver2, boxDepth, deltaOver2);
+					var BBmax = block.Position + new Vector3(deltaOver2, 0f, deltaOver2);
+
+					block.BB = new BoundingBox(BBmin, BBmax);
 					
 					var verticalLeftBoxMin = block.Position + new Vector3(-deltaOver2, 0, -deltaOver2);
 					var verticalLeftBoxMax = verticalLeftBoxMin + new Vector3(boxWidth, -boxDepth, delta);

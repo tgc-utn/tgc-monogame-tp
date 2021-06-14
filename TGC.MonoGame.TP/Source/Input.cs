@@ -68,10 +68,11 @@ namespace TGC.MonoGame.TP
                 {
                     ignoredKeys.Add(Keys.P);
                     Game.ApplyBloom = !Game.ApplyBloom;
-                    Game.saveToFile = true;
+                    //Game.saveToFile = true;
                 }
             }
-
+            Game.ShowBloomFilter = kState.IsKeyDown(Keys.O);
+            
 
             switch (Game.GameState)
             {

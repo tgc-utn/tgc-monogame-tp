@@ -32,6 +32,8 @@ namespace TGC.MonoGame.TP
         static Song MainTheme;
 
         public static float MasterVolume = 1f;
+        //public static float MasterVolume = 0f;
+
         public static float MusicVolume = 0.8f;
         public static float FXVolume = 0.6f;
 
@@ -73,12 +75,12 @@ namespace TGC.MonoGame.TP
 
             MainTheme = Content.Load<Song>(ContentFolderMusic + "TheImperialMarch");
 
-            //PlayMusic(MainTheme);
+            PlayMusic(MainTheme);
         }
         public static void PlayMusic(Song song)
         {
             StopMusic();
-            MediaPlayer.Volume = MusicVolume;
+            MediaPlayer.Volume = MusicVolume * MasterVolume;
             MediaPlayer.Play(song);
         }
         public static void StopMusic()
@@ -115,7 +117,7 @@ namespace TGC.MonoGame.TP
                     return null;
             }
 
-            sound.Volume = vol;
+            sound.Volume = vol * MasterVolume;
             sound.Play();
 
             return sound;

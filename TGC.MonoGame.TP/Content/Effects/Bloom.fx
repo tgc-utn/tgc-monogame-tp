@@ -97,7 +97,7 @@ float4 BloomIntegratePS(in VertexShaderOutput input) : COLOR
     float4 bloomColor = tex2D(bloomTextureSampler, input.TextureCoordinates);
     float4 sceneColor = tex2D(textureSampler, input.TextureCoordinates);
     
-    return sceneColor * 0.8 + bloomColor * 1.5;
+    return sceneColor * 0.8 + bloomColor * 2;
 }
 
 technique BloomModelPass
