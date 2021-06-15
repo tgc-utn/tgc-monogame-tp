@@ -137,6 +137,14 @@ namespace TGC.MonoGame.TP
 
 			Enemies.RemoveAll(enemy => enemy.HP <= 0);
 		}
+		public static void AddAllRequiredToDraw(ref List<TieFighter> drawList, BoundingFrustum frustum)
+        {
+			foreach(var enemy in Enemies)
+            {
+				if (frustum.Intersects(enemy.boundingSphere))
+					drawList.Add(enemy);
+            }
+        }
 		static void EnemyDeath(Vector3 pos, Xwing xwing)
         {
 			SoundManager.Play3DSoundAt(SoundManager.Effect.TieExplosion, pos);

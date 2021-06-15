@@ -107,6 +107,10 @@ namespace TGC.MonoGame.TP
         EffectParameter EPlightLightPosition;
         EffectParameter EPlightEyePosition;
         EffectParameter EPlightTexture;
+        EffectParameter EPlightKD;
+        EffectParameter EPlightKS;
+        EffectParameter EPlightSh;
+
 
         EffectParameter EPbloomWorldViewProjection;
         EffectParameter EPbloomTexture;
@@ -270,7 +274,12 @@ namespace TGC.MonoGame.TP
 
         BoundingFrustum BoundingFrustum = new BoundingFrustum(Matrix.Identity);
 
-        public int TrenchesDrawn, TrenchesInZone;
+        public int elementsDrawn, totalElements;
+        List<Trench> trenchesToDraw = new List<Trench>();
+        List<TieFighter> tiesToDraw = new List<TieFighter>();
+        List<Xwing> xwingsToDraw = new List<Xwing>();
+        List<Laser> lasersToDraw = new List<Laser>();
+
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -281,6 +290,7 @@ namespace TGC.MonoGame.TP
             Input.ProcessInput();
 
             BoundingFrustum.Matrix = SelectedCamera.View * SelectedCamera.Projection;
+            Vector4 zone = Vector4.One;
             
             switch (GameState)
             {
@@ -295,20 +305,32 @@ namespace TGC.MonoGame.TP
                     break;
                 case GmState.Running:
                     #region running
+                    trenchesToDraw.Clear();
+                    xwingsToDraw.Clear();
+                    tiesToDraw.Clear();
+                    lasersToDraw.Clear();
+
+                    elementsDrawn = 0;
+                    totalElements = 0;
+
                     //Update camara
                     Camera.Update(gameTime);
                     //Generacion de enemigos, de ser necesario
                     TieFighter.GenerateEnemies(Xwing);
+                    TieFighter.AddAllRequiredToDraw(ref tiesToDraw, BoundingFrustum);
+                    elementsDrawn += tiesToDraw.Count;
+                    totalElements += TieFighter.Enemies.Count;
                     //Update Xwing
                     Xwing.Update(elapsedTime, Camera);
+                    elementsDrawn += 1;
+                    totalElements += 1;
+                    xwingsToDraw.Add(Xwing);
 
-                    Vector4 zone = Xwing.GetZone();
+                    Trench.UpdateCurrent();
+                    zone = Xwing.GetZone();
 
                     //enemyLasers.Clear();
 
-                    trenchesToDraw.Clear();
-                    TrenchesInZone = 0;
-                    
                     for (int x = (int)zone.X; x < zone.Y; x++)
                         for (int z = (int)zone.Z; z < zone.W; z++)
                         {
@@ -319,12 +341,17 @@ namespace TGC.MonoGame.TP
                             if(BoundingFrustum.Intersects(block.BB))
                                 trenchesToDraw.Add(Map[x, z]);
 
-                            TrenchesInZone++;
+                            totalElements++;
                         }
-                    TrenchesDrawn = trenchesToDraw.Count;
+                    elementsDrawn += trenchesToDraw.Count;
 
                     Laser.UpdateAll(elapsedTime, Xwing);
+                    totalElements += Laser.AlliedLasers.Count;
+                    totalElements += Laser.EnemyLasers.Count;
 
+                    Laser.AddAllRequiredtoDraw(ref lasersToDraw, ref BoundingFrustum);
+                    elementsDrawn += lasersToDraw.Count;
+                    
                     //Colisiones
                     Xwing.VerifyCollisions(Laser.EnemyLasers, Map);
                     //Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
@@ -346,9 +373,20 @@ namespace TGC.MonoGame.TP
                 case GmState.Paused:
                     #region paused
 
-                
+
                     Camera.PausedUpdate(elapsedTime, Xwing);
 
+                    trenchesToDraw.Clear();
+                    
+                    Vector4 xzone = Xwing.GetZone();
+                    for (int x = (int)xzone.X; x < xzone.Y; x++)
+                        for (int z = (int)xzone.Z; z < xzone.W; z++)
+                        {
+                            var block = Map[x, z];
+                           
+                            if (BoundingFrustum.Intersects(block.BB))
+                                trenchesToDraw.Add(Map[x, z]);
+                        }
                     #endregion
                     break;
                 case GmState.Victory:
@@ -489,10 +527,6 @@ namespace TGC.MonoGame.TP
             var CameraProjection = SelectedCamera.Projection;
             var CameraPosition = SelectedCamera.Position;
 
-            //Effect.Parameters["View"].SetValue(CameraView);
-            //Effect.Parameters["Projection"].SetValue(CameraProjection);
-            //EffectTexture.Parameters["View"].SetValue(CameraView);
-            //EffectTexture.Parameters["Projection"].SetValue(CameraProjection);
             EPbasicView.SetValue(CameraView);
             EPtextureView.SetValue(CameraView);
             EPbasicProjection.SetValue(CameraProjection);
@@ -502,99 +536,36 @@ namespace TGC.MonoGame.TP
             if (!isBloomPass)
                 SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
 
-            switch (GameState)
+            if (GameState.Equals(GmState.Running) ||
+                GameState.Equals(GmState.Paused) ||
+                GameState.Equals(GmState.Defeat))
             {
-                case GmState.StartScreen:
-                    #region startscreen
+                foreach (var xwing in xwingsToDraw)
+                    DrawXWing(xwing, isBloomPass);
+                foreach (var enemy in tiesToDraw)
+                    DrawTie(enemy, isBloomPass);
+                foreach (var laser in lasersToDraw)
+                    DrawModel(LaserModel, laser.SRT, laser.Color);
+                DrawMap(isBloomPass);
 
-                    #endregion
-                    break;
-                case GmState.Running:
-                    #region running
-                    
-                    DrawMap(isBloomPass);
-                    foreach (var enemy in TieFighter.Enemies)
-                        DrawTie(enemy, isBloomPass);
+                if (ShowGizmos)
+                {
+                    Matrix SRT;
                     foreach (var laser in Laser.AlliedLasers)
-                        DrawModel(LaserModel, laser.SRT, laser.Color);
-                    foreach (var laser in Laser.EnemyLasers)
-                        DrawModel(LaserModel, laser.SRT, laser.Color);
-                    DrawXWing(isBloomPass);
-
-
-                    if (ShowGizmos)
                     {
-                        Matrix SRT;
-                        foreach (var laser in Laser.AlliedLasers)
-                        {
-                            var OBB = laser.BoundingBox;
-                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                            Gizmos.DrawCube(SRT, Color.White);
-                        }
-                        foreach (var laser in Laser.EnemyLasers)
-                        {
-                            var OBB = laser.BoundingBox;
-                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                            Gizmos.DrawCube(SRT, Color.White);
-                        }
+                        var OBB = laser.BoundingBox;
+                        SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                        Gizmos.DrawCube(SRT, Color.White);
                     }
-                    #endregion
-                    break;
-                case GmState.Paused:
-                    #region paused
-                    DrawMap(isBloomPass);
-                    foreach (var enemy in TieFighter.Enemies)
-                        DrawTie(enemy, isBloomPass);
-                    foreach (var laser in Laser.AlliedLasers)
-                        DrawModel(LaserModel, laser.SRT, laser.Color);
                     foreach (var laser in Laser.EnemyLasers)
-                        DrawModel(LaserModel, laser.SRT, laser.Color);
-
-                    if (ShowGizmos)
                     {
-                        Matrix SRT;
-                        foreach (var laser in Laser.AlliedLasers)
-                        {
-                            var OBB = laser.BoundingBox;
-                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                            Gizmos.DrawCube(SRT, Color.White);
-                        }
-                        foreach (var laser in Laser.EnemyLasers)
-                        {
-                            var OBB = laser.BoundingBox;
-                            SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                            Gizmos.DrawCube(SRT, Color.White);
-                        }
+                        var OBB = laser.BoundingBox;
+                        SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                        Gizmos.DrawCube(SRT, Color.White);
                     }
-                    DrawXWing(isBloomPass);
-
-                    #endregion
-                    break;
-                case GmState.Victory:
-                    #region victory
-                    #endregion
-                    break;
-                case GmState.Defeat:
-                    #region defeat
-                    if (!isBloomPass)
-                        DrawMap(isBloomPass);
-                    foreach (var enemy in TieFighter.Enemies)
-                        DrawTie(enemy, isBloomPass);
-                    foreach (var laser in Laser.AlliedLasers)
-                        DrawModel(LaserModel, laser.SRT, laser.Color);
-                    foreach (var laser in Laser.EnemyLasers)
-                        DrawModel(LaserModel, laser.SRT, laser.Color);
-                    DrawXWing(isBloomPass);
-                    #endregion
-                    break;
+                }
             }
-
         }
-        //float vDistance(Vector3 v, Vector3 w)
-        //{
-        //    return MathF.Sqrt(MathF.Pow(w.X - w.X, 2) + MathF.Pow(w.Y - w.Y, 2) + MathF.Pow(w.Z - w.Z, 2));
-        //}
-        List<Trench> trenchesToDraw = new List<Trench>();
         void DrawMap(bool isBloomPass)
         {
             foreach (var t in trenchesToDraw)
@@ -604,6 +575,10 @@ namespace TGC.MonoGame.TP
 
         void DrawTrench(Trench t, bool isBloomPass)
         {
+            EPlightKD.SetValue(0.8f);
+            EPlightKS.SetValue(0.4f);
+            EPlightSh.SetValue(3f);
+
             if (isBloomPass)
             {
                 assignEffectToModel(t.Model, Effect);
@@ -680,55 +655,67 @@ namespace TGC.MonoGame.TP
                 {
                     var index = 0;
                     Color[] colors = { Color.White, Color.Yellow, Color.Blue, Color.Magenta };
-                    //foreach (var BB in t.boundingBoxes)
-                    //{
-                    //    var color = colors[index];
-
-                    //    Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.OBB.Intersects(BB) ? Color.Red : color);
-                    //    index++;
-                    //}
-                    Matrix SRT;
-                    foreach (var OBB in t.boundingBoxes)
+                    foreach (var BB in t.boundingBoxes)
                     {
                         var color = colors[index];
-                        SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                        Gizmos.DrawCube(SRT, Xwing.OBB.Intersects(OBB) ? Color.Red : color);
+
+                        if (t.IsCurrent)
+                            color = Color.Cyan;
+                        
+                        Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.OBB.Intersects(BB) ? Color.Red : color);
                         index++;
                     }
+                    //Matrix SRT;
+                    //foreach (var OBB in t.boundingBoxes)
+                    //{
+                    //    var color = colors[index];
+                    //    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
+                    //    Gizmos.DrawCube(SRT, Xwing.OBB.Intersects(OBB) ? Color.Red : color);
+                    //    index++;
+                    //}
 
                 }
             }
         }
 
-        void DrawXWing(bool isBloomPass)
+        void DrawXWing(Xwing xwing, bool isBloomPass)
         {
             int meshCount = 0; //Como el xwing tiene 2 texturas, tengo que dibujarlo de esta manera
 
             //efecto para verificar colisiones, se pone rojo
-            if (Xwing.hit)
-                //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Right * 0.5f);
-                EPtextureColor.SetValue(Vector3.Right * 0.5f);
+            
+            EPlightKD.SetValue(1f);
+            EPlightKS.SetValue(1f);
+            EPlightSh.SetValue(20f);
 
 
-            DrawModel(Xwing.EnginesModel, Xwing.EnginesSRT, Xwing.EnginesColor);
+            DrawModel(xwing.EnginesModel, xwing.EnginesSRT, xwing.EnginesColor);
 
             if (isBloomPass)
             {
-                assignEffectToModel(Xwing.Model, Effect);
+                assignEffectToModel(xwing.Model, Effect);
                 //EffectBloom.Parameters["ApplyBloom"].SetValue(0f);
-                DrawModel(Xwing.Model, Xwing.SRT, Vector3.Zero);
-                assignEffectToModel(Xwing.Model, EffectTexture);
+                DrawModel(xwing.Model, xwing.SRT, Vector3.Zero);
+                //assignEffectToModel(Xwing.Model, EffectLight);
 
             }
             else
             {
-                foreach (var mesh in Xwing.Model.Meshes)
+                assignEffectToModel(xwing.Model, EffectLight);
+
+                foreach (var mesh in xwing.Model.Meshes)
                 {
-                    Xwing.World = mesh.ParentBone.Transform * Xwing.SRT;
+                    xwing.World = mesh.ParentBone.Transform * xwing.SRT;
 
-                    EPtextureWorld.SetValue(Xwing.World);
-                    EPtextureBaseTexture.SetValue(Xwing.Textures[meshCount]);
-
+                    //EPtextureWorld.SetValue(Xwing.World);
+                    //EPtextureBaseTexture.SetValue(Xwing.Textures[meshCount]);
+                    var wvp = xwing.World * SelectedCamera.View * SelectedCamera.Projection;
+                    
+                    EPlightWorld.SetValue(xwing.World);
+                    EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(xwing.World)));
+                    EPlightTexture.SetValue(xwing.Textures[meshCount]);
+                    EPlightWorldViewProjection.SetValue(wvp);
+                    
                     //EffectTexture.Parameters["World"].SetValue(Xwing.World);
                     //EffectTexture.Parameters["ModelTexture"].SetValue(Xwing.Textures[meshCount]);
                     meshCount++;
@@ -737,12 +724,17 @@ namespace TGC.MonoGame.TP
                 }
                 if (ShowGizmos)
                 {
-                    Gizmos.DrawSphere(Xwing.boundingSphere.Center, Xwing.boundingSphere.Radius * Vector3.One, Color.White);
+                    //var BB = xwing.BB;
+                    //Gizmos.DrawSphere(Xwing.boundingSphere.Center, Xwing.boundingSphere.Radius * Vector3.One, Color.White);
 
-                    var OBB = Xwing.OBB;
+                    //Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), 
+                        //BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.hit ? Color.Red : Color.White);
+
+                    
+                    var OBB = xwing.OBB;
                     Matrix SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.White);
-
+                    Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.White);
+                    /*
                     OBB = Xwing.OBBL;
                     SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
                     Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Yellow);
@@ -758,32 +750,43 @@ namespace TGC.MonoGame.TP
                     OBB = Xwing.OBBD;
                     SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
                     Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Green);
-                }
+                */
+              }
             }
 
         }
 
         void DrawTie(TieFighter tie, bool isBloomPass)
         {
+            EPlightKD.SetValue(0.2f);
+            EPlightKS.SetValue(0.2f);
+            EPlightSh.SetValue(0.5f);
+
             if (isBloomPass)
             {
                 assignEffectToModel(Tie, Effect);
                 //EffectBloom.Parameters["ApplyBloom"].SetValue(0f);
                 DrawModel(Tie, tie.SRT, Vector3.Zero);
                 
-                assignEffectToModel(Tie, EffectTexture);
+                
             }
             else
             {
+                assignEffectToModel(Tie, EffectLight);
                 Matrix world;
                 foreach (var mesh in Tie.Meshes)
                 {
                     world = mesh.ParentBone.Transform * tie.SRT;
 
-                    EPtextureWorld.SetValue(world);
-                    EPtextureBaseTexture.SetValue(TieTexture);
-                    EPtextureColor.SetValue(Vector3.Zero);
+                    //EPtextureWorld.SetValue(world);
+                    //EPtextureBaseTexture.SetValue(TieTexture);
+                    //EPtextureColor.SetValue(Vector3.Zero);
 
+                    var wvp = world * SelectedCamera.View * SelectedCamera.Projection;
+                    EPlightWorld.SetValue(world);
+                    EPlightTexture.SetValue(TieTexture);
+                    EPlightWorldViewProjection.SetValue(wvp);
+                    EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                     //EffectTexture.Parameters["World"].SetValue(world);
                     //EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);
                     //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.One);
@@ -830,10 +833,14 @@ namespace TGC.MonoGame.TP
             EffectLight.Parameters["diffuseColor"].SetValue(new Vector3(1f, 1f, 1f));
             EffectLight.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
 
-            EffectLight.Parameters["KAmbient"].SetValue(0.3f);
-            EffectLight.Parameters["KDiffuse"].SetValue(kd);
-            EffectLight.Parameters["KSpecular"].SetValue(ks);
+            EffectLight.Parameters["KAmbient"].SetValue(0.4f);
+            EffectLight.Parameters["KDiffuse"].SetValue(0.8f);
+            EffectLight.Parameters["KSpecular"].SetValue(0.4f);
             EffectLight.Parameters["shininess"].SetValue(3f);
+
+            EPlightKD = EffectLight.Parameters["KDiffuse"];
+            EPlightKS = EffectLight.Parameters["KSpecular"];
+            EPlightSh = EffectLight.Parameters["shininess"];
 
             EffectBloom.Parameters["enginesColor1"].SetValue(new Vector3(0f, 0.6f, 0.8f));
             EffectBloom.Parameters["enginesColor2"].SetValue(new Vector3(0.7f, 0.15f, 0f));

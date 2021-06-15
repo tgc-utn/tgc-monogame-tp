@@ -45,6 +45,7 @@ namespace TGC.MonoGame.TP
 		int maxDeltas = 22;
 
 		public BoundingSphere boundingSphere;
+		public BoundingBox BB;
 		public OrientedBoundingBox OBB;
 		public OrientedBoundingBox OBBL;
 		public OrientedBoundingBox OBBR;
@@ -79,7 +80,18 @@ namespace TGC.MonoGame.TP
             else
                 boundingSphere.Center = Position;
 
-            if (OBB == null)
+			var min = Position - new Vector3(10, 5, 10);
+			var max = Position + new Vector3(10, 5, 10);
+			if (BB == null)
+			{
+				//BB = BoundingVolumesExtensions.CreateAABBFrom(Model);
+				//BB = BoundingVolumesExtensions.Scale(BB, 0.026f);
+				BB = new BoundingBox(min, max);
+			}
+			BB.Min = min;
+			BB.Max = max;
+
+			if (OBB == null)
             {
 				var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(Model);
 				// Scale it to match the model's transform
@@ -111,6 +123,7 @@ namespace TGC.MonoGame.TP
 			OBBU.Orientation = YPR;
 			OBBD.Orientation = YPR;
 
+			
 
 			float blockSize = MapLimit / MapSize;
 
@@ -171,11 +184,15 @@ namespace TGC.MonoGame.TP
 			// me fijo si el xwing esta por debajo del eje Y (posible colision con trench)
 			// y adentro (entre las paredes) del bloque actual
 			bool inTrench = false;
-			if (Position.Y <= 0)
-			{
-				inTrench = map[(int)CurrentBlock.X, (int)CurrentBlock.Y].IsInTrench(boundingSphere);
+            if (Position.Y <= 0)
+            {
+				if (Position.Y > -50)
+					inTrench = map[(int)CurrentBlock.X, (int)CurrentBlock.Y].IsInTrench(OBB);
+				else
+					inTrench = true;
 				//Colision con pared de trench (rebote/perder/quitar hp/)
-			}
+            }
+
             hit = inTrench || laserHit;
 
 

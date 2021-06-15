@@ -252,7 +252,7 @@ namespace TGC.MonoGame.TP
                     SpriteBatch.Draw(HPBar[Game.Xwing.GetHPIndex()], new Vector2(0, 20f), null, Color.White, 0f, Vector2.Zero, new Vector2(1f, 1f), SpriteEffects.None, 0f);
 
                     //topMessage = "FPS " + Game.FPS + " HP " + Game.Xwing.HP;
-                    topMessage = "Trenches drawn "+Game.TrenchesDrawn + "/" + Game.TrenchesInZone;
+                    topMessage = "E "+Game.elementsDrawn + "/" + Game.totalElements + " Pos "+Game.IntVector3ToStr(Game.Xwing.Position);
                     SpriteBatch.DrawString(SpriteFont, topMessage, new Vector2(80, 45), Color.White);
 
                     //energy

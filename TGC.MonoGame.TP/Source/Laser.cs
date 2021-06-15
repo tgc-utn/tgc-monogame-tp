@@ -99,6 +99,17 @@ namespace TGC.MonoGame.TP
 
 			//Debug.WriteLine("AL " + AlliedLasers.Count + " EL " + EnemyLasers.Count);
 		}
-
+		static void verifyAndAddLaser(Laser laser, ref BoundingFrustum frustum, ref List<Laser> drawList)
+        {
+			if( laser.BoundingBox.Intersects(frustum)) 
+				drawList.Add(laser);
+		}
+		public static void AddAllRequiredtoDraw(ref List<Laser> drawList, ref BoundingFrustum frustum)
+        {
+			foreach (var l in EnemyLasers)
+				verifyAndAddLaser(l, ref frustum, ref drawList);
+			foreach (var l in AlliedLasers)
+				verifyAndAddLaser(l, ref frustum, ref drawList);
+		}
 	}
 }
