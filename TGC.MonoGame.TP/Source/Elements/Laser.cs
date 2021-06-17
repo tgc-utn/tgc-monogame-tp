@@ -24,6 +24,8 @@ namespace TGC.MonoGame.TP
 		public float MaxAge = 1f;
 		
 		public bool NotVisible = false;
+
+		TGCGame Game;
 		public Laser(Vector3 pos, Matrix rotation, Matrix srt, Vector3 fd, Vector3 c)
 		{
 			Position = pos;
@@ -31,10 +33,11 @@ namespace TGC.MonoGame.TP
 			FrontDirection = fd;
 			Color = c;
 
+			Game = TGCGame.Instance;
 			//BoundingCylinder = new BoundingCylinder(Position, 10f, 20f);
 			//BoundingCylinder.Rotation = rotation;
 
-			var tempAABB = BoundingVolumesExtensions.CreateAABBFrom(TGCGame.Instance.LaserModel);
+			var tempAABB = BoundingVolumesExtensions.CreateAABBFrom(Game.Drawer.LaserModel);
 			tempAABB = BoundingVolumesExtensions.Scale(tempAABB, 0.3f);
 			BoundingBox = OrientedBoundingBox.FromAABB(tempAABB);
 			BoundingBox.Center = pos;

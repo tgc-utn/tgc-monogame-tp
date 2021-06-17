@@ -2,14 +2,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Content;
+
 using System.Collections.Generic;
 using System.Timers;
 using System.Threading;
 using System.Diagnostics;
-using System.IO;
+
 
 namespace TGC.MonoGame.TP
 {
@@ -32,8 +30,8 @@ namespace TGC.MonoGame.TP
 
         public Gizmos Gizmos;
         public bool ShowGizmos = false;
-        public Xwing Xwing = new Xwing();
-        SkyBox SkyBox;
+        public Xwing Xwing;
+        
         
         
         public float Trench2Scale = 0.07f;
@@ -52,35 +50,16 @@ namespace TGC.MonoGame.TP
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             Instance = this;
-
+            Xwing = new Xwing();
             Gizmos = new Gizmos();
         }
         public GmState GameState { get; set; }
         public GraphicsDeviceManager Graphics { get; }
 
-        private Model Tie { get; set; }
-        private static Model TrenchPlatform { get; set; }
-        private static Model TrenchStraight { get; set; }
-        private static Model TrenchT { get; set; }
-        private static Model TrenchIntersection { get; set; }
-        private static Model TrenchElbow { get; set; }
-        public static Model TrenchTurret { get; set; }
+        public float PausedCameraRotation;
         public Trench[,] Map { get; set; }
         public const int MapSize = 21; //21x21
         public float MapLimit;
-        private Model Trench2 { get; set; }
-        Model skyboxModel;
-        public Model LaserModel { get; set; }
-        private Effect EffectTexture { get; set; }
-        private Effect Effect { get; set; }
-        public Effect EffectLight { get; set; }
-        public Effect EffectBloom { get; set; }
-        public Effect EffectBlur { get; set; }
-
-        public float PausedCameraRotation { get; set; }
-
-        private Texture TieTexture;
-        private Texture TrenchTexture;
         
 
         public int FPS;
@@ -88,47 +67,13 @@ namespace TGC.MonoGame.TP
         public MyCamera Camera { get; set; }
         public MyCamera LookBack { get; set; }
         public MyCamera SelectedCamera { get; set; }
+        public LightCamera LightCamera { get; set; }
         public Vector2 MouseXY;
         public Input Input;
         public HUD HUD;
 
-        public bool ApplyBloom = false;
-        private RenderTarget2D FirstPassBloomRenderTarget;
-        private FullScreenQuad FullScreenQuad;
-        private RenderTarget2D MainSceneRenderTarget;
-        private RenderTarget2D SecondPassBloomRenderTarget;
-        int BloomPassCount = 2;
-
-        EffectParameter EPlightWorldViewProjection;
-        EffectParameter EPlightView;
-        EffectParameter EPlightProjection;
-        EffectParameter EPlightWorld;
-        EffectParameter EPlightInverseTransposeWorld;
-        EffectParameter EPlightLightPosition;
-        EffectParameter EPlightEyePosition;
-        EffectParameter EPlightTexture;
-        EffectParameter EPlightKD;
-        EffectParameter EPlightKS;
-        EffectParameter EPlightSh;
-
-
-        EffectParameter EPbloomWorldViewProjection;
-        EffectParameter EPbloomTexture;
-        EffectParameter EPbloomFilteredTexture;
-        
-        EffectParameter EPblurScreenSize;
-        EffectParameter EPblurTexture;
-
-        EffectParameter EPbasicView;
-        EffectParameter EPbasicProjection;
-        EffectParameter EPbasicWorld;
-        EffectParameter EPbasicColor;
-
-        EffectParameter EPtextureView;
-        EffectParameter EPtextureProjection;
-        EffectParameter EPtextureWorld;
-        EffectParameter EPtextureColor;
-        EffectParameter EPtextureBaseTexture;
+       
+        public Drawer Drawer;
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -141,6 +86,7 @@ namespace TGC.MonoGame.TP
             //GraphicsDevice.RasterizerState = rasterizerState;
             Input = new Input(this);
             HUD = new HUD(this);
+            Drawer = new Drawer();
             GameState = GmState.StartScreen;
             
             Xwing.World = Matrix.Identity;
@@ -165,6 +111,7 @@ namespace TGC.MonoGame.TP
             LookBack = new MyCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.Zero, size);
 
             SelectedCamera = Camera;
+
             //int mapSize = 9; //9x9
             //Algoritmo de generacion de mapa recursivo (ver debug output)
             Map = Trench.GenerateMap(MapSize);
@@ -175,17 +122,7 @@ namespace TGC.MonoGame.TP
             base.Initialize();
         }
 
-        void assignEffectToModel(Model model, Effect effect)
-        {
-            foreach (var mesh in model.Meshes)
-                foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = effect;
-        }
-        void assignEffectToModels(Model[] models, Effect effect)
-        {
-            foreach (Model model in models)
-                assignEffectToModel(model, effect);
-        }
+       
         
 
         public float kd = 0.8f;
@@ -193,53 +130,14 @@ namespace TGC.MonoGame.TP
 
         protected override void LoadContent()
         {
-            Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
-            //Xwing.EngineModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engine");
-            Xwing.EnginesModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engines");
-
-            TrenchPlatform = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Platform-Block");
-            TrenchStraight = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Straight-Block");
-            TrenchT = Content.Load<Model>(ContentFolder3D + "Trench/Trench-T-Block");
-            TrenchElbow = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Elbow-Block");
-            TrenchIntersection = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Intersection");
-            TrenchTurret = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Turret");
-            Trench2 = Content.Load<Model>(ContentFolder3D + "Trench2/Trench");
-            LaserModel = Content.Load<Model>(ContentFolder3D + "Laser/Laser");
-
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            EffectTexture = Content.Load<Effect>(ContentFolderEffects + "BasicTexture");
-            EffectLight = Content.Load<Effect>(ContentFolderEffects + "BlinnPhong");
-            EffectBloom = Content.Load<Effect>(ContentFolderEffects + "Bloom");
-            EffectBlur = Content.Load<Effect>(ContentFolderEffects + "GaussianBlur");
-
-            Xwing.Textures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
-                                            Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
-
-            TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
-
-            TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/MetalSurface");
-
+            Drawer.Init();
+            
             HUD.LoadContent();
             
             SoundManager.LoadContent();
             
             Gizmos.LoadContent(GraphicsDevice);
 
-            //Skybox
-            skyboxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-            //boxModel = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Turret");
-            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skybox/space_earth_small_skybox");
-            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-            SkyBox = new SkyBox(skyboxModel, skyBoxTexture, skyBoxEffect);
-
-
-            //Asigno los efectos a los modelos correspondientes
-            assignEffectToModels(new Model[] { Xwing.Model, Tie}, EffectTexture);
-            assignEffectToModels(new Model[] { TrenchPlatform, TrenchStraight, TrenchElbow, TrenchT, TrenchIntersection, TrenchTurret }, EffectLight);
-            assignEffectToModels(new Model[] { Trench2, LaserModel, Xwing.EnginesModel}, Effect);
-
-            manageEffectParameters();
             
             Trench.UpdateTrenches();
 
@@ -250,36 +148,28 @@ namespace TGC.MonoGame.TP
             Camera.Position = new Vector3(MapLimit/2 - blockSize/2, 0, blockSize /2);
             Xwing.MapLimit = MapLimit;
             Xwing.MapSize = MapSize;
-            
+            Xwing.Update(0f, Camera);
+
+            LightCamera = new LightCamera(Camera.AspectRatio, Xwing.Position - Vector3.Backward * 30 + Vector3.Up * 30);
+            //Debug.WriteLine(LightCamera.Projection.ToString());
+
+            LightCamera.BuildProjection(LightCamera.AspectRatio, 5f, 3000f, LightCamera.DefaultFieldOfViewDegrees);
+            //LightCamera.BuildProjection(1f, 5f, 3000f, LightCamera.DefaultFieldOfViewDegrees);
+
+            //Debug.WriteLine(LightCamera.Projection.ToString());
+
             Laser.MapLimit = MapLimit;
             Laser.MapSize = MapSize;
             Laser.BlockSize = blockSize;
 
-            FullScreenQuad = new FullScreenQuad(GraphicsDevice);
-            MainSceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
-               GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
-               RenderTargetUsage.DiscardContents);
-            FirstPassBloomRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
-                RenderTargetUsage.DiscardContents);
-            SecondPassBloomRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None, 0,
-                RenderTargetUsage.DiscardContents);
-            //MainSceneRenderTarget       = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            //FirstPassBloomRenderTarget  = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            //SecondPassBloomRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            
+           
             base.LoadContent();
         }
 
         BoundingFrustum BoundingFrustum = new BoundingFrustum(Matrix.Identity);
 
         public int elementsDrawn, totalElements;
-        List<Trench> trenchesToDraw = new List<Trench>();
-        List<TieFighter> tiesToDraw = new List<TieFighter>();
-        List<Xwing> xwingsToDraw = new List<Xwing>();
-        List<Laser> lasersToDraw = new List<Laser>();
-
+        
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -291,7 +181,8 @@ namespace TGC.MonoGame.TP
 
             BoundingFrustum.Matrix = SelectedCamera.View * SelectedCamera.Projection;
             Vector4 zone = Vector4.One;
-            
+
+            LightCamera.Update(gameTime);
             switch (GameState)
             {
                 case GmState.StartScreen:
@@ -305,10 +196,10 @@ namespace TGC.MonoGame.TP
                     break;
                 case GmState.Running:
                     #region running
-                    trenchesToDraw.Clear();
-                    xwingsToDraw.Clear();
-                    tiesToDraw.Clear();
-                    lasersToDraw.Clear();
+                    Drawer.trenchesToDraw.Clear();
+                    Drawer.xwingsToDraw.Clear();
+                    Drawer.tiesToDraw.Clear();
+                    Drawer.lasersToDraw.Clear();
 
                     elementsDrawn = 0;
                     totalElements = 0;
@@ -317,14 +208,14 @@ namespace TGC.MonoGame.TP
                     Camera.Update(gameTime);
                     //Generacion de enemigos, de ser necesario
                     TieFighter.GenerateEnemies(Xwing);
-                    TieFighter.AddAllRequiredToDraw(ref tiesToDraw, BoundingFrustum);
-                    elementsDrawn += tiesToDraw.Count;
+                    TieFighter.AddAllRequiredToDraw(ref Drawer.tiesToDraw, BoundingFrustum);
+                    elementsDrawn += Drawer.tiesToDraw.Count;
                     totalElements += TieFighter.Enemies.Count;
                     //Update Xwing
                     Xwing.Update(elapsedTime, Camera);
                     elementsDrawn += 1;
                     totalElements += 1;
-                    xwingsToDraw.Add(Xwing);
+                    Drawer.xwingsToDraw.Add(Xwing);
 
                     Trench.UpdateCurrent();
                     zone = Xwing.GetZone();
@@ -339,33 +230,28 @@ namespace TGC.MonoGame.TP
                             block.Turrets.RemoveAll(turret => turret.needsRemoval);
 
                             if(BoundingFrustum.Intersects(block.BB))
-                                trenchesToDraw.Add(Map[x, z]);
+                                Drawer.trenchesToDraw.Add(Map[x, z]);
 
                             totalElements++;
                         }
-                    elementsDrawn += trenchesToDraw.Count;
+                    elementsDrawn += Drawer.trenchesToDraw.Count;
 
                     Laser.UpdateAll(elapsedTime, Xwing);
                     totalElements += Laser.AlliedLasers.Count;
                     totalElements += Laser.EnemyLasers.Count;
 
-                    Laser.AddAllRequiredtoDraw(ref lasersToDraw, ref BoundingFrustum);
-                    elementsDrawn += lasersToDraw.Count;
+                    Laser.AddAllRequiredtoDraw(ref Drawer.lasersToDraw, ref BoundingFrustum);
+                    elementsDrawn += Drawer.lasersToDraw.Count;
                     
                     //Colisiones
                     Xwing.VerifyCollisions(Laser.EnemyLasers, Map);
                     //Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);
 
-                    ////Zona de vision del xwing, para mejorar performance y no tener que renderizar todo el mapa
-                    //for (int x = (int)zone.X; x < zone.Y; x++)
-                    //    for (int z = (int)zone.Z; z < zone.W; z++)
-                    //        DrawTrench(Map[x, z], isBloomPass);
-
-
+                    
                     TieFighter.UpdateEnemies(elapsedTime, Xwing);
-
-                    EffectLight.Parameters["lightPosition"].SetValue(Xwing.Position - Vector3.Left * 500 + Vector3.Up * 50);
-                    EffectLight.Parameters["eyePosition"].SetValue(SelectedCamera.Position);
+                    
+                    Drawer.EffectLight.Parameters["lightPosition"].SetValue(LightCamera.Position);
+                    Drawer.EffectLight.Parameters["eyePosition"].SetValue(SelectedCamera.Position);
 
                     SoundManager.UpdateRandomDistantSounds(elapsedTime);
                     #endregion
@@ -376,7 +262,7 @@ namespace TGC.MonoGame.TP
 
                     Camera.PausedUpdate(elapsedTime, Xwing);
 
-                    trenchesToDraw.Clear();
+                    Drawer.trenchesToDraw.Clear();
                     
                     Vector4 xzone = Xwing.GetZone();
                     for (int x = (int)xzone.X; x < xzone.Y; x++)
@@ -385,7 +271,7 @@ namespace TGC.MonoGame.TP
                             var block = Map[x, z];
                            
                             if (BoundingFrustum.Intersects(block.BB))
-                                trenchesToDraw.Add(Map[x, z]);
+                                Drawer.trenchesToDraw.Add(Map[x, z]);
                         }
                     #endregion
                     break;
@@ -406,485 +292,47 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
-        
-
-        
-        public bool saveToFile = false;
-        public bool modelTechnique = true;
-        public bool ShowBloomFilter = false;
-        
+        public bool ApplyBloom = false;
+        public bool ApplyShadowMap = false;
         protected override void Draw(GameTime gameTime)
         {
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
             
-            Stream stream;
+            if (!ApplyBloom && !ApplyShadowMap)
+                Drawer.DrawRegular();
+            
 
-            if (!ApplyBloom)
+            if (ApplyBloom)
+                Drawer.DrawBloom();
+
+
+            #region ShadowMap
+            if (ApplyShadowMap)
             {
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-                GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-
-                DrawScene(false);
+                Drawer.DrawShadowed();
             }
-            else
-            {
-                GraphicsDevice.SetRenderTarget(MainSceneRenderTarget);
-                
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-                GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-                DrawScene(false);
-
-                #region Pass 2
-
-                // Set the render target as our bloomRenderTarget, we are drawing the bloom color into this texture
-                if (!ShowBloomFilter)
-                {
-                    GraphicsDevice.SetRenderTarget(FirstPassBloomRenderTarget);
-                    GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-                }
-                else
-                {
-                    GraphicsDevice.SetRenderTarget(null);
-                    GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-                }
-
-                //Debug.WriteLine("drawing bloom filter");
-                DrawScene(true);
-
-                if (ShowBloomFilter)
-                    return;
-                
-
-                if (saveToFile)
-                {
-                    stream = File.OpenWrite("bloomFilter.png");
-                    FirstPassBloomRenderTarget.SaveAsPng(stream, 1280, 720);
-                    stream.Dispose();
-                }
-                #endregion
-
-                #region Multipass Bloom
-
-                EffectBlur.CurrentTechnique = EffectBlur.Techniques["Blur"];
-                EPblurScreenSize.SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
-                //EffectBlur.Parameters["screenSize"].SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
-                var bloomTexture = FirstPassBloomRenderTarget;
-                var finalBloomRenderTarget = SecondPassBloomRenderTarget;
-               
-                for (var index = 0; index < BloomPassCount; index++)
-                {
-                    // Set the render target as null, we are drawing into the screen now!
-                    GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
-                    GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
-                    //EffectBlur.Parameters["baseTexture"].SetValue(bloomTexture);
-                    EPblurTexture.SetValue(bloomTexture);
-
-                    FullScreenQuad.Draw(EffectBlur);
-
-                    if (index != BloomPassCount - 1)
-                    {
-                        var auxiliar = bloomTexture;
-                        bloomTexture = finalBloomRenderTarget;
-                        finalBloomRenderTarget = auxiliar;
-                    }
-                }
-                if(saveToFile)
-                {
-                    stream = File.OpenWrite("blurred.png");
-                    finalBloomRenderTarget.SaveAsPng(stream, 1280, 720);
-                    stream.Dispose();
-                }
-                saveToFile = false;
-                #endregion
-
-                #region Final Pass
-
-                GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
-                GraphicsDevice.SetRenderTarget(null);
-                GraphicsDevice.Clear(Color.Black);
-                
-                EffectBloom.CurrentTechnique = EffectBloom.Techniques["Integrate"];
-                EPbloomTexture.SetValue(MainSceneRenderTarget);
-                EPbloomFilteredTexture.SetValue(finalBloomRenderTarget);
-                //EffectBloom.Parameters["baseTexture"].SetValue(MainSceneRenderTarget);
-                //EffectBloom.Parameters["bloomTexture"].SetValue(finalBloomRenderTarget);
-                FullScreenQuad.Draw(EffectBloom);
-
-                #endregion
-            }
-
+            #endregion
             if (ShowGizmos)
                 Gizmos.Draw();
             HUD.Draw();
 
         }
-        void DrawScene(bool isBloomPass)
-        {
-            var CameraView = SelectedCamera.View;
-            var CameraProjection = SelectedCamera.Projection;
-            var CameraPosition = SelectedCamera.Position;
-
-            EPbasicView.SetValue(CameraView);
-            EPtextureView.SetValue(CameraView);
-            EPbasicProjection.SetValue(CameraProjection);
-            EPtextureProjection.SetValue(CameraProjection);
-
-
-            if (!isBloomPass)
-                SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
-
-            if (GameState.Equals(GmState.Running) ||
-                GameState.Equals(GmState.Paused) ||
-                GameState.Equals(GmState.Defeat))
-            {
-                foreach (var xwing in xwingsToDraw)
-                    DrawXWing(xwing, isBloomPass);
-                foreach (var enemy in tiesToDraw)
-                    DrawTie(enemy, isBloomPass);
-                foreach (var laser in lasersToDraw)
-                    DrawModel(LaserModel, laser.SRT, laser.Color);
-                DrawMap(isBloomPass);
-
-                if (ShowGizmos)
-                {
-                    Matrix SRT;
-                    foreach (var laser in Laser.AlliedLasers)
-                    {
-                        var OBB = laser.BoundingBox;
-                        SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                        Gizmos.DrawCube(SRT, Color.White);
-                    }
-                    foreach (var laser in Laser.EnemyLasers)
-                    {
-                        var OBB = laser.BoundingBox;
-                        SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                        Gizmos.DrawCube(SRT, Color.White);
-                    }
-                }
-            }
-        }
-        void DrawMap(bool isBloomPass)
-        {
-            foreach (var t in trenchesToDraw)
-                DrawTrench(t, isBloomPass);
-        }
+        
         
 
-        void DrawTrench(Trench t, bool isBloomPass)
-        {
-            EPlightKD.SetValue(0.8f);
-            EPlightKS.SetValue(0.4f);
-            EPlightSh.SetValue(3f);
-
-            if (isBloomPass)
-            {
-                assignEffectToModel(t.Model, Effect);
-                assignEffectToModel(TrenchTurret, Effect);
-
-                //EffectBloom.Parameters["ApplyBloom"].SetValue(0f);
-                //EPbloomTexture.SetValue(TrenchTexture);
-                //EffectBloom.CurrentTechnique = EffectBloom.Techniques["BloomPass"];
-                DrawModel(t.Model, t.SRT, Vector3.Zero);
-                foreach (var turret in t.Turrets)
-                    DrawModel(TrenchTurret, turret.SRT, Vector3.Zero);
-
-                assignEffectToModel(t.Model, EffectLight);
-                assignEffectToModel(TrenchTurret, EffectLight);
-
-            }
-            else
-            {
-                EPlightTexture.SetValue(TrenchTexture);
-                //EffectLight.Parameters["baseTexture"].SetValue(TrenchTexture);
-                //EffectBloom.Parameters["baseTexture"].SetValue(TrenchTexture);
-
-                Matrix world;
-                var meshCount = 0;
-
-                foreach (var mesh in t.Model.Meshes)
-                {
-
-                    world = mesh.ParentBone.Transform * t.SRT;
-
-                    EPlightWorld.SetValue(world);
-                    EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
-
-                    //EffectLight.Parameters["World"].SetValue(world);
-                    //EffectLight.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
-
-                    var wvp = world * SelectedCamera.View * SelectedCamera.Projection;
-                    //EffectLight.Parameters["WorldViewProjection"].SetValue(wvp);
-                    //EffectBloom.Parameters["WorldViewProjection"].SetValue(wvp); 
-                    EPlightWorldViewProjection.SetValue(wvp);
-                    EPbloomWorldViewProjection.SetValue(wvp);
-
-                    mesh.Draw();
-
-                    meshCount++;
-                }
-                foreach (var turret in t.Turrets)
-                {
-                    foreach (var mesh in TrenchTurret.Meshes)
-                    {
-                        world = mesh.ParentBone.Transform * turret.SRT;
-
-                        //EffectLight.Parameters["World"].SetValue(world);
-                        //EffectLight.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
-                        EPlightWorld.SetValue(world);
-                        EPlightWorldViewProjection.SetValue(Matrix.Transpose(Matrix.Invert(world)));
-
-                        var wvp = world * SelectedCamera.View * SelectedCamera.Projection;
-                        //EffectLight.Parameters["WorldViewProjection"].SetValue(wvp);
-                        //EffectBloom.Parameters["WorldViewProjection"].SetValue(wvp);
-                        EPlightWorldViewProjection.SetValue(wvp);
-                        EPbloomWorldViewProjection.SetValue(wvp);
-                        mesh.Draw();
-                    }
-                    if (ShowGizmos)
-                    {
-                        var BB = turret.BoundingBox;
-                        Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), BoundingVolumesExtensions.GetExtents(BB) * 2f, Color.Magenta);
-
-                    }
-                }
-
-                if (ShowGizmos)
-                {
-                    var index = 0;
-                    Color[] colors = { Color.White, Color.Yellow, Color.Blue, Color.Magenta };
-                    foreach (var BB in t.boundingBoxes)
-                    {
-                        var color = colors[index];
-
-                        if (t.IsCurrent)
-                            color = Color.Cyan;
-                        
-                        Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.OBB.Intersects(BB) ? Color.Red : color);
-                        index++;
-                    }
-                    //Matrix SRT;
-                    //foreach (var OBB in t.boundingBoxes)
-                    //{
-                    //    var color = colors[index];
-                    //    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    //    Gizmos.DrawCube(SRT, Xwing.OBB.Intersects(OBB) ? Color.Red : color);
-                    //    index++;
-                    //}
-
-                }
-            }
-        }
-
-        void DrawXWing(Xwing xwing, bool isBloomPass)
-        {
-            int meshCount = 0; //Como el xwing tiene 2 texturas, tengo que dibujarlo de esta manera
-
-            //efecto para verificar colisiones, se pone rojo
-            
-            EPlightKD.SetValue(1f);
-            EPlightKS.SetValue(1f);
-            EPlightSh.SetValue(20f);
-
-
-            DrawModel(xwing.EnginesModel, xwing.EnginesSRT, xwing.EnginesColor);
-
-            if (isBloomPass)
-            {
-                assignEffectToModel(xwing.Model, Effect);
-                //EffectBloom.Parameters["ApplyBloom"].SetValue(0f);
-                DrawModel(xwing.Model, xwing.SRT, Vector3.Zero);
-                //assignEffectToModel(Xwing.Model, EffectLight);
-
-            }
-            else
-            {
-                assignEffectToModel(xwing.Model, EffectLight);
-
-                foreach (var mesh in xwing.Model.Meshes)
-                {
-                    xwing.World = mesh.ParentBone.Transform * xwing.SRT;
-
-                    //EPtextureWorld.SetValue(Xwing.World);
-                    //EPtextureBaseTexture.SetValue(Xwing.Textures[meshCount]);
-                    var wvp = xwing.World * SelectedCamera.View * SelectedCamera.Projection;
-                    
-                    EPlightWorld.SetValue(xwing.World);
-                    EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(xwing.World)));
-                    EPlightTexture.SetValue(xwing.Textures[meshCount]);
-                    EPlightWorldViewProjection.SetValue(wvp);
-                    
-                    //EffectTexture.Parameters["World"].SetValue(Xwing.World);
-                    //EffectTexture.Parameters["ModelTexture"].SetValue(Xwing.Textures[meshCount]);
-                    meshCount++;
-
-                    mesh.Draw();
-                }
-                if (ShowGizmos)
-                {
-                    //var BB = xwing.BB;
-                    //Gizmos.DrawSphere(Xwing.boundingSphere.Center, Xwing.boundingSphere.Radius * Vector3.One, Color.White);
-
-                    //Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), 
-                        //BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.hit ? Color.Red : Color.White);
-
-                    
-                    var OBB = xwing.OBB;
-                    Matrix SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.White);
-                    /*
-                    OBB = Xwing.OBBL;
-                    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Yellow);
-
-                    OBB = Xwing.OBBR;
-                    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Cyan);
-
-                    OBB = Xwing.OBBU;
-                    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Magenta);
-
-                    OBB = Xwing.OBBD;
-                    SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Green);
-                */
-              }
-            }
-
-        }
-
-        void DrawTie(TieFighter tie, bool isBloomPass)
-        {
-            EPlightKD.SetValue(0.2f);
-            EPlightKS.SetValue(0.2f);
-            EPlightSh.SetValue(0.5f);
-
-            if (isBloomPass)
-            {
-                assignEffectToModel(Tie, Effect);
-                //EffectBloom.Parameters["ApplyBloom"].SetValue(0f);
-                DrawModel(Tie, tie.SRT, Vector3.Zero);
-                
-                
-            }
-            else
-            {
-                assignEffectToModel(Tie, EffectLight);
-                Matrix world;
-                foreach (var mesh in Tie.Meshes)
-                {
-                    world = mesh.ParentBone.Transform * tie.SRT;
-
-                    //EPtextureWorld.SetValue(world);
-                    //EPtextureBaseTexture.SetValue(TieTexture);
-                    //EPtextureColor.SetValue(Vector3.Zero);
-
-                    var wvp = world * SelectedCamera.View * SelectedCamera.Projection;
-                    EPlightWorld.SetValue(world);
-                    EPlightTexture.SetValue(TieTexture);
-                    EPlightWorldViewProjection.SetValue(wvp);
-                    EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
-                    //EffectTexture.Parameters["World"].SetValue(world);
-                    //EffectTexture.Parameters["ModelTexture"].SetValue(TieTexture);
-                    //EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.One);
-                    mesh.Draw();
-                }
-                if (ShowGizmos)
-                {
-                    Gizmos.DrawSphere(tie.boundingSphere.Center, tie.boundingSphere.Radius * Vector3.One, Color.White);
-                }
-            }
-            
-        }
-        void DrawModel(Model model, Matrix SRT, Vector3 color)
-        {
-            //if (isBloomPass)
-            //{
-            //    assignEffectToModel(model, EffectBloom);
-            //    EffectBloom.Parameters["ApplyBloom"].SetValue(1f);
-            //    EffectBloom.Parameters["Color"].SetValue(color);
-            //}
-            //Effect.Parameters["DiffuseColor"]?.SetValue(color);
-            EPbasicColor.SetValue(color);
-            foreach (var mesh in model.Meshes)
-            {
-                var world = mesh.ParentBone.Transform * SRT;
-                //var wvp = world * SelectedCamera.View * SelectedCamera.Projection;
-                //Effect.Parameters["World"].SetValue(world);
-                EPbasicWorld.SetValue(world);
-                //EffectBloom.Parameters["WorldViewProjection"].SetValue(wvp);
-                mesh.Draw();
-            }
-
-            //if (isBloomPass)
-            //    assignEffectToModel(model, Effect);
-
-        }
-        void manageEffectParameters()
-        {
-            EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
-            EffectTexture.Parameters["TextureMultiplier"].SetValue(1f);
-
-
-            EffectLight.Parameters["ambientColor"].SetValue(new Vector3(1f, 1f, 1f));
-            EffectLight.Parameters["diffuseColor"].SetValue(new Vector3(1f, 1f, 1f));
-            EffectLight.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
-
-            EffectLight.Parameters["KAmbient"].SetValue(0.4f);
-            EffectLight.Parameters["KDiffuse"].SetValue(0.8f);
-            EffectLight.Parameters["KSpecular"].SetValue(0.4f);
-            EffectLight.Parameters["shininess"].SetValue(3f);
-
-            EPlightKD = EffectLight.Parameters["KDiffuse"];
-            EPlightKS = EffectLight.Parameters["KSpecular"];
-            EPlightSh = EffectLight.Parameters["shininess"];
-
-            EffectBloom.Parameters["enginesColor1"].SetValue(new Vector3(0f, 0.6f, 0.8f));
-            EffectBloom.Parameters["enginesColor2"].SetValue(new Vector3(0.7f, 0.15f, 0f));
-            EffectBloom.Parameters["laserColor1"].SetValue(new Vector3(0.8f, 0f, 0f));
-            EffectBloom.Parameters["laserColor2"].SetValue(new Vector3(0f, 0.8f, 0f));
-            EffectBloom.Parameters["laserColor3"].SetValue(new Vector3(0.8f, 0f, 0.8f));
-
-            EPlightWorldViewProjection =    EffectLight.Parameters["WorldViewProjection"];
-            EPlightWorld =                  EffectLight.Parameters["World"];
-            EPlightInverseTransposeWorld =  EffectLight.Parameters["InverseTransposeWorld"];
-            EPlightLightPosition =          EffectLight.Parameters["lightPosition"];
-            EPlightEyePosition =            EffectLight.Parameters["eyePosition"];
-            EPlightTexture =                EffectLight.Parameters["baseTexture"];
-
-            EPbloomWorldViewProjection =    EffectBloom.Parameters["WorldViewProjection"];
-            EPbloomTexture =                EffectBloom.Parameters["baseTexture"];
-            EPbloomFilteredTexture = EffectBloom.Parameters["bloomTexture"];
-
-            EPblurTexture =                 EffectBlur.Parameters["baseTexture"];
-            EPblurScreenSize =              EffectBlur.Parameters["screenSize"];
-            EPbasicView =                   Effect.Parameters["View"];
-            EPbasicProjection =             Effect.Parameters["Projection"];
-            EPbasicWorld =                  Effect.Parameters["World"];
-            EPbasicColor =                  Effect.Parameters["DiffuseColor"];
-
-            EPtextureView =                 EffectTexture.Parameters["View"];
-            EPtextureProjection =           EffectTexture.Parameters["Projection"];
-            EPtextureWorld =                EffectTexture.Parameters["World"];
-            EPtextureColor =                EffectTexture.Parameters["ModifierColor"];
-            EPtextureBaseTexture =          EffectTexture.Parameters["ModelTexture"];
-
-        }
 
 
         public static Model GetModelFromType(TrenchType type)
         {
             switch(type)
             {
-                case TrenchType.Platform:        return TrenchPlatform;
-                case TrenchType.Straight:        return TrenchStraight;
-                case TrenchType.T:               return TrenchT;
-                case TrenchType.Intersection:    return TrenchIntersection;
-                case TrenchType.Elbow:           return TrenchElbow;
-                default:                         return TrenchPlatform;
+                case TrenchType.Platform:        return Drawer.TrenchPlatform;
+                case TrenchType.Straight:        return Drawer.TrenchStraight;
+                case TrenchType.T:               return Drawer.TrenchT;
+                case TrenchType.Intersection:    return Drawer.TrenchIntersection;
+                case TrenchType.Elbow:           return Drawer.TrenchElbow;
+                default:                         return Drawer.TrenchPlatform;
             }
         }
         public enum GmState
@@ -962,10 +410,8 @@ namespace TGC.MonoGame.TP
         {
             // Libero los recursos.
             Content.Unload();
-            FullScreenQuad.Dispose();
-            FirstPassBloomRenderTarget.Dispose();
-            MainSceneRenderTarget.Dispose();
-            SecondPassBloomRenderTarget.Dispose();
+            Drawer.Unload();
+
             base.UnloadContent();
         }
     }

@@ -67,11 +67,13 @@ namespace TGC.MonoGame.TP
                 if (!ignoredKeys.Contains(Keys.P))
                 {
                     ignoredKeys.Add(Keys.P);
-                    Game.ApplyBloom = !Game.ApplyBloom;
-                    //Game.saveToFile = true;
+                    //Game.ApplyBloom = !Game.ApplyBloom;
+                    Game.ApplyShadowMap = !Game.ApplyShadowMap;
+
+                    Game.Drawer.saveToFile = true;
                 }
             }
-            Game.ShowBloomFilter = kState.IsKeyDown(Keys.O);
+            //Game.ShowShadowMap = kState.IsKeyDown(Keys.O);
             
 
             switch (Game.GameState)
@@ -103,6 +105,7 @@ namespace TGC.MonoGame.TP
                     }
 
                     Game.SelectedCamera = kState.IsKeyDown(Keys.B) ? Game.LookBack : Game.Camera;
+
                     Game.HUD.ShowFullMap = kState.IsKeyDown(Keys.CapsLock);
                     //if (kState.IsKeyDown(Keys.B))
                     //    Game.SelectedCamera = Game.LookBack;
@@ -168,15 +171,16 @@ namespace TGC.MonoGame.TP
                     }
                     //parameter debug (i.e. moving models)
                     #region parameterDebug
-                    var inputDelta = 1;
+                    float inputDelta;
+                    
                     var deltaX = 0f;
-                    //var deltaY = 0f;
+                    var deltaY = 0f;
                     var deltaZ = 0f;
                     var update = false;
                     if (kState.IsKeyDown(Keys.N))
-                        inputDelta = 4;
+                        inputDelta = 0.02f;
                     else
-                        inputDelta = 1;
+                        inputDelta = 0.01f;
                     if (kState.IsKeyDown(Keys.I))
                     {
                         deltaZ = inputDelta;
@@ -197,16 +201,16 @@ namespace TGC.MonoGame.TP
                         deltaX = -inputDelta;
                         update = true;
                     }
-                    //if (kState.IsKeyDown(Keys.Y))
-                    //{
-                    //    deltaY = inputDelta;
-                    //    update = true;
-                    //}
-                    //if (kState.IsKeyDown(Keys.H))
-                    //{
-                    //    deltaY = -inputDelta;
-                    //    update = true;
-                    //}
+                    if (kState.IsKeyDown(Keys.Y))
+                    {
+                        deltaY = inputDelta;
+                        update = true;
+                    }
+                    if (kState.IsKeyDown(Keys.H))
+                    {
+                        deltaY = -inputDelta;
+                        update = true;
+                    }
 
 
                     //if (kState.IsKeyDown(Keys.U))
@@ -220,16 +224,11 @@ namespace TGC.MonoGame.TP
                     //}
                     if (update)
                     {
-                        //Game.kd += deltaX;
-                        //Game.ks += deltaZ;
-                        //Game.EffectLight.Parameters["KDiffuse"].SetValue(Game.kd);
-                        //Game.EffectLight.Parameters["KSpecular"].SetValue(Game.ks);
-                        //Debug.WriteLine("KD " + Game.kd+ " KS" + Game.ks);
-                        //Game.HUD.XwingSpritePos.X += deltaX;
-                        //Game.HUD.XwingSpritePos.Y += deltaZ;
+                        Game.Drawer.zMul += deltaX;
+                        Game.Drawer.wMul += deltaY;
+                        Game.Drawer.depthMul += deltaZ;
 
-                        //Debug.WriteLine(Game.IntVector2ToStr(Game.HUD.XwingSpritePos));
-
+                        Debug.WriteLine("zMul " + Game.Drawer.zMul + "wMul " + Game.Drawer.wMul + " DM " + Game.Drawer.depthMul);
                     }
                     #endregion
                     #endregion

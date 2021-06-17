@@ -55,12 +55,13 @@ namespace TGC.MonoGame.TP
 		public float MapLimit;
 		public int MapSize;
 		public Vector2 CurrentBlock;
+		TGCGame Game;
 		public Xwing()
 		{
 			HP = 100;
 			Score = 0;
 			ScaleMatrix = Matrix.CreateScale(2.5f);
-	
+			Game = TGCGame.Instance;
 		}
 		public void Update(float elapsedTime, MyCamera camera)
 		{
@@ -158,9 +159,13 @@ namespace TGC.MonoGame.TP
         {
 			return HP / 10;
         }
+		enum Dir
+        {
+			Up,Down,Left,Right
+        }
 		public void VerifyCollisions(List<Laser> enemyLasers, Trench[,] map)
 		{
-			var Game = TGCGame.Instance;
+			
 			if (barrelRolling)
 				return;
 			var laserHit = false;
@@ -184,20 +189,107 @@ namespace TGC.MonoGame.TP
 			// me fijo si el xwing esta por debajo del eje Y (posible colision con trench)
 			// y adentro (entre las paredes) del bloque actual
 			bool inTrench = false;
-            if (Position.Y <= 0)
-            {
-				if (Position.Y > -50)
-					inTrench = map[(int)CurrentBlock.X, (int)CurrentBlock.Y].IsInTrench(OBB);
+			if (Position.Y <= 0)
+			{
+				int x = (int)CurrentBlock.X;
+				int y = (int)CurrentBlock.Y;
+				var block = map[x, y];
+				if (block.Type.Equals(TrenchType.Platform))
+				{
+					//inTrench = true;
+					attemptToCorrect(Dir.Up, ref block, false);
+				}
 				else
-					inTrench = true;
-				//Colision con pared de trench (rebote/perder/quitar hp/)
+				{
+					if (Position.Y > -50)
+					{
+						//inTrench = ;
+						if (block.IsInTrench(OBB))
+						{
+							if (block.IsInTrench(OBBD))
+								attemptToCorrect(Dir.Up, ref block, null);
+							//if (block.IsInTrench(OBBU))
+							//	attemptToCorrect(Dir.Down, ref block);
+							if (block.IsInTrench(OBBL))
+								attemptToCorrect(Dir.Right, ref block, null);
+							if (block.IsInTrench(OBBR))
+								attemptToCorrect(Dir.Left, ref block, null);
+
+						}
+					}
+					else
+					{
+						attemptToCorrect(Dir.Up, ref block, true);
+						//inTrench = true;
+					}
+				}
+					
+				
             }
 
             hit = inTrench || laserHit;
 
 
         }
+		float collisionCorrectionDeltaY = 3f;
+		float collisionCorrectionDeltaXZ = 0.5f;
 
+		int tries = 0;
+
+		void applyCorrection(Dir dir)
+        {
+			switch (dir)
+			{
+				case Dir.Up:
+					Position += UpDirection * collisionCorrectionDeltaY;
+					break;
+				case Dir.Down:
+					Position -= UpDirection * collisionCorrectionDeltaY;
+					break;
+				case Dir.Left:
+					Position -= RightDirection * collisionCorrectionDeltaXZ;
+					break;
+				case Dir.Right:
+					Position += RightDirection * collisionCorrectionDeltaXZ;
+					break;
+			}
+			OBB.Center = Position;
+
+			OBBL.Center = Position - RightDirection * 7;
+			OBBR.Center = Position + RightDirection * 7;
+			OBBU.Center = Position + UpDirection * 2;
+			OBBD.Center = Position - UpDirection * 2;
+		}
+		void attemptToCorrect(Dir dir, ref Trench block, bool? isFloor)
+		{
+			applyCorrection(dir);
+
+			tries++;
+
+			if (isFloor != null)
+			{
+				var pos = isFloor.Value ? -50 : 0;
+				
+				while (Position.Y <= pos)
+				{
+					applyCorrection(dir);
+					tries++;
+				}
+			}
+			else
+            {
+				while (block.IsInTrench(OBB))
+				{
+					applyCorrection(dir);
+					tries++;
+				}
+			}
+			
+			Game.SelectedCamera.Position = Position - Game.SelectedCamera.FrontDirection * distanceToCamera;
+			Debug.WriteLine("pos " + Game.Vector3ToStr(Position) + " tries " + tries + " " + dir.ToString());
+			Debug.WriteLine("cam pos " + Game.Vector3ToStr(Game.SelectedCamera.Position));
+			tries = 0;
+		}
 		Matrix YPR, T, ScaleMatrix;
 		Vector3 EnginesScale = new Vector3(0.025f, 0.025f, 0.025f);
 		float yawRad, correctedYaw;
