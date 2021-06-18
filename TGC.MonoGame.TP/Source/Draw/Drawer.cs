@@ -292,8 +292,7 @@ namespace TGC.MonoGame.TP
             EffectBloom.CurrentTechnique = EffectBloom.Techniques["Integrate"];
             EPbloomTexture.SetValue(MainSceneRenderTarget);
             EPbloomFilteredTexture.SetValue(finalBloomRenderTarget);
-            //EffectBloom.Parameters["baseTexture"].SetValue(MainSceneRenderTarget);
-            //EffectBloom.Parameters["bloomTexture"].SetValue(finalBloomRenderTarget);
+            
             FullScreenQuad.Draw(EffectBloom);
         }
 
@@ -353,10 +352,6 @@ namespace TGC.MonoGame.TP
 
             if (drawType == DrawType.BloomFilter || drawType == DrawType.DepthMap)
             {
-
-                //EffectBloom.Parameters["ApplyBloom"].SetValue(0f);
-                //EPbloomTexture.SetValue(TrenchTexture);
-                //EffectBloom.CurrentTechnique = EffectBloom.Techniques["BloomPass"];
                 DrawModel(t.Model, t.SRT, Vector3.Zero, drawType);
                 foreach (var turret in t.Turrets)
                     DrawModel(TrenchTurret, turret.SRT, Vector3.Zero, drawType);
@@ -371,7 +366,6 @@ namespace TGC.MonoGame.TP
 
                 foreach (var mesh in t.Model.Meshes)
                 {
-
                     world = mesh.ParentBone.Transform * t.SRT;
 
                     EPmasterWorld.SetValue(world);
@@ -519,8 +513,6 @@ namespace TGC.MonoGame.TP
                 {
                     xwing.World = mesh.ParentBone.Transform * xwing.SRT;
 
-                    //EPtextureWorld.SetValue(Xwing.World);
-                    //EPtextureBaseTexture.SetValue(Xwing.Textures[meshCount]);
                     var wvp = xwing.World * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
                     var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
 
@@ -533,8 +525,6 @@ namespace TGC.MonoGame.TP
                     //EPmasterWorldViewProjection.SetValue(wvp);
                     //EPmasterInverseTransposeWorld.SetValue(itw);
 
-                    //EffectTexture.Parameters["World"].SetValue(Xwing.World);
-                    //EffectTexture.Parameters["ModelTexture"].SetValue(Xwing.Textures[meshCount]);
                     meshCount++;
 
                     mesh.Draw();
@@ -551,23 +541,23 @@ namespace TGC.MonoGame.TP
                     var OBB = xwing.OBB;
                     Matrix SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
                     Game.Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.White);
-                    /*
-                    OBB = Xwing.OBBL;
+                    
+                    OBB = xwing.OBBL;
                     SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Yellow);
+                    Game.Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.Yellow);
 
-                    OBB = Xwing.OBBR;
+                    OBB = xwing.OBBR;
                     SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Cyan);
+                    Game.Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.Cyan);
 
-                    OBB = Xwing.OBBU;
+                    OBB = xwing.OBBU;
                     SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Magenta);
+                    Game.Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.Magenta);
 
-                    OBB = Xwing.OBBD;
+                    OBB = xwing.OBBD;
                     SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
-                    Gizmos.DrawCube(SRT, Xwing.hit ? Color.Red : Color.Green);
-                */
+                    Game.Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.Green);
+                
                 }
             }
 

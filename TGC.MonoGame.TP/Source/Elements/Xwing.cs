@@ -100,8 +100,9 @@ namespace TGC.MonoGame.TP
 				// Create an Oriented Bounding Box from the AABB
 				OBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
 
-				var halfW = BoundingVolumesExtensions.Scale(temporaryCubeAABB, new Vector3(0.5f, 1f, 1f));
-				var halfH = BoundingVolumesExtensions.Scale(temporaryCubeAABB, new Vector3(1f, 0.5f, 1f));
+				var halfW= BoundingVolumesExtensions.Scale(temporaryCubeAABB, new Vector3(0.5f, 0.3f, 1f));
+				
+				var halfH = BoundingVolumesExtensions.Scale(temporaryCubeAABB, new Vector3(0.8f, 0.5f, 1f));
 
 				OBBL = OrientedBoundingBox.FromAABB(halfW);
 				OBBR = OrientedBoundingBox.FromAABB(halfW);
@@ -201,26 +202,29 @@ namespace TGC.MonoGame.TP
 				}
 				else
 				{
-					if (Position.Y > -50)
+					if (Position.Y <= -50)
+                    {
+						attemptToCorrect(Dir.Up, ref block, true);
+					}
+					else if (Position.Y >= -2 && block.IsInTrench(OBB))
+					{
+						attemptToCorrect(Dir.Up, ref block, false);
+					}
+					else
 					{
 						//inTrench = ;
 						if (block.IsInTrench(OBB))
 						{
-							if (block.IsInTrench(OBBD))
-								attemptToCorrect(Dir.Up, ref block, null);
-							//if (block.IsInTrench(OBBU))
-							//	attemptToCorrect(Dir.Down, ref block);
 							if (block.IsInTrench(OBBL))
 								attemptToCorrect(Dir.Right, ref block, null);
-							if (block.IsInTrench(OBBR))
+							else if (block.IsInTrench(OBBR))
 								attemptToCorrect(Dir.Left, ref block, null);
+							//else if (block.IsInTrench(OBBD))
+							//	attemptToCorrect(Dir.Up, ref block, null);
+							//if (block.IsInTrench(OBBU))
+							//	attemptToCorrect(Dir.Down, ref block);
 
 						}
-					}
-					else
-					{
-						attemptToCorrect(Dir.Up, ref block, true);
-						//inTrench = true;
 					}
 				}
 					
@@ -233,24 +237,29 @@ namespace TGC.MonoGame.TP
         }
 		float collisionCorrectionDeltaY = 3f;
 		float collisionCorrectionDeltaXZ = 0.5f;
-
-		int tries = 0;
+		float pitchCorrDelta = 1.5f;
+		float yawCorrDelta = 1f;
+		
 
 		void applyCorrection(Dir dir)
         {
 			switch (dir)
 			{
 				case Dir.Up:
-					Position += UpDirection * collisionCorrectionDeltaY;
+					Position += Vector3.Up * collisionCorrectionDeltaY;
+					//FrontDirection = Vector3.Normalize(FrontDirection + new Vector3(0f, 5f, 0f));
+					Pitch += pitchCorrDelta;
 					break;
 				case Dir.Down:
 					Position -= UpDirection * collisionCorrectionDeltaY;
 					break;
 				case Dir.Left:
 					Position -= RightDirection * collisionCorrectionDeltaXZ;
+					Yaw -= yawCorrDelta;
 					break;
 				case Dir.Right:
 					Position += RightDirection * collisionCorrectionDeltaXZ;
+					Yaw += yawCorrDelta;
 					break;
 			}
 			OBB.Center = Position;
@@ -262,33 +271,34 @@ namespace TGC.MonoGame.TP
 		}
 		void attemptToCorrect(Dir dir, ref Trench block, bool? isFloor)
 		{
+			//int tries = 0;
 			applyCorrection(dir);
-
-			tries++;
-
-			if (isFloor != null)
-			{
-				var pos = isFloor.Value ? -50 : 0;
-				
-				while (Position.Y <= pos)
-				{
-					applyCorrection(dir);
-					tries++;
-				}
-			}
-			else
+			//tries++;
+            if (isFloor != null)
             {
-				while (block.IsInTrench(OBB))
-				{
-					applyCorrection(dir);
-					tries++;
-				}
-			}
-			
-			Game.SelectedCamera.Position = Position - Game.SelectedCamera.FrontDirection * distanceToCamera;
-			Debug.WriteLine("pos " + Game.Vector3ToStr(Position) + " tries " + tries + " " + dir.ToString());
-			Debug.WriteLine("cam pos " + Game.Vector3ToStr(Game.SelectedCamera.Position));
-			tries = 0;
+                var pos = isFloor.Value ? -50 : 0;
+
+                while (Position.Y <= pos)
+                {
+                    applyCorrection(dir);
+                    //tries++;
+                }
+            }
+            else
+            {
+
+                while (block.IsInTrench(OBB))
+                {
+                    applyCorrection(dir);
+                    //tries++;
+                }
+            }
+
+            Game.Camera.Position = Position - Game.Camera.FrontDirection * distanceToCamera + UpDirection * 8;
+			Game.Camera.Pitch = Pitch;
+			Game.Camera.Yaw = Yaw;
+
+			//tries = 0;
 		}
 		Matrix YPR, T, ScaleMatrix;
 		Vector3 EnginesScale = new Vector3(0.025f, 0.025f, 0.025f);
