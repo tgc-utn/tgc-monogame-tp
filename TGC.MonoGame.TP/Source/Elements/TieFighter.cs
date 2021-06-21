@@ -91,10 +91,8 @@ namespace TGC.MonoGame.TP
 		public void updateDirectionVectors()
 		{
 			Yaw = MathF.Atan2(FrontDirection.X, FrontDirection.Z);
-			//TODO: verify
 			
 			Pitch = -MathF.Asin(FrontDirection.Y);
-			
 
 		}
 		public void VerifyCollisions(List<Laser> playerLasers)

@@ -17,7 +17,10 @@ namespace TGC.MonoGame.TP
         String ContentFolderTextures;
         //TGCGame.GmState GameState;
         #region models effects textures targets
-        private Model Tie;
+        public Model TieModel;
+        public Model XwingModel;
+        private Model XwingEnginesModel;
+
         public static Model TrenchPlatform;
         public static Model TrenchStraight;
         public static Model TrenchT;
@@ -37,7 +40,7 @@ namespace TGC.MonoGame.TP
 
         private Texture TieTexture;
         private Texture TrenchTexture;
-
+        private Texture[] XwingTextures;
         
         private RenderTarget2D FirstPassBloomRenderTarget;
         private FullScreenQuad FullScreenQuad;
@@ -60,9 +63,9 @@ namespace TGC.MonoGame.TP
 
         public List<Trench> trenchesToDraw = new List<Trench>();
         public List<TieFighter> tiesToDraw = new List<TieFighter>();
-        public List<Xwing> xwingsToDraw = new List<Xwing>();
         public List<Laser> lasersToDraw = new List<Laser>();
-
+        public List<Ship> shipsToDraw = new List<Ship>();
+        public bool showXwing;
 
         enum DrawType
         {
@@ -76,6 +79,7 @@ namespace TGC.MonoGame.TP
         {
            
         }
+        
         public void Init()
         {
             Game = TGCGame.Instance;
@@ -90,9 +94,9 @@ namespace TGC.MonoGame.TP
         }
         void LoadContent()
         {
-            Tie = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
-            Game.Xwing.Model = Content.Load<Model>(ContentFolder3D + "XWing/model");
-            Game.Xwing.EnginesModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engines");
+            TieModel = Content.Load<Model>(ContentFolder3D + "TIE/TIE");
+            XwingModel = Content.Load<Model>(ContentFolder3D + "XWing/model");
+            XwingEnginesModel = Content.Load<Model>(ContentFolder3D + "XWing/xwing-engines");
 
             TrenchPlatform = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Platform-Block");
             TrenchStraight = Content.Load<Model>(ContentFolder3D + "Trench/Trench-Straight-Block");
@@ -112,7 +116,7 @@ namespace TGC.MonoGame.TP
 
             MasterEffect = Content.Load<Effect>(ContentFolderEffects + "MasterEffect");
 
-            Game.Xwing.Textures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
+            XwingTextures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
 
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
@@ -120,11 +124,11 @@ namespace TGC.MonoGame.TP
             TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/MetalSurface");
 
 
-            assignEffectToModels(new Model[] { Game.Xwing.Model, Tie }, EffectTexture);
+            assignEffectToModels(new Model[] { XwingModel, TieModel }, EffectTexture);
             assignEffectToModels(new Model[] { TrenchPlatform, TrenchStraight, TrenchElbow, TrenchT, TrenchIntersection, TrenchTurret }, EffectLight);
-            assignEffectToModels(new Model[] { Trench2, LaserModel, Game.Xwing.EnginesModel }, Effect);
+            assignEffectToModels(new Model[] { Trench2, LaserModel, XwingEnginesModel }, Effect);
 
-            assignEffectToModels(new Model[] { LaserModel, Game.Xwing.EnginesModel }, MasterEffect);
+            assignEffectToModels(new Model[] { LaserModel, XwingEnginesModel }, MasterEffect);
 
             manageEffectParameters();
 
@@ -179,10 +183,19 @@ namespace TGC.MonoGame.TP
                 Game.GameState.Equals(TGCGame.GmState.Paused) ||
                 Game.GameState.Equals(TGCGame.GmState.Defeat))
             {
-                foreach (var xwing in xwingsToDraw)
-                    DrawXWing(xwing, drawType);
+                if(showXwing)
+                    DrawXWing(Game.Xwing, drawType);
                 foreach (var enemy in tiesToDraw)
                     DrawTie(enemy, drawType);
+                foreach (var ship in shipsToDraw)
+                {
+                    if (ship.Allied)
+                        DrawXwing(ship, drawType);
+                    else
+                        DrawTie(ship, drawType);
+                }
+                   
+
                 if (drawType != DrawType.DepthMap)
                     foreach (var laser in lasersToDraw)
                         DrawModel(LaserModel, laser.SRT, laser.Color, drawType);
@@ -483,7 +496,44 @@ namespace TGC.MonoGame.TP
                 }
             }
         }
+        void DrawXwing(Ship xwing, DrawType drawType)
+        {
+            int meshCount = 0;
 
+            EPlightKD.SetValue(1f);
+            EPlightKS.SetValue(1f);
+            EPlightSh.SetValue(20f);
+
+            if (drawType == DrawType.BloomFilter || drawType == DrawType.DepthMap)
+            {
+                DrawModel(XwingModel, xwing.SRT, Vector3.Zero, drawType);
+            }
+            else if (drawType == DrawType.Regular || drawType == DrawType.Shadowed)
+            {
+                assignEffectToModel(XwingModel, EffectLight);
+
+                foreach (var mesh in XwingModel.Meshes)
+                {
+                    var world = mesh.ParentBone.Transform * xwing.SRT;
+
+                    var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                    var itw = Matrix.Transpose(Matrix.Invert(world));
+
+                    EPlightWorld.SetValue(world);
+                    EPlightInverseTransposeWorld.SetValue(itw);
+                    EPlightTexture.SetValue(XwingTextures[meshCount]);
+                    EPlightWorldViewProjection.SetValue(wvp);
+
+                    //EPmasterWorld.SetValue(xwing.World);
+                    //EPmasterWorldViewProjection.SetValue(wvp);
+                    //EPmasterInverseTransposeWorld.SetValue(itw);
+
+                    meshCount++;
+
+                    mesh.Draw();
+                }
+            }
+        }
         void DrawXWing(Xwing xwing, DrawType drawType)
         {
             int meshCount = 0; //Como el xwing tiene 2 texturas, tengo que dibujarlo de esta manera
@@ -495,11 +545,11 @@ namespace TGC.MonoGame.TP
             EPlightSh.SetValue(20f);
 
 
-            DrawModel(xwing.EnginesModel, xwing.EnginesSRT, xwing.EnginesColor, drawType);
+            DrawModel(XwingEnginesModel, xwing.EnginesSRT, xwing.EnginesColor, drawType);
 
             if (drawType == DrawType.BloomFilter || drawType == DrawType.DepthMap)
             {
-                DrawModel(xwing.Model, xwing.SRT, Vector3.Zero, drawType);
+                DrawModel(XwingModel, xwing.SRT, Vector3.Zero, drawType);
             }
             //else if (drawType == DrawType.Shadowed)
             //{
@@ -507,9 +557,9 @@ namespace TGC.MonoGame.TP
             //}
             else if (drawType == DrawType.Regular || drawType == DrawType.Shadowed)
             {
-                assignEffectToModel(xwing.Model, EffectLight);
+                assignEffectToModel(XwingModel, EffectLight);
 
-                foreach (var mesh in xwing.Model.Meshes)
+                foreach (var mesh in XwingModel.Meshes)
                 {
                     xwing.World = mesh.ParentBone.Transform * xwing.SRT;
 
@@ -518,7 +568,7 @@ namespace TGC.MonoGame.TP
 
                     EPlightWorld.SetValue(xwing.World);
                     EPlightInverseTransposeWorld.SetValue(itw);
-                    EPlightTexture.SetValue(xwing.Textures[meshCount]);
+                    EPlightTexture.SetValue(XwingTextures[meshCount]);
                     EPlightWorldViewProjection.SetValue(wvp);
 
                     //EPmasterWorld.SetValue(xwing.World);
@@ -531,13 +581,7 @@ namespace TGC.MonoGame.TP
                 }
                 if (Game.ShowGizmos)
                 {
-                    //var BB = xwing.BB;
-                    //Gizmos.DrawSphere(Xwing.boundingSphere.Center, Xwing.boundingSphere.Radius * Vector3.One, Color.White);
-
-                    //Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(BB), 
-                    //BoundingVolumesExtensions.GetExtents(BB) * 2f, Xwing.hit ? Color.Red : Color.White);
-
-
+                    
                     var OBB = xwing.OBB;
                     Matrix SRT = Matrix.CreateScale(OBB.Extents * 2f) * OBB.Orientation * Matrix.CreateTranslation(OBB.Center);
                     Game.Gizmos.DrawCube(SRT, xwing.hit ? Color.Red : Color.White);
@@ -562,7 +606,34 @@ namespace TGC.MonoGame.TP
             }
 
         }
+        void DrawTie(Ship tie, DrawType drawType)
+        {
+            EPlightKD.SetValue(0.2f);
+            EPlightKS.SetValue(0.2f);
+            EPlightSh.SetValue(0.5f);
+            if (drawType == DrawType.BloomFilter || drawType == DrawType.DepthMap)
+            {
+                DrawModel(TieModel, tie.SRT, Vector3.Zero, drawType);
+            }
+            else if (drawType == DrawType.Regular || drawType == DrawType.Shadowed)
+            {
+                assignEffectToModel(TieModel, EffectLight);
+                Matrix world;
+                foreach (var mesh in TieModel.Meshes)
+                {
+                    world = mesh.ParentBone.Transform * tie.SRT;
 
+                    var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                    EPlightWorld.SetValue(world);
+                    EPlightTexture.SetValue(TieTexture);
+                    EPlightWorldViewProjection.SetValue(wvp);
+                    EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
+
+                    mesh.Draw();
+                }
+                
+            }
+        }
         void DrawTie(TieFighter tie, DrawType drawType)
         {
             EPlightKD.SetValue(0.2f);
@@ -571,7 +642,7 @@ namespace TGC.MonoGame.TP
 
             if (drawType == DrawType.BloomFilter || drawType == DrawType.DepthMap)
             {
-                DrawModel(Tie, tie.SRT, Vector3.Zero, drawType);
+                DrawModel(TieModel, tie.SRT, Vector3.Zero, drawType);
             }
             //else if ()
             //{
@@ -579,9 +650,9 @@ namespace TGC.MonoGame.TP
             //}
             else if (drawType == DrawType.Regular || drawType == DrawType.Shadowed)
             {
-                assignEffectToModel(Tie, EffectLight);
+                assignEffectToModel(TieModel, EffectLight);
                 Matrix world;
-                foreach (var mesh in Tie.Meshes)
+                foreach (var mesh in TieModel.Meshes)
                 {
                     world = mesh.ParentBone.Transform * tie.SRT;
 
@@ -632,10 +703,7 @@ namespace TGC.MonoGame.TP
                 //EffectBloom.Parameters["WorldViewProjection"].SetValue(wvp);
                 mesh.Draw();
             }
-
-            //if (isBloomPass)
-            //    assignEffectToModel(model, Effect);
-
+            
         }
 
         #endregion

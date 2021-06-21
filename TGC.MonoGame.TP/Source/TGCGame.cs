@@ -68,12 +68,14 @@ namespace TGC.MonoGame.TP
         public MyCamera LookBack { get; set; }
         public MyCamera SelectedCamera { get; set; }
         public LightCamera LightCamera { get; set; }
-        public Vector2 MouseXY;
+
         public Input Input;
         public HUD HUD;
 
        
         public Drawer Drawer;
+
+        BackgroundCombat BackgroundCombat;
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -87,6 +89,7 @@ namespace TGC.MonoGame.TP
             Input = new Input(this);
             HUD = new HUD(this);
             Drawer = new Drawer();
+            BackgroundCombat = new BackgroundCombat();
             GameState = GmState.StartScreen;
             
             Xwing.World = Matrix.Identity;
@@ -166,16 +169,13 @@ namespace TGC.MonoGame.TP
             base.LoadContent();
         }
 
-        BoundingFrustum BoundingFrustum = new BoundingFrustum(Matrix.Identity);
+        public BoundingFrustum BoundingFrustum = new BoundingFrustum(Matrix.Identity);
 
         public int elementsDrawn, totalElements;
         
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            MouseXY.X = Mouse.GetState().X;
-            MouseXY.Y = Mouse.GetState().Y;
 
             Input.ProcessInput();
 
@@ -197,9 +197,11 @@ namespace TGC.MonoGame.TP
                 case GmState.Running:
                     #region running
                     Drawer.trenchesToDraw.Clear();
-                    Drawer.xwingsToDraw.Clear();
+                    
                     Drawer.tiesToDraw.Clear();
+                    Drawer.showXwing = true;
                     Drawer.lasersToDraw.Clear();
+                    Drawer.shipsToDraw.Clear();
 
                     elementsDrawn = 0;
                     totalElements = 0;
@@ -215,7 +217,10 @@ namespace TGC.MonoGame.TP
                     Xwing.Update(elapsedTime, Camera);
                     elementsDrawn += 1;
                     totalElements += 1;
-                    Drawer.xwingsToDraw.Add(Xwing);
+                    
+                    BackgroundCombat.UpdateAll(elapsedTime);
+                    BackgroundCombat.AddAllRequiredToDraw(ref Drawer.shipsToDraw);
+
 
                     Trench.UpdateCurrent();
                     zone = Xwing.GetZone();

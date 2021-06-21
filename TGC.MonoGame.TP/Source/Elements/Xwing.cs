@@ -94,7 +94,7 @@ namespace TGC.MonoGame.TP
 
 			if (OBB == null)
             {
-				var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(Model);
+				var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(Game.Drawer.XwingModel);
 				// Scale it to match the model's transform
 				temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, 0.026f);
 				// Create an Oriented Bounding Box from the AABB
