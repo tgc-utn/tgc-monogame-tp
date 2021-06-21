@@ -37,6 +37,7 @@ namespace TGC.MonoGame.TP
         public Effect EffectBloom;
         public Effect EffectBlur;
         public Effect MasterEffect;
+        public Effect MasterMRT;
 
         private Texture TieTexture;
         private Texture TrenchTexture;
@@ -47,6 +48,12 @@ namespace TGC.MonoGame.TP
         private RenderTarget2D MainSceneRenderTarget;
         private RenderTarget2D SecondPassBloomRenderTarget;
         private RenderTarget2D ShadowMapRenderTarget;
+
+        private RenderTarget2D ColorTarget;
+        private RenderTarget2D NormalTarget;
+        private RenderTarget2D DepthTarget;
+        private RenderTarget2D BloomFilterTarget;
+
         #endregion
 
         int BloomPassCount = 2;
@@ -67,6 +74,7 @@ namespace TGC.MonoGame.TP
         public List<Ship> shipsToDraw = new List<Ship>();
         public bool showXwing;
 
+        SpriteBatch SpriteBatch;
         enum DrawType
         {
             Regular,
@@ -90,6 +98,7 @@ namespace TGC.MonoGame.TP
             ContentFolderEffects = TGCGame.ContentFolderEffects;
             ContentFolderTextures = TGCGame.ContentFolderTextures;
 
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
             LoadContent();
         }
         void LoadContent()
@@ -115,7 +124,7 @@ namespace TGC.MonoGame.TP
 
 
             MasterEffect = Content.Load<Effect>(ContentFolderEffects + "MasterEffect");
-
+            MasterMRT = Content.Load<Effect>(ContentFolderEffects + "MasterMRT");
             XwingTextures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
 
@@ -138,6 +147,8 @@ namespace TGC.MonoGame.TP
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
             SkyBox = new SkyBox(skyboxModel, skyBoxTexture, skyBoxEffect);
 
+            var width = GraphicsDevice.Viewport.Width;
+            var height = GraphicsDevice.Viewport.Height;
 
             FullScreenQuad = new FullScreenQuad(GraphicsDevice);
             MainSceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
@@ -154,7 +165,18 @@ namespace TGC.MonoGame.TP
             ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
 
+            ColorTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+            NormalTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+            DepthTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            BloomFilterTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+
+            RenderTargetBinding[0] = ColorTarget;
+            RenderTargetBinding[1] = NormalTarget;
+            RenderTargetBinding[2] = DepthTarget;
+            RenderTargetBinding[3] = BloomFilterTarget;
+
         }
+        RenderTargetBinding[] RenderTargetBinding = new RenderTargetBinding[4];
         public void Unload()
         {
             FullScreenQuad.Dispose();
@@ -271,24 +293,15 @@ namespace TGC.MonoGame.TP
             var bloomTexture = FirstPassBloomRenderTarget;
             var finalBloomRenderTarget = SecondPassBloomRenderTarget;
 
-            for (var index = 0; index < BloomPassCount; index++)
-            {
-                // Set the render target as null, we are drawing into the screen now!
-                GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+            
+            GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
-                //EffectBlur.Parameters["baseTexture"].SetValue(bloomTexture);
-                EPblurTexture.SetValue(bloomTexture);
 
-                FullScreenQuad.Draw(EffectBlur);
+            EPblurTexture.SetValue(bloomTexture);
 
-                if (index != BloomPassCount - 1)
-                {
-                    var auxiliar = bloomTexture;
-                    bloomTexture = finalBloomRenderTarget;
-                    finalBloomRenderTarget = auxiliar;
-                }
-            }
+            FullScreenQuad.Draw(EffectBlur);
+
             if (saveToFile)
             {
                 stream = File.OpenWrite("blurred.png");
@@ -308,7 +321,113 @@ namespace TGC.MonoGame.TP
             
             FullScreenQuad.Draw(EffectBloom);
         }
+        public bool ShowTarget1;
+        public bool ShowTarget2;
+        public bool ShowTarget3;
+        public bool ShowTarget4;
 
+        void DrawSceneMRT()
+        {
+            var CameraView = Game.SelectedCamera.View;
+            var CameraProjection = Game.SelectedCamera.Projection;
+            var CameraPosition = Game.SelectedCamera.Position;
+
+            //SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
+
+            
+            if (Game.GameState.Equals(TGCGame.GmState.Running) ||
+                Game.GameState.Equals(TGCGame.GmState.Paused) ||
+                Game.GameState.Equals(TGCGame.GmState.Defeat))
+            {
+                MasterMRT.CurrentTechnique = ETMRTtextured;
+                
+                if (showXwing)
+                    DrawXWingMRT(Game.Xwing);
+                foreach (var enemy in tiesToDraw)
+                    DrawTieMRT(enemy);
+                foreach (var ship in shipsToDraw)
+                {
+                    if (ship.Allied)
+                        DrawXwingMRT(ship);
+                    else
+                        DrawTieMRT(ship);
+                }
+
+                MasterMRT.CurrentTechnique = ETMRTbasicColor;
+                EPMRTaddToBloomFilter.SetValue(1f);
+                foreach (var laser in lasersToDraw)
+                    DrawModelMRT(LaserModel, laser.SRT, laser.Color);
+
+                EPMRTaddToBloomFilter.SetValue(0f);
+                EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+                DrawMapMRT();
+
+            }
+        }
+        public void DrawBloomMRT()
+        {
+            assignEffectToModels(new Model[] { TieModel, XwingModel, XwingEnginesModel, TrenchElbow, 
+                TrenchIntersection, TrenchPlatform, TrenchStraight, TrenchT, TrenchTurret, LaserModel }, MasterMRT);
+            
+            //Set GBuffers 
+
+            GraphicsDevice.SetRenderTargets(RenderTargetBinding);
+
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+
+            DrawSceneMRT();
+
+
+            if (!ShowTarget1)
+            {
+
+                GraphicsDevice.SetRenderTarget(null);
+
+                SpriteBatch.Begin();
+
+
+                if (ShowTarget2)
+                    SpriteBatch.Draw(NormalTarget, Vector2.Zero, Color.White);
+                else if (ShowTarget3)
+                    SpriteBatch.Draw(DepthTarget, Vector2.Zero, Color.White);
+                else if (ShowTarget4)
+                    SpriteBatch.Draw(BloomFilterTarget, Vector2.Zero, Color.White);
+                else
+                    SpriteBatch.Draw(ColorTarget, Vector2.Zero, Color.White);
+
+                SpriteBatch.End();
+            }
+            else
+            {
+
+                EffectBlur.CurrentTechnique = EffectBlur.Techniques["BlurHorizontalTechnique"];
+                EPblurScreenSize.SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
+                //EffectBlur.Parameters["screenSize"].SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
+                var bloomTexture = BloomFilterTarget;
+                var finalBloomRenderTarget = SecondPassBloomRenderTarget;
+
+                GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+
+                EPblurTexture.SetValue(bloomTexture);
+
+                FullScreenQuad.Draw(EffectBlur);
+
+                
+                GraphicsDevice.DepthStencilState = DepthStencilState.None;
+                GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.Clear(Color.Black);
+
+                EffectBloom.CurrentTechnique = EffectBloom.Techniques["Integrate"];
+                EPbloomTexture.SetValue(ColorTarget);
+                EPbloomFilteredTexture.SetValue(finalBloomRenderTarget);
+                FullScreenQuad.Draw(EffectBloom);
+            }
+
+            //DrawScene(DrawType.Regular);
+
+        }
         public void DrawShadowed()
         {
             Stream stream;
@@ -352,6 +471,7 @@ namespace TGC.MonoGame.TP
             DrawScene(DrawType.Shadowed);
         }
 
+        #region regular elements
         void DrawMap(DrawType drawType)
         {
             foreach (var t in trenchesToDraw)
@@ -413,9 +533,7 @@ namespace TGC.MonoGame.TP
             }
             else if (drawType == DrawType.Regular)
             {
-                assignEffectToModel(t.Model, EffectLight);
-                assignEffectToModel(TrenchTurret, EffectLight);
-
+                
                 EPlightTexture.SetValue(TrenchTexture);
                 //EffectLight.Parameters["baseTexture"].SetValue(TrenchTexture);
                 //EffectBloom.Parameters["baseTexture"].SetValue(TrenchTexture);
@@ -496,6 +614,7 @@ namespace TGC.MonoGame.TP
                 }
             }
         }
+  
         void DrawXwing(Ship xwing, DrawType drawType)
         {
             int meshCount = 0;
@@ -692,7 +811,7 @@ namespace TGC.MonoGame.TP
             {
                 var world = mesh.ParentBone.Transform * SRT;
                 Matrix wvp = Matrix.Identity;
-                if (drawType == DrawType.Regular || drawType == DrawType.Shadowed)
+                if (drawType == DrawType.Regular || drawType == DrawType.Shadowed || drawType == DrawType.BloomFilter)
                     wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
                 else if (drawType == DrawType.DepthMap)
                     wvp = world * Game.LightCamera.View * Game.LightCamera.Projection;
@@ -705,7 +824,135 @@ namespace TGC.MonoGame.TP
             }
             
         }
+        #endregion
+        #region MRTelements
+        void DrawMapMRT()
+        {
+            foreach (var t in trenchesToDraw)
+                DrawTrenchMRT(t);
+        }
+        void DrawTrenchMRT(Trench t)
+        {
+            
+            Matrix world;
+            
+            foreach (var mesh in t.Model.Meshes)
+            {
+                world = mesh.ParentBone.Transform * t.SRT;
 
+                //EPMRTworld.SetValue(world);
+                EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
+                mesh.Draw();
+
+            }
+            foreach (var turret in t.Turrets)
+            {
+                foreach (var mesh in TrenchTurret.Meshes)
+                {
+                    world = mesh.ParentBone.Transform * turret.SRT;
+
+                    //EPMRTworld.SetValue(world);
+                    EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
+
+                    mesh.Draw();
+                }
+            }
+
+        }
+        
+        void DrawXwingMRT(Ship xwing)
+        {
+            Matrix world;
+            int meshCount = 0;
+            foreach (var mesh in XwingModel.Meshes)
+            {
+                world = mesh.ParentBone.Transform * xwing.SRT;
+
+                var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                //var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
+
+                EPMRTtexture.SetValue(XwingTextures[meshCount]);
+                //EPMRTworld.SetValue(world);
+                EPMRTworldViewProjection.SetValue(wvp);
+
+                meshCount++;
+
+                mesh.Draw();
+            }
+        }
+        
+        void DrawXWingMRT(Xwing xwing)
+        {
+            int meshCount = 0;
+
+            EPMRTaddToBloomFilter.SetValue(1f);
+            DrawModelMRT(XwingEnginesModel, xwing.EnginesSRT, xwing.EnginesColor);
+            EPMRTaddToBloomFilter.SetValue(0f);
+
+            
+            foreach (var mesh in XwingModel.Meshes)
+            {
+                xwing.World = mesh.ParentBone.Transform * xwing.SRT;
+
+                var wvp = xwing.World * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                //var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
+
+                EPMRTtexture.SetValue(XwingTextures[meshCount]);
+                //EPMRTworld.SetValue(xwing.World);
+                EPMRTworldViewProjection.SetValue(wvp);
+                
+                meshCount++;
+
+                mesh.Draw();
+            }
+        }
+
+        void DrawTieMRT(Ship tie)
+        {
+            Matrix world;
+            foreach (var mesh in TieModel.Meshes)
+            {
+                world = mesh.ParentBone.Transform * tie.SRT;
+
+                var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                //EPMRTworld.SetValue(world);
+                EPMRTtexture.SetValue(TieTexture);
+                EPMRTworldViewProjection.SetValue(wvp);
+                //EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
+                mesh.Draw();
+            }
+        }
+        void DrawTieMRT(TieFighter tie)
+        {
+            Matrix world;
+            foreach (var mesh in TieModel.Meshes)
+            {
+                world = mesh.ParentBone.Transform * tie.SRT;
+
+                var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                //EPMRTworld.SetValue(world);
+                EPMRTtexture.SetValue(TieTexture);
+                EPMRTworldViewProjection.SetValue(wvp);
+                //EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
+                mesh.Draw();
+            }
+        }
+        void DrawModelMRT(Model model, Matrix SRT, Vector3 color)
+        {
+            EPMRTcolor.SetValue(color);
+            
+            foreach (var mesh in model.Meshes)
+            {
+                var world = mesh.ParentBone.Transform * SRT;
+                var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
+                
+                EPMRTworldViewProjection.SetValue(wvp);
+                mesh.Draw();
+            }
+
+        }
+
+        #endregion
         #endregion
 
         void assignEffectToModel(Model model, Effect effect)
@@ -761,9 +1008,18 @@ namespace TGC.MonoGame.TP
         EffectParameter EPmasterWorldViewProjection;
         EffectParameter EPmasterInverseTransposeWorld;
 
+        EffectParameter EPMRTworld;
+        EffectParameter EPMRTworldViewProjection;
+        EffectParameter EPMRTaddToBloomFilter;
+        EffectParameter EPMRTcolor;
+        EffectParameter EPMRTtexture;
+
         EffectTechnique ETmasterBasicColor;
         EffectTechnique ETmasterDepth;
         EffectTechnique ETmasterShadowed;
+
+        EffectTechnique ETMRTtextured;
+        EffectTechnique ETMRTbasicColor;
 
         void manageEffectParameters()
         {
@@ -824,7 +1080,14 @@ namespace TGC.MonoGame.TP
             EPmasterWorldViewProjection = MasterEffect.Parameters["WorldViewProjection"];
             EPmasterInverseTransposeWorld = MasterEffect.Parameters["InverseTransposeWorld"];
 
+            EPMRTworld = MasterMRT.Parameters["World"];
+            EPMRTworldViewProjection = MasterMRT.Parameters["WorldViewProjection"];
+            EPMRTtexture = MasterMRT.Parameters["Texture"];
+            EPMRTaddToBloomFilter = MasterMRT.Parameters["AddToFilter"];
+            EPMRTcolor = MasterMRT.Parameters["Color"];
 
+            ETMRTbasicColor = MasterMRT.Techniques["BasicColorDraw"];
+            ETMRTtextured = MasterMRT.Techniques["TexturedDraw"];
 
             ETmasterDepth = MasterEffect.Techniques["DepthPass"];
             ETmasterShadowed = MasterEffect.Techniques["DrawShadowedPCF"];

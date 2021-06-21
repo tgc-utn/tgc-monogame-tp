@@ -309,7 +309,7 @@ namespace TGC.MonoGame.TP
             
 
             if (ApplyBloom)
-                Drawer.DrawBloom();
+                Drawer.DrawBloomMRT();
 
 
             #region ShadowMap

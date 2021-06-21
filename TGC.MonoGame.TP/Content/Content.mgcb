@@ -55,6 +55,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/MasterEffect.fx
 
+#begin Effects/MasterMRT.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/MasterMRT.fx
+
 #begin Effects/SkyBox.fx
 /importer:EffectImporter
 /processor:EffectProcessor
