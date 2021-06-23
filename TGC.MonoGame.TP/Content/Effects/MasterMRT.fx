@@ -7,8 +7,10 @@
 #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-float4x4 World;
-float4x4 WorldViewProjection;
+matrix World;
+matrix WorldViewProjection;
+matrix LightViewProjection;
+
 float3 Color;
 float AddToFilter;
 texture Texture;
@@ -22,11 +24,6 @@ sampler2D textureSampler = sampler_state
     AddressU = Clamp;
     AddressV = Clamp;
 };
-
-
-    
-
-
 technique TexturedDraw
 {
     pass Pass0
@@ -48,24 +45,22 @@ technique BasicColorDraw
 struct VSIDraw
 {
     float4 Position : POSITION0;
-    float3 Normal : NORMAL0;
+    float4 Normal : NORMAL0;
     float2 TextureCoordinates : TEXCOORD0;
 };
 
 struct VSODraw
 {
     float4 Position : SV_POSITION;
-    float3 Normal : TEXCOORD0;
-    float4 ScreenPos : TEXCOORD1;
-    float2 TextureCoordinates : TEXCOORD2;
+    float4 Normal : TEXCOORD0;
+    float2 TextureCoordinates : TEXCOORD1;
 };
 
 struct PSOMRT
 {
     float4 Color : COLOR0;
     float4 Normal : COLOR1;
-    float4 Depth : COLOR2;
-    float4 Bloom : COLOR3;
+    float4 Bloom : COLOR2;
 };
 
 VSODraw MRTVS(in VSIDraw input)
@@ -79,9 +74,8 @@ VSODraw MRTVS(in VSIDraw input)
     //output.Normal += World[2, 3] * 0;
     //output.Normal += World[3, 2] * 0;
     
-    //output.Normal = mul(input.Normal, (float3x3) World);
-    output.Normal = float3(0,0,0);
-    output.ScreenPos = output.Position;
+    output.Normal = input.Normal;
+    //output.Normal = float3(0,0,0);
     
     return output;
 }
@@ -90,11 +84,12 @@ PSOMRT BasicColorPS(VSODraw input)
 {
     PSOMRT output = (PSOMRT) 0;
     
+
+    float3 worldNormal = mul(input.Normal, World);
     output.Color = float4(Color, 1);
-    //output.Normal.xyz = input.Normal / 2.0 + 0.5;
-    output.Normal = float4(0, 0, 0, 1);
-    float depth = input.ScreenPos.z / input.ScreenPos.w;
-    output.Depth = float4(depth, depth, depth, 1);
+    
+    output.Normal = float4(0.5f * (normalize(worldNormal) + 1.0f), 1);
+    //output.Normal = float4(0, 0, 0, 1);
     output.Bloom = float4(Color * AddToFilter, 1);
     
     return output;
@@ -104,59 +99,105 @@ PSOMRT TexturedDrawPS(VSODraw input)
     PSOMRT output = (PSOMRT) 0;
     
     output.Color = tex2D(textureSampler, input.TextureCoordinates);
-    //output.Normal.xyz = input.Normal / 2.0 + 0.5;
-    output.Normal = float4(0, 0, 0, 1);
-    output.Depth = input.ScreenPos.z / input.ScreenPos.w;
+
+    float3 worldNormal = mul(input.Normal, World);
+    output.Normal = float4(0.5f * (normalize(worldNormal) + 1.0f), 1);
+    
+    //output.Normal = float4(0, 0, 0, 1);
     output.Bloom = float4(Color * AddToFilter, 1);
     
     return output;
 }
 
-technique Integrate
+
+/* SKYBOX */
+float3 CameraPosition;
+
+texture SkyBoxTexture;
+samplerCUBE SkyBoxSampler = sampler_state
 {
-    pass Pass0
-    {
-        VertexShader = compile VS_SHADERMODEL PostProcessVS();
-        PixelShader = compile PS_SHADERMODEL BloomIntegratePS();
-    }
+    texture = <SkyBoxTexture>;
+    magfilter = LINEAR;
+    minfilter = LINEAR;
+    mipfilter = LINEAR;
+    AddressU = Mirror;
+    AddressV = Mirror;
 };
 
-texture bloomTexture;
-sampler2D bloomTextureSampler = sampler_state
-{
-    Texture = (bloomTexture);
-    MagFilter = Linear;
-    MinFilter = Linear;
-    AddressU = Clamp;
-    AddressV = Clamp;
-};
-
-struct VertexShaderInput
+struct VSIsky
 {
     float4 Position : POSITION0;
-    float2 TextureCoordinates : TEXCOORD0;
+};
+struct VSOsky
+{
+    float4 Position : POSITION0;
+    float3 TextureCoordinates : TEXCOORD0;
 };
 
-struct VertexShaderOutput
+
+technique Skybox
 {
-    float4 Position : SV_POSITION;
-    float2 TextureCoordinates : TEXCOORD0;
-};
-VertexShaderOutput PostProcessVS(in VertexShaderInput input)
+    pass Pass1
+    {
+        VertexShader = compile VS_SHADERMODEL SkyboxVS();
+        PixelShader = compile PS_SHADERMODEL SkyboxPS();
+    }
+}
+VSOsky SkyboxVS(VSIsky input)
 {
-    VertexShaderOutput output;
-    output.Position = input.Position;
-    output.TextureCoordinates = input.TextureCoordinates;
+    VSOsky output = (VSOsky) 0;
+
+    output.Position = mul(input.Position, WorldViewProjection);
+    float4 VertexPosition = mul(input.Position, World);
+    output.TextureCoordinates = VertexPosition.xyz - CameraPosition;
+
     return output;
 }
 
-float4 BloomIntegratePS(in VertexShaderOutput input) : COLOR
-{    
-    float4 bloomColor = tex2D(bloomTextureSampler, input.TextureCoordinates);
-    float4 sceneColor = tex2D(textureSampler, input.TextureCoordinates);
+PSOMRT SkyboxPS(VSOsky input)
+{
+    PSOMRT output = (PSOMRT) 0;
     
-    return sceneColor * 0.8 + bloomColor * 2;
+    output.Color = float4(texCUBE(SkyBoxSampler, normalize(input.TextureCoordinates)).rgb, 1);;
+    output.Bloom = float4(0, 0, 0, 1);
+    output.Normal = float4(0, 0, 0, 1);
+    //output.Depth = float4(0, 0, 0, 1);
+    
+    return output;
 }
 
 
+struct VSIdepth
+{
+    float4 Position : POSITION0;
+};
+struct VSOdepth
+{
+    float4 Position : SV_POSITION;
+    float4 ScreenPos : TEXCOORD0;
+};
 
+technique DepthPass
+{
+    pass Pass1
+    {
+        VertexShader = compile VS_SHADERMODEL DepthVS();
+        PixelShader = compile PS_SHADERMODEL DepthPS();
+    }
+}
+
+VSOdepth DepthVS(VSIdepth input)
+{
+    VSOdepth output = (VSOdepth) 0;
+    
+    output.Position = mul(input.Position, LightViewProjection);
+    output.ScreenPos = mul(input.Position, LightViewProjection);
+
+    return output;
+}
+
+float4 DepthPS(VSOdepth input) : COLOR
+{
+    float depth = input.ScreenPos.z / input.ScreenPos.w;
+    return float4(depth, depth, depth, 1.0);
+}

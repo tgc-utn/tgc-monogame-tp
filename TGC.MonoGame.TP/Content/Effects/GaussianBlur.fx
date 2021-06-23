@@ -38,6 +38,11 @@ struct VertexShaderOutput
     float2 TextureCoordinates : TEXCOORD0;
 };
 
+struct PSO
+{
+    float4 Blur1 : COLOR0;
+    float4 Blur2 : COLOR1;
+};
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
@@ -82,6 +87,24 @@ float4 BlurVertical(in VertexShaderOutput input) : COLOR
     return finalColor;
 }
 
+PSO MRTBlurPS(in VertexShaderOutput input)
+{
+    float4 hColor = float4(0, 0, 0, 1);
+    float4 vColor = float4(0, 0, 0, 1);
+    
+    for (int i = 0; i < kernel_size; i++)
+    {
+        float2 scaledTextureCoordinatesH = input.TextureCoordinates + float2(0, (float) (i - kernel_r) / screenSize.x);
+        float2 scaledTextureCoordinatesV = input.TextureCoordinates + float2(0, (float) (i - kernel_r) / screenSize.y);
+        hColor += tex2D(textureSampler, scaledTextureCoordinatesH) * Kernel[i];
+        vColor += tex2D(textureSampler, scaledTextureCoordinatesH) * Kernel[i];
+    }
+    PSO output = (PSO) 0;
+    output.Blur1 = hColor;
+    output.Blur2 = vColor;
+    
+    return output;
+}
 
 technique Blur
 {
@@ -107,5 +130,14 @@ technique BlurVerticalTechnique
     {
         VertexShader = compile VS_SHADERMODEL MainVS();
         PixelShader = compile PS_SHADERMODEL BlurVertical();
+    }
+};
+
+technique MRTtech
+{
+    pass Pass0
+    {
+        VertexShader = compile VS_SHADERMODEL MainVS();
+        PixelShader = compile PS_SHADERMODEL MRTBlurPS();
     }
 };

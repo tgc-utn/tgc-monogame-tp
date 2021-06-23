@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
@@ -43,10 +44,10 @@ namespace TGC.MonoGame.TP
         private Texture TrenchTexture;
         private Texture[] XwingTextures;
         
-        private RenderTarget2D FirstPassBloomRenderTarget;
         private FullScreenQuad FullScreenQuad;
         private RenderTarget2D MainSceneRenderTarget;
-        private RenderTarget2D SecondPassBloomRenderTarget;
+        private RenderTarget2D BlurHRenderTarget;
+        private RenderTarget2D BlurVRenderTarget;
         private RenderTarget2D ShadowMapRenderTarget;
 
         private RenderTarget2D ColorTarget;
@@ -154,35 +155,46 @@ namespace TGC.MonoGame.TP
             MainSceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
                RenderTargetUsage.DiscardContents);
-            FirstPassBloomRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
+
+
+            BlurHRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None, 0,
                 RenderTargetUsage.DiscardContents);
-            SecondPassBloomRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
+            BlurVRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
                 GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None, 0,
                 RenderTargetUsage.DiscardContents);
 
 
-            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false,
-                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+            //ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false,
+            //    SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
 
-            ColorTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24);
-            NormalTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24);
-            DepthTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            ColorTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            NormalTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            //try
+            //{
+            //    ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, width * 5, height * 5, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            //    Debug.WriteLine("5x shadows");
+            //}
+            //catch
+            //{
+                ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, width * 2, height * 2, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+                Debug.WriteLine("2x shadows");
+            //}
             BloomFilterTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
 
             RenderTargetBinding[0] = ColorTarget;
             RenderTargetBinding[1] = NormalTarget;
-            RenderTargetBinding[2] = DepthTarget;
-            RenderTargetBinding[3] = BloomFilterTarget;
+            //RenderTargetBinding[2] = ShadowMapRenderTarget;
+            RenderTargetBinding[2] = BloomFilterTarget;
 
         }
-        RenderTargetBinding[] RenderTargetBinding = new RenderTargetBinding[4];
+        RenderTargetBinding[] RenderTargetBinding = new RenderTargetBinding[3];
         public void Unload()
         {
             FullScreenQuad.Dispose();
-            FirstPassBloomRenderTarget.Dispose();
+            BlurHRenderTarget.Dispose();
             MainSceneRenderTarget.Dispose();
-            SecondPassBloomRenderTarget.Dispose();
+            BlurVRenderTarget.Dispose();
         }
 
 
@@ -200,7 +212,7 @@ namespace TGC.MonoGame.TP
 
             if (drawType == DrawType.Regular || drawType == DrawType.Shadowed || drawType == DrawType.ShadowedBloom)
                 SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
-
+            
             if (Game.GameState.Equals(TGCGame.GmState.Running) ||
                 Game.GameState.Equals(TGCGame.GmState.Paused) ||
                 Game.GameState.Equals(TGCGame.GmState.Defeat))
@@ -243,6 +255,7 @@ namespace TGC.MonoGame.TP
         }
 
         #region drawers
+        #region nonMRT
         public void DrawRegular()
         {
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
@@ -250,99 +263,38 @@ namespace TGC.MonoGame.TP
 
             DrawScene(DrawType.Regular);
         }
-        public void DrawBloom()
-        {
-            Stream stream;
-            GraphicsDevice.SetRenderTarget(MainSceneRenderTarget);
+        
+        #endregion
 
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            DrawScene(DrawType.Regular);
-
-           
-            // Set the render target as our bloomRenderTarget, we are drawing the bloom color into this texture
-            if (!ShowBloomFilter)
-            {
-                GraphicsDevice.SetRenderTarget(FirstPassBloomRenderTarget);
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-            }
-            else
-            {
-                GraphicsDevice.SetRenderTarget(null);
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-            }
-
-            //Debug.WriteLine("drawing bloom filter");
-            DrawScene(DrawType.BloomFilter);
-
-            if (ShowBloomFilter)
-                return;
-
-
-            if (saveToFile)
-            {
-                stream = File.OpenWrite("bloomFilter.png");
-                FirstPassBloomRenderTarget.SaveAsPng(stream, 1280, 720);
-                stream.Dispose();
-            }
-            
-            
-            EffectBlur.CurrentTechnique = EffectBlur.Techniques["Blur"];
-            EPblurScreenSize.SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
-            //EffectBlur.Parameters["screenSize"].SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
-            var bloomTexture = FirstPassBloomRenderTarget;
-            var finalBloomRenderTarget = SecondPassBloomRenderTarget;
-
-            
-            GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
-
-            EPblurTexture.SetValue(bloomTexture);
-
-            FullScreenQuad.Draw(EffectBlur);
-
-            if (saveToFile)
-            {
-                stream = File.OpenWrite("blurred.png");
-                finalBloomRenderTarget.SaveAsPng(stream, 1280, 720);
-                stream.Dispose();
-            }
-            saveToFile = false;
-            
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
-
-            EffectBloom.CurrentTechnique = EffectBloom.Techniques["Integrate"];
-            EPbloomTexture.SetValue(MainSceneRenderTarget);
-            EPbloomFilteredTexture.SetValue(finalBloomRenderTarget);
-            
-            FullScreenQuad.Draw(EffectBloom);
-        }
         public bool ShowTarget1;
         public bool ShowTarget2;
         public bool ShowTarget3;
         public bool ShowTarget4;
 
-        void DrawSceneMRT()
+        void DrawSceneMRT(bool shadowMapping)
         {
-            var CameraView = Game.SelectedCamera.View;
-            var CameraProjection = Game.SelectedCamera.Projection;
-            var CameraPosition = Game.SelectedCamera.Position;
+            if (!shadowMapping)
+            {
+                var CameraView = Game.SelectedCamera.View;
+                var CameraProjection = Game.SelectedCamera.Projection;
+                var CameraPosition = Game.SelectedCamera.Position;
 
-            //SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
+                //SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
+                SkyBox.Effect = MasterMRT;
+                MasterMRT.CurrentTechnique = ETMRTskybox;
+                SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
+            }
+            else
+                MasterMRT.CurrentTechnique = ETMRTshadowmap;
 
-            
             if (Game.GameState.Equals(TGCGame.GmState.Running) ||
                 Game.GameState.Equals(TGCGame.GmState.Paused) ||
                 Game.GameState.Equals(TGCGame.GmState.Defeat))
             {
-                MasterMRT.CurrentTechnique = ETMRTtextured;
+                
                 
                 if (showXwing)
-                    DrawXWingMRT(Game.Xwing);
+                    DrawXWingMRT(Game.Xwing, shadowMapping);
                 foreach (var enemy in tiesToDraw)
                     DrawTieMRT(enemy);
                 foreach (var ship in shipsToDraw)
@@ -352,31 +304,41 @@ namespace TGC.MonoGame.TP
                     else
                         DrawTieMRT(ship);
                 }
+                if (!shadowMapping)
+                {
+                    MasterMRT.CurrentTechnique = ETMRTbasicColor;
+                    EPMRTaddToBloomFilter.SetValue(1f);
+                    foreach (var laser in lasersToDraw)
+                        DrawModelMRT(LaserModel, laser.SRT, laser.Color);
 
-                MasterMRT.CurrentTechnique = ETMRTbasicColor;
-                EPMRTaddToBloomFilter.SetValue(1f);
-                foreach (var laser in lasersToDraw)
-                    DrawModelMRT(LaserModel, laser.SRT, laser.Color);
-
-                EPMRTaddToBloomFilter.SetValue(0f);
-                EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+                    EPMRTaddToBloomFilter.SetValue(0f);
+                    EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+                }
                 DrawMapMRT();
-
             }
+            
+            
         }
-        public void DrawBloomMRT()
+        public void DrawMRT()
         {
             assignEffectToModels(new Model[] { TieModel, XwingModel, XwingEnginesModel, TrenchElbow, 
                 TrenchIntersection, TrenchPlatform, TrenchStraight, TrenchT, TrenchTurret, LaserModel }, MasterMRT);
-            
-            //Set GBuffers 
+
+            GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+
+            DrawSceneMRT(true);
+
+
 
             GraphicsDevice.SetRenderTargets(RenderTargetBinding);
 
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
-            DrawSceneMRT();
+            
+            DrawSceneMRT(false);
 
 
             if (!ShowTarget1)
@@ -390,7 +352,8 @@ namespace TGC.MonoGame.TP
                 if (ShowTarget2)
                     SpriteBatch.Draw(NormalTarget, Vector2.Zero, Color.White);
                 else if (ShowTarget3)
-                    SpriteBatch.Draw(DepthTarget, Vector2.Zero, Color.White);
+                    SpriteBatch.Draw(ShadowMapRenderTarget,
+                           Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
                 else if (ShowTarget4)
                     SpriteBatch.Draw(BloomFilterTarget, Vector2.Zero, Color.White);
                 else
@@ -401,13 +364,13 @@ namespace TGC.MonoGame.TP
             else
             {
 
-                EffectBlur.CurrentTechnique = EffectBlur.Techniques["BlurHorizontalTechnique"];
+                EffectBlur.CurrentTechnique = EffectBlur.Techniques["MRTtech"];
                 EPblurScreenSize.SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
                 //EffectBlur.Parameters["screenSize"].SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
                 var bloomTexture = BloomFilterTarget;
-                var finalBloomRenderTarget = SecondPassBloomRenderTarget;
+                
 
-                GraphicsDevice.SetRenderTarget(finalBloomRenderTarget);
+                GraphicsDevice.SetRenderTargets(BlurHRenderTarget, BlurVRenderTarget);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
                 EPblurTexture.SetValue(bloomTexture);
@@ -421,7 +384,9 @@ namespace TGC.MonoGame.TP
 
                 EffectBloom.CurrentTechnique = EffectBloom.Techniques["Integrate"];
                 EPbloomTexture.SetValue(ColorTarget);
-                EPbloomFilteredTexture.SetValue(finalBloomRenderTarget);
+                EPbloomBlurHTexture.SetValue(BlurHRenderTarget);
+                EPbloomBlurVTexture.SetValue(BlurVRenderTarget);
+
                 FullScreenQuad.Draw(EffectBloom);
             }
 
@@ -556,7 +521,7 @@ namespace TGC.MonoGame.TP
                     //EffectLight.Parameters["WorldViewProjection"].SetValue(wvp);
                     //EffectBloom.Parameters["WorldViewProjection"].SetValue(wvp); 
                     EPlightWorldViewProjection.SetValue(wvp);
-                    EPbloomWorldViewProjection.SetValue(wvp);
+                    //EPbloomWorldViewProjection.SetValue(wvp);
 
                     mesh.Draw();
 
@@ -577,7 +542,7 @@ namespace TGC.MonoGame.TP
                         //EffectLight.Parameters["WorldViewProjection"].SetValue(wvp);
                         //EffectBloom.Parameters["WorldViewProjection"].SetValue(wvp);
                         EPlightWorldViewProjection.SetValue(wvp);
-                        EPbloomWorldViewProjection.SetValue(wvp);
+                        //EPbloomWorldViewProjection.SetValue(wvp);
                         mesh.Draw();
                     }
                     if (Game.ShowGizmos)
@@ -839,9 +804,10 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in t.Model.Meshes)
             {
                 world = mesh.ParentBone.Transform * t.SRT;
-
-                //EPMRTworld.SetValue(world);
+                EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+                EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
+                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 mesh.Draw();
 
             }
@@ -850,10 +816,10 @@ namespace TGC.MonoGame.TP
                 foreach (var mesh in TrenchTurret.Meshes)
                 {
                     world = mesh.ParentBone.Transform * turret.SRT;
-
-                    //EPMRTworld.SetValue(world);
+                    EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+                    EPMRTworld.SetValue(world);
                     EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
-
+                    EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                     mesh.Draw();
                 }
             }
@@ -872,24 +838,28 @@ namespace TGC.MonoGame.TP
                 //var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
 
                 EPMRTtexture.SetValue(XwingTextures[meshCount]);
-                //EPMRTworld.SetValue(world);
+                EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(wvp);
-
+                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 meshCount++;
 
                 mesh.Draw();
             }
         }
-        
-        void DrawXWingMRT(Xwing xwing)
+
+        void DrawXWingMRT(Xwing xwing, bool shadowMapping)
         {
             int meshCount = 0;
-
+            if (!shadowMapping)
+                MasterMRT.CurrentTechnique = ETMRTbasicColor;
+            
             EPMRTaddToBloomFilter.SetValue(1f);
             DrawModelMRT(XwingEnginesModel, xwing.EnginesSRT, xwing.EnginesColor);
             EPMRTaddToBloomFilter.SetValue(0f);
-
             
+            if (!shadowMapping)
+                MasterMRT.CurrentTechnique = ETMRTtextured;
+
             foreach (var mesh in XwingModel.Meshes)
             {
                 xwing.World = mesh.ParentBone.Transform * xwing.SRT;
@@ -898,9 +868,9 @@ namespace TGC.MonoGame.TP
                 //var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
 
                 EPMRTtexture.SetValue(XwingTextures[meshCount]);
-                //EPMRTworld.SetValue(xwing.World);
+                EPMRTworld.SetValue(xwing.World);
                 EPMRTworldViewProjection.SetValue(wvp);
-                
+                EPMRTlightViewProjection.SetValue(xwing.World * Game.LightCamera.View * Game.LightCamera.Projection);
                 meshCount++;
 
                 mesh.Draw();
@@ -915,10 +885,10 @@ namespace TGC.MonoGame.TP
                 world = mesh.ParentBone.Transform * tie.SRT;
 
                 var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
-                //EPMRTworld.SetValue(world);
+                EPMRTworld.SetValue(world);
                 EPMRTtexture.SetValue(TieTexture);
                 EPMRTworldViewProjection.SetValue(wvp);
-                //EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
+                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 mesh.Draw();
             }
         }
@@ -930,22 +900,26 @@ namespace TGC.MonoGame.TP
                 world = mesh.ParentBone.Transform * tie.SRT;
 
                 var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
-                //EPMRTworld.SetValue(world);
+                EPMRTworld.SetValue(world);
                 EPMRTtexture.SetValue(TieTexture);
                 EPMRTworldViewProjection.SetValue(wvp);
+                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 //EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
             }
         }
         void DrawModelMRT(Model model, Matrix SRT, Vector3 color)
         {
-            EPMRTcolor.SetValue(color);
             
             foreach (var mesh in model.Meshes)
             {
                 var world = mesh.ParentBone.Transform * SRT;
                 var wvp = world * Game.SelectedCamera.View * Game.SelectedCamera.Projection;
-                
+
+                EPMRTworld.SetValue(world);
+                EPMRTcolor.SetValue(color);
+                //MasterMRT.Parameters["World"].SetValue(world);
+                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTworldViewProjection.SetValue(wvp);
                 mesh.Draw();
             }
@@ -982,7 +956,8 @@ namespace TGC.MonoGame.TP
 
         EffectParameter EPbloomWorldViewProjection;
         EffectParameter EPbloomTexture;
-        EffectParameter EPbloomFilteredTexture;
+        EffectParameter EPbloomBlurHTexture;
+        EffectParameter EPbloomBlurVTexture;
 
         EffectParameter EPblurScreenSize;
         EffectParameter EPblurTexture;
@@ -1013,6 +988,7 @@ namespace TGC.MonoGame.TP
         EffectParameter EPMRTaddToBloomFilter;
         EffectParameter EPMRTcolor;
         EffectParameter EPMRTtexture;
+        EffectParameter EPMRTlightViewProjection;
 
         EffectTechnique ETmasterBasicColor;
         EffectTechnique ETmasterDepth;
@@ -1020,7 +996,8 @@ namespace TGC.MonoGame.TP
 
         EffectTechnique ETMRTtextured;
         EffectTechnique ETMRTbasicColor;
-
+        EffectTechnique ETMRTskybox;
+        EffectTechnique ETMRTshadowmap;
         void manageEffectParameters()
         {
             EffectTexture.Parameters["ModifierColor"].SetValue(Vector3.Zero);
@@ -1040,12 +1017,7 @@ namespace TGC.MonoGame.TP
             EPlightKS = EffectLight.Parameters["KSpecular"];
             EPlightSh = EffectLight.Parameters["shininess"];
 
-            EffectBloom.Parameters["enginesColor1"].SetValue(new Vector3(0f, 0.6f, 0.8f));
-            EffectBloom.Parameters["enginesColor2"].SetValue(new Vector3(0.7f, 0.15f, 0f));
-            EffectBloom.Parameters["laserColor1"].SetValue(new Vector3(0.8f, 0f, 0f));
-            EffectBloom.Parameters["laserColor2"].SetValue(new Vector3(0f, 0.8f, 0f));
-            EffectBloom.Parameters["laserColor3"].SetValue(new Vector3(0.8f, 0f, 0.8f));
-
+            
             EPlightWorldViewProjection = EffectLight.Parameters["WorldViewProjection"];
             EPlightWorld = EffectLight.Parameters["World"];
             EPlightInverseTransposeWorld = EffectLight.Parameters["InverseTransposeWorld"];
@@ -1055,7 +1027,8 @@ namespace TGC.MonoGame.TP
 
             EPbloomWorldViewProjection = EffectBloom.Parameters["WorldViewProjection"];
             EPbloomTexture = EffectBloom.Parameters["baseTexture"];
-            EPbloomFilteredTexture = EffectBloom.Parameters["bloomTexture"];
+            EPbloomBlurHTexture = EffectBloom.Parameters["blurHTexture"];
+            EPbloomBlurVTexture = EffectBloom.Parameters["blurVTexture"];
 
             EPblurTexture = EffectBlur.Parameters["baseTexture"];
             EPblurScreenSize = EffectBlur.Parameters["screenSize"];
@@ -1085,14 +1058,17 @@ namespace TGC.MonoGame.TP
             EPMRTtexture = MasterMRT.Parameters["Texture"];
             EPMRTaddToBloomFilter = MasterMRT.Parameters["AddToFilter"];
             EPMRTcolor = MasterMRT.Parameters["Color"];
+            EPMRTlightViewProjection = MasterMRT.Parameters["LightViewProjection"];
 
             ETMRTbasicColor = MasterMRT.Techniques["BasicColorDraw"];
             ETMRTtextured = MasterMRT.Techniques["TexturedDraw"];
+            ETMRTskybox = MasterMRT.Techniques["Skybox"];
+            ETMRTshadowmap = MasterMRT.Techniques["DepthPass"];
 
             ETmasterDepth = MasterEffect.Techniques["DepthPass"];
             ETmasterShadowed = MasterEffect.Techniques["DrawShadowedPCF"];
             ETmasterBasicColor = MasterEffect.Techniques["BasicColor"];
-
+            
         }
         #endregion
     }

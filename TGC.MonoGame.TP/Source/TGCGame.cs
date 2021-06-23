@@ -153,10 +153,10 @@ namespace TGC.MonoGame.TP
             Xwing.MapSize = MapSize;
             Xwing.Update(0f, Camera);
 
-            LightCamera = new LightCamera(Camera.AspectRatio, Xwing.Position - Vector3.Backward * 30 + Vector3.Up * 30);
+            LightCamera = new LightCamera(Camera.AspectRatio, Xwing.Position - Vector3.Left * 150 + Vector3.Up * 150);
             //Debug.WriteLine(LightCamera.Projection.ToString());
 
-            LightCamera.BuildProjection(LightCamera.AspectRatio, 5f, 3000f, LightCamera.DefaultFieldOfViewDegrees);
+            LightCamera.BuildProjection(LightCamera.AspectRatio, 50f, 3000f, LightCamera.DefaultFieldOfViewDegrees);
             //LightCamera.BuildProjection(1f, 5f, 3000f, LightCamera.DefaultFieldOfViewDegrees);
 
             //Debug.WriteLine(LightCamera.Projection.ToString());
@@ -180,9 +180,12 @@ namespace TGC.MonoGame.TP
             Input.ProcessInput();
 
             BoundingFrustum.Matrix = SelectedCamera.View * SelectedCamera.Projection;
+            
+            
+            LightCamera.Update(gameTime);
+            
             Vector4 zone = Vector4.One;
 
-            LightCamera.Update(gameTime);
             switch (GameState)
             {
                 case GmState.StartScreen:
@@ -257,7 +260,8 @@ namespace TGC.MonoGame.TP
                     
                     Drawer.EffectLight.Parameters["lightPosition"].SetValue(LightCamera.Position);
                     Drawer.EffectLight.Parameters["eyePosition"].SetValue(SelectedCamera.Position);
-
+                    
+                    
                     SoundManager.UpdateRandomDistantSounds(elapsedTime);
                     #endregion
                     break;
@@ -309,7 +313,7 @@ namespace TGC.MonoGame.TP
             
 
             if (ApplyBloom)
-                Drawer.DrawBloomMRT();
+                Drawer.DrawMRT();
 
 
             #region ShadowMap

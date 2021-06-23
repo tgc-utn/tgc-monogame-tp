@@ -26,16 +26,25 @@ sampler2D textureSampler = sampler_state
     AddressV = Clamp;
 };
 
-texture bloomTexture;
-sampler2D bloomTextureSampler = sampler_state
+texture blurHTexture;
+sampler2D blurHSampler = sampler_state
 {
-    Texture = (bloomTexture);
+    Texture = (blurHTexture);
     MagFilter = Linear;
     MinFilter = Linear;
     AddressU = Clamp;
     AddressV = Clamp;
 };
-    
+texture blurVTexture;
+sampler2D blurVSampler = sampler_state
+{
+    Texture = (blurVTexture);
+    MagFilter = Linear;
+    MinFilter = Linear;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
+
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
@@ -48,42 +57,6 @@ struct VertexShaderOutput
     float2 TextureCoordinates : TEXCOORD0;
 };
 
-
-VertexShaderOutput MainVS(in VertexShaderInput input)
-{
-    VertexShaderOutput output = (VertexShaderOutput) 0;
-
-    output.Position = mul(input.Position, WorldViewProjection);
-    output.TextureCoordinates = input.TextureCoordinates;
-	
-    return output;
-}
-
-float4 BloomModelPS(VertexShaderOutput input) : COLOR
-{
-    return float4(Color.rgb * ApplyBloom, 1);
-}
-
-float4 BloomPS(VertexShaderOutput input) : COLOR
-{
-    float4 color = tex2D(textureSampler, input.TextureCoordinates);
-    float errorDelta = 0.2;
-    float distanceToTargetColor = distance(color.rgb, enginesColor1);
-    float distanceToTargetColor2 = distance(color.rgb, enginesColor2);
-    float distanceToTargetColor3 = distance(color.rgb, laserColor1);
-    float distanceToTargetColor4 = distance(color.rgb, laserColor2);
-    float distanceToTargetColor5 = distance(color.rgb, laserColor3);
-    
-    float filter =  step(distanceToTargetColor, errorDelta) ||
-                    step(distanceToTargetColor2, errorDelta) ||
-                    step(distanceToTargetColor3, errorDelta) ||
-                    step(distanceToTargetColor4, errorDelta) ||
-                    step(distanceToTargetColor5, errorDelta);
-    //float filter = step(distanceToTargetColor4, errorDelta);
-    return float4(color.rgb * filter, 1);
-}
-
-
 VertexShaderOutput PostProcessVS(in VertexShaderInput input)
 {
     VertexShaderOutput output;
@@ -94,31 +67,14 @@ VertexShaderOutput PostProcessVS(in VertexShaderInput input)
 
 float4 BloomIntegratePS(in VertexShaderOutput input) : COLOR
 {    
-    float4 bloomColor = tex2D(bloomTextureSampler, input.TextureCoordinates);
+    float4 blurHColor = tex2D(blurHSampler, input.TextureCoordinates);
+    float4 blurVColor = tex2D(blurVSampler, input.TextureCoordinates);
+    
     float4 sceneColor = tex2D(textureSampler, input.TextureCoordinates);
     
-    return sceneColor * 0.8 + bloomColor * 2;
+    
+    return sceneColor * 0.8 + blurHColor * 1 + blurVColor * 1;
 }
-
-technique BloomModelPass
-{
-    pass Pass0
-    {
-        VertexShader = compile VS_SHADERMODEL MainVS();
-        PixelShader = compile PS_SHADERMODEL BloomModelPS();
-    }
-};
-
-technique BloomPixelPass
-{
-    pass Pass0
-    {
-        VertexShader = compile VS_SHADERMODEL MainVS();
-        PixelShader = compile PS_SHADERMODEL BloomPS();
-    }
-};
-
-
 
 technique Integrate
 {

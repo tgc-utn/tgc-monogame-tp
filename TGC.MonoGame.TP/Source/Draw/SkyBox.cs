@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+namespace TGC.MonoGame.TP
+{
     /// <summary>
     ///     Handles all of the aspects of working with a SkyBox.
     /// </summary>
@@ -40,7 +42,7 @@ using Microsoft.Xna.Framework.Graphics;
         /// <summary>
         ///     The effect file that the SkyBox will use to render
         /// </summary>
-        public Effect Effect { get; }
+        public Effect Effect { get; set; }
 
         /// <summary>
         ///     The actual SkyBox texture
@@ -63,7 +65,7 @@ using Microsoft.Xna.Framework.Graphics;
         /// <param name="cameraPosition">The position of the camera</param>
         public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
         {
-            Effect.CurrentTechnique = Effect.Techniques["Skybox"];
+            //Effect.CurrentTechnique = Effect.Techniques["Skybox"];
             // Go through each pass in the effect, but we know there is only one...
             foreach (var pass in Effect.CurrentTechnique.Passes)
             {
@@ -76,11 +78,13 @@ using Microsoft.Xna.Framework.Graphics;
                     // Assign the appropriate values to each of the parameters
                     foreach (var part in mesh.MeshParts)
                     {
+                        var world = Matrix.CreateScale(Size) * Matrix.CreateTranslation(cameraPosition);
+                        var wvp = world * view * projection;
+
+                        part.Effect.Parameters["World"].SetValue(world);
                         part.Effect = Effect;
-                        part.Effect.Parameters["World"].SetValue(
-                            Matrix.CreateScale(Size) * Matrix.CreateTranslation(cameraPosition));
-                        part.Effect.Parameters["View"].SetValue(view);
-                        part.Effect.Parameters["Projection"].SetValue(projection);
+                        
+                        part.Effect.Parameters["WorldViewProjection"].SetValue(wvp);
                         part.Effect.Parameters["SkyBoxTexture"].SetValue(Texture);
                         part.Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
                     }
@@ -91,3 +95,4 @@ using Microsoft.Xna.Framework.Graphics;
             }
         }
     }
+}

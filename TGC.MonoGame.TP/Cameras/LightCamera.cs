@@ -26,7 +26,7 @@ namespace TGC.MonoGame.TP
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            Position = Game.Xwing.Position - Vector3.Backward * 30 + Vector3.Up * 30;
+            Position = Game.Xwing.Position - Vector3.Left * 100 + Vector3.Up * 100;
             
             CalculateView();
         }       
