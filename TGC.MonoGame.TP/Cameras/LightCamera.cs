@@ -23,10 +23,11 @@ namespace TGC.MonoGame.TP
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
 
+        public Vector3 FrustumCenter;
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            Position = Game.Xwing.Position - Vector3.Left * 100 + Vector3.Up * 100;
+            Position = FrustumCenter - Vector3.Left * 100 + Vector3.Up * 100;
             
             CalculateView();
         }       

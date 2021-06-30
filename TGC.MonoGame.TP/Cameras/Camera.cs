@@ -89,6 +89,7 @@ public abstract class Camera
     {
         Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewDegrees, aspectRatio, nearPlaneDistance,
             farPlaneDistance);
+
     }
 
     public void UpdateProjection()

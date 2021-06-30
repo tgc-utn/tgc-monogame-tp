@@ -180,8 +180,17 @@ namespace TGC.MonoGame.TP
             Input.ProcessInput();
 
             BoundingFrustum.Matrix = SelectedCamera.View * SelectedCamera.Projection;
-            
-            
+            Vector3[] frustumCorners = BoundingFrustum.GetCorners();
+
+            var lvp = LightCamera.View * LightCamera.Projection;
+
+            Vector3 center = Vector3.Zero;
+            foreach (var corner in frustumCorners)
+                center += corner;
+
+            center /= frustumCorners.Length;
+
+            LightCamera.FrustumCenter = center;
             LightCamera.Update(gameTime);
             
             Vector4 zone = Vector4.One;

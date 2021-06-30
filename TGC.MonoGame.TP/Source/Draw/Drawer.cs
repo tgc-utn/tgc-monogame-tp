@@ -54,6 +54,7 @@ namespace TGC.MonoGame.TP
         private RenderTarget2D NormalTarget;
         private RenderTarget2D DepthTarget;
         private RenderTarget2D BloomFilterTarget;
+        private RenderTarget2D LightTarget;
 
         #endregion
 
@@ -82,8 +83,10 @@ namespace TGC.MonoGame.TP
             BloomFilter,
             DepthMap,
             Shadowed,
-            ShadowedBloom
+            ShadowedBloom,
+            LightPass
         }
+
         public Drawer()
         {
            
@@ -180,15 +183,18 @@ namespace TGC.MonoGame.TP
                 ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, width * 2, height * 2, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
                 Debug.WriteLine("2x shadows");
             //}
-            BloomFilterTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
 
-            RenderTargetBinding[0] = ColorTarget;
-            RenderTargetBinding[1] = NormalTarget;
-            //RenderTargetBinding[2] = ShadowMapRenderTarget;
-            RenderTargetBinding[2] = BloomFilterTarget;
+            DepthTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Single, DepthFormat.Depth24Stencil8);
+            BloomFilterTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            LightTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            //RenderTargetBinding[0] = ColorTarget;
+            //RenderTargetBinding[1] = NormalTarget;
+            ////RenderTargetBinding[2] = ShadowMapRenderTarget;
+            //RenderTargetBinding[2] = BloomFilterTarget;
+            //RenderTargetBinding[3] = DepthTarget;
 
         }
-        RenderTargetBinding[] RenderTargetBinding = new RenderTargetBinding[3];
+        //RenderTargetBinding[] RenderTargetBinding = new RenderTargetBinding[4];
         public void Unload()
         {
             FullScreenQuad.Dispose();
@@ -266,27 +272,36 @@ namespace TGC.MonoGame.TP
         
         #endregion
 
-        public bool ShowTarget1;
-        public bool ShowTarget2;
-        public bool ShowTarget3;
-        public bool ShowTarget4;
+        //public bool ShowTarget1;
+        //public bool ShowTarget2;
+        //public bool ShowTarget3;
+        //public bool ShowTarget4;
 
-        void DrawSceneMRT(bool shadowMapping)
+        public int ShowTarget = 0;
+        void DrawSceneMRT(DrawType dt)
         {
-            if (!shadowMapping)
+            var CameraView = Game.SelectedCamera.View;
+            var CameraProjection = Game.SelectedCamera.Projection;
+            var CameraPosition = Game.SelectedCamera.Position;
+            MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
+            MasterMRT.Parameters["InvertViewProjection"].SetValue(Matrix.Transpose(Matrix.Invert(CameraView * CameraProjection)));
+            MasterMRT.Parameters["CameraPosition"].SetValue(CameraPosition);
+            MasterMRT.Parameters["LightDirection"].SetValue(Game.LightCamera.FrontDirection);
+            MasterMRT.Parameters["SpecularIntensity"].SetValue(1f);
+            MasterMRT.Parameters["SpecularPower"].SetValue(1f);
+
+            if (dt == DrawType.Regular)
             {
-                var CameraView = Game.SelectedCamera.View;
-                var CameraProjection = Game.SelectedCamera.Projection;
-                var CameraPosition = Game.SelectedCamera.Position;
 
                 //SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
                 SkyBox.Effect = MasterMRT;
                 MasterMRT.CurrentTechnique = ETMRTskybox;
                 SkyBox.Draw(CameraView, CameraProjection, CameraPosition);
             }
-            else
+            if(dt == DrawType.DepthMap)
                 MasterMRT.CurrentTechnique = ETMRTshadowmap;
-
+            
+            MasterMRT.Parameters["ApplyLightEffect"].SetValue(1f);
             if (Game.GameState.Equals(TGCGame.GmState.Running) ||
                 Game.GameState.Equals(TGCGame.GmState.Paused) ||
                 Game.GameState.Equals(TGCGame.GmState.Defeat))
@@ -294,7 +309,7 @@ namespace TGC.MonoGame.TP
                 
                 
                 if (showXwing)
-                    DrawXWingMRT(Game.Xwing, shadowMapping);
+                    DrawXWingMRT(Game.Xwing, dt);
                 foreach (var enemy in tiesToDraw)
                     DrawTieMRT(enemy);
                 foreach (var ship in shipsToDraw)
@@ -304,16 +319,21 @@ namespace TGC.MonoGame.TP
                     else
                         DrawTieMRT(ship);
                 }
-                if (!shadowMapping)
+                if (dt == DrawType.Regular)
                 {
                     MasterMRT.CurrentTechnique = ETMRTbasicColor;
                     EPMRTaddToBloomFilter.SetValue(1f);
+                    MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
                     foreach (var laser in lasersToDraw)
                         DrawModelMRT(LaserModel, laser.SRT, laser.Color);
-
+                    
                     EPMRTaddToBloomFilter.SetValue(0f);
+                    MasterMRT.Parameters["ApplyLightEffect"].SetValue(1f);
                     EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
+
+                    MasterMRT.CurrentTechnique = MasterMRT.Techniques["TrenchDraw"];
                 }
+                
                 DrawMapMRT();
             }
             
@@ -321,54 +341,38 @@ namespace TGC.MonoGame.TP
         }
         public void DrawMRT()
         {
+
             assignEffectToModels(new Model[] { TieModel, XwingModel, XwingEnginesModel, TrenchElbow, 
                 TrenchIntersection, TrenchPlatform, TrenchStraight, TrenchT, TrenchTurret, LaserModel }, MasterMRT);
+
+            MasterMRT.CurrentTechnique = MasterMRT.Techniques["DepthPass"];
 
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-
-            DrawSceneMRT(true);
-
+            DrawSceneMRT(DrawType.DepthMap);
 
 
-            GraphicsDevice.SetRenderTargets(RenderTargetBinding);
+
+            //MasterMRT.CurrentTechnique = MasterMRT.Techniques["CalculateIntegrateLight"];
+            GraphicsDevice.SetRenderTargets(ColorTarget, NormalTarget, DepthTarget, BloomFilterTarget);
 
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
-            
-            DrawSceneMRT(false);
-
-
-            if (!ShowTarget1)
-            {
-
-                GraphicsDevice.SetRenderTarget(null);
-
-                SpriteBatch.Begin();
+            DrawSceneMRT(DrawType.Regular);
 
 
-                if (ShowTarget2)
-                    SpriteBatch.Draw(NormalTarget, Vector2.Zero, Color.White);
-                else if (ShowTarget3)
-                    SpriteBatch.Draw(ShadowMapRenderTarget,
-                           Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
-                else if (ShowTarget4)
-                    SpriteBatch.Draw(BloomFilterTarget, Vector2.Zero, Color.White);
-                else
-                    SpriteBatch.Draw(ColorTarget, Vector2.Zero, Color.White);
-
-                SpriteBatch.End();
-            }
-            else
+            if (ShowTarget == 0)
             {
 
                 EffectBlur.CurrentTechnique = EffectBlur.Techniques["MRTtech"];
                 EPblurScreenSize.SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
                 //EffectBlur.Parameters["screenSize"].SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
                 var bloomTexture = BloomFilterTarget;
-                
+
 
                 GraphicsDevice.SetRenderTargets(BlurHRenderTarget, BlurVRenderTarget);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
@@ -377,7 +381,7 @@ namespace TGC.MonoGame.TP
 
                 FullScreenQuad.Draw(EffectBlur);
 
-                
+
                 GraphicsDevice.DepthStencilState = DepthStencilState.None;
                 GraphicsDevice.SetRenderTarget(null);
                 GraphicsDevice.Clear(Color.Black);
@@ -389,7 +393,51 @@ namespace TGC.MonoGame.TP
 
                 FullScreenQuad.Draw(EffectBloom);
             }
+            else if (ShowTarget == 1)
+            {
+                /* Calculate lights */
+                GraphicsDevice.SetRenderTarget(LightTarget);
 
+                MasterMRT.CurrentTechnique = MasterMRT.Techniques["DirectionalLight"];
+                MasterMRT.Parameters["ColorMap"].SetValue(ColorTarget);
+                MasterMRT.Parameters["DepthMap"].SetValue(DepthTarget);
+                MasterMRT.Parameters["NormalMap"].SetValue(NormalTarget);
+                MasterMRT.Parameters["LightColor"].SetValue(new Vector3(1f,1f,1f));
+                MasterMRT.Parameters["AmbientLightColor"].SetValue(new Vector3(0.98f, 0.9f, 1f));
+                MasterMRT.Parameters["AmbientLightIntensity"].SetValue(0.25f);
+                FullScreenQuad.Draw(MasterMRT);
+
+                GraphicsDevice.SetRenderTarget(null);
+                MasterMRT.CurrentTechnique = MasterMRT.Techniques["IntegrateLight"];
+                MasterMRT.Parameters["LightMap"].SetValue(LightTarget);
+                FullScreenQuad.Draw(MasterMRT);
+
+            }
+            else if (ShowTarget >= 2)
+            {
+
+                GraphicsDevice.SetRenderTarget(null);
+
+                SpriteBatch.Begin();
+
+                if (ShowTarget == 2)
+                    SpriteBatch.Draw(ColorTarget, Vector2.Zero, Color.White);
+                else if (ShowTarget == 3)
+                    SpriteBatch.Draw(NormalTarget, Vector2.Zero, Color.White);
+                else if (ShowTarget == 4)
+                    SpriteBatch.Draw(LightTarget, Vector2.Zero, Color.White);
+                else if (ShowTarget == 5)
+                    SpriteBatch.Draw(BloomFilterTarget, Vector2.Zero, Color.White);
+                else if (ShowTarget == 6)
+                    SpriteBatch.Draw(DepthTarget,
+                           Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
+                else if (ShowTarget == 7)
+                    SpriteBatch.Draw(ShadowMapRenderTarget,
+                           Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
+
+
+                SpriteBatch.End();
+            }
             //DrawScene(DrawType.Regular);
 
         }
@@ -808,6 +856,7 @@ namespace TGC.MonoGame.TP
                 EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
                 EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
 
             }
@@ -820,6 +869,7 @@ namespace TGC.MonoGame.TP
                     EPMRTworld.SetValue(world);
                     EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
                     EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                    EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                     mesh.Draw();
                 }
             }
@@ -841,23 +891,26 @@ namespace TGC.MonoGame.TP
                 EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 meshCount++;
 
                 mesh.Draw();
             }
         }
 
-        void DrawXWingMRT(Xwing xwing, bool shadowMapping)
+        void DrawXWingMRT(Xwing xwing, DrawType dt)
         {
             int meshCount = 0;
-            if (!shadowMapping)
-                MasterMRT.CurrentTechnique = ETMRTbasicColor;
+            if (dt == DrawType.Regular)
+                MasterMRT.CurrentTechnique = ETMRTbasicColor; // remove for light post proc.
             
+            MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
             EPMRTaddToBloomFilter.SetValue(1f);
             DrawModelMRT(XwingEnginesModel, xwing.EnginesSRT, xwing.EnginesColor);
             EPMRTaddToBloomFilter.SetValue(0f);
-            
-            if (!shadowMapping)
+            MasterMRT.Parameters["ApplyLightEffect"].SetValue(1f);
+
+            if (dt == DrawType.Regular)
                 MasterMRT.CurrentTechnique = ETMRTtextured;
 
             foreach (var mesh in XwingModel.Meshes)
@@ -871,6 +924,7 @@ namespace TGC.MonoGame.TP
                 EPMRTworld.SetValue(xwing.World);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTlightViewProjection.SetValue(xwing.World * Game.LightCamera.View * Game.LightCamera.Projection);
+                EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(xwing.World)));
                 meshCount++;
 
                 mesh.Draw();
@@ -889,6 +943,7 @@ namespace TGC.MonoGame.TP
                 EPMRTtexture.SetValue(TieTexture);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
             }
         }
@@ -904,6 +959,7 @@ namespace TGC.MonoGame.TP
                 EPMRTtexture.SetValue(TieTexture);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 //EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
             }
@@ -921,6 +977,7 @@ namespace TGC.MonoGame.TP
                 //MasterMRT.Parameters["World"].SetValue(world);
                 EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTworldViewProjection.SetValue(wvp);
+                EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
             }
 
@@ -985,6 +1042,7 @@ namespace TGC.MonoGame.TP
 
         EffectParameter EPMRTworld;
         EffectParameter EPMRTworldViewProjection;
+        EffectParameter EPMRTinverseTransposeWorld;
         EffectParameter EPMRTaddToBloomFilter;
         EffectParameter EPMRTcolor;
         EffectParameter EPMRTtexture;
@@ -1059,7 +1117,7 @@ namespace TGC.MonoGame.TP
             EPMRTaddToBloomFilter = MasterMRT.Parameters["AddToFilter"];
             EPMRTcolor = MasterMRT.Parameters["Color"];
             EPMRTlightViewProjection = MasterMRT.Parameters["LightViewProjection"];
-
+            EPMRTinverseTransposeWorld = MasterMRT.Parameters["InverseTransposeWorld"];
             ETMRTbasicColor = MasterMRT.Techniques["BasicColorDraw"];
             ETMRTtextured = MasterMRT.Techniques["TexturedDraw"];
             ETMRTskybox = MasterMRT.Techniques["Skybox"];

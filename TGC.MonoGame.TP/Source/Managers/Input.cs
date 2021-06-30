@@ -74,12 +74,24 @@ namespace TGC.MonoGame.TP
                 }
             }
             //Game.ShowShadowMap = kState.IsKeyDown(Keys.O);
-            Game.Drawer.ShowTarget1 = kState.IsKeyDown(Keys.D1);
-            Game.Drawer.ShowTarget2 = kState.IsKeyDown(Keys.D2);
-            Game.Drawer.ShowTarget3 = kState.IsKeyDown(Keys.D3);
-            Game.Drawer.ShowTarget4 = kState.IsKeyDown(Keys.D4);
 
-
+            if (kState.IsKeyDown(Keys.D1))
+                Game.Drawer.ShowTarget = 1;
+            else if (kState.IsKeyDown(Keys.D2))
+                Game.Drawer.ShowTarget = 2;
+            else if (kState.IsKeyDown(Keys.D3))
+                Game.Drawer.ShowTarget = 3;
+            else if (kState.IsKeyDown(Keys.D4))
+                Game.Drawer.ShowTarget = 4;
+            else if (kState.IsKeyDown(Keys.D5))
+                Game.Drawer.ShowTarget = 5;
+            else if (kState.IsKeyDown(Keys.D6))
+                Game.Drawer.ShowTarget = 6;
+            else if (kState.IsKeyDown(Keys.D7))
+                Game.Drawer.ShowTarget = 7;
+            else
+                Game.Drawer.ShowTarget = 0;
+            //Game.Drawer.ShowTarget = 1;
             switch (Game.GameState)
             {
                 case TGCGame.GmState.StartScreen:
