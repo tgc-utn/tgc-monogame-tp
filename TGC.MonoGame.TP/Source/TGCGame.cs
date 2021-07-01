@@ -259,7 +259,19 @@ namespace TGC.MonoGame.TP
 
                     Laser.AddAllRequiredtoDraw(ref Drawer.lasersToDraw, ref BoundingFrustum);
                     elementsDrawn += Drawer.lasersToDraw.Count;
-                    
+
+                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMin"].SetValue(1f);
+                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMax"].SetValue(30f);
+                    Drawer.MasterMRT.Parameters["OmniLightsPos"].SetValue(Laser.OmniLightsPos);
+                    Drawer.MasterMRT.Parameters["OmniLightsColor"].SetValue(Laser.OmniLightsColor);
+                    Drawer.MasterMRT.Parameters["OmniLightsCount"].SetValue(Laser.OmniLightsCount);
+
+                    //float3 OmniLightsPos[5];
+                    //float3 OmniLightsColor[5];
+                    //int OmniLightsCount;
+                    //float OmniLightsRadiusMin;
+                    //float OmniLightsRadiusMax;
+
                     //Colisiones
                     Xwing.VerifyCollisions(Laser.EnemyLasers, Map);
                     //Xwing.fired.RemoveAll(laser => laser.Age >= laser.MaxAge);

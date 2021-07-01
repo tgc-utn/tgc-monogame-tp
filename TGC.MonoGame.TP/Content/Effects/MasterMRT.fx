@@ -18,8 +18,8 @@ float3 LightColor;
 float AddToFilter;
 texture Texture;
 
-float SpecularIntensity = 1;
-float SpecularPower = 1;
+float SpecularIntensity;
+float SpecularPower;
 float3 AmbientLightColor;
 float AmbientLightIntensity;
 sampler2D textureSampler = sampler_state
@@ -320,9 +320,24 @@ DLightVSO DLightVS(DLightVSI input)
     output.TexCoord = input.TexCoord;
     return output;
 }
+float3 OmniLightsPos[10];
+float3 OmniLightsColor[10];
+int OmniLightsCount;
+float OmniLightsRadiusMin;
+float OmniLightsRadiusMax;
 
-
-
+float3 CalculateOmniLights(float3 vexPos)
+{
+    float3 color = float3(0,0,0);
+    for (int i = 0; i < OmniLightsCount; i++)
+    {
+        float attenuation = 1 - smoothstep(OmniLightsRadiusMin, OmniLightsRadiusMax, distance(vexPos, OmniLightsPos[i]));
+        
+        color += OmniLightsColor[i] * attenuation;
+    }
+    
+    return color;
+}
 float4 DLightPS(DLightVSO input) : COLOR0
 {
     //get original pixel color
@@ -334,7 +349,7 @@ float4 DLightPS(DLightVSO input) : COLOR0
     float4 normalData = tex2D(normalSampler, input.TexCoord);
     
     if(normalData.w == 0)
-        return float4(texColor, 1);
+        return float4(1,1,1, 0);
     //tranform normal back into [-1,1] range
     float3 normal = 2.0f * normalData.xyz - 1.0;
     //get specular power, and get it into [0,255] range]
@@ -343,7 +358,7 @@ float4 DLightPS(DLightVSO input) : COLOR0
     float specularIntensity = colorMap.a;
     
     //read depth
-    float depthVal = tex2D(depthSampler, input.TexCoord).r;
+    float depthVal = 1 - tex2D(depthSampler, input.TexCoord).r;
         
     //compute screen-space position
     float4 position;
@@ -353,15 +368,19 @@ float4 DLightPS(DLightVSO input) : COLOR0
     position.w = 1.0f;
     //transform to world space
     position = mul(position, InvertViewProjection);
-    //position /= position.w;
+    position /= position.w;
     
     //surface-to-light vector
     float3 lightVector = -normalize(LightDirection);
 
-    //compute diffuse light
+    //compute diffuse light (directional)
     float NdL = max(0, dot(normal, lightVector));
-    float3 diffuseLight = NdL * LightColor;
+    float3 directionalLight = NdL * LightColor;
+    
+    float omniLights = CalculateOmniLights(position.xyz);
 
+    float3 diffuseLight = directionalLight + omniLights;
+    
     //reflexion vector
     float3 reflectionVector = normalize(reflect(-lightVector, normal));
     //camera-to-surface vector
@@ -371,11 +390,7 @@ float4 DLightPS(DLightVSO input) : COLOR0
 
     
     return float4(AmbientLightColor * AmbientLightIntensity + diffuseLight, specularLight);
-    /*
-    //add diffuse + specular
-    return float4((texColor * diffuseLight + specularLight), 1);
-    //return float4(1,0,1, 1);
-    */
+
 }
 
 texture LightMap;
@@ -394,7 +409,7 @@ float4 IntLightPS(DLightVSO input) : COLOR
     float3 diffuseColor = tex2D(colorSampler, input.TexCoord).rgb;
     float4 light = tex2D(lightSampler, input.TexCoord);
     float3 diffuseLight = light.rgb;
-    float specularLight = 0;
+    float specularLight = light.a;
     return float4((diffuseColor * diffuseLight + specularLight), 1);
 }
 

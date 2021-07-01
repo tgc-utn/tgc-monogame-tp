@@ -55,7 +55,7 @@ namespace TGC.MonoGame.TP
         private RenderTarget2D DepthTarget;
         private RenderTarget2D BloomFilterTarget;
         private RenderTarget2D LightTarget;
-
+        private RenderTarget2D SceneTarget;
         #endregion
 
         int BloomPassCount = 2;
@@ -187,6 +187,8 @@ namespace TGC.MonoGame.TP
             DepthTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Single, DepthFormat.Depth24Stencil8);
             BloomFilterTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             LightTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            
+            SceneTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             //RenderTargetBinding[0] = ColorTarget;
             //RenderTargetBinding[1] = NormalTarget;
             ////RenderTargetBinding[2] = ShadowMapRenderTarget;
@@ -287,8 +289,8 @@ namespace TGC.MonoGame.TP
             MasterMRT.Parameters["InvertViewProjection"].SetValue(Matrix.Transpose(Matrix.Invert(CameraView * CameraProjection)));
             MasterMRT.Parameters["CameraPosition"].SetValue(CameraPosition);
             MasterMRT.Parameters["LightDirection"].SetValue(Game.LightCamera.FrontDirection);
-            MasterMRT.Parameters["SpecularIntensity"].SetValue(1f);
-            MasterMRT.Parameters["SpecularPower"].SetValue(1f);
+            MasterMRT.Parameters["SpecularIntensity"].SetValue(0.5f);
+            MasterMRT.Parameters["SpecularPower"].SetValue(0.8f);
 
             if (dt == DrawType.Regular)
             {
@@ -352,9 +354,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             DrawSceneMRT(DrawType.DepthMap);
 
-
-
-            //MasterMRT.CurrentTechnique = MasterMRT.Techniques["CalculateIntegrateLight"];
+            /* Draw Scene MRT*/
             GraphicsDevice.SetRenderTargets(ColorTarget, NormalTarget, DepthTarget, BloomFilterTarget);
 
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
@@ -362,32 +362,50 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             GraphicsDevice.BlendState = BlendState.Opaque;
 
+            
             DrawSceneMRT(DrawType.Regular);
 
 
             if (ShowTarget == 0)
             {
 
+                /* Calculate lights */
+                GraphicsDevice.SetRenderTarget(LightTarget);
+
+                MasterMRT.CurrentTechnique = MasterMRT.Techniques["DirectionalLight"];
+                MasterMRT.Parameters["ColorMap"].SetValue(ColorTarget);
+                MasterMRT.Parameters["DepthMap"].SetValue(DepthTarget);
+                MasterMRT.Parameters["NormalMap"].SetValue(NormalTarget);
+                MasterMRT.Parameters["LightColor"].SetValue(new Vector3(1f, 1f, 1f));
+                MasterMRT.Parameters["AmbientLightColor"].SetValue(new Vector3(0.98f, 0.9f, 1f));
+                MasterMRT.Parameters["AmbientLightIntensity"].SetValue(0.25f);
+                FullScreenQuad.Draw(MasterMRT);
+
+                GraphicsDevice.SetRenderTarget(SceneTarget);
+                MasterMRT.CurrentTechnique = MasterMRT.Techniques["IntegrateLight"];
+                MasterMRT.Parameters["LightMap"].SetValue(LightTarget);
+                FullScreenQuad.Draw(MasterMRT);
+               
+                /* Apply Bloom */
+
                 EffectBlur.CurrentTechnique = EffectBlur.Techniques["MRTtech"];
                 EPblurScreenSize.SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
-                //EffectBlur.Parameters["screenSize"].SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
-                var bloomTexture = BloomFilterTarget;
-
-
+                
+                /* use MRT to blur horizontally and vertically*/
                 GraphicsDevice.SetRenderTargets(BlurHRenderTarget, BlurVRenderTarget);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
-                EPblurTexture.SetValue(bloomTexture);
+                EPblurTexture.SetValue(BloomFilterTarget);
 
                 FullScreenQuad.Draw(EffectBlur);
 
-
+                /* integrate */
                 GraphicsDevice.DepthStencilState = DepthStencilState.None;
                 GraphicsDevice.SetRenderTarget(null);
                 GraphicsDevice.Clear(Color.Black);
 
                 EffectBloom.CurrentTechnique = EffectBloom.Techniques["Integrate"];
-                EPbloomTexture.SetValue(ColorTarget);
+                EPbloomTexture.SetValue(SceneTarget);
                 EPbloomBlurHTexture.SetValue(BlurHRenderTarget);
                 EPbloomBlurVTexture.SetValue(BlurVRenderTarget);
 

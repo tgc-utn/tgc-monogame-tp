@@ -73,7 +73,7 @@ float4 BloomIntegratePS(in VertexShaderOutput input) : COLOR
     float4 sceneColor = tex2D(textureSampler, input.TextureCoordinates);
     
     
-    return sceneColor * 0.8 + blurHColor * 1 + blurVColor * 1;
+    return sceneColor * 0.9 + blurHColor * 1 + blurVColor * 1;
 }
 
 technique Integrate
