@@ -49,11 +49,12 @@ namespace TGC.MonoGame.TP
 		}
 		public void Update(float time, Vector4 zone)
 		{
-			var translation = FrontDirection * 1500f * time;
-			Age += 1f * time;
-			//var translation = FrontDirection * 150f * time;
+			//var translation = FrontDirection * 1500f * time;
 
-			Position += translation;
+			Age += 1f * time;
+            var translation = FrontDirection * 150f * time;
+
+            Position += translation;
 
 
 			//BoundingCylinder.Move(translation);

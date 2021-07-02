@@ -194,9 +194,9 @@ namespace TGC.MonoGame.TP
                     var deltaZ = 0f;
                     var update = false;
                     if (kState.IsKeyDown(Keys.N))
-                        inputDelta = 0.02f;
+                        inputDelta = 0.05f;
                     else
-                        inputDelta = 0.01f;
+                        inputDelta = 1f;
                     if (kState.IsKeyDown(Keys.I))
                     {
                         deltaZ = inputDelta;
@@ -240,12 +240,18 @@ namespace TGC.MonoGame.TP
                     //}
                     if (update)
                     {
-                        Game.Drawer.zMul += deltaX;
-                        Game.Drawer.wMul += deltaY;
-                        Game.Drawer.depthMul += deltaZ;
+                        //Game.Drawer.zMul += deltaX;
+                        //Game.Drawer.wMul += deltaY;
+                        //Game.Drawer.depthMul += deltaZ;
 
-                        Debug.WriteLine("zMul " + Game.Drawer.zMul + "wMul " + Game.Drawer.wMul + " DM " + Game.Drawer.depthMul);
+                        //Debug.WriteLine("zMul " + Game.Drawer.zMul + "wMul " + Game.Drawer.wMul + " DM " + Game.Drawer.depthMul);
+                        Game.RadMin += deltaX;
+                        Game.RadMax += deltaZ;
+                        Debug.WriteLine("Rm " + Game.RadMin + "RM " + Game.RadMax);
+
                     }
+
+
                     #endregion
                     #endregion
                     break;

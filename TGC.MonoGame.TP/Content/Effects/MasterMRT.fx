@@ -12,19 +12,32 @@ matrix WorldViewProjection;
 matrix InverseTransposeWorld;
 matrix LightViewProjection;
 matrix InvertViewProjection;
+
+float3 CameraPosition;
 float3 LightDirection;
 float3 Color;
 float3 LightColor;
 float AddToFilter;
-texture Texture;
 
 float SpecularIntensity;
 float SpecularPower;
 float3 AmbientLightColor;
 float AmbientLightIntensity;
+
+
+texture Texture;
 sampler2D textureSampler = sampler_state
 {
     Texture = (Texture);
+    MagFilter = Linear;
+    MinFilter = Linear;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
+texture ModelNormal;
+sampler2D normalSampler = sampler_state
+{
+    Texture = (ModelNormal);
     MagFilter = Linear;
     MinFilter = Linear;
     AddressU = Clamp;
@@ -34,7 +47,7 @@ technique TexturedDraw
 {
     pass Pass0
     {
-        VertexShader = compile VS_SHADERMODEL MRTVS();
+        VertexShader = compile VS_SHADERMODEL TexturedDrawVS();
         PixelShader = compile PS_SHADERMODEL TexturedDrawPS();
     }
 };
@@ -42,7 +55,7 @@ technique BasicColorDraw
 {
     pass Pass0
     {
-        VertexShader = compile VS_SHADERMODEL MRTVS();
+        VertexShader = compile VS_SHADERMODEL BasicColorVS();
         PixelShader = compile PS_SHADERMODEL BasicColorPS();
     }
 };
@@ -50,7 +63,7 @@ technique TrenchDraw
 {
     pass Pass0
     {
-        VertexShader = compile VS_SHADERMODEL MRTVS();
+        VertexShader = compile VS_SHADERMODEL BasicColorVS();
         PixelShader = compile PS_SHADERMODEL TrenchPS();
     }
 };
@@ -60,6 +73,8 @@ struct VSIDraw
 {
     float4 Position : POSITION0;
     float3 Normal : NORMAL0;
+    float3 Binormal : BINORMAL0;
+    float3 Tangent : TANGENT0;
     float2 TextureCoordinates : TEXCOORD0;
 };
 
@@ -69,6 +84,8 @@ struct VSODraw
     float2 TextureCoordinates : TEXCOORD0;
     float4 Normal : TEXCOORD1;
     float4 ScreenPos : TEXCOORD2;
+    float3x3 WorldToTangentSpace : TEXCOORD3;
+    float3 DirToCamera : TEXCOORD6; //unable to use 4 or 5?
 };
 
 struct PSOMRT
@@ -79,7 +96,8 @@ struct PSOMRT
     float4 Bloom : COLOR3;
 };
 
-VSODraw MRTVS(in VSIDraw input)
+
+VSODraw BasicColorVS(in VSIDraw input)
 {
     VSODraw output = (VSODraw) 0;
 
@@ -114,7 +132,7 @@ PSOMRT BasicColorPS(VSODraw input)
     //float3 worldNormal = normalize(mul(normal, World).rgb);
     if (ApplyLightEffect)
     {
-        float3 worldNormal = mul(input.Normal, InverseTransposeWorld);
+        float3 worldNormal = mul(input.Normal, InverseTransposeWorld).xyz;
         output.Normal = float4(0.5 * (worldNormal + 1.0), 1);
         output.Normal.a = SpecularPower;
     }
@@ -124,10 +142,30 @@ PSOMRT BasicColorPS(VSODraw input)
     output.Bloom = float4(Color * AddToFilter, 1);
     
     
-    float depth = input.ScreenPos.z *0.5 / input.ScreenPos.w;
+    float depth = 1 - input.ScreenPos.z  / input.ScreenPos.w;
     
     output.Depth = float4(depth, depth, depth, 1);
     
+    return output;
+}
+
+VSODraw TexturedDrawVS(in VSIDraw input)
+{
+    VSODraw output = (VSODraw) 0;
+
+    float4 worldPos = mul(input.Position, World);
+    float4 pos = mul(input.Position, WorldViewProjection);
+    output.Position = pos;
+    output.TextureCoordinates = input.TextureCoordinates;
+    
+    output.ScreenPos = pos;
+    
+    output.WorldToTangentSpace[0] = mul(normalize(input.Tangent), (float3x3) World);
+    output.WorldToTangentSpace[1] = mul(normalize(input.Binormal), (float3x3) World);
+    output.WorldToTangentSpace[2] = mul(normalize(input.Normal), (float3x3) World);
+    
+    output.DirToCamera = normalize(float4(CameraPosition, 1.0) - worldPos).xyz;
+    //output.OmniAtt = ... ?
     return output;
 }
 PSOMRT TexturedDrawPS(VSODraw input)
@@ -137,18 +175,22 @@ PSOMRT TexturedDrawPS(VSODraw input)
     output.Color = tex2D(textureSampler, input.TextureCoordinates);
     output.Color.a = SpecularIntensity;
     
-    //float3 worldNormal = mul(input.Normal, World).xyz;
-    //float4 normal = float4(normalize(input.Normal.rgb), 0);
+    //sample normal from texture and convert 
+    float3 fromNormalMap = (2.0 * tex2D(normalSampler, input.TextureCoordinates) - 1.0).xyz;
+    float3 normal = normalize(mul(fromNormalMap, input.WorldToTangentSpace));
+    output.Normal = float4(normal, SpecularPower);
+ 
+    //float3 worldNormal = mul(normal, InverseTransposeWorld);
+    //output.Normal = float4(0.5 * (worldNormal + 1.0), 1);
+    //output.Normal.a = SpecularPower;
     
-    //float3 worldNormal = normalize(mul(normal, World).rgb);
-    float3 worldNormal = mul(input.Normal, InverseTransposeWorld);
-    output.Normal = float4(0.5 * (worldNormal + 1.0), 1);
-    output.Normal.a = SpecularPower;
+    //Add RT DirCam - OmniAtt?
+    //output.CamDir = float4(input.DirToCamera, 1); // replace 1 for OmniAtt
     
     //output.Normal = float4(0, 0, 0, 1);
     output.Bloom = float4(Color * AddToFilter, 1);
     
-    float depth = input.ScreenPos.z * 0.5 / input.ScreenPos.w;
+    float depth = 1 - input.ScreenPos.z / input.ScreenPos.w;
     output.Depth = float4(depth, depth, depth, 1);
     
     return output;
@@ -158,7 +200,7 @@ PSOMRT TrenchPS(VSODraw input)
 {
     PSOMRT output = (PSOMRT) 0;
     
-    float3 worldNormal = mul(input.Normal, InverseTransposeWorld);
+    float3 worldNormal = mul(input.Normal, InverseTransposeWorld).xyz;
     
     output.Normal = float4(0.5 * (worldNormal + 1.0), 1);
     output.Normal.a = SpecularPower;
@@ -182,7 +224,7 @@ PSOMRT TrenchPS(VSODraw input)
     return output;
 }
 /* SKYBOX */
-float3 CameraPosition;
+
 
 texture SkyBoxTexture;
 samplerCUBE SkyBoxSampler = sampler_state
@@ -228,7 +270,7 @@ PSOMRT SkyboxPS(VSOsky input)
     
     output.Color = float4(texCUBE(SkyBoxSampler, normalize(input.TextureCoordinates)).rgb, 1);
     output.Bloom = float4(0, 0, 0, 1);
-    output.Normal = float4(0, 0, 0, 1);
+    output.Normal = float4(0, 0, 0, 0);
     //output.Depth = float4(0, 0, 0, 1);
     
     return output;
@@ -289,7 +331,7 @@ sampler depthSampler = sampler_state
     Mipfilter = POINT;
 };
 texture NormalMap;
-sampler normalSampler = sampler_state
+sampler normalMapSampler = sampler_state
 {
     Texture = (NormalMap);
     AddressU = CLAMP;
@@ -320,20 +362,30 @@ DLightVSO DLightVS(DLightVSI input)
     output.TexCoord = input.TexCoord;
     return output;
 }
-float3 OmniLightsPos[10];
-float3 OmniLightsColor[10];
+float3 OmniLightsPos[15];
+float3 OmniLightsColor[15];
 int OmniLightsCount;
 float OmniLightsRadiusMin;
 float OmniLightsRadiusMax;
 
-float3 CalculateOmniLights(float3 vexPos)
+float3 CalculateOmniLights(float3 vexPos, float3 normal)
 {
     float3 color = float3(0,0,0);
+    float3 lightVector;
+    float NdL;
+    float3 directedColor;
+    
+    //int i = 0;
     for (int i = 0; i < OmniLightsCount; i++)
     {
-        float attenuation = 1 - smoothstep(OmniLightsRadiusMin, OmniLightsRadiusMax, distance(vexPos, OmniLightsPos[i]));
+        lightVector = vexPos -  OmniLightsPos[i];
+
+        NdL = max(0, dot(normal, normalize(lightVector)));
+        directedColor = NdL * float3(1, 0, 1);
         
-        color += OmniLightsColor[i] * attenuation;
+        float attenuation = 1 - smoothstep(OmniLightsRadiusMin, OmniLightsRadiusMax, length(lightVector));
+        
+        color += directedColor * attenuation;
     }
     
     return color;
@@ -346,7 +398,7 @@ float4 DLightPS(DLightVSO input) : COLOR0
     float3 texColor = colorMap.rgb;
         
     //get normal data from the normalMap
-    float4 normalData = tex2D(normalSampler, input.TexCoord);
+    float4 normalData = tex2D(normalMapSampler, input.TexCoord);
     
     if(normalData.w == 0)
         return float4(1,1,1, 0);
@@ -362,8 +414,8 @@ float4 DLightPS(DLightVSO input) : COLOR0
         
     //compute screen-space position
     float4 position;
-    position.x = input.TexCoord.x * 2.0f - 1.0f;
-    position.y = -(input.TexCoord.x * 2.0f - 1.0f);
+    position.x = input.TexCoord.x * 2.0 - 1.0;
+    position.y = -(input.TexCoord.y * 2.0 - 1.0);
     position.z = depthVal;
     position.w = 1.0f;
     //transform to world space
@@ -377,7 +429,7 @@ float4 DLightPS(DLightVSO input) : COLOR0
     float NdL = max(0, dot(normal, lightVector));
     float3 directionalLight = NdL * LightColor;
     
-    float omniLights = CalculateOmniLights(position.xyz);
+    float3 omniLights = CalculateOmniLights(position.xyz, normal);
 
     float3 diffuseLight = directionalLight + omniLights;
     

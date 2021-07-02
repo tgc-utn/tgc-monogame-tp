@@ -172,7 +172,9 @@ namespace TGC.MonoGame.TP
         public BoundingFrustum BoundingFrustum = new BoundingFrustum(Matrix.Identity);
 
         public int elementsDrawn, totalElements;
-        
+        public float RadMin = 1f;
+        public float RadMax = 30f;
+
         protected override void Update(GameTime gameTime)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -260,11 +262,11 @@ namespace TGC.MonoGame.TP
                     Laser.AddAllRequiredtoDraw(ref Drawer.lasersToDraw, ref BoundingFrustum);
                     elementsDrawn += Drawer.lasersToDraw.Count;
 
-                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMin"].SetValue(1f);
-                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMax"].SetValue(30f);
+                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMin"].SetValue(RadMin);
+                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMax"].SetValue(RadMax);
                     Drawer.MasterMRT.Parameters["OmniLightsPos"].SetValue(Laser.OmniLightsPos);
-                    Drawer.MasterMRT.Parameters["OmniLightsColor"].SetValue(Laser.OmniLightsColor);
-                    Drawer.MasterMRT.Parameters["OmniLightsCount"].SetValue(Laser.OmniLightsCount);
+                    Drawer.MasterMRT.Parameters["OmniLightsColor"]?.SetValue(Laser.OmniLightsColor);
+                    Drawer.MasterMRT.Parameters["OmniLightsCount"]?.SetValue(Laser.OmniLightsCount);
 
                     //float3 OmniLightsPos[5];
                     //float3 OmniLightsColor[5];

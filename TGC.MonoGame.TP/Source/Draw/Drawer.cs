@@ -41,9 +41,11 @@ namespace TGC.MonoGame.TP
         public Effect MasterMRT;
 
         private Texture TieTexture;
+        private Texture TieNormalTex;
         private Texture TrenchTexture;
         private Texture[] XwingTextures;
-        
+        private Texture[] XwingNormalTex;
+
         private FullScreenQuad FullScreenQuad;
         private RenderTarget2D MainSceneRenderTarget;
         private RenderTarget2D BlurHRenderTarget;
@@ -131,9 +133,11 @@ namespace TGC.MonoGame.TP
             MasterMRT = Content.Load<Effect>(ContentFolderEffects + "MasterMRT");
             XwingTextures = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Base_Color"),
                                             Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Base_Color") };
+            XwingNormalTex = new Texture[] { Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert6_Normal_DirectX"),
+                                            Content.Load<Texture2D>(ContentFolderTextures + "xWing/lambert5_Normal_DirectX") };
 
             TieTexture = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Diff");
-
+            TieNormalTex = Content.Load<Texture2D>(ContentFolderTextures + "TIE/TIE_IN_Normal");
             TrenchTexture = Content.Load<Texture2D>(ContentFolderTextures + "Trench/MetalSurface");
 
 
@@ -150,7 +154,7 @@ namespace TGC.MonoGame.TP
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skybox/space_earth_small_skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
             SkyBox = new SkyBox(skyboxModel, skyBoxTexture, skyBoxEffect);
-
+            MasterMRT.Parameters["SkyBoxTexture"].SetValue(skyBoxTexture);
             var width = GraphicsDevice.Viewport.Width;
             var height = GraphicsDevice.Viewport.Height;
 
@@ -286,7 +290,7 @@ namespace TGC.MonoGame.TP
             var CameraProjection = Game.SelectedCamera.Projection;
             var CameraPosition = Game.SelectedCamera.Position;
             MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
-            MasterMRT.Parameters["InvertViewProjection"].SetValue(Matrix.Transpose(Matrix.Invert(CameraView * CameraProjection)));
+            MasterMRT.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(CameraView * CameraProjection));
             MasterMRT.Parameters["CameraPosition"].SetValue(CameraPosition);
             MasterMRT.Parameters["LightDirection"].SetValue(Game.LightCamera.FrontDirection);
             MasterMRT.Parameters["SpecularIntensity"].SetValue(0.5f);
@@ -906,6 +910,7 @@ namespace TGC.MonoGame.TP
                 //var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
 
                 EPMRTtexture.SetValue(XwingTextures[meshCount]);
+                MasterMRT.Parameters["ModelNormal"].SetValue(XwingNormalTex[meshCount]);
                 EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
@@ -918,6 +923,7 @@ namespace TGC.MonoGame.TP
 
         void DrawXWingMRT(Xwing xwing, DrawType dt)
         {
+            
             int meshCount = 0;
             if (dt == DrawType.Regular)
                 MasterMRT.CurrentTechnique = ETMRTbasicColor; // remove for light post proc.
@@ -939,6 +945,7 @@ namespace TGC.MonoGame.TP
                 //var itw = Matrix.Transpose(Matrix.Invert(xwing.World));
 
                 EPMRTtexture.SetValue(XwingTextures[meshCount]);
+                MasterMRT.Parameters["ModelNormal"].SetValue(XwingNormalTex[meshCount]);
                 EPMRTworld.SetValue(xwing.World);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTlightViewProjection.SetValue(xwing.World * Game.LightCamera.View * Game.LightCamera.Projection);
@@ -952,6 +959,7 @@ namespace TGC.MonoGame.TP
         void DrawTieMRT(Ship tie)
         {
             Matrix world;
+            MasterMRT.Parameters["ModelNormal"].SetValue(TieNormalTex);
             foreach (var mesh in TieModel.Meshes)
             {
                 world = mesh.ParentBone.Transform * tie.SRT;
@@ -968,6 +976,7 @@ namespace TGC.MonoGame.TP
         void DrawTieMRT(TieFighter tie)
         {
             Matrix world;
+            MasterMRT.Parameters["ModelNormal"].SetValue(TieNormalTex);
             foreach (var mesh in TieModel.Meshes)
             {
                 world = mesh.ParentBone.Transform * tie.SRT;
