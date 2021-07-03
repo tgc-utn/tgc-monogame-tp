@@ -25,7 +25,7 @@ namespace TGC.MonoGame.TP
         public float MouseSensitivity { get; set; } = 10f;
         float CurrentMovementSpeed, CurrentTurnSpeed, SpeedMultiplier = 1f;
 
-        bool debugging = true;
+        bool debugging = false;
 
         public MyCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {

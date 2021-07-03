@@ -75,8 +75,8 @@ namespace TGC.MonoGame.TP
             }
             //Game.ShowShadowMap = kState.IsKeyDown(Keys.O);
 
-            if (kState.IsKeyDown(Keys.D1))
-                Game.Drawer.ShowTarget = 1;
+            //if (kState.IsKeyDown(Keys.D1))
+            //    Game.Drawer.ShowTarget = 1;
             else if (kState.IsKeyDown(Keys.D2))
                 Game.Drawer.ShowTarget = 2;
             else if (kState.IsKeyDown(Keys.D3))
@@ -91,6 +91,12 @@ namespace TGC.MonoGame.TP
                 Game.Drawer.ShowTarget = 7;
             else
                 Game.Drawer.ShowTarget = 0;
+
+            //if (kState.IsKeyDown(Keys.D0))
+            //    Game.Drawer.SpecularPower = 0.008f;
+            //else
+            //    Game.Drawer.SpecularPower = 0.8f;
+
             //Game.Drawer.ShowTarget = 1;
             switch (Game.GameState)
             {

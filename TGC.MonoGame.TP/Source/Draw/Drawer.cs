@@ -54,7 +54,8 @@ namespace TGC.MonoGame.TP
 
         private RenderTarget2D ColorTarget;
         private RenderTarget2D NormalTarget;
-        private RenderTarget2D DepthTarget;
+        //private RenderTarget2D DepthTarget;
+        private RenderTarget2D DirToCamTarget;
         private RenderTarget2D BloomFilterTarget;
         private RenderTarget2D LightTarget;
         private RenderTarget2D SceneTarget;
@@ -188,7 +189,8 @@ namespace TGC.MonoGame.TP
                 Debug.WriteLine("2x shadows");
             //}
 
-            DepthTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Single, DepthFormat.Depth24Stencil8);
+            //DepthTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Single, DepthFormat.Depth24Stencil8);
+            DirToCamTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             BloomFilterTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             LightTarget = new RenderTarget2D(GraphicsDevice, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
             
@@ -284,17 +286,20 @@ namespace TGC.MonoGame.TP
         //public bool ShowTarget4;
 
         public int ShowTarget = 0;
+        public float SpecularPower = 2.55f;
+        public float SpecularIntensity = 0.5f;
+
         void DrawSceneMRT(DrawType dt)
         {
             var CameraView = Game.SelectedCamera.View;
             var CameraProjection = Game.SelectedCamera.Projection;
             var CameraPosition = Game.SelectedCamera.Position;
-            MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
-            MasterMRT.Parameters["InvertViewProjection"].SetValue(Matrix.Invert(CameraView * CameraProjection));
+            MasterMRT.Parameters["ApplyLightEffect"]?.SetValue(0f);
+            MasterMRT.Parameters["InvertViewProjection"]?.SetValue(Matrix.Invert(CameraView * CameraProjection));
             MasterMRT.Parameters["CameraPosition"].SetValue(CameraPosition);
             MasterMRT.Parameters["LightDirection"].SetValue(Game.LightCamera.FrontDirection);
-            MasterMRT.Parameters["SpecularIntensity"].SetValue(0.5f);
-            MasterMRT.Parameters["SpecularPower"].SetValue(0.8f);
+            MasterMRT.Parameters["SpecularIntensity"].SetValue(SpecularIntensity);
+            MasterMRT.Parameters["SpecularPower"].SetValue(SpecularPower);
 
             if (dt == DrawType.Regular)
             {
@@ -307,7 +312,7 @@ namespace TGC.MonoGame.TP
             if(dt == DrawType.DepthMap)
                 MasterMRT.CurrentTechnique = ETMRTshadowmap;
             
-            MasterMRT.Parameters["ApplyLightEffect"].SetValue(1f);
+            MasterMRT.Parameters["ApplyLightEffect"]?.SetValue(1f);
             if (Game.GameState.Equals(TGCGame.GmState.Running) ||
                 Game.GameState.Equals(TGCGame.GmState.Paused) ||
                 Game.GameState.Equals(TGCGame.GmState.Defeat))
@@ -329,12 +334,12 @@ namespace TGC.MonoGame.TP
                 {
                     MasterMRT.CurrentTechnique = ETMRTbasicColor;
                     EPMRTaddToBloomFilter.SetValue(1f);
-                    MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
+                    MasterMRT.Parameters["ApplyLightEffect"]?.SetValue(0f);
                     foreach (var laser in lasersToDraw)
                         DrawModelMRT(LaserModel, laser.SRT, laser.Color);
                     
                     EPMRTaddToBloomFilter.SetValue(0f);
-                    MasterMRT.Parameters["ApplyLightEffect"].SetValue(1f);
+                    MasterMRT.Parameters["ApplyLightEffect"]?.SetValue(1f);
                     EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
 
                     MasterMRT.CurrentTechnique = MasterMRT.Techniques["TrenchDraw"];
@@ -359,7 +364,7 @@ namespace TGC.MonoGame.TP
             DrawSceneMRT(DrawType.DepthMap);
 
             /* Draw Scene MRT*/
-            GraphicsDevice.SetRenderTargets(ColorTarget, NormalTarget, DepthTarget, BloomFilterTarget);
+            GraphicsDevice.SetRenderTargets(ColorTarget, NormalTarget, DirToCamTarget, BloomFilterTarget);
 
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -378,11 +383,13 @@ namespace TGC.MonoGame.TP
 
                 MasterMRT.CurrentTechnique = MasterMRT.Techniques["DirectionalLight"];
                 MasterMRT.Parameters["ColorMap"].SetValue(ColorTarget);
-                MasterMRT.Parameters["DepthMap"].SetValue(DepthTarget);
+                //MasterMRT.Parameters["DepthMap"].SetValue(DepthTarget);
+                MasterMRT.Parameters["DirToCamMap"].SetValue(DirToCamTarget);
                 MasterMRT.Parameters["NormalMap"].SetValue(NormalTarget);
+                MasterMRT.Parameters["BloomFilter"].SetValue(BloomFilterTarget);
                 MasterMRT.Parameters["LightColor"].SetValue(new Vector3(1f, 1f, 1f));
                 MasterMRT.Parameters["AmbientLightColor"].SetValue(new Vector3(0.98f, 0.9f, 1f));
-                MasterMRT.Parameters["AmbientLightIntensity"].SetValue(0.25f);
+                MasterMRT.Parameters["AmbientLightIntensity"].SetValue(0.3f);
                 FullScreenQuad.Draw(MasterMRT);
 
                 GraphicsDevice.SetRenderTarget(SceneTarget);
@@ -415,26 +422,6 @@ namespace TGC.MonoGame.TP
 
                 FullScreenQuad.Draw(EffectBloom);
             }
-            else if (ShowTarget == 1)
-            {
-                /* Calculate lights */
-                GraphicsDevice.SetRenderTarget(LightTarget);
-
-                MasterMRT.CurrentTechnique = MasterMRT.Techniques["DirectionalLight"];
-                MasterMRT.Parameters["ColorMap"].SetValue(ColorTarget);
-                MasterMRT.Parameters["DepthMap"].SetValue(DepthTarget);
-                MasterMRT.Parameters["NormalMap"].SetValue(NormalTarget);
-                MasterMRT.Parameters["LightColor"].SetValue(new Vector3(1f,1f,1f));
-                MasterMRT.Parameters["AmbientLightColor"].SetValue(new Vector3(0.98f, 0.9f, 1f));
-                MasterMRT.Parameters["AmbientLightIntensity"].SetValue(0.25f);
-                FullScreenQuad.Draw(MasterMRT);
-
-                GraphicsDevice.SetRenderTarget(null);
-                MasterMRT.CurrentTechnique = MasterMRT.Techniques["IntegrateLight"];
-                MasterMRT.Parameters["LightMap"].SetValue(LightTarget);
-                FullScreenQuad.Draw(MasterMRT);
-
-            }
             else if (ShowTarget >= 2)
             {
 
@@ -451,8 +438,11 @@ namespace TGC.MonoGame.TP
                 else if (ShowTarget == 5)
                     SpriteBatch.Draw(BloomFilterTarget, Vector2.Zero, Color.White);
                 else if (ShowTarget == 6)
-                    SpriteBatch.Draw(DepthTarget,
-                           Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
+                    SpriteBatch.Draw(DirToCamTarget, Vector2.Zero, Color.White);
+
+                //else if (ShowTarget == 6)
+                //    SpriteBatch.Draw(DepthTarget,
+                //           Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0);
                 else if (ShowTarget == 7)
                     SpriteBatch.Draw(ShadowMapRenderTarget,
                            Vector2.Zero, null, Color.White, 0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0);
@@ -928,11 +918,11 @@ namespace TGC.MonoGame.TP
             if (dt == DrawType.Regular)
                 MasterMRT.CurrentTechnique = ETMRTbasicColor; // remove for light post proc.
             
-            MasterMRT.Parameters["ApplyLightEffect"].SetValue(0f);
+            MasterMRT.Parameters["ApplyLightEffect"]?.SetValue(0f);
             EPMRTaddToBloomFilter.SetValue(1f);
             DrawModelMRT(XwingEnginesModel, xwing.EnginesSRT, xwing.EnginesColor);
             EPMRTaddToBloomFilter.SetValue(0f);
-            MasterMRT.Parameters["ApplyLightEffect"].SetValue(1f);
+            MasterMRT.Parameters["ApplyLightEffect"]?.SetValue(1f);
 
             if (dt == DrawType.Regular)
                 MasterMRT.CurrentTechnique = ETMRTtextured;

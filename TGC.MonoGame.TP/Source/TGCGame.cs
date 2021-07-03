@@ -262,9 +262,9 @@ namespace TGC.MonoGame.TP
                     Laser.AddAllRequiredtoDraw(ref Drawer.lasersToDraw, ref BoundingFrustum);
                     elementsDrawn += Drawer.lasersToDraw.Count;
 
-                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMin"].SetValue(RadMin);
-                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMax"].SetValue(RadMax);
-                    Drawer.MasterMRT.Parameters["OmniLightsPos"].SetValue(Laser.OmniLightsPos);
+                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMin"]?.SetValue(RadMin);
+                    Drawer.MasterMRT.Parameters["OmniLightsRadiusMax"]?.SetValue(RadMax);
+                    Drawer.MasterMRT.Parameters["OmniLightsPos"]?.SetValue(Laser.OmniLightsPos);
                     Drawer.MasterMRT.Parameters["OmniLightsColor"]?.SetValue(Laser.OmniLightsColor);
                     Drawer.MasterMRT.Parameters["OmniLightsCount"]?.SetValue(Laser.OmniLightsCount);
 
