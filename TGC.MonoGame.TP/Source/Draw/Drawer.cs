@@ -350,6 +350,9 @@ namespace TGC.MonoGame.TP
             
             
         }
+        public float modEpsilon = 0.000041200182749889791011810302734375f;
+        public float maxEpsilon = 0.02f;
+
         public void DrawMRT()
         {
 
@@ -357,6 +360,8 @@ namespace TGC.MonoGame.TP
                 TrenchIntersection, TrenchPlatform, TrenchStraight, TrenchT, TrenchTurret, LaserModel }, MasterMRT);
 
             MasterMRT.CurrentTechnique = MasterMRT.Techniques["DepthPass"];
+            MasterMRT.Parameters["modulatedEpsilon"].SetValue(modEpsilon);
+            MasterMRT.Parameters["maxEpsilon"].SetValue(maxEpsilon);
 
             GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
             GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
@@ -372,6 +377,10 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.BlendState = BlendState.Opaque;
 
             
+            MasterMRT.Parameters["ShadowMap"].SetValue(ShadowMapRenderTarget);
+            MasterMRT.Parameters["ShadowMapSize"]?.SetValue(Vector2.One * ShadowMapSize);
+            EPMRTlightViewProjection.SetValue(Game.LightCamera.View * Game.LightCamera.Projection);
+            
             DrawSceneMRT(DrawType.Regular);
 
 
@@ -383,13 +392,14 @@ namespace TGC.MonoGame.TP
 
                 MasterMRT.CurrentTechnique = MasterMRT.Techniques["DirectionalLight"];
                 MasterMRT.Parameters["ColorMap"].SetValue(ColorTarget);
-                //MasterMRT.Parameters["DepthMap"].SetValue(DepthTarget);
                 MasterMRT.Parameters["DirToCamMap"].SetValue(DirToCamTarget);
                 MasterMRT.Parameters["NormalMap"].SetValue(NormalTarget);
                 MasterMRT.Parameters["BloomFilter"].SetValue(BloomFilterTarget);
                 MasterMRT.Parameters["LightColor"].SetValue(new Vector3(1f, 1f, 1f));
                 MasterMRT.Parameters["AmbientLightColor"].SetValue(new Vector3(0.98f, 0.9f, 1f));
                 MasterMRT.Parameters["AmbientLightIntensity"].SetValue(0.3f);
+
+
                 FullScreenQuad.Draw(MasterMRT);
 
                 GraphicsDevice.SetRenderTarget(SceneTarget);
@@ -421,6 +431,11 @@ namespace TGC.MonoGame.TP
                 EPbloomBlurVTexture.SetValue(BlurVRenderTarget);
 
                 FullScreenQuad.Draw(EffectBloom);
+
+                SpriteBatch.Begin();
+                SpriteBatch.Draw(ShadowMapRenderTarget,
+                           new Vector2(0,250), null, Color.White, 0f, Vector2.Zero, 0.10f, SpriteEffects.None, 0);
+                SpriteBatch.End();
             }
             else if (ShowTarget >= 2)
             {
@@ -867,7 +882,7 @@ namespace TGC.MonoGame.TP
                 EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
                 EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
-                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                //EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
 
@@ -880,7 +895,7 @@ namespace TGC.MonoGame.TP
                     EPMRTcolor.SetValue(new Vector3(0.5f, 0.5f, 0.5f));
                     EPMRTworld.SetValue(world);
                     EPMRTworldViewProjection.SetValue(world * Game.SelectedCamera.View * Game.SelectedCamera.Projection);
-                    EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                    //EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                     EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                     mesh.Draw();
                 }
@@ -903,7 +918,7 @@ namespace TGC.MonoGame.TP
                 MasterMRT.Parameters["ModelNormal"].SetValue(XwingNormalTex[meshCount]);
                 EPMRTworld.SetValue(world);
                 EPMRTworldViewProjection.SetValue(wvp);
-                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                //EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 meshCount++;
 
@@ -938,7 +953,7 @@ namespace TGC.MonoGame.TP
                 MasterMRT.Parameters["ModelNormal"].SetValue(XwingNormalTex[meshCount]);
                 EPMRTworld.SetValue(xwing.World);
                 EPMRTworldViewProjection.SetValue(wvp);
-                EPMRTlightViewProjection.SetValue(xwing.World * Game.LightCamera.View * Game.LightCamera.Projection);
+                //EPMRTlightViewProjection.SetValue(xwing.World * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(xwing.World)));
                 meshCount++;
 
@@ -958,7 +973,7 @@ namespace TGC.MonoGame.TP
                 EPMRTworld.SetValue(world);
                 EPMRTtexture.SetValue(TieTexture);
                 EPMRTworldViewProjection.SetValue(wvp);
-                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                //EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
             }
@@ -975,7 +990,7 @@ namespace TGC.MonoGame.TP
                 EPMRTworld.SetValue(world);
                 EPMRTtexture.SetValue(TieTexture);
                 EPMRTworldViewProjection.SetValue(wvp);
-                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                //EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 //EPlightInverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();
@@ -992,7 +1007,7 @@ namespace TGC.MonoGame.TP
                 EPMRTworld.SetValue(world);
                 EPMRTcolor.SetValue(color);
                 //MasterMRT.Parameters["World"].SetValue(world);
-                EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
+                //EPMRTlightViewProjection.SetValue(world * Game.LightCamera.View * Game.LightCamera.Projection);
                 EPMRTworldViewProjection.SetValue(wvp);
                 EPMRTinverseTransposeWorld.SetValue(Matrix.Transpose(Matrix.Invert(world)));
                 mesh.Draw();

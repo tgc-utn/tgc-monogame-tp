@@ -192,7 +192,7 @@ namespace TGC.MonoGame.TP
 
             center /= frustumCorners.Length;
 
-            LightCamera.FrustumCenter = center;
+            LightCamera.FrustumCenter = Xwing.Position;
             LightCamera.Update(gameTime);
             
             Vector4 zone = Vector4.One;

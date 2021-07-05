@@ -27,7 +27,7 @@ namespace TGC.MonoGame.TP
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            Position = FrustumCenter - Vector3.Left * 100 + Vector3.Up * 100;
+            Position = FrustumCenter - Vector3.Left * 60 + Vector3.Up * 60;
             
             CalculateView();
         }       
