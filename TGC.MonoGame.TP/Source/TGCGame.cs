@@ -268,11 +268,6 @@ namespace TGC.MonoGame.TP
                     Drawer.MasterMRT.Parameters["OmniLightsColor"]?.SetValue(Laser.OmniLightsColor);
                     Drawer.MasterMRT.Parameters["OmniLightsCount"]?.SetValue(Laser.OmniLightsCount);
 
-                    //float3 OmniLightsPos[5];
-                    //float3 OmniLightsColor[5];
-                    //int OmniLightsCount;
-                    //float OmniLightsRadiusMin;
-                    //float OmniLightsRadiusMax;
 
                     //Colisiones
                     Xwing.VerifyCollisions(Laser.EnemyLasers, Map);
@@ -280,9 +275,6 @@ namespace TGC.MonoGame.TP
 
                     
                     TieFighter.UpdateEnemies(elapsedTime, Xwing);
-                    
-                    Drawer.EffectLight.Parameters["lightPosition"].SetValue(LightCamera.Position);
-                    Drawer.EffectLight.Parameters["eyePosition"].SetValue(SelectedCamera.Position);
                     
                     
                     SoundManager.UpdateRandomDistantSounds(elapsedTime);
@@ -324,27 +316,13 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
-        public bool ApplyBloom = false;
-        public bool ApplyShadowMap = false;
         protected override void Draw(GameTime gameTime)
         {
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             FPS = (int)Math.Round(1 / deltaTime);
             
-            if (!ApplyBloom && !ApplyShadowMap)
-                Drawer.DrawRegular();
-            
+            Drawer.DrawMRT();
 
-            if (ApplyBloom)
-                Drawer.DrawMRT();
-
-
-            #region ShadowMap
-            if (ApplyShadowMap)
-            {
-                Drawer.DrawShadowed();
-            }
-            #endregion
             if (ShowGizmos)
                 Gizmos.Draw();
             HUD.Draw();

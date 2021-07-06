@@ -44,6 +44,7 @@ namespace TGC.MonoGame.TP
                     }
                     Game.Graphics.ApplyChanges();
                     Game.HUD.Init();
+                    Game.Drawer.InitRTs();
                 }
             }
             if (kState.IsKeyDown(Keys.V))
@@ -67,7 +68,7 @@ namespace TGC.MonoGame.TP
                 if (!ignoredKeys.Contains(Keys.P))
                 {
                     ignoredKeys.Add(Keys.P);
-                    Game.ApplyBloom = !Game.ApplyBloom;
+                    //Game.ApplyBloom = !Game.ApplyBloom;
                     //Game.ApplyShadowMap = !Game.ApplyShadowMap;
 
                     //Game.Drawer.saveToFile = true;

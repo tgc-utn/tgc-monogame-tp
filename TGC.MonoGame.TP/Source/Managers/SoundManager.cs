@@ -191,7 +191,10 @@ namespace TGC.MonoGame.TP
             
             var xwing = Game.Xwing;
 
-            var sourceDir = Vector3.Normalize(xwing.Position - sourcePos);
+            var direction = xwing.Position - sourcePos;
+            var distanceVolMod = MathHelper.Clamp(1 - direction.Length() * 0.001f, 0f, 1f);
+
+            var sourceDir = Vector3.Normalize(direction);
 
             var soundAbsYaw = MathF.Atan2(sourceDir.Z, sourceDir.X) - MathHelper.PiOver2;
 
@@ -209,8 +212,8 @@ namespace TGC.MonoGame.TP
             soundR.Volume = (1f + MathF.Cos(correctedAng)) * 0.5f;
 
             //Vol correction
-            soundL.Volume *= perFxVol * FXVolume * MasterVolume;
-            soundR.Volume *= perFxVol * FXVolume * MasterVolume;
+            soundL.Volume *= perFxVol * distanceVolMod * FXVolume * MasterVolume;
+            soundR.Volume *= perFxVol * distanceVolMod * FXVolume * MasterVolume;
 
             
             soundL.Play();

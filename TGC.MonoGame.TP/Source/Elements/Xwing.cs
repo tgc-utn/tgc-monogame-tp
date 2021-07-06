@@ -304,7 +304,7 @@ namespace TGC.MonoGame.TP
 		Vector3 EnginesScale = new Vector3(0.025f, 0.025f, 0.025f);
 		float yawRad, correctedYaw;
 		Vector3 pos;
-		public float distanceToCamera = 35f;
+		public float distanceToCamera = 37.5f;
 		void updateSRT(MyCamera camera)
 		{
 			//Debug.WriteLine(distanceToCamera);

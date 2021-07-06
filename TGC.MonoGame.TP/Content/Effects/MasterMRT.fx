@@ -162,30 +162,7 @@ PSOMRT BasicColorPS(VSODraw input)
     
     return output;
 }
-/*
-float getShadow(VSODraw input, float3 normal)
-{
-    
-    float3 lightSpacePosition = input.LightSpacePosition.xyz / input.LightSpacePosition.w;
-    float2 shadowMapTextureCoordinates = 0.5 * lightSpacePosition.xy + float2(0.5, 0.5);
-    shadowMapTextureCoordinates.y = 1.0f - shadowMapTextureCoordinates.y;
-	
-    float inclinationBias = max(modulatedEpsilon * (1.0 - dot(normal, LightDirection)), maxEpsilon);
-	
-    // Sample and smooth the shadowmap
-	// Also perform the comparison inside the loop and average the result
-    float notInShadow = 0.0;
-    float2 texelSize = 1.0 / ShadowMapSize;
-    for (int x = -1; x <= 1; x++)
-        for (int y = -1; y <= 1; y++)
-        {
-            float pcfDepth = tex2D(shadowSampler, shadowMapTextureCoordinates + float2(x, y) * texelSize).r + inclinationBias;
-            notInShadow += step(lightSpacePosition.z, pcfDepth) / 9.0;
-        }
-    
-	
-    return notInShadow;
-}*/
+
 float getShadow(VSODraw input, float3 normal)
 {
     float3 lightSpacePosition = input.LightSpacePosition.xyz / input.LightSpacePosition.w;
@@ -259,7 +236,7 @@ PSOMRT TrenchPS(VSODraw input)
 texture SkyBoxTexture;
 samplerCUBE SkyBoxSampler = sampler_state
 {
-    texture = <SkyBoxTexture>;
+    texture = (SkyBoxTexture);
     magfilter = LINEAR;
     minfilter = LINEAR;
     mipfilter = LINEAR;
@@ -273,7 +250,7 @@ struct VSIsky
 };
 struct VSOsky
 {
-    float4 Position : POSITION0;
+    float4 Position : SV_POSITION;
     float3 TextureCoordinates : TEXCOORD0;
 };
 technique Skybox
@@ -299,9 +276,9 @@ PSOMRT SkyboxPS(VSOsky input)
     PSOMRT output = (PSOMRT) 0;
     
     output.Color = float4(texCUBE(SkyBoxSampler, normalize(input.TextureCoordinates)).rgb, 1);
-    output.Bloom = float4(0, 0, 0, 1);
-    output.Normal = float4(0, 0, 0, 0);
-    //output.Depth = float4(0, 0, 0, 1);
+    output.Bloom = float4(0, 0, 0, 0.0);
+    output.DirToCam = float4(1, 0, 1, 0);
+    output.Normal= float4(0, 0, 1, 0);
     
     return output;
 }
@@ -404,34 +381,12 @@ DLightVSO DLightVS(DLightVSI input)
 }
 
 
-//float3 CalculateOmniLights(float3 vexPos, float3 normal)
-//{
-//    float3 color = float3(0,0,0);
-//    float3 lightVector;
-//    float NdL;
-//    float3 directedColor;
-    
-//    //int i = 0;
-//    for (int i = 0; i < OmniLightsCount; i++)
-//    {
-//        lightVector = vexPos -  OmniLightsPos[i];
-
-//        NdL = max(0, dot(normal, normalize(lightVector)));
-//        directedColor = NdL * float3(1, 0, 1);
-        
-//        float attenuation = 1 - smoothstep(OmniLightsRadiusMin, OmniLightsRadiusMax, length(lightVector));
-        
-//        color += directedColor * attenuation;
-//    }
-    
-//    return color;
-//}
 float4 DLightPS(DLightVSO input) : COLOR0
 {
     float applyLighting = tex2D(bloomFilterSampler, input.TexCoord).w;
     
-    if (applyLighting == 0)
-        return float4(0, 0, 0, 0);
+    if (applyLighting == 0.0)
+        return float4(1, 1, 1, 0);
     
     //get original pixel color
     float4 colorMap = tex2D(colorSampler, input.TexCoord);

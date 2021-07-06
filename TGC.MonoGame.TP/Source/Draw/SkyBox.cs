@@ -31,6 +31,8 @@ namespace TGC.MonoGame.TP
             Texture = texture;
             Effect = effect;
             Size = size;
+
+
         }
 
         /// <summary>
@@ -65,33 +67,17 @@ namespace TGC.MonoGame.TP
         /// <param name="cameraPosition">The position of the camera</param>
         public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
         {
-            //Effect.CurrentTechnique = Effect.Techniques["Skybox"];
-            // Go through each pass in the effect, but we know there is only one...
-            foreach (var pass in Effect.CurrentTechnique.Passes)
+            var Game = TGCGame.Instance;
+            Effect.Parameters["SkyBoxTexture"].SetValue(Texture);
+            Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
+            foreach (var mesh in Model.Meshes)
             {
-                pass.Apply();
+                var world = Matrix.CreateScale(Size) * Matrix.CreateTranslation(cameraPosition);
+                var wvp = world * view * projection;
+                Effect.Parameters["World"].SetValue(world);
+                Effect.Parameters["WorldViewProjection"].SetValue(wvp);
 
-                // Draw all of the components of the mesh, but we know the cube really
-                // only has one mesh
-                foreach (var mesh in Model.Meshes)
-                {
-                    // Assign the appropriate values to each of the parameters
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        var world = Matrix.CreateScale(Size) * Matrix.CreateTranslation(cameraPosition);
-                        var wvp = world * view * projection;
-
-                        part.Effect.Parameters["World"].SetValue(world);
-                        part.Effect = Effect;
-                        
-                        part.Effect.Parameters["WorldViewProjection"].SetValue(wvp);
-                        part.Effect.Parameters["SkyBoxTexture"].SetValue(Texture);
-                        part.Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
-                    }
-
-                    // Draw the mesh with the SkyBox effect
-                    mesh.Draw();
-                }
+                mesh.Draw();
             }
         }
     }
