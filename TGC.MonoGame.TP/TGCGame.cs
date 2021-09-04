@@ -36,8 +36,14 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
+
+        //Modelos
         private Model Cartel { get; set; }
         private Model Esfera { get; set; }
+        private Model TunnelChico { get; set; }
+        private Model Cubo { get; set; }
+
+
         private Effect Effect { get; set; }
         private BasicEffect BasicEffect { get; set; }
         private float Rotation { get; set; }
@@ -115,6 +121,11 @@ namespace TGC.MonoGame.TP
             //Cargo la esfera
             Esfera = Content.Load<Model>(ContentFolder3D + "Marbel/Pelota/pelota");
 
+            //cargo tunel
+            TunnelChico = Content.Load<Model>(ContentFolder3D + "Marbel/TunelChico/TunnelChico");   
+
+            //cargo Cubo
+            Cubo = Content.Load<Model>(ContentFolder3D + "Marbel/Cubo/cubo");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -158,7 +169,7 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
+            // Aca deberiamos poner toda la logica de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
@@ -171,7 +182,7 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Cartel.Meshes)
             {
                 World =mesh.ParentBone.Transform * Matrix.CreateScale(0.1f)  * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(new Vector3(50f, 0f, 0f));
-                    //asigno colo verde amarillo 
+                    //asigno color verde amarillo 
                 Effect.Parameters["DiffuseColor"].SetValue(Color.GreenYellow.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
@@ -181,14 +192,56 @@ namespace TGC.MonoGame.TP
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(-50f, 0f, 0f));
                 Effect.Parameters["World"].SetValue(World);
-                   //asigno colo rojo
+                   //asigno color rojo
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 mesh.Draw();
             }
 
-            // Para el piso
-            // Set our vertex buffer.
-            GraphicsDevice.SetVertexBuffer(Vertices);
+            //Se agrega los tuneles
+            foreach (var mesh in TunnelChico.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(0f, 0f, 0f));
+                Effect.Parameters["World"].SetValue(World);
+                //asigno color salmon
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Salmon.ToVector3());
+                mesh.Draw();
+            }
+
+            //Se agrega cubo
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(0f, 0f, 0f));
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            
+          foreach (var mesh in Cartel.Meshes)
+                {
+                    World = mesh.ParentBone.Transform * Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(new Vector3(10f, -18f, 13f));
+                    //asigno color verde amarillo 
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Aquamarine.ToVector3());
+                    Effect.Parameters["World"].SetValue(World);
+                    mesh.Draw();
+                }
+            foreach (var mesh in Cartel.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(new Vector3(0f, -20f, 10f));
+                //asigno color verde amarillo 
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cartel.Meshes)
+                {
+                    World = mesh.ParentBone.Transform* Matrix.CreateScale(0.04f) * Matrix.CreateTranslation(new Vector3(-10f, -18f, 7f));
+                    //asigno color verde amarillo 
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Aqua.ToVector3());
+        Effect.Parameters["World"].SetValue(World);
+        mesh.Draw();
+                }
+// Para el piso
+// Set our vertex buffer.
+GraphicsDevice.SetVertexBuffer(Vertices);
 
             // Set our index buffer
             GraphicsDevice.Indices = Indices;
