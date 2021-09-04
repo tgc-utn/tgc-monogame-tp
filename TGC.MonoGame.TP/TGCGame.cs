@@ -36,7 +36,8 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
+        private Model Cartel { get; set; }
+        private Model Esfera { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -50,13 +51,6 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
             // Configuramos nuestras matrices de la escena.
@@ -78,8 +72,10 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            // Cargo el Cartel
+            Cartel = Content.Load<Model>(ContentFolder3D + "Marbel/Sign/StreetSign");
+            //Cargo la esfera
+            Esfera = Content.Load<Model>(ContentFolder3D + "Marbel/Pelota/pelota");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -87,11 +83,15 @@ namespace TGC.MonoGame.TP
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
+            // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
+            //mesh Cartel
+            foreach (var mesh in Cartel.Meshes)            
             foreach (var meshPart in mesh.MeshParts)
                 meshPart.Effect = Effect;
-
+            //mesh esfera
+            foreach (var mesh in Esfera.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
             base.LoadContent();
         }
 
@@ -108,7 +108,6 @@ namespace TGC.MonoGame.TP
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
                 Exit();
-
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -127,13 +126,25 @@ namespace TGC.MonoGame.TP
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(View);
             Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+            
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
-            foreach (var mesh in Model.Meshes)
+            //Se agrega el cartel
+            foreach (var mesh in Cartel.Meshes)
             {
-                World = mesh.ParentBone.Transform * rotationMatrix;
+                World =mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(50f, 0f, 0f)) * Matrix.CreateRotationY(Rotation);
+                    //asigno colo verde amarillo 
+                Effect.Parameters["DiffuseColor"].SetValue(Color.GreenYellow.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //Se agrega la esfera
+            foreach (var mesh in Esfera.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(-50f, 0f, 0f));
+                Effect.Parameters["World"].SetValue(World);
+                   //asigno colo rojo
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 mesh.Draw();
             }
         }
@@ -150,3 +161,5 @@ namespace TGC.MonoGame.TP
         }
     }
 }
+
+// idea obstaculo: El cartel puede ser un obstaculo que si lo hacemos rotar el jugador tendria que evitarlo
