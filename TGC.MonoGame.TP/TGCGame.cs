@@ -39,10 +39,13 @@ namespace TGC.MonoGame.TP
         private Model Cartel { get; set; }
         private Model Esfera { get; set; }
         private Effect Effect { get; set; }
+        private BasicEffect BasicEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        public VertexBuffer Vertices { get; private set; }
+        public IndexBuffer Indices { get; private set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -58,6 +61,41 @@ namespace TGC.MonoGame.TP
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+
+            // Setup our basic effect
+            BasicEffect = new BasicEffect(GraphicsDevice)
+            {
+                World = World,
+                View = View,
+                Projection = Projection,
+                VertexColorEnabled = true
+            };
+
+            float yPositionFloor = -20f;
+            float xScaleFloor = 50f;
+            float zScaleFloor = 50f;
+
+            // Array of vertex positions and colors.
+            var triangleVertices = new[]
+            {
+                new VertexPositionColor(new Vector3(-1f * xScaleFloor, yPositionFloor, 1f * zScaleFloor), Color.Blue),
+                new VertexPositionColor(new Vector3(-1f * xScaleFloor, yPositionFloor, -1f * zScaleFloor), Color.Red),
+                new VertexPositionColor(new Vector3(1f * xScaleFloor, yPositionFloor, -1f * zScaleFloor), Color.Green),
+                new VertexPositionColor(new Vector3(1f * xScaleFloor, yPositionFloor, 1f * zScaleFloor), Color.Yellow)
+            };
+
+            Vertices = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, triangleVertices.Length,
+                BufferUsage.WriteOnly);
+            Vertices.SetData(triangleVertices);
+
+            // Array of indices
+            var triangleIndices = new ushort[]
+            {
+                0, 1, 2, 0, 2, 3
+            };
+
+            Indices = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, triangleIndices.Length, BufferUsage.None);
+            Indices.SetData(triangleIndices);
 
             base.Initialize();
         }
@@ -132,7 +170,7 @@ namespace TGC.MonoGame.TP
             //Se agrega el cartel
             foreach (var mesh in Cartel.Meshes)
             {
-                World =mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(50f, 0f, 0f)) * Matrix.CreateRotationY(Rotation);
+                World =mesh.ParentBone.Transform * Matrix.CreateScale(0.1f)  * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(new Vector3(50f, 0f, 0f));
                     //asigno colo verde amarillo 
                 Effect.Parameters["DiffuseColor"].SetValue(Color.GreenYellow.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
@@ -146,6 +184,28 @@ namespace TGC.MonoGame.TP
                    //asigno colo rojo
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 mesh.Draw();
+            }
+
+            // Para el piso
+            // Set our vertex buffer.
+            GraphicsDevice.SetVertexBuffer(Vertices);
+
+            // Set our index buffer
+            GraphicsDevice.Indices = Indices;
+
+            foreach (var pass in BasicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                GraphicsDevice.DrawIndexedPrimitives(
+                    // We’ll be rendering one triangles.
+                    PrimitiveType.TriangleList,
+                    // The offset, which is 0 since we want to start at the beginning of the Vertices array.
+                    0,
+                    // The start index in the Vertices array.
+                    0,
+                    // The number of triangles to draw.
+                    2);
             }
         }
 
