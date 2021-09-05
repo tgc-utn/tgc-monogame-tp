@@ -352,6 +352,7 @@ namespace TGC.MonoGame.TP
             }
 
             //primera plataforma del nivel 3
+            //parte 3.1
             foreach (var mesh in Cubo.Meshes)
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 60f)) ;
@@ -361,7 +362,7 @@ namespace TGC.MonoGame.TP
             //cubo que necesita pelota chica del nivel 3
             foreach (var mesh in Cubo.Meshes)
             {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 60f));
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateRotationY(3.14159f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 60f));
                 Effect.Parameters["DiffuseColor"].SetValue(Color.LightYellow.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
@@ -370,13 +371,63 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Pinches.Meshes)
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateTranslation(new Vector3(86f,-9f - (-8f * MathF.Cos(totalGameTime)) , 70f));
-                Effect.Parameters["DiffuseColor"].SetValue(Color.LightYellow.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
                 mesh.Draw();
             }
 
-
+            //parte 3.2
+            //Plataforma
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(30f, 2f, 2f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -18f, 115f));
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //cubo que necesita pelota chica del nivel 3.1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(20f, 5f, 8f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -9f, 110f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gold.ToVector3());
+                mesh.Draw();
+            }
+            //pinches que suben y baja
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(83f, -9f - (-8f * MathF.Cos(totalGameTime *2)), 90f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(80f, -9f - (-8f * MathF.Cos((totalGameTime * 2)-1)), 100f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(77f, -9f - (-8f * MathF.Cos((totalGameTime * 2) - 2)), 110f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(74f, -9f - (-8f * MathF.Cos((totalGameTime * 2) - 3)), 120f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(71f, -9f - (-8f * MathF.Cos((totalGameTime * 2) - 4)), 130f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
+                mesh.Draw();
+            }
             //Background
             //Se agregan cubos
             foreach (var mesh in Cubo.Meshes)
