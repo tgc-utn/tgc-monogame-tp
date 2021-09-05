@@ -1,10 +1,10 @@
 # WarShip - World of Warships
 
 ![imagen](https://wowsp-wows-eu.wgcdn.co/static/0.2/images/wows_social_1.jpg)
-##Descripcion:
+## Descripcion:
 El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacerles daño sin recibir demasiado para no hundirse.
 
-##Primera entrega:
+## Primera entrega:
 
 Tendrá el objetivo de tener el escenario armado, sin animaciones y con los modelos seleccionados y ubicados donde corresponda, deberán ser un total de entre 100 a 200 modelos mínimo.
 
