@@ -181,6 +181,8 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+            float totalGameTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
+
             // Aca deberiamos poner toda la logica de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
@@ -188,6 +190,32 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             
+            // Para el piso
+            // Set our vertex buffer.
+            GraphicsDevice.SetVertexBuffer(Vertices);
+
+            // Set our index buffer
+            GraphicsDevice.Indices = Indices;
+
+            BasicEffect.World = Matrix.Identity;
+            BasicEffect.View = Camera.View;
+            BasicEffect.Projection = Camera.Projection;
+
+            foreach (var pass in BasicEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+
+                GraphicsDevice.DrawIndexedPrimitives(
+                    // We’ll be rendering one triangles.
+                    PrimitiveType.TriangleList,
+                    // The offset, which is 0 since we want to start at the beginning of the Vertices array.
+                    0,
+                    // The start index in the Vertices array.
+                    0,
+                    // The number of triangles to draw.
+                    2);
+            }
+
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
             //Se agrega el cartel
@@ -205,13 +233,12 @@ namespace TGC.MonoGame.TP
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(-50f, -10f, 0f));
                 Effect.Parameters["World"].SetValue(World);
-                   //asigno color rojo
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 mesh.Draw();
             }
             foreach (var mesh in Esfera.Meshes)
             {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.02f) * Matrix.CreateTranslation(new Vector3(0f, -18f, 20f));
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.02f) * Matrix.CreateTranslation(new Vector3(0f, -14f, 30f));
                 Effect.Parameters["World"].SetValue(World);
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Gold.ToVector3());
                 mesh.Draw();
@@ -234,10 +261,92 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
+            //Pista de Obstaculos
+            //Principio
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(0f, -18f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+
+            //Plataforma con rampa
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(30f, -14f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(37f, -11f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+
+            //Plataforma con Obstaculo
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(60f, -18f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(15f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -18f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(4f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -14f, 30f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 4f, 4.9f) * Matrix.CreateTranslation(new Vector3(70f, (-4f * MathF.Cos(totalGameTime)) - 12f, 30f)); //Agregar movimiento
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+
+            //Primer punto de control
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(80f, -11f, 28f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.PeachPuff.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(82f, -7f, 28f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.FloralWhite.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+
+
+            //Background
             //Se agregan cubos
             foreach (var mesh in Cubo.Meshes)
             {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 20f, 2f) * Matrix.CreateTranslation(new Vector3(0f, -10f, -40f));
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 18f, 2f) * Matrix.CreateTranslation(new Vector3(0f, -10f, -23f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DeepPink.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
@@ -385,27 +494,6 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Aqua.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
-            }
-            // Para el piso
-            // Set our vertex buffer.
-            GraphicsDevice.SetVertexBuffer(Vertices);
-
-            // Set our index buffer
-            GraphicsDevice.Indices = Indices;
-
-            foreach (var pass in BasicEffect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-
-                GraphicsDevice.DrawIndexedPrimitives(
-                    // We’ll be rendering one triangles.
-                    PrimitiveType.TriangleList,
-                    // The offset, which is 0 since we want to start at the beginning of the Vertices array.
-                    0,
-                    // The start index in the Vertices array.
-                    0,
-                    // The number of triangles to draw.
-                    2);
             }
         }
 
