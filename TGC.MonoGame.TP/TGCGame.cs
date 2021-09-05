@@ -44,6 +44,7 @@ namespace TGC.MonoGame.TP
         private Model Esfera { get; set; }
         private Model TunnelChico { get; set; }
         private Model Cubo { get; set; }
+        private Model Pinches { get; set; }
 
 
         private Effect Effect { get; set; }
@@ -130,6 +131,8 @@ namespace TGC.MonoGame.TP
 
             //cargo Cubo
             Cubo = Content.Load<Model>(ContentFolder3D + "Marbel/Cubo/cubo");
+            //cargo pinches
+            Pinches = Content.Load<Model>(ContentFolder3D + "Marbel/Pinches/Pinches");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -151,6 +154,10 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
             //mesh tunel
             foreach (var mesh in TunnelChico.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
+            //mesh pinches
+            foreach (var mesh in Pinches.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
             base.LoadContent();
@@ -359,8 +366,16 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
+            //pinches que suben y baja
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateTranslation(new Vector3(86f,-9f - (-8f * MathF.Cos(totalGameTime)) , 70f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.LightYellow.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
+                mesh.Draw();
+            }
 
-            
 
             //Background
             //Se agregan cubos
