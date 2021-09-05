@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Cameras;
+
 
 namespace TGC.MonoGame.TP
 {
@@ -52,6 +54,7 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
         public VertexBuffer Vertices { get; private set; }
         public IndexBuffer Indices { get; private set; }
+        private Camera Camera { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -67,7 +70,8 @@ namespace TGC.MonoGame.TP
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
-
+            var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 0, 0), screenSize);
             // Setup our basic effect
             BasicEffect = new BasicEffect(GraphicsDevice)
             {
@@ -160,13 +164,13 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
                 Exit();
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Camera.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -180,9 +184,9 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logica de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
+            // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
             
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
