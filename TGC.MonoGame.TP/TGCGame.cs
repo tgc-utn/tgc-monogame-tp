@@ -252,16 +252,10 @@ namespace TGC.MonoGame.TP
             }
 
             //Se agrega los tuneles
-            foreach (var mesh in TunnelChico.Meshes)
-            {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.005f) * Matrix.CreateTranslation(new Vector3(-20f, -20f, 0f));
-                Effect.Parameters["World"].SetValue(World);
-                //asigno color salmon
-                Effect.Parameters["DiffuseColor"].SetValue(Color.Salmon.ToVector3());
-                mesh.Draw();
-            }
+            
 
             //Pista de Obstaculos
+            //Nivel 1
             //Principio
             foreach (var mesh in Cubo.Meshes)
             {
@@ -323,8 +317,18 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
+            //tunel
+            foreach (var mesh in TunnelChico.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.008f) * Matrix.CreateRotationY(7.9f) * Matrix.CreateTranslation(new Vector3(70f, -12f, 30f));
+                Effect.Parameters["World"].SetValue(World);
+                //asigno color salmons
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Salmon.ToVector3());
+                mesh.Draw();
+            }
 
-            //Primer punto de control
+
+            //Primer punto de control (bandera)
             foreach (var mesh in Cubo.Meshes)
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(80f, -11f, 28f));
@@ -340,6 +344,23 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
+            //primera plataforma del nivel 3
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 60f)) ;
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //cubo que necesita pelota chica del nivel 3
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 60f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.LightYellow.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+
+            
 
             //Background
             //Se agregan cubos
