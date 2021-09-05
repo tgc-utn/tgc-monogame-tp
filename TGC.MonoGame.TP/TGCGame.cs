@@ -39,6 +39,14 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Model island { get; set; }
+        private Model Barco { get; set; }
+        private Model Barco2 { get; set; }
+        private Model Barco3 { get; set; }
+        private float position { get; set; }
+        private Model Projektil { get; set; }
+        
+        private Model Projektil2 { get; set; }
+        private Model Terreno2 { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -86,6 +94,12 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "WarVessel/1124");
             island = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            Barco = Content.Load<Model>(ContentFolder3D + "Barco");
+            Barco2 = Content.Load<Model>(ContentFolder3D + "Barco2");
+            Barco3 = Content.Load<Model>(ContentFolder3D + "Barco3");
+            Projektil = Content.Load<Model>(ContentFolder3D + "projektil FBX");
+            Terreno2 = Content.Load<Model>(ContentFolder3D + "FBX");
+            Projektil2 = Content.Load<Model>(ContentFolder3D + "9x18 pm");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
@@ -127,14 +141,20 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             //Effect.Parameters["View"].SetValue(View);
             //Effect.Parameters["Projection"].SetValue(Projection);
 
             Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
-            island.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
+            island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(300, 0, 0), Camera.View, Camera.Projection);
+            Barco2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(-10f, 0, 0), Camera.View, Camera.Projection);
+            Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Camera.View, Camera.Projection);
+            Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-200f, 0, 0), Camera.View, Camera.Projection);
+            Projektil.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(5f) * Matrix.CreateTranslation(-400f, 100, 0), Camera.View, Camera.Projection);
+            Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), Camera.View, Camera.Projection);
+            Projektil2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateTranslation(-650, 100, 0), Camera.View, Camera.Projection);
             base.Draw(gameTime);
         }
 

@@ -12,13 +12,25 @@
   <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
+    <None Remove="Content\Models\Kraken.FBX" />
+    <None Remove="Content\Models\pruebita\**" />
+    <None Remove="Content\Models\V1.fbx" />
+    <None Remove="Content\Models\Rck-Wtrfll_fbx.fbx" />
+    <None Remove="Content\Models\sea fbx.FBX" />
+    <None Remove="Content\Models\Texture.png" />
+    <None Remove="Content\Models\missile.fbx" />
+    <None Remove="Content\Models\Mountain.fbx" />
+    <None Remove="Content\Models\Mountain2.fbx" />
+    <None Remove="Content\Models\mountains.fbx" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon.bmp" />
+    <EmbeddedResource Remove="Content\Models\pruebita\**" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
+    <MonoGameContentReference Remove="Content\Models\pruebita\**" />
   </ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false" />
@@ -27,5 +39,8 @@
     <PackageReference Include="BepuPhysics" Version="2.3.0" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Content\Models\pruebita\**" />
   </ItemGroup>
 </Project>
