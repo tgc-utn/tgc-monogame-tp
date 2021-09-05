@@ -48,6 +48,7 @@ namespace TGC.MonoGame.TP
         private Ship ShipTwo { get; set; }
         private Ship ShipThree { get; set; }
         private Ship ShipFour { get; set; }
+        private Ship ShipFive { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -77,6 +78,7 @@ namespace TGC.MonoGame.TP
             ShipTwo = new Ship();
             ShipThree = new Ship();
             ShipFour = new Ship();
+            ShipFive = new Ship();
 
             base.Initialize();
         }
@@ -102,6 +104,7 @@ namespace TGC.MonoGame.TP
             ShipTwo.LoadContent(Content, ContentFolder3D + "WarVessel/1124", -400f, 2f);
             ShipThree.LoadContent(Content, ContentFolder3D + "Antisubmarine1124/source/1124", -200f, 0.2f);
             ShipFour.LoadContent(Content, ContentFolder3D + "Bismark/source/full", -900f, 0.05f);
+            ShipFive.LoadContent(Content, ContentFolder3D + "Battleship/source/BB", 500f, 0.015f);
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -149,6 +152,7 @@ namespace TGC.MonoGame.TP
             ShipTwo.Draw(Camera);
             ShipThree.Draw(Camera);
             ShipFour.Draw(Camera);
+            ShipFive.Draw(Camera);
 
             island.Draw(World * Matrix.CreateTranslation(100f, -60f, 0), Camera.View, Camera.Projection);
             islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
