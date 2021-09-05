@@ -45,6 +45,7 @@ namespace TGC.MonoGame.TP
         private Model TunnelChico { get; set; }
         private Model Cubo { get; set; }
         private Model Pinches { get; set; }
+        private Model Wings { get; set; }
 
 
         private Effect Effect { get; set; }
@@ -133,6 +134,8 @@ namespace TGC.MonoGame.TP
             Cubo = Content.Load<Model>(ContentFolder3D + "Marbel/Cubo/cubo");
             //cargo pinches
             Pinches = Content.Load<Model>(ContentFolder3D + "Marbel/Pinches/Pinches");
+            //cargo wings
+            Wings = Content.Load<Model>(ContentFolder3D + "Marbel/Wings/Wings");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -158,6 +161,10 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
             //mesh pinches
             foreach (var mesh in Pinches.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
+            //mesh wings
+            foreach (var mesh in Wings.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
             base.LoadContent();
@@ -350,6 +357,7 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
+            
 
             //primera plataforma del nivel 3
             //parte 3.1
@@ -375,7 +383,15 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
                 mesh.Draw();
             }
-
+            //alas de velocidad
+            foreach (var mesh in Wings.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(new Vector3(86f, -16f, 75f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.BlueViolet.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            
             //parte 3.2
             //Plataforma
             foreach (var mesh in Cubo.Meshes)
@@ -428,6 +444,25 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
                 mesh.Draw();
             }
+            
+            //parte 3.3
+            //plataforma * Matrix.CreateRotationY(0f)
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f)  * Matrix.CreateTranslation(new Vector3(52f, -18f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //base
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(18f, 2f, 2f)  * Matrix.CreateTranslation(new Vector3(35f, -20f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //"lava"
+
             //Background
             //Se agregan cubos
             foreach (var mesh in Cubo.Meshes)
