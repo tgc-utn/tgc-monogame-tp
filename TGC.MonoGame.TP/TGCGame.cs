@@ -39,12 +39,15 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Model island { get; set; }
-        private Effect Effect { get; set; }
-        private float Rotation { get; set; }
+        private Model islandTwo { get; set; }
         private Matrix World { get; set; }
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
         private Camera Camera { get; set; }
+
+
+        private Ship ShipOne { get; set; }
+        private Ship ShipTwo { get; set; }
+        private Ship ShipThree { get; set; }
+        private Ship ShipFour { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -70,6 +73,11 @@ namespace TGC.MonoGame.TP
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
 
+            ShipOne = new Ship();
+            ShipTwo = new Ship();
+            ShipThree = new Ship();
+            ShipFour = new Ship();
+
             base.Initialize();
         }
 
@@ -86,16 +94,18 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "WarVessel/1124");
             island = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            // ModelShipOne = Content.Load<Model>(ContentFolder3D + "Antisubmarine1124/source/1124");
+            // ModelShipTwo = Content.Load<Model>(ContentFolder3D + "Pensacola/source/full");
+
+            ShipOne.LoadContent(Content, ContentFolder3D + "Pensacola/source/full", 0f, 0.1f);
+            ShipTwo.LoadContent(Content, ContentFolder3D + "WarVessel/1124", -400f, 2f);
+            ShipThree.LoadContent(Content, ContentFolder3D + "Antisubmarine1124/source/1124", -200f, 0.2f);
+            ShipFour.LoadContent(Content, ContentFolder3D + "Bismark/source/full", -900f, 0.05f);
+
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            //foreach (var mesh in Model.Meshes)
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            //foreach (var meshPart in mesh.MeshParts)
-                //meshPart.Effect = Effect;
 
             base.LoadContent();
         }
@@ -133,8 +143,15 @@ namespace TGC.MonoGame.TP
             //Effect.Parameters["View"].SetValue(View);
             //Effect.Parameters["Projection"].SetValue(Projection);
 
-            Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
-            island.Draw(World * Matrix.CreateTranslation(0, 0, 0), Camera.View, Camera.Projection);
+            //Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
+            // ModelShipOne.Draw(Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(250, 25, 0), Camera.View, Camera.Projection);
+            ShipOne.Draw(Camera);
+            ShipTwo.Draw(Camera);
+            ShipThree.Draw(Camera);
+            ShipFour.Draw(Camera);
+
+            island.Draw(World * Matrix.CreateTranslation(100f, -60f, 0), Camera.View, Camera.Projection);
+            islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
             base.Draw(gameTime);
         }
 
