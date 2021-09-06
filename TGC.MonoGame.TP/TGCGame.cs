@@ -46,6 +46,7 @@ namespace TGC.MonoGame.TP
         private Model Cubo { get; set; }
         private Model Pinches { get; set; }
         private Model Wings { get; set; }
+        private Model Moneda { get; set; }
 
 
         private Effect Effect { get; set; }
@@ -136,10 +137,13 @@ namespace TGC.MonoGame.TP
             Pinches = Content.Load<Model>(ContentFolder3D + "Marbel/Pinches/Pinches");
             //cargo wings
             Wings = Content.Load<Model>(ContentFolder3D + "Marbel/Wings/Wings");
+            //cargo moneda
+            Moneda = Content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Moneda");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
+            
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
@@ -165,6 +169,10 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
             //mesh wings
             foreach (var mesh in Wings.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
+            //mesh moneda
+            foreach (var mesh in Moneda.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
             base.LoadContent();
@@ -203,6 +211,7 @@ namespace TGC.MonoGame.TP
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
+
 
             // Para el piso
             // Set our vertex buffer.
@@ -769,7 +778,7 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
                 mesh.Draw();
             }
-            //"lava"2
+            //"lava"1
             foreach (var mesh in Cubo.Meshes)
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 47f));
@@ -791,6 +800,85 @@ namespace TGC.MonoGame.TP
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 47f));
                 Effect.Parameters["World"].SetValue(World);
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                mesh.Draw();
+            }
+            //Parte 4.3
+            //plataforma 2
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(-25f, 20f, 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //Transformador a pelota normal
+            foreach (var mesh in Esfera.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f*MathF.Cos((totalGameTime * 2f)+4)), 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"2
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-32f, 16f + (4f * MathF.Cos((totalGameTime * 2f)+3)), 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"3
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-27f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 2)), 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"4
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-22f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 1)), 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"5
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 47f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //plataforma 3
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-5f, 22f, 53f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-5f,28f, 53f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.PeachPuff.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(-3f, 32f, 53f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.FloralWhite.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
             //Background
@@ -947,8 +1035,58 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
-        }
+            //MONEDAS poner aca las ubicaciones despues
+            foreach (var mesh in Moneda.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2.5f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(new Vector3(-87.5f, 15f, 65f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gold.ToVector3());
+                mesh.Draw();
+            }
+            //moneda -43.5f, 20f + MathF.Cos(totalGameTime * 2), 55f
+            //10, -10 + MathF.Cos(totalGameTime * 2), 30
+            //25, -14, 30
+            //37, -5, 30
+            //53, -10, 30
+            //63, -10, 30
+            //35f, -20f, 140f
+            //50, -13, 140
+            //55, -14, 140
+            //45, -16, 140
+            //40, -14, 140
+            //35, -14, 140
+            //27.5f, -12.5f, 140
+            //22.5f, -12.5f, 140
+            //4f, -12f, 145
+            //4f, -8f, 145
+            //4f, -5f, 145
+            //7f, -12f, 137.5f
+            //-17.5f, -12f, 122.5f
+            //-22.5f, -12f, 117.5f
+            //-27.5f, -7f, 115f
+            //-27.5f, -2f, 115f
+            //-27.5f, 1f, 115f
+            //-37.5f, -2f, 112.5f
+            //-37.5f, 2f, 112.5f
+            //-42.5f, 0f, 110f
+            //-45f, -3f, 110f
+            //-48f, -6f, 108f
+            //-47.5f, -12.5f, 108f
+            //-52.5f, -2.5f, 105f
+            //-52.5f, 0f, 105f
+            //-52.5f, 2.5f, 105f
+            //-57.5f, -2.5f, 107.5f
+            //-67.5f, 5f, 100f
+            //-67.5f, 0f, 100f
+            //-72.5f, 0f, 97.5f
+            //-77.5f, 0f, 92.5f
+            //-77.5f, 5f, 92.5f
+            //-77.5f, 7.5f, 92.5f
+            //-87.5f, 15f, 79f
+            //-87.5f, 15f, 75f
+            //-87.5f, 15f, 70f
 
+        }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
         /// </summary>
