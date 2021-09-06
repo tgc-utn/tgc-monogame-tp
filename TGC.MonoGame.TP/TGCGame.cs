@@ -426,6 +426,68 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-87.5f - (MathF.Cos(totalGameTime) * 8), 13f, 61f)) ), Color.Gray, Pinches);
 
+
+
+
+            //Parte 4.2
+            //plataforma fija
+            DrawMeshes( ( Matrix.CreateScale(2f, 0.3f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 0f, 55f)) ), Color.Gray, Cubo);
+
+            //Transformador a pelota de roca, resistente a la lava
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 55f)) ), Color.HotPink, Esfera);
+
+            //asensor 1
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (8 * MathF.Cos(totalGameTime * 2)), 50f)) ), Color.Gray, Cubo);
+
+            //asensor 2
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 47f)) ), Color.Gray, Cubo);
+
+            //asensor 3
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 47f)) ), Color.Gray, Cubo);
+
+            //asensor 4
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 47f)) ), Color.Gray, Cubo);
+
+            //"lava"2
+            DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 47f)) ), Color.DarkRed, Cubo);
+
+            //asensor 5
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 47f)) ), Color.Gray, Cubo);
+
+            //asensor 6
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 47f)) ), Color.Gray, Cubo);
+
+
+            //Parte 4.3
+            //plataforma 2
+            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(-25f, 20f, 47f)) ), Color.SandyBrown, Cubo);
+
+            //Transformador a pelota normal
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 47f)) ), Color.HotPink, Esfera);
+
+            //"lava"1
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f * MathF.Cos((totalGameTime * 2f) + 4)), 47f)) ), Color.DarkRed, Cubo);
+
+            //"lava"2
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-32f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 3)), 47f)) ), Color.DarkRed, Cubo);
+
+            //"lava"3
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-27f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 2)), 47f)) ), Color.DarkRed, Cubo);
+
+            //"lava"4
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-22f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 1)), 47f)) ), Color.DarkRed, Cubo);
+
+            //"lava"5
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 47f)) ), Color.DarkRed, Cubo);
+
+            //plataforma 3
+            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-5f, 22f, 53f)) ), Color.SandyBrown, Cubo);
+
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-5f, 28f, 53f)) ), Color.PeachPuff, Cubo);
+
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(-3f, 32f, 53f)) ), Color.FloralWhite, Cubo);
+
+
             //Background
             //Se agregan cubos
             DrawMeshes( ( Matrix.CreateScale(2f, 18f, 2f) * Matrix.CreateTranslation(new Vector3(0f, -10f, -23f)) ), Color.DeepPink, Cubo);
