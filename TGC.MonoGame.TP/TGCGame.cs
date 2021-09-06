@@ -46,6 +46,7 @@ namespace TGC.MonoGame.TP
         private Model Cubo { get; set; }
         private Model Pinches { get; set; }
         private Model Wings { get; set; }
+        private Model Moneda { get; set; }
 
 
         private Effect Effect { get; set; }
@@ -136,10 +137,13 @@ namespace TGC.MonoGame.TP
             Pinches = Content.Load<Model>(ContentFolder3D + "Marbel/Pinches/Pinches");
             //cargo wings
             Wings = Content.Load<Model>(ContentFolder3D + "Marbel/Wings/Wings");
+            //cargo moneda
+            Moneda = Content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Moneda");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
+            
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
@@ -165,6 +169,10 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
             //mesh wings
             foreach (var mesh in Wings.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = Effect;
+            //mesh moneda
+            foreach (var mesh in Moneda.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
             base.LoadContent();
@@ -215,6 +223,7 @@ namespace TGC.MonoGame.TP
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
+
 
             // Para el piso
             // Set our vertex buffer.
@@ -536,6 +545,7 @@ namespace TGC.MonoGame.TP
 
         }
 
+        }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
         /// </summary>
