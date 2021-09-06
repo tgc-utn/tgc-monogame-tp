@@ -40,6 +40,7 @@ namespace TGC.MonoGame.TP
         private Model Model { get; set; }
         private Model island { get; set; }
         private Model islandTwo { get; set; }
+        private Model islandThree { get; set; } 
         private Model ocean { get; set; }
         private Matrix World { get; set; }
         private Camera Camera { get; set; }
@@ -100,6 +101,7 @@ namespace TGC.MonoGame.TP
             Model = Content.Load<Model>(ContentFolder3D + "WarVessel/1124");
             island = Content.Load<Model>(ContentFolder3D + "Isla_V2");
             islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            islandThree = Content.Load<Model>(ContentFolder3D + "islands/isla7");
             ocean = Content.Load<Model>(ContentFolder3D + "oceano/source/ocean");
             // ModelShipOne = Content.Load<Model>(ContentFolder3D + "Antisubmarine1124/source/1124");
             // ModelShipTwo = Content.Load<Model>(ContentFolder3D + "Pensacola/source/full");
@@ -169,7 +171,8 @@ namespace TGC.MonoGame.TP
 
             island.Draw(World * Matrix.CreateTranslation(100f, -60f, 0), Camera.View, Camera.Projection);
             islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
-            ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
+            islandThree.Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(-3000f,-60f,200f), Camera.View, Camera.Projection);
+            //ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
             base.Draw(gameTime);
         }
 
