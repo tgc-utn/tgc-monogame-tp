@@ -215,7 +215,7 @@ namespace TGC.MonoGame.TP
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            
+
             // Para el piso
             // Set our vertex buffer.
             GraphicsDevice.SetVertexBuffer(Vertices);
