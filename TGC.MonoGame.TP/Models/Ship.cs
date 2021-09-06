@@ -49,6 +49,15 @@ namespace TGC.MonoGame.TP
             World = Scale* Matrix.CreateTranslation(Position);
         }
 
+        public void LoadContent(ContentManager content, string folder, Vector3 position, float scale)
+        {
+            this.folder = folder;
+            Model = content.Load<Model>(this.folder);
+            Position = position;
+            Scale = Matrix.CreateScale(scale);
+            World = Scale * Matrix.CreateTranslation(Position);
+        }
+
         public void Draw(Camera camera)
         {
             Model.Draw(World, camera.View, camera.Projection);
