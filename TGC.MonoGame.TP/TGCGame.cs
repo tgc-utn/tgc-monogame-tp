@@ -544,50 +544,52 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(0.04f) * Matrix.CreateTranslation(new Vector3(-10f, -18f, 7f)) ), Color.Aqua, Cartel);
 
 
-            List<Vector3> monedas = new List<Vector3>();
-            monedas.Add( new Vector3(-43.5f, 20f + MathF.Cos(totalGameTime * 2), 55f) );
-            monedas.Add( new Vector3(10, -10 + MathF.Cos(totalGameTime * 2), 30) );
-            monedas.Add( new Vector3(25, -14, 30) );
-            monedas.Add( new Vector3(37, -5, 30) );
-            monedas.Add( new Vector3(53, -10, 30) );
-            monedas.Add( new Vector3(63, -10, 30) );
-            monedas.Add( new Vector3(35f, -20f, 140f) );
-            monedas.Add( new Vector3(50, -13, 140) );
-            monedas.Add( new Vector3(55, -14, 140) );
-            monedas.Add( new Vector3(45, -16, 140) );
-            monedas.Add( new Vector3(40, -14, 140) );
-            monedas.Add( new Vector3(35, -14, 140) );
-            monedas.Add( new Vector3(27.5f, -12.5f, 140) );
-            monedas.Add( new Vector3(22.5f, -12.5f, 140) );
-            monedas.Add( new Vector3(4f, -12f, 145) );
-            monedas.Add( new Vector3(4f, -8f, 145) );
-            monedas.Add( new Vector3(4f, -5f, 145) );
-            monedas.Add( new Vector3(7f, -12f, 137.5f) );
-            monedas.Add( new Vector3(-17.5f, -12f, 122.5f) );
-            monedas.Add( new Vector3(-22.5f, -12f, 117.5f) );
-            monedas.Add( new Vector3(-27.5f, -7f, 115f) );
-            monedas.Add( new Vector3(-27.5f, -2f, 115f) );
-            monedas.Add( new Vector3(-27.5f, 1f, 115f) );
-            monedas.Add( new Vector3(-37.5f, -2f, 112.5f) );
-            monedas.Add( new Vector3(-37.5f, 2f, 112.5f) );
-            monedas.Add( new Vector3(-42.5f, 0f, 110f) );
-            monedas.Add( new Vector3(-45f, -3f, 110f) );
-            monedas.Add( new Vector3(-48f, -6f, 108f) );
-            monedas.Add( new Vector3(-47.5f, -12.5f, 108f) );
-            monedas.Add( new Vector3(-52.5f, -2.5f, 105f) );
-            monedas.Add( new Vector3(-52.5f, 0f, 105f) );
-            monedas.Add( new Vector3(-52.5f, 2.5f, 105f) );
-            monedas.Add( new Vector3(-57.5f, -2.5f, 107.5f) );
-            monedas.Add( new Vector3(-67.5f, 5f, 100f) );
-            monedas.Add( new Vector3(-67.5f, 0f, 100f) );
-            monedas.Add( new Vector3(-72.5f, 0f, 97.5f) );
-            monedas.Add( new Vector3(-77.5f, 0f, 92.5f) );
-            monedas.Add( new Vector3(-77.5f, 5f, 92.5f) );
-            monedas.Add( new Vector3(-77.5f, 7.5f, 92.5f) );
-            monedas.Add( new Vector3(-87.5f, 15f, 79f) );
-            monedas.Add( new Vector3(-87.5f, 15f, 75f) );
-            monedas.Add( new Vector3(-87.5f, 15f, 70f) );
-            monedas.Add(new Vector3(-87.5f, 15f, 65f) );
+            List<Vector3> monedas = new List<Vector3>
+            {
+                new Vector3(-43.5f, 20f + MathF.Cos(totalGameTime * 2), 55f),
+                new Vector3(10, -10 + MathF.Cos(totalGameTime * 2), 30),
+                new Vector3(25, -14, 30),
+                new Vector3(37, -5, 30),
+                new Vector3(53, -10, 30),
+                new Vector3(63, -10, 30),
+                new Vector3(35f, -20f, 140f),
+                new Vector3(50, -13, 140),
+                new Vector3(55, -14, 140),
+                new Vector3(45, -16, 140),
+                new Vector3(40, -14, 140),
+                new Vector3(35, -14, 140),
+                new Vector3(27.5f, -12.5f, 140),
+                new Vector3(22.5f, -12.5f, 140),
+                new Vector3(4f, -12f, 145),
+                new Vector3(4f, -8f, 145),
+                new Vector3(4f, -5f, 145),
+                new Vector3(7f, -12f, 137.5f),
+                new Vector3(-17.5f, -12f, 122.5f),
+                new Vector3(-22.5f, -12f, 117.5f),
+                new Vector3(-27.5f, -7f, 115f),
+                new Vector3(-27.5f, -2f, 115f),
+                new Vector3(-27.5f, 1f, 115f),
+                new Vector3(-37.5f, -2f, 112.5f),
+                new Vector3(-37.5f, 2f, 112.5f),
+                new Vector3(-42.5f, 0f, 110f),
+                new Vector3(-45f, -3f, 110f),
+                new Vector3(-48f, -6f, 108f),
+                new Vector3(-47.5f, -12.5f, 108f),
+                new Vector3(-52.5f, -2.5f, 105f),
+                new Vector3(-52.5f, 0f, 105f),
+                new Vector3(-52.5f, 2.5f, 105f),
+                new Vector3(-57.5f, -2.5f, 107.5f),
+                new Vector3(-67.5f, 5f, 100f),
+                new Vector3(-67.5f, 0f, 100f),
+                new Vector3(-72.5f, 0f, 97.5f),
+                new Vector3(-77.5f, 0f, 92.5f),
+                new Vector3(-77.5f, 5f, 92.5f),
+                new Vector3(-77.5f, 7.5f, 92.5f),
+                new Vector3(-87.5f, 15f, 79f),
+                new Vector3(-87.5f, 15f, 75f),
+                new Vector3(-87.5f, 15f, 70f),
+                new Vector3(-87.5f, 15f, 65f)
+            };
             foreach (Vector3 vector in monedas)
             {
                 DrawMeshes((Matrix.CreateScale(2.5f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(vector)), Color.Gold, Moneda);
