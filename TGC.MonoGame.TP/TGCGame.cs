@@ -681,6 +681,44 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
+            //parte 4
+            //plataforma 1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(18f, 2f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f, 10f, 72f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //pinches
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f))* Matrix.CreateTranslation(new Vector3(-87.5f + (MathF.Cos(totalGameTime)*8) , 13f , 79f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-87.5f - (MathF.Cos(totalGameTime) * 8), 13f, 73f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f + (MathF.Cos(totalGameTime) * 8), 13f, 67f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-87.5f - (MathF.Cos(totalGameTime) * 8), 13f, 61f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                mesh.Draw();
+            }
             //Background
             //Se agregan cubos
             foreach (var mesh in Cubo.Meshes)
