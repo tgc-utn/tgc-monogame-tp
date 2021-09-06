@@ -359,12 +359,20 @@ namespace TGC.MonoGame.TP
             }
             
 
-            //primera plataforma del nivel 3
-            //parte 3.1
+            //primera plataforma del nivel 2
+            //parte 2.1
             foreach (var mesh in Cubo.Meshes)
             {
                 World = mesh.ParentBone.Transform * Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 60f)) ;
                 Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //Transformador a pelota chica, pasa por agujeros chicos
+            foreach (var mesh in Esfera.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 43f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
                 mesh.Draw();
             }
             //cubo que necesita pelota chica del nivel 3
@@ -392,7 +400,7 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
             
-            //parte 3.2
+            //parte 2.2
             //Plataforma
             foreach (var mesh in Cubo.Meshes)
             {
@@ -444,12 +452,21 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
                 mesh.Draw();
             }
-            
-            //parte 3.3
-            //plataforma * Matrix.CreateRotationY(0f)
+
+            //Transformador a pelota de roca, resistente a la lava
+            foreach (var mesh in Esfera.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(65f, -13f + MathF.Cos(totalGameTime * 2), 142f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
+                mesh.Draw();
+            }
+
+            //parte 2.3
+            //plataforma 1 
             foreach (var mesh in Cubo.Meshes)
             {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f)  * Matrix.CreateTranslation(new Vector3(52f, -18f, 140f));
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 2f, 5f)  * Matrix.CreateTranslation(new Vector3(52f,-18f , 140f));
                 Effect.Parameters["World"].SetValue(World);
                 Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
                 mesh.Draw();
@@ -457,12 +474,213 @@ namespace TGC.MonoGame.TP
             //base
             foreach (var mesh in Cubo.Meshes)
             {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(18f, 2f, 2f)  * Matrix.CreateTranslation(new Vector3(35f, -20f, 140f));
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(18f, 2f, 4f)  * Matrix.CreateTranslation(new Vector3(35f, -20f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Ivory.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(new Vector3(40f, -20f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //plataforma 2 
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(23f, -18f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //"lava"2
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                mesh.Draw();
+            }
+            //fuente de lava
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 140f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.LightGray.ToVector3());
+                mesh.Draw();
+            }
+            //Segundo CheckPoint
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 140f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.PeachPuff.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
             }
-            //"lava"
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(14f, -7f, 140f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.FloralWhite.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
 
+
+
+            //Nivel 3
+            //part 3.1
+            //plataforma 1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(15f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -18f, 130f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //asensor para subir a parte de arriba
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f +(4* MathF.Cos(totalGameTime * 2)), 145f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                mesh.Draw();
+            }
+            //parte de arriba
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -12f, 130f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-6f, -8f, 130f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -2.5f, 130f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //pelota para ser chica
+            foreach (var mesh in Esfera.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 135f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
+                mesh.Draw();
+            }
+            
+            //parte 3.2
+            //plataforma 1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(18f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-36f, -18f, 113f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //bloque salto 1
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-27f, -18f, 114f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //pelota para saltar doble
+            foreach (var mesh in Esfera.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-32f, -13f + MathF.Cos(totalGameTime * 2), 112f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
+                mesh.Draw();
+            }
+            //bloque salto 2
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-37f, -18f, 111f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //bloque salto 3
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-52f, -18f, 106f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //plataforma 2
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(8f, 1f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-59f, -9.2f, 102f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //plataforma rotando
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f )) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f*totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 97.5f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(-0.436332f)* Matrix.CreateTranslation(new Vector3(-78f, -4f, 97.5f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //plataforma 3
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(8f, 1f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-80f, -4f, 97.5f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            //pinches suben y baja
+            foreach (var mesh in Pinches.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.001f) * Matrix.CreateTranslation(new Vector3(-80f, -9f + (-6f * MathF.Cos(totalGameTime)), 97.5f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
+                mesh.Draw();
+            }
+            //bloque 4
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(5f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-87.5f, -2f, 95f));
+                Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.SandyBrown.ToVector3());
+                mesh.Draw();
+            }
+            //Tercer CheckPoint
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 12f, 95f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.PeachPuff.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+            foreach (var mesh in Cubo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(-89f, 17f, 95f));
+                Effect.Parameters["DiffuseColor"].SetValue(Color.FloralWhite.ToVector3());
+                Effect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
             //Background
             //Se agregan cubos
             foreach (var mesh in Cubo.Meshes)
@@ -474,7 +692,7 @@ namespace TGC.MonoGame.TP
             }
             foreach (var mesh in Cubo.Meshes)
             {
-                World = mesh.ParentBone.Transform * Matrix.CreateScale(20f, 1f, 1f) * Matrix.CreateRotationY(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(-40f, -18f, 0f));
+                World = mesh.ParentBone.Transform * Matrix.CreateScale(20f, 0.5f, 1f) * Matrix.CreateRotationY(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(-40f, -18f, 0f));
                 Effect.Parameters["DiffuseColor"].SetValue(Color.Crimson.ToVector3());
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
