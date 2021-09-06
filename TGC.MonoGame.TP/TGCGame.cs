@@ -50,6 +50,8 @@ namespace TGC.MonoGame.TP
         private Ship ShipFour { get; set; }
         private Ship ShipFive { get; set; }
 
+
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -100,11 +102,19 @@ namespace TGC.MonoGame.TP
             // ModelShipOne = Content.Load<Model>(ContentFolder3D + "Antisubmarine1124/source/1124");
             // ModelShipTwo = Content.Load<Model>(ContentFolder3D + "Pensacola/source/full");
 
+            // loading warships initial positions
             ShipOne.LoadContent(Content, ContentFolder3D + "Pensacola/source/full", 0f, 0.1f);
             ShipTwo.LoadContent(Content, ContentFolder3D + "WarVessel/1124", -400f, 2f);
-            ShipThree.LoadContent(Content, ContentFolder3D + "Antisubmarine1124/source/1124", -200f, 0.2f);
+            ShipThree.LoadContent(Content, ContentFolder3D + "Antisubmarine1124/source/1124", new Vector3(-350, 0, -400), 0.2f);
             ShipFour.LoadContent(Content, ContentFolder3D + "Bismark/source/full", -900f, 0.05f);
             ShipFive.LoadContent(Content, ContentFolder3D + "Battleship/source/BB", 500f, 0.015f);
+
+            //set rotations
+            ShipTwo.Rotate(-10f);
+            ShipThree.Rotate(10f);
+            ShipFour.Rotate(10f);
+
+
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.

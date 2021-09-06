@@ -58,6 +58,15 @@ namespace TGC.MonoGame.TP
             World = Scale * Matrix.CreateTranslation(Position);
         }
 
+        public void Rotate(float radians) {
+            World = Scale * Matrix.CreateRotationY(radians) * Matrix.CreateTranslation(Position);
+        }
+
+        public void ResetRotation()
+        {
+            World = Scale * Matrix.CreateTranslation(Position);
+        }
+
         public void Draw(Camera camera)
         {
             Model.Draw(World, camera.View, camera.Projection);
