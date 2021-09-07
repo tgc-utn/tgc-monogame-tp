@@ -52,7 +52,12 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Model islandTwo { get; set; }
-        private Model islandThree { get; set; } 
+        private Model islandThree { get; set; }
+        private Model[] islands { get; set; }
+
+        private Vector3[] posicionesIslas;
+
+        private int cantIslas;
         private Model ocean { get; set; }
         private Matrix World { get; set; }
         private Camera Camera { get; set; }
@@ -96,6 +101,10 @@ namespace TGC.MonoGame.TP
             ShipFour = new Ship();
             ShipFive = new Ship();
 
+            posicionesIslas = new[] { new Vector3(-3000f, -60f, 200f) ,new Vector3(2000f,-60f,400f),new Vector3(1500f,-60f,200f), new Vector3(-4500f,-60f,-600f),new Vector3(-2000f,-60f,-1500f),
+                new Vector3(4000f,-60f,-1500f),new Vector3(500f,-60f,-3000f),new Vector3(0,-60f,-4000f), new Vector3 (-2000f,-60f,0)};
+
+            cantIslas = posicionesIslas.Length;
             base.Initialize();
         }
 
@@ -120,8 +129,13 @@ namespace TGC.MonoGame.TP
             Projektil2 = Content.Load<Model>(ContentFolder3D + "9x18 pm");
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
             islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
-            islandThree = Content.Load<Model>(ContentFolder3D + "islands/isla7");
+            //islandThree = Content.Load<Model>(ContentFolder3D + "islands/isla7");
             ocean = Content.Load<Model>(ContentFolder3D + "oceano/source/ocean");
+            islands = new Model[cantIslas];
+            for (int isla = 0; isla < cantIslas; isla++)
+            {
+                islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
+            }
             // ModelShipOne = Content.Load<Model>(ContentFolder3D + "Antisubmarine1124/source/1124");
             // ModelShipTwo = Content.Load<Model>(ContentFolder3D + "Pensacola/source/full");
 
@@ -199,7 +213,11 @@ namespace TGC.MonoGame.TP
 
             island.Draw(World * Matrix.CreateTranslation(100f, -60f, 0), Camera.View, Camera.Projection);
             islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
-            islandThree.Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(-3000f,-60f,200f), Camera.View, Camera.Projection);
+            //islandThree.Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(-3000f,-60f,200f), Camera.View, Camera.Projection);
+            for (int isla = 0; isla < cantIslas; isla++)
+            {
+                islands[isla].Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(posicionesIslas[isla]), Camera.View, Camera.Projection);
+            }
             //ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
             base.Draw(gameTime);
         }
