@@ -51,10 +51,20 @@ namespace TGC.MonoGame.TP
         private Model Terreno2 { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
+        private Model islandTwo { get; set; }
+        private Model islandThree { get; set; } 
+        private Model ocean { get; set; }
         private Matrix World { get; set; }
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
         private Camera Camera { get; set; }
+
+
+        private Ship ShipOne { get; set; }
+        private Ship ShipTwo { get; set; }
+        private Ship ShipThree { get; set; }
+        private Ship ShipFour { get; set; }
+        private Ship ShipFive { get; set; }
+
+
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -80,6 +90,12 @@ namespace TGC.MonoGame.TP
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
 
+            ShipOne = new Ship();
+            ShipTwo = new Ship();
+            ShipThree = new Ship();
+            ShipFour = new Ship();
+            ShipFive = new Ship();
+
             base.Initialize();
         }
 
@@ -103,16 +119,29 @@ namespace TGC.MonoGame.TP
             Terreno2 = Content.Load<Model>(ContentFolder3D + "FBX");
             Projektil2 = Content.Load<Model>(ContentFolder3D + "9x18 pm");
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
+            islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            islandThree = Content.Load<Model>(ContentFolder3D + "islands/isla7");
+            ocean = Content.Load<Model>(ContentFolder3D + "oceano/source/ocean");
+            // ModelShipOne = Content.Load<Model>(ContentFolder3D + "Antisubmarine1124/source/1124");
+            // ModelShipTwo = Content.Load<Model>(ContentFolder3D + "Pensacola/source/full");
+
+            // loading warships initial positions
+            ShipOne.LoadContent(Content, ContentFolder3D + "Pensacola/source/full", 0f, 0.1f);
+            ShipTwo.LoadContent(Content, ContentFolder3D + "WarVessel/1124", -400f, 2f);
+            ShipThree.LoadContent(Content, ContentFolder3D + "Antisubmarine1124/source/1124", new Vector3(-350, 0, -400), 0.2f);
+            ShipFour.LoadContent(Content, ContentFolder3D + "Bismark/source/full", -900f, 0.05f);
+            ShipFive.LoadContent(Content, ContentFolder3D + "Battleship/source/BB", 500f, 0.015f);
+
+            //set rotations
+            ShipTwo.Rotate(-10f);
+            ShipThree.Rotate(10f);
+            ShipFour.Rotate(10f);
+
+
+
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            //foreach (var mesh in Model.Meshes)
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            //foreach (var meshPart in mesh.MeshParts)
-                //meshPart.Effect = Effect;
 
             base.LoadContent();
         }
@@ -126,6 +155,7 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             Camera.Update(gameTime);
+            
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
@@ -159,6 +189,18 @@ namespace TGC.MonoGame.TP
             Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), Camera.View, Camera.Projection);
             Projektil2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateTranslation(-650, 100, 0), Camera.View, Camera.Projection);
             Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Camera.View, Camera.Projection);
+            //Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
+            // ModelShipOne.Draw(Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(250, 25, 0), Camera.View, Camera.Projection);
+            ShipOne.Draw(Camera);
+            ShipTwo.Draw(Camera);
+            ShipThree.Draw(Camera);
+            ShipFour.Draw(Camera);
+            ShipFive.Draw(Camera);
+
+            island.Draw(World * Matrix.CreateTranslation(100f, -60f, 0), Camera.View, Camera.Projection);
+            islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
+            islandThree.Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(-3000f,-60f,200f), Camera.View, Camera.Projection);
+            //ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
             base.Draw(gameTime);
         }
 
