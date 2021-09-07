@@ -1,46 +1,38 @@
-# TGC - MonoGame - TP
-[![BCH compliance](https://bettercodehub.com/edge/badge/tgc-utn/tgc-monogame-tp?branch=master)](https://bettercodehub.com/)
-[![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-monogame-tp.svg)](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/LICENSE)
+# WarShip - World of Warships
 
-[#BuiltWithMonoGame](http://www.monogame.net) and [.NET Core](https://dotnet.microsoft.com)
+![imagen](https://wowsp-wows-eu.wgcdn.co/static/0.2/images/wows_social_1.jpg)
+## Descripcion:
+El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacerles daño sin recibir demasiado para no hundirse.
 
-## Descripción
-Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técnicas de Gráficos por Computadora](http://tgc-utn.github.io/) (TGC) en la carrera de Ingeniería en Sistemas de Información. Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN-FRBA).
+## Primera entrega:
 
-## Requisitos
-* [.NET Core SDK](https://docs.microsoft.com/dotnet/core/install/sdk)
-* El IDE que prefieran:
-  * [Visual Studio Code](https://code.visualstudio.com) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.hlsltools)
-  * [Visual Studio](https://visualstudio.microsoft.com/es/vs) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.HLSLToolsforVisualStudio)
-  * [Visual Studio for Mac](https://visualstudio.microsoft.com/es/vs/mac)
-  * [Rider](https://www.jetbrains.com/rider)
-* [MGCB Editor](https://docs.monogame.net/articles/tools/mgcb_editor.html)
-* [MGFXC](https://docs.monogame.net/articles/tools/mgfxc.html)
-* [MonoGame.Framework.DesktopGL](https://www.nuget.org/packages/MonoGame.Framework.DesktopGL) (Se baja automáticamente al hacer build por primera vez)
+Tendrá el objetivo de tener el escenario armado, sin animaciones y con los modelos seleccionados y ubicados donde corresponda, deberán ser un total de entre 100 a 200 modelos mínimo.
 
-Más información sobre [.NET Core CLI Tools telemetry](https://aka.ms/dotnet-cli-telemetry) y [Visual Studio Code telemetry](https://code.visualstudio.com/docs/getstarted/telemetry) ya que vienen activas por defecto.
+## Segunda entrega: 
 
-## Configuración del entorno de desarrollo
- * [Windows 10](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_windows.html)
-   * Se puede usar Visual Studio Code o Rider. La documentación oficial solo explica Visual Studio, pero cada uno puede configurar el que les sea más cómodo.
- * [Linux (probado en Ubuntu 20.04)](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_ubuntu.html)
- * [Mac (probado en macOS Big Sur)](https://docs.monogame.net/articles/getting_started/1_setting_up_your_development_environment_macos.html)
+1. Construir un escenario en donde un bote se encuentra en el medio del océano, rodeado de agua, en medio de una tormenta.
+2. El bote se tiene que poder desplazar por el agua, con los siguientes movimientos:
+   - Aceleración
+   - Desaceleración
+   - Virar
 
-Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq.org) para los shaders, por lo menos por [ahora](https://github.com/MonoGame/MonoGame/issues/2167).
+3. El agua debe tener manera, con olas grandes que suben y bajan en tiempo real.
+4. El bote debe adaptarse en tiempo real a la marea. Deberá inclinarse correctamente para adaptarse a la superficie del agua en donde se encuentra.
+5. La velocidad de desplazamiento del bote deberá variar según qué tan inclinado se encuentre en el agua:
+   - Cuesta arriba debe avanzar más lento.
+   - Cuesta abajo debe avanzar más rápido.
 
-Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de clonar el repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer ```git lfs pull```.
+## Tercera entrega: 
 
-## Integrantes
-TGC, Tgcito  |  Apellido, Nombre
------------- | -------------
-<img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500">
+Tendrá como objetivo abarcar todo la funcionalidad esencial del juego, optimización, jugabilidad, HUD, menú con fondo 3D (una sola ventana) , música y sonidos.
 
-## Capturas
-![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot2](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot3](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot4](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot5](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
+## Cuarta entrega: 
+1. Hacer principal hincapié en lograr realismo en la calidad del agua:
+   - Utilizar iluminación dinámica para el sol.
+   - Aplicar reflejos sobre el agua.
+2. Debe haber un efecto de lluvia simulando una tormenta fuerte.
+3. Agregar otro bote con Inteligencia Artificial que persigue al jugador, dispara y hace daño.
 
-## Game Play
-[![Watch the video](https://img.youtube.com/vi/pgEwUC0jvH4/0.jpg)](https://www.youtube.com/playlist?list=PLRM4L32DjvnazuMl8wZlbpEYL5Qh63ulG)
+
+## Presentación oral: 
+En la última clase del cuatrimestre se hace una puesta en común de todos los trabajos prácticos. Cada grupo muestra el resultado de su TP. La exposición incluye mostrar funcionando en una computadora con proyector el TP desarrollado y explicar a los alumnos las decisiones de diseño y herramientas utilizadas. Esta define la nota del trabajo práctico. Obligatorio presentar la documentación.
