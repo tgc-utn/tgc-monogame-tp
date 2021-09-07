@@ -39,6 +39,8 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Model island { get; set; }
+        
+        private Model Rock { get; set; }
         private Model Barco { get; set; }
         private Model Barco2 { get; set; }
         private Model Barco3 { get; set; }
@@ -100,6 +102,7 @@ namespace TGC.MonoGame.TP
             Projektil = Content.Load<Model>(ContentFolder3D + "projektil FBX");
             Terreno2 = Content.Load<Model>(ContentFolder3D + "FBX");
             Projektil2 = Content.Load<Model>(ContentFolder3D + "9x18 pm");
+            Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
@@ -155,6 +158,7 @@ namespace TGC.MonoGame.TP
             Projektil.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(5f) * Matrix.CreateTranslation(-400f, 100, 0), Camera.View, Camera.Projection);
             Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), Camera.View, Camera.Projection);
             Projektil2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateTranslation(-650, 100, 0), Camera.View, Camera.Projection);
+            Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Camera.View, Camera.Projection);
             base.Draw(gameTime);
         }
 
