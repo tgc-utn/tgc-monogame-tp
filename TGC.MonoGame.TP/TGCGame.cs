@@ -45,14 +45,29 @@ namespace TGC.MonoGame.TP
         private Model Esfera { get; set; }
         private Model TunnelChico { get; set; }
         private Model Cubo { get; set; }
+        private Model Platform { get; set; }
+        private Model Flag { get; set; }
         private Model Pinches { get; set; }
         private Model Wings { get; set; }
         private Model Moneda { get; set; }
 
 
         private Effect Effect { get; set; }
+        public Effect TextureEffect { get; set; }
         public Effect LavaEffect { get; set; }
+        private Texture2D CoinTexture { get; set; }
         private Texture2D LavaTexture { get; set; }
+        private Texture2D MagmaTexture { get; set; }
+        private Texture2D CartelTexture { get; set; }
+        public Texture2D FlagCheckeredTexture { get; set; }
+        public Texture2D FlagCheckpointTexture { get; set; }
+        public Texture2D BluePlatformTexture { get; set; }
+        public Texture2D BluePlatformBasicTexture { get; set; }
+        public Texture2D RedPlatformTexture { get; set; }
+        public Texture2D RedPlatformBasicTexture { get; set; }
+        public Texture2D GreenPlatformTexture { get; set; }
+        public Texture2D GreenPlatformBasicTexture { get; set; }
+        public Texture2D BluePlaceholderTexture { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -102,25 +117,46 @@ namespace TGC.MonoGame.TP
             //Cargo la esfera
             Esfera = Content.Load<Model>(ContentFolder3D + "Marbel/Pelota/pelota");
             //cargo tunel
-            TunnelChico = Content.Load<Model>(ContentFolder3D + "Marbel/TunelChico/TunnelChico");   
+            TunnelChico = Content.Load<Model>(ContentFolder3D + "Marbel/TunelChico/TunnelChico");
             //cargo Cubo
             Cubo = Content.Load<Model>(ContentFolder3D + "Marbel/Cubo/cubo");
+            //cargo Bandera
+            Flag = Content.Load<Model>(ContentFolder3D + "Marbel/Cubo/flag");
+            //cargo Plataforma
+            Platform = Content.Load<Model>(ContentFolder3D + "Marbel/Cubo/platform");
             //cargo pinches
             Pinches = Content.Load<Model>(ContentFolder3D + "Marbel/Pinches/Pinches");
             //cargo wings
             Wings = Content.Load<Model>(ContentFolder3D + "Marbel/Wings/Wings");
             //cargo moneda
-            Moneda = Content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Moneda");
+            Moneda = Content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Coin");
+
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
+            TextureEffect = Content.Load<Effect>(ContentFolderEffects + "TextureShader");
+
             LavaEffect = Content.Load<Effect>(ContentFolderEffects + "LavaShader");
 
+            CoinTexture = Content.Load<Texture2D>(ContentFolderTextures + "Coin");
             LavaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Lava");
+            MagmaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Rock");
+            CartelTexture = Content.Load<Texture2D>(ContentFolderTextures + "Sign");
+            FlagCheckeredTexture = Content.Load<Texture2D>(ContentFolderTextures + "CheckeredFlag");
+            FlagCheckpointTexture = Content.Load<Texture2D>(ContentFolderTextures + "CheckpointFlag");
+            BluePlatformTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformBlue");
+            BluePlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformBlueNoStar");
+            RedPlatformTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformRed");
+            RedPlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformRedNoStar");
+            GreenPlatformTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreen");
+            GreenPlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreenNoStar");
+            BluePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "Blue");
 
             LavaEffect.Parameters["Texture"].SetValue(LavaTexture);
             LavaEffect.Parameters["tiling"].SetValue(new Vector2(4f, 4f));
+
+            TextureEffect.Parameters["Texture"].SetValue(BluePlaceholderTexture);
 
             vertexDeclaration = new VertexDeclaration(new VertexElement[]
             {
@@ -135,11 +171,19 @@ namespace TGC.MonoGame.TP
             //mesh Cartel
             foreach (var mesh in Cartel.Meshes)            
                 foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = Effect;
+                    meshPart.Effect = TextureEffect;
             //mesh Cubo
             foreach (var mesh in Cubo.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = Effect;
+                    meshPart.Effect = TextureEffect;
+            //mesh bandera
+            foreach (var mesh in Flag.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = TextureEffect;
+            //mesh platform
+            foreach (var mesh in Platform.Meshes)
+                foreach (var meshPart in mesh.MeshParts)
+                    meshPart.Effect = TextureEffect;
             //mesh esfera
             foreach (var mesh in Esfera.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
@@ -159,7 +203,7 @@ namespace TGC.MonoGame.TP
             //mesh moneda
             foreach (var mesh in Moneda.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = Effect;
+                    meshPart.Effect = TextureEffect;
             base.LoadContent();
         }
 
@@ -198,6 +242,18 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
+
+        public void DrawMeshes(Matrix matrizDelModelo, Texture2D texture, Model modelo)
+        {
+            foreach (var mesh in modelo.Meshes)
+            {
+                World = mesh.ParentBone.Transform * matrizDelModelo;
+                TextureEffect.Parameters["Texture"].SetValue(texture);
+                TextureEffect.Parameters["World"].SetValue(World);
+                mesh.Draw();
+            }
+        }
+
         protected override void Draw(GameTime gameTime)
         {
             float totalGameTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
@@ -208,7 +264,8 @@ namespace TGC.MonoGame.TP
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
-
+            TextureEffect.Parameters["View"].SetValue(Camera.View);
+            TextureEffect.Parameters["Projection"].SetValue(Camera.Projection);
 
             // Para el piso
             LavaEffect.Parameters["World"].SetValue(Matrix.Identity);
@@ -243,24 +300,22 @@ namespace TGC.MonoGame.TP
             //Nivel 1
             //Principio
 
-            DrawMeshes( ( Matrix.CreateScale(15f, 2f, 15f) * Matrix.CreateTranslation(new Vector3(-10f, -18f, 0f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(15f, 2f, 15f) * Matrix.CreateTranslation(new Vector3(-10f, -18f, 0f)) ), BluePlatformTexture, Platform);
 
             //Plataforma con rampa
-            DrawMeshes( ( Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 0f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 0f)) ), BluePlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(30f, -14f, 0f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(30f, -14f, 0f)) ), BluePlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(37f, -11f, 0f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(37f, -11f, 0f)) ), BluePlatformBasicTexture, Platform);
 
 
             //Plataforma con Obstaculo
-            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(60f, -18f, 0f)) ), Color.DarkBlue, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(15f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -18f, 0f)) ), BluePlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(15f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -18f, 0f)) ), Color.DarkBlue, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(4f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -14f, 0f)) ), BluePlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(4f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -14f, 0f)) ), Color.DarkBlue, Cubo);
-
-            DrawMeshes( ( Matrix.CreateScale(2f, 4f, 4.9f) * Matrix.CreateTranslation(new Vector3(70f, (-4f * MathF.Cos(totalGameTime)) - 12f, 0f)) ), Color.Yellow, Cubo);   //Agregar movimiento
+            DrawMeshes( ( Matrix.CreateScale(2f, 4f, 4.9f) * Matrix.CreateTranslation(new Vector3(70f, (-4f * MathF.Cos(totalGameTime)) - 12f, 0f)) ), BluePlatformBasicTexture, Platform);
 
             //tunel
             DrawMeshes( ( Matrix.CreateScale(0.008f) * Matrix.CreateRotationY(7.9f) * Matrix.CreateTranslation(new Vector3(70f, -12f, 0f)) ), Color.Salmon, TunnelChico);
@@ -268,19 +323,19 @@ namespace TGC.MonoGame.TP
 
 
             //Primer punto de control (bandera)
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(80f, -11f, -2f)) ), Color.PeachPuff, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(80f, -11f, -2f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(82f, -7f, -2f)) ), Color.FloralWhite, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(81.8f, -7.5f, -2f)) ), FlagCheckpointTexture, Flag);
 
             //primera plataforma del nivel 2
             //parte 2.1
-            DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), Color.LimeGreen, Cubo); //Este no deberia tener color pero le puse lime green para identificar
+            DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f)) ), Color.HotPink, Esfera);
 
             //cubo que necesita pelota chica del nivel 3
-            DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateRotationY(3.14159f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 30f)) ), Color.LightYellow, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateRotationY(3.14159f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 30f)) ), GreenPlatformBasicTexture, Platform);
 
             //pinches que suben y baja
             DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateTranslation(new Vector3(86f, -9f - (-8f * MathF.Cos(totalGameTime)), 40f)) ), Color.Black, Pinches);
@@ -290,16 +345,16 @@ namespace TGC.MonoGame.TP
 
             //parte 2.2
             //Plataforma
-            DrawMeshes( ( Matrix.CreateScale(30f, 2f, 2f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -18f, 85f)) ), Color.LimeGreen, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(30f, 2f, 2f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -18f, 85f)) ), GreenPlatformBasicTexture, Platform);
 
             //cubo que necesita pelota chica del nivel 3.1
-            DrawMeshes( ( Matrix.CreateScale(20f, 5f, 8f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -9f, 80f)) ), Color.Gold, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(20f, 5f, 8f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -9f, 80f)) ), GreenPlatformBasicTexture, Platform);
 
 
             //pinches que suben y baja
             DrawMeshes( ( Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(83f, -9f - (-8f * MathF.Cos(totalGameTime * 2)), 60f)) ), Color.Ivory, Pinches);
 
-            DrawMeshes( ( Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(80f, -9f - (-8f * MathF.Cos((totalGameTime * 2) - 1)), 700f)) ), Color.Ivory, Pinches);
+            DrawMeshes( ( Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(80f, -9f - (-8f * MathF.Cos((totalGameTime * 2) - 1)), 70f)) ), Color.Ivory, Pinches);
 
             DrawMeshes( ( Matrix.CreateScale(0.0008f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateRotationY(0.5f) * Matrix.CreateTranslation(new Vector3(77f, -9f - (-8f * MathF.Cos((totalGameTime * 2) - 2)), 80f)) ), Color.Ivory, Pinches);
 
@@ -314,27 +369,27 @@ namespace TGC.MonoGame.TP
 
             //parte 2.3
             //plataforma 1 
-            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(52f, -18f, 110f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(52f, -18f, 110f)) ), GreenPlatformTexture, Platform);
 
             //base
-            DrawMeshes( ( Matrix.CreateScale(18f, 2f, 4f) * Matrix.CreateTranslation(new Vector3(35f, -20f, 110f)) ), Color.Ivory, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(18f, 2f, 4f) * Matrix.CreateTranslation(new Vector3(35f, -20f, 110f)) ), GreenPlatformBasicTexture, Platform);
 
             //"lava"1
-            DrawMeshes( ( Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(new Vector3(40f, -20f, 110f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(new Vector3(40f, -20f, 110f)) ), BluePlaceholderTexture, Cubo);
 
             //plataforma 2 
-            DrawMeshes( ( Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(23f, -18f, 110f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(23f, -18f, 110f)) ), GreenPlatformBasicTexture, Platform);
 
             //"lava"2
-            DrawMeshes( (Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 110f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( (Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 110f)) ), BluePlaceholderTexture, Cubo);
 
             //fuente de lava
-            DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), Color.LightGray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), BluePlaceholderTexture, Cubo);
 
             //Segundo CheckPoint
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 110f)) ), Color.PeachPuff, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 110f)) ), GreenPlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(14f, -7f, 110f)) ), Color.FloralWhite, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(14.2f, -7.5f, 110f)) ), FlagCheckpointTexture, Flag);
 
 
 
@@ -342,62 +397,62 @@ namespace TGC.MonoGame.TP
             //Nivel 3
             //part 3.1
             //plataforma 1
-            DrawMeshes( ( Matrix.CreateScale(15f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -18f, 100f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(15f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -18f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //asensor para subir a parte de arriba
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos(totalGameTime * 2)), 115f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos(totalGameTime * 2)), 115f)) ), RedPlatformTexture, Platform);
 
             //parte de arriba
-            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -12f, 100f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -12f, 100f)) ), RedPlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-6f, -8f, 100f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-5.5f, -6.5f, 98.9f)) ), RedPlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -2.5f, 100f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -1f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para ser chica
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), Color.HotPink, Esfera);
 
             //parte 3.2
             //plataforma 1
-            DrawMeshes( ( Matrix.CreateScale(18f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-36f, -18f, 83f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(18f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-36f, -18f, 83f)) ), RedPlatformBasicTexture, Platform);
 
             //bloque salto 1
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-27f, -18f, 84f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-27f, -18f, 84f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para saltar doble
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-32f, -13f + MathF.Cos(totalGameTime * 2), 82f)) ), Color.HotPink, Esfera);
 
             //bloque salto 2
-            DrawMeshes( ( Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-37f, -18f, 81f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-37f, -18f, 81f)) ), RedPlatformBasicTexture, Platform);
 
             //bloque salto 3
-            DrawMeshes( ( Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-52f, -18f, 76f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-52f, -18f, 76f)) ), RedPlatformBasicTexture, Platform);
 
             //plataforma 2
-            DrawMeshes( ( Matrix.CreateScale(8f, 1f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-59f, -9.2f, 72f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(8f, 1f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-59f, -9.2f, 72f)) ), RedPlatformBasicTexture, Platform);
 
             //plataforma rotando
-            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 67.5f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 67.5f)) ), RedPlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-78f, -4f, 67.5f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-78f, -4f, 67.5f)) ), RedPlatformBasicTexture, Platform);
 
             //plataforma 3
-            DrawMeshes( ( Matrix.CreateScale(8f, 1f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-80f, -4f, 67.5f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(8f, 1f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-80f, -4f, 67.5f)) ), RedPlatformBasicTexture, Platform);
 
             //pinches suben y baja
             DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateTranslation(new Vector3(-80f, -9f + (-6f * MathF.Cos(totalGameTime)), 67.5f)) ), Color.Black, Pinches);
 
             //bloque 4
-            DrawMeshes( ( Matrix.CreateScale(5f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-87.5f, -2f, 65f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-87.5f, -2f, 65f)) ), RedPlatformTexture, Platform);
 
             //Tercer CheckPoint
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 12f, 65f)) ), Color.PeachPuff, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 12f, 65f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(-89f, 17f, 65f)) ), Color.FloralWhite, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(-89.2f, 15.5f, 65f)) ), FlagCheckpointTexture, Flag);
 
             //parte 4
             //plataforma 1
-            DrawMeshes( ( Matrix.CreateScale(18f, 2f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f, 10f, 42f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(18f, 2f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f, 10f, 42f)) ), RedPlatformBasicTexture, Platform);
 
             //pinches
             DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f + (MathF.Cos(totalGameTime) * 8), 13f, 49f)) ), Color.Gray, Pinches);
@@ -413,107 +468,108 @@ namespace TGC.MonoGame.TP
 
             //Parte 4.2
             //plataforma fija
-            DrawMeshes( ( Matrix.CreateScale(2f, 0.3f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 0f, 25f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 0.3f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 0f, 25f)) ), RedPlatformBasicTexture, Platform);
 
             //Transformador a pelota de roca, resistente a la lava
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 25f)) ), Color.HotPink, Esfera);
 
             //asensor 1
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (8 * MathF.Cos(totalGameTime * 2)), 20f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (8 * MathF.Cos(totalGameTime * 2)), 20f)) ), RedPlatformTexture, Platform);
 
             //asensor 2
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f)) ), RedPlatformTexture, Platform);
 
             //asensor 3
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 17f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 17f)) ), RedPlatformTexture, Platform);
 
             //asensor 4
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f)) ), RedPlatformTexture, Platform);
 
             //"lava"2
-            DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f)) ), BluePlaceholderTexture, Cubo);
 
             //asensor 5
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f)) ), RedPlatformTexture, Platform);
 
             //asensor 6
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f)) ), Color.Gray, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f)) ), RedPlatformTexture, Platform);
 
 
             //Parte 4.3
             //plataforma 2
-            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(-25f, 20f, 17f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(-25f, 20f, 17f)) ), RedPlatformBasicTexture, Platform);
 
             //Transformador a pelota normal
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 17f)) ), Color.HotPink, Esfera);
 
             //"lava"1
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f * MathF.Cos((totalGameTime * 2f) + 4)), 17f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f * MathF.Cos((totalGameTime * 2f) + 4)), 17f)) ), BluePlaceholderTexture, Cubo);
 
             //"lava"2
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-32f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 3)), 17f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-32f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 3)), 17f)) ), BluePlaceholderTexture, Cubo);
 
             //"lava"3
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-27f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 2)), 17f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-27f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 2)), 17f)) ), BluePlaceholderTexture, Cubo);
 
             //"lava"4
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-22f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 1)), 17f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-22f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 1)), 17f)) ), BluePlaceholderTexture, Cubo);
 
             //"lava"5
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 17f)) ), Color.DarkRed, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 17f)) ), BluePlaceholderTexture, Cubo);
 
             //plataforma 3
-            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-5f, 22f, 23f)) ), Color.SandyBrown, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-5f, 22f, 23f)) ), RedPlatformBasicTexture, Platform);
+            
+            //Ultimo Checkpoint
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-5f, 28f, 23f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-5f, 28f, 23f)) ), Color.PeachPuff, Cubo);
-
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 0.2f) * Matrix.CreateTranslation(new Vector3(-3f, 32f, 23f)) ), Color.FloralWhite, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(-3.2f, 31.5f, 23f)) ), FlagCheckeredTexture, Flag);
 
 
             //Background
             //Se agregan cubos
 
             //Molino
-            DrawMeshes( ( Matrix.CreateScale(2f, 18f, 2f) * Matrix.CreateTranslation(new Vector3(0f, -10f, -23f)) ), Color.DeepPink, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 18f, 2f) * Matrix.CreateTranslation(new Vector3(0f, -10f, -23f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes((Matrix.CreateScale(1f, 10f, 1f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(0f, 5f, -20f))), Color.Orange, Cubo);
+            DrawMeshes((Matrix.CreateScale(1f, 10f, 1f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(0f, 5f, -20f))), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes((Matrix.CreateScale(1f, 10f, 1f) * Matrix.CreateRotationZ(Rotation + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(0f, 5f, -20f))), Color.Orange, Cubo);
+            DrawMeshes((Matrix.CreateScale(1f, 10f, 1f) * Matrix.CreateRotationZ(Rotation + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(0f, 5f, -20f))), BluePlaceholderTexture, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(20f, 0.5f, 1f) * Matrix.CreateRotationY(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(-40f, -18f, 0f)) ), Color.Crimson, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(3f, 3f, 1f) * Matrix.CreateRotationY(MathHelper.ToRadians(75f)) * Matrix.CreateTranslation(new Vector3(-30f, -18f, 10f)) ), Color.Pink, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(6f, 6f, 6f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(120f, -12f, 0f)) ), Color.Pink, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(6f, 6f, 6f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(120f, -12f, 0f)) ), MagmaTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(3f, 3f, 3f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(-20f, 0f, 60f)) ), Color.Fuchsia, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(3f, 3f, 3f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(-20f, 0f, 60f)) ), MagmaTexture, Cubo);
 
             //Nube
-            DrawMeshes( ( Matrix.CreateScale(10f, 2f, 10f) * Matrix.CreateTranslation(new Vector3(-30f, 30f, -50f)) ), Color.WhiteSmoke, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(10f, 2f, 10f) * Matrix.CreateTranslation(new Vector3(-30f, 30f, -50f)) ), BluePlaceholderTexture, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(2f, 2f, 10f) * Matrix.CreateRotationX(MathHelper.ToRadians(45f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(30f, -10f, 20f)) ), Color.WhiteSmoke, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateTranslation(new Vector3(30f, -15f, 20f)) ), Color.RoyalBlue, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 20f, -20f)) ), Color.RoyalBlue, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 20f, -20f)) ), MagmaTextures, Cubo);
 
             //Helicoptero
-            DrawMeshes( ( Matrix.CreateScale(1f, 1f, 10f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(40f, 20f, -20f)) ), Color.Maroon, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 1f, 10f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(40f, 20f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 1f, 10f) * Matrix.CreateRotationY(Rotation * 10 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(40f, 20f, -20f)) ), Color.Maroon, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 1f, 10f) * Matrix.CreateRotationY(Rotation * 10 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(40f, 20f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 3f, 1f) * Matrix.CreateTranslation(new Vector3(40f, 18f, -20f)) ), Color.Maroon, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 3f, 1f) * Matrix.CreateTranslation(new Vector3(40f, 18f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateTranslation(new Vector3(40f, 12f, -20f)) ), Color.LightYellow, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateTranslation(new Vector3(40f, 12f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(28f, 14f, -20f)) ), Color.LightYellow, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(28f, 14f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 1f) * Matrix.CreateRotationZ(Rotation * 5) * Matrix.CreateTranslation(new Vector3(25f, 14f, -21f)) ), Color.Maroon, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 1f) * Matrix.CreateRotationZ(Rotation * 5) * Matrix.CreateTranslation(new Vector3(25f, 14f, -21f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(25f, 14f, -21f)) ), Color.Maroon, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(25f, 14f, -21f)) ), BluePlaceholderTexture, Cubo);
 
             //mas carteles
-            //DrawMeshes( ( Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(new Vector3(10f, -18f, 13f)) ), Color.Aquamarine, Cartel);
+            //DrawMeshes( ( Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(new Vector3(10f, -18f, 13f)) ), CartelTexture, Cartel);
 
             //DrawMeshes( ( Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(new Vector3(0f, -20f, 10f)) ), Color.Blue, Cartel);
 
@@ -570,7 +626,7 @@ namespace TGC.MonoGame.TP
             };
             foreach (Vector3 vector in monedas)
             {
-                DrawMeshes((Matrix.CreateScale(2.5f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(vector)), Color.Gold, Moneda);
+                DrawMeshes((Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(vector)), CoinTexture, Moneda);
             }
         }
         /// <summary>
