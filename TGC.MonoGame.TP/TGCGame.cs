@@ -551,7 +551,7 @@ namespace TGC.MonoGame.TP
 
             //DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateTranslation(new Vector3(30f, -15f, 20f)) ), Color.RoyalBlue, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 20f, -20f)) ), MagmaTextures, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 20f, -20f)) ), MagmaTexture, Cubo);
 
             //Helicoptero
             DrawMeshes( ( Matrix.CreateScale(1f, 1f, 10f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(40f, 20f, -20f)) ), BluePlaceholderTexture, Cubo);
