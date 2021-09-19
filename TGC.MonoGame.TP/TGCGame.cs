@@ -55,6 +55,7 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         public Effect TextureEffect { get; set; }
         public Effect LavaEffect { get; set; }
+        private Texture2D MarbleTexture { get; set; }
         private Texture2D CoinTexture { get; set; }
         private Texture2D LavaTexture { get; set; }
         private Texture2D MagmaTexture { get; set; }
@@ -69,12 +70,27 @@ namespace TGC.MonoGame.TP
         public Texture2D GreenPlatformBasicTexture { get; set; }
         public Texture2D BluePlaceholderTexture { get; set; }
         private float Rotation { get; set; }
+        public bool OnGround { get; private set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
         private Camera Camera { get; set; }
         public Quad quad { get; set; }
+
+        private BoundingBox platformCollider;
+
+        public Vector3 MarblePosition { get; private set; }
+        public Matrix MarbleWorld { get; private set; }
+        public Vector3 MarbleVelocity { get; private set; }
+        public Vector3 MarbleAcceleration { get; private set; }
+
+        private BoundingSphere MarbleSphere;
+
         public VertexDeclaration vertexDeclaration { get; set; }
+        public Matrix MarbleScale { get; private set; }
+
+        private float Gravity = 100f;
+        private float JumpSpeed = 50f;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -84,6 +100,7 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
             // Seria hasta aca.
+            OnGround = false;
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -98,6 +115,14 @@ namespace TGC.MonoGame.TP
             float zScaleFloor = 400f;
 
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
+
+            platformCollider = new BoundingBox(new Vector3(-25f, -21f, -15f), new Vector3(5f, -16f, 15f));
+
+            MarblePosition = new Vector3(-10f, -10f, 0f);
+            MarbleVelocity = Vector3.Zero;
+            MarbleAcceleration = Vector3.Down * Gravity;
+            MarbleSphere = new BoundingSphere(MarblePosition, 2f);
+            MarbleScale = Matrix.CreateScale(0.02f);
 
             base.Initialize();
         }
@@ -139,6 +164,7 @@ namespace TGC.MonoGame.TP
 
             LavaEffect = Content.Load<Effect>(ContentFolderEffects + "LavaShader");
 
+            MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble");
             CoinTexture = Content.Load<Texture2D>(ContentFolderTextures + "Coin");
             LavaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Lava");
             MagmaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Rock");
@@ -187,7 +213,7 @@ namespace TGC.MonoGame.TP
             //mesh esfera
             foreach (var mesh in Esfera.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = Effect;
+                    meshPart.Effect = TextureEffect;
             //mesh tunel
             foreach (var mesh in TunnelChico.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
@@ -204,6 +230,9 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Moneda.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = TextureEffect;
+
+            MarbleWorld = MarbleScale * Matrix.CreateTranslation(MarblePosition);
+
             base.LoadContent();
         }
 
@@ -214,6 +243,8 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -221,6 +252,25 @@ namespace TGC.MonoGame.TP
                 Exit();
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            // Check for the Jump key press, and add velocity in Y only if the Robot is on the ground
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
+                MarbleVelocity += Vector3.Up * JumpSpeed;
+
+            MarbleVelocity += MarbleAcceleration * deltaTime;
+
+            // Scale the velocity by deltaTime
+            var scaledVelocity = MarbleVelocity * deltaTime;
+
+            // Solve the Vertical Movement first (could be done in other order)
+            SolveVerticalMovement(scaledVelocity);
+
+            // Update the RobotPosition based on the updated Cylinder center
+            MarblePosition = MarbleSphere.Center;
+
+            // Update the Robot World Matrix
+            MarbleWorld = MarbleScale * /*MarbleRotation **/ Matrix.CreateTranslation(MarblePosition);
+
             Camera.Update(gameTime);
 
             base.Update(gameTime);
@@ -285,13 +335,13 @@ namespace TGC.MonoGame.TP
 
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
+            //Jugador
+            DrawMeshes(MarbleWorld, MarbleTexture, Esfera);
+
             ////Se agregan la esferas
+            DrawMeshes( ( Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(Rotation * 0.2f) * Matrix.CreateTranslation(new Vector3(-50f, -10f, 0f)) ), MagmaTexture, Esfera);
 
-            DrawMeshes( ( Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(new Vector3(-50f, -10f, 0f)) ), Color.Red, Esfera);
-
-            DrawMeshes( ( Matrix.CreateScale(0.02f) * Matrix.CreateTranslation(new Vector3(-10f, -14f, 0f))), Color.Gold, Esfera);
-            
-            DrawMeshes( ( Matrix.CreateScale(0.04f) * Matrix.CreateTranslation(new Vector3(100f, -0f, -100f) ) * Matrix.CreateRotationZ(Rotation * 0.1f)), Color.Gold, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.04f) * Matrix.CreateRotationX(Rotation * 1.5f) * Matrix.CreateTranslation(new Vector3(100f, -0f, -100f) ) * Matrix.CreateRotationZ(Rotation * 0.1f)), LavaTexture, Esfera);
 
             //Se agrega los tuneles
 
@@ -332,7 +382,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f)) ), Color.HotPink, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f)) ), BluePlaceholderTexture, Esfera);
 
             //cubo que necesita pelota chica del nivel 3
             DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateRotationY(3.14159f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 30f)) ), GreenPlatformBasicTexture, Platform);
@@ -364,7 +414,7 @@ namespace TGC.MonoGame.TP
 
 
             //Transformador a pelota de roca, resistente a la lava
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(65f, -13f + MathF.Cos(totalGameTime * 2), 112f)) ), Color.HotPink, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(65f, -13f + MathF.Cos(totalGameTime * 2), 112f)) ), BluePlaceholderTexture, Esfera);
 
 
             //parte 2.3
@@ -387,7 +437,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), BluePlaceholderTexture, Cubo);
 
             //Segundo CheckPoint
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 110f)) ), GreenPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 110f)) ), BluePlaceholderTexture, Platform);
 
             DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(14.2f, -7.5f, 110f)) ), FlagCheckpointTexture, Flag);
 
@@ -410,7 +460,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -1f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para ser chica
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), Color.HotPink, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), BluePlaceholderTexture, Esfera);
 
             //parte 3.2
             //plataforma 1
@@ -420,7 +470,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-27f, -18f, 84f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para saltar doble
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-32f, -13f + MathF.Cos(totalGameTime * 2), 82f)) ), Color.HotPink, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-32f, -13f + MathF.Cos(totalGameTime * 2), 82f)) ), BluePlaceholderTexture, Esfera);
 
             //bloque salto 2
             DrawMeshes( ( Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-37f, -18f, 81f)) ), RedPlatformBasicTexture, Platform);
@@ -471,7 +521,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 0.3f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 0f, 25f)) ), RedPlatformBasicTexture, Platform);
 
             //Transformador a pelota de roca, resistente a la lava
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 25f)) ), Color.HotPink, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 25f)) ), BluePlaceholderTexture, Esfera);
 
             //asensor 1
             DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (8 * MathF.Cos(totalGameTime * 2)), 20f)) ), RedPlatformTexture, Platform);
@@ -500,7 +550,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(-25f, 20f, 17f)) ), RedPlatformBasicTexture, Platform);
 
             //Transformador a pelota normal
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 17f)) ), Color.HotPink, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 17f)) ), BluePlaceholderTexture, Esfera);
 
             //"lava"1
             DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f * MathF.Cos((totalGameTime * 2f) + 4)), 17f)) ), BluePlaceholderTexture, Cubo);
@@ -638,6 +688,74 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        private void SolveVerticalMovement(Vector3 scaledVelocity)
+        {
+            // If the Robot has vertical velocity
+            if (scaledVelocity.Y == 0f)
+                return;
+
+            // Start by moving the Cylinder
+            MarbleSphere.Center += Vector3.Up * scaledVelocity.Y;
+            // Set the OnGround flag on false, update it later if we find a collision
+            OnGround = false;
+
+
+            // Collision detection
+            var collided = false;
+
+            if (MarbleSphere.Intersects(platformCollider))
+            {
+                collided = true;
+
+                // If we collided with something, set our velocity in Y to zero to reset acceleration
+                MarbleVelocity = new Vector3(MarbleVelocity.X, 0f, MarbleVelocity.Z);
+            }          
+
+            
+            // We correct based on differences in Y until we don't collide anymore
+            // Not usual to iterate here more than once, but could happen
+            while (collided)
+            {
+                var collider = platformCollider;
+                var max = collider.Max;
+                var min = collider.Min;
+                Vector3 center = (max + min) * 0.5f;
+                var colliderY = center.Y;
+                var cylinderY = MarbleSphere.Center.Y;
+                Vector3 extents = (max - min) * 0.5f;
+
+                float penetration;
+                // If we are on top of the collider, push up
+                // Also, set the OnGround flag to true
+                if (cylinderY > colliderY)
+                {
+                    penetration = colliderY + extents.Y - cylinderY + MarbleSphere.Radius;
+                    OnGround = true;
+                }
+
+                // If we are on bottom of the collider, push down
+                else
+                    penetration = -cylinderY - MarbleSphere.Radius + colliderY - extents.Y;
+
+                // Move our Cylinder so we are not colliding anymore
+                MarbleSphere.Center += Vector3.Up * penetration;
+                collided = false;
+                /*
+                // Check for collisions again
+                for (var index = 0; index < Colliders.Length; index++)
+                {
+                    if (!RobotCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                        continue;
+
+                    // Iterate until we don't collide with anything anymore
+                    collided = true;
+                    foundIndex = index;
+                    break;
+                }*/
+            }
+
         }
     }
 }
