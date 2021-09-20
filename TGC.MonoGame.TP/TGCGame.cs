@@ -73,6 +73,7 @@ namespace TGC.MonoGame.TP
         public Texture2D GreenPlatformTexture { get; set; }
         public Texture2D GreenPlatformBasicTexture { get; set; }
         public Texture2D BluePlaceholderTexture { get; set; }
+        public Texture2D WhitePlaceholderTexture { get; set; }
         private float Rotation { get; set; }
         public bool OnGround { get; private set; }
         private Matrix World { get; set; }
@@ -186,6 +187,7 @@ namespace TGC.MonoGame.TP
             GreenPlatformTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreen");
             GreenPlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreenNoStar");
             BluePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "Blue");
+            WhitePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "White");
 
             LavaEffect.Parameters["Texture"].SetValue(LavaTexture);
             LavaEffect.Parameters["tiling"].SetValue(new Vector2(4f, 4f));
@@ -442,7 +444,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( (Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 110f)) ), BluePlaceholderTexture, Cubo);
 
             //fuente de lava
-            DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), MagmaTexture, Cubo);
 
             //Segundo CheckPoint
             DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 110f)) ), BluePlaceholderTexture, Platform);
@@ -576,23 +578,23 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 17f)) ), BluePlaceholderTexture, Cubo);
 
             //plataforma 3
-            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-5f, 22f, 23f)) ), RedPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(2f, 22f, 10f)) ), RedPlatformBasicTexture, Platform);
             
             //Ultimo Checkpoint
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-5f, 28f, 23f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(0f, 28f, 3f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(-3.2f, 31.5f, 23f)) ), FlagCheckeredTexture, Flag);
+            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(1.8f, 31.5f, 3f)) ), FlagCheckeredTexture, Flag);
 
 
             //Background
             //Se agregan cubos
 
             //Molino
-            DrawMeshes( ( Matrix.CreateScale(2f, 18f, 2f) * Matrix.CreateTranslation(new Vector3(0f, -10f, -23f)) ), StoneTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 20f, 2f) * Matrix.CreateTranslation(new Vector3(-4f, 0f, 24f)) ), StoneTexture, Cubo);
 
-            DrawMeshes((Matrix.CreateScale(1f, 10f, 1f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(0f, 5f, -20f))), WoodTexture, Cubo);
+            DrawMeshes((Matrix.CreateScale(0.5f, 12f, 1f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(-6.5f, 18f, 24f))), WoodTexture, Cubo);
 
-            DrawMeshes((Matrix.CreateScale(1f, 10f, 1f) * Matrix.CreateRotationZ(Rotation + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(0f, 5f, -20f))), WoodTexture, Cubo);
+            DrawMeshes((Matrix.CreateScale(0.5f, 12f, 1f) * Matrix.CreateRotationX(Rotation + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-6.5f, 18f, 24f))), WoodTexture, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(20f, 0.5f, 1f) * Matrix.CreateRotationY(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(-40f, -18f, 0f)) ), Color.Crimson, Cubo);
 
@@ -600,31 +602,33 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(6f, 6f, 6f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(120f, -12f, 0f)) ), MagmaTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(3f, 3f, 3f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(-20f, 0f, 60f)) ), MagmaTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(3f, 3f, 3f) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(-60f, 0f, 100f)) ), MagmaTexture, Cubo);
 
-            //Nube
-            DrawMeshes( ( Matrix.CreateScale(10f, 2f, 10f) * Matrix.CreateTranslation(new Vector3(-30f, 30f, -50f)) ), BluePlaceholderTexture, Cubo);
+            //Nubes
+            DrawMeshes( ( Matrix.CreateScale(10f, 2f, 10f) * Matrix.CreateTranslation(new Vector3(-30f, 30f, -50f)) ), WhitePlaceholderTexture, Cubo);
+
+            DrawMeshes( ( Matrix.CreateScale(10f, 2f, 10f) * Matrix.CreateTranslation(new Vector3(30f, 30f, 50f)) ), WhitePlaceholderTexture, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(2f, 2f, 10f) * Matrix.CreateRotationX(MathHelper.ToRadians(45f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(30f, -10f, 20f)) ), Color.WhiteSmoke, Cubo);
 
             //DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateTranslation(new Vector3(30f, -15f, 20f)) ), Color.RoyalBlue, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 20f, -20f)) ), MagmaTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 10f, 85f)) ), MagmaTexture, Cubo);
 
             //Helicoptero
-            DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(42f, 20f, -20f)) ), MetalTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(12f, 30f, -20f)) ), MetalTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(42f, 20f, -20f)) ), MetalTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(10f, 30f, -20f)) ), MetalTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(0.5f, 2.7f, 0.5f) * Matrix.CreateTranslation(new Vector3(42f, 18f, -20f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.5f, 2.7f, 0.5f) * Matrix.CreateTranslation(new Vector3(10f, 28f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateTranslation(new Vector3(40f, 12f, -20f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateTranslation(new Vector3(8f, 22f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(28f, 14f, -20f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(-4f, 24f, -20f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5) * Matrix.CreateTranslation(new Vector3(25f, 14f, -21f)) ), MetalTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(25f, 14f, -21f)) ), MetalTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
 
             //mas carteles
             //DrawMeshes( ( Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(new Vector3(10f, -18f, 13f)) ), CartelTexture, Cartel);
