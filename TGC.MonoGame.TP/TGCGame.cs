@@ -79,7 +79,7 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-        private Camera Camera { get; set; }
+        private FollowCamera FollowCamera { get; set; }
         public Quad quad { get; set; }
 
         private BoundingBox platformCollider;
@@ -96,7 +96,10 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
-
+        private float x = -50f;
+        private float y = -10f;
+        private float z = 0f;
+        
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -109,11 +112,14 @@ namespace TGC.MonoGame.TP
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            //configuro pantalla
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.ApplyChanges();
+
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 0, 0), screenSize);
+            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             float yPositionFloor = -20f;
             float xScaleFloor = 400f;
@@ -280,8 +286,19 @@ namespace TGC.MonoGame.TP
 
             // Update the Robot World Matrix
             MarbleWorld = MarbleScale * /*MarbleRotation **/ Matrix.CreateTranslation(MarblePosition);
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+            } 
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+              
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            { }
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+            { }
 
-            Camera.Update(gameTime);
+            FollowCamera.Update(gameTime, MarbleWorld);
 
             base.Update(gameTime);
         }
@@ -322,15 +339,15 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            TextureEffect.Parameters["View"].SetValue(Camera.View);
-            TextureEffect.Parameters["Projection"].SetValue(Camera.Projection);
+            Effect.Parameters["View"].SetValue(FollowCamera.View);
+            Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            TextureEffect.Parameters["View"].SetValue(FollowCamera.View);
+            TextureEffect.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
             // Para el piso
             LavaEffect.Parameters["World"].SetValue(Matrix.Identity);
-            LavaEffect.Parameters["View"].SetValue(Camera.View);
-            LavaEffect.Parameters["Projection"].SetValue(Camera.Projection);
+            LavaEffect.Parameters["View"].SetValue(FollowCamera.View);
+            LavaEffect.Parameters["Projection"].SetValue(FollowCamera.Projection);
             LavaEffect.Parameters["Time"].SetValue(totalGameTime);
 
             foreach (var pass in LavaEffect.CurrentTechnique.Passes)
