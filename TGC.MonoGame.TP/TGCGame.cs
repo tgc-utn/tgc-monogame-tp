@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using System.Collections.Generic;
 using TGC.MonoGame.TP.Quads;
+using TGC.MonoGame.TP.SkyBoxs;
 
 namespace TGC.MonoGame.TP
 {
@@ -50,11 +51,11 @@ namespace TGC.MonoGame.TP
         private Model Pinches { get; set; }
         private Model Wings { get; set; }
         private Model Moneda { get; set; }
-
-
+        private Model Skybox { get; set; }
         private Effect Effect { get; set; }
         public Effect TextureEffect { get; set; }
         public Effect LavaEffect { get; set; }
+        public Effect SkyboxEffect { get; set; }
         private Texture2D MarbleTexture { get; set; }
         private Texture2D CoinTexture { get; set; }
         private Texture2D SpikesTexture { get; set; }
@@ -74,6 +75,7 @@ namespace TGC.MonoGame.TP
         public Texture2D GreenPlatformBasicTexture { get; set; }
         public Texture2D BluePlaceholderTexture { get; set; }
         public Texture2D WhitePlaceholderTexture { get; set; }
+        public TextureCube SkyboxTexture { get; set; }
         private float Rotation { get; set; }
         public bool OnGround { get; private set; }
         private Matrix World { get; set; }
@@ -81,6 +83,7 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
         private Camera Camera { get; set; }
         public Quad quad { get; set; }
+        private SkyBox skybox { get; set; }
 
         private BoundingBox platformCollider;
 
@@ -96,6 +99,8 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
+
+        private float SkyBoxSize = 400f;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -160,6 +165,8 @@ namespace TGC.MonoGame.TP
             Wings = Content.Load<Model>(ContentFolder3D + "Marbel/Wings/Wings");
             //cargo moneda
             Moneda = Content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Coin");
+            //cargo Skybox
+            Skybox = Content.Load<Model>(ContentFolder3D + "Marbel/Skybox/cube");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -168,6 +175,8 @@ namespace TGC.MonoGame.TP
             TextureEffect = Content.Load<Effect>(ContentFolderEffects + "TextureShader");
 
             LavaEffect = Content.Load<Effect>(ContentFolderEffects + "LavaShader");
+
+            SkyboxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
 
             MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble");
             CoinTexture = Content.Load<Texture2D>(ContentFolderTextures + "Coin");
@@ -186,6 +195,7 @@ namespace TGC.MonoGame.TP
             RedPlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformRedNoStar");
             GreenPlatformTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreen");
             GreenPlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreenNoStar");
+            SkyboxTexture = Content.Load<TextureCube>(ContentFolderTextures + "hot_skybox");
             BluePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "Blue");
             WhitePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "White");
 
@@ -205,7 +215,7 @@ namespace TGC.MonoGame.TP
             // Un modelo puede tener mas de 1 mesh internamente.
             // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
             //mesh Cartel
-            foreach (var mesh in Cartel.Meshes)            
+            foreach (var mesh in Cartel.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = TextureEffect;
             //mesh Cubo
@@ -242,6 +252,8 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = TextureEffect;
 
             MarbleWorld = MarbleScale * Matrix.CreateTranslation(MarblePosition);
+
+            skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
 
             base.LoadContent();
         }
@@ -342,6 +354,16 @@ namespace TGC.MonoGame.TP
                     quad.Vertices, 0, 4,
                     quad.Indexes, 0, 2);
             }
+
+            //Para el Skybox
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
+            skybox.Draw(Camera.View, Camera.Projection, Camera.Position);
+
+            GraphicsDevice.RasterizerState = originalRasterizerState;
 
             var rotationMatrix = Matrix.CreateRotationY(Rotation);
 
@@ -545,6 +567,9 @@ namespace TGC.MonoGame.TP
             //asensor 4
             DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f)) ), RedPlatformTexture, Platform);
 
+            //fuente de lava
+            DrawMeshes((Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(-57.5f, 40f, 17f))), MagmaTexture, Cubo);
+
             //"lava"2
             DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f)) ), BluePlaceholderTexture, Cubo);
 
@@ -616,7 +641,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateRotationX(Rotation) * Matrix.CreateTranslation(new Vector3(15f, 10f, 85f)) ), MagmaTexture, Cubo);
 
             //Helicoptero
-            DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(12f, 30f, -20f)) ), MetalTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10) * Matrix.CreateTranslation(new Vector3(10f, 30f, -20f)) ), MetalTexture, Cubo);
 
             DrawMeshes( ( Matrix.CreateScale(1f, 0.1f, 11f) * Matrix.CreateRotationY(Rotation * 10 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(10f, 30f, -20f)) ), MetalTexture, Cubo);
 
