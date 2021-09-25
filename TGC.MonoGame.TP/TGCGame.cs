@@ -50,6 +50,7 @@ namespace TGC.MonoGame.TP
         private Model Projektil2 { get; set; }
         private Model Terreno2 { get; set; }
         private Effect Effect { get; set; }
+        private Effect WaterEffect { get; set; }
         private float Rotation { get; set; }
         private Model islandTwo { get; set; }
         private Model islandThree { get; set; }
@@ -59,8 +60,10 @@ namespace TGC.MonoGame.TP
 
         private int cantIslas;
         private Model ocean { get; set; }
+        private Texture texturaAgua { get; set; }
         private Matrix World { get; set; }
         private Camera Camera { get; set; }
+        private float time;
 
 
         private Ship ShipOne { get; set; }
@@ -105,6 +108,7 @@ namespace TGC.MonoGame.TP
                 new Vector3(4000f,-60f,-1500f),new Vector3(500f,-60f,-3000f),new Vector3(0,-60f,-4000f), new Vector3 (-2000f,-60f,0)};
 
             cantIslas = posicionesIslas.Length;
+            time = 0;
             base.Initialize();
         }
 
@@ -156,7 +160,16 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
+            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "waterShader");
 
+            foreach(var mesh in ocean.Meshes)
+            {
+                foreach (var meshpart in mesh.MeshParts)
+                {
+                    meshpart.Effect = WaterEffect;
+                }
+            }
+            texturaAgua = Content.Load<Texture>(ContentFolderTextures + "oceanoTextura");
             base.LoadContent();
         }
 
@@ -218,8 +231,19 @@ namespace TGC.MonoGame.TP
             {
                 islands[isla].Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(posicionesIslas[isla]), Camera.View, Camera.Projection);
             }
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             //ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
-            base.Draw(gameTime);
+            WaterEffect.Parameters["View"].SetValue(Camera.View);
+            WaterEffect.Parameters["Projection"].SetValue(Camera.Projection);
+            WaterEffect.Parameters["World"].SetValue(World * Matrix.CreateScale(50.0f)*Matrix.CreateTranslation(0,-60f,0));
+            WaterEffect.Parameters["Time"]?.SetValue(time);
+            WaterEffect.Parameters["TextureWater"].SetValue(texturaAgua);
+
+            foreach (var mesh in ocean.Meshes)
+            {
+                
+                mesh.Draw();
+            }
         }
 
         /// <summary>
