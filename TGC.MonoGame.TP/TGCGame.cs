@@ -208,13 +208,13 @@ namespace TGC.MonoGame.TP
             //Effect.Parameters["Projection"].SetValue(Projection);
 
             Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
-            island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(300, 0, 0), Camera.View, Camera.Projection);
-            Barco2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(-10f, 0, 0), Camera.View, Camera.Projection);
+            island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(1000, 0, 0), Camera.View, Camera.Projection);
+            //Barco2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(-10f, 0, 0), Camera.View, Camera.Projection);
             Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Camera.View, Camera.Projection);
             Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-200f, 0, 0), Camera.View, Camera.Projection);
-            Projektil.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(5f) * Matrix.CreateTranslation(-400f, 100, 0), Camera.View, Camera.Projection);
+            //Projektil.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(5f) * Matrix.CreateTranslation(-400f, 100, 0), Camera.View, Camera.Projection);
             Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), Camera.View, Camera.Projection);
-            Projektil2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateTranslation(-650, 100, 0), Camera.View, Camera.Projection);
+            //Projektil2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateTranslation(-650, 100, 0), Camera.View, Camera.Projection);
             Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Camera.View, Camera.Projection);
             //Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
             // ModelShipOne.Draw(Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(250, 25, 0), Camera.View, Camera.Projection);
@@ -224,7 +224,7 @@ namespace TGC.MonoGame.TP
             ShipFour.Draw(Camera);
             ShipFive.Draw(Camera);
 
-            island.Draw(World * Matrix.CreateTranslation(100f, -60f, 0), Camera.View, Camera.Projection);
+            island.Draw(World * Matrix.CreateTranslation(200f, -60f, -600), Camera.View, Camera.Projection);
             islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
             //islandThree.Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(-3000f,-60f,200f), Camera.View, Camera.Projection);
             for (int isla = 0; isla < cantIslas; isla++)
