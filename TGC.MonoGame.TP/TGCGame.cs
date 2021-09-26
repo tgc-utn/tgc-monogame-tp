@@ -31,6 +31,7 @@ namespace TGC.MonoGame.TP
             IsMouseVisible = true;
         }
 
+        public float ElapsedTime;
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
@@ -177,6 +178,7 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             Camera.Update(gameTime);
             
