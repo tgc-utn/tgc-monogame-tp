@@ -15,31 +15,35 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultFieldOfViewDegrees = MathHelper.PiOver4;
         public const float DefaultNearPlaneDistance = 0.1f;
         public const float DefaultFarPlaneDistance = 200000000;
-        private static readonly Vector3 Position = new Vector3(-350, 50, 400);
+        //private static readonly Vector3 Position = new Vector3(-350, 50, 400);
+        private Vector3 Position { get; set; }
         private static float Speed = 5;
-        private static readonly Vector3 FromDirection = new Vector3(-350, 1000, 500);
+        private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
+        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 1000, 0);
         private static readonly Vector3 UpDirection = new Vector3(-350, 50, 400);
         private List<Camera> Cameras { get; set; }
         private Camera CurrentCamera { get; set; }
         
         
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height) : this(aspectRatio,screenCenter, width,height, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, Vector3 BarcoPositionCenter) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, float nearPlaneDistance, float farPlaneDistance) : this(aspectRatio,screenCenter, width,height,
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,Vector3 BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
             nearPlaneDistance, farPlaneDistance, DefaultFieldOfViewDegrees)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, Vector3 BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
         {
+            Position = BarcoPositionCenter;
+            
             Cameras = new List<Camera>()
             {
-                new FreeCamera(aspectRatio, Position, screenCenter),
-                new SimpleCamera(aspectRatio,Position,Speed),
-                new StaticCamera(aspectRatio, FromDirection, Position,Vector3.Up), //Revisar para que quede para abajo mostrando todo el mapa
-                new TargetCamera(aspectRatio, FromDirection, Position, screenCenter, height, width)
+                new FreeCamera(aspectRatio, Position+new Vector3(0,70,0), screenCenter),
+                new SimpleCamera(aspectRatio,Position+new Vector3(0,40,-200),Speed),
+                new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
+                new TargetCamera(aspectRatio, FromDirectionTarget, Position, screenCenter, height, width)
             };
             CurrentCamera = Cameras[0];
         }

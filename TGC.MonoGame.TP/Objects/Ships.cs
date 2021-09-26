@@ -1,4 +1,5 @@
-﻿using System;
+﻿/* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
+using System;
 using System.Diagnostics;
 using System.Runtime.Intrinsics.X86;
 using Microsoft.Xna.Framework;
@@ -211,3 +212,4 @@ namespace TGC.MonoGame.TP.Objects
         }
     }
 }
+*/
