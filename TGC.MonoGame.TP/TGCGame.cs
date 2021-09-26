@@ -25,11 +25,7 @@ namespace TGC.MonoGame.TP
         /// </summary>
         public TGCGame()
         {
-            // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            // Descomentar para que el juego sea pantalla completa.
-            // Graphics.IsFullScreen = true;
-            // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
@@ -97,7 +93,8 @@ namespace TGC.MonoGame.TP
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
+            //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
+            Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 
             ShipOne = new Ship();
             ShipTwo = new Ship();
