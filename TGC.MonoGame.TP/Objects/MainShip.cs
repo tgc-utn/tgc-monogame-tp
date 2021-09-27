@@ -32,7 +32,7 @@ namespace TGC.MonoGame.TP.Objects
         {
             speed = 0;
             Position = initialPosition;
-            orientacion = new Vector3((float)Math.Sin(MathHelper.Pi/2), 0, (float)Math.Cos(MathHelper.Pi/2));
+            orientacion = currentOrientation;
             maxspeed = MaxSpeed;
             maxacceleration = 0.005f;
             anguloDeGiro =MathHelper.Pi/2;
@@ -106,7 +106,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Move()
         {
-            var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
+            var newOrientacion = new Vector3((float)Math.Cos(anguloDeGiro), 0, (float)Math.Sin(anguloDeGiro));
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
@@ -161,7 +161,7 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     if (anguloDeGiro + giroBase >= MathF.PI * 2)
                     {
-                        anguloDeGiro = anguloDeGiro + giroBase - MathF.PI * 2;
+                        anguloDeGiro +=  giroBase - MathF.PI * 2;
                     }
                     else
                     {
@@ -179,7 +179,7 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     if (anguloDeGiro + giroBase < 0)
                     {
-                        anguloDeGiro = anguloDeGiro - giroBase + MathF.PI * 2;
+                        anguloDeGiro += - giroBase + MathF.PI * 2;
                     }
                     else
                     {
