@@ -85,9 +85,12 @@ namespace TGC.MonoGame.TP
         private BoundingBox platformCollider;
 
         public Vector3 MarblePosition { get; private set; }
+
         public Matrix MarbleWorld { get; private set; }
         public Vector3 MarbleVelocity { get; private set; }
         public Vector3 MarbleAcceleration { get; private set; }
+        private Vector3 MarbleFrontDirection { get; set; }
+        public Matrix MarbleRotation { get; set; }
 
         private BoundingSphere MarbleSphere;
 
@@ -96,6 +99,8 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
+        private const float MarbleSpeed = 100f;
+        private const float MarbleRotationVelocity = 0.06f;
         private float x = -50f;
         private float y = -10f;
         private float z = 0f;
@@ -134,6 +139,8 @@ namespace TGC.MonoGame.TP
             MarbleAcceleration = Vector3.Down * Gravity;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
             MarbleScale = Matrix.CreateScale(0.02f);
+            MarbleRotation = Matrix.Identity;
+            MarbleFrontDirection = Vector3.Backward;
 
             base.Initialize();
         }
@@ -272,6 +279,24 @@ namespace TGC.MonoGame.TP
             // Check for the Jump key press, and add velocity in Y only if the Robot is on the ground
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
                 MarbleVelocity += Vector3.Up * JumpSpeed;
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                MarbleVelocity += MarbleFrontDirection * MarbleSpeed;
+            } 
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                MarbleVelocity -= MarbleFrontDirection * MarbleSpeed;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            {
+                MarbleRotation *= Matrix.CreateRotationY(-MarbleRotationVelocity);
+                MarbleFrontDirection = Vector3.Transform(Vector3.Backward, MarbleRotation);
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+            {
+                MarbleRotation *= Matrix.CreateRotationY(MarbleRotationVelocity);
+                MarbleFrontDirection = Vector3.Transform(Vector3.Backward, MarbleRotation);
+            }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
@@ -281,22 +306,13 @@ namespace TGC.MonoGame.TP
             // Solve the Vertical Movement first (could be done in other order)
             SolveVerticalMovement(scaledVelocity);
 
+            // Update the Robot World Matrix
+            //MarbleWorld = MarbleScale * /*MarbleRotation **/ Matrix.CreateTranslation(MarblePosition);
+            
             // Update the RobotPosition based on the updated Cylinder center
             MarblePosition = MarbleSphere.Center;
-
-            // Update the Robot World Matrix
-            MarbleWorld = MarbleScale * /*MarbleRotation **/ Matrix.CreateTranslation(MarblePosition);
-            if (Keyboard.GetState().IsKeyDown(Keys.W))
-            {
-            } 
-            if (Keyboard.GetState().IsKeyDown(Keys.S))
-            {
-              
-            }
-            if (Keyboard.GetState().IsKeyDown(Keys.A))
-            { }
-            if (Keyboard.GetState().IsKeyDown(Keys.D))
-            { }
+            //MarbleVelocity = new Vector3(0f, MarbleVelocity.Y, 0f);
+            MarbleWorld = MarbleScale * MarbleRotation * Matrix.CreateTranslation(MarblePosition);
 
             FollowCamera.Update(gameTime, MarbleWorld);
 
