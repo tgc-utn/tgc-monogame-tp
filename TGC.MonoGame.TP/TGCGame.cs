@@ -82,7 +82,7 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-        private FollowCamera FollowCamera { get; set; }
+        private Camera Camera { get; set; }
         public Quad quad { get; set; }
         private SkyBox skybox { get; set; }
 
@@ -107,7 +107,7 @@ namespace TGC.MonoGame.TP
 
         public VertexDeclaration vertexDeclaration { get; set; }
         public Matrix MarbleScale { get; private set; }
-        public Matrix MarbleRotation { get; private set; }
+        //public Matrix MarbleRotation { get; private set; }
         public Matrix ChairOBBWorld { get; private set; }
 
         private float Gravity = 100f;
@@ -143,7 +143,7 @@ namespace TGC.MonoGame.TP
 
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 0, 0), screenSize);
 
             float yPositionFloor = -20f;
             float xScaleFloor = 400f;
@@ -194,7 +194,7 @@ namespace TGC.MonoGame.TP
             MarbleAcceleration = Vector3.Down * Gravity;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
             MarbleScale = Matrix.CreateScale(0.02f);
-            MarbleRotation = Matrix.CreateRotationY(-MathHelper.ToRadians(90));
+            //MarbleRotation = Matrix.CreateRotationY(-MathHelper.ToRadians(90));
             MarbleRotation = Matrix.Identity;
             MarbleFrontDirection = Vector3.Backward;
 
@@ -339,7 +339,7 @@ namespace TGC.MonoGame.TP
             CreateOrientedBoundingBox(18, new Vector3(0.5f, 12f, 1f), new Vector3(-6.5f, 18f, 24f), Matrix.CreateRotationX(MathHelper.ToRadians(90f))); //Molino
             CreateOrientedBoundingBox(19, new Vector3(5f, 2f, 5f), new Vector3(30f, -14f, 0f), Matrix.CreateRotationZ(MathHelper.ToRadians(45f))); //Rampa <-- NO FUNCIONA?
 
-            MarbleWorld = MarbleScale * MarbleRotation * Matrix.CreateTranslation(MarblePosition);
+           // MarbleWorld = MarbleScale * MarbleRotation * Matrix.CreateTranslation(MarblePosition);
 
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
 
@@ -425,18 +425,6 @@ namespace TGC.MonoGame.TP
                 MarbleRotation *= Matrix.CreateRotationY(MarbleRotationVelocity);
                 MarbleFrontDirection = Vector3.Transform(Vector3.Backward, MarbleRotation);
             }
-            // Handle mouse movement
-
-            // SOLO PARA PROBAR
-            /*if (Keyboard.GetState().IsKeyDown(Keys.L))
-                MarbleVelocity += MarbleWorld.Right * SideSpeed;
-            if (Keyboard.GetState().IsKeyDown(Keys.J))
-                MarbleVelocity += MarbleWorld.Left * SideSpeed;
-            if (Keyboard.GetState().IsKeyDown(Keys.I))
-                MarbleVelocity += MarbleWorld.Forward * SideSpeed;
-            if (Keyboard.GetState().IsKeyDown(Keys.K))
-                MarbleVelocity += MarbleWorld.Backward * SideSpeed;
-            */
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
@@ -467,7 +455,6 @@ namespace TGC.MonoGame.TP
             Matrix marbleCopy = MarbleWorld;
 
             // Update the World Matrix
-            MarbleWorld = MarbleScale * MarbleRotation * Matrix.CreateTranslation(MarblePosition);
 
             Camera.Update(gameTime);
            
@@ -480,7 +467,7 @@ namespace TGC.MonoGame.TP
             Vector3 cameraLookAt = MarbleWorld.Translation;
             View = Matrix.CreateLookAt(cameraPosition, cameraLookAt, MarbleWorld.Up);
 
-            FollowCamera.Update(gameTime, MarbleWorld);
+            Camera.Update(gameTime);
 
             previousMouseState = currentMouseState;
             base.Update(gameTime);
@@ -524,14 +511,14 @@ namespace TGC.MonoGame.TP
 
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(View);///
-            Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
             TextureEffect.Parameters["View"].SetValue(View);///
-            TextureEffect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            TextureEffect.Parameters["Projection"].SetValue(Camera.Projection);
 
             // Para el piso
             LavaEffect.Parameters["World"].SetValue(Matrix.Identity);
             LavaEffect.Parameters["View"].SetValue(View);///
-            LavaEffect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            LavaEffect.Parameters["Projection"].SetValue(Camera.Projection);
             LavaEffect.Parameters["Time"].SetValue(totalGameTime);
 
             foreach (var pass in LavaEffect.CurrentTechnique.Passes)
