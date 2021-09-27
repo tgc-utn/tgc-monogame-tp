@@ -10,6 +10,7 @@ namespace TGC.MonoGame.TP.Objects
     public class MainShip
     {
         public Vector3 Position { get; set; }
+        public Vector3 PositionAnterior { get; set; }
         public float speed { get; set; }
         private float maxspeed { get; set; }
         private float maxacceleration { get; set; }
@@ -32,7 +33,8 @@ namespace TGC.MonoGame.TP.Objects
         {
             speed = 0;
             Position = initialPosition;
-            orientacion = new Vector3((float)Math.Sin(MathHelper.Pi/2), 0, (float)Math.Cos(MathHelper.Pi/2));
+            PositionAnterior = Position;
+            orientacion = currentOrientation;
             maxspeed = MaxSpeed;
             maxacceleration = 0.005f;
             anguloDeGiro =MathHelper.Pi/2;
@@ -106,7 +108,7 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Move()
         {
-            var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
+            var newOrientacion = new Vector3((float)Math.Cos(anguloDeGiro), 0, (float)Math.Sin(anguloDeGiro));
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
@@ -114,7 +116,19 @@ namespace TGC.MonoGame.TP.Objects
             var extraSpeed=0;
             if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
+            
             Position += orientacion*speed ;
+            if (PositionAnterior.Y < Position.Y)
+            {
+                Position -= orientacion * speed * (0.25f * (Position.Y - PositionAnterior.Y));
+            }
+            else
+            {
+                if (PositionAnterior.Y > Position.Y)
+                {
+                    Position += orientacion * speed * (0.25f * (PositionAnterior.Y - Position.Y));
+                }
+            }
         }
 
         private void UpdateMovementSpeed(float gameTime)
@@ -161,7 +175,7 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     if (anguloDeGiro + giroBase >= MathF.PI * 2)
                     {
-                        anguloDeGiro = anguloDeGiro + giroBase - MathF.PI * 2;
+                        anguloDeGiro +=  giroBase - MathF.PI * 2;
                     }
                     else
                     {
@@ -179,7 +193,7 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     if (anguloDeGiro + giroBase < 0)
                     {
-                        anguloDeGiro = anguloDeGiro - giroBase + MathF.PI * 2;
+                        anguloDeGiro += - giroBase + MathF.PI * 2;
                     }
                     else
                     {
