@@ -122,7 +122,7 @@ namespace TGC.MonoGame.TP
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
 
-
+        private float rotacionAngular;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -133,7 +133,7 @@ namespace TGC.MonoGame.TP
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
             // Seria hasta aca.
             OnGround = false;
-            mouseSensitivity = 0.2f;
+            mouseSensitivity = 0.1f;
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             //configuro pantalla
@@ -191,13 +191,13 @@ namespace TGC.MonoGame.TP
             RespawnPosition = MarblePosition;
             //MarblePosition = new Vector3(3f, 29f, 10f); //<- Para Probar
             MarbleVelocity = Vector3.Zero;
-            MarbleAcceleration = Vector3.Down * Gravity;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
             MarbleScale = Matrix.CreateScale(0.02f);
-            //MarbleRotation = Matrix.CreateRotationY(-MathHelper.ToRadians(90));
+            MarbleRotation = Matrix.CreateRotationY(-MathHelper.ToRadians(90));
             MarbleRotation = Matrix.Identity;
             MarbleFrontDirection = Vector3.Backward;
-
+            mouseRotationBuffer.X = -90;
+            rotacionAngular = 0;
             base.Initialize();
         }
 
@@ -339,7 +339,7 @@ namespace TGC.MonoGame.TP
             CreateOrientedBoundingBox(18, new Vector3(0.5f, 12f, 1f), new Vector3(-6.5f, 18f, 24f), Matrix.CreateRotationX(MathHelper.ToRadians(90f))); //Molino
             CreateOrientedBoundingBox(19, new Vector3(5f, 2f, 5f), new Vector3(30f, -14f, 0f), Matrix.CreateRotationZ(MathHelper.ToRadians(45f))); //Rampa <-- NO FUNCIONA?
 
-           // MarbleWorld = MarbleScale * MarbleRotation * Matrix.CreateTranslation(MarblePosition);
+            MarbleWorld = MarbleScale * MarbleRotation;
 
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
 
@@ -389,10 +389,10 @@ namespace TGC.MonoGame.TP
 
             // Center the mouse
             Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+            MarbleAcceleration = Vector3.Down * Gravity;
 
             // Save previous mouse state
             previousMouseState = currentMouseState;
-            MarbleVelocity += MarbleAcceleration * deltaTime;
    
             float totalGameTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
 
@@ -407,26 +407,35 @@ namespace TGC.MonoGame.TP
             // Check for the Jump key press, and add velocity in Y only if the marble is on the ground
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
                 MarbleVelocity += Vector3.Up * JumpSpeed;
+            
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                MarbleVelocity += MarbleFrontDirection * MarbleSpeed;
+                MarbleAcceleration =  Vector3.Left * -100 * deltaTime;
             } 
+           
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                MarbleVelocity -= MarbleFrontDirection * MarbleSpeed;
+                MarbleAcceleration = Vector3.Left * 100 * deltaTime;
             }
+           
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                MarbleRotation *= Matrix.CreateRotationY(-MarbleRotationVelocity);
-                MarbleFrontDirection = Vector3.Transform(Vector3.Backward, MarbleRotation);
+                MarbleAcceleration = Vector3.Forward * 100 * deltaTime;
             }
+           
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                MarbleRotation *= Matrix.CreateRotationY(MarbleRotationVelocity);
-                MarbleFrontDirection = Vector3.Transform(Vector3.Backward, MarbleRotation);
+                MarbleAcceleration = Vector3.Forward * -100 * deltaTime;
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
+
+            float moduloVelocidad = MathF.Sqrt(MathF.Pow(MarbleVelocity.X, 2) + MathF.Pow(MarbleVelocity.Z, 2));
+            
+            Vector3 normalNormalizado = Vector3.Normalize(new Vector3(MarbleVelocity.Z, 0, -MarbleVelocity.X));
+            rotacionAngular += (moduloVelocidad / 0.8f) * deltaTime;
+            Matrix rotateArround = Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(normalNormalizado, rotacionAngular));
+            
 
             // Scale the velocity by deltaTime
             var scaledVelocity = MarbleVelocity * deltaTime;
@@ -447,10 +456,14 @@ namespace TGC.MonoGame.TP
             // Update the Robot World Matrix
             //MarbleWorld = MarbleScale * /*MarbleRotation **/ Matrix.CreateTranslation(MarblePosition);
             
+            
+            
+            
+            
             // Update the RobotPosition based on the updated Cylinder center
             MarblePosition = MarbleSphere.Center;
             //MarbleVelocity = new Vector3(0f, MarbleVelocity.Y, 0f);
-            MarbleWorld = MarbleScale * MarbleRotation;
+            MarbleWorld = MarbleScale;
 
             Matrix marbleCopy = MarbleWorld;
 
@@ -459,13 +472,12 @@ namespace TGC.MonoGame.TP
             Camera.Update(gameTime);
            
             marbleCopy *= Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition); ;
-            MarbleWorld *= Matrix.CreateTranslation(MarblePosition);
 
-            Vector3 cameraPosition = marbleCopy.Translation + (marbleCopy.Backward *700 ) + marbleCopy.Up *700;
+            Vector3 cameraPosition = marbleCopy.Translation + (marbleCopy.Backward *700 ) + marbleCopy.Up *400;
+            MarbleWorld *= rotateArround * Matrix.CreateTranslation(MarblePosition);
 
-            //Vector3 cameraLookAt = MarblePosition + (MarbleWorld.Forward * 5);
             Vector3 cameraLookAt = MarbleWorld.Translation;
-            View = Matrix.CreateLookAt(cameraPosition, cameraLookAt, MarbleWorld.Up);
+            View = Matrix.CreateLookAt(cameraPosition, cameraLookAt, Vector3.Up);
 
             Camera.Update(gameTime);
 
