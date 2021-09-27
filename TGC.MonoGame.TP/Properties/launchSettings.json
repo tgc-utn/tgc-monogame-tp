@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TGC.MonoGame.TP": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

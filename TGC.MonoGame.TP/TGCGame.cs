@@ -91,12 +91,16 @@ namespace TGC.MonoGame.TP
         public Vector3 MarbleAcceleration { get; private set; }
         private Vector3 MarbleFrontDirection { get; set; }
         public Matrix MarbleRotation { get; set; }
+        private MouseState currentMouseState;
+        private MouseState previousMouseState;
+        private float mouseSensitivity;
+        private Vector3 mouseRotationBuffer;
+
 
         private BoundingSphere MarbleSphere;
 
         public VertexDeclaration vertexDeclaration { get; set; }
         public Matrix MarbleScale { get; private set; }
-
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
         private const float MarbleSpeed = 100f;
@@ -104,7 +108,9 @@ namespace TGC.MonoGame.TP
         private float x = -50f;
         private float y = -10f;
         private float z = 0f;
-        
+
+
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -114,7 +120,7 @@ namespace TGC.MonoGame.TP
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
             // Seria hasta aca.
             OnGround = false;
-
+            mouseSensitivity = 0.2f;
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             //configuro pantalla
@@ -264,9 +270,32 @@ namespace TGC.MonoGame.TP
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
         ///     ante ellas.
         /// </summary>
-        protected override void Update(GameTime gameTime)
+
+    protected override void Update(GameTime gameTime)
         {
+            float deltaX;
+
+            // Mouse State & Keyboard State
+            currentMouseState = Mouse.GetState();
+
             var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            if (currentMouseState != previousMouseState)
+            {
+                // Cache mouse location
+                deltaX = currentMouseState.X - (GraphicsDevice.Viewport.Width / 2);
+
+                // Create the rotation
+                mouseRotationBuffer.X -= 0.01f * deltaX * mouseSensitivity;
+
+            }
+
+            // Center the mouse
+            Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
+
+            // Save previous mouse state
+            previousMouseState = currentMouseState;
+            MarbleVelocity += MarbleAcceleration * deltaTime;
+   
 
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             // Capturar Input teclado
@@ -297,8 +326,7 @@ namespace TGC.MonoGame.TP
                 MarbleRotation *= Matrix.CreateRotationY(MarbleRotationVelocity);
                 MarbleFrontDirection = Vector3.Transform(Vector3.Backward, MarbleRotation);
             }
-
-            MarbleVelocity += MarbleAcceleration * deltaTime;
+            // Handle mouse movement
 
             // Scale the velocity by deltaTime
             var scaledVelocity = MarbleVelocity * deltaTime;
@@ -312,11 +340,25 @@ namespace TGC.MonoGame.TP
             // Update the RobotPosition based on the updated Cylinder center
             MarblePosition = MarbleSphere.Center;
             //MarbleVelocity = new Vector3(0f, MarbleVelocity.Y, 0f);
-            MarbleWorld = MarbleScale * MarbleRotation * Matrix.CreateTranslation(MarblePosition);
+            MarbleWorld = MarbleScale * MarbleRotation;
+
+            Matrix marbleCopy = MarbleWorld;
+
+           
+            marbleCopy *= Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition); ;
+            MarbleWorld *= Matrix.CreateTranslation(MarblePosition);
+
+            Vector3 cameraPosition = marbleCopy.Translation + (marbleCopy.Backward *700 ) + marbleCopy.Up *700;
+
+            //Vector3 cameraLookAt = MarblePosition + (MarbleWorld.Forward * 5);
+            Vector3 cameraLookAt = MarbleWorld.Translation;
+            View = Matrix.CreateLookAt(cameraPosition, cameraLookAt, MarbleWorld.Up);
 
             FollowCamera.Update(gameTime, MarbleWorld);
 
+            previousMouseState = currentMouseState;
             base.Update(gameTime);
+
         }
 
         /// <summary>
@@ -355,14 +397,14 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar el modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(FollowCamera.View);
+            Effect.Parameters["View"].SetValue(View);///
             Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
-            TextureEffect.Parameters["View"].SetValue(FollowCamera.View);
+            TextureEffect.Parameters["View"].SetValue(View);///
             TextureEffect.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
             // Para el piso
             LavaEffect.Parameters["World"].SetValue(Matrix.Identity);
-            LavaEffect.Parameters["View"].SetValue(FollowCamera.View);
+            LavaEffect.Parameters["View"].SetValue(View);///
             LavaEffect.Parameters["Projection"].SetValue(FollowCamera.Projection);
             LavaEffect.Parameters["Time"].SetValue(totalGameTime);
 
