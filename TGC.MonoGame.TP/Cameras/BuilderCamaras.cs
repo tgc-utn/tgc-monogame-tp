@@ -17,6 +17,8 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultFarPlaneDistance = 200000000;
         //private static readonly Vector3 Position = new Vector3(-350, 50, 400);
         private Vector3 Position { get; set; }
+        private Vector3 FrontPosition = new Vector3(0, 40, -200);
+        private Vector3 CenterPosition = new Vector3(0, 70, 0);
         private static float Speed = 5;
         private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
         private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 1000, 0);
@@ -40,8 +42,8 @@ namespace TGC.MonoGame.Samples.Cameras
             
             Cameras = new List<Camera>()
             {
-                new FreeCamera(aspectRatio, Position+new Vector3(0,70,0), screenCenter),
-                new SimpleCamera(aspectRatio,Position+new Vector3(0,40,-200),Speed),
+                new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
+                new SimpleCamera(aspectRatio,Position+FrontPosition,Speed),
                 new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
                 new TargetCamera(aspectRatio, FromDirectionTarget, Position, screenCenter, height, width)
             };

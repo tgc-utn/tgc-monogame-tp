@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
+using TGC.MonoGame.TP.Objects;
 
 namespace TGC.MonoGame.TP
 {
@@ -59,9 +60,10 @@ namespace TGC.MonoGame.TP
         private int cantIslas;
         private Model ocean { get; set; }
         private Texture texturaAgua { get; set; }
-        private Matrix World { get; set; }
-        private Camera Camera { get; set; }
+        public Matrix World { get; set; }
+        public Camera Camera { get; set; }
         private float time;
+        private MainShip MainShip;
 
         /* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
         private Ship ShipOne { get; set; }
@@ -96,6 +98,8 @@ namespace TGC.MonoGame.TP
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, BarcoPositionCenter);
+            
+            MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 5, this );
             /*
             ShipOne = new Ship();
             ShipTwo = new Ship();
@@ -120,7 +124,7 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
+            MainShip.LoadContent();
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "WarVessel/1124");
             island = Content.Load<Model>(ContentFolder3D + "Isla_V2");
@@ -183,6 +187,7 @@ namespace TGC.MonoGame.TP
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             Camera.Update(gameTime);
+            MainShip.Update(gameTime);
             
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -216,7 +221,8 @@ namespace TGC.MonoGame.TP
             
             
             //BARCO PRINCIPAL---------------------------------------
-            Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(BarcoPositionCenter), Camera.View, Camera.Projection);
+            //Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(BarcoPositionCenter), Camera.View, Camera.Projection);
+            MainShip.Draw();
             //BARCO PRINCIPAL---------------------------------------
             
             
