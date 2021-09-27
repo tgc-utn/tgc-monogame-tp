@@ -18,8 +18,10 @@ namespace TGC.MonoGame.TP.Objects
         public Vector3 orientacion { get; set; }
         public Vector3 orientacionSobreOla { get; set; }
         public float anguloDeGiro { get; set; }
+        public float anguloInicial { get; set; }
         public float giroBase { get; set; }
-
+        private Boolean Probando = false;
+        private float time;
         private Boolean pressedAccelerator { get; set; }
         private int currentGear { get; set; }
         private Boolean HandBrake { get; set; }
@@ -36,8 +38,9 @@ namespace TGC.MonoGame.TP.Objects
             PositionAnterior = Position;
             orientacion = currentOrientation;
             maxspeed = MaxSpeed;
-            maxacceleration = 0.005f;
-            anguloDeGiro =MathHelper.Pi/2;
+            maxacceleration = 0.1f;
+            anguloDeGiro = 0f;
+            anguloInicial = (float) (Math.PI/2);
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
@@ -77,7 +80,7 @@ namespace TGC.MonoGame.TP.Objects
         public void Draw()
         {
             
-            modelo.Draw(Matrix.CreateRotationY(anguloDeGiro )*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+            modelo.Draw(Matrix.CreateRotationY(anguloDeGiro+anguloInicial)*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
             //modelo.Draw(Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
             //var playerBoatWorld = _game.World * waterMatrix * Matrix.CreateTranslation(Position);
             /*var playerBoatWorld = _game.World * Matrix.CreateTranslation(Position);
@@ -102,13 +105,25 @@ namespace TGC.MonoGame.TP.Objects
         public void Update(GameTime gameTime)
         {
             ProcessKeyboard(_game.ElapsedTime);
-            UpdateMovementSpeed(_game.ElapsedTime);
+            UpdateMovementSpeed(gameTime);
             Move();
         }
 
         public void Move()
         {
-            var newOrientacion = new Vector3((float)Math.Cos(anguloDeGiro), 0, (float)Math.Sin(anguloDeGiro));
+            var y=0;
+            /*
+            if (!Probando && Position.Y > 200 )
+            {
+                Probando = true;
+                y -= 10;
+            }
+            else
+            {
+                y += 10;
+            }*/
+
+            var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
@@ -131,11 +146,12 @@ namespace TGC.MonoGame.TP.Objects
             }
         }
 
-        private void UpdateMovementSpeed(float gameTime)
+        private void UpdateMovementSpeed(GameTime gameTime)
         {
             float acceleration;
+            time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             if (HandBrake) acceleration = maxacceleration;
-            else acceleration = maxacceleration * 8;
+            else acceleration = maxacceleration * 8 * time;
             float GearMaxSpeed = (maxspeed * currentGear / 3);
             if (speed > GearMaxSpeed)
             {
@@ -164,8 +180,6 @@ namespace TGC.MonoGame.TP.Objects
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();
-
-
             if (keyboardState.IsKeyDown(Keys.A))
             {
                 if (speed == 0)
