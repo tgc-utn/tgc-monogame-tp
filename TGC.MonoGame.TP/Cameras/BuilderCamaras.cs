@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Objects;
 
 namespace TGC.MonoGame.Samples.Cameras
 {
@@ -21,25 +22,25 @@ namespace TGC.MonoGame.Samples.Cameras
         private Vector3 CenterPosition = new Vector3(0, 70, 0);
         private static float Speed = 5;
         private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
-        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 1000, 0);
-        private static readonly Vector3 UpDirection = new Vector3(-350, 50, 400);
+        private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 10000, 0);
         private List<Camera> Cameras { get; set; }
         private Camera CurrentCamera { get; set; }
+        public MainShip MainShip { get; set; }
         
-        
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, Vector3 BarcoPositionCenter) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,Vector3 BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
             nearPlaneDistance, farPlaneDistance, DefaultFieldOfViewDegrees)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, Vector3 BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
         {
-            Position = BarcoPositionCenter;
             
+            Position = BarcoPositionCenter.Position;
+            MainShip = BarcoPositionCenter;
             Cameras = new List<Camera>()
             {
                 new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
@@ -81,6 +82,10 @@ namespace TGC.MonoGame.Samples.Cameras
             }
 
             CurrentCamera.Update(gameTime);
+            Cameras[0].Position = MainShip.Position + CenterPosition;
+            Cameras[1].Position = MainShip.Position + FrontPosition;
+            Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
+            Cameras[3].TargetPosition = MainShip.Position;
             View = CurrentCamera.View;
             Projection = CurrentCamera.Projection;
         }

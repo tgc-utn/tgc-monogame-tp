@@ -32,10 +32,10 @@ namespace TGC.MonoGame.TP.Objects
         {
             speed = 0;
             Position = initialPosition;
-            orientacion = currentOrientation;
+            orientacion = new Vector3((float)Math.Sin(MathHelper.Pi/2), 0, (float)Math.Cos(MathHelper.Pi/2));
             maxspeed = MaxSpeed;
             maxacceleration = 0.005f;
-            anguloDeGiro = 0f;
+            anguloDeGiro =MathHelper.Pi/2;
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
@@ -74,7 +74,9 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Draw()
         {
-            modelo.Draw(Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+            
+            modelo.Draw(Matrix.CreateRotationY(anguloDeGiro )*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+            //modelo.Draw(Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
             //var playerBoatWorld = _game.World * waterMatrix * Matrix.CreateTranslation(Position);
             /*var playerBoatWorld = _game.World * Matrix.CreateTranslation(Position);
             for (int i = 0; i < modelo.Meshes.Count; i++)
@@ -108,13 +110,11 @@ namespace TGC.MonoGame.TP.Objects
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
-            var extraSpeed = 10;
+            //var extraSpeed = 10;
+            var extraSpeed=0;
             if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
-
-            var newPosition = new Vector3(Position.X - speed * orientacion.X, Position.Y, Position.Z + speed * orientacion.Z);
-
-            Position = newPosition;
+            Position += orientacion*speed ;
         }
 
         private void UpdateMovementSpeed(float gameTime)
@@ -191,14 +191,12 @@ namespace TGC.MonoGame.TP.Objects
             if (this.pressedAccelerator == false && keyboardState.IsKeyDown(Keys.W) && currentGear < 3)
             {
                 currentGear++;
-                Console.WriteLine("b");
                 pressedAccelerator = true;
                 if (HandBrake) HandBrake = false;
             }
 
             if (this.pressedAccelerator == true && keyboardState.IsKeyUp(Keys.W))
             {
-                Console.WriteLine("a");
                 pressedAccelerator = false;
             }
 

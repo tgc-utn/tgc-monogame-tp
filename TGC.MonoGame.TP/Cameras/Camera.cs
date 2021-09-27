@@ -75,6 +75,8 @@ namespace TGC.MonoGame.Samples.Cameras
         /// </summary>
         public Matrix View { get; set; }
 
+        public Vector3 TargetPosition { get; set; }
+
         /// <summary>
         ///     Build a perspective projection matrix based on a field of view, aspect ratio, and near and far view plane
         ///     distances.

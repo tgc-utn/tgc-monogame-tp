@@ -97,9 +97,10 @@ namespace TGC.MonoGame.TP
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
-            Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, BarcoPositionCenter);
-            
             MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 5, this );
+            Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip);
+            
+            
             /*
             ShipOne = new Ship();
             ShipTwo = new Ship();
@@ -186,9 +187,9 @@ namespace TGC.MonoGame.TP
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-            Camera.Update(gameTime);
-            MainShip.Update(gameTime);
             
+            MainShip.Update(gameTime);
+            Camera.Update(gameTime);
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
