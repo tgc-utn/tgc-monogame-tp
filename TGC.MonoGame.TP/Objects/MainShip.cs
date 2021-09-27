@@ -10,6 +10,7 @@ namespace TGC.MonoGame.TP.Objects
     public class MainShip
     {
         public Vector3 Position { get; set; }
+        public Vector3 PositionAnterior { get; set; }
         public float speed { get; set; }
         private float maxspeed { get; set; }
         private float maxacceleration { get; set; }
@@ -32,6 +33,7 @@ namespace TGC.MonoGame.TP.Objects
         {
             speed = 0;
             Position = initialPosition;
+            PositionAnterior = Position;
             orientacion = currentOrientation;
             maxspeed = MaxSpeed;
             maxacceleration = 0.005f;
@@ -114,7 +116,19 @@ namespace TGC.MonoGame.TP.Objects
             var extraSpeed=0;
             if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
+            
             Position += orientacion*speed ;
+            if (PositionAnterior.Y < Position.Y)
+            {
+                Position -= orientacion * speed * (0.25f * (Position.Y - PositionAnterior.Y));
+            }
+            else
+            {
+                if (PositionAnterior.Y > Position.Y)
+                {
+                    Position += orientacion * speed * (0.25f * (PositionAnterior.Y - Position.Y));
+                }
+            }
         }
 
         private void UpdateMovementSpeed(float gameTime)

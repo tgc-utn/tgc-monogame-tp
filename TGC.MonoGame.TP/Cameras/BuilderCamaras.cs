@@ -55,25 +55,25 @@ namespace TGC.MonoGame.Samples.Cameras
         {
             var keyboardState = Keyboard.GetState();
 
-            if (keyboardState.IsKeyDown(Keys.NumPad1))
+            if (keyboardState.IsKeyDown(Keys.D1))
             {
                 CurrentCamera = Cameras[0];
             }
             else
             {
-                if (keyboardState.IsKeyDown(Keys.NumPad2))
+                if (keyboardState.IsKeyDown(Keys.D2))
                 {
                     CurrentCamera = Cameras[1];
                 }
                 else
                 {
-                    if (keyboardState.IsKeyDown(Keys.NumPad3))
+                    if (keyboardState.IsKeyDown(Keys.D3))
                     {
                         CurrentCamera = Cameras[2];
                     }
                     else
                     {
-                        if (keyboardState.IsKeyDown(Keys.NumPad4))
+                        if (keyboardState.IsKeyDown(Keys.D4))
                         {
                             CurrentCamera = Cameras[3];
                         }
