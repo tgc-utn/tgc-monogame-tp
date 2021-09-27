@@ -97,7 +97,7 @@ namespace TGC.MonoGame.TP
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
-            MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 5, this );
+            MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 10, this );
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip);
             
             
