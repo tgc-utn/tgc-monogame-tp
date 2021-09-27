@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
+using TGC.MonoGame.TP.Objects;
 
 namespace TGC.MonoGame.TP
 {
@@ -39,6 +40,7 @@ namespace TGC.MonoGame.TP
         
         private Model Rock { get; set; }
         private Model Barco { get; set; }
+        private Vector3 BarcoPositionCenter = new Vector3(-200f, 50, 0);
         private Model Barco2 { get; set; }
         private Model Barco3 { get; set; }
         private float position { get; set; }
@@ -58,16 +60,17 @@ namespace TGC.MonoGame.TP
         private int cantIslas;
         private Model ocean { get; set; }
         private Texture texturaAgua { get; set; }
-        private Matrix World { get; set; }
-        private Camera Camera { get; set; }
+        public Matrix World { get; set; }
+        public Camera Camera { get; set; }
         private float time;
+        private MainShip MainShip;
 
-
+        /* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
         private Ship ShipOne { get; set; }
         private Ship ShipTwo { get; set; }
         private Ship ShipThree { get; set; }
         private Ship ShipFour { get; set; }
-        private Ship ShipFive { get; set; }
+        private Ship ShipFive { get; set; }*/
 
 
 
@@ -94,13 +97,16 @@ namespace TGC.MonoGame.TP
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
-            Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-
+            MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 5, this );
+            Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip);
+            
+            
+            /*
             ShipOne = new Ship();
             ShipTwo = new Ship();
             ShipThree = new Ship();
             ShipFour = new Ship();
-            ShipFive = new Ship();
+            ShipFive = new Ship();*/
 
             posicionesIslas = new[] { new Vector3(-3000f, -60f, 200f) ,new Vector3(2000f,-60f,400f),new Vector3(1500f,-60f,200f), new Vector3(-4500f,-60f,-600f),new Vector3(-2000f,-60f,-1500f),
                 new Vector3(4000f,-60f,-1500f),new Vector3(500f,-60f,-3000f),new Vector3(0,-60f,-4000f), new Vector3 (-2000f,-60f,0)};
@@ -119,7 +125,7 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
+            MainShip.LoadContent();
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "WarVessel/1124");
             island = Content.Load<Model>(ContentFolder3D + "Isla_V2");
@@ -142,6 +148,7 @@ namespace TGC.MonoGame.TP
             // ModelShipTwo = Content.Load<Model>(ContentFolder3D + "Pensacola/source/full");
 
             // loading warships initial positions
+            /*
             ShipOne.LoadContent(Content, ContentFolder3D + "Pensacola/source/full", 0f, 0.1f);
             ShipTwo.LoadContent(Content, ContentFolder3D + "WarVessel/1124", -400f, 2f);
             ShipThree.LoadContent(Content, ContentFolder3D + "Antisubmarine1124/source/1124", new Vector3(-350, 0, -400), 0.2f);
@@ -152,7 +159,7 @@ namespace TGC.MonoGame.TP
             ShipTwo.Rotate(-10f);
             ShipThree.Rotate(10f);
             ShipFour.Rotate(10f);
-
+            */
 
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
@@ -180,8 +187,9 @@ namespace TGC.MonoGame.TP
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-            Camera.Update(gameTime);
             
+            MainShip.Update(gameTime);
+            Camera.Update(gameTime);
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
@@ -210,18 +218,29 @@ namespace TGC.MonoGame.TP
             island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(1000, 0, 0), Camera.View, Camera.Projection);
             //Barco2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(-10f, 0, 0), Camera.View, Camera.Projection);
             Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Camera.View, Camera.Projection);
-            Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-200f, 0, 0), Camera.View, Camera.Projection);
+            
+            
+            
+            //BARCO PRINCIPAL---------------------------------------
+            //Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(BarcoPositionCenter), Camera.View, Camera.Projection);
+            MainShip.Draw();
+            //BARCO PRINCIPAL---------------------------------------
+            
+            
+            
             //Projektil.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(5f) * Matrix.CreateTranslation(-400f, 100, 0), Camera.View, Camera.Projection);
             Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), Camera.View, Camera.Projection);
             //Projektil2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2) * Matrix.CreateTranslation(-650, 100, 0), Camera.View, Camera.Projection);
             Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Camera.View, Camera.Projection);
             //Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
             // ModelShipOne.Draw(Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(250, 25, 0), Camera.View, Camera.Projection);
+            
+            /*LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
             ShipOne.Draw(Camera);
             ShipTwo.Draw(Camera);
             ShipThree.Draw(Camera);
             ShipFour.Draw(Camera);
-            ShipFive.Draw(Camera);
+            ShipFive.Draw(Camera);*/
 
             island.Draw(World * Matrix.CreateTranslation(200f, -60f, -600), Camera.View, Camera.Projection);
             islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);

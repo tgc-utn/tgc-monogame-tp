@@ -1,5 +1,4 @@
-﻿/* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.Intrinsics.X86;
 using Microsoft.Xna.Framework;
@@ -8,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TGC.MonoGame.TP.Objects
 {
-    class Ship
+    public class MainShip
     {
         public Vector3 Position { get; set; }
         public float speed { get; set; }
@@ -29,26 +28,27 @@ namespace TGC.MonoGame.TP.Objects
 
         public string ModelName;
 
-        public Ship(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
+        public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
             speed = 0;
             Position = initialPosition;
-            orientacion = currentOrientation;
+            orientacion = new Vector3((float)Math.Sin(MathHelper.Pi/2), 0, (float)Math.Cos(MathHelper.Pi/2));
             maxspeed = MaxSpeed;
             maxacceleration = 0.005f;
-            anguloDeGiro = 0f;
+            anguloDeGiro =MathHelper.Pi/2;
             giroBase = 0.003f;
             pressedAccelerator = false;
             currentGear = 0;
             HandBrake = false;
             pressedReverse = false;
+            ModelName = "Barco";
             _game = game;
         }
 
         public void LoadContent()
         {
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
-
+            /*
             var basicShader = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "BasicShader");
 
             basicShader.Parameters["KAmbient"]?.SetValue(0.15f);
@@ -69,12 +69,16 @@ namespace TGC.MonoGame.TP.Objects
                     partShader.Parameters["Texture"].SetValue(part.Effect.Parameters["Texture"]?.GetValueTexture2D());
                     part.Effect = partShader;
                 }
-            }
+            }*/
         }
 
         public void Draw()
         {
-            var playerBoatWorld = _game.World * waterMatrix * Matrix.CreateTranslation(Position);
+            
+            modelo.Draw(Matrix.CreateRotationY(anguloDeGiro )*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+            //modelo.Draw(Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+            //var playerBoatWorld = _game.World * waterMatrix * Matrix.CreateTranslation(Position);
+            /*var playerBoatWorld = _game.World * Matrix.CreateTranslation(Position);
             for (int i = 0; i < modelo.Meshes.Count; i++)
             {
                 var mesh = modelo.Meshes[i];
@@ -82,14 +86,15 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     var part = mesh.MeshParts[j];
                     var effect = part.Effect;
-                    effect.Parameters["World"].SetValue(boneTransforms[mesh.ParentBone.Index] * playerBoatWorld);
-                    effect.Parameters["View"].SetValue(_game.CurrentCamera.View);
-                    effect.Parameters["Projection"].SetValue(_game.CurrentCamera.Projection);
+                    //effect.Parameters["World"].SetValue(_game.boneTransforms[mesh.ParentBone.Index] * playerBoatWorld);
+                    //effect.Parameters["World"].SetValue(playerBoatWorld);
+                    effect.Parameters["View"].SetValue(_game.Camera.View);
+                    effect.Parameters["Projection"].SetValue(_game.Camera.Projection);
                     effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(playerBoatWorld)));
-                    effect.Parameters["CameraPosition"]?.SetValue(_game.CurrentCamera.Position);
+                    effect.Parameters["CameraPosition"]?.SetValue(_game.Camera.Position);
                 }
                 mesh.Draw();
-            }
+            }*/
         }
 
         public void Update(GameTime gameTime)
@@ -105,13 +110,11 @@ namespace TGC.MonoGame.TP.Objects
             orientacion = newOrientacion;
 
             //TODO improve wave speed modification
-            var extraSpeed = 10;
+            //var extraSpeed = 10;
+            var extraSpeed=0;
             if (speed <= float.Epsilon) extraSpeed = 0; //Asi no se lo lleva el agua cuando esta parado
             var speedMod = speed + extraSpeed * -Vector3.Dot(orientacionSobreOla, Vector3.Up);
-
-            var newPosition = new Vector3(Position.X - speed * orientacion.X, Position.Y, Position.Z + speed * orientacion.Z);
-
-            Position = newPosition;
+            Position += orientacion*speed ;
         }
 
         private void UpdateMovementSpeed(float gameTime)
@@ -143,6 +146,7 @@ namespace TGC.MonoGame.TP.Objects
                 }
             }
         }
+
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();
@@ -150,7 +154,9 @@ namespace TGC.MonoGame.TP.Objects
 
             if (keyboardState.IsKeyDown(Keys.A))
             {
-                if (speed == 0) { }
+                if (speed == 0)
+                {
+                }
                 else
                 {
                     if (anguloDeGiro + giroBase >= MathF.PI * 2)
@@ -166,7 +172,9 @@ namespace TGC.MonoGame.TP.Objects
 
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                if (speed == 0) { }
+                if (speed == 0)
+                {
+                }
                 else
                 {
                     if (anguloDeGiro + giroBase < 0)
@@ -183,13 +191,12 @@ namespace TGC.MonoGame.TP.Objects
             if (this.pressedAccelerator == false && keyboardState.IsKeyDown(Keys.W) && currentGear < 3)
             {
                 currentGear++;
-                Console.WriteLine("b");
                 pressedAccelerator = true;
                 if (HandBrake) HandBrake = false;
             }
+
             if (this.pressedAccelerator == true && keyboardState.IsKeyUp(Keys.W))
             {
-                Console.WriteLine("a");
                 pressedAccelerator = false;
             }
 
@@ -199,6 +206,7 @@ namespace TGC.MonoGame.TP.Objects
                 pressedReverse = true;
                 if (HandBrake) HandBrake = false;
             }
+
             if (this.pressedReverse == true && keyboardState.IsKeyUp(Keys.S))
             {
                 pressedReverse = false;
@@ -209,7 +217,6 @@ namespace TGC.MonoGame.TP.Objects
                 HandBrake = true;
                 currentGear = 0;
             }
-        }
+        }   
     }
 }
-*/

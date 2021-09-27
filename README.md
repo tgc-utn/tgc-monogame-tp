@@ -4,6 +4,16 @@
 ## Descripcion:
 El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacerles daño sin recibir demasiado para no hundirse.
 
+## Manual:
+- ⬆/W: Avanzar
+- ⬇/S: Retroceder
+- ⬅/A: Izquierda
+- ➡/D: Derecha
+- 1: FreeCamera
+- 2: SimpleCamera
+- 3: StaticCamera
+- 4: TargetCamera
+
 ## Primera entrega:
 
 Tendrá el objetivo de tener el escenario armado, sin animaciones y con los modelos seleccionados y ubicados donde corresponda, deberán ser un total de entre 100 a 200 modelos mínimo.

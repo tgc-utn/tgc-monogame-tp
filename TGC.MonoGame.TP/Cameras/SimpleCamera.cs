@@ -19,6 +19,8 @@ namespace TGC.MonoGame.Samples.Cameras
         /// </summary>
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
 
+        private float CountZoom = 0;
+
         /// <summary>
         ///     Camera with simple movement to be able to move in the 3D world, which has the up vector in (0,1,0) and the forward
         ///     vector in (0,0,-1).
@@ -74,16 +76,16 @@ namespace TGC.MonoGame.Samples.Cameras
             var pitch = 0f;
             var turn = 0f;
 
-            if (keyboardState.IsKeyDown(Keys.Up))
+            if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
                 pitch += time * 0.1f;
 
-            if (keyboardState.IsKeyDown(Keys.Down))
+            if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
                 pitch -= time * 0.1f;
 
-            if (keyboardState.IsKeyDown(Keys.Left))
+            if (keyboardState.IsKeyDown(Keys.Left)|| keyboardState.IsKeyDown(Keys.A))
                 turn += time * 0.1f;
 
-            if (keyboardState.IsKeyDown(Keys.Right))
+            if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
                 turn -= time * 0.1f;
 
             RightDirection = Vector3.Cross(DefaultWorldUpVector, FrontDirection);
@@ -96,9 +98,25 @@ namespace TGC.MonoGame.Samples.Cameras
 
             // Check angle so we can't flip over.
             if (Vector3.Dot(tiltedFront, flatFront) > 0.001f) FrontDirection = Vector3.Normalize(tiltedFront);
+            /*---------------------Agrgear el Zoom
+            var mouseState = Mouse.GetState();
+            if (mouseState.RightButton.Equals(ButtonState.Pressed))
+            {
+                if (Position < 2*(FrontDirection *100))
+                {
 
-            // Check for input to move the camera around.
-            if (keyboardState.IsKeyDown(Keys.W))
+                    Position += FrontDirection * 100;
+                    CountZoom += 1;
+                }
+                else
+                {
+                    Position -= (FrontDirection * 100)*2;
+                    CountZoom = 0;
+                }
+                // Check for input to move the camera around.
+            }*---------------------Agrgear el Zoom
+            */
+            /*if (keyboardState.IsKeyDown(Keys.W))
                 Position += FrontDirection * time * Speed;
 
             if (keyboardState.IsKeyDown(Keys.S))
@@ -108,7 +126,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 Position += RightDirection * time * Speed;
 
             if (keyboardState.IsKeyDown(Keys.D))
-                Position -= RightDirection * time * Speed;
+                Position -= RightDirection * time * Speed;*/
 
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
         }
