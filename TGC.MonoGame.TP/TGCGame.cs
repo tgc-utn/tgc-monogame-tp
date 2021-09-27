@@ -88,8 +88,10 @@ namespace TGC.MonoGame.TP
 
         private BoundingBox[] platformColliders;
         private OrientedBoundingBox[] rotatedPlatformsColliders;
+        private List<BoundingBox> checkpoints;
 
         public Vector3 MarblePosition { get; private set; }
+        public Vector3 RespawnPosition { get; set; }
         public Matrix MarbleWorld { get; private set; }
         public Vector3 MarbleVelocity { get; private set; }
         public Vector3 MarbleAcceleration { get; private set; }
@@ -132,7 +134,7 @@ namespace TGC.MonoGame.TP
 
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
-            platformColliders = new BoundingBox[22];
+            platformColliders = new BoundingBox[24];
 
             //Plataformas que no estan rotadas
             platformColliders[0] = new BoundingBox(new Vector3(-25f, -21f, -15f), new Vector3(5f, -16f, 15f));
@@ -142,12 +144,12 @@ namespace TGC.MonoGame.TP
             platformColliders[3] = new BoundingBox(new Vector3(55f, -21f, -5f), new Vector3(85f, -16f, 5f)); //70f, -18f, 0f
             platformColliders[4] = new BoundingBox(new Vector3(66f, -14f, -5f), new Vector3(74f, -12f, 5f));
             platformColliders[5] = new BoundingBox(new Vector3(68f, -15f, -5f), new Vector3(72f, -12f, 5f)); //Plataforma que sube y baja
-            platformColliders[6] = new BoundingBox(new Vector3(84f, -15f, -4.5f), new Vector3(86f, -8f, -3.5f)); //84f, -11f, -4f
+            platformColliders[6] = new BoundingBox(new Vector3(84f, -15f, -4.5f), new Vector3(86f, -8f, -3.5f)); //84f, -11f, -4f //Primer Checkpoint
             platformColliders[7] = new BoundingBox(new Vector3(79f, -10f, 25f), new Vector3(89f, -5f, 35f)); //84f, -10f, 30f
             platformColliders[8] = new BoundingBox(new Vector3(47f, -21f, 105f), new Vector3(57f, -16f, 115f)); //52f, -18f, 110f
             platformColliders[9] = new BoundingBox(new Vector3(30f, -21f, 105f), new Vector3(47f, -18f, 115f)); //35f, -20f, 110f
             platformColliders[10] = new BoundingBox(new Vector3(15f, -21f, 105f), new Vector3(31f, -16f, 115f)); //23f, -18f, 110f
-            platformColliders[11] = new BoundingBox(new Vector3(15.75f, -21f, 113.75f), new Vector3(16.25f, -8f, 114.25f)); //16f, -11f, 119f
+            platformColliders[11] = new BoundingBox(new Vector3(15.75f, -21f, 113.75f), new Vector3(16.25f, -8f, 114.25f)); //16f, -11f, 119f //Segundo Checkpoint
             platformColliders[12] = new BoundingBox(new Vector3(-90, 8f, 24f), new Vector3(-85f, 11f, 60f)); //-87.5f, 10f, 42f
             platformColliders[13] = new BoundingBox(new Vector3(-90, -1f, 24f), new Vector3(-85f, 0.25f, 30f)); //-87.5f, 0f, 25f
             platformColliders[14] = new BoundingBox(new Vector3(-89, 8f, 18f), new Vector3(-86f, 10f, 22f)); //Plataformas que suben y bajan
@@ -158,9 +160,19 @@ namespace TGC.MonoGame.TP
             platformColliders[19] = new BoundingBox(new Vector3(-45f, 8f, 15f), new Vector3(-41f, 10f, 19f)); //-43f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f
             platformColliders[20] = new BoundingBox(new Vector3(-40f, 20f, 15f), new Vector3(-10f, 21f, 19f)); //-25f, 20f, 17f
             platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f)); //2f, 22f, 10f
+            platformColliders[22] = new BoundingBox(new Vector3(-92.75f, 8f, 65.75f), new Vector3(-92.25f, 24f, 66.25f)); //-87.5f, 12f, 65f //Tercer Checkpoint
+            platformColliders[23] = new BoundingBox(new Vector3(-0.25f, 20f, 2.75f), new Vector3(0.25f, 30f, 3.25f)); //0f, 28f, 3f //Checkered Flag
+
+            //Checkpoints
+            checkpoints = new List<BoundingBox>();
+            checkpoints.Add(new BoundingBox(new Vector3(82f, -16f, -5f), new Vector3(83f, -5f, 5f))); //84f, -11f, -4f
+            checkpoints.Add(new BoundingBox(new Vector3(16f, -16f, 105f), new Vector3(17f, -5f, 115f))); //16f, -11f, 114f
+            checkpoints.Add(new BoundingBox(new Vector3(-86f, 10f, 55f), new Vector3(-87f, 15f, 75f))); //-87.5f, 12f, 65f
+            checkpoints.Add(new BoundingBox(new Vector3(-1f, 23f, -5f), new Vector3(5f, 35f, 0f))); //0f, 28f, 3f
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
-            //MarblePosition = new Vector3(-6.5f, 30f, 24f); //<- Para Probar
+            RespawnPosition = MarblePosition;
+            //MarblePosition = new Vector3(3f, 29f, 10f); //<- Para Probar
             MarbleVelocity = Vector3.Zero;
             MarbleAcceleration = Vector3.Down * Gravity;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
@@ -355,7 +367,7 @@ namespace TGC.MonoGame.TP
                 MarbleVelocity += Vector3.Up * JumpSpeed;
 
             // SOLO PARA PROBAR
-            if (Keyboard.GetState().IsKeyDown(Keys.L))
+            /*if (Keyboard.GetState().IsKeyDown(Keys.L))
                 MarbleVelocity += MarbleWorld.Right * SideSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.J))
                 MarbleVelocity += MarbleWorld.Left * SideSpeed;
@@ -363,7 +375,7 @@ namespace TGC.MonoGame.TP
                 MarbleVelocity += MarbleWorld.Forward * SideSpeed;
             if (Keyboard.GetState().IsKeyDown(Keys.K))
                 MarbleVelocity += MarbleWorld.Backward * SideSpeed;
-            
+            */
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
@@ -379,6 +391,8 @@ namespace TGC.MonoGame.TP
             scaledVelocity = new Vector3(scaledVelocity.X, 0f, scaledVelocity.Z);
 
             SolveHorizontalMovementSliding(scaledVelocity);
+
+            SolveCheckpoint();
 
             // Update the Position based on the updated Cylinder center
             MarblePosition = MarbleSphere.Center;
@@ -621,9 +635,9 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(5f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-87.5f, -2f, 65f)) ), RedPlatformTexture, Platform);
 
             //Tercer CheckPoint
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 12f, 65f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(-92.5f, 12f, 65f)) ), BluePlaceholderTexture, Cubo);
 
-            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(-89.2f, 15.5f, 65f)) ), FlagCheckpointTexture, Flag);
+            DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(-94.2f, 15.5f, 65f)) ), FlagCheckpointTexture, Flag);
 
             //parte 4
             //plataforma 1
@@ -1004,6 +1018,24 @@ namespace TGC.MonoGame.TP
                 MarbleSphere.Center += (normalVector / normalVectorLength * penetration);
             }
 
+        }
+
+        private void SolveCheckpoint()
+        {
+            if(MarbleSphere.Center.Y < -20f)
+            {
+                MarbleSphere.Center = RespawnPosition;
+            }
+            
+            foreach(BoundingBox checkpoint in checkpoints)
+            {
+                if(MarbleSphere.Intersects(checkpoint))
+                {
+                    RespawnPosition = (checkpoint.Max + checkpoint.Min) * 0.5f;
+                    checkpoints.Remove(checkpoint);
+                    return;
+                }
+            }
         }
         
         /// <summary>
