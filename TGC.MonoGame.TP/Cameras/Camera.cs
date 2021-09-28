@@ -91,7 +91,10 @@ namespace TGC.MonoGame.Samples.Cameras
             Projection = Matrix.CreatePerspectiveFieldOfView(fieldOfViewDegrees, aspectRatio, nearPlaneDistance,
                 farPlaneDistance);
         }
-
+        public virtual void SetPosition(Vector3 position)
+        {
+            TargetPosition = position;
+        }
         /// <summary>
         ///     Allows updating the internal state of the camera if this method is overwritten.
         ///     By default it does not perform any action.

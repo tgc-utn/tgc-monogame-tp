@@ -64,6 +64,7 @@ namespace TGC.MonoGame.TP
         public Camera Camera { get; set; }
         private float time;
         private MainShip MainShip;
+        private Model Ocean { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -84,8 +85,8 @@ namespace TGC.MonoGame.TP
             // Configuramos nuestras matrices de la escena.
             World = Matrix.CreateRotationY(MathHelper.Pi);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(BarcoPositionCenter.X, BarcoPositionCenter.Y + 150, BarcoPositionCenter.Z - 250), BarcoPositionCenter, screenSize, (float)(GraphicsDevice.Viewport.Height), (float)(GraphicsDevice.Viewport.Width));
             MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 10, this );
+            //targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(BarcoPositionCenter.X, BarcoPositionCenter.Y + 150, BarcoPositionCenter.Z - 250), BarcoPositionCenter, screenSize, (float)(GraphicsDevice.Viewport.Height), (float)(GraphicsDevice.Viewport.Width));
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip);
             
             posicionesIslas = new[] { new Vector3(-3000f, -60f, 200f) ,new Vector3(2000f,-60f,400f),new Vector3(1500f,-60f,200f), new Vector3(-4500f,-60f,-600f),new Vector3(-2000f,-60f,-1500f),
@@ -116,25 +117,26 @@ namespace TGC.MonoGame.TP
             Projektil2 = Content.Load<Model>(ContentFolder3D + "9x18 pm");
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
             islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
+            Ocean = Content.Load<Model>(ContentFolder3D + "cube");
             islands = new Model[cantIslas];
-            WaterModel = Content.Load<Model>(ContentFolder3D + "water");
+            //WaterModel = Content.Load<Model>(ContentFolder3D + "water");
             for (int isla = 0; isla < cantIslas; isla++)
             {
                 islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
             }
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
-            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "WaterShader");
-
-            WaterEffect.Parameters["KAmbient"]?.SetValue(0.15f);
+            //var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
+            //WaterEffect = Content.Load<Effect>(ContentFolderEffects + "WaterShader");
+            //Ocean =  Content.Load<Effect>(ContentFolderEffects + "WaterShader");
+            /*WaterEffect.Parameters["KAmbient"]?.SetValue(0.15f);
             WaterEffect.Parameters["KDiffuse"]?.SetValue(0.75f);
             WaterEffect.Parameters["KSpecular"]?.SetValue(1f);
             WaterEffect.Parameters["Shininess"]?.SetValue(10f);
 
             WaterEffect.Parameters["AmbientColor"]?.SetValue(new Vector3(1f, 0.98f, 0.98f));
             WaterEffect.Parameters["DiffuseColor"]?.SetValue(new Vector3(0.0f, 0.5f, 0.7f));
-            WaterEffect.Parameters["SpecularColor"]?.SetValue(new Vector3(1f, 1f, 1f));
+            WaterEffect.Parameters["SpecularColor"]?.SetValue(new Vector3(1f, 1f, 1f));*/
 
             base.LoadContent();
         }
@@ -151,6 +153,7 @@ namespace TGC.MonoGame.TP
             
             MainShip.Update(gameTime);
             Camera.Update(gameTime);
+            //targetCamera.UpdatePosition(gameTime,MainShip.Position);
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
@@ -172,27 +175,27 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), targetCamera.View, targetCamera.Projection);
-            island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(1000, 0, 0), targetCamera.View, targetCamera.Projection);
-            Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), targetCamera.View, targetCamera.Projection);
-            
+            Model.Draw(World * Matrix.CreateTranslation(120, 25, 0), Camera.View, Camera.Projection);
+            island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(1000, 0, 0), Camera.View, Camera.Projection);
+            Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Camera.View, Camera.Projection);
+            Ocean.Draw(Matrix.CreateTranslation(BarcoPositionCenter.X, BarcoPositionCenter.Y+60,BarcoPositionCenter.Z),Camera.View, Camera.Projection);
             
             
             //BARCO PRINCIPAL---------------------------------------
             //Barco.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(BarcoPositionCenter), Camera.View, Camera.Projection);
             MainShip.Draw();
             //BARCO PRINCIPAL---------------------------------------
-            Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), targetCamera.View, targetCamera.Projection);
-            Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), targetCamera.View, targetCamera.Projection);
+            Terreno2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(-550, 50, 0), Camera.View, Camera.Projection);
+            Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Camera.View, Camera.Projection);
 
-            island.Draw(World * Matrix.CreateTranslation(200f, -60f, -600), targetCamera.View, targetCamera.Projection);
-            islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), targetCamera.View, targetCamera.Projection);
+            island.Draw(World * Matrix.CreateTranslation(200f, -60f, -600), Camera.View, Camera.Projection);
+            islandTwo.Draw(World * Matrix.CreateTranslation(-900f, -60f, -1000f), Camera.View, Camera.Projection);
             for (int isla = 0; isla < cantIslas; isla++)
             {
-                islands[isla].Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(posicionesIslas[isla]), targetCamera.View, targetCamera.Projection);
+                islands[isla].Draw(World * Matrix.CreateScale(500f) * Matrix.CreateTranslation(posicionesIslas[isla]), Camera.View, Camera.Projection);
             }
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            var waterMesh = WaterModel.Meshes[0];
+            /*var waterMesh = WaterModel.Meshes[0];
             if (waterMesh != null)
             {
                 var part = waterMesh.MeshParts[0];
@@ -204,7 +207,7 @@ namespace TGC.MonoGame.TP
                 WaterEffect.Parameters["Time"]?.SetValue(ElapsedTime);
                 WaterEffect.Parameters["CameraPosition"]?.SetValue(targetCamera.Position);
                 waterMesh.Draw();
-            }
+            }*/
 
         }
 

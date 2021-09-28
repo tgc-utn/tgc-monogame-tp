@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -46,7 +47,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
                 new SimpleCamera(aspectRatio,Position+FrontPosition,Speed),
                 new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
-                new TargetCamera(aspectRatio, FromDirectionTarget, Position, screenCenter, height, width)
+                new TargetCamera(aspectRatio, new Vector3(Position.X, Position.Y + 150, Position.Z - 250), Position, screenCenter, height, width)
             };
             CurrentCamera = Cameras[0];
         }
@@ -85,7 +86,7 @@ namespace TGC.MonoGame.Samples.Cameras
             Cameras[0].Position = MainShip.Position + CenterPosition;
             Cameras[1].Position = MainShip.Position + FrontPosition;
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
-            Cameras[3].TargetPosition = MainShip.Position;
+            Cameras[3].SetPosition(MainShip.Position);
             View = CurrentCamera.View;
             Projection = CurrentCamera.Projection;
         }
