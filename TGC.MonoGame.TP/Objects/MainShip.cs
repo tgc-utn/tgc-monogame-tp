@@ -20,7 +20,6 @@ namespace TGC.MonoGame.TP.Objects
         public float anguloDeGiro { get; set; }
         public float anguloInicial { get; set; }
         public float giroBase { get; set; }
-        private Boolean Probando = false;
         private float time;
         private Boolean pressedAccelerator { get; set; }
         private int currentGear { get; set; }
@@ -53,53 +52,11 @@ namespace TGC.MonoGame.TP.Objects
         public void LoadContent()
         {
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
-            /*
-            var basicShader = _game.Content.Load<Effect>(TGCGame.ContentFolderEffects + "BasicShader");
-
-            basicShader.Parameters["KAmbient"]?.SetValue(0.15f);
-            basicShader.Parameters["KDiffuse"]?.SetValue(0.75f);
-            basicShader.Parameters["KSpecular"]?.SetValue(1f);
-            basicShader.Parameters["Shininess"]?.SetValue(20f);
-
-            basicShader.Parameters["AmbientColor"]?.SetValue(new Vector3(1f, 0.98f, 0.98f));
-            basicShader.Parameters["SpecularColor"]?.SetValue(new Vector3(1f, 1f, 1f));
-
-            for (int i = 0; i < modelo.Meshes.Count; i++)
-            {
-                var mesh = modelo.Meshes[i];
-                for (int j = 0; j < mesh.MeshParts.Count; j++)
-                {
-                    var part = mesh.MeshParts[j];
-                    var partShader = basicShader.Clone();
-                    partShader.Parameters["Texture"].SetValue(part.Effect.Parameters["Texture"]?.GetValueTexture2D());
-                    part.Effect = partShader;
-                }
-            }*/
         }
 
         public void Draw()
-        {
-            
+        { 
             modelo.Draw(Matrix.CreateRotationY(anguloDeGiro+anguloInicial)*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
-            //modelo.Draw(Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
-            //var playerBoatWorld = _game.World * waterMatrix * Matrix.CreateTranslation(Position);
-            /*var playerBoatWorld = _game.World * Matrix.CreateTranslation(Position);
-            for (int i = 0; i < modelo.Meshes.Count; i++)
-            {
-                var mesh = modelo.Meshes[i];
-                for (int j = 0; j < mesh.MeshParts.Count; j++)
-                {
-                    var part = mesh.MeshParts[j];
-                    var effect = part.Effect;
-                    //effect.Parameters["World"].SetValue(_game.boneTransforms[mesh.ParentBone.Index] * playerBoatWorld);
-                    //effect.Parameters["World"].SetValue(playerBoatWorld);
-                    effect.Parameters["View"].SetValue(_game.Camera.View);
-                    effect.Parameters["Projection"].SetValue(_game.Camera.Projection);
-                    effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(playerBoatWorld)));
-                    effect.Parameters["CameraPosition"]?.SetValue(_game.Camera.Position);
-                }
-                mesh.Draw();
-            }*/
         }
 
         public void Update(GameTime gameTime)
@@ -111,18 +68,6 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Move()
         {
-            var y=0;
-            /*
-            if (!Probando && Position.Y > 200 )
-            {
-                Probando = true;
-                y -= 10;
-            }
-            else
-            {
-                y += 10;
-            }*/
-
             var newOrientacion = new Vector3((float)Math.Sin(anguloDeGiro), 0, (float)Math.Cos(anguloDeGiro));
             orientacion = newOrientacion;
 
