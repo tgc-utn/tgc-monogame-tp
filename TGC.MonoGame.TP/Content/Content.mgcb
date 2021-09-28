@@ -246,6 +246,18 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Marbel/Wings/Wings.fbx
 
+#begin Textures/aluminio.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/aluminio.jpg
+
 #begin Textures/Blue.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -305,6 +317,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Coin.png
+
+#begin Textures/Empty.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Empty.png
 
 #begin Textures/hot_skybox.dds
 /importer:TextureImporter

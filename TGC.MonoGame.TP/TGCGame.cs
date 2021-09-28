@@ -8,6 +8,7 @@ using TGC.MonoGame.TP.Quads;
 using TGC.MonoGame.TP.SkyBoxs;
 using TGC.MonoGame.TP.Collisions;
 
+
 namespace TGC.MonoGame.TP
 {
     /// <summary>
@@ -75,6 +76,8 @@ namespace TGC.MonoGame.TP
         public Texture2D GreenPlatformTexture { get; set; }
         public Texture2D GreenPlatformBasicTexture { get; set; }
         public Texture2D BluePlaceholderTexture { get; set; }
+        public Texture2D Aluminio { get; set; }
+        public Texture2D Empty { get; set; }
         public Texture2D WhitePlaceholderTexture { get; set; }
         public TextureCube SkyboxTexture { get; set; }
         private float Rotation { get; set; }
@@ -89,6 +92,9 @@ namespace TGC.MonoGame.TP
         private BoundingBox[] platformColliders;
         private OrientedBoundingBox[] rotatedPlatformsColliders;
         private List<BoundingBox> checkpoints;
+        private BoundingSphere PelotaChica1Box { get; set; }
+        private Vector3 PelotaChica1Posicion { get; set; }
+        private Matrix PelotChica1World { get; set; }
 
         public Vector3 MarblePosition { get; private set; }
         public Vector3 RespawnPosition { get; set; }
@@ -101,6 +107,7 @@ namespace TGC.MonoGame.TP
         private MouseState previousMouseState;
         private float mouseSensitivity;
         private Vector3 mouseRotationBuffer;
+        private bool TocandoPoderPelotaChica { get; set; }
 
 
         private BoundingSphere MarbleSphere;
@@ -112,9 +119,9 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
-        private float SideSpeed = 1f;
-        private const float MarbleSpeed = 100f;
-        private const float MarbleRotationVelocity = 0.06f;
+        public float DefaultSpeed = 30f;
+        public float PelotaRapida = 45f;
+        public float PelotaLenta = 15f;
 
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
@@ -197,6 +204,9 @@ namespace TGC.MonoGame.TP
             marbleCopy = MarbleWorld;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
+            TocandoPoderPelotaChica = false;
+            PelotaChica1Posicion = new Vector3(82f, -12f, 13f);
+            PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
             base.Initialize();
         }
 
@@ -260,6 +270,8 @@ namespace TGC.MonoGame.TP
             GreenPlatformBasicTexture = Content.Load<Texture2D>(ContentFolderTextures + "platformGreenNoStar");
             SkyboxTexture = Content.Load<TextureCube>(ContentFolderTextures + "hot_skybox");
             BluePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "Blue");
+            Aluminio = Content.Load<Texture2D>(ContentFolderTextures + "aluminio");
+            Empty = Content.Load<Texture2D>(ContentFolderTextures + "Empty");
             WhitePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "White");
 
             LavaEffect.Parameters["Texture"].SetValue(LavaTexture);
@@ -316,7 +328,7 @@ namespace TGC.MonoGame.TP
 
             //Plataformas Rotadas
             rotatedPlatformsColliders = new OrientedBoundingBox[20];
-              
+
             CreateOrientedBoundingBox(0, new Vector3(20f, 2f, 2f), new Vector3(84f, -18f, 30f), Matrix.CreateRotationY(-8f)); //<- Por alguna razon la rotacion tiene que ser el inverso del mesh
             CreateOrientedBoundingBox(1, new Vector3(30f, 2f, 2f), new Vector3(75f, -18f, 85f), Matrix.CreateRotationY(-7.5f));
             CreateOrientedBoundingBox(2, new Vector3(20f, 5f, 8f), new Vector3(75f, -9f, 80f), Matrix.CreateRotationY(-7.5f));
@@ -341,6 +353,12 @@ namespace TGC.MonoGame.TP
             MarbleWorld = MarbleScale * MarbleRotation;
 
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
+
+            //Hace que se pegue a la pelota Chica
+            PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
+
+
+            //PelotaChica1Box = new BoundingSphere(PelotaChica1Box.Min + RobotTwoPosition, RobotOneBox.Max + RobotTwoPosition)
 
             base.LoadContent();
         }
@@ -370,6 +388,7 @@ namespace TGC.MonoGame.TP
 
     protected override void Update(GameTime gameTime)
         {
+            float currentMarbleVelocity = DefaultSpeed;
             float deltaX;
 
             // Mouse State & Keyboard State
@@ -409,22 +428,28 @@ namespace TGC.MonoGame.TP
             
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                MarbleVelocity += marbleCopy.Forward * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Forward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
             } 
            
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                MarbleVelocity += marbleCopy.Backward * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Backward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                MarbleVelocity += marbleCopy.Left * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Left * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                MarbleVelocity += marbleCopy.Right * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Right * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+            }
+
+            TocandoPoderPelotaChica = PelotaChica1Box.Intersects(MarbleSphere);
+            if (TocandoPoderPelotaChica)
+            {
+
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
@@ -591,7 +616,9 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f)) ), BluePlaceholderTexture, Esfera);
+            Vector3 PosicionPelotaChica = TocandoPoderPelotaChica ? new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f) : new Vector3(0, -20, 0);
+            DrawMeshes( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica), Aluminio, Esfera);
+
 
             //cubo que necesita pelota chica del nivel 3
             DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 30f)) ), GreenPlatformBasicTexture, Platform);
@@ -669,7 +696,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -1f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para ser chica
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), BluePlaceholderTexture, Esfera);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), Aluminio, Esfera);
 
             //parte 3.2
             //plataforma 1
@@ -1090,11 +1117,13 @@ namespace TGC.MonoGame.TP
 
         }
 
+        //respawn logic, te devuelve al ultimo check point y te frena la velocidad a 0.
         private void SolveCheckpoint()
         {
             if(MarbleSphere.Center.Y < -20f)
             {
                 MarbleSphere.Center = RespawnPosition;
+                MarbleVelocity = Vector3.Zero; 
             }
             
             foreach(BoundingBox checkpoint in checkpoints)
@@ -1210,7 +1239,7 @@ namespace TGC.MonoGame.TP
 
             //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos(totalGameTime * 2)), 115f)) ), RedPlatformTexture, Platform);
             MoveOrientedBoundingBox(4, Matrix.CreateRotationY(0.436332f), new Vector3(4f, -12f + (4 * MathF.Cos(TotalTime * 2)), 115f));
-
+            
             //DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 67.5f)) ), RedPlatformBasicTexture, Platform);
             MoveOrientedBoundingBox(13, Matrix.CreateRotationY(MathHelper.ToRadians(15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * TotalTime)), new Vector3(-70f, -7f, 67.5f));
 
