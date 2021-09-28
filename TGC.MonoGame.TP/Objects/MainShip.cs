@@ -180,7 +180,7 @@ namespace TGC.MonoGame.TP.Objects
         private void ProcessKeyboard(float elapsedTime)
         {
             var keyboardState = Keyboard.GetState();
-            if (keyboardState.IsKeyDown(Keys.A))
+            if (keyboardState.IsKeyDown(Keys.D))
             {
                 if (speed == 0)
                 {
@@ -198,7 +198,7 @@ namespace TGC.MonoGame.TP.Objects
                 }
             }
 
-            if (keyboardState.IsKeyDown(Keys.D))
+            if (keyboardState.IsKeyDown(Keys.A))
             {
                 if (speed == 0)
                 {
