@@ -40,7 +40,7 @@ namespace TGC.MonoGame.TP
         
         private Model Rock { get; set; }
         private Model Barco { get; set; }
-        private Vector3 BarcoPositionCenter = new Vector3(-200f, 50, 0);
+        private Vector3 BarcoPositionCenter = new Vector3(-200f, -10, 0);
         private Model Barco2 { get; set; }
         private Model Barco3 { get; set; }
         private float position { get; set; }
@@ -58,13 +58,11 @@ namespace TGC.MonoGame.TP
         private Vector3[] posicionesIslas;
 
         private int cantIslas;
-        private Model ocean { get; set; }
-        private Texture texturaAgua { get; set; }
+        private Water ocean { get; set; }
         public Matrix World { get; set; }
         public Camera Camera { get; set; }
         private float time;
         private MainShip MainShip;
-        private Model Ocean { get; set; }
 
         /* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
         private Ship ShipOne { get; set; }
@@ -139,7 +137,7 @@ namespace TGC.MonoGame.TP
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
             islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
             //islandThree = Content.Load<Model>(ContentFolder3D + "islands/isla7");
-            ocean = Content.Load<Model>(ContentFolder3D + "oceano/source/ocean");
+            ocean = new Water(Content);
             islands = new Model[cantIslas];
             for (int isla = 0; isla < cantIslas; isla++)
             {
@@ -165,17 +163,7 @@ namespace TGC.MonoGame.TP
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
-            WaterEffect = Content.Load<Effect>(ContentFolderEffects + "waterShader");
-
-            foreach(var mesh in ocean.Meshes)
-            {
-                foreach (var meshpart in mesh.MeshParts)
-                {
-                    meshpart.Effect = WaterEffect;
-                }
-            }
-            texturaAgua = Content.Load<Texture>(ContentFolderTextures + "oceanoTextura");
+            //var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
             base.LoadContent();
         }
 
@@ -252,17 +240,7 @@ namespace TGC.MonoGame.TP
             }
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             //ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
-            WaterEffect.Parameters["View"].SetValue(Camera.View);
-            WaterEffect.Parameters["Projection"].SetValue(Camera.Projection);
-            WaterEffect.Parameters["World"].SetValue(World * Matrix.CreateScale(50.0f)*Matrix.CreateTranslation(0,-60f,0));
-            WaterEffect.Parameters["Time"]?.SetValue(time);
-            WaterEffect.Parameters["TextureWater"].SetValue(texturaAgua);
-
-            foreach (var mesh in ocean.Meshes)
-            {
-                
-                mesh.Draw();
-            }
+            ocean.Draw(gameTime, Camera.View, Camera.Projection, this);
         }
 
         /// <summary>
