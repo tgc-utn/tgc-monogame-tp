@@ -86,6 +86,11 @@ namespace TGC.MonoGame.Samples.Cameras
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
 
+        public override void SetPosition(Vector3 position)
+        {
+            TargetPosition = position;
+        }
+
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
@@ -93,6 +98,7 @@ namespace TGC.MonoGame.Samples.Cameras
             var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
             ProcessMouseMovement(elapsedTime);
             ProcessKeyboardPresses(elapsedTime);
+            UpdatePosition(gameTime, TargetPosition);
         }
         
         private void ProcessMouseMovement(float elapsedTime)

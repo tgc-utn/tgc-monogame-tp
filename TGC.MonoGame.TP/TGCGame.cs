@@ -64,6 +64,7 @@ namespace TGC.MonoGame.TP
         public Camera Camera { get; set; }
         private float time;
         private MainShip MainShip;
+        private Model Ocean { get; set; }
 
         /* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
         private Ship ShipOne { get; set; }
@@ -96,8 +97,8 @@ namespace TGC.MonoGame.TP
             //Projection =
             //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(-350, 50, 400), screenSize);
             MainShip = new MainShip(BarcoPositionCenter, new Vector3(0,0,0), 10, this );
+            //targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(BarcoPositionCenter.X, BarcoPositionCenter.Y + 150, BarcoPositionCenter.Z - 250), BarcoPositionCenter, screenSize, (float)(GraphicsDevice.Viewport.Height), (float)(GraphicsDevice.Viewport.Width));
             Camera = new BuilderCamaras(GraphicsDevice.Viewport.AspectRatio , screenSize, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, MainShip);
             
             
@@ -190,6 +191,7 @@ namespace TGC.MonoGame.TP
             
             MainShip.Update(gameTime);
             Camera.Update(gameTime);
+            //targetCamera.UpdatePosition(gameTime,MainShip.Position);
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
@@ -218,7 +220,6 @@ namespace TGC.MonoGame.TP
             island.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(1000, 0, 0), Camera.View, Camera.Projection);
             //Barco2.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateTranslation(-10f, 0, 0), Camera.View, Camera.Projection);
             Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Camera.View, Camera.Projection);
-            
             
             
             //BARCO PRINCIPAL---------------------------------------
