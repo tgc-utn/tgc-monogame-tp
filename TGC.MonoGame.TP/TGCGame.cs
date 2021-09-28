@@ -112,13 +112,13 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
-        private float SideSpeed = 0.5f;
+        private float SideSpeed = 1f;
         private const float MarbleSpeed = 100f;
         private const float MarbleRotationVelocity = 0.06f;
 
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
-
+        private Matrix marbleCopy;
         private float rotacionAngular;
 
         /// <summary>
@@ -194,6 +194,7 @@ namespace TGC.MonoGame.TP
             MarbleRotation = Matrix.Identity;
             MarbleFrontDirection = Vector3.Backward;
             MarbleWorld = Matrix.Identity;
+            marbleCopy = MarbleWorld;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
             base.Initialize();
@@ -408,22 +409,22 @@ namespace TGC.MonoGame.TP
             
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                MarbleVelocity += Vector3.Right * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Forward * SideSpeed; //Cambiar Vector3 por CAMARA
             } 
            
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                MarbleVelocity += Vector3.Left * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Backward * SideSpeed; //Cambiar Vector3 por CAMARA
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                MarbleVelocity += Vector3.Forward * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Left * SideSpeed; //Cambiar Vector3 por CAMARA
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                MarbleVelocity += Vector3.Backward * SideSpeed; //Cambiar Vector3 por CAMARA
+                MarbleVelocity += marbleCopy.Right * SideSpeed; //Cambiar Vector3 por CAMARA
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
@@ -459,7 +460,7 @@ namespace TGC.MonoGame.TP
             // Update the Robot World Matrix
             MarblePosition = MarbleSphere.Center;
 
-            Matrix marbleCopy = MarbleScale * Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition);
+            marbleCopy = MarbleScale * Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition);
 
             Vector3 cameraPosition = marbleCopy.Translation + (marbleCopy.Backward *700 ) + marbleCopy.Up *400;
             MarbleWorld = MarbleScale * rotateArround * Matrix.CreateTranslation(MarblePosition);
