@@ -92,9 +92,9 @@ namespace TGC.MonoGame.TP
 
         public Vector3 MarblePosition { get; private set; }
         public Vector3 RespawnPosition { get; set; }
-        public Matrix MarbleWorld { get; private set; }
-        public Vector3 MarbleVelocity { get; private set; }
-        public Vector3 MarbleAcceleration { get; private set; }
+        public Matrix MarbleWorld { get; set; }
+        public Vector3 MarbleVelocity { get; set; }
+        public Vector3 MarbleAcceleration { get; set; }
         private Vector3 MarbleFrontDirection { get; set; }
         public Matrix MarbleRotation { get; set; }
         private MouseState currentMouseState;
@@ -112,12 +112,9 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
-        private float SideSpeed = 25f;
+        private float SideSpeed = 0.5f;
         private const float MarbleSpeed = 100f;
         private const float MarbleRotationVelocity = 0.06f;
-        private float x = -50f;
-        private float y = -10f;
-        private float z = 0f;
 
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
@@ -193,9 +190,10 @@ namespace TGC.MonoGame.TP
             MarbleVelocity = Vector3.Zero;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
             MarbleScale = Matrix.CreateScale(0.02f);
-            MarbleRotation = Matrix.CreateRotationY(-MathHelper.ToRadians(90));
+            //MarbleRotation = Matrix.CreateRotationY(-MathHelper.ToRadians(90));
             MarbleRotation = Matrix.Identity;
             MarbleFrontDirection = Vector3.Backward;
+            MarbleWorld = Matrix.Identity;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
             base.Initialize();
@@ -410,29 +408,34 @@ namespace TGC.MonoGame.TP
             
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                MarbleAcceleration =  Vector3.Left * -100 * deltaTime;
+                MarbleVelocity += Vector3.Right * SideSpeed; //Cambiar Vector3 por CAMARA
             } 
            
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                MarbleAcceleration = Vector3.Left * 100 * deltaTime;
+                MarbleVelocity += Vector3.Left * SideSpeed; //Cambiar Vector3 por CAMARA
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                MarbleAcceleration = Vector3.Forward * 100 * deltaTime;
+                MarbleVelocity += Vector3.Forward * SideSpeed; //Cambiar Vector3 por CAMARA
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                MarbleAcceleration = Vector3.Forward * -100 * deltaTime;
+                MarbleVelocity += Vector3.Backward * SideSpeed; //Cambiar Vector3 por CAMARA
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
             float moduloVelocidad = MathF.Sqrt(MathF.Pow(MarbleVelocity.X, 2) + MathF.Pow(MarbleVelocity.Z, 2));
-            
-            Vector3 normalNormalizado = Vector3.Normalize(new Vector3(MarbleVelocity.Z, 0, -MarbleVelocity.X));
+
+            Vector3 normalNormalizado;
+
+            if (MarbleVelocity.Z == 0 && MarbleVelocity.X == 0)
+                normalNormalizado = new Vector3(0, 0, 0);
+            else
+                normalNormalizado = Vector3.Normalize(new Vector3(MarbleVelocity.Z, 0, -MarbleVelocity.X));
             rotacionAngular += (moduloVelocidad / 0.8f) * deltaTime;
             Matrix rotateArround = Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(normalNormalizado, rotacionAngular));
             
@@ -454,27 +457,12 @@ namespace TGC.MonoGame.TP
 
             // Update the Position based on the updated Cylinder center
             // Update the Robot World Matrix
-            //MarbleWorld = MarbleScale * /*MarbleRotation **/ Matrix.CreateTranslation(MarblePosition);
-            
-            
-            
-            
-            
-            // Update the RobotPosition based on the updated Cylinder center
             MarblePosition = MarbleSphere.Center;
-            //MarbleVelocity = new Vector3(0f, MarbleVelocity.Y, 0f);
-            MarbleWorld = MarbleScale;
 
-            Matrix marbleCopy = MarbleWorld;
-
-            // Update the World Matrix
-
-            Camera.Update(gameTime);
-           
-            marbleCopy *= Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition); ;
+            Matrix marbleCopy = MarbleScale * Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition);
 
             Vector3 cameraPosition = marbleCopy.Translation + (marbleCopy.Backward *700 ) + marbleCopy.Up *400;
-            MarbleWorld *= rotateArround * Matrix.CreateTranslation(MarblePosition);
+            MarbleWorld = MarbleScale * rotateArround * Matrix.CreateTranslation(MarblePosition);
 
             Vector3 cameraLookAt = MarbleWorld.Translation;
             View = Matrix.CreateLookAt(cameraPosition, cameraLookAt, Vector3.Up);
