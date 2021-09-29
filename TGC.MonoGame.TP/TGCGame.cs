@@ -454,8 +454,11 @@ namespace TGC.MonoGame.TP
             TocandoPoderPelotaChica = PelotaChica1Box.Intersects(MarbleSphere);
             if (TocandoPoderPelotaChica)
             {
+                TocandoPoderPelotaChica = true;
                 currentMarbleVelocity = PelotaRapida;
+                PelotaChica1Posicion = new Vector3 (0, -20, 0);
                 MarbleScale = Matrix.CreateScale(0.01f);
+                MarbleTexture = Aluminio;
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
@@ -622,7 +625,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
-            Vector3 PosicionPelotaChica = TocandoPoderPelotaChica ? new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f) : new Vector3(0, -20, 0);
+            Vector3 PosicionPelotaChica = TocandoPoderPelotaChica ? new Vector3(0, -20, 0): new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f)  ;
             DrawMeshes( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica), Aluminio, Esfera);
 
 
