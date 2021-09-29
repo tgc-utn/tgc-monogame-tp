@@ -9,6 +9,7 @@ using TGC.MonoGame.TP.SkyBoxs;
 using TGC.MonoGame.TP.Collisions;
 
 
+
 namespace TGC.MonoGame.TP
 {
     /// <summary>
@@ -92,7 +93,7 @@ namespace TGC.MonoGame.TP
         private BoundingBox[] platformColliders;
         private OrientedBoundingBox[] rotatedPlatformsColliders;
         private List<BoundingBox> checkpoints;
-        private BoundingSphere PelotaChica1Box { get; set; }
+        private BoundingSphere PelotaChica1Box; 
         private Vector3 PelotaChica1Posicion { get; set; }
         private Matrix PelotChica1World { get; set; }
 
@@ -204,6 +205,7 @@ namespace TGC.MonoGame.TP
             marbleCopy = MarbleWorld;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
+            //powerups bounding boxes
             TocandoPoderPelotaChica = false;
             PelotaChica1Posicion = new Vector3(82f, -12f, 13f);
             PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
@@ -356,9 +358,12 @@ namespace TGC.MonoGame.TP
 
             //Hace que se pegue a la pelota Chica
             PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
+            PelotaChica1Box.Center = PelotaChica1Posicion;
+            PelotaChica1Box.Radius *= 2f; 
+            //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
 
 
-            //PelotaChica1Box = new BoundingSphere(PelotaChica1Box.Min + RobotTwoPosition, RobotOneBox.Max + RobotTwoPosition)
+
 
             base.LoadContent();
         }
@@ -449,7 +454,8 @@ namespace TGC.MonoGame.TP
             TocandoPoderPelotaChica = PelotaChica1Box.Intersects(MarbleSphere);
             if (TocandoPoderPelotaChica)
             {
-
+                currentMarbleVelocity = PelotaRapida;
+                MarbleWorld = Matrix.CreateScale(0.01f);
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
