@@ -194,7 +194,7 @@ namespace TGC.MonoGame.TP
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
             RespawnPosition = MarblePosition;
-            //MarblePosition = new Vector3(3f, 29f, 10f); //<- Para Probar
+            MarblePosition = new Vector3(82f, -12f, 0f); //<- Para Probar
             MarbleVelocity = Vector3.Zero;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
             MarbleScale = Matrix.CreateScale(0.02f);
@@ -359,7 +359,7 @@ namespace TGC.MonoGame.TP
             //Hace que se pegue a la pelota Chica
             PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
             PelotaChica1Box.Center = PelotaChica1Posicion;
-            PelotaChica1Box.Radius *= 2f; 
+            PelotaChica1Box.Radius = 1f; 
             //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
 
 
@@ -455,7 +455,7 @@ namespace TGC.MonoGame.TP
             if (TocandoPoderPelotaChica)
             {
                 currentMarbleVelocity = PelotaRapida;
-                MarbleWorld = Matrix.CreateScale(0.01f);
+                MarbleScale = Matrix.CreateScale(0.01f);
             }
 
             MarbleVelocity += MarbleAcceleration * deltaTime;
