@@ -43,6 +43,8 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
+        //importa monedas del archivo monedas
+        private Tp.Monedas monedas { get; set; }
 
         //Modelos
         private Model Cartel { get; set; }
@@ -53,14 +55,12 @@ namespace TGC.MonoGame.TP
         private Model Flag { get; set; }
         private Model Pinches { get; set; }
         private Model Wings { get; set; }
-        private Model Moneda { get; set; }
         private Model Skybox { get; set; }
         private Effect Effect { get; set; }
         public Effect TextureEffect { get; set; }
         public Effect LavaEffect { get; set; }
         public Effect SkyboxEffect { get; set; }
         private Texture2D MarbleTexture { get; set; }
-        private Texture2D CoinTexture { get; set; }
         private Texture2D SpikesTexture { get; set; }
         private Texture2D LavaTexture { get; set; }
         private Texture2D MagmaTexture { get; set; }
@@ -96,6 +96,9 @@ namespace TGC.MonoGame.TP
         private BoundingSphere PelotaChica1Box; 
         private Vector3 PelotaChica1Posicion { get; set; }
         private Matrix PelotChica1World { get; set; }
+        private BoundingBox AlasBox { get; set; }
+        private Vector3 AlasPosicion { get; set; }
+        private Matrix AlasWorld { get; set; }
 
         public Vector3 MarblePosition { get; private set; }
         public Vector3 RespawnPosition { get; set; }
@@ -109,6 +112,7 @@ namespace TGC.MonoGame.TP
         private float mouseSensitivity;
         private Vector3 mouseRotationBuffer;
         private bool TocandoPoderPelotaChica { get; set; }
+        private bool TocandoAlas { get; set; }
 
 
         private BoundingSphere MarbleSphere;
@@ -120,9 +124,10 @@ namespace TGC.MonoGame.TP
 
         private float Gravity = 100f;
         private float JumpSpeed = 50f;
-        public float DefaultSpeed = 30f;
+        public float DefaultSpeed = 15f;
         public float PelotaRapida = 45f;
-        public float PelotaLenta = 15f;
+        public float PelotaLenta = 5f;
+        
 
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
@@ -205,10 +210,18 @@ namespace TGC.MonoGame.TP
             marbleCopy = MarbleWorld;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
-            //powerups bounding boxes
+            //powerups  pelota chica bounding boxes
             TocandoPoderPelotaChica = false;
-            PelotaChica1Posicion = new Vector3(82f, -12f, 13f);
+            PelotaChica1Posicion = new Vector3(95f, -10f, 13f);
             PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
+            //powerup alas
+            TocandoAlas = false;
+            AlasPosicion = new Vector3(86f, -16f, 45f);
+            AlasWorld = Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(AlasPosicion);
+            //( Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(new Vector3(86f, -16f, 45f)) ), Color.BlueViolet, Wings);
+
+            
+
             base.Initialize();
         }
 
@@ -238,8 +251,6 @@ namespace TGC.MonoGame.TP
             Pinches = Content.Load<Model>(ContentFolder3D + "Marbel/Pinches/Pinches");
             //cargo wings
             Wings = Content.Load<Model>(ContentFolder3D + "Marbel/Wings/Wings");
-            //cargo moneda
-            Moneda = Content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Coin");
             //cargo Skybox
             Skybox = Content.Load<Model>(ContentFolder3D + "Marbel/Skybox/cube");
 
@@ -254,7 +265,6 @@ namespace TGC.MonoGame.TP
             SkyboxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
 
             MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble");
-            CoinTexture = Content.Load<Texture2D>(ContentFolderTextures + "Coin");
             SpikesTexture = Content.Load<Texture2D>(ContentFolderTextures + "Spikes");
             LavaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Lava");
             MagmaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Rock");
@@ -323,10 +333,6 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Wings.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
-            //mesh moneda
-            foreach (var mesh in Moneda.Meshes)
-                foreach (var meshPart in mesh.MeshParts)
-                    meshPart.Effect = TextureEffect;
 
             //Plataformas Rotadas
             rotatedPlatformsColliders = new OrientedBoundingBox[20];
@@ -359,9 +365,22 @@ namespace TGC.MonoGame.TP
             //Hace que se pegue a la pelota Chica
             PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
             PelotaChica1Box.Center = PelotaChica1Posicion;
-            PelotaChica1Box.Radius = 1f; 
+            PelotaChica1Box.Radius = 1f;
             //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
 
+            //Power up alas
+            var tempCube = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Wings);
+            tempCube = Tp.Collisions.BoundingVolumesExtensions.Scale(tempCube, 0.007f);
+            
+            //power up collision box con fallas, despues lo arreglo
+            
+            /*AlasBox = Tp.Collisions.OrientedBoundingBox.FromAABB(tempCube);
+            AlasBox.Center = AlasPosicion;
+            AlasBox.Orientation = Matrix.CreateRotationX(-0.785398f);*/
+
+            //monedas cargadas
+
+            monedas = new Tp.Monedas(Content);
 
 
 
@@ -391,9 +410,10 @@ namespace TGC.MonoGame.TP
         ///     ante ellas.
         /// </summary>
 
-    protected override void Update(GameTime gameTime)
+        protected override void Update(GameTime gameTime)
         {
             float currentMarbleVelocity = DefaultSpeed;
+            //float maxVelocity = currentTypeMarbleVelocity * 2f;
             float deltaX;
 
             // Mouse State & Keyboard State
@@ -433,7 +453,8 @@ namespace TGC.MonoGame.TP
             
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                MarbleVelocity += marbleCopy.Forward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                //MarbleVelocity += Math.min(marbleCopy.Forward * currentTypeMarbleVelocity, marbleCopy.Forward * maxVelocity); //Cambiar Vector3 por CAMARA
+                MarbleVelocity += (marbleCopy.Forward * currentMarbleVelocity);
             } 
            
             if (Keyboard.GetState().IsKeyDown(Keys.S))
@@ -456,11 +477,17 @@ namespace TGC.MonoGame.TP
             {
                 TocandoPoderPelotaChica = true;
                 currentMarbleVelocity = PelotaRapida;
-                PelotaChica1Posicion = new Vector3 (0, -20, 0);
+                //PelotaChica1Posicion = new Vector3 (0, -20, 0);
                 MarbleScale = Matrix.CreateScale(0.01f);
                 MarbleTexture = Aluminio;
             }
-
+            TocandoAlas = AlasBox.Intersects(MarbleSphere);
+            if (TocandoAlas)
+            {
+                TocandoPoderPelotaChica = true;
+                currentMarbleVelocity *= 2f;
+            }
+            
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
             float moduloVelocidad = MathF.Sqrt(MathF.Pow(MarbleVelocity.X, 2) + MathF.Pow(MarbleVelocity.Z, 2));
@@ -549,7 +576,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             TextureEffect.Parameters["View"].SetValue(View);///
             TextureEffect.Parameters["Projection"].SetValue(Camera.Projection);
-
+            
             // Para el piso
             LavaEffect.Parameters["World"].SetValue(Matrix.Identity);
             LavaEffect.Parameters["View"].SetValue(View);///
@@ -625,18 +652,23 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
-            Vector3 PosicionPelotaChica = TocandoPoderPelotaChica ? new Vector3(0, -20, 0): new Vector3(82f, -12f + MathF.Cos(totalGameTime * 2), 13f)  ;
+            Vector3 PosicionPelotaChica = TocandoPoderPelotaChica ? new Vector3(0, -20, 0): new Vector3(95f, -10f + MathF.Cos(totalGameTime * 2), 13f)  ;
             DrawMeshes( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica), Aluminio, Esfera);
 
-
+            // plataforma para power up 1
+            DrawMeshes((Matrix.CreateScale(2f, 0.2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(88f, -11.7f, 13f))), GreenPlatformBasicTexture, Platform);
+            // plataforma para power up 2
+            DrawMeshes((Matrix.CreateScale(2f, 0.2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(95f, -12.3f, 13f))), GreenPlatformBasicTexture, Platform);
             //cubo que necesita pelota chica del nivel 3
-            DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 30f)) ), GreenPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateTranslation(new Vector3(84f, -7f, 30f)) ), GreenPlatformBasicTexture, Platform);
 
             //pinches que suben y baja
             DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateTranslation(new Vector3(86f, -9f - (-8f * MathF.Cos(totalGameTime)), 40f)) ), SpikesTexture, Pinches);
 
             //alas de velocidad
-            DrawMeshes( ( Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(new Vector3(86f, -16f, 45f)) ), Color.BlueViolet, Wings);
+            //Vector3 PosicionAlas = TocandoAlas ? new Vector3(0, -20, 0) : new Vector3(86f, -16f, 45f);
+            var colorWings = TocandoAlas ? Color.BlueViolet : Color.Transparent;
+            DrawMeshes( Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(86f, -16f, 45), colorWings, Wings);
 
             //parte 2.2
             //Plataforma
@@ -867,67 +899,8 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
 
             DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
-
-            //mas carteles
-            //DrawMeshes( ( Matrix.CreateScale(0.07f) * Matrix.CreateTranslation(new Vector3(10f, -18f, 13f)) ), CartelTexture, Cartel);
-
-            //DrawMeshes( ( Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(new Vector3(0f, -20f, 10f)) ), Color.Blue, Cartel);
-
-            //DrawMeshes( ( Matrix.CreateScale(0.04f) * Matrix.CreateTranslation(new Vector3(-10f, -18f, 7f)) ), Color.Aqua, Cartel);
-
-            //DrawMeshes((Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(new Vector3(50f, -10f, 0f))), Color.GreenYellow, Cartel);
-
-
-            List<Vector3> monedas = new List<Vector3>
-            {
-                new Vector3(-43.5f, 20f + MathF.Cos(totalGameTime * 2), 25f),
-                new Vector3(10, -10 + MathF.Cos(totalGameTime * 2), 0),
-                new Vector3(25, -14+ MathF.Cos(totalGameTime * 2), 0),
-                new Vector3(37, -5+ MathF.Cos(totalGameTime * 2), 0),
-                new Vector3(53, -10+ MathF.Cos(totalGameTime * 2), 0),
-                new Vector3(63, -10+ MathF.Cos(totalGameTime * 2), 0),
-                new Vector3(35f, -20f+ MathF.Cos(totalGameTime * 2), 110f),
-                new Vector3(50, -13+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(55, -14+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(45, -16+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(40, -14+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(35, -14+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(27.5f, -12.5f+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(22.5f, -12.5f+ MathF.Cos(totalGameTime * 2), 110),
-                new Vector3(4f, -12f+ MathF.Cos(totalGameTime * 2), 115),
-                new Vector3(4f, -8f+ MathF.Cos(totalGameTime * 2), 115),
-                new Vector3(4f, -5f+ MathF.Cos(totalGameTime * 2), 115),
-                new Vector3(7f, -12f+ MathF.Cos(totalGameTime * 2), 107.5f),
-                new Vector3(-17.5f, -12f+ MathF.Cos(totalGameTime * 2), 92.5f),
-                new Vector3(-22.5f, -12f+ MathF.Cos(totalGameTime * 2), 87.5f),
-                new Vector3(-27.5f, -7f+ MathF.Cos(totalGameTime * 2), 85f),
-                new Vector3(-27.5f, -2f+ MathF.Cos(totalGameTime * 2), 85f),
-                new Vector3(-27.5f, 1f+ MathF.Cos(totalGameTime * 2), 85f),
-                new Vector3(-37.5f, -2f+ MathF.Cos(totalGameTime * 2), 82.5f),
-                new Vector3(-37.5f, 2f+ MathF.Cos(totalGameTime * 2), 82.5f),
-                new Vector3(-42.5f, 0f+ MathF.Cos(totalGameTime * 2), 80f),
-                new Vector3(-45f, -3f+ MathF.Cos(totalGameTime * 2), 80f),
-                new Vector3(-48f, -6f+ MathF.Cos(totalGameTime * 2), 78f),
-                new Vector3(-47.5f, -12.5f+ MathF.Cos(totalGameTime * 2), 78f),
-                new Vector3(-52.5f, -2.5f+ MathF.Cos(totalGameTime * 2), 75f),
-                new Vector3(-52.5f, 0f+ MathF.Cos(totalGameTime * 2), 75f),
-                new Vector3(-52.5f, 2.5f+ MathF.Cos(totalGameTime * 2), 75f),
-                new Vector3(-57.5f, -2.5f+ MathF.Cos(totalGameTime * 2), 77.5f),
-                new Vector3(-67.5f, 5f+ MathF.Cos(totalGameTime * 2), 70f),
-                new Vector3(-67.5f, 0f+ MathF.Cos(totalGameTime * 2), 70f),
-                new Vector3(-72.5f, 0f+ MathF.Cos(totalGameTime * 2), 67.5f),
-                new Vector3(-77.5f, 0f+ MathF.Cos(totalGameTime * 2), 62.5f),
-                new Vector3(-77.5f, 5f+ MathF.Cos(totalGameTime * 2), 62.5f),
-                new Vector3(-77.5f, 7.5f+ MathF.Cos(totalGameTime * 2), 62.5f),
-                new Vector3(-87.5f, 15f+ MathF.Cos(totalGameTime * 2), 49f),
-                new Vector3(-87.5f, 15f+ MathF.Cos(totalGameTime * 2), 45f),
-                new Vector3(-87.5f, 15f+ MathF.Cos(totalGameTime * 2), 40f),
-                new Vector3(-87.5f, 15f+ MathF.Cos(totalGameTime * 2), 35f)
-            };
-            foreach (Vector3 vector in monedas)
-            {
-                DrawMeshes((Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(vector)), CoinTexture, Moneda);
-            }
+            //se dibuja las monedas
+            monedas.Draw(gameTime,View, Projection, totalGameTime, World);
         }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
