@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using TGC.MonoGame.TP.Quads;
 using TGC.MonoGame.TP.SkyBoxs;
 using TGC.MonoGame.TP.Collisions;
-
-
+using BEPUphysics;
+using BEPUphysics.Entities.Prefabs;
+using BEPUphysics.BroadPhaseEntries.MobileCollidables;
+using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.NarrowPhaseSystems.Pairs;
 
 namespace TGC.MonoGame.TP
 {
@@ -90,12 +93,12 @@ namespace TGC.MonoGame.TP
         public Quad quad { get; set; }
         private SkyBox skybox { get; set; }
 
-        private BoundingBox[] platformColliders;
-        private OrientedBoundingBox[] rotatedPlatformsColliders;
         private List<BoundingBox> checkpoints;
-        private BoundingSphere PelotaChica1Box; 
         private Vector3 PelotaChica1Posicion { get; set; }
         private Matrix PelotChica1World { get; set; }
+
+        private Box[] platformColliderTest;
+        private Sphere MarbleSphereTest;
 
         public Vector3 MarblePosition { get; private set; }
         public Vector3 RespawnPosition { get; set; }
@@ -115,11 +118,8 @@ namespace TGC.MonoGame.TP
 
         public VertexDeclaration vertexDeclaration { get; set; }
         public Matrix MarbleScale { get; private set; }
-        //public Matrix MarbleRotation { get; private set; }
-        public Matrix ChairOBBWorld { get; private set; }
 
-        private float Gravity = 100f;
-        private float JumpSpeed = 50f;
+        private float JumpSpeed = 10f;
         public float DefaultSpeed = 30f;
         public float PelotaRapida = 45f;
         public float PelotaLenta = 15f;
@@ -128,6 +128,9 @@ namespace TGC.MonoGame.TP
         private const float EPSILON = 0.00001f;
         private Matrix marbleCopy;
         private float rotacionAngular;
+
+        private Space space;
+        private Sphere AluminioPowerupCollider;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -156,22 +159,10 @@ namespace TGC.MonoGame.TP
 
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
-            platformColliders = new BoundingBox[24];
+            //platformColliders = new BoundingBox[24];
 
             //Plataformas que no estan rotadas
-            platformColliders[0] = new BoundingBox(new Vector3(-25f, -21f, -15f), new Vector3(5f, -16f, 15f));
-            platformColliders[1] = new BoundingBox(new Vector3(15f, -21f, -5f), new Vector3(30f, -16f, 5f)); //22f, -18f, 0f
-            //platformColliders[2] = new BoundingBox(new Vector3(26f, -16f, -5f), new Vector3(34f, -9f, 5f)); //Rampa ( NO USAR: la rampa no se puede hacer con un AABB )
-            platformColliders[2] = new BoundingBox(new Vector3(32f, -14f, -5f), new Vector3(42f, -9f, 5f)); //37f, -11f, 0f
-            platformColliders[3] = new BoundingBox(new Vector3(55f, -21f, -5f), new Vector3(85f, -16f, 5f)); //70f, -18f, 0f
-            platformColliders[4] = new BoundingBox(new Vector3(66f, -14f, -5f), new Vector3(74f, -12f, 5f));
-            platformColliders[5] = new BoundingBox(new Vector3(68f, -15f, -5f), new Vector3(72f, -12f, 5f)); //Plataforma que sube y baja
-            platformColliders[6] = new BoundingBox(new Vector3(84f, -15f, -4.5f), new Vector3(86f, -8f, -3.5f)); //84f, -11f, -4f //Primer Checkpoint
-            platformColliders[7] = new BoundingBox(new Vector3(79f, -10f, 25f), new Vector3(89f, -5f, 35f)); //84f, -10f, 30f
-            platformColliders[8] = new BoundingBox(new Vector3(47f, -21f, 105f), new Vector3(57f, -16f, 115f)); //52f, -18f, 110f
-            platformColliders[9] = new BoundingBox(new Vector3(30f, -21f, 105f), new Vector3(47f, -18f, 115f)); //35f, -20f, 110f
-            platformColliders[10] = new BoundingBox(new Vector3(15f, -21f, 105f), new Vector3(31f, -16f, 115f)); //23f, -18f, 110f
-            platformColliders[11] = new BoundingBox(new Vector3(15.75f, -21f, 113.75f), new Vector3(16.25f, -8f, 114.25f)); //16f, -11f, 119f //Segundo Checkpoint
+            /*
             platformColliders[12] = new BoundingBox(new Vector3(-90, 8f, 24f), new Vector3(-85f, 11f, 60f)); //-87.5f, 10f, 42f
             platformColliders[13] = new BoundingBox(new Vector3(-90, -1f, 24f), new Vector3(-85f, 0.25f, 30f)); //-87.5f, 0f, 25f
             platformColliders[14] = new BoundingBox(new Vector3(-89, 8f, 18f), new Vector3(-86f, 10f, 22f)); //Plataformas que suben y bajan
@@ -184,7 +175,7 @@ namespace TGC.MonoGame.TP
             platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f)); //2f, 22f, 10f
             platformColliders[22] = new BoundingBox(new Vector3(-92.75f, 8f, 65.75f), new Vector3(-92.25f, 24f, 66.25f)); //-87.5f, 12f, 65f //Tercer Checkpoint
             platformColliders[23] = new BoundingBox(new Vector3(-0.25f, 20f, 2.75f), new Vector3(0.25f, 30f, 3.25f)); //0f, 28f, 3f //Checkered Flag
-
+            */
             //Checkpoints
             checkpoints = new List<BoundingBox>();
             checkpoints.Add(new BoundingBox(new Vector3(82f, -16f, -5f), new Vector3(83f, -5f, 5f))); //84f, -11f, -4f
@@ -193,8 +184,9 @@ namespace TGC.MonoGame.TP
             checkpoints.Add(new BoundingBox(new Vector3(-1f, 23f, -5f), new Vector3(5f, 35f, 0f))); //0f, 28f, 3f
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
+            //MarblePosition = new Vector3(4f, -4f, 115f); //<- Para Probar
             RespawnPosition = MarblePosition;
-            MarblePosition = new Vector3(82f, -12f, 0f); //<- Para Probar
+            
             MarbleVelocity = Vector3.Zero;
             MarbleSphere = new BoundingSphere(MarblePosition, 2f);
             MarbleScale = Matrix.CreateScale(0.02f);
@@ -205,11 +197,67 @@ namespace TGC.MonoGame.TP
             marbleCopy = MarbleWorld;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
+
+            space = new Space();
+
+            CreatePlatformsBoxes();
+            
+            MarbleSphereTest = new Sphere(new BEPUutilities.Vector3(MarblePosition.X, MarblePosition.Y, MarblePosition.Z), 2f, 1f);
+            MarbleSphereTest.Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, 0f, 0f);
+
             //powerups bounding boxes
             TocandoPoderPelotaChica = false;
-            PelotaChica1Posicion = new Vector3(82f, -12f, 13f);
-            PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
+            AluminioPowerupCollider = new Sphere(new BEPUutilities.Vector3(82f, -12f, 13f), 1f);
+            AluminioPowerupCollider.CollisionInformation.Events.InitialCollisionDetected += HandleAluminioPowerUpCollision;
+
+            space.Add(MarbleSphereTest);
+            space.Add(AluminioPowerupCollider);
+            space.ForceUpdater.Gravity = new BEPUutilities.Vector3(0f, -9.81f, 0f);
+
             base.Initialize();
+        }
+
+        private void CreatePlatformsBoxes()
+        {
+            platformColliderTest = new Box[21];
+
+            CreatePlatformBox(0, new BEPUutilities.Vector3(-10f, -17f, 0f), 30f, 2f, 30f);
+            CreatePlatformBox(1, new BEPUutilities.Vector3(19f, -17f, 0f), 10f, 2f, 10f);
+            CreatePlatformBox(2, new BEPUutilities.Vector3(28f, -15f, 0f), 14.9f, 2f, 10f); //Rampa
+            platformColliderTest[2].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, 0f, BEPUutilities.MathHelper.ToRadians(45f));
+            CreatePlatformBox(3, new BEPUutilities.Vector3(38f, -9.2f, 0f), 9f, 2f, 10f);
+            CreatePlatformBox(4, new BEPUutilities.Vector3(70f, -17f, 0f), 30f, 2f, 10f); //70f, -18f, 0f
+            CreatePlatformBox(5, new BEPUutilities.Vector3(70f, -13f, 0f), 8f, 2f, 10f);
+            CreatePlatformBox(6, new BEPUutilities.Vector3(70f, -10f, 0f), 2f, 8f, 2f); //Plataforma que sube y baja
+            CreatePlatformBox(7, new BEPUutilities.Vector3(84f, -11f, -4f), 0.5f, 8f, 0.5f); //Mastil del Checkpoint 1
+            CreatePlatformBox(8, new BEPUutilities.Vector3(84f, -17f, 30f), 40f, 2f, 5f); //rotation: Y -8f
+            platformColliderTest[8].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(8f, 0f, 0f);
+            CreatePlatformBox(9, new BEPUutilities.Vector3(84f, -8f, 30f), 10f, 10f, 10f); //84f, -10f, 30f
+            CreatePlatformBox(10, new BEPUutilities.Vector3(75f, -17f, 85f), 60f, 2f, 5f);  //75f, -18f, 85f
+            platformColliderTest[10].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f);
+            CreatePlatformBox(11, new BEPUutilities.Vector3(75f, -8f, 80f), 40f, 10f, 15f);  //75f, -8f, 80f
+            platformColliderTest[11].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f);
+            CreatePlatformBox(12, new BEPUutilities.Vector3(52f, -17f, 110f), 10f, 2f, 10f); //52f, -18f, 110f
+            CreatePlatformBox(13, new BEPUutilities.Vector3(35f, -19f, 110f), 40f, 2f, 8f);  //35f, -20f, 110f
+            CreatePlatformBox(14, new BEPUutilities.Vector3(23f, -17f, 110f), 16f, 2f, 10f);  //23f, -18f, 110f
+            CreatePlatformBox(15, new BEPUutilities.Vector3(16f, -11f, 114f), 0.5f, 8f, 0.5f); //16f, -11f, 119f //Segundo Checkpoint
+            CreatePlatformBox(16, new BEPUutilities.Vector3(-3f, -17f, 100f), 30f, 2f, 6f);  //-3f, -18f, 100f
+            platformColliderTest[16].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
+            CreatePlatformBox(17, new BEPUutilities.Vector3(4f, -12f, 115f), 5f, 2f, 5f);  //4f, -12f, 115f //Plataforma que sube y baja
+            platformColliderTest[17].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
+            CreatePlatformBox(18, new BEPUutilities.Vector3(-3f, -10f, 100), 20f, 5f, 6f);  //-3f, -12f, 100
+            platformColliderTest[18].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
+            CreatePlatformBox(19, new BEPUutilities.Vector3(-5.5f, -4.5f, 98.9f), 14f, 5f, 6f);  //-5.5f, -6.5f, 98.9f
+            platformColliderTest[19].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
+            CreatePlatformBox(20, new BEPUutilities.Vector3(-3f, 1f, 100f), 20f, 5f, 6f);  //-3f, -1f, 100f
+            platformColliderTest[20].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
+        }
+
+        private void CreatePlatformBox(int index, BEPUutilities.Vector3 pos, float width, float height, float length)
+        {
+            platformColliderTest[index] = new Box(pos, width, height, length);
+            platformColliderTest[index].CollisionInformation.Events.InitialCollisionDetected += HandleCollision;
+            space.Add(platformColliderTest[index]);
         }
 
         /// <summary>
@@ -329,15 +377,9 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = TextureEffect;
 
             //Plataformas Rotadas
-            rotatedPlatformsColliders = new OrientedBoundingBox[20];
+            //rotatedPlatformsColliders = new OrientedBoundingBox[20];
 
-            CreateOrientedBoundingBox(0, new Vector3(20f, 2f, 2f), new Vector3(84f, -18f, 30f), Matrix.CreateRotationY(-8f)); //<- Por alguna razon la rotacion tiene que ser el inverso del mesh
-            CreateOrientedBoundingBox(1, new Vector3(30f, 2f, 2f), new Vector3(75f, -18f, 85f), Matrix.CreateRotationY(-7.5f));
-            CreateOrientedBoundingBox(2, new Vector3(20f, 5f, 8f), new Vector3(75f, -9f, 80f), Matrix.CreateRotationY(-7.5f));
-            CreateOrientedBoundingBox(3, new Vector3(15f, 2f, 3f), new Vector3(-3f, -18f, 100f), Matrix.CreateRotationY(0.436332f));
-            CreateOrientedBoundingBox(4, new Vector3(2f, 1f, 2f), new Vector3(4f, -12f, 115f), Matrix.CreateRotationY(0.436332f)); //Plataforma que sube y baja
-            CreateOrientedBoundingBox(5, new Vector3(10f, 2.5f, 3f), new Vector3(-3f, -12f, 100f), Matrix.CreateRotationY(0.436332f));
-            CreateOrientedBoundingBox(6, new Vector3(7f, 3f, 3f), new Vector3(-5.5f, -6.5f, 98.9f), Matrix.CreateRotationY(0.436332f));
+            /*
             CreateOrientedBoundingBox(7, new Vector3(10f, 2.5f, 3f), new Vector3(-3f, -1f, 100f), Matrix.CreateRotationY(0.436332f));
             CreateOrientedBoundingBox(8, new Vector3(18f, 2f, 3f), new Vector3(-36f, -18f, 83f), Matrix.CreateRotationY(0.436332f));
             CreateOrientedBoundingBox(9, new Vector3(2f, 5f, 3f), new Vector3(-27f, -18f, 84f), Matrix.CreateRotationY(0.436332f));
@@ -350,39 +392,13 @@ namespace TGC.MonoGame.TP
             CreateOrientedBoundingBox(16, new Vector3(5f, 10f, 3f), new Vector3(-87.5f, -2f, 65f), Matrix.CreateRotationY(0.436332f));
             CreateOrientedBoundingBox(17, new Vector3(0.5f, 12f, 1f), new Vector3(-6.5f, 18f, 24f), Matrix.CreateRotationX(0f)); //Molino
             CreateOrientedBoundingBox(18, new Vector3(0.5f, 12f, 1f), new Vector3(-6.5f, 18f, 24f), Matrix.CreateRotationX(MathHelper.ToRadians(90f))); //Molino
-            CreateOrientedBoundingBox(19, new Vector3(5f, 2f, 5f), new Vector3(30f, -14f, 0f), Matrix.CreateRotationZ(MathHelper.ToRadians(45f))); //Rampa <-- NO FUNCIONA?
+            */
 
             MarbleWorld = MarbleScale * MarbleRotation;
 
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
 
-            //Hace que se pegue a la pelota Chica
-            PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
-            PelotaChica1Box.Center = PelotaChica1Posicion;
-            PelotaChica1Box.Radius = 1f; 
-            //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
-
-
-
-
             base.LoadContent();
-        }
-
-        private void CreateOrientedBoundingBox(int index, Vector3 scale, Vector3 newCenter, Matrix rotation)
-        {
-            // Create an OBB for a model
-            // First, get an AABB from the model
-            var temporaryCubeAABB = CreateAABBFrom(Cubo);
-            // Scale it to match the model's transform
-            Vector3 center = (temporaryCubeAABB.Max + temporaryCubeAABB.Min) * 0.5f;
-            Vector3 extents = (temporaryCubeAABB.Max - temporaryCubeAABB.Min) * 0.5f;
-            Vector3 scaledExtents = extents * scale;
-
-            temporaryCubeAABB = new BoundingBox(center - scaledExtents, center + scaledExtents);
-
-            rotatedPlatformsColliders[index] = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
-            rotatedPlatformsColliders[index].Center = newCenter;
-            rotatedPlatformsColliders[index].Orientation = rotation;
         }
 
         /// <summary>
@@ -391,8 +407,14 @@ namespace TGC.MonoGame.TP
         ///     ante ellas.
         /// </summary>
 
-    protected override void Update(GameTime gameTime)
+        protected override void Update(GameTime gameTime)
         {
+            float totalGameTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
+
+            UpdatePlatformsColliders(totalGameTime);
+
+            space.Update();
+
             float currentMarbleVelocity = DefaultSpeed;
             float deltaX;
 
@@ -407,17 +429,13 @@ namespace TGC.MonoGame.TP
 
                 // Create the rotation
                 mouseRotationBuffer.X -= 0.01f * deltaX * mouseSensitivity;
-
             }
 
             // Center the mouse
             Mouse.SetPosition(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
-            MarbleAcceleration = Vector3.Down * Gravity;
 
             // Save previous mouse state
             previousMouseState = currentMouseState;
-   
-            float totalGameTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
 
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             // Capturar Input teclado
@@ -429,70 +447,50 @@ namespace TGC.MonoGame.TP
 
             // Check for the Jump key press, and add velocity in Y only if the marble is on the ground
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
-                MarbleVelocity += Vector3.Up * JumpSpeed;
+            {
+                MarbleSphereTest.LinearVelocity += BEPUutilities.Vector3.Up * JumpSpeed;
+                OnGround = false;
+            }
             
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
-                MarbleVelocity += marbleCopy.Forward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                //MarbleVelocity += marbleCopy.Forward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                MarbleSphereTest.AngularMomentum += new BEPUutilities.Vector3(marbleCopy.Forward.Z, marbleCopy.Forward.Y, -marbleCopy.Forward.X) * currentMarbleVelocity;
             } 
            
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                MarbleVelocity += marbleCopy.Backward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                //MarbleVelocity += marbleCopy.Backward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                MarbleSphereTest.AngularMomentum += new BEPUutilities.Vector3(marbleCopy.Backward.Z, marbleCopy.Backward.Y, -marbleCopy.Backward.X) * currentMarbleVelocity;
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                MarbleVelocity += marbleCopy.Left * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                //MarbleVelocity += marbleCopy.Left * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                MarbleSphereTest.AngularMomentum += new BEPUutilities.Vector3(marbleCopy.Left.Z, marbleCopy.Left.Y, -marbleCopy.Left.X) * currentMarbleVelocity;
             }
            
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                MarbleVelocity += marbleCopy.Right * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                //MarbleVelocity += marbleCopy.Right * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
+                MarbleSphereTest.AngularMomentum += new BEPUutilities.Vector3(marbleCopy.Right.Z, marbleCopy.Right.Y, -marbleCopy.Right.X) * currentMarbleVelocity;
             }
 
-            TocandoPoderPelotaChica = PelotaChica1Box.Intersects(MarbleSphere);
-            if (TocandoPoderPelotaChica)
-            {
-                TocandoPoderPelotaChica = true;
-                currentMarbleVelocity = PelotaRapida;
-                PelotaChica1Posicion = new Vector3 (0, -20, 0);
-                MarbleScale = Matrix.CreateScale(0.01f);
-                MarbleTexture = Aluminio;
-            }
-
-            MarbleVelocity += MarbleAcceleration * deltaTime;
-
-            float moduloVelocidad = MathF.Sqrt(MathF.Pow(MarbleVelocity.X, 2) + MathF.Pow(MarbleVelocity.Z, 2));
+            float moduloVelocidad = MathF.Sqrt(MathF.Pow(MarbleSphereTest.AngularVelocity.X, 2) + MathF.Pow(MarbleSphereTest.AngularVelocity.Z, 2));
 
             Vector3 normalNormalizado;
 
-            if (MarbleVelocity.Z == 0 && MarbleVelocity.X == 0)
+            //if (MarbleVelocity.Z == 0 && MarbleVelocity.X == 0)
+            if (MarbleSphereTest.AngularVelocity.Z == 0 && MarbleSphereTest.AngularVelocity.X == 0)
                 normalNormalizado = new Vector3(0, 0, 0);
             else
-                normalNormalizado = Vector3.Normalize(new Vector3(MarbleVelocity.Z, 0, -MarbleVelocity.X));
+                normalNormalizado = Vector3.Normalize(new Vector3(MarbleSphereTest.AngularVelocity.X, 0, MarbleSphereTest.AngularVelocity.Z));
             rotacionAngular += (moduloVelocidad / 0.8f) * deltaTime;
             Matrix rotateArround = Matrix.CreateFromQuaternion(Quaternion.CreateFromAxisAngle(normalNormalizado, rotacionAngular));
-            
-
-            // Scale the velocity by deltaTime
-            var scaledVelocity = MarbleVelocity * deltaTime;
-
-            UpdatePlatformsColliders(totalGameTime);
-
-            // Solve the Vertical Movement first (could be done in other order)
-            SolveVerticalMovement(scaledVelocity);
-
-            // Take only the horizontal components of the velocity
-            scaledVelocity = new Vector3(scaledVelocity.X, 0f, scaledVelocity.Z);
-
-            SolveHorizontalMovementSliding(scaledVelocity);
 
             SolveCheckpoint();
 
-            // Update the Position based on the updated Cylinder center
-            // Update the Robot World Matrix
-            MarblePosition = MarbleSphere.Center;
+            MarblePosition = new Vector3(MarbleSphereTest.Position.X, MarbleSphereTest.Position.Y, MarbleSphereTest.Position.Z);
 
             marbleCopy = MarbleScale * Matrix.CreateRotationY(mouseRotationBuffer.X) * Matrix.CreateTranslation(MarblePosition);
 
@@ -600,7 +598,7 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) * Matrix.CreateTranslation(new Vector3(30f, -14f, 0f)) ), BluePlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(37f, -11f, 0f)) ), BluePlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(37.1f, -11.1f, 0f)) ), BluePlatformBasicTexture, Platform);
 
 
             //Plataforma con Obstaculo
@@ -630,7 +628,7 @@ namespace TGC.MonoGame.TP
 
 
             //cubo que necesita pelota chica del nivel 3
-            DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateTranslation(new Vector3(84f, -10f, 30f)) ), GreenPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(5f, 5f, 5f) * Matrix.CreateTranslation(new Vector3(84f, -8f, 30f)) ), GreenPlatformBasicTexture, Platform);
 
             //pinches que suben y baja
             DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(3.14159f) * Matrix.CreateTranslation(new Vector3(86f, -9f - (-8f * MathF.Cos(totalGameTime)), 40f)) ), SpikesTexture, Pinches);
@@ -643,7 +641,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(30f, 2f, 2f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -18f, 85f)) ), GreenPlatformBasicTexture, Platform);
 
             //cubo que necesita pelota chica del nivel 3.1
-            DrawMeshes( ( Matrix.CreateScale(20f, 5f, 8f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -9f, 80f)) ), GreenPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(20f, 5f, 8f) * Matrix.CreateRotationY(7.5f) * Matrix.CreateTranslation(new Vector3(75f, -8f, 80f)) ), GreenPlatformBasicTexture, Platform);
 
 
             //pinches que suben y baja
@@ -698,11 +696,11 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos(totalGameTime * 2)), 115f)) ), RedPlatformTexture, Platform);
 
             //parte de arriba
-            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -12f, 100f)) ), RedPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -10f, 100f)) ), RedPlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-5.5f, -6.5f, 98.9f)) ), RedPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(7f, 3f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-5.5f, -4.5f, 98.9f)) ), RedPlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -1f, 100f)) ), RedPlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, 1f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para ser chica
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), Aluminio, Esfera);
@@ -940,199 +938,28 @@ namespace TGC.MonoGame.TP
             base.UnloadContent();
         }
 
-        private void SolveVerticalMovement(Vector3 scaledVelocity)
+        //TODO: que no pueda saltar si choca con una pared
+        private void HandleCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
-            // If the Robot has vertical velocity
-            if (scaledVelocity.Y == 0f)
-                return;
-
-            // Start by moving the Cylinder
-            MarbleSphere.Center += Vector3.Up * scaledVelocity.Y;
-            // Set the OnGround flag on false, update it later if we find a collision
-            OnGround = false;
-
-            var collided = false;
-            var foundIndex = -1;
-            
-            for (var index = 0; index < platformColliders.Length; index++)
-            {
-                if (MarbleSphere.Intersects(platformColliders[index]))
-                {
-                    // If we collided with something, set our velocity in Y to zero to reset acceleration
-                    MarbleVelocity = new Vector3(MarbleVelocity.X, 0f, MarbleVelocity.Z);
-
-                    // Set our index and collision flag to true
-                    // The index is to tell which collider the Robot intersects with
-                    collided = true;
-                    foundIndex = index;
-                }
-            }
-
-            // We correct based on differences in Y until we don't collide anymore
-            // Not usual to iterate here more than once, but could happen
-            while (collided)
-            {
-                var collider = platformColliders[foundIndex];
-                var max = collider.Max;
-                var min = collider.Min;
-                Vector3 center = (max + min) * 0.5f;
-                var colliderY = center.Y;
-                var marbleY = MarbleSphere.Center.Y;
-                Vector3 extents = (max - min) * 0.5f;
-
-                float penetration;
-                // If we are on top of the collider, push up
-                // Also, set the OnGround flag to true
-                if (marbleY > colliderY)
-                {
-                    penetration = colliderY + extents.Y - marbleY + MarbleSphere.Radius;
-                    OnGround = true;
-                }
-
-                // If we are on bottom of the collider, push down
-                else
-                    penetration = -marbleY - MarbleSphere.Radius + colliderY - extents.Y;
-
-                // Move our Cylinder so we are not colliding anymore
-                MarbleSphere.Center += Vector3.Up * penetration;
-                collided = false;
-
-                // Check for collisions again
-                for (var index = 0; index < platformColliders.Length; index++)
-                {
-                    if (!MarbleSphere.Intersects(platformColliders[index]))
-                        continue;
-                    if (IsFloor(platformColliders[index]))
-                        continue;
-
-                    // Iterate until we don't collide with anything anymore
-                    collided = true;
-                    foundIndex = index;
-                    break;
-                }
-            }
-
-            for (var index = 0; index <rotatedPlatformsColliders.Length; index++)
-            {
-                if (rotatedPlatformsColliders[index].Intersects(MarbleSphere))
-                {
-                    // If we collided with something, set our velocity in Y to zero to reset acceleration
-                    MarbleVelocity = new Vector3(MarbleVelocity.X, 0f, MarbleVelocity.Z);
-
-                    // Set our index and collision flag to true
-                    // The index is to tell which collider the Robot intersects with
-                    collided = true;
-                    foundIndex = index;
-                }
-            }
-
-            while (collided)
-            {
-                var collider = rotatedPlatformsColliders[foundIndex];
-                Vector3 center = collider.Center;
-                var colliderY = center.Y;
-                var marbleY = MarbleSphere.Center.Y;
-                Vector3 extents = collider.Extents;
-
-                float penetration;
-                // If we are on top of the collider, push up
-                // Also, set the OnGround flag to true
-                if (marbleY > colliderY)
-                {
-                    penetration = colliderY + extents.Y - marbleY + MarbleSphere.Radius;
-                    OnGround = true;
-                }
-
-                // If we are on bottom of the collider, push down
-                else
-                    penetration = -marbleY - MarbleSphere.Radius + colliderY - extents.Y;
-
-                // Move our Cylinder so we are not colliding anymore
-                MarbleSphere.Center += Vector3.Up * penetration;
-                collided = false;
-
-                // Check for collisions again
-                for (var index = 0; index < rotatedPlatformsColliders.Length; index++)
-                {
-                    if (!rotatedPlatformsColliders[index].Intersects(MarbleSphere))
-                        continue;
-                    if (IsFloor(rotatedPlatformsColliders[index]))
-                        continue;
-
-                    // Iterate until we don't collide with anything anymore
-                    collided = true;
-                    foundIndex = index;
-                    break;
-                }
-            }
+            OnGround = true;
         }
 
-        private void SolveHorizontalMovementSliding(Vector3 scaledVelocity)
+        private void HandleAluminioPowerUpCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
-            // Has horizontal movement?
-            if (Vector3.Dot(scaledVelocity, new Vector3(1f, 0f, 1f)) == 0f)
-                return;
-
-            // Start by moving the Cylinder horizontally
-            MarbleSphere.Center += new Vector3(scaledVelocity.X, 0f, scaledVelocity.Z);
-
-            // Check intersection for every collider
-            for (var index = 0; index < platformColliders.Length; index++)
-            {
-                if (!MarbleSphere.Intersects(platformColliders[index]))
-                    continue;
-                if (IsFloor(platformColliders[index]))
-                    continue;
-
-                // Get the intersected collider and its center
-                var collider = platformColliders[index];
-                var max = collider.Max;
-                var min = collider.Min;
-                Vector3 center = (max + min) * 0.5f;
-
-                // The Robot collided with this thing
-                // Is it a step? Can the Robot climb it?
-                //bool stepClimbed = SolveStepCollision(collider, index);
-
-                // If the Robot collided with a step and climbed it, stop here
-                // Else go on
-                //if (stepClimbed)
-                  //  return;
-
-                // Get the cylinder center at the same Y-level as the box
-                var sameLevelCenter = MarbleSphere.Center;
-                sameLevelCenter.Y = center.Y;
-
-                // Find the closest horizontal point from the box
-                Vector3 point = sameLevelCenter;
-                point.X = MathHelper.Clamp(point.X, min.X, max.X);
-                point.Y = MathHelper.Clamp(point.Y, min.Y, max.Y);
-                point.Z = MathHelper.Clamp(point.Z, min.Z, max.Z);
-                var closestPoint = point;
-
-                // Calculate our normal vector from the "Same Level Center" of the cylinder to the closest point
-                // This happens in a 2D fashion as we are on the same Y-Plane
-                var normalVector = sameLevelCenter - closestPoint;
-                var normalVectorLength = normalVector.Length();
-
-                // Our penetration is the difference between the radius of the Cylinder and the Normal Vector
-                // For precission problems, we push the cylinder with a small increment to prevent re-colliding into the geometry
-                var penetration = MarbleSphere.Radius - normalVector.Length() + EPSILON;
-
-                // Push the center out of the box
-                // Normalize our Normal Vector using its length first
-                MarbleSphere.Center += (normalVector / normalVectorLength * penetration);
-            }
-
+            space.Remove(sender.Entity);
+            MarbleScale = Matrix.CreateScale(0.01f);
+            MarbleSphereTest.Radius = 1f;
+            MarbleTexture = Aluminio;
         }
 
         //respawn logic, te devuelve al ultimo check point y te frena la velocidad a 0.
         private void SolveCheckpoint()
         {
-            if(MarbleSphere.Center.Y < -20f)
+            if(MarbleSphereTest.Position.Y < -20f)
             {
-                MarbleSphere.Center = RespawnPosition;
-                MarbleVelocity = Vector3.Zero; 
+                MarbleSphereTest.Position = new BEPUutilities.Vector3(RespawnPosition.X, RespawnPosition.Y, RespawnPosition.Z);
+                MarbleSphereTest.AngularVelocity = BEPUutilities.Vector3.Zero;
+                MarbleSphereTest.LinearVelocity = BEPUutilities.Vector3.Zero;
             }
             
             foreach(BoundingBox checkpoint in checkpoints)
@@ -1146,49 +973,6 @@ namespace TGC.MonoGame.TP
             }
         }
         
-        /// <summary>
-        ///     Retorna True si el bounding box tiene como penetracion cero, False si tiene distinto de cero
-        /// </summary>
-        private bool IsFloor(BoundingBox collider)
-        {
-            var max = collider.Max;
-            var min = collider.Min;
-            Vector3 center = (max + min) * 0.5f;
-            var colliderY = center.Y;
-            var marbleY = MarbleSphere.Center.Y;
-            Vector3 extents = (max - min) * 0.5f;
-
-            float penetration = 0;
-
-            if (marbleY > colliderY)
-            {
-                penetration = colliderY + extents.Y - marbleY + MarbleSphere.Radius;
-            }
-            else
-                penetration = -marbleY - MarbleSphere.Radius + colliderY - extents.Y;
-
-            return (Math.Abs(penetration) < EPSILON);
-        }
-
-        private bool IsFloor(OrientedBoundingBox collider)
-        {
-            Vector3 center = collider.Center;
-            var colliderY = center.Y;
-            var marbleY = MarbleSphere.Center.Y;
-            Vector3 extents = collider.Extents;
-
-            float penetration = 0;
-
-            if (marbleY > colliderY)
-            {
-                penetration = colliderY + extents.Y - marbleY + MarbleSphere.Radius;
-            }
-            else
-                penetration = -marbleY - MarbleSphere.Radius + colliderY - extents.Y;
-
-            return (Math.Abs(penetration) < EPSILON);
-        }
-
         public static BoundingBox CreateAABBFrom(Model model)
         {
             var minPoint = Vector3.One * float.MaxValue;
@@ -1225,12 +1009,11 @@ namespace TGC.MonoGame.TP
 
         private void UpdatePlatformsColliders(float TotalTime)
         {
-            //DrawMeshes( ( Matrix.CreateScale(2f, 4f, 4.9f) * Matrix.CreateTranslation(new Vector3(70f, (-4f * MathF.Cos(totalGameTime)) - 12f, 0f)) ), BluePlatformBasicTexture, Platform);
-            MovePlatformBoundingBox(5, TotalTime, (-4f * MathF.Cos(TotalTime)), -12f, 4f);
+            platformColliderTest[6].Position = new BEPUutilities.Vector3(platformColliderTest[6].Position.X, (-4f * MathF.Cos(TotalTime)) - 12f, platformColliderTest[6].Position.Z);
 
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (8 * MathF.Cos(totalGameTime)), 20f)) ), RedPlatformTexture, Platform);
-            MovePlatformBoundingBox(14, TotalTime, (4 * MathF.Cos(TotalTime)), 8f, 1f);
+            platformColliderTest[17].Position = new BEPUutilities.Vector3(platformColliderTest[17].Position.X, 8f + (8 * MathF.Cos(TotalTime)), platformColliderTest[17].Position.Z);
 
+            /*
             //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f)) ), RedPlatformTexture, Platform);
             MovePlatformBoundingBox(15, TotalTime, 8 * MathF.Cos((TotalTime * 2) + 2), 8f, 1f);
 
@@ -1257,21 +1040,7 @@ namespace TGC.MonoGame.TP
 
             //DrawMeshes((Matrix.CreateScale(0.5f, 12f, 1f) * Matrix.CreateRotationX(Rotation + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-6.5f, 18f, 24f))), WoodTexture, Cubo);
             MoveOrientedBoundingBox(18, Matrix.CreateRotationX(Rotation + MathHelper.ToRadians(90f)), new Vector3(-6.5f, 18f, 24f));
-        }
-
-        private void MovePlatformBoundingBox(int index, float TotalTime, float newPosition, float meshHeight, float boxHeight)
-        {
-            Vector3 yPosMin = new Vector3(platformColliders[index].Min.X, 0f, platformColliders[index].Min.Z);
-            Vector3 yPosMax = new Vector3(platformColliders[index].Max.X, boxHeight, platformColliders[index].Max.Z);
-            yPosMin.Y = newPosition;
-            yPosMax.Y = yPosMin.Y + yPosMax.Y;
-            platformColliders[index] = new BoundingBox(new Vector3(0, meshHeight, 0) + yPosMin, new Vector3(0, meshHeight, 0) + yPosMax);
-        }
-
-        private void MoveOrientedBoundingBox(int index, Matrix rotation, Vector3 newCenter)
-        {
-            rotatedPlatformsColliders[index].Center = newCenter;
-            rotatedPlatformsColliders[index].Orientation = rotation;
+            */
         }
     }
 }
