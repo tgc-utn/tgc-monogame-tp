@@ -81,6 +81,8 @@ namespace TGC.MonoGame.TP
         public Texture2D Aluminio { get; set; }
         public Texture2D Empty { get; set; }
         public Texture2D WhitePlaceholderTexture { get; set; }
+        public Texture2D OrangeLiquid { get; set; }
+        public Texture2D VolcanicStone { get; set; }
         public TextureCube SkyboxTexture { get; set; }
         private float Rotation { get; set; }
         public bool OnGround { get; private set; }
@@ -94,9 +96,12 @@ namespace TGC.MonoGame.TP
         private BoundingBox[] platformColliders;
         private OrientedBoundingBox[] rotatedPlatformsColliders;
         private List<BoundingBox> checkpoints;
-        private BoundingSphere PelotaChica1Box; 
+        private BoundingSphere PelotaChica1Box;
         private Vector3 PelotaChica1Posicion { get; set; }
         private Matrix PelotChica1World { get; set; }
+        private BoundingSphere PelotaChica2Box;
+        private Vector3 PelotaChica2Posicion { get; set; }
+        private Matrix PelotChica2World { get; set; }
         private BoundingSphere PelotaLavaBox;
         private Vector3 PelotaLavaPosicion { get; set; }
         private Matrix PelotLavaWorld { get; set; }
@@ -106,6 +111,30 @@ namespace TGC.MonoGame.TP
         private OrientedBoundingBox lava1Box { get; set; }
         private Vector3 lava1Posicion { get; set; }
         private Matrix lava1World { get; set; }
+        private OrientedBoundingBox lava2Box { get; set; }
+        private Vector3 lava2Posicion { get; set; }
+        private Matrix lava2World { get; set; }
+        private OrientedBoundingBox lava3Box { get; set; }
+        private Vector3 lava3Posicion { get; set; }
+        private Matrix lava3World { get; set; }
+        private OrientedBoundingBox lava4Box { get; set; }
+        private Vector3 lava4Posicion { get; set; }
+        private Matrix lava4World { get; set; }
+        private OrientedBoundingBox lava5Box { get; set; }
+        private Vector3 lava5Posicion { get; set; }
+        private Matrix lava5World { get; set; }
+        private OrientedBoundingBox lava6Box { get; set; }
+        private Vector3 lava6Posicion { get; set; }
+        private Matrix lava6World { get; set; }
+
+        private OrientedBoundingBox lava7Box { get; set; }
+        private Vector3 lava7Posicion { get; set; }
+        private Matrix lava7World { get; set; }
+
+        private OrientedBoundingBox lava8Box { get; set; }
+        private Vector3 lava8Posicion { get; set; }
+        private Matrix lava8World { get; set; }
+
 
         public Vector3 MarblePosition { get; private set; }
         public Vector3 RespawnPosition { get; set; }
@@ -118,6 +147,7 @@ namespace TGC.MonoGame.TP
         private MouseState previousMouseState;
         private float mouseSensitivity;
         private Vector3 mouseRotationBuffer;
+        private bool death { get; set; }
         private bool TocandoPoderPelotaChica { get; set; }
         private bool TocandoPoderPelotaLava { get; set; }
         private bool TocandoLava { get; set; }
@@ -136,7 +166,7 @@ namespace TGC.MonoGame.TP
         public float DefaultSpeed = 15f;
         public float PelotaRapida = 45f;
         public float PelotaLenta = 5f;
-        
+
 
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
@@ -152,6 +182,7 @@ namespace TGC.MonoGame.TP
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
             // Seria hasta aca.
             OnGround = false;
+            death = false;
             mouseSensitivity = 0.1f;
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -198,9 +229,9 @@ namespace TGC.MonoGame.TP
             platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f)); //2f, 22f, 10f
             platformColliders[22] = new BoundingBox(new Vector3(-92.75f, 8f, 65.75f), new Vector3(-92.25f, 24f, 66.25f)); //-87.5f, 12f, 65f //Tercer Checkpoint
             platformColliders[23] = new BoundingBox(new Vector3(-0.25f, 20f, 2.75f), new Vector3(0.25f, 30f, 3.25f));//0f, 28f, 3f //Checkered Flag
-            platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f)); 
+            platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f));
 
-            
+
 
             //Checkpoints
             checkpoints = new List<BoundingBox>();
@@ -222,10 +253,13 @@ namespace TGC.MonoGame.TP
             marbleCopy = MarbleWorld;
             mouseRotationBuffer.X = -90;
             rotacionAngular = 0;
-            //powerups  pelota chica bounding boxes
+            //powerups  pelota chica 1 
             TocandoPoderPelotaChica = false;
             PelotaChica1Posicion = new Vector3(95f, -10f, 13f);
             PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
+            // powerup pelota chica 2 
+            PelotaChica2Posicion = new Vector3(2.5f, -7.5f, 105f);
+            PelotChica2World = Matrix.CreateTranslation(PelotaChica2Posicion);
             //powerups pelota lava
             TocandoPoderPelotaLava = false;
             PelotaLavaPosicion = new Vector3(65f, -13f, 112f);
@@ -235,6 +269,22 @@ namespace TGC.MonoGame.TP
             TocandoLava = false;
             lava1Posicion = new Vector3(40f, -20f, 110f);
             lava1World = Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(lava1Posicion);
+            lava2Posicion = new Vector3(22f, -18f, 110f);
+            lava2World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava2Posicion);
+            lava3Posicion = new Vector3(22f, -18f, 110f);
+            lava3World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava3Posicion);
+            lava4Posicion = new Vector3(22f, -18f, 110f);
+            lava4World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava4Posicion);
+            lava5Posicion = new Vector3(22f, -18f, 110f);
+            lava5World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava5Posicion); 
+            lava6Posicion = new Vector3(22f, -18f, 110f);
+            lava6World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava6Posicion);
+            lava7Posicion = new Vector3(22f, -18f, 110f);
+            lava7World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava7Posicion);
+            lava8Posicion = new Vector3(22f, -18f, 110f);
+            lava8World = Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(lava8Posicion);
+            //Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f))
+
 
             //powerup alas
             TocandoAlas = false;
@@ -242,7 +292,7 @@ namespace TGC.MonoGame.TP
             AlasWorld = Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(AlasPosicion);
             //( Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(new Vector3(86f, -16f, 45f)) ), Color.BlueViolet, Wings);
 
-            
+
 
             base.Initialize();
         }
@@ -307,6 +357,8 @@ namespace TGC.MonoGame.TP
             Aluminio = Content.Load<Texture2D>(ContentFolderTextures + "aluminio");
             Empty = Content.Load<Texture2D>(ContentFolderTextures + "Empty");
             WhitePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "White");
+            OrangeLiquid = Content.Load<Texture2D>(ContentFolderTextures + "Orange_Liquid");
+            VolcanicStone = Content.Load<Texture2D>(ContentFolderTextures + "volcanic_stone");
 
             LavaEffect.Parameters["Texture"].SetValue(LavaTexture);
             LavaEffect.Parameters["tiling"].SetValue(new Vector2(4f, 4f));
@@ -385,11 +437,15 @@ namespace TGC.MonoGame.TP
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
 
             //Hace que se pegue a la pelota Chica
+            //pelota chica 2
             PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
             PelotaChica1Box.Center = PelotaChica1Posicion;
             PelotaChica1Box.Radius = 1f;
             //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
-
+            //pelota chica 1
+            PelotaChica2Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
+            PelotaChica2Box.Center = PelotaChica2Posicion;
+            PelotaChica2Box.Radius = 1f;
             //PowerUp Pelota de lava
             PelotaLavaBox = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
             PelotaLavaBox.Center = PelotaLavaPosicion;
@@ -398,19 +454,59 @@ namespace TGC.MonoGame.TP
             //Power up alas
             var tempCube = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Wings);
             tempCube = Tp.Collisions.BoundingVolumesExtensions.Scale(tempCube, 0.007f);
-            
+
             //power up collision box con fallas, despues lo arreglo
-            
+
             AlasBox = OrientedBoundingBox.FromAABB(tempCube);
             AlasBox.Center = AlasPosicion;
             AlasBox.Orientation = Matrix.CreateRotationX(-0.785398f);
 
-            var templava = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
-            templava = Tp.Collisions.BoundingVolumesExtensions.Scale(tempCube, 0.007f);
+            var templava1 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava1 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava1, 0.007f);
 
-            lava1Box = OrientedBoundingBox.FromAABB(templava);
-            lava1Box.Center = lava1Posicion; 
-            
+            lava1Box = OrientedBoundingBox.FromAABB(templava1);
+            lava1Box.Center = lava1Posicion;
+
+            var templava2 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava2 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava2, 0.007f);
+
+            lava2Box = OrientedBoundingBox.FromAABB(templava2);
+            lava2Box.Center = lava2Posicion;
+
+            var templava3 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava3 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava3, 0.007f);
+
+            lava3Box = OrientedBoundingBox.FromAABB(templava3);
+            lava3Box.Center = lava3Posicion;
+
+            var templava4 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava4 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava4, 0.007f);
+
+            lava4Box = OrientedBoundingBox.FromAABB(templava4);
+            lava4Box.Center = lava4Posicion;
+            var templava5 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava5 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava5, 0.007f);
+
+            lava5Box = OrientedBoundingBox.FromAABB(templava5);
+            lava5Box.Center = lava1Posicion;
+
+            var templava6 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava6 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava6, 0.007f);
+
+            lava6Box = OrientedBoundingBox.FromAABB(templava6);
+            lava6Box.Center = lava6Posicion;
+
+            var templava7 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava7 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava7, 0.007f);
+
+            lava7Box = OrientedBoundingBox.FromAABB(templava3);
+            lava7Box.Center = lava7Posicion;
+
+            var templava8 = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava8 = Tp.Collisions.BoundingVolumesExtensions.Scale(templava8, 0.007f);
+
+            lava8Box = OrientedBoundingBox.FromAABB(templava8);
+            lava8Box.Center = lava8Posicion;
 
 
 
@@ -471,7 +567,7 @@ namespace TGC.MonoGame.TP
 
             // Save previous mouse state
             previousMouseState = currentMouseState;
-   
+
             float totalGameTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
 
             // Aca deberiamos poner toda la logica de actualizacion del juego.
@@ -485,29 +581,30 @@ namespace TGC.MonoGame.TP
             // Check for the Jump key press, and add velocity in Y only if the marble is on the ground
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
                 MarbleVelocity += Vector3.Up * JumpSpeed;
-            
+
             if (Keyboard.GetState().IsKeyDown(Keys.W))
             {
                 //MarbleVelocity += Math.min(marbleCopy.Forward * currentTypeMarbleVelocity, marbleCopy.Forward * maxVelocity); //Cambiar Vector3 por CAMARA
                 MarbleVelocity += (marbleCopy.Forward * currentMarbleVelocity);
-            } 
-           
+            }
+
             if (Keyboard.GetState().IsKeyDown(Keys.S))
             {
                 MarbleVelocity += marbleCopy.Backward * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
             }
-           
+
             if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
                 MarbleVelocity += marbleCopy.Left * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
             }
-           
+
             if (Keyboard.GetState().IsKeyDown(Keys.D))
             {
                 MarbleVelocity += marbleCopy.Right * currentMarbleVelocity; //Cambiar Vector3 por CAMARA
             }
 
             TocandoPoderPelotaChica = PelotaChica1Box.Intersects(MarbleSphere);
+            TocandoPoderPelotaChica = PelotaChica2Box.Intersects(MarbleSphere);
             if (TocandoPoderPelotaChica)
             {
                 TocandoPoderPelotaChica = true;
@@ -520,8 +617,7 @@ namespace TGC.MonoGame.TP
             if (TocandoPoderPelotaLava)
             {
                 TocandoPoderPelotaLava = true;
-                currentMarbleVelocity = PelotaRapida;
-                //PelotaChica1Posicion = new Vector3 (0, -20, 0);
+                currentMarbleVelocity = PelotaLenta;
                 MarbleScale = Matrix.CreateScale(0.03f);
                 MarbleTexture = StoneTexture;
             }
@@ -529,19 +625,24 @@ namespace TGC.MonoGame.TP
             if (TocandoAlas)
             {
                 TocandoPoderPelotaChica = true;
+                MarbleTexture = OrangeLiquid;
                 currentMarbleVelocity *= 2f;
             }
 
-           /* TocandoLava = lava1Box.Intersects(MarbleSphere);
-            if (TocandoLava && ))
+            TocandoLava = lava1Box.Intersects(MarbleSphere) || lava2Box.Intersects(MarbleSphere)|| lava3Box.Intersects(MarbleSphere) || lava4Box.Intersects(MarbleSphere)
+                || lava5Box.Intersects(MarbleSphere) || lava6Box.Intersects(MarbleSphere) || lava7Box.Intersects(MarbleSphere) || lava8Box.Intersects(MarbleSphere); 
+            if (TocandoLava)
             {
                 DateTime start = DateTime.Now;
-                if(DateTime.GreaterThan(DateTime.Now) > start)
+                if(DateTime.Now  > start.AddSeconds(30) && MarbleTexture == StoneTexture)
                 {
-
+                    death = true;
+                }
+                else {
+                    death = true;
                 }
                
-            }*/
+            }
             
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
@@ -707,8 +808,8 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
-            Vector3 PosicionPelotaChica = TocandoPoderPelotaChica ? new Vector3(0, -20, 0): new Vector3(95f, -10f + MathF.Cos(totalGameTime * 2), 13f)  ;
-            DrawMeshes( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica), Aluminio, Esfera);
+            Vector3 PosicionPelotaChica1 = TocandoPoderPelotaChica ? new Vector3(0, -20, 0): new Vector3(95f, -10f + MathF.Cos(totalGameTime * 2), 13f)  ;
+            DrawMeshes( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica1), Aluminio, Esfera);
 
             // plataforma para power up 1
             DrawMeshes((Matrix.CreateScale(2f, 0.2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(88f, -11.7f, 13f))), GreenPlatformBasicTexture, Platform);
@@ -757,16 +858,16 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(18f, 2f, 4f) * Matrix.CreateTranslation(new Vector3(35f, -20f, 110f)) ), GreenPlatformBasicTexture, Platform);
 
             //"lava"1
-            DrawMeshes( ( Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(new Vector3(40f, -20f, 110f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(new Vector3(40f, -20f, 110f)) ), MagmaTexture, Cubo);
 
             //plataforma 2 
             DrawMeshes( ( Matrix.CreateScale(8f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(23f, -18f, 110f)) ), GreenPlatformBasicTexture, Platform);
 
             //"lava"2
-            DrawMeshes( (Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 110f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( (Matrix.CreateScale(3f, 20f, 4f) * Matrix.CreateTranslation(new Vector3(22f, -18f, 110f)) ), MagmaTexture, Cubo);
 
             //fuente de lava
-            DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), MagmaTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(22f, 0f, 110f)) ), VolcanicStone, Cubo);
 
             //Segundo CheckPoint
             DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(16f, -11f, 114f)) ), BluePlaceholderTexture, Platform);
@@ -791,8 +892,9 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -1f, 100f)) ), RedPlatformBasicTexture, Platform);
 
-            //pelota para ser chica
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f)) ), Aluminio, Esfera);
+            //pelota para ser chica 2
+            Vector3 PosicionPelotaChica2 = TocandoPoderPelotaChica ? new Vector3(0, -20, 0) : new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica2) ), Aluminio, Esfera);
 
             //parte 3.2
             //plataforma 1
@@ -868,10 +970,10 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f)) ), RedPlatformTexture, Platform);
 
             //fuente de lava
-            DrawMeshes((Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(-57.5f, 40f, 17f))), MagmaTexture, Cubo);
+            DrawMeshes((Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(-57.5f, 40f, 17f))), VolcanicStone, Cubo);
 
-            //"lava"2
-            DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f)) ), BluePlaceholderTexture, Cubo);
+            //"lava"3
+            DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f)) ), MagmaTexture, Cubo);
 
             //asensor 5
             DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f)) ), RedPlatformTexture, Platform);
@@ -887,20 +989,20 @@ namespace TGC.MonoGame.TP
             //Transformador a pelota normal
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 17f)) ), BluePlaceholderTexture, Esfera);
 
-            //"lava"1
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f * MathF.Cos((totalGameTime * 2f) + 4)), 17f)) ), BluePlaceholderTexture, Cubo);
-
-            //"lava"2
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-32f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 3)), 17f)) ), BluePlaceholderTexture, Cubo);
-
-            //"lava"3
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-27f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 2)), 17f)) ), BluePlaceholderTexture, Cubo);
-
             //"lava"4
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-22f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 1)), 17f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (3f * MathF.Cos((totalGameTime * 2f) + 4)), 17f)) ), MagmaTexture, Cubo);
 
             //"lava"5
-            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 17f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-32f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 3)), 17f)) ), MagmaTexture, Cubo);
+
+            //"lava"6
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-27f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 2)), 17f)) ), MagmaTexture, Cubo);
+
+            //"lava"7
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-22f, 16f + (4f * MathF.Cos((totalGameTime * 2f) + 1)), 17f)) ), MagmaTexture, Cubo);
+
+            //"lava"8
+            DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-17f, 16f + (4f * MathF.Cos(totalGameTime * 2f)), 17f)) ), MagmaTexture, Cubo);
 
             //plataforma 3
             DrawMeshes( ( Matrix.CreateScale(3f, 1f, 15f) * Matrix.CreateTranslation(new Vector3(2f, 22f, 10f)) ), RedPlatformBasicTexture, Platform);
@@ -1161,6 +1263,11 @@ namespace TGC.MonoGame.TP
             {
                 MarbleSphere.Center = RespawnPosition;
                 MarbleVelocity = Vector3.Zero; 
+            }
+            if (death)
+            {
+                MarbleSphere.Center = RespawnPosition;
+                MarbleVelocity = Vector3.Zero;
             }
             
             foreach(BoundingBox checkpoint in checkpoints)
