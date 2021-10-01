@@ -11,9 +11,9 @@ using TGC.MonoGame.TP.Quads;
 using TGC.MonoGame.TP.SkyBoxs;
 using TGC.MonoGame.TP.Collisions;
 
-namespace TGC.MonoGame.Tp
+namespace TGC.MonoGame.TP.MonedasItem
 {
-    class Monedas
+    public class Monedas
     {
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
@@ -43,7 +43,7 @@ namespace TGC.MonoGame.Tp
         {
             //cargo moneda
             Moneda = content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Coin");
-            TextureEffect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            TextureEffect = content.Load<Effect>(ContentFolderEffects + "TextureShader");
             CoinTexture = content.Load<Texture2D>(ContentFolderTextures + "Coin");
             //mesh moneda
             foreach (var mesh in Moneda.Meshes)
@@ -53,8 +53,6 @@ namespace TGC.MonoGame.Tp
         
         public void Draw(GameTime gameTime, Matrix view, Matrix projection, float totalGameTime, Matrix World)
         {
-            TextureEffect.Parameters["View"].SetValue(view);
-            TextureEffect.Parameters["Projection"].SetValue(projection);
             List<Vector3> monedas = new List<Vector3>
             {
                 new Vector3(-43.5f, 20f + MathF.Cos(totalGameTime * 2), 25f),
@@ -104,6 +102,13 @@ namespace TGC.MonoGame.Tp
             foreach (Vector3 vector in monedas)
             {
                 //TP.TGCGame.DrawMeshes((Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(vector)), CoinTexture, Moneda);
+                foreach (var mesh in Moneda.Meshes)
+                {
+                    World = mesh.ParentBone.Transform * (Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(MathHelper.ToRadians(90f)) * Matrix.CreateRotationZ(totalGameTime) * Matrix.CreateTranslation(vector));
+                    TextureEffect.Parameters["Texture"].SetValue(CoinTexture);
+                    TextureEffect.Parameters["World"].SetValue(World);
+                    mesh.Draw();
+                }
             }
         }
 

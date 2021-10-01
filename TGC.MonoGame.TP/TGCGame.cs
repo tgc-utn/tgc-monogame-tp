@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using TGC.MonoGame.TP.Quads;
 using TGC.MonoGame.TP.SkyBoxs;
 using TGC.MonoGame.TP.Collisions;
+using TGC.MonoGame.TP.MonedasItem;
 
 
 
@@ -44,7 +45,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         //importa monedas del archivo monedas
-        private Tp.Monedas monedas { get; set; }
+        private Monedas monedas { get; set; }
 
         //Modelos
         private Model Cartel { get; set; }
@@ -414,8 +415,7 @@ namespace TGC.MonoGame.TP
 
 
             //monedas cargadas
-
-            //monedas = new Tp.Monedas(Content);
+            monedas = new Monedas(Content);
 
 
 
@@ -955,7 +955,7 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
             //se dibuja las monedas
-            //monedas.Draw(gameTime,View, Projection, totalGameTime, World);
+            monedas.Draw(gameTime,View, Projection, totalGameTime, World);
         }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
