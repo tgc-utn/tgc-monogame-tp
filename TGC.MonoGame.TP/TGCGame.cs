@@ -96,9 +96,15 @@ namespace TGC.MonoGame.TP
         private BoundingSphere PelotaChica1Box; 
         private Vector3 PelotaChica1Posicion { get; set; }
         private Matrix PelotChica1World { get; set; }
-        private BoundingBox AlasBox { get; set; }
+        private BoundingSphere PelotaLavaBox;
+        private Vector3 PelotaLavaPosicion { get; set; }
+        private Matrix PelotLavaWorld { get; set; }
+        private OrientedBoundingBox AlasBox { get; set; }
         private Vector3 AlasPosicion { get; set; }
         private Matrix AlasWorld { get; set; }
+        private OrientedBoundingBox lava1Box { get; set; }
+        private Vector3 lava1Posicion { get; set; }
+        private Matrix lava1World { get; set; }
 
         public Vector3 MarblePosition { get; private set; }
         public Vector3 RespawnPosition { get; set; }
@@ -112,6 +118,8 @@ namespace TGC.MonoGame.TP
         private float mouseSensitivity;
         private Vector3 mouseRotationBuffer;
         private bool TocandoPoderPelotaChica { get; set; }
+        private bool TocandoPoderPelotaLava { get; set; }
+        private bool TocandoLava { get; set; }
         private bool TocandoAlas { get; set; }
 
 
@@ -161,7 +169,7 @@ namespace TGC.MonoGame.TP
 
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
-            platformColliders = new BoundingBox[24];
+            platformColliders = new BoundingBox[25];
 
             //Plataformas que no estan rotadas
             platformColliders[0] = new BoundingBox(new Vector3(-25f, -21f, -15f), new Vector3(5f, -16f, 15f));
@@ -188,7 +196,10 @@ namespace TGC.MonoGame.TP
             platformColliders[20] = new BoundingBox(new Vector3(-40f, 20f, 15f), new Vector3(-10f, 21f, 19f)); //-25f, 20f, 17f
             platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f)); //2f, 22f, 10f
             platformColliders[22] = new BoundingBox(new Vector3(-92.75f, 8f, 65.75f), new Vector3(-92.25f, 24f, 66.25f)); //-87.5f, 12f, 65f //Tercer Checkpoint
-            platformColliders[23] = new BoundingBox(new Vector3(-0.25f, 20f, 2.75f), new Vector3(0.25f, 30f, 3.25f)); //0f, 28f, 3f //Checkered Flag
+            platformColliders[23] = new BoundingBox(new Vector3(-0.25f, 20f, 2.75f), new Vector3(0.25f, 30f, 3.25f));//0f, 28f, 3f //Checkered Flag
+            platformColliders[21] = new BoundingBox(new Vector3(-1f, 21f, -5f), new Vector3(5f, 23f, 25f)); 
+
+            
 
             //Checkpoints
             checkpoints = new List<BoundingBox>();
@@ -214,6 +225,16 @@ namespace TGC.MonoGame.TP
             TocandoPoderPelotaChica = false;
             PelotaChica1Posicion = new Vector3(95f, -10f, 13f);
             PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
+            //powerups pelota lava
+            TocandoPoderPelotaLava = false;
+            PelotaLavaPosicion = new Vector3(65f, -13f, 112f);
+            PelotLavaWorld = Matrix.CreateTranslation(PelotaLavaPosicion);
+
+            // lava
+            TocandoLava = false;
+            lava1Posicion = new Vector3(40f, -20f, 110f);
+            lava1World = Matrix.CreateScale(10f, 3f, 4f) * Matrix.CreateTranslation(lava1Posicion);
+
             //powerup alas
             TocandoAlas = false;
             AlasPosicion = new Vector3(86f, -16f, 45f);
@@ -368,19 +389,33 @@ namespace TGC.MonoGame.TP
             PelotaChica1Box.Radius = 1f;
             //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
 
+            //PowerUp Pelota de lava
+            PelotaLavaBox = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
+            PelotaLavaBox.Center = PelotaLavaPosicion;
+            PelotaLavaBox.Radius = 1f;
+
             //Power up alas
             var tempCube = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Wings);
             tempCube = Tp.Collisions.BoundingVolumesExtensions.Scale(tempCube, 0.007f);
             
             //power up collision box con fallas, despues lo arreglo
             
-            /*AlasBox = Tp.Collisions.OrientedBoundingBox.FromAABB(tempCube);
+            AlasBox = OrientedBoundingBox.FromAABB(tempCube);
             AlasBox.Center = AlasPosicion;
-            AlasBox.Orientation = Matrix.CreateRotationX(-0.785398f);*/
+            AlasBox.Orientation = Matrix.CreateRotationX(-0.785398f);
+
+            var templava = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Cubo);
+            templava = Tp.Collisions.BoundingVolumesExtensions.Scale(tempCube, 0.007f);
+
+            lava1Box = OrientedBoundingBox.FromAABB(templava);
+            lava1Box.Center = lava1Posicion; 
+            
+
+
 
             //monedas cargadas
 
-            monedas = new Tp.Monedas(Content);
+            //monedas = new Tp.Monedas(Content);
 
 
 
@@ -481,12 +516,32 @@ namespace TGC.MonoGame.TP
                 MarbleScale = Matrix.CreateScale(0.01f);
                 MarbleTexture = Aluminio;
             }
+            TocandoPoderPelotaLava = PelotaLavaBox.Intersects(MarbleSphere);
+            if (TocandoPoderPelotaLava)
+            {
+                TocandoPoderPelotaLava = true;
+                currentMarbleVelocity = PelotaRapida;
+                //PelotaChica1Posicion = new Vector3 (0, -20, 0);
+                MarbleScale = Matrix.CreateScale(0.03f);
+                MarbleTexture = StoneTexture;
+            }
             TocandoAlas = AlasBox.Intersects(MarbleSphere);
             if (TocandoAlas)
             {
                 TocandoPoderPelotaChica = true;
                 currentMarbleVelocity *= 2f;
             }
+
+           /* TocandoLava = lava1Box.Intersects(MarbleSphere);
+            if (TocandoLava && ))
+            {
+                DateTime start = DateTime.Now;
+                if(DateTime.GreaterThan(DateTime.Now) > start)
+                {
+
+                }
+               
+            }*/
             
             MarbleVelocity += MarbleAcceleration * deltaTime;
 
@@ -618,7 +673,7 @@ namespace TGC.MonoGame.TP
 
             //Pista de Obstaculos
             //Nivel 1
-            //Principio
+            //Principio /
 
             DrawMeshes( ( Matrix.CreateScale(15f, 2f, 15f) * Matrix.CreateTranslation(new Vector3(-10f, -18f, 0f)) ), BluePlatformTexture, Platform);
 
@@ -900,7 +955,7 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
             //se dibuja las monedas
-            monedas.Draw(gameTime,View, Projection, totalGameTime, World);
+            //monedas.Draw(gameTime,View, Projection, totalGameTime, World);
         }
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
