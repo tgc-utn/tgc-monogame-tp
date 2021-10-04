@@ -10,6 +10,7 @@ using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.MonedasItem;
 using BEPUphysics;
 using BEPUphysics.Entities.Prefabs;
+using BEPUphysics.Entities;
 using BEPUphysics.BroadPhaseEntries.MobileCollidables;
 using BEPUphysics.BroadPhaseEntries;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
@@ -125,7 +126,7 @@ namespace TGC.MonoGame.TP
         private Vector3 lava6Posicion { get; set; }
         private Matrix lava6World { get; set; }
 
-        private Box[] platformColliders;
+        private Box[] DynamicPlatformColliders;
         private Sphere MarbleSphere;
 
         private OrientedBoundingBox lava7Box { get; set; }
@@ -173,12 +174,14 @@ namespace TGC.MonoGame.TP
 
         private Space space;
         private Sphere AluminioPowerupCollider;
+
         public Sphere AluminioPowerupCollider2 { get; private set; }
 
         public CollisionGroupPair MarblePowerUpGroupPair { get; private set; }
         public CollisionGroupPair MarbleCheckpointGroupPair { get; private set; }
         public CollisionGroupPair PlatformCheckpointGroupPair { get; private set; }
         public CollisionGroupPair PlatformPowerUpGroupPair { get; private set; }
+        public CollisionGroupPair PlatfomrPlatformGroupPair { get; private set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -209,7 +212,7 @@ namespace TGC.MonoGame.TP
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
-            MarblePosition = new Vector3(3f, 28f, 3f); //<- Para Probar
+            //MarblePosition = new Vector3(-43f, 30f, 17f); //<- Para Probar
             RespawnPosition = MarblePosition;
             
             MarbleVelocity = Vector3.Zero;
@@ -234,10 +237,12 @@ namespace TGC.MonoGame.TP
             MarbleCheckpointGroupPair = new CollisionGroupPair(MarbleGroup, CheckpointGroup);
             PlatformCheckpointGroupPair = new CollisionGroupPair(CheckpointGroup, PlatformGroup);
             PlatformPowerUpGroupPair = new CollisionGroupPair(PlatformGroup, PowerUpGroup);
+            PlatfomrPlatformGroupPair = new CollisionGroupPair(PlatformGroup, PlatformGroup);
             CollisionRules.CollisionGroupRules.Add(MarblePowerUpGroupPair, CollisionRule.NoSolver);
             CollisionRules.CollisionGroupRules.Add(MarbleCheckpointGroupPair, CollisionRule.NoSolver);
             CollisionRules.CollisionGroupRules.Add(PlatformCheckpointGroupPair, CollisionRule.NoBroadPhase);
             CollisionRules.CollisionGroupRules.Add(PlatformPowerUpGroupPair, CollisionRule.NoBroadPhase);
+            CollisionRules.CollisionGroupRules.Add(PlatfomrPlatformGroupPair, CollisionRule.NoBroadPhase);
 
             CreatePlatformsBoxes(PlatformGroup);
             CreateCheckpoints(CheckpointGroup);
@@ -324,79 +329,75 @@ namespace TGC.MonoGame.TP
 
         private void CreatePlatformsBoxes(CollisionGroup platformGroup)
         {
-            platformColliders = new Box[43];
+            DynamicPlatformColliders = new Box[45];
 
-            CreatePlatformBox(0, platformGroup, new BEPUutilities.Vector3(-10f, -17f, 0f), 30f, 2f, 30f);
-            CreatePlatformBox(1, platformGroup, new BEPUutilities.Vector3(19f, -17f, 0f), 10f, 2f, 10f);
-            CreatePlatformBox(2, platformGroup, new BEPUutilities.Vector3(28f, -15f, 0f), 14.9f, 2f, 10f); //Rampa
-            platformColliders[2].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, 0f, BEPUutilities.MathHelper.ToRadians(45f));
-            CreatePlatformBox(3, platformGroup, new BEPUutilities.Vector3(38f, -9.2f, 0f), 9f, 2f, 10f);
-            CreatePlatformBox(4, platformGroup, new BEPUutilities.Vector3(70f, -17f, 0f), 30f, 2f, 10f); //70f, -18f, 0f
-            CreatePlatformBox(5, platformGroup, new BEPUutilities.Vector3(70f, -13f, 0f), 8f, 2f, 10f);
-            CreatePlatformBox(6, platformGroup, new BEPUutilities.Vector3(70f, -10f, 0f), 2f, 8f, 2f); //Plataforma que sube y baja
-            CreatePlatformBox(7, platformGroup, new BEPUutilities.Vector3(84f, -11f, -4f), 0.5f, 8f, 0.5f); //Mastil del Checkpoint 1
-            CreatePlatformBox(8, platformGroup, new BEPUutilities.Vector3(84f, -17f, 30f), 40f, 2f, 5f); //rotation: Y -8f
-            platformColliders[8].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(8f, 0f, 0f);
-            CreatePlatformBox(9, platformGroup, new BEPUutilities.Vector3(84f, -8f, 30f), 10f, 10f, 10f); //84f, -10f, 30f
-            CreatePlatformBox(10, platformGroup, new BEPUutilities.Vector3(75f, -17f, 85f), 60f, 2f, 5f);  //75f, -18f, 85f
-            platformColliders[10].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f);
-            CreatePlatformBox(11, platformGroup, new BEPUutilities.Vector3(75f, -8f, 80f), 40f, 10f, 15f);  //75f, -8f, 80f
-            platformColliders[11].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f);
-            CreatePlatformBox(12, platformGroup, new BEPUutilities.Vector3(52f, -17f, 110f), 10f, 2f, 10f); //52f, -18f, 110f
-            CreatePlatformBox(13, platformGroup, new BEPUutilities.Vector3(35f, -19f, 110f), 40f, 2f, 8f);  //35f, -20f, 110f
-            CreatePlatformBox(14, platformGroup, new BEPUutilities.Vector3(23f, -17f, 110f), 16f, 2f, 10f);  //23f, -18f, 110f
-            CreatePlatformBox(15, platformGroup, new BEPUutilities.Vector3(16f, -11f, 114f), 0.5f, 8f, 0.5f); //16f, -11f, 119f //Segundo Checkpoint
-            CreatePlatformBox(16, platformGroup, new BEPUutilities.Vector3(-3f, -17f, 100f), 30f, 2f, 6f);  //-3f, -18f, 100f
-            platformColliders[16].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(17, platformGroup, new BEPUutilities.Vector3(4f, -12f, 115f), 5f, 2f, 5f);  //4f, -12f, 115f //Plataforma que sube y baja
-            platformColliders[17].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(18, platformGroup, new BEPUutilities.Vector3(-3f, -10f, 100), 20f, 5f, 6f);  //-3f, -12f, 100
-            platformColliders[18].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(19, platformGroup, new BEPUutilities.Vector3(-5.5f, -4.5f, 98.9f), 14f, 5f, 6f);  //-5.5f, -6.5f, 98.9f
-            platformColliders[19].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(20, platformGroup, new BEPUutilities.Vector3(-3f, 1f, 100f), 20f, 5f, 6f);  //-3f, -1f, 100f
-            platformColliders[20].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(21, platformGroup, new BEPUutilities.Vector3(-36f, -17f, 83f), 36f, 2f, 6f); //-36f, -18f, 83f
-            platformColliders[21].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(22, platformGroup, new BEPUutilities.Vector3(-27f, -17f, 84f), 4f, 9f, 6f); //-27f, -18f, 84f
-            platformColliders[22].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(23, platformGroup, new BEPUutilities.Vector3(-37f, -17f, 81f), 4f, 18f, 6f); //-37f, -18f, 81f
-            platformColliders[23].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(24, platformGroup, new BEPUutilities.Vector3(-52f, -17f, 76f), 4f, 18f, 6f); //-52f, -18f, 76f
-            platformColliders[24].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(25, platformGroup, new BEPUutilities.Vector3(-58f, -9f, 72f), 10f, 2f, 6f); //-59f, -9.2f, 72f
-            platformColliders[25].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(26, platformGroup, new BEPUutilities.Vector3(-70f, -6f, 67.5f), 10f, 2f, 10f); //-70f, -7f, 67.5f Matrix.CreateRotationY(MathHelper.ToRadians(15f) //Plataforma que Gira en eje Z
-            platformColliders[26].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(15f), 0f, 0f);
-            CreatePlatformBox(27, platformGroup, new BEPUutilities.Vector3(-80f, -4f, 67.5f), 10f, 2f, 5f); //-80f, -4f, 67.5f
-            platformColliders[27].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(28, platformGroup, new BEPUutilities.Vector3(-87.5f, -2f, 65f), 10f, 20f, 6f); //-87.5f, -2f, 65f
-            platformColliders[28].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f);
-            CreatePlatformBox(29, platformGroup, new BEPUutilities.Vector3(-92.5f, 12f, 65f), 0.5f, 10f, 0.5f);  //-92.5f, 12f, 65f //Tercer Checkpoint
-            CreatePlatformBox(30, platformGroup, new BEPUutilities.Vector3(-87.5f, 10f, 42f), 6f, 2f, 36f); //-87.5f, 10f, 42f
-            CreatePlatformBox(31, platformGroup, new BEPUutilities.Vector3(-87.5f, 0f, 25f), 4f, 1f, 4f); //-87.5f, 0f, 25f
-            CreatePlatformBox(32, platformGroup, new BEPUutilities.Vector3(-87.5f, 8f, 20f), 4f, 2f, 4f); //-87.5f, 8f + (4 * MathF.Cos(totalGameTime)), 20f
-            CreatePlatformBox(33, platformGroup, new BEPUutilities.Vector3(-80f, 8f, 17f), 4f, 2f, 4f); //-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f
-            CreatePlatformBox(34, platformGroup, new BEPUutilities.Vector3(-72.5f, 8f, 17f), 4f, 2f, 4f); //-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 17f
-            CreatePlatformBox(35, platformGroup, new BEPUutilities.Vector3(-62.5f, 8f, 17f), 4f, 2f, 4f); //-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f
-            CreatePlatformBox(36, platformGroup, new BEPUutilities.Vector3(-51f, 8f, 17f), 4f, 2f, 4f); //-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f
-            CreatePlatformBox(37, platformGroup, new BEPUutilities.Vector3(-43f, 8f, 17f), 4f, 2f, 4f); //-43f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f
-            CreatePlatformBox(38, platformGroup, new BEPUutilities.Vector3(-25f, 20f, 17f), 30f, 2f, 6f); //-25f, 20f, 17f
-            CreatePlatformBox(39, platformGroup, new BEPUutilities.Vector3(-6.5f, 18f, 24f), 1f, 24f, 2f);//-6.5f, 18f, 24f Molino 1
-            CreatePlatformBox(40, platformGroup, new BEPUutilities.Vector3(-6.5f, 18f, 24f), 1f, 24f, 2f);//-6.5f, 18f, 24f Molino 2 Roll.MathHelper.ToRadians(90f)
-            platformColliders[40].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, MathHelper.ToRadians(90f), 0f);
-            CreatePlatformBox(41, platformGroup, new BEPUutilities.Vector3(2f, 22f, 10f), 6f, 2f, 30f); //2f, 22f, 10f
-            CreatePlatformBox(42, platformGroup, new BEPUutilities.Vector3(0f, 28f, 3f), 0.5f, 10f, 0.5f); //0f, 28f, 3f //Checkered Flag
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-10f, -17f, 0f), 30f, 2f, 30f);
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(19f, -17f, 0f), 15f, 2f, 10f);
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(30f, -12.5f, 0f), 8f, 2f, 10f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, 0f, BEPUutilities.MathHelper.ToRadians(45f))); //Rampa 30f, -14f, 0f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(37.1f, -10.1f, 0f), 10f, 2f, 10f); //37.1f, -11.1f, 0f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(70f, -17f, 0f), 30f, 2f, 10f); //70f, -18f, 0f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(70f, -13f, 0f), 8f, 2f, 10f);
+            DynamicPlatformColliders[0] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(70f, -12f, 0f), 4f, 8f, 10f); //Plataforma que sube y baja
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(84f, -11f, -4f), 0.5f, 8f, 0.5f); //Mastil del Checkpoint 1
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(84f, -17f, 30f), 40f, 2f, 5f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(8f, 0f, 0f)); //rotation: Y -8f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(84f, -8f, 30f), 10f, 10f, 10f); //84f, -10f, 30f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(75f, -17f, 85f), 60f, 2f, 5f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f));  //75f, -18f, 85f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(75f, -8f, 80f), 40f, 10f, 15f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f));  //75f, -8f, 80f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(52f, -17f, 110f), 10f, 2f, 10f); //52f, -18f, 110f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(35f, -19f, 110f), 40f, 2f, 8f);  //35f, -20f, 110f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(23f, -17f, 110f), 16f, 2f, 10f);  //23f, -18f, 110f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(16f, -11f, 114f), 0.5f, 8f, 0.5f); //16f, -11f, 119f //Segundo Checkpoint
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-3f, -17f, 100f), 30f, 2f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f));  //-3f, -18f, 100f
+            DynamicPlatformColliders[1] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(4f, -12f, 115f), 5f, 2f, 5f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f));  //4f, -12f, 115f //Plataforma que sube y baja
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-3f, -10f, 100), 20f, 5f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f));  //-3f, -12f, 100
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-5.5f, -4.5f, 98.9f), 14f, 5f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f));  //-5.5f, -6.5f, 98.9f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-3f, 1f, 100f), 20f, 5f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f));  //-3f, -1f, 100f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-36f, -17f, 83f), 36f, 2f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-36f, -18f, 83f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-27f, -17f, 84f), 4f, 9f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-27f, -18f, 84f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-37f, -17f, 81f), 4f, 18f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-37f, -18f, 81f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-52f, -17f, 76f), 4f, 18f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-52f, -18f, 76f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-58f, -9f, 72f), 10f, 2f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-59f, -9.2f, 72f
+            DynamicPlatformColliders[2] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-70f, -6f, 67.5f), 10f, 2f, 10f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(15f), 0f, 0f)); //-70f, -7f, 67.5f Matrix.CreateRotationY(MathHelper.ToRadians(15f) //Plataforma que Gira en eje Z
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-80f, -4f, 67.5f), 10f, 2f, 5f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-80f, -4f, 67.5f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-87.5f, -2f, 65f), 10f, 20f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.436332f, 0f, 0f)); //-87.5f, -2f, 65f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-92.5f, 12f, 65f), 0.5f, 10f, 0.5f);  //-92.5f, 12f, 65f //Tercer Checkpoint
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-87.5f, 10f, 42f), 6f, 2f, 36f); //-87.5f, 10f, 42f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-87.5f, 0f, 25f), 4f, 1f, 4f); //-87.5f, 0f, 25f
+            DynamicPlatformColliders[3] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-87.5f, 8f, 20f), 4f, 2f, 4f); //-87.5f, 8f + (4 * MathF.Cos(totalGameTime)), 20f
+            DynamicPlatformColliders[4] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-80f, 8f, 17f), 4f, 2f, 4f); //-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f
+            DynamicPlatformColliders[5] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-72.5f, 8f, 17f), 4f, 2f, 4f); //-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 17f
+            DynamicPlatformColliders[6] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-62.5f, 8f, 17f), 4f, 2f, 4f); //-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f
+            DynamicPlatformColliders[7] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-51f, 8f, 17f), 4f, 2f, 4f); //-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f
+            DynamicPlatformColliders[8] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-43f, 15f, 17f), 4f, 2f, 4f); //-43f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-25f, 20f, 17f), 30f, 2f, 6f); //-25f, 20f, 17f
+            DynamicPlatformColliders[9] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-6.5f, 18f, 24f), 1f, 24f, 2f);//-6.5f, 18f, 24f Molino 1
+            DynamicPlatformColliders[10] = CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(-6.5f, 18f, 24f), 1f, 24f, 2f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, MathHelper.ToRadians(90f), 0f));//-6.5f, 18f, 24f Molino 2 Roll.MathHelper.ToRadians(90f)
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(2f, 22f, 10f), 6f, 2f, 30f); //2f, 22f, 10f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(0f, 28f, 3f), 0.5f, 10f, 0.5f); //0f, 28f, 3f //Checkered Flag
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(88f, -12.2f, 13f), 4f, 1f, 4f); //88f, -11.7f, 13f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(95f, -12.8f, 13f), 4f, 1f, 4f); //95f, -12.3f, 13f
         }
 
-        private void CreatePlatformBox(int index, CollisionGroup platformGroup, BEPUutilities.Vector3 pos, float width, float height, float length)
+        private Box CreatePlatformBox(CollisionGroup platformGroup, BEPUutilities.Vector3 pos, float width, float height, float length, BEPUutilities.Quaternion orientation)
         {
-            platformColliders[index] = new Box(pos, width, height, length);
-            platformColliders[index].CollisionInformation.CollisionRules.Group = platformGroup;
-            platformColliders[index].CollisionInformation.Events.InitialCollisionDetected += HandleCollision;
-            space.Add(platformColliders[index]);
+            Box platformCollider = new Box(pos, width, height, length);
+            platformCollider.Orientation = orientation;
+            platformCollider.CollisionInformation.CollisionRules.Group = platformGroup;
+            platformCollider.CollisionInformation.Events.InitialCollisionDetected += HandleCollision;
+            space.Add(platformCollider);
+
+            return platformCollider;
         }
 
+        private Box CreatePlatformBox(CollisionGroup platformGroup, BEPUutilities.Vector3 pos, float width, float height, float length)
+        {
+            Box platformCollider = new Box(pos, width, height, length);
+            platformCollider.CollisionInformation.CollisionRules.Group = platformGroup;
+            platformCollider.CollisionInformation.Events.InitialCollisionDetected += HandleCollision;
+            space.Add(platformCollider);
+
+            return platformCollider;
+        }
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
@@ -831,7 +832,7 @@ namespace TGC.MonoGame.TP
 
             DrawMeshes( ( Matrix.CreateScale(4f, 2f, 5f) * Matrix.CreateTranslation(new Vector3(70f, -14f, 0f)) ), BluePlatformBasicTexture, Platform);
 
-            DrawMeshes( ( Matrix.CreateScale(2f, 4f, 4.9f) * Matrix.CreateTranslation(new Vector3(70f, (-4f * MathF.Cos(totalGameTime)) - 12f, 0f)) ), BluePlatformBasicTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 4f, 4.9f) * Matrix.CreateTranslation(new Vector3(70f, (-4f * MathF.Cos(totalGameTime + MathHelper.PiOver2)) - 12f, 0f)) ), BluePlatformBasicTexture, Platform);
 
             //tunel
             DrawMeshes( ( Matrix.CreateScale(0.008f) * Matrix.CreateRotationY(7.9f) * Matrix.CreateTranslation(new Vector3(70f, -12f, 0f)) ), Color.Salmon, TunnelChico);
@@ -839,7 +840,7 @@ namespace TGC.MonoGame.TP
 
 
             //Primer punto de control (bandera)
-            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(84f, -11f, -4f)) ), BluePlaceholderTexture, Cubo);
+            DrawMeshes( ( Matrix.CreateScale(0.2f, 5f, 0.2f) * Matrix.CreateTranslation(new Vector3(84f, -11f, -4f)) ), WoodTexture, Cubo);
 
             DrawMeshes( ( Matrix.CreateScale(4f, 3f, 0.2f) * Matrix.CreateTranslation(new Vector3(85.8f, -7.5f, -4f)) ), FlagCheckpointTexture, Flag);
 
@@ -923,7 +924,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(15f, 2f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -18f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //asensor para subir a parte de arriba
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos(totalGameTime * 2)), 115f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos((totalGameTime * 2) + MathHelper.PiOver2)), 115f)) ), RedPlatformTexture, Platform);
 
             //parte de arriba
             DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, -10f, 100f)) ), RedPlatformBasicTexture, Platform);
@@ -998,16 +999,16 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 25f)) ), BluePlaceholderTexture, Esfera);
 
             //asensor 1
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (4 * MathF.Cos(totalGameTime)), 20f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (4 * MathF.Cos(totalGameTime + MathHelper.PiOver2)), 20f)) ), RedPlatformTexture, Platform);
 
             //asensor 2
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos(totalGameTime * 2 + MathHelper.PiOver2)), 17f)) ), RedPlatformTexture, Platform);
 
             //asensor 3
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 17f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-72.5f, 8f + (8 * MathF.Cos(totalGameTime * 1.5f + MathHelper.PiOver2)), 17f)) ), RedPlatformTexture, Platform);
 
             //asensor 4
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos(totalGameTime * 3f + MathHelper.PiOver2)), 17f)) ), RedPlatformTexture, Platform);
 
             //fuente de lava
             DrawMeshes((Matrix.CreateScale(5f, 3f, 5f) * Matrix.CreateTranslation(new Vector3(-57.5f, 40f, 17f))), VolcanicStone, Cubo);
@@ -1016,10 +1017,10 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(3f, 40f, 4f) * Matrix.CreateTranslation(new Vector3(-57.5f, 0f, 17f)) ), MagmaTexture, Cubo);
 
             //asensor 5
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos(totalGameTime * 2.5f + MathHelper.PiOver2)), 17f)) ), RedPlatformTexture, Platform);
 
             //asensor 6
-            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f)) ), RedPlatformTexture, Platform);
+            DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43f, 15f + (9 * MathF.Cos(totalGameTime * 4f + MathHelper.PiOver2)), 17f)) ), RedPlatformTexture, Platform);
 
 
             //Parte 4.3
@@ -1158,36 +1159,37 @@ namespace TGC.MonoGame.TP
 
         private void UpdatePlatformsColliders(float TotalTime)
         {
-            platformColliders[6].Position = new BEPUutilities.Vector3(platformColliders[6].Position.X, (-4f * MathF.Cos(TotalTime)) - 12f, platformColliders[6].Position.Z);
+            //No se puede actualizar posicion
+            //platformColliders[6].Position = new BEPUutilities.Vector3(platformColliders[6].Position.X, (-4f * MathF.Cos(TotalTime)) - 12f, platformColliders[6].Position.Z);
+            DynamicPlatformColliders[0].LinearVelocity = new BEPUutilities.Vector3(0, 4f * MathF.Cos(TotalTime), 0);
 
-            platformColliders[17].Position = new BEPUutilities.Vector3(platformColliders[17].Position.X, 8f + (8 * MathF.Cos(TotalTime)), platformColliders[17].Position.Z);
+            //-12f + (4 * MathF.Cos(totalGameTime * 2))
+            DynamicPlatformColliders[1].LinearVelocity = new BEPUutilities.Vector3(0, -8f * MathF.Cos(TotalTime * 2f), 0);
 
-            /*
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-80f, 8f + (8 * MathF.Cos((totalGameTime * 2) + 2)), 17f)) ), RedPlatformTexture, Platform);
-            MovePlatformBoundingBox(15, TotalTime, 8 * MathF.Cos((TotalTime * 2) + 2), 8f, 1f);
-
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-72.5f, 8f + (8 * MathF.Cos((totalGameTime * 1.5f) + 4)), 17f)) ), RedPlatformTexture, Platform);
-            MovePlatformBoundingBox(16, TotalTime, 8 * MathF.Cos((TotalTime * 1.5f) + 4), 8f, 1f);
-
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-62.5f, 8f + (8 * MathF.Cos((totalGameTime * 3f) + 6)), 17f)) ), RedPlatformTexture, Platform);
-            MovePlatformBoundingBox(17, TotalTime, 8 * MathF.Cos((TotalTime * 3f) + 6), 8f, 1f);
-
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-51f, 8f + (8 * MathF.Cos((totalGameTime * 2.5f) + 8)), 17f)) ), RedPlatformTexture, Platform);
-            MovePlatformBoundingBox(18, TotalTime, 8 * MathF.Cos((TotalTime * 2.5f) + 8), 8f, 1f);
-
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-43f, 15f + (9 * MathF.Cos((totalGameTime * 4f) + 10)), 17f)) ), RedPlatformTexture, Platform);
-            MovePlatformBoundingBox(19, TotalTime, 9 * MathF.Cos((TotalTime * 4f) + 10), 15f, 1f);
-
-            //DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(4f, -12f + (4 * MathF.Cos(totalGameTime * 2)), 115f)) ), RedPlatformTexture, Platform);
-            MoveOrientedBoundingBox(4, Matrix.CreateRotationY(0.436332f), new Vector3(4f, -12f + (4 * MathF.Cos(TotalTime * 2)), 115f));
-            
             //DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 67.5f)) ), RedPlatformBasicTexture, Platform);
-            MoveOrientedBoundingBox(13, Matrix.CreateRotationY(MathHelper.ToRadians(15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * TotalTime)), new Vector3(-70f, -7f, 67.5f));
-            */
+            //DynamicPlatformCollider[2]
 
-            platformColliders[39].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, Rotation, 0f);
+            //8f + (4 * MathF.Cos(totalGameTime + MathHelper.PiOver2))
+            DynamicPlatformColliders[3].LinearVelocity = new BEPUutilities.Vector3(0, -4f * MathF.Cos(TotalTime), 0);
 
-            platformColliders[40].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, Rotation + MathHelper.ToRadians(90f), 0f);
+            //8 * MathF.Cos(TotalTime * 2 + MathHelper.PiOver2);
+            DynamicPlatformColliders[4].LinearVelocity = new BEPUutilities.Vector3(0, -16f * MathF.Cos(TotalTime * 2), 0);
+
+            //8f + (8 * MathF.Cos(totalGameTime * 1.5f + MathHelper.PiOver2))
+            DynamicPlatformColliders[5].LinearVelocity = new BEPUutilities.Vector3(0, -12f * MathF.Cos(TotalTime * 1.5f), 0);
+
+            //8f + (8 * MathF.Cos(totalGameTime * 3f + MathHelper.PiOver2))
+            DynamicPlatformColliders[6].LinearVelocity = new BEPUutilities.Vector3(0, -24f * MathF.Cos(TotalTime * 3f), 0);
+
+            //8f + (8 * MathF.Cos(totalGameTime * 2.5f + MathHelper.PiOver2))
+            DynamicPlatformColliders[7].LinearVelocity = new BEPUutilities.Vector3(0, -20f * MathF.Cos(TotalTime * 2.5f), 0);
+
+            //15f + (9 * MathF.Cos(totalGameTime * 4f + MathHelper.PiOver2))
+            DynamicPlatformColliders[8].LinearVelocity = new BEPUutilities.Vector3(0, -36f * MathF.Cos(TotalTime * 4f), 0);
+
+            DynamicPlatformColliders[9].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, Rotation, 0f);
+
+            DynamicPlatformColliders[10].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, Rotation + MathHelper.ToRadians(90f), 0f);
         }
     }
 }
