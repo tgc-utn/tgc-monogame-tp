@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Content;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Quads;
 using TGC.MonoGame.TP.SkyBoxs;
-using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP.MonedasItem
 {

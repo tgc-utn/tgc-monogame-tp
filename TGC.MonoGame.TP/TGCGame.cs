@@ -6,7 +6,6 @@ using TGC.MonoGame.Samples.Cameras;
 using System.Collections.Generic;
 using TGC.MonoGame.TP.Quads;
 using TGC.MonoGame.TP.SkyBoxs;
-using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.MonedasItem;
 using BEPUphysics;
 using BEPUphysics.Entities.Prefabs;
@@ -67,6 +66,7 @@ namespace TGC.MonoGame.TP
         public Effect TextureEffect { get; set; }
         public Effect LavaEffect { get; set; }
         public Effect SkyboxEffect { get; set; }
+        public Texture2D NormalTexture { get; private set; }
         private Texture2D MarbleTexture { get; set; }
         private Texture2D SpikesTexture { get; set; }
         private Texture2D LavaTexture { get; set; }
@@ -98,15 +98,6 @@ namespace TGC.MonoGame.TP
         private Camera Camera { get; set; }
         public Quad quad { get; set; }
         private SkyBox skybox { get; set; }
-        private Vector3 PelotaChica1Posicion { get; set; }
-        private Matrix PelotChica1World { get; set; }
-        private Vector3 PelotaChica2Posicion { get; set; }
-        private Matrix PelotChica2World { get; set; }
-        private Vector3 PelotaLavaPosicion { get; set; }
-        private Matrix PelotLavaWorld { get; set; }
-        private OrientedBoundingBox AlasBox { get; set; }
-        private Vector3 AlasPosicion { get; set; }
-        private Matrix AlasWorld { get; set; }
 
         private Box[] DynamicPlatformColliders;
         private Box[] DynamicLavaColliders;
@@ -137,9 +128,10 @@ namespace TGC.MonoGame.TP
         private float JumpSpeed = 10f;
         public float DefaultSpeed = 30f;
         public float PelotaRapida = 5f;
-        public float LinearSpeed = 3f;
+        public float PelotaNormal = 3f;
         public float PelotaLenta = 2f;
 
+        public float LinearSpeed = 3f;
 
         private float SkyBoxSize = 400f;
         private const float EPSILON = 0.00001f;
@@ -148,7 +140,6 @@ namespace TGC.MonoGame.TP
         private float rotacionAngular;
 
         private Space space;
-        private Sphere AluminioPowerupCollider;
 
         public Sphere AluminioPowerupCollider2 { get; private set; }
 
@@ -159,7 +150,14 @@ namespace TGC.MonoGame.TP
         public CollisionGroupPair PlatformPlatformGroupPair { get; private set; }
         public CollisionGroupPair LavaMarbleGroupPair { get; private set; }
         public CollisionGroupPair LavaPlatformGroupPair { get; private set; }
-        public Box LavaBoxTest { get; private set; }
+
+        public struct PowerUp
+        {
+            public Entity Collider;
+            public bool Obtained;
+        }
+
+        public List<PowerUp> powerUps;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -190,7 +188,7 @@ namespace TGC.MonoGame.TP
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
-            //MarblePosition = new Vector3(-17f, 22f, 17f); //<- Para Probar
+            MarblePosition = new Vector3(-43.5f, 20f, 17f); //<- Para Probar
             RespawnPosition = MarblePosition;
 
             MarbleVelocity = Vector3.Zero;
@@ -234,47 +232,84 @@ namespace TGC.MonoGame.TP
             CreatePlatformsBoxes(PlatformGroup);
             CreateCheckpoints(CheckpointGroup);
             CreateLavas(LavaGroup);
+            CreatePowerUps(PowerUpGroup);
 
             MarbleSphere = new Sphere(new BEPUutilities.Vector3(MarblePosition.X, MarblePosition.Y, MarblePosition.Z), 2f, 1f);
             MarbleSphere.Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, 0f, 0f);
             MarbleSphere.CollisionInformation.CollisionRules.Group = MarbleGroup;
 
-            //powerups bounding boxes
-            //PelotaChica1Posicion = new Vector3(95f, -10f, 13f);
-            //PelotChica1World = Matrix.CreateTranslation(PelotaChica1Posicion);
-            TocandoPoderPelotaChica = false;
-            AluminioPowerupCollider = new Sphere(new BEPUutilities.Vector3(95f, -10f, 13f), 1f);
-            AluminioPowerupCollider.CollisionInformation.CollisionRules.Group = PowerUpGroup;
-            AluminioPowerupCollider.CollisionInformation.Events.DetectingInitialCollision += HandleAluminioPowerUpCollision;
-            
-            // powerup pelota chica 2 
-            //PelotaChica2Posicion = new Vector3(2.5f, -7.5f, 105f);
-            //PelotChica2World = Matrix.CreateTranslation(PelotaChica2Posicion);
-            AluminioPowerupCollider2 = new Sphere(new BEPUutilities.Vector3(2.5f, -7.5f, 105f), 1f);
-            AluminioPowerupCollider2.CollisionInformation.CollisionRules.Group = PowerUpGroup;
-            AluminioPowerupCollider2.CollisionInformation.Events.DetectingInitialCollision += HandleAluminioPowerUpCollision;
-
-            //powerups pelota lava
-            TocandoPoderPelotaLava = false;
-            //PelotaLavaPosicion = new Vector3(65f, -13f, 112f);
-            //PelotLavaWorld = Matrix.CreateTranslation(PelotaLavaPosicion);
-            LavaPowerupCollider = new Sphere(new BEPUutilities.Vector3(65f, -13f, 112f), 1f);
-            LavaPowerupCollider.CollisionInformation.CollisionRules.Group = PowerUpGroup;
-            LavaPowerupCollider.CollisionInformation.Events.DetectingInitialCollision += HandleLavaPowerUpCollision;
-
-            //powerup alas
-            TocandoAlas = false;
-            AlasPosicion = new Vector3(86f, -16f, 45f);
-            AlasWorld = Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(AlasPosicion);
-            //( Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(new Vector3(86f, -16f, 45f)) ), Color.BlueViolet, Wings);
-
             space.Add(MarbleSphere);
-            space.Add(AluminioPowerupCollider);
-            space.Add(AluminioPowerupCollider2);
-            space.Add(LavaPowerupCollider);
             space.ForceUpdater.Gravity = new BEPUutilities.Vector3(0f, Gravity, 0f);
 
             base.Initialize();
+        }
+
+        private void CreatePowerUps(CollisionGroup powerUpGroup)
+        {
+            powerUps = new List<PowerUp>();
+
+            PowerUp newPowerUp;
+
+            //Aluminio -0
+            newPowerUp = CreatePowerUp(powerUpGroup, new BEPUutilities.Vector3(95f, -10f, 13f), 1f);
+            newPowerUp.Collider.CollisionInformation.Events.DetectingInitialCollision += HandleAluminioPowerUpCollision;
+            powerUps.Add(newPowerUp);
+
+            //Alas -1
+            newPowerUp = CreatePowerUp(powerUpGroup, new BEPUutilities.Vector3(86f, -16f, 45f), 0.5f, 1f, 0.5f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(-0.785398f, 0f, 0f));
+            newPowerUp.Collider.CollisionInformation.Events.DetectingInitialCollision += HandleWingsPowerUp;
+            powerUps.Add(newPowerUp);
+
+            //Piedra -2
+            newPowerUp = CreatePowerUp(powerUpGroup, new BEPUutilities.Vector3(65f, -13f, 112f), 1f);
+            newPowerUp.Collider.CollisionInformation.Events.DetectingInitialCollision += HandleLavaPowerUpCollision;
+            powerUps.Add(newPowerUp);
+
+            //Aluminio2 -3
+            newPowerUp = CreatePowerUp(powerUpGroup, new BEPUutilities.Vector3(2.5f, -7.5f, 105f), 1f);
+            newPowerUp.Collider.CollisionInformation.Events.DetectingInitialCollision += HandleAluminioPowerUpCollision;
+            powerUps.Add(newPowerUp);
+
+            //Piedra2 -4
+            newPowerUp = CreatePowerUp(powerUpGroup, new BEPUutilities.Vector3(-87.5f, 3f, 25f), 1f);
+            newPowerUp.Collider.CollisionInformation.Events.DetectingInitialCollision += HandleLavaPowerUpCollision;
+            powerUps.Add(newPowerUp);
+
+            //Normal -5
+            newPowerUp = CreatePowerUp(powerUpGroup, new BEPUutilities.Vector3(-43.5f, 15f, 17f), 1f);
+            newPowerUp.Collider.CollisionInformation.Events.DetectingInitialCollision += HandleNormalPowerUpCollision;
+            powerUps.Add(newPowerUp);
+        }
+
+        private PowerUp CreatePowerUp(CollisionGroup group, BEPUutilities.Vector3 pos, float width, float height, float length, BEPUutilities.Quaternion rotation)
+        {
+            PowerUp newPowerUp = new PowerUp();
+
+            Box powerUp = new Box(pos, width, height, length);
+            powerUp.Orientation = rotation;
+            powerUp.CollisionInformation.CollisionRules.Group = group;
+
+            newPowerUp.Collider = powerUp;
+            newPowerUp.Obtained = false;
+
+            space.Add(powerUp);
+
+            return newPowerUp;
+        }
+
+        private PowerUp CreatePowerUp(CollisionGroup group, BEPUutilities.Vector3 pos, float radius)
+        {
+            PowerUp newPowerUp = new PowerUp();
+
+            Sphere powerUp = new Sphere(pos, radius);
+            powerUp.CollisionInformation.CollisionRules.Group = group;
+
+            newPowerUp.Collider = powerUp;
+            newPowerUp.Obtained = false;
+
+            space.Add(powerUp);
+
+            return newPowerUp;
         }
 
         private void CreateLavas(CollisionGroup lavaGroup)
@@ -338,6 +373,7 @@ namespace TGC.MonoGame.TP
             CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(84f, -8f, 30f), 10f, 10f, 10f); //84f, -10f, 30f
             CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(75f, -17f, 85f), 60f, 2f, 5f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f));  //75f, -18f, 85f
             CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(75f, -8f, 80f), 40f, 10f, 15f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(7.5f, 0f, 0f));  //75f, -8f, 80f
+            CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(64f, -14f, 114.5f), 6f, 2f, 6f, BEPUutilities.Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(-20), MathHelper.ToRadians(90), 0f));
             CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(52f, -17f, 110f), 10f, 2f, 10f); //52f, -18f, 110f
             CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(35f, -19f, 110f), 40f, 2f, 9f);  //35f, -20f, 110f
             CreatePlatformBox(platformGroup, new BEPUutilities.Vector3(23f, -17f, 110f), 16f, 2f, 10f);  //23f, -18f, 110f
@@ -432,7 +468,7 @@ namespace TGC.MonoGame.TP
 
             SkyboxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
 
-            MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble");
+            NormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble");
             SpikesTexture = Content.Load<Texture2D>(ContentFolderTextures + "Spikes");
             LavaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Lava");
             MagmaTexture = Content.Load<Texture2D>(ContentFolderTextures + "Rock");
@@ -504,36 +540,10 @@ namespace TGC.MonoGame.TP
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
 
+            MarbleTexture = NormalTexture;
             MarbleWorld = MarbleScale * MarbleRotation;
 
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
-
-            /*
-            //Hace que se pegue a la pelota Chica
-            //pelota chica 2
-            PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
-            PelotaChica1Box.Center = PelotaChica1Posicion;
-            PelotaChica1Box.Radius = 1f;
-            //PelotaChica1Box = Tp.Collisions.BoundingVolumesExtensions.Scale(PelotaChica1Box, 0.01f);
-            //pelota chica 1
-            PelotaChica2Box = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
-            PelotaChica2Box.Center = PelotaChica2Posicion;
-            PelotaChica2Box.Radius = 1f;
-            //PowerUp Pelota de lava
-            PelotaLavaBox = Tp.Collisions.BoundingVolumesExtensions.CreateSphereFrom(Esfera);
-            PelotaLavaBox.Center = PelotaLavaPosicion;
-            PelotaLavaBox.Radius = 1f;
-            */
-
-            //Power up alas
-            var tempCube = Tp.Collisions.BoundingVolumesExtensions.CreateAABBFrom(Wings);
-            tempCube = Tp.Collisions.BoundingVolumesExtensions.Scale(tempCube, 0.007f);
-
-            //power up collision box con fallas, despues lo arreglo
-
-            AlasBox = OrientedBoundingBox.FromAABB(tempCube);
-            AlasBox.Center = AlasPosicion;
-            AlasBox.Orientation = Matrix.CreateRotationX(-0.785398f);
 
             //monedas cargadas
             monedas = new Monedas(Content);
@@ -780,7 +790,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(20f, 2f, 2f) * Matrix.CreateRotationY(8f) * Matrix.CreateTranslation(new Vector3(84f, -18f, 30f)) ), GreenPlatformBasicTexture, Platform); //Este no deberia tener color
 
             //Transformador a pelota chica, pasa por agujeros chicos
-            Vector3 PosicionPelotaChica1 = TocandoPoderPelotaChica ? new Vector3(0, -20, 0): new Vector3(95f, -10f + MathF.Cos(totalGameTime * 2), 13f)  ;
+            Vector3 PosicionPelotaChica1 = powerUps[0].Obtained ? new Vector3(0, -20, 0): new Vector3(95f, -10f + MathF.Cos(totalGameTime * 2), 13f)  ;
             DrawMeshes( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica1), Aluminio, Esfera);
 
             // plataforma para power up 1
@@ -795,7 +805,7 @@ namespace TGC.MonoGame.TP
 
             //alas de velocidad
             //Vector3 PosicionAlas = TocandoAlas ? new Vector3(0, -20, 0) : new Vector3(86f, -16f, 45f);
-            var colorWings = TocandoAlas ? Color.BlueViolet : Color.Transparent;
+            var colorWings = powerUps[1].Obtained ? Color.Transparent : Color.BlueViolet;
             DrawMeshes( Matrix.CreateScale(0.007f) * Matrix.CreateRotationX(-0.785398f) * Matrix.CreateTranslation(86f, -16f, 45), colorWings, Wings);
 
             //parte 2.2
@@ -819,8 +829,10 @@ namespace TGC.MonoGame.TP
 
 
             //Transformador a pelota de roca, resistente a la lava
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(65f, -13f + MathF.Cos(totalGameTime * 2), 112f)) ), BluePlaceholderTexture, Esfera);
+            Vector3 PosicionGrande1 = powerUps[2].Obtained ? new Vector3(0, -20, 0) : new Vector3(65f, -13f + MathF.Cos(totalGameTime * 2), 112f);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionGrande1) ), StoneTexture, Esfera);
 
+            DrawMeshes((Matrix.CreateScale(3f, 1f, 3f) * Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(-20), MathHelper.ToRadians(90), 0f) * Matrix.CreateTranslation(new Vector3(64f, -14f, 114.5f))), GreenPlatformTexture, Platform);
 
             //parte 2.3
             //plataforma 1 
@@ -865,7 +877,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(10f, 2.5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-3f, 1f, 100f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para ser chica 2
-            Vector3 PosicionPelotaChica2 = TocandoPoderPelotaChica ? new Vector3(0, -20, 0) : new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f);
+            Vector3 PosicionPelotaChica2 = powerUps[3].Obtained ? new Vector3(0, -20, 0) : new Vector3(2.5f, -7.5f + MathF.Cos(totalGameTime * 2), 105f);
             DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionPelotaChica2) ), Aluminio, Esfera);
 
             //parte 3.2
@@ -876,7 +888,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 5f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-27f, -18f, 84f)) ), RedPlatformBasicTexture, Platform);
 
             //pelota para saltar doble
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-32f, -13f + MathF.Cos(totalGameTime * 2), 82f)) ), BluePlaceholderTexture, Esfera);
+            //DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-32f, -13f + MathF.Cos(totalGameTime * 2), 82f)) ), BluePlaceholderTexture, Esfera);
 
             //bloque salto 2
             DrawMeshes( ( Matrix.CreateScale(2f, 10f, 3f) * Matrix.CreateRotationY(-0.436332f) * Matrix.CreateTranslation(new Vector3(-37f, -18f, 81f)) ), RedPlatformBasicTexture, Platform);
@@ -927,7 +939,8 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(2f, 0.3f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 0f, 25f)) ), RedPlatformBasicTexture, Platform);
 
             //Transformador a pelota de roca, resistente a la lava
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 25f)) ), BluePlaceholderTexture, Esfera);
+            Vector3 PosicionGrande2 = powerUps[4].Obtained ? new Vector3(0, -20, 0) : new Vector3(-87.5f, 3f + MathF.Cos(totalGameTime * 2), 25f);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionGrande2) ), StoneTexture, Esfera);
 
             //asensor 1
             DrawMeshes( ( Matrix.CreateScale(2f, 1f, 2f) * Matrix.CreateTranslation(new Vector3(-87.5f, 8f + (4 * MathF.Cos(totalGameTime + MathHelper.PiOver2)), 20f)) ), RedPlatformTexture, Platform);
@@ -959,7 +972,8 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(15f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(-25f, 20f, 17f)) ), RedPlatformBasicTexture, Platform);
 
             //Transformador a pelota normal
-            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 17f)) ), BluePlaceholderTexture, Esfera);
+            Vector3 PosicionNormal1 = powerUps[5].Obtained ? new Vector3(0, -20, 0) : new Vector3(-43.5f, 15f + MathF.Cos(totalGameTime * 2), 17f);
+            DrawMeshes( ( Matrix.CreateScale(0.01f) * Matrix.CreateTranslation(PosicionNormal1) ), NormalTexture, Esfera);
 
             //"lava"4
             DrawMeshes( ( Matrix.CreateScale(2f, 5f, 1f) * Matrix.CreateTranslation(new Vector3(-37f, 16f + (4f * MathF.Cos((totalGameTime * 2f + MathHelper.PiOver2) + 4)), 17f)) ), MagmaTexture, Cubo);
@@ -1051,22 +1065,41 @@ namespace TGC.MonoGame.TP
 
         private void HandleAluminioPowerUpCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
+            UpdatePowerUpStatus(sender.Entity);
+
             space.Remove(sender.Entity);
             LinearSpeed = PelotaRapida;
             MarbleScale = Matrix.CreateScale(0.01f);
             MarbleSphere.Radius = 1f;
             MarbleTexture = Aluminio;
-            TocandoPoderPelotaChica = true;
         }
 
         private void HandleLavaPowerUpCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
+            UpdatePowerUpStatus(sender.Entity);
+
             space.Remove(sender.Entity);
             LinearSpeed = PelotaLenta;
             MarbleScale = Matrix.CreateScale(0.03f);
             MarbleSphere.Radius = 3f;
             MarbleTexture = StoneTexture;
-            TocandoPoderPelotaLava = true;
+        }
+        private void HandleWingsPowerUp(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
+        {
+            UpdatePowerUpStatus(sender.Entity);
+
+            LinearSpeed = PelotaLenta * 3;
+        }
+
+        private void HandleNormalPowerUpCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
+        {
+            UpdatePowerUpStatus(sender.Entity);
+
+            space.Remove(sender.Entity);
+            LinearSpeed = PelotaNormal;
+            MarbleScale = Matrix.CreateScale(0.02f);
+            MarbleSphere.Radius = 2f;
+            MarbleTexture = NormalTexture;
         }
 
         private void HandleLavaContactCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
@@ -1081,6 +1114,15 @@ namespace TGC.MonoGame.TP
         private void HandleLavaExitCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
             TocandoLava = false;
+        }
+
+        private void UpdatePowerUpStatus(Entity entity)
+        {
+            int index = powerUps.FindIndex(x => entity.Equals(x.Collider));
+            PowerUp powerUp = powerUps[index];
+            powerUp.Obtained = true;
+            powerUps.RemoveAt(index);
+            powerUps.Insert(index, powerUp);
         }
 
         //respawn logic, te devuelve al ultimo check point y te frena la velocidad a 0.
