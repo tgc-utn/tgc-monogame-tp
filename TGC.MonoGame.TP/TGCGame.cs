@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
+using Microsoft.Xna.Framework.Media;
 
 namespace TGC.MonoGame.TP
 {
@@ -63,6 +64,9 @@ namespace TGC.MonoGame.TP
         public Camera Camera { get; set; }
         private float time;
         private MainShip MainShip;
+        
+        private Song Song { get; set; }
+        private string SongName { get; set; }
 
         /* LO DE MASTER NO FUNCIONA LO DE SHIPS :( -------------
         private Ship ShipOne { get; set; }
@@ -164,6 +168,12 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             //var modelEffect = (BasicEffect)Model.Meshes[0].Effects[0];
+            
+            //Music
+            SongName = "rhythm-of-war-main-7233";
+            Song = Content.Load<Song>(ContentFolderMusic + SongName);
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(Song);
             base.LoadContent();
         }
 
@@ -176,7 +186,6 @@ namespace TGC.MonoGame.TP
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-            
             MainShip.Update(gameTime);
             Camera.Update(gameTime);
             //targetCamera.UpdatePosition(gameTime,MainShip.Position);
@@ -184,10 +193,8 @@ namespace TGC.MonoGame.TP
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 //Salgo del juego.
                 Exit();
-
             // Basado en el tiempo que paso se va generando una rotacion.
             //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
             base.Update(gameTime);
         }
 

@@ -4,6 +4,7 @@ using System.Runtime.Intrinsics.X86;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TGC.MonoGame.TP.Objects
 {
@@ -29,6 +30,9 @@ namespace TGC.MonoGame.TP.Objects
         private TGCGame _game;
 
         public string ModelName;
+        public string SoundShotName;
+
+        private SoundEffect soundShot { get; set; }
 
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
@@ -46,12 +50,14 @@ namespace TGC.MonoGame.TP.Objects
             HandBrake = false;
             pressedReverse = false;
             ModelName = "Barco";
+            SoundShotName = "mixkit-arcade-game-explosion-2759";
             _game = game;
         }
 
         public void LoadContent()
         {
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
+            soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
         }
 
         public void Draw()
@@ -62,6 +68,7 @@ namespace TGC.MonoGame.TP.Objects
         public void Update(GameTime gameTime)
         {
             ProcessKeyboard(_game.ElapsedTime);
+            ProcessMouse(_game.ElapsedTime);
             UpdateMovementSpeed(gameTime);
             Move();
         }
@@ -119,6 +126,15 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     speed += acceleration;
                 }
+            }
+        }
+
+        private void ProcessMouse(float elapsedTime)
+        {
+            var mouseState = Mouse.GetState();
+            if (mouseState.RightButton.Equals(ButtonState.Pressed))
+            {
+                soundShot.Play();
             }
         }
 

@@ -747,6 +747,30 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/WarVessel/1124.fbx
 
+#begin Music/rhythm-of-war-main-7233.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/rhythm-of-war-main-7233.mp3
+
+#begin Sounds/mixkit-arcade-game-explosion-2759.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/mixkit-arcade-game-explosion-2759.wav
+
+#begin Sounds/mixkit-bomb-explosion-in-battle-2800.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/mixkit-bomb-explosion-in-battle-2800.wav
+
+#begin Sounds/mixkit-war-explosions-2773.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/mixkit-war-explosions-2773.wav
+
 #begin Textures/oceanoTextura.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
