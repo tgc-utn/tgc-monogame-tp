@@ -141,6 +141,7 @@ namespace TGC.MonoGame.TP
 
         private Space space;
 
+        public CollisionGroup MarbleGroup { get; private set; }
         public Sphere AluminioPowerupCollider2 { get; private set; }
 
         public CollisionGroupPair MarblePowerUpGroupPair { get; private set; }
@@ -188,7 +189,7 @@ namespace TGC.MonoGame.TP
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
-            MarblePosition = new Vector3(-43.5f, 20f, 17f); //<- Para Probar
+            //MarblePosition = new Vector3(35f, -5f, 110f); //<- Para Probar
             RespawnPosition = MarblePosition;
 
             MarbleVelocity = Vector3.Zero;
@@ -203,7 +204,7 @@ namespace TGC.MonoGame.TP
             space = new Space();
 
             //Set up two stacks which go through each other
-            var MarbleGroup = new CollisionGroup();
+            MarbleGroup = new CollisionGroup();
             var PowerUpGroup = new CollisionGroup();
             var CheckpointGroup = new CollisionGroup();
             var PlatformGroup = new CollisionGroup();
@@ -546,7 +547,7 @@ namespace TGC.MonoGame.TP
             skybox = new SkyBox(Skybox, SkyboxTexture, SkyboxEffect, SkyBoxSize);
 
             //monedas cargadas
-            monedas = new Monedas(Content);
+            monedas = new Monedas(Content, space, MarbleGroup);
 
             base.LoadContent();
         }
