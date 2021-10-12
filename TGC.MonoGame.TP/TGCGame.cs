@@ -628,13 +628,7 @@ namespace TGC.MonoGame.TP
             }
 
             /*
-            TocandoAlas = AlasBox.Intersects(MarbleSphere);
-            if (TocandoAlas)
-            {
-                TocandoPoderPelotaChica = true;
-                MarbleTexture = OrangeLiquid;
-                currentMarbleVelocity *= 2f;
-            }
+            USAR FRUsTUM CULLING
             */
 
             if (TocandoLava)
