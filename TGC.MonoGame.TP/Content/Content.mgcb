@@ -246,6 +246,24 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Marbel/Wings/Wings.fbx
 
+#begin Music/SM64BowserRoad.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/SM64BowserRoad.ogg
+
+#begin Sounds/Coin.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Coin.wav
+
+#begin Sounds/MarbleJump.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/MarbleJump.wav
+
 #begin Textures/aluminio.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

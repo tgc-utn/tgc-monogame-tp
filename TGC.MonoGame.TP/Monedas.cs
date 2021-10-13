@@ -12,6 +12,7 @@ using BEPUphysics.BroadPhaseEntries.MobileCollidables;
 using BEPUphysics.BroadPhaseEntries;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
 using BEPUphysics.CollisionRuleManagement;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TGC.MonoGame.TP.MonedasItem
 {
@@ -26,6 +27,7 @@ namespace TGC.MonoGame.TP.MonedasItem
 
         private Model Moneda { get; set; }
         private Texture2D CoinTexture { get; set; }
+        public SoundEffect CoinSFX { get; }
         public Effect TextureEffect { get; set; }
         public int monedas = 0;
         private List<Moneda> monedasList;
@@ -36,6 +38,8 @@ namespace TGC.MonoGame.TP.MonedasItem
             Moneda = content.Load<Model>(ContentFolder3D + "Marbel/Moneda/Coin");
             TextureEffect = content.Load<Effect>(ContentFolderEffects + "TextureShader");
             CoinTexture = content.Load<Texture2D>(ContentFolderTextures + "Coin");
+            CoinSFX = content.Load<SoundEffect>(ContentFolderSounds + "Coin");
+
             //mesh moneda
             foreach (var mesh in Moneda.Meshes)
                 foreach (var meshPart in mesh.MeshParts)
@@ -117,6 +121,10 @@ namespace TGC.MonoGame.TP.MonedasItem
 
         public void MonedaObtained()
         {
+            var soundEffect = CoinSFX.CreateInstance();
+
+            soundEffect.Play();
+
             monedas++;
         }
 

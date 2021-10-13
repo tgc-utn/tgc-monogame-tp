@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.Samples.Cameras;
 using System.Collections.Generic;
 using TGC.MonoGame.TP.Quads;
@@ -15,6 +16,7 @@ using BEPUphysics.BroadPhaseEntries;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
 using BEPUphysics.Constraints.SolverGroups;
 using BEPUphysics.CollisionRuleManagement;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TGC.MonoGame.TP
 {
@@ -89,6 +91,8 @@ namespace TGC.MonoGame.TP
         public Texture2D WhitePlaceholderTexture { get; set; }
         public Texture2D OrangeLiquid { get; set; }
         public Texture2D VolcanicStone { get; set; }
+        public Song BGM { get; private set; }
+        public SoundEffect JumpSFX { get; private set; }
         public TextureCube SkyboxTexture { get; set; }
         private float Rotation { get; set; }
         public bool OnGround { get; private set; }
@@ -116,11 +120,8 @@ namespace TGC.MonoGame.TP
         private Vector3 mouseRotationBuffer;
         private float RespawnTimer { get; set; }
         private bool death { get; set; }
-        private bool TocandoPoderPelotaChica { get; set; }
-        private bool TocandoPoderPelotaLava { get; set; }
         public Sphere LavaPowerupCollider { get; private set; }
         private bool TocandoLava { get; set; }
-        private bool TocandoAlas { get; set; }
 
         public VertexDeclaration vertexDeclaration { get; set; }
         public Matrix MarbleScale { get; private set; }
@@ -146,11 +147,10 @@ namespace TGC.MonoGame.TP
 
         public CollisionGroupPair MarblePowerUpGroupPair { get; private set; }
         public CollisionGroupPair MarbleCheckpointGroupPair { get; private set; }
-        public CollisionGroupPair PlatformCheckpointGroupPair { get; private set; }
-        public CollisionGroupPair PlatformPowerUpGroupPair { get; private set; }
-        public CollisionGroupPair PlatformPlatformGroupPair { get; private set; }
+        public CollisionGroupPair MarbleSpikesGroupPair { get; private set; }
+        public CollisionGroupPair MarblePlatformGroupPair { get; private set; }
         public CollisionGroupPair LavaMarbleGroupPair { get; private set; }
-        public CollisionGroupPair LavaPlatformGroupPair { get; private set; }
+        public Box[] SpikesColliders { get; private set; }
 
         public struct PowerUp
         {
@@ -188,8 +188,11 @@ namespace TGC.MonoGame.TP
 
             quad = new Quad(new Vector3(0f, yPositionFloor, 0f), Vector3.Up, Vector3.Forward, xScaleFloor, zScaleFloor);
 
+            SoundEffect.MasterVolume = 0.4f; //<-- Debe ser Configurable
+            MediaPlayer.Volume = 0.3f; //<-- Debe ser Configurable
+
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
-            //MarblePosition = new Vector3(35f, -5f, 110f); //<- Para Probar
+            //MarblePosition = new Vector3(86, -5, 40); //<- Para Probar
             RespawnPosition = MarblePosition;
 
             MarbleVelocity = Vector3.Zero;
@@ -203,37 +206,35 @@ namespace TGC.MonoGame.TP
 
             space = new Space();
 
-            //Set up two stacks which go through each other
             MarbleGroup = new CollisionGroup();
             var PowerUpGroup = new CollisionGroup();
             var CheckpointGroup = new CollisionGroup();
             var PlatformGroup = new CollisionGroup();
             var LavaGroup = new CollisionGroup();
+            var SpikesGroup = new CollisionGroup();
 
-            //Adding this rule to the space's collision group rules will prevent entities belong to these two groups from generating collision pairs with each other.
             MarblePowerUpGroupPair = new CollisionGroupPair(MarbleGroup, PowerUpGroup);
             MarbleCheckpointGroupPair = new CollisionGroupPair(MarbleGroup, CheckpointGroup);
-            PlatformCheckpointGroupPair = new CollisionGroupPair(CheckpointGroup, PlatformGroup);
-            PlatformPowerUpGroupPair = new CollisionGroupPair(PlatformGroup, PowerUpGroup);
-            PlatformPlatformGroupPair = new CollisionGroupPair(PlatformGroup, PlatformGroup);
+            MarbleSpikesGroupPair = new CollisionGroupPair(MarbleGroup, SpikesGroup);
+            MarblePlatformGroupPair = new CollisionGroupPair(MarbleGroup, PlatformGroup);
             LavaMarbleGroupPair = new CollisionGroupPair(LavaGroup, MarbleGroup);
-            LavaPlatformGroupPair = new CollisionGroupPair(LavaGroup, PlatformGroup);
 
             //Se agregan reglas de colision:
             //- NoSolver: No hay colision, pero si interseccion
             //- NoBroadPhase: No hay colision ni interseccion
             CollisionRules.CollisionGroupRules.Add(MarblePowerUpGroupPair, CollisionRule.NoSolver);
             CollisionRules.CollisionGroupRules.Add(MarbleCheckpointGroupPair, CollisionRule.NoSolver);
-            CollisionRules.CollisionGroupRules.Add(PlatformCheckpointGroupPair, CollisionRule.NoBroadPhase);
-            CollisionRules.CollisionGroupRules.Add(PlatformPowerUpGroupPair, CollisionRule.NoBroadPhase);
-            CollisionRules.CollisionGroupRules.Add(PlatformPlatformGroupPair, CollisionRule.NoBroadPhase);
+            CollisionRules.CollisionGroupRules.Add(MarbleSpikesGroupPair, CollisionRule.NoSolver);
+            CollisionRules.CollisionGroupRules.Add(MarblePlatformGroupPair, CollisionRule.Normal);
             CollisionRules.CollisionGroupRules.Add(LavaMarbleGroupPair, CollisionRule.NoSolver);
-            CollisionRules.CollisionGroupRules.Add(LavaPlatformGroupPair, CollisionRule.NoBroadPhase);
+
+            CollisionRules.DefaultCollisionRule = CollisionRule.NoBroadPhase;
 
             CreatePlatformsBoxes(PlatformGroup);
             CreateCheckpoints(CheckpointGroup);
             CreateLavas(LavaGroup);
             CreatePowerUps(PowerUpGroup);
+            CreateSpikes(SpikesGroup);
 
             MarbleSphere = new Sphere(new BEPUutilities.Vector3(MarblePosition.X, MarblePosition.Y, MarblePosition.Z), 2f, 1f);
             MarbleSphere.Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, 0f, 0f);
@@ -243,6 +244,33 @@ namespace TGC.MonoGame.TP
             space.ForceUpdater.Gravity = new BEPUutilities.Vector3(0f, Gravity, 0f);
 
             base.Initialize();
+        }
+
+        private void CreateSpikes(CollisionGroup spikesGroup)
+        {
+            SpikesColliders = new Box[11];
+
+            SpikesColliders[0] = CreateSpike(new BEPUutilities.Vector3(86, -9, 40), 2, 2, 8, spikesGroup);
+            SpikesColliders[1] = CreateSpike(new BEPUutilities.Vector3(83, -7, 60), 2, 2, 8, spikesGroup);
+            SpikesColliders[2] = CreateSpike(new BEPUutilities.Vector3(80, -7, 70), 2, 2, 8, spikesGroup);
+            SpikesColliders[3] = CreateSpike(new BEPUutilities.Vector3(77, -7, 80), 2, 2, 8, spikesGroup);
+            SpikesColliders[4] = CreateSpike(new BEPUutilities.Vector3(74, -7, 90), 2, 2, 8, spikesGroup);
+            SpikesColliders[5] = CreateSpike(new BEPUutilities.Vector3(71, -7, 100), 2, 2, 8, spikesGroup);
+            SpikesColliders[6] = CreateSpike(new BEPUutilities.Vector3(-80, -9, 67.5f), 2, 2, 8, spikesGroup);
+            SpikesColliders[7] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 49), 8, 2, 2, spikesGroup);
+            SpikesColliders[8] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 43), 8, 2, 2, spikesGroup);
+            SpikesColliders[9] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 37), 8, 2, 2, spikesGroup);
+            SpikesColliders[10] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 31), 8, 2, 2, spikesGroup);
+        }
+
+        private Box CreateSpike(BEPUutilities.Vector3 pos, float width, float height, float length, CollisionGroup group)
+        {
+            Box Spike = new Box(pos, width, height, length);
+            Spike.CollisionInformation.CollisionRules.Group = group;
+            Spike.CollisionInformation.Events.DetectingInitialCollision += HandleSpikeContactCollision;
+            space.Add(Spike);
+
+            return Spike;
         }
 
         private void CreatePowerUps(CollisionGroup powerUpGroup)
@@ -416,6 +444,7 @@ namespace TGC.MonoGame.TP
             platformCollider.Orientation = orientation;
             platformCollider.CollisionInformation.CollisionRules.Group = platformGroup;
             platformCollider.CollisionInformation.Events.InitialCollisionDetected += HandleCollision;
+            platformCollider.CollisionInformation.Events.CollisionEnded += HandleCollisionExit;
             space.Add(platformCollider);
 
             return platformCollider;
@@ -492,6 +521,11 @@ namespace TGC.MonoGame.TP
             WhitePlaceholderTexture = Content.Load<Texture2D>(ContentFolderTextures + "White");
             OrangeLiquid = Content.Load<Texture2D>(ContentFolderTextures + "Orange_Liquid");
             VolcanicStone = Content.Load<Texture2D>(ContentFolderTextures + "volcanic_stone");
+
+            BGM = Content.Load<Song>(ContentFolderMusic + "SM64BowserRoad");
+            MediaPlayer.Play(BGM);
+
+            JumpSFX = Content.Load<SoundEffect>(ContentFolderSounds + "MarbleJump");
 
             LavaEffect.Parameters["Texture"].SetValue(LavaTexture);
             LavaEffect.Parameters["tiling"].SetValue(new Vector2(4f, 4f));
@@ -1058,6 +1092,11 @@ namespace TGC.MonoGame.TP
             OnGround = true;
         }
 
+        private void HandleCollisionExit(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
+        {
+            OnGround = false;
+        }
+
         private void HandleAluminioPowerUpCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
             UpdatePowerUpStatus(sender.Entity);
@@ -1111,6 +1150,11 @@ namespace TGC.MonoGame.TP
             TocandoLava = false;
         }
 
+        private void HandleSpikeContactCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
+        {
+            death = true;
+        }
+
         private void UpdatePowerUpStatus(Entity entity)
         {
             int index = powerUps.FindIndex(x => entity.Equals(x.Collider));
@@ -1152,7 +1196,7 @@ namespace TGC.MonoGame.TP
             DynamicPlatformColliders[1].LinearVelocity = new BEPUutilities.Vector3(0, -8f * MathF.Cos(TotalTime * 2f), 0);
 
             //DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 67.5f)) ), RedPlatformBasicTexture, Platform);
-            //DynamicPlatformCollider[2]
+            DynamicPlatformColliders[2].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(-15f), MathHelper.ToRadians(-25f * TotalTime), 0f); //<- ARREGLAR
 
             //8f + (4 * MathF.Cos(totalGameTime + MathHelper.PiOver2))
             DynamicPlatformColliders[3].LinearVelocity = new BEPUutilities.Vector3(0, -4f * MathF.Cos(TotalTime), 0);
@@ -1176,7 +1220,7 @@ namespace TGC.MonoGame.TP
 
             DynamicPlatformColliders[10].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(0f, Rotation + MathHelper.ToRadians(90f), 0f);
 
-            //16f + (3f * MathF.Cos((totalGameTime * 2f) + 4))
+            //Lava
             DynamicLavaColliders[0].LinearVelocity = new BEPUutilities.Vector3(0, -8 * MathF.Cos((TotalTime * 2f) + 4), 0);
 
             DynamicLavaColliders[1].LinearVelocity = new BEPUutilities.Vector3(0, -8 * MathF.Cos((TotalTime * 2f) + 3), 0);
@@ -1186,6 +1230,29 @@ namespace TGC.MonoGame.TP
             DynamicLavaColliders[3].LinearVelocity = new BEPUutilities.Vector3(0, -8 * MathF.Cos((TotalTime * 2f) + 1), 0);
 
             DynamicLavaColliders[4].LinearVelocity = new BEPUutilities.Vector3(0, -8 * MathF.Cos((TotalTime * 2f)), 0);
+
+            //Spikes
+            SpikesColliders[0].Position = new BEPUutilities.Vector3(SpikesColliders[0].Position.X, -9f - (-8f * MathF.Cos(TotalTime)), SpikesColliders[0].Position.Z);
+
+            SpikesColliders[1].Position = new BEPUutilities.Vector3(SpikesColliders[1].Position.X, -7f - (-7f * MathF.Cos(TotalTime * 2)), SpikesColliders[1].Position.Z);
+
+            SpikesColliders[2].Position = new BEPUutilities.Vector3(SpikesColliders[2].Position.X, -7f - (-7f * MathF.Cos(TotalTime * 2) - 1), SpikesColliders[2].Position.Z);
+
+            SpikesColliders[3].Position = new BEPUutilities.Vector3(SpikesColliders[3].Position.X, -7f - (-7f * MathF.Cos(TotalTime * 2) - 2), SpikesColliders[3].Position.Z);
+
+            SpikesColliders[4].Position = new BEPUutilities.Vector3(SpikesColliders[4].Position.X, -7f - (-7f * MathF.Cos(TotalTime * 2) - 3), SpikesColliders[4].Position.Z);
+
+            SpikesColliders[5].Position = new BEPUutilities.Vector3(SpikesColliders[5].Position.X, -7f - (-7f * MathF.Cos(TotalTime * 2) - 4), SpikesColliders[5].Position.Z);
+
+            SpikesColliders[6].Position = new BEPUutilities.Vector3(SpikesColliders[6].Position.X, -9f + (-6f * MathF.Cos(TotalTime)), SpikesColliders[6].Position.Z);
+
+            SpikesColliders[7].Position = new BEPUutilities.Vector3(-87.5f + (MathF.Cos(TotalTime) * 8), SpikesColliders[7].Position.Y, SpikesColliders[7].Position.Z);
+
+            SpikesColliders[8].Position = new BEPUutilities.Vector3(-87.5f - (MathF.Cos(TotalTime) * 8), SpikesColliders[8].Position.Y, SpikesColliders[8].Position.Z);
+
+            SpikesColliders[9].Position = new BEPUutilities.Vector3(-87.5f + (MathF.Cos(TotalTime) * 8), SpikesColliders[9].Position.Y, SpikesColliders[9].Position.Z);
+
+            SpikesColliders[10].Position = new BEPUutilities.Vector3(-87.5f - (MathF.Cos(TotalTime) * 8), SpikesColliders[10].Position.Y, SpikesColliders[10].Position.Z);
         }
     }
 }
