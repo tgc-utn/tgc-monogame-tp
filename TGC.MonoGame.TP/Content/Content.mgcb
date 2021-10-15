@@ -258,6 +258,18 @@
 /processorParam:Quality=Best
 /build:Sounds/Coin.wav
 
+#begin Sounds/Collision.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Collision.wav
+
+#begin Sounds/Death.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/Death.wav
+
 #begin Sounds/MarbleJump.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor

@@ -92,6 +92,8 @@ namespace TGC.MonoGame.TP
         public Texture2D VolcanicStone { get; set; }
         public Song BGM { get; private set; }
         public SoundEffect JumpSFX { get; private set; }
+        public SoundEffect CollisionSFX { get; private set; }
+        public SoundEffect DeathSFX { get; private set; }
         public TextureCube SkyboxTexture { get; set; }
         private float Rotation { get; set; }
         public bool OnGround { get; private set; }
@@ -525,6 +527,8 @@ namespace TGC.MonoGame.TP
             MediaPlayer.Play(BGM);
 
             JumpSFX = Content.Load<SoundEffect>(ContentFolderSounds + "MarbleJump");
+            CollisionSFX = Content.Load<SoundEffect>(ContentFolderSounds + "Collision");
+            DeathSFX = Content.Load<SoundEffect>(ContentFolderSounds + "Death");
 
             LavaEffect.Parameters["Texture"].SetValue(LavaTexture);
             LavaEffect.Parameters["tiling"].SetValue(new Vector2(4f, 4f));
@@ -633,6 +637,7 @@ namespace TGC.MonoGame.TP
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
             {
                 MarbleSphere.LinearVelocity += BEPUutilities.Vector3.Up * JumpSpeed;
+                JumpSFX.Play();
                 OnGround = false;
             }
             
@@ -1088,6 +1093,7 @@ namespace TGC.MonoGame.TP
         //TODO: que no pueda saltar si choca con una pared
         private void HandleCollision(EntityCollidable sender, Collidable other, CollidablePairHandler pair)
         {
+            CollisionSFX.Play();
             OnGround = true;
         }
 
@@ -1171,6 +1177,7 @@ namespace TGC.MonoGame.TP
                 MarbleSphere.Position = new BEPUutilities.Vector3(RespawnPosition.X, RespawnPosition.Y, RespawnPosition.Z);
                 MarbleSphere.AngularVelocity = BEPUutilities.Vector3.Zero;
                 MarbleSphere.LinearVelocity = BEPUutilities.Vector3.Zero;
+                DeathSFX.Play();
                 death = false;
             }
         }
