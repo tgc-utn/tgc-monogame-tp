@@ -14,7 +14,6 @@ using BEPUphysics.Entities;
 using BEPUphysics.BroadPhaseEntries.MobileCollidables;
 using BEPUphysics.BroadPhaseEntries;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
-using BEPUphysics.Constraints.SolverGroups;
 using BEPUphysics.CollisionRuleManagement;
 using Microsoft.Xna.Framework.Audio;
 
@@ -192,7 +191,7 @@ namespace TGC.MonoGame.TP
             MediaPlayer.Volume = 0.3f; //<-- Debe ser Configurable
 
             MarblePosition = new Vector3(-10f, -10f, 0f); //<- Original
-            //MarblePosition = new Vector3(86, -5, 40); //<- Para Probar
+            MarblePosition = new Vector3(-85f, 10f, 67.5f); //<- Para Probar
             RespawnPosition = MarblePosition;
 
             MarbleVelocity = Vector3.Zero;
@@ -257,10 +256,10 @@ namespace TGC.MonoGame.TP
             SpikesColliders[4] = CreateSpike(new BEPUutilities.Vector3(74, -7, 90), 2, 2, 8, spikesGroup);
             SpikesColliders[5] = CreateSpike(new BEPUutilities.Vector3(71, -7, 100), 2, 2, 8, spikesGroup);
             SpikesColliders[6] = CreateSpike(new BEPUutilities.Vector3(-80, -9, 67.5f), 2, 2, 8, spikesGroup);
-            SpikesColliders[7] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 49), 8, 2, 2, spikesGroup);
-            SpikesColliders[8] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 43), 8, 2, 2, spikesGroup);
-            SpikesColliders[9] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 37), 8, 2, 2, spikesGroup);
-            SpikesColliders[10] = CreateSpike(new BEPUutilities.Vector3(-87.5f, 13, 31), 8, 2, 2, spikesGroup);
+            SpikesColliders[7] = CreateSpike(new BEPUutilities.Vector3(-75f, 13, 49), 4, 2, 8, spikesGroup);
+            SpikesColliders[8] = CreateSpike(new BEPUutilities.Vector3(-100f, 13, 43), 4, 2, 8, spikesGroup);
+            SpikesColliders[9] = CreateSpike(new BEPUutilities.Vector3(-75f, 13, 37), 4, 2, 8, spikesGroup);
+            SpikesColliders[10] = CreateSpike(new BEPUutilities.Vector3(-100f, 13, 31), 4, 2, 8, spikesGroup);
         }
 
         private Box CreateSpike(BEPUutilities.Vector3 pos, float width, float height, float length, CollisionGroup group)
@@ -952,13 +951,13 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(3f, 1f, 18f) * Matrix.CreateTranslation(new Vector3(-87.5f, 10f, 42f)) ), RedPlatformBasicTexture, Platform);
 
             //pinches
-            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f + (MathF.Cos(totalGameTime) * 8), 13f, 49f)) ), SpikesTexture, Pinches);
+            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-75f + (MathF.Cos(totalGameTime) * 8), 13f, 49f)) ), SpikesTexture, Pinches);
 
-            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-87.5f - (MathF.Cos(totalGameTime) * 8), 13f, 43f)) ), SpikesTexture, Pinches);
+            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-100f - (MathF.Cos(totalGameTime) * 8), 13f, 43f)) ), SpikesTexture, Pinches);
 
-            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-87.5f + (MathF.Cos(totalGameTime) * 8), 13f, 37f)) ), SpikesTexture, Pinches);
+            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-75f + (MathF.Cos(totalGameTime) * 8), 13f, 37f)) ), SpikesTexture, Pinches);
 
-            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-87.5f - (MathF.Cos(totalGameTime) * 8), 13f, 31f)) ), SpikesTexture, Pinches);
+            DrawMeshes( ( Matrix.CreateScale(0.001f) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90f)) * Matrix.CreateTranslation(new Vector3(-100f - (MathF.Cos(totalGameTime) * 8), 13f, 31f)) ), SpikesTexture, Pinches);
 
 
 
@@ -1071,7 +1070,7 @@ namespace TGC.MonoGame.TP
             DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
 
             DrawMeshes( ( Matrix.CreateScale(1f, 5f, 0.1f) * Matrix.CreateRotationZ(Rotation * 5 + MathHelper.ToRadians(90f)) * Matrix.CreateTranslation(new Vector3(-7f, 24f, -21f)) ), MetalTexture, Cubo);
-            
+
             //se dibujan las monedas
             monedas.Draw(gameTime,View, Projection, totalGameTime, World);
         }
@@ -1196,7 +1195,7 @@ namespace TGC.MonoGame.TP
             DynamicPlatformColliders[1].LinearVelocity = new BEPUutilities.Vector3(0, -8f * MathF.Cos(TotalTime * 2f), 0);
 
             //DrawMeshes( ( Matrix.CreateScale(5f, 1f, 5f) * Matrix.CreateRotationY(MathHelper.ToRadians(-15f)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-25f * totalGameTime)) * Matrix.CreateTranslation(new Vector3(-70f, -7f, 67.5f)) ), RedPlatformBasicTexture, Platform);
-            DynamicPlatformColliders[2].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(-15f), MathHelper.ToRadians(-25f * TotalTime), 0f); //<- ARREGLAR
+            DynamicPlatformColliders[2].Orientation = BEPUutilities.Quaternion.CreateFromYawPitchRoll(MathHelper.ToRadians(-15f), 0f, MathHelper.ToRadians(-25f * TotalTime)); //<- ARREGLAR
 
             //8f + (4 * MathF.Cos(totalGameTime + MathHelper.PiOver2))
             DynamicPlatformColliders[3].LinearVelocity = new BEPUutilities.Vector3(0, -4f * MathF.Cos(TotalTime), 0);
@@ -1246,13 +1245,13 @@ namespace TGC.MonoGame.TP
 
             SpikesColliders[6].Position = new BEPUutilities.Vector3(SpikesColliders[6].Position.X, -9f + (-6f * MathF.Cos(TotalTime)), SpikesColliders[6].Position.Z);
 
-            SpikesColliders[7].Position = new BEPUutilities.Vector3(-87.5f + (MathF.Cos(TotalTime) * 8), SpikesColliders[7].Position.Y, SpikesColliders[7].Position.Z);
+            SpikesColliders[7].Position = new BEPUutilities.Vector3(-77f + (MathF.Cos(TotalTime) * 8), SpikesColliders[7].Position.Y, SpikesColliders[7].Position.Z);
 
-            SpikesColliders[8].Position = new BEPUutilities.Vector3(-87.5f - (MathF.Cos(TotalTime) * 8), SpikesColliders[8].Position.Y, SpikesColliders[8].Position.Z);
+            SpikesColliders[8].Position = new BEPUutilities.Vector3(-98f - (MathF.Cos(TotalTime) * 8), SpikesColliders[8].Position.Y, SpikesColliders[8].Position.Z);
 
-            SpikesColliders[9].Position = new BEPUutilities.Vector3(-87.5f + (MathF.Cos(TotalTime) * 8), SpikesColliders[9].Position.Y, SpikesColliders[9].Position.Z);
+            SpikesColliders[9].Position = new BEPUutilities.Vector3(-77f + (MathF.Cos(TotalTime) * 8), SpikesColliders[9].Position.Y, SpikesColliders[9].Position.Z);
 
-            SpikesColliders[10].Position = new BEPUutilities.Vector3(-87.5f - (MathF.Cos(TotalTime) * 8), SpikesColliders[10].Position.Y, SpikesColliders[10].Position.Z);
+            SpikesColliders[10].Position = new BEPUutilities.Vector3(-98f - (MathF.Cos(TotalTime) * 8), SpikesColliders[10].Position.Y, SpikesColliders[10].Position.Z);
         }
     }
 }
