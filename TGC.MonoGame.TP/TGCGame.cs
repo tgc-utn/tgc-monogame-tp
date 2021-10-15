@@ -11,6 +11,7 @@
     using TGC.MonoGame.TP.Components.Enemy;
     using TGC.MonoGame.TP.Components.Map;
     using TGC.MonoGame.TP.Components.Player;
+    using TGC.MonoGame.TP.Components.Spawner;
 
     /// <summary>
     /// Esta es la clase principal  del juego.
@@ -79,7 +80,8 @@
         /// Gets or sets the Column.
         /// </summary>
         private Model Column { get; set; }
-        private Model Spawner { get; set; }
+        private Model SpawnerModel { get; set; }
+        private Spawner Spawner { get; set; }
         private Model Skull { get; set; }
         private Model BulletModel { get; set; }
         private List<Bullet> Bullets { get; set; }
@@ -90,7 +92,7 @@
         /// Gets or sets the Shotgun.
         /// </summary>
         private Model Shotgun { get; set; }
-
+        private float Recoil { get; set; }
         /// <summary>
         /// Gets or sets the World.
         /// </summary>
@@ -110,6 +112,8 @@
         private Player Player { get; set; }
 
         private Enemy Enemy { get; set; }
+
+        private List<Enemy> Enemies { get; set; }
 
         /// <summary>
         /// Gets or sets the Map.
@@ -148,9 +152,16 @@
             World = Matrix.CreateRotationY(MathHelper.Pi);
 
             Map = new Map();
+            
             Bullets = new List<Bullet>();
+            
             Enemy = new Enemy();
             Enemy.SetPosition(new Vector3(200, 13, 250));
+
+            Enemies = new List<Enemy>();
+
+            Spawner = new Spawner();
+            Spawner.SetPosition(new Vector3(850, 0, 850));
 
             // Arranco el Game Pause en true para evitar que el jugador se mueva
             GamePause = true;
@@ -185,8 +196,8 @@
             modelEffectSkull.EnableDefaultLighting();
 
             // Load Spawner model
-            Spawner = Content.Load<Model>(ContentFolder3D + "monsterlarge/MonsterLarge");
-            var modelEffectSpawner = (BasicEffect)Spawner.Meshes[0].Effects[0];
+            SpawnerModel = Content.Load<Model>(ContentFolder3D + "monsterlarge/MonsterLarge");
+            var modelEffectSpawner = (BasicEffect)SpawnerModel.Meshes[0].Effects[0];
             modelEffectSpawner.DiffuseColor = Color.White.ToVector3();
             modelEffectSpawner.EnableDefaultLighting();
 
@@ -198,7 +209,7 @@
 
             Song = Content.Load<Song>(ContentFolderMusic + "doom-ost-damnation");
             MediaPlayer.IsRepeating = true;
-            //MediaPlayer.Play(Song);
+            MediaPlayer.Play(Song);
             base.LoadContent();
         }
 
@@ -219,7 +230,8 @@
                 // Pause/Start game
                 GamePause = !GamePause;
             }
-                
+
+            Spawner.Update(this);
 
             // If GamePause is false i can move and play
             if (!GamePause)
@@ -232,18 +244,34 @@
 
                 if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15)
                 {
-                    Bullet Bullet = new Bullet();
-                    Bullet.SetPosition(Camera.Position + Camera.FrontDirection * 50f);
-                    Bullet.SetDirection(Camera.FrontDirection);
-                    Bullet.SetUp(Camera.UpDirection);
-                    var recentBullet = Bullet;
-                    Bullets.Add(recentBullet);
+                    Bullet singleBullet = new Bullet();
+                    singleBullet.SetPosition(Camera.Position + Camera.FrontDirection * 50f);
+                    singleBullet.SetDirection(Camera.FrontDirection);
+                    singleBullet.SetUp(Camera.UpDirection);
+                    Bullets.Add(singleBullet);
                     ClickPressed = true;
                 }
 
-                if (mouse.LeftButton == ButtonState.Released && ClickPressed) ClickPressed = false;
+                if (mouse.RightButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15)
+                {
+                    Bullet Bullet1 = new Bullet();
+                    Bullet1.SetPosition(Camera.Position + Camera.FrontDirection * 190f);
+                    Bullet1.SetDirection(Camera.FrontDirection);
+                    Bullet1.SetUp(Camera.UpDirection);
+                    Bullets.Add(Bullet1);
 
-                if(Bullets.Count >= 15)
+                    Bullet Bullet2 = new Bullet();
+                    Bullet2.SetPosition(Camera.Position + Vector3.Up * 5 + Camera.FrontDirection * 50f);
+                    Bullet2.SetDirection(Camera.FrontDirection);
+                    Bullet2.SetUp(Camera.UpDirection);
+                    Bullets.Add(Bullet2);
+
+                    ClickPressed = true;
+                }
+
+                if (mouse.LeftButton == ButtonState.Released && mouse.RightButton == ButtonState.Released && ClickPressed) ClickPressed = false;
+
+                if (Bullets.Count >= 15)
                 {
                     Bullets.Clear();
                 }
@@ -259,9 +287,29 @@
                     }
                 }
 
+                Vector3 EnemyPosition = Enemy.GetPosition();
                 Enemy.SetUp(Camera.UpDirection);
-                Enemy.SetDirection(new Vector3(Camera.FrontDirection.X,0,Camera.FrontDirection.Z));
+                Enemy.SetDirection(Vector3.Normalize(new Vector3(EnemyPosition.X - Camera.Position.X, 0, EnemyPosition.Z - Camera.Position.Z)));
                 Enemy.Update(Camera.Position);
+
+                foreach (Enemy enemy in Enemies)
+                {
+                    Vector3 enemyPos = enemy.GetPosition();
+                    enemy.SetUp(Camera.UpDirection);
+                    enemy.SetDirection(Vector3.Normalize(new Vector3(enemyPos.X - Camera.Position.X, 0, enemyPos.Z - Camera.Position.Z)));
+                    enemy.Update(Camera.Position);
+
+                    foreach (Bullet bullet in Bullets)
+                    {
+                        bullet.Update();
+
+                        if (Vector3.Distance(bullet.GetPosition(), enemy.GetPosition()) < 50 && !bullet.GetDidDamage())
+                        {
+                            enemy.TakeDamage(bullet.GetDamage());
+                            bullet.DoDamage();
+                        }
+                    }
+                }
 
                 Player.SetPosition(Camera.Position);
             }
@@ -277,27 +325,50 @@
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            
+            if (Recoil > 0)
+            {
+                Recoil -= 0.25f;
+            }
+
             Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
-            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * 40 + cameraRight * 10 - Camera.UpDirection * 4;
+            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * MathHelper.Lerp(40, 35, Recoil) + cameraRight * 10 - Camera.UpDirection * 4;
+
+            var mouse = Mouse.GetState();
+            if (mouse.LeftButton == ButtonState.Pressed)
+            {
+                Recoil = 10;
+            }
+            if (mouse.RightButton == ButtonState.Pressed)
+            {
+                Recoil = 13.5f;
+            }
 
             Map.Draw(World, Camera.View, Camera.Projection);
-            Spawner.Draw(World * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateTranslation(300, 13 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds), 850), Camera.View, Camera.Projection);
+            SpawnerModel.Draw(World * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateTranslation(Spawner.GetPosition().X, 13 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) + 50, Spawner.GetPosition().Z), Camera.View, Camera.Projection);
 
-            if(Enemy.GetLife()>0)
+            if (Enemy.GetLife() > 0)
             {
                 Vector3 SkullRight = Vector3.Cross(Enemy.GetDirection(), Enemy.GetUp());
                 Vector3 SkullPosition = Enemy.GetPosition() + Enemy.GetDirection() + SkullRight - Enemy.GetUp();
                 Skull.Draw(Matrix.CreateScale(0.75f) * Matrix.CreateWorld(SkullPosition, -SkullRight, Enemy.GetUp()), Camera.View, Camera.Projection);
+            }
+
+            foreach (Enemy enemy in Enemies)
+            {
+                if (enemy.GetLife() > 0)
+                {
+                    Vector3 SkullRight = Vector3.Cross(enemy.GetDirection(), enemy.GetUp());
+                    Vector3 SkullPosition = enemy.GetPosition() + enemy.GetDirection() + SkullRight - enemy.GetUp();
+                    Skull.Draw(Matrix.CreateScale(0.75f) * Matrix.CreateWorld(SkullPosition, -SkullRight, enemy.GetUp()), Camera.View, Camera.Projection);
+                }
             }
             
             foreach(Bullet bullet in Bullets)
             {
                 Vector3 BulletRight = Vector3.Cross(bullet.GetDirection(), bullet.GetUp());
                 Vector3 BulletPosition = bullet.GetPosition() + bullet.GetDirection()+ BulletRight - bullet.GetUp();
-                if (Vector3.Distance(bullet.GetPosition(), Camera.Position) < 550) BulletModel.Draw(Matrix.CreateScale(5) * Matrix.CreateWorld(BulletPosition, -BulletRight, bullet.GetDirection()), Camera.View, Camera.Projection);
-            }
-            
+                if (Vector3.Distance(bullet.GetPosition(), Camera.Position) < 2550) BulletModel.Draw(Matrix.CreateScale(5) * Matrix.CreateWorld(BulletPosition, -BulletRight, bullet.GetDirection()), Camera.View, Camera.Projection);
+            }            
 
             Matrix shotgunWorld = Matrix.CreateScale(0.1f, 0.1f, 0.1f) * Matrix.CreateWorld(weaponPosition,-cameraRight,Camera.UpDirection);
             Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
@@ -314,6 +385,14 @@
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        public void AddEnemy(Vector3 enemyPosition)
+        {
+            Enemy enemy = new Enemy();
+            enemy.SetPosition(enemyPosition);
+
+            Enemies.Add(enemy);
         }
     }
 }

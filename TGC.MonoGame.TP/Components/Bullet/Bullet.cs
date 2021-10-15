@@ -17,7 +17,7 @@ namespace TGC.MonoGame.TP.Components.Bullet
 
         public Bullet()
         {
-            Velocity = 15;
+            Velocity = 50;
             Damage = 35;
             DidDamage = false;
         }

@@ -10,7 +10,7 @@
         /// <summary>
         /// Defines the DefaultFieldOfViewDegrees.
         /// </summary>
-        public const float DefaultFieldOfViewDegrees = MathHelper.PiOver4;
+        public const float DefaultFieldOfViewDegrees = MathHelper.Pi/3;
 
         /// <summary>
         /// Defines the DefaultNearPlaneDistance.
@@ -20,7 +20,7 @@
         /// <summary>
         /// Defines the DefaultFarPlaneDistance.
         /// </summary>
-        public const float DefaultFarPlaneDistance = 2000;
+        public const float DefaultFarPlaneDistance = 20000;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Camera"/> class.

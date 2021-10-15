@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TGC.MonoGame.TP.Components.Enemy
 {
-    class Enemy
+    public class Enemy
     {
         private Vector3 Position { get; set; }
         private Vector3 Direction { get; set; }

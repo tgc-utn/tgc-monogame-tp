@@ -91,6 +91,7 @@
         /// </summary>
         private void CalculateView()
         {
+            //Projection = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 2, 16/9, 0.00000000000000001f, 1000);
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
 
@@ -127,8 +128,6 @@
             var currentMovementSpeed = MovementSpeed;
 
             var newPosition = Position;
-
-            
             
             if (keyboardState.IsKeyDown(Keys.LeftShift))
                 currentMovementSpeed *= 5f;
@@ -162,7 +161,7 @@
             }
 
             // Collision with external space
-            if (newPosition.X >= 0 && newPosition.Z >= 0 && newPosition.X <= 2750 && newPosition.Z <= 2750)
+            if (newPosition.X >= -2700 && newPosition.Z >= -2700 && newPosition.X <= 5400 && newPosition.Z <= 5400)
             {
                 // Collision with columns
                 if(Vector2.Distance(new Vector2(newPosition.X,newPosition.Z),ColumnPosition) >= 125 
@@ -170,9 +169,10 @@
                 && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column3Position) >= 125
                 && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column4Position) >= 125)
                     Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
-            }
 
-           
+            //    if (Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), new Vector2(-2700, newPosition.Z)) <= 50 && Vector3.Dot(FrontDirection,  Vector3.UnitX) < 0 && keyboardState.IsKeyDown(Keys.W))
+            //        Position = new Vector3(newPosition.X, bobOscilate, Position.Z + FrontDirection.Z);
+            }
         }
 
         /// <summary>
