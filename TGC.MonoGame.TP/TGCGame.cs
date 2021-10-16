@@ -10,6 +10,7 @@
     using TGC.MonoGame.TP.Components.Camera;
     using TGC.MonoGame.TP.Components.Enemy;
     using TGC.MonoGame.TP.Components.Map;
+    using TGC.MonoGame.TP.Components.Particles;
     using TGC.MonoGame.TP.Components.Player;
     using TGC.MonoGame.TP.Components.Spawner;
 
@@ -113,8 +114,9 @@
         private Player Player { get; set; }
 
         private Enemy Enemy { get; set; }
-
         private List<Enemy> Enemies { get; set; }
+
+        private Particle particle { get; set; }
 
         /// <summary>
         /// Gets or sets the Map.
@@ -170,7 +172,7 @@
             GamePause = true;
 
             // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
+            World = Matrix.Identity;            
 
             base.Initialize();
         }
@@ -185,7 +187,9 @@
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             var texture = Content.Load<Texture2D>(ContentFolderTextures + "ccreteflr016a_COLOR");
-            
+
+            particle = new Particle(GraphicsDevice, Vector3.One * 300, Vector3.UnitZ, Vector3.Up, 100, 100, texture, 1);
+
             Column = Content.Load<Model>(ContentFolder3D + "bonecolumn/bonecolumn");
             Map.LoadContent(Column,texture,GraphicsDevice);
 
@@ -215,7 +219,7 @@
 
             Song = Content.Load<Song>(ContentFolderMusic + "doom-ost-damnation");
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(Song);
+            //MediaPlayer.Play(Song);
             base.LoadContent();
         }
 
@@ -248,7 +252,7 @@
                 // Creates new bullets when left click
                 var mouse = Mouse.GetState();
 
-                if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15)
+                if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
                 {
                     Bullet singleBullet = new Bullet();
                     singleBullet.SetPosition(Camera.Position + Camera.FrontDirection * 50f);
@@ -258,7 +262,7 @@
                     ClickPressed = true;
                 }
 
-                if (mouse.RightButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15)
+                if (mouse.RightButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
                 {
                     Bullet Bullet1 = new Bullet();
                     Bullet1.SetPosition(Camera.Position + Camera.FrontDirection * 190f);
@@ -335,16 +339,22 @@
             {
                 Recoil -= 0.25f;
             }
-
+            
             Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
             Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * MathHelper.Lerp(40, 35, Recoil) + cameraRight * 10 - Camera.UpDirection * 4;
+            Matrix shotgunWorld = Matrix.CreateScale(0.1f, 0.1f, 0.1f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
+            Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
+
+          //  Vector3 particlePosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * 60 + cameraRight * 10 - Camera.UpDirection * 4;
+          //  Matrix particleWorld = Matrix.CreateWorld(Camera.Position, -cameraRight, Camera.UpDirection);
+          //  particle.Draw(World * Matrix.CreateTranslation(Camera.Position - Vector3.UnitZ * 150), Camera.View, Camera.Projection);
 
             var mouse = Mouse.GetState();
-            if (mouse.LeftButton == ButtonState.Pressed)
+            if (mouse.LeftButton == ButtonState.Pressed && Recoil == 0)
             {
                 Recoil = 10;
             }
-            if (mouse.RightButton == ButtonState.Pressed)
+            if (mouse.RightButton == ButtonState.Pressed && Recoil == 0)
             {
                 Recoil = 13.5f;
             }
@@ -375,9 +385,6 @@
                 Vector3 BulletPosition = bullet.GetPosition() + bullet.GetDirection()+ BulletRight - bullet.GetUp();
                 if (Vector3.Distance(bullet.GetPosition(), Camera.Position) < 2550) BulletModel.Draw(Matrix.CreateScale(5) * Matrix.CreateWorld(BulletPosition, -BulletRight, bullet.GetDirection()), Camera.View, Camera.Projection);
             }            
-
-            Matrix shotgunWorld = Matrix.CreateScale(0.1f, 0.1f, 0.1f) * Matrix.CreateWorld(weaponPosition,-cameraRight,Camera.UpDirection);
-            Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
 
             base.Draw(gameTime);
         }
