@@ -96,6 +96,7 @@
         /// <summary>
         /// Gets or sets the World.
         /// </summary>
+
         private Matrix World { get; set; }
 
         /// <summary>
@@ -123,6 +124,8 @@
         /// <summary>
         /// Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aquí todo el código de inicialización: todo procesamiento que podemos pre calcular para nuestro juego.
+        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
+        ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
         protected override void Initialize()
         {
@@ -165,6 +168,9 @@
 
             // Arranco el Game Pause en true para evitar que el jugador se mueva
             GamePause = true;
+
+            // Configuramos nuestras matrices de la escena.
+            World = Matrix.Identity;
 
             base.Initialize();
         }
