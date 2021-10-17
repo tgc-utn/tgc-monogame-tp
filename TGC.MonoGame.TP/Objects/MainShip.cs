@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Runtime.Intrinsics.X86;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
+using static TGC.MonoGame.TP.Objects.CannonBall;
 
 namespace TGC.MonoGame.TP.Objects
 {
@@ -31,6 +31,10 @@ namespace TGC.MonoGame.TP.Objects
 
         public string ModelName;
         public string SoundShotName;
+        private Boolean CanShoot { get; set; }
+        
+        private Model cannonBall { get; set; }
+        private List <CannonBall> cannonBalls= new List <CannonBall>();
 
         private SoundEffect soundShot { get; set; }
 
@@ -58,17 +62,28 @@ namespace TGC.MonoGame.TP.Objects
         {
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
             soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
+            cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
         }
 
         public void Draw()
-        { 
-            modelo.Draw(Matrix.CreateRotationY(anguloDeGiro+anguloInicial)*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+        {
+            modelo.Draw(
+                Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(0.01f) *
+                Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
+            foreach (var cannon in cannonBalls)
+            {
+                cannon.Draw();
+            }
         }
 
         public void Update(GameTime gameTime)
         {
+            foreach (var cannon in cannonBalls)
+            {
+                cannon.Update(gameTime);
+            }
             ProcessKeyboard(_game.ElapsedTime);
-            ProcessMouse(_game.ElapsedTime);
+            ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
         }
@@ -129,12 +144,49 @@ namespace TGC.MonoGame.TP.Objects
             }
         }
 
-        private void ProcessMouse(float elapsedTime)
+        private void ProcessMouse(GameTime gameTime)
         {
             var mouseState = Mouse.GetState();
-            if (mouseState.RightButton.Equals(ButtonState.Pressed))
+            if (mouseState.RightButton.Equals(ButtonState.Pressed) && CanShoot)
             {
+                CanShoot = false;
                 soundShot.Play();
+                var matriz = new Matrix();
+                matriz.M11 = mouseState.X;
+                matriz.M21 = mouseState.Y;
+                matriz.M31 = 1;
+                
+                /*var test = Matrix.Multiply(_game.Camera.Projection, matriz);
+                var mouse = mouseState.Position.ToVector2();
+                var screenSize = new Point(_game.GraphicsDevice.Viewport.Width / 2, _game.GraphicsDevice.Viewport.Height / 2);*/
+                
+                
+                Vector3 nearScreen = new Vector3((float) mouseState.X / _game.GraphicsDevice.Viewport.Width,
+                    (float)mouseState.Y / _game.GraphicsDevice.Viewport.Height, 0);
+                Vector3 farScreen = new Vector3((float)mouseState.X / _game.GraphicsDevice.Viewport.Width,
+                    (float)mouseState.Y / _game.GraphicsDevice.Viewport.Height, 1);
+                Vector3 nearWorld = _game.GraphicsDevice.Viewport.Unproject(nearScreen, _game.Camera.Projection, _game.Camera.View, Matrix.Identity);
+                Vector3 farWorld = _game.GraphicsDevice.Viewport.Unproject(farScreen, _game.Camera.Projection, _game.Camera.View, Matrix.Identity);
+                Vector3 direction = farWorld - nearWorld;
+                float zFactor = -nearWorld.Y / direction.Y;
+                Vector3 zeroWorldPoint = nearWorld + direction * zFactor;
+                
+                
+                Vector3 source = new Vector3(mouseState.X ,
+                    mouseState.Y, 0);
+                Vector3 source1 = new Vector3(mouseState.X ,
+                    mouseState.Y, 1000000);
+                Vector3 projectiontest =  _game.GraphicsDevice.Viewport.Unproject(source, _game.Camera.Projection, _game.Camera.View, _game.World);
+                Vector3 projectiontest1 =  _game.GraphicsDevice.Viewport.Unproject(source1, _game.Camera.Projection, _game.Camera.View, _game.World);
+                Vector3 proyectTotal = projectiontest1 - projectiontest;
+                var test2 = Vector3.Transform(new Vector3(mouseState.X/_game.GraphicsDevice.Viewport.Width,mouseState.Y/_game.GraphicsDevice.Viewport.Height,1),   Matrix.Invert(_game.Camera.View)* Matrix.Invert(_game.Camera.Projection));
+                cannonBalls.Add(new CannonBall(projectiontest,_game,cannonBall));
+                
+            }
+
+            if (!mouseState.RightButton.Equals(ButtonState.Pressed))
+            {
+                CanShoot = true;
             }
         }
 

@@ -27,6 +27,8 @@ namespace TGC.MonoGame.Samples.Cameras
         private List<Camera> Cameras { get; set; }
         private Camera CurrentCamera { get; set; }
         public MainShip MainShip { get; set; }
+
+        private float AspectRatio;
         
         public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
         {
@@ -42,6 +44,7 @@ namespace TGC.MonoGame.Samples.Cameras
             
             Position = BarcoPositionCenter.Position;
             MainShip = BarcoPositionCenter;
+            AspectRatio = aspectRatio;
             Cameras = new List<Camera>()
             {
                 //new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
@@ -89,7 +92,7 @@ namespace TGC.MonoGame.Samples.Cameras
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
             Cameras[3].SetPosition(MainShip.Position);
             View = CurrentCamera.View;
-            Projection = CurrentCamera.Projection;
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);;
         }
     }
 }
