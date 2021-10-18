@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.Samples.Cameras
 {
@@ -49,7 +50,8 @@ namespace TGC.MonoGame.Samples.Cameras
         ///     Direction where the camera is looking.
         /// </summary>
         public Vector3 FrontDirection { get; set; }
-
+        
+        public Vector3 LookAt { get; set; }
         /// <summary>
         ///     The perspective projection matrix.
         /// </summary>
@@ -74,6 +76,7 @@ namespace TGC.MonoGame.Samples.Cameras
         ///     The created view matrix.
         /// </summary>
         public Matrix View { get; set; }
+        public RenderTarget2D SceneRenderTarget{ get; set; }
 
         public Vector3 TargetPosition { get; set; }
 

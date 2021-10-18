@@ -53,6 +53,7 @@ namespace TGC.MonoGame.Samples.Cameras
         /// </summary>
         public float Speed { get; set; }
 
+        
         /// <summary>
         ///     Build view matrix and update the internal directions.
         /// </summary>
@@ -63,6 +64,7 @@ namespace TGC.MonoGame.Samples.Cameras
             Position = position;
             FrontDirection = DefaultWorldFrontVector;
             Speed = speed;
+            LookAt = Position + FrontDirection;
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
         }
 
@@ -101,7 +103,7 @@ namespace TGC.MonoGame.Samples.Cameras
             
             //---------------------Agrgear el Zoom
             Mouse.SetCursor(MouseCursor.Crosshair);
-            
+            //Mouse.SetPosition(0,0);
             /*
             var mouseState = Mouse.GetState();
             if (mouseState.RightButton.Equals(ButtonState.Pressed))
@@ -131,7 +133,8 @@ namespace TGC.MonoGame.Samples.Cameras
 
             if (keyboardState.IsKeyDown(Keys.D))
                 Position -= RightDirection * time * Speed;*/
-
+            LookAt = Position + FrontDirection;
+            
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
         }
     }

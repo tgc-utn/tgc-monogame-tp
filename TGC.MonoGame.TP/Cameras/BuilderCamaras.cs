@@ -18,7 +18,7 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultNearPlaneDistance = 0.1f;
         public const float DefaultFarPlaneDistance = 200000000;
         //private static readonly Vector3 Position = new Vector3(-350, 50, 400);
-        private Vector3 Position { get; set; }
+        private Vector3 PositionBarco { get; set; }
         private Vector3 CenterPosition = new Vector3(0, 42,62);
         private Vector3 FrontPosition = new Vector3(0, 40,200);
         private static float Speed = 5;
@@ -42,16 +42,16 @@ namespace TGC.MonoGame.Samples.Cameras
         public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
         {
             
-            Position = BarcoPositionCenter.Position;
+            PositionBarco = BarcoPositionCenter.Position;
             MainShip = BarcoPositionCenter;
             AspectRatio = aspectRatio;
             Cameras = new List<Camera>()
             {
                 //new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
-                new SimpleCamera(aspectRatio,Position+FrontPosition,Speed),
-                new SimpleCamera(aspectRatio,Position+CenterPosition,Speed),
+                new SimpleCamera(aspectRatio,PositionBarco+FrontPosition,Speed),
+                new SimpleCamera(aspectRatio,PositionBarco+CenterPosition,Speed),
                 new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
-                new TargetCamera(aspectRatio, new Vector3(Position.X, Position.Y + 150, Position.Z - 250), Position, screenCenter, height, width)
+                new TargetCamera(aspectRatio, new Vector3(PositionBarco.X, PositionBarco.Y + 150, PositionBarco.Z - 250), PositionBarco, screenCenter, height, width)
             };
             CurrentCamera = Cameras[0];
         }
@@ -91,6 +91,8 @@ namespace TGC.MonoGame.Samples.Cameras
             Cameras[1].Position = MainShip.Position + FrontPosition;
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
             Cameras[3].SetPosition(MainShip.Position);
+            Position = CurrentCamera.Position;
+            LookAt = CurrentCamera.LookAt;
             View = CurrentCamera.View;
             Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);;
         }

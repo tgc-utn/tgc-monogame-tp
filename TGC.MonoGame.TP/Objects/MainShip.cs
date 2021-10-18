@@ -37,6 +37,7 @@ namespace TGC.MonoGame.TP.Objects
         private List <CannonBall> cannonBalls= new List <CannonBall>();
 
         private SoundEffect soundShot { get; set; }
+        private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
 
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
@@ -151,16 +152,16 @@ namespace TGC.MonoGame.TP.Objects
             {
                 CanShoot = false;
                 soundShot.Play();
-                var matriz = new Matrix();
+                /*var matriz = new Matrix();
                 matriz.M11 = mouseState.X;
                 matriz.M21 = mouseState.Y;
-                matriz.M31 = 1;
+                matriz.M31 = 1;*/
                 
                 /*var test = Matrix.Multiply(_game.Camera.Projection, matriz);
                 var mouse = mouseState.Position.ToVector2();
                 var screenSize = new Point(_game.GraphicsDevice.Viewport.Width / 2, _game.GraphicsDevice.Viewport.Height / 2);*/
                 
-                
+                /*
                 Vector3 nearScreen = new Vector3((float) mouseState.X / _game.GraphicsDevice.Viewport.Width,
                     (float)mouseState.Y / _game.GraphicsDevice.Viewport.Height, 0);
                 Vector3 farScreen = new Vector3((float)mouseState.X / _game.GraphicsDevice.Viewport.Width,
@@ -180,7 +181,20 @@ namespace TGC.MonoGame.TP.Objects
                 Vector3 projectiontest1 =  _game.GraphicsDevice.Viewport.Unproject(source1, _game.Camera.Projection, _game.Camera.View, _game.World);
                 Vector3 proyectTotal = projectiontest1 - projectiontest;
                 var test2 = Vector3.Transform(new Vector3(mouseState.X/_game.GraphicsDevice.Viewport.Width,mouseState.Y/_game.GraphicsDevice.Viewport.Height,1),   Matrix.Invert(_game.Camera.View)* Matrix.Invert(_game.Camera.Projection));
-                cannonBalls.Add(new CannonBall(projectiontest,_game,cannonBall));
+                */
+                var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                normal.Normalize();
+                var aux = (float) 0;
+                if (normal.Y >= 0)
+                {
+                    aux =(float) 10000000;
+                }
+                else
+                {
+                    aux = (float)-_game.Camera.Position.Y / normal.Y;
+                }
+                var endPosition = aux * normal + _game.Camera.Position;
+                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall));
                 
             }
 

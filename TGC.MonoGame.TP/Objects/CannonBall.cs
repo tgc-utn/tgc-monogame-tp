@@ -13,7 +13,7 @@ namespace TGC.MonoGame.TP.Objects
         private TGCGame Game { get; set; }
         private Vector3 Position0 { get; set; }
         private float Rotate0;
-        private int Scale0;
+        private float Scale0;
         private Vector3 Position1 { get; set; }
         private Vector3 PositionActual { get; set; }
         private Vector3 PositionAnterior { get; set; }
@@ -22,15 +22,16 @@ namespace TGC.MonoGame.TP.Objects
         private double DurationTotal = 0 ;
         private float Angulo = 0f;
         
-        public CannonBall(Vector3 initialPosition, TGCGame game, Model model)
+        public CannonBall(Vector3 initialPosition, Vector3 endPosition,TGCGame game, Model model)
         {
             cannonBall = model;
             Game = game;
-            //Position = initialPosition;
-            Position0 = new Vector3(-200f, 32, 80);
+            Position0 = initialPosition;
+            //Position0 = new Vector3(-200f, 32, 80);
             Rotate0 = -(float) Math.PI / 2;
-            Scale0 = 7;
-            Position1 = new Vector3(-200f, 10, 1000);
+            Scale0 = (float)0.005;
+            //Position1 = new Vector3(-200f, 10, 1000);
+            Position1 = endPosition;
             PositionActual = Position0;
             PositionAnterior = PositionActual;
             var distancia = Position1 - Position0;
@@ -41,13 +42,13 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Draw()
         {
-            cannonBall.Draw(Matrix.CreateRotationX((float) Math.PI - Angulo) * Matrix.CreateScale((float)0.1)  * Matrix.CreateTranslation(PositionActual),
+            cannonBall.Draw(Matrix.CreateRotationX((float) Math.PI - Angulo) * Matrix.CreateScale(Scale0)  * Matrix.CreateTranslation(PositionActual),
                 Game.Camera.View, Game.Camera.Projection);
         }
 
         public void Update(GameTime gameTime)
         {
-            DurationTotal += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            DurationTotal += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds)*(float)0.1;
             if (PositionActual != Position1)
             {
                 PositionActual = Position0 + Velocidad * (float) DurationTotal +
