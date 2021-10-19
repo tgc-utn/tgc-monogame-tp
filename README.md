@@ -10,7 +10,7 @@ El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacer
 - A: Izquierda
 - D: Derecha
 - ⬆/⬇/⬅/➡: Movimiento de camara
-- Click derecho: Disparo
+- Click derecho: Disparo (unicamente con camara 1 o 2)
 - 1: SimpleCamera (Medio del barco)
 - 2: SimpleCamera (Delante del barco)
 - 3: StaticCamera (Desde arriba)

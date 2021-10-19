@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,7 +12,7 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultFieldOfViewDegrees = MathHelper.PiOver4;
         public const float DefaultNearPlaneDistance = 0.1f;
         public const float DefaultFarPlaneDistance = 200000000;
-
+        public Boolean CanShoot;
         public Camera(float aspectRatio) : this(aspectRatio, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
         {
         }

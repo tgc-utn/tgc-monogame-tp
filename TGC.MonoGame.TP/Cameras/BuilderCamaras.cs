@@ -54,6 +54,7 @@ namespace TGC.MonoGame.Samples.Cameras
                 new TargetCamera(aspectRatio, new Vector3(PositionBarco.X, PositionBarco.Y + 150, PositionBarco.Z - 250), PositionBarco, screenCenter, height, width)
             };
             CurrentCamera = Cameras[0];
+            CanShoot = CurrentCamera.CanShoot;
         }
 
         public override void Update(GameTime gameTime)
@@ -91,6 +92,7 @@ namespace TGC.MonoGame.Samples.Cameras
             Cameras[1].Position = MainShip.Position + FrontPosition;
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
             Cameras[3].SetPosition(MainShip.Position);
+            CanShoot = CurrentCamera.CanShoot;
             Position = CurrentCamera.Position;
             LookAt = CurrentCamera.LookAt;
             View = CurrentCamera.View;

@@ -212,9 +212,7 @@ namespace TGC.MonoGame.TP
             
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            
             //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             //Effect.Parameters["View"].SetValue(View);
@@ -257,10 +255,18 @@ namespace TGC.MonoGame.TP
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             //ocean.Draw(World * Matrix.CreateTranslation(0, -60f, 0), Camera.View, Camera.Projection);
             ocean.Draw(gameTime, Camera.View, Camera.Projection, this);
-            
-            spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            spriteBatch.Draw( Mira , new Rectangle( GraphicsDevice.Viewport.Width/2-400 , GraphicsDevice.Viewport.Height/2-300 , 800 , 600 ), Color.White ) ;
-            spriteBatch.End();
+            if (Camera.CanShoot)
+            {
+                spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
+                    DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+                spriteBatch.Draw(Mira,
+                    new Rectangle(GraphicsDevice.Viewport.Width / 2 - 400, GraphicsDevice.Viewport.Height / 2 - 300,
+                        800, 600), Color.White);
+                spriteBatch.End();
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+                GraphicsDevice.BlendState = BlendState.Opaque;
+            }
         }
 
         /// <summary>

@@ -66,6 +66,7 @@ namespace TGC.MonoGame.Samples.Cameras
             Speed = speed;
             LookAt = Position + FrontDirection;
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
+            CanShoot = true;
         }
 
         /// <inheritdoc />

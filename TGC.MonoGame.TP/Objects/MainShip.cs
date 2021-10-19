@@ -148,7 +148,7 @@ namespace TGC.MonoGame.TP.Objects
         private void ProcessMouse(GameTime gameTime)
         {
             var mouseState = Mouse.GetState();
-            if (mouseState.RightButton.Equals(ButtonState.Pressed) && CanShoot)
+            if (mouseState.RightButton.Equals(ButtonState.Pressed) && CanShoot && _game.Camera.CanShoot)
             {
                 CanShoot = false;
                 soundShot.Play();
