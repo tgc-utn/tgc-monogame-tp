@@ -796,6 +796,18 @@
 /processorParam:Quality=Best
 /build:Sounds/mixkit-war-explosions-2773.wav
 
+#begin Textures/earth.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/earth.png
+
 #begin Textures/Mira.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -808,6 +820,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Mira.png
 
+#begin Textures/Mira0.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Mira0.png
+
 #begin Textures/Mira2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -819,6 +843,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Mira2.png
+
+#begin Textures/Mira4.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Mira4.jpg
+
+#begin Textures/Mira5.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Mira5.png
 
 #begin Textures/oceanoTextura.jpg
 /importer:TextureImporter
@@ -843,18 +891,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/overlay.png
-
-#begin Textures/png-transparent-drawing-crosshair-s-angle-symmetry-number-thumbnail.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/png-transparent-drawing-crosshair-s-angle-symmetry-number-thumbnail.png
 
 #begin Textures/png-transparent-drawing-crosshair-s-angle-symmetry-number-thumbnail.png
 /importer:TextureImporter
