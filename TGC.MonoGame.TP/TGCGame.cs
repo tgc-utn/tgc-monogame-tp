@@ -52,6 +52,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         //importa monedas del archivo monedas
         private Monedas monedas { get; set; }
+        private SpriteFont Font;
 
         //Modelos
         private Model Cartel { get; set; }
@@ -127,6 +128,7 @@ namespace TGC.MonoGame.TP
         public VertexDeclaration vertexDeclaration { get; set; }
         public Matrix MarbleScale { get; private set; }
 
+        private bool MostrarMenu = true;
         private float JumpSpeed = 10f;
         public float DefaultSpeed = 30f;
         public float PelotaRapida = 5f;
@@ -628,10 +630,22 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                MostrarMenu = true;
                 //Salgo del juego.
-                Exit();
+                
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            if (MostrarMenu)
+            {
+                if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                {
+                    Exit();
+                }
+                if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+                {
+                    MostrarMenu = false;
+                }
+            }
 
             // Check for the Jump key press, and add velocity in Y only if the marble is on the ground
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && OnGround)
@@ -778,6 +792,8 @@ namespace TGC.MonoGame.TP
 
             //Jugador
             DrawMeshes(MarbleWorld, MarbleTexture, Esfera);
+            //Moneda Counter
+            DrawCenterTextY("Monedas: " ,  0, 1);
 
             ////Se agregan la esferas
             DrawMeshes( ( Matrix.CreateScale(0.1f) * Matrix.CreateRotationY(Rotation * 0.2f) * Matrix.CreateTranslation(new Vector3(-50f, -10f, 0f)) ), MagmaTexture, Esfera);
@@ -1190,6 +1206,16 @@ namespace TGC.MonoGame.TP
             
             space.Remove(sender.Entity);
             return;
+        }
+        private void DrawCenterTextY(string msg, float Y, float escala)
+        {
+            var W = GraphicsDevice.Viewport.Width;
+            var H = GraphicsDevice.Viewport.Height;
+            var size = Font.MeasureString(msg) * escala;
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null,
+                Matrix.CreateScale(escala) * Matrix.CreateTranslation((W - size.X) / 2, Y, 0));
+            SpriteBatch.DrawString(Font, msg, new Vector2(0, 0), Color.Black);
+            SpriteBatch.End();
         }
 
         private void UpdatePlatformsColliders(float TotalTime)
