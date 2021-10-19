@@ -11,7 +11,7 @@ namespace TGC.MonoGame.TP
     /// <summary>
     /// A City Scene to be drawn
     /// </summary>
-    class Water
+    public class Water
     {
         public const float WaterGrid = 5000f;
         private Model Model { get; set; }

@@ -152,36 +152,6 @@ namespace TGC.MonoGame.TP.Objects
             {
                 CanShoot = false;
                 soundShot.Play();
-                /*var matriz = new Matrix();
-                matriz.M11 = mouseState.X;
-                matriz.M21 = mouseState.Y;
-                matriz.M31 = 1;*/
-                
-                /*var test = Matrix.Multiply(_game.Camera.Projection, matriz);
-                var mouse = mouseState.Position.ToVector2();
-                var screenSize = new Point(_game.GraphicsDevice.Viewport.Width / 2, _game.GraphicsDevice.Viewport.Height / 2);*/
-                
-                /*
-                Vector3 nearScreen = new Vector3((float) mouseState.X / _game.GraphicsDevice.Viewport.Width,
-                    (float)mouseState.Y / _game.GraphicsDevice.Viewport.Height, 0);
-                Vector3 farScreen = new Vector3((float)mouseState.X / _game.GraphicsDevice.Viewport.Width,
-                    (float)mouseState.Y / _game.GraphicsDevice.Viewport.Height, 1);
-                Vector3 nearWorld = _game.GraphicsDevice.Viewport.Unproject(nearScreen, _game.Camera.Projection, _game.Camera.View, Matrix.Identity);
-                Vector3 farWorld = _game.GraphicsDevice.Viewport.Unproject(farScreen, _game.Camera.Projection, _game.Camera.View, Matrix.Identity);
-                Vector3 direction = farWorld - nearWorld;
-                float zFactor = -nearWorld.Y / direction.Y;
-                Vector3 zeroWorldPoint = nearWorld + direction * zFactor;
-                
-                
-                Vector3 source = new Vector3(mouseState.X ,
-                    mouseState.Y, 0);
-                Vector3 source1 = new Vector3(mouseState.X ,
-                    mouseState.Y, 1000000);
-                Vector3 projectiontest =  _game.GraphicsDevice.Viewport.Unproject(source, _game.Camera.Projection, _game.Camera.View, _game.World);
-                Vector3 projectiontest1 =  _game.GraphicsDevice.Viewport.Unproject(source1, _game.Camera.Projection, _game.Camera.View, _game.World);
-                Vector3 proyectTotal = projectiontest1 - projectiontest;
-                var test2 = Vector3.Transform(new Vector3(mouseState.X/_game.GraphicsDevice.Viewport.Width,mouseState.Y/_game.GraphicsDevice.Viewport.Height,1),   Matrix.Invert(_game.Camera.View)* Matrix.Invert(_game.Camera.Projection));
-                */
                 var normal = (_game.Camera.LookAt - _game.Camera.Position);
                 normal.Normalize();
                 var aux = (float) 0;

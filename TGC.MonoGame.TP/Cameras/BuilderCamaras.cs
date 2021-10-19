@@ -29,17 +29,17 @@ namespace TGC.MonoGame.Samples.Cameras
         public MainShip MainShip { get; set; }
 
         private float AspectRatio;
-        
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
+        private Boolean Menu = false;
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, Boolean menu) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance, menu)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
-            nearPlaneDistance, farPlaneDistance, DefaultFieldOfViewDegrees)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, Boolean menu) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
+            nearPlaneDistance, farPlaneDistance, DefaultFieldOfViewDegrees, menu)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees, Boolean menu) : base(aspectRatio)
         {
             
             PositionBarco = BarcoPositionCenter.Position;
@@ -51,40 +51,48 @@ namespace TGC.MonoGame.Samples.Cameras
                 new SimpleCamera(aspectRatio,PositionBarco+FrontPosition,Speed),
                 new SimpleCamera(aspectRatio,PositionBarco+CenterPosition,Speed),
                 new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
-                new TargetCamera(aspectRatio, new Vector3(PositionBarco.X, PositionBarco.Y + 150, PositionBarco.Z - 250), PositionBarco, screenCenter, height, width)
+                new TargetCamera(aspectRatio, new Vector3(PositionBarco.X, PositionBarco.Y + 150, PositionBarco.Z - 250), PositionBarco, screenCenter, height, width),
+                new StaticCamera(aspectRatio, new Vector3(0,0,0), new Vector3(1,0,0),Vector3.Up) // unicamente para menu
             };
             CurrentCamera = Cameras[0];
             CanShoot = CurrentCamera.CanShoot;
+            Menu = menu;
         }
 
         public override void Update(GameTime gameTime)
         {
             var keyboardState = Keyboard.GetState();
-
-            if (keyboardState.IsKeyDown(Keys.D1))
+            if (!Menu)
             {
-                CurrentCamera = Cameras[0];
-            }
-            else
-            {
-                if (keyboardState.IsKeyDown(Keys.D2))
+                if (keyboardState.IsKeyDown(Keys.D1))
                 {
-                    CurrentCamera = Cameras[1];
+                    CurrentCamera = Cameras[0];
                 }
                 else
                 {
-                    if (keyboardState.IsKeyDown(Keys.D3))
+                    if (keyboardState.IsKeyDown(Keys.D2))
                     {
-                        CurrentCamera = Cameras[2];
+                        CurrentCamera = Cameras[1];
                     }
                     else
                     {
-                        if (keyboardState.IsKeyDown(Keys.D4))
+                        if (keyboardState.IsKeyDown(Keys.D3))
                         {
-                            CurrentCamera = Cameras[3];
+                            CurrentCamera = Cameras[2];
+                        }
+                        else
+                        {
+                            if (keyboardState.IsKeyDown(Keys.D4))
+                            {
+                                CurrentCamera = Cameras[3];
+                            }
                         }
                     }
                 }
+            }
+            else
+            {
+                CurrentCamera = Cameras[4];
             }
 
             CurrentCamera.Update(gameTime);
