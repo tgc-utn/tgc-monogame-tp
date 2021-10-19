@@ -151,8 +151,10 @@ namespace TGC.MonoGame.TP
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             if (GameState == "START")
+                IsMouseVisible = true;
                 menu.Update(gameTime);
             if (GameState == "PLAY" || GameState == "RESUME")
+                IsMouseVisible = false;
                 gameRun.Update(gameTime);
             if (Keyboard.GetState().IsKeyDown(Keys.Escape) && GameState == "END")
                 //Salgo del juego.

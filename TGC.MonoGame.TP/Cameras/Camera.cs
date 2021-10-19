@@ -51,7 +51,8 @@ namespace TGC.MonoGame.Samples.Cameras
         ///     Direction where the camera is looking.
         /// </summary>
         public Vector3 FrontDirection { get; set; }
-        
+
+        public Boolean Menu;
         public Vector3 LookAt { get; set; }
         /// <summary>
         ///     The perspective projection matrix.

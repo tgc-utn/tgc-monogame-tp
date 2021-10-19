@@ -29,7 +29,6 @@ namespace TGC.MonoGame.Samples.Cameras
         public MainShip MainShip { get; set; }
 
         private float AspectRatio;
-        private Boolean Menu = false;
         public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, Boolean menu) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance, menu)
         {
         }
@@ -64,6 +63,7 @@ namespace TGC.MonoGame.Samples.Cameras
             var keyboardState = Keyboard.GetState();
             if (!Menu)
             {
+                
                 if (keyboardState.IsKeyDown(Keys.D1))
                 {
                     CurrentCamera = Cameras[0];
@@ -88,6 +88,11 @@ namespace TGC.MonoGame.Samples.Cameras
                             }
                         }
                     }
+                }
+
+                if (CurrentCamera == Cameras[4])
+                {
+                    CurrentCamera = Cameras[0];
                 }
             }
             else
