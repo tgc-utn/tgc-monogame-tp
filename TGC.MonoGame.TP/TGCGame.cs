@@ -98,6 +98,7 @@ namespace TGC.MonoGame.TP
                 new Vector3(4000f,-60f,-1500f),new Vector3(500f,-60f,-3000f),new Vector3(0,-60f,-4000f), new Vector3 (-2000f,-60f,0)};
 
             cantIslas = posicionesIslas.Length;
+            
             base.Initialize();
         }
 
@@ -137,7 +138,7 @@ namespace TGC.MonoGame.TP
             SongName = "rhythm-of-war-main-7233";
             Song = Content.Load<Song>(ContentFolderMusic + SongName);
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(Song);
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
             base.LoadContent();
         }
@@ -151,11 +152,25 @@ namespace TGC.MonoGame.TP
         {
             ElapsedTime += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             if (GameState == "START")
+            {
+                if (MediaPlayer.State != MediaState.Playing )
+                {
+                    MediaPlayer.Play(menu.Song, new TimeSpan(0,0,2));
+                }
                 IsMouseVisible = true;
                 menu.Update(gameTime);
+            }
+
             if (GameState == "PLAY" || GameState == "RESUME")
+            {
+                if (MediaPlayer.State != MediaState.Playing )
+                {
+                    MediaPlayer.Play(Song);
+                }
                 IsMouseVisible = false;
                 gameRun.Update(gameTime);
+            }
+
             if (Keyboard.GetState().IsKeyDown(Keys.Escape) && GameState == "END")
                 //Salgo del juego.
                 Exit();

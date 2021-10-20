@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
 using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TGC.MonoGame.TP
 {
@@ -18,6 +19,8 @@ namespace TGC.MonoGame.TP
         public Texture2D botonesCurrentPlay;
         public Texture2D botonesCurrentExit;
         private SpriteFont font;
+        public Song Song { get; set; }
+        private SoundEffect soundButtom { get; set; }
         public Menu(TGCGame game)
         {
             Game = game;
@@ -28,6 +31,9 @@ namespace TGC.MonoGame.TP
             botonesCurrentExit = botonesOff;
             font = Game.Content.Load<SpriteFont>("SpriteFonts/Text");
             spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+            soundButtom = Game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + "botones2");
+            Song = Game.Content.Load<Song>(TGCGame.ContentFolderMusic + "Menu");
+            MediaPlayer.IsRepeating = true;
         }
 
         public void Draw(GameTime gameTime)
@@ -62,6 +68,7 @@ namespace TGC.MonoGame.TP
                 botonesCurrentExit = botonesOn;
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
+                    soundButtom.Play();
                     Game.Exit();
                 }
             }
@@ -74,9 +81,10 @@ namespace TGC.MonoGame.TP
                 botonesCurrentPlay = botonesOn;
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
+                    MediaPlayer.Stop();
+                    soundButtom.Play();
                     Game.GameState = "PLAY";
                     Game.Camera.Menu = false;
-
                 }
             }
             else

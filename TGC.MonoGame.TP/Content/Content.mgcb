@@ -772,11 +772,29 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/WarVessel/1124.fbx
 
+#begin Music/Menu.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Menu.mp3
+
 #begin Music/rhythm-of-war-main-7233.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/rhythm-of-war-main-7233.mp3
+
+#begin Sounds/botones.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sounds/botones.mp3
+
+#begin Sounds/botones2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/botones2.wav
 
 #begin Sounds/mixkit-arcade-game-explosion-2759.wav
 /importer:WavImporter
