@@ -18,68 +18,86 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultNearPlaneDistance = 0.1f;
         public const float DefaultFarPlaneDistance = 200000000;
         //private static readonly Vector3 Position = new Vector3(-350, 50, 400);
-        private Vector3 Position { get; set; }
-        private Vector3 FrontPosition = new Vector3(0, 40, -200);
-        private Vector3 CenterPosition = new Vector3(0, 70, 0);
+        private Vector3 PositionBarco { get; set; }
+        private Vector3 CenterPosition = new Vector3(0, 42,62);
+        private Vector3 FrontPosition = new Vector3(0, 40,200);
         private static float Speed = 5;
         private static readonly Vector3 FromDirectionTarget = new Vector3(-350, 1000, 500);
         private static readonly Vector3 FromDirectionStatic = new Vector3(-200f, 10000, 0);
         private List<Camera> Cameras { get; set; }
         private Camera CurrentCamera { get; set; }
         public MainShip MainShip { get; set; }
-        
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
+
+        private float AspectRatio;
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, Boolean menu) : this(aspectRatio,screenCenter, width,height,BarcoPositionCenter, DefaultNearPlaneDistance, DefaultFarPlaneDistance, menu)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
-            nearPlaneDistance, farPlaneDistance, DefaultFieldOfViewDegrees)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height,MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, Boolean menu) : this(aspectRatio,screenCenter, width,height, BarcoPositionCenter,
+            nearPlaneDistance, farPlaneDistance, DefaultFieldOfViewDegrees, menu)
         {
         }
 
-        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees) : base(aspectRatio)
+        public BuilderCamaras(float aspectRatio, Point screenCenter,float width, float height, MainShip BarcoPositionCenter, float nearPlaneDistance, float farPlaneDistance, float fieldOfViewDegrees, Boolean menu) : base(aspectRatio)
         {
             
-            Position = BarcoPositionCenter.Position;
+            PositionBarco = BarcoPositionCenter.Position;
             MainShip = BarcoPositionCenter;
+            AspectRatio = aspectRatio;
             Cameras = new List<Camera>()
             {
-                new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
-                new SimpleCamera(aspectRatio,Position+FrontPosition,Speed),
+                //new FreeCamera(aspectRatio, Position+CenterPosition, screenCenter),
+                new SimpleCamera(aspectRatio,PositionBarco+FrontPosition,Speed),
+                new SimpleCamera(aspectRatio,PositionBarco+CenterPosition,Speed),
                 new StaticCamera(aspectRatio, FromDirectionStatic, new Vector3(0,-950,0),new Vector3(1,1,0)), //Revisar para que quede para abajo mostrando todo el mapa
-                new TargetCamera(aspectRatio, new Vector3(Position.X, Position.Y + 150, Position.Z - 250), Position, screenCenter, height, width)
+                new TargetCamera(aspectRatio, new Vector3(PositionBarco.X, PositionBarco.Y + 150, PositionBarco.Z - 250), PositionBarco, screenCenter, height, width),
+                new StaticCamera(aspectRatio, new Vector3(0,0,0), new Vector3(1,0,0),Vector3.Up) // unicamente para menu
             };
             CurrentCamera = Cameras[0];
+            CanShoot = CurrentCamera.CanShoot;
+            Menu = menu;
         }
 
         public override void Update(GameTime gameTime)
         {
             var keyboardState = Keyboard.GetState();
-
-            if (keyboardState.IsKeyDown(Keys.D1))
+            if (!Menu)
             {
-                CurrentCamera = Cameras[0];
-            }
-            else
-            {
-                if (keyboardState.IsKeyDown(Keys.D2))
+                
+                if (keyboardState.IsKeyDown(Keys.D1))
                 {
-                    CurrentCamera = Cameras[1];
+                    CurrentCamera = Cameras[0];
                 }
                 else
                 {
-                    if (keyboardState.IsKeyDown(Keys.D3))
+                    if (keyboardState.IsKeyDown(Keys.D2))
                     {
-                        CurrentCamera = Cameras[2];
+                        CurrentCamera = Cameras[1];
                     }
                     else
                     {
-                        if (keyboardState.IsKeyDown(Keys.D4))
+                        if (keyboardState.IsKeyDown(Keys.D3))
                         {
-                            CurrentCamera = Cameras[3];
+                            CurrentCamera = Cameras[2];
+                        }
+                        else
+                        {
+                            if (keyboardState.IsKeyDown(Keys.D4))
+                            {
+                                CurrentCamera = Cameras[3];
+                            }
                         }
                     }
                 }
+
+                if (CurrentCamera == Cameras[4])
+                {
+                    CurrentCamera = Cameras[0];
+                }
+            }
+            else
+            {
+                CurrentCamera = Cameras[4];
             }
 
             CurrentCamera.Update(gameTime);
@@ -87,8 +105,11 @@ namespace TGC.MonoGame.Samples.Cameras
             Cameras[1].Position = MainShip.Position + FrontPosition;
             Cameras[2].FrontDirection = -(FromDirectionStatic - MainShip.Position);
             Cameras[3].SetPosition(MainShip.Position);
+            CanShoot = CurrentCamera.CanShoot;
+            Position = CurrentCamera.Position;
+            LookAt = CurrentCamera.LookAt;
             View = CurrentCamera.View;
-            Projection = CurrentCamera.Projection;
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, AspectRatio, 1, 1000000);;
         }
     }
 }

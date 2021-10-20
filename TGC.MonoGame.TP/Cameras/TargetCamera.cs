@@ -42,6 +42,7 @@ namespace TGC.MonoGame.Samples.Cameras
             BuildView(position, targetPosition);
             this.windowHeight = WindowHeight;
             this.windowWidth = WindowWidth;
+            CanShoot = false;
         }
 
         /// <summary>

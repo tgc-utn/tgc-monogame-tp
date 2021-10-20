@@ -42,5 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Content\Models\pruebita\**" />
+    <Compile Remove="Objects\FullScreenSquad.cs" />
+    <Compile Remove="Game.cs" />
   </ItemGroup>
 </Project>

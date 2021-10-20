@@ -1,4 +1,6 @@
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.Samples.Cameras
 {
@@ -10,7 +12,7 @@ namespace TGC.MonoGame.Samples.Cameras
         public const float DefaultFieldOfViewDegrees = MathHelper.PiOver4;
         public const float DefaultNearPlaneDistance = 0.1f;
         public const float DefaultFarPlaneDistance = 200000000;
-
+        public Boolean CanShoot;
         public Camera(float aspectRatio) : this(aspectRatio, DefaultNearPlaneDistance, DefaultFarPlaneDistance)
         {
         }
@@ -50,6 +52,8 @@ namespace TGC.MonoGame.Samples.Cameras
         /// </summary>
         public Vector3 FrontDirection { get; set; }
 
+        public Boolean Menu;
+        public Vector3 LookAt { get; set; }
         /// <summary>
         ///     The perspective projection matrix.
         /// </summary>
@@ -74,6 +78,7 @@ namespace TGC.MonoGame.Samples.Cameras
         ///     The created view matrix.
         /// </summary>
         public Matrix View { get; set; }
+        public RenderTarget2D SceneRenderTarget{ get; set; }
 
         public Vector3 TargetPosition { get; set; }
 

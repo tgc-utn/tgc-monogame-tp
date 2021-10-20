@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Runtime.Intrinsics.X86;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using static TGC.MonoGame.TP.Objects.CannonBall;
 
 namespace TGC.MonoGame.TP.Objects
 {
@@ -29,6 +30,14 @@ namespace TGC.MonoGame.TP.Objects
         private TGCGame _game;
 
         public string ModelName;
+        public string SoundShotName;
+        private Boolean CanShoot { get; set; }
+        
+        private Model cannonBall { get; set; }
+        private List <CannonBall> cannonBalls= new List <CannonBall>();
+
+        private SoundEffect soundShot { get; set; }
+        private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
 
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
@@ -46,22 +55,36 @@ namespace TGC.MonoGame.TP.Objects
             HandBrake = false;
             pressedReverse = false;
             ModelName = "Barco";
+            SoundShotName = "mixkit-arcade-game-explosion-2759";
             _game = game;
         }
 
         public void LoadContent()
         {
             modelo = _game.Content.Load<Model>(TGCGame.ContentFolder3D + ModelName);
+            soundShot = _game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + SoundShotName);
+            cannonBall = _game.Content.Load<Model>(TGCGame.ContentFolder3D + "sphere");
         }
 
         public void Draw()
-        { 
-            modelo.Draw(Matrix.CreateRotationY(anguloDeGiro+anguloInicial)*Matrix.CreateScale(0.01f)*Matrix.CreateTranslation(Position),_game.Camera.View, _game.Camera.Projection);
+        {
+            modelo.Draw(
+                Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(0.01f) *
+                Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);
+            foreach (var cannon in cannonBalls)
+            {
+                cannon.Draw();
+            }
         }
 
         public void Update(GameTime gameTime)
         {
+            foreach (var cannon in cannonBalls)
+            {
+                cannon.Update(gameTime);
+            }
             ProcessKeyboard(_game.ElapsedTime);
+            ProcessMouse(gameTime);
             UpdateMovementSpeed(gameTime);
             Move();
         }
@@ -119,6 +142,35 @@ namespace TGC.MonoGame.TP.Objects
                 {
                     speed += acceleration;
                 }
+            }
+        }
+
+        private void ProcessMouse(GameTime gameTime)
+        {
+            var mouseState = Mouse.GetState();
+            if (mouseState.RightButton.Equals(ButtonState.Pressed) && CanShoot && _game.Camera.CanShoot)
+            {
+                CanShoot = false;
+                soundShot.Play();
+                var normal = (_game.Camera.LookAt - _game.Camera.Position);
+                normal.Normalize();
+                var aux = (float) 0;
+                if (normal.Y >= 0)
+                {
+                    aux =(float) 10000000;
+                }
+                else
+                {
+                    aux = (float)-_game.Camera.Position.Y / normal.Y;
+                }
+                var endPosition = aux * normal + _game.Camera.Position;
+                cannonBalls.Add(new CannonBall(StartPositionCannon+Position, endPosition,_game,cannonBall));
+                
+            }
+
+            if (!mouseState.RightButton.Equals(ButtonState.Pressed))
+            {
+                CanShoot = true;
             }
         }
 

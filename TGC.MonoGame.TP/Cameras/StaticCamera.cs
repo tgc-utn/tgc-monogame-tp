@@ -20,6 +20,7 @@ namespace TGC.MonoGame.Samples.Cameras
             Position = position;
             FrontDirection = frontDirection;
             UpDirection = upDirection;
+            CanShoot = false;
             BuildView();
         }
 

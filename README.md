@@ -5,14 +5,16 @@
 El juego consiste en enfrentarse a diferentes barcos enviando misiles para hacerles daño sin recibir demasiado para no hundirse.
 
 ## Manual:
-- ⬆/W: Avanzar
-- ⬇/S: Retroceder
-- ⬅/A: Izquierda
-- ➡/D: Derecha
-- 1: FreeCamera
-- 2: SimpleCamera
-- 3: StaticCamera
-- 4: TargetCamera
+- W: Avanzar
+- S: Retroceder
+- A: Izquierda
+- D: Derecha
+- ⬆/⬇/⬅/➡: Movimiento de camara
+- Click derecho: Disparo (unicamente con camara 1 o 2)
+- 1: SimpleCamera (Medio del barco)
+- 2: SimpleCamera (Delante del barco)
+- 3: StaticCamera (Desde arriba)
+- 4: TargetCamera (Apuntando hacia el barco)
 
 ## Primera entrega:
 
