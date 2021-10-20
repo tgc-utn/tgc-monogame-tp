@@ -63,7 +63,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(projection);
             Effect.Parameters["World"].SetValue(game.World * Matrix.CreateScale(50.0f) * Matrix.CreateTranslation(0, -60f, 0));
             Effect.Parameters["Time"]?.SetValue(time);
-            Effect.Parameters["TextureWater"].SetValue(texturaAgua);
+            Effect.Parameters["baseTexture"].SetValue(texturaAgua);
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
             foreach (var mesh in Model.Meshes)
