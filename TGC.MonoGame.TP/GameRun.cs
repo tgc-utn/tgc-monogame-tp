@@ -58,6 +58,7 @@ namespace TGC.MonoGame.TP
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Game.GameState = "PAUSE";
+                Game.Exit();
             }
         }
     }
