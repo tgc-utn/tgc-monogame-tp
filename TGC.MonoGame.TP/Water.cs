@@ -30,7 +30,7 @@ namespace TGC.MonoGame.TP
         public Water(ContentManager content)
         {
 
-            Model = content.Load<Model>(ContentFolder3D + "oceano/source/ocean");
+            Model = content.Load<Model>(ContentFolder3D + "ocean");
 
             // Load an effect that will be used to draw the scene
             Effect = content.Load<Effect>(ContentFolderEffects + "waterShader");
