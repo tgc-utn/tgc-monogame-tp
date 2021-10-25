@@ -125,7 +125,7 @@ namespace TGC.MonoGame.TP
             islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
             ocean = new Water(Content);
             islands = new Model[cantIslas];
-            Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira0");
+            Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
             for (int isla = 0; isla < cantIslas; isla++)
             {
                 islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
@@ -135,7 +135,7 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             //Music
-            SongName = "rhythm-of-war-main-7233";
+            SongName = "Game";
             Song = Content.Load<Song>(ContentFolderMusic + SongName);
             MediaPlayer.IsRepeating = true;
 

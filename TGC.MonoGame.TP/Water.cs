@@ -40,7 +40,7 @@ namespace TGC.MonoGame.TP
                 foreach (var meshPart in mesh.MeshParts)
                     meshPart.Effect = Effect;
             }
-            texturaAgua = content.Load<Texture>(ContentFolderTextures + "oceanoTextura");
+            texturaAgua = content.Load<Texture>(ContentFolderTextures + "Ocean");
             WorldWaterMatrix = new List<Matrix>()
             {
                 Matrix.Identity,
