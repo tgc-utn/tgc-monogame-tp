@@ -55,7 +55,7 @@ namespace TGC.MonoGame.TP.Objects
             HandBrake = false;
             pressedReverse = false;
             ModelName = "Barco";
-            SoundShotName = "mixkit-arcade-game-explosion-2759";
+            SoundShotName = "Shot";
             _game = game;
         }
 

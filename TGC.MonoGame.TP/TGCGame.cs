@@ -41,7 +41,7 @@ namespace TGC.MonoGame.TP
         public Model Rock { get; set; }
         private Model Barco { get; set; }
         private Vector3 BarcoPositionCenter = new Vector3(-200f, -10, 0);
-        private Model Barco2 { get; set; }
+        public Model Barco2 { get; set; }
         public Model Barco3 { get; set; }
         private Model Projektil { get; set; }
         
@@ -113,19 +113,12 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             MainShip.LoadContent();
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "WarVessel/1124");
-            island = Content.Load<Model>(ContentFolder3D + "Isla_V2");
-            Barco = Content.Load<Model>(ContentFolder3D + "Barco");
-            Barco2 = Content.Load<Model>(ContentFolder3D + "Barco2");
+            Barco2 = Content.Load<Model>(ContentFolder3D + "Barco2/Barco2");
             Barco3 = Content.Load<Model>(ContentFolder3D + "Barco3");
-            Projektil = Content.Load<Model>(ContentFolder3D + "projektil FBX");
-            Terreno2 = Content.Load<Model>(ContentFolder3D + "FBX");
-            Projektil2 = Content.Load<Model>(ContentFolder3D + "9x18 pm");
             Rock = Content.Load<Model>(ContentFolder3D + "RockSet06-A");
-            islandTwo = Content.Load<Model>(ContentFolder3D + "Isla_V2");
             ocean = new Water(Content);
             islands = new Model[cantIslas];
-            Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira0");
+            Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
             for (int isla = 0; isla < cantIslas; isla++)
             {
                 islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
@@ -135,7 +128,7 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             //Music
-            SongName = "rhythm-of-war-main-7233";
+            SongName = "Game";
             Song = Content.Load<Song>(ContentFolderMusic + SongName);
             MediaPlayer.IsRepeating = true;
 

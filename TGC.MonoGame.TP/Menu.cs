@@ -25,13 +25,13 @@ namespace TGC.MonoGame.TP
         {
             Game = game;
             Barco = Game.Content.Load<Model>(TGCGame.ContentFolder3D + "Barco");
-            botonesOff = Game.Content.Load<Texture2D>("Textures/" + "color");
-            botonesOn = Game.Content.Load<Texture2D>("Textures/" + "roughness");
+            botonesOff = Game.Content.Load<Texture2D>("Textures/" + "ButtonOff");
+            botonesOn = Game.Content.Load<Texture2D>("Textures/" + "ButtonOn");
             botonesCurrentPlay = botonesOff;
             botonesCurrentExit = botonesOff;
             font = Game.Content.Load<SpriteFont>("SpriteFonts/Text");
             spriteBatch = new SpriteBatch(Game.GraphicsDevice);
-            soundButtom = Game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + "botones2");
+            soundButtom = Game.Content.Load<SoundEffect>(TGCGame.ContentFolderSounds + "Button");
             Song = Game.Content.Load<Song>(TGCGame.ContentFolderMusic + "Menu");
             MediaPlayer.IsRepeating = true;
         }
