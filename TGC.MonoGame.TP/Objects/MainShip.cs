@@ -38,6 +38,8 @@ namespace TGC.MonoGame.TP.Objects
 
         private SoundEffect soundShot { get; set; }
         private Vector3 StartPositionCannon = new Vector3(0, 42, 80);
+        private int Life = 50;
+        private SpriteFont SpriteFont;
 
         public MainShip(Vector3 initialPosition, Vector3 currentOrientation, float MaxSpeed, TGCGame game)
         {
@@ -57,6 +59,7 @@ namespace TGC.MonoGame.TP.Objects
             ModelName = "Barco";
             SoundShotName = "Shot";
             _game = game;
+            SpriteFont = _game.Content.Load<SpriteFont>("SpriteFonts/Life");
         }
 
         public void LoadContent()
@@ -68,6 +71,19 @@ namespace TGC.MonoGame.TP.Objects
 
         public void Draw()
         {
+            _game.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp,
+                DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+            _game.spriteBatch.DrawString(SpriteFont, Life.ToString(), new Vector2(_game.GraphicsDevice.Viewport.Width - 110, 50), Color.White);
+            _game.spriteBatch.Draw(_game.Life,
+                new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
+                    200, 30), Color.White);
+            _game.spriteBatch.Draw(_game.Life2,
+                new Rectangle(_game.GraphicsDevice.Viewport.Width - 210, 10,
+                    Life *2, 30), Color.Green);
+            _game.spriteBatch.End();
+            _game.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            _game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            _game.GraphicsDevice.BlendState = BlendState.Opaque;
             modelo.Draw(
                 Matrix.CreateRotationY(anguloDeGiro + anguloInicial) * Matrix.CreateScale(0.01f) *
                 Matrix.CreateTranslation(Position), _game.Camera.View, _game.Camera.Projection);

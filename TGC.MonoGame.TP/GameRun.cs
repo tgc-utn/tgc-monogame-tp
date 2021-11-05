@@ -48,6 +48,7 @@ namespace TGC.MonoGame.TP
                 Game.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
                 Game.GraphicsDevice.BlendState = BlendState.Opaque;
             }
+            
         }
 
         public void Update(GameTime gameTime)

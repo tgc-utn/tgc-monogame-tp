@@ -66,6 +66,8 @@ namespace TGC.MonoGame.TP
         public SpriteBatch spriteBatch ;
 
         public Texture2D Mira;
+        public Texture2D Life;
+        public Texture2D Life2;
         private GameRun gameRun;
         private Menu menu;
         public string GameState = "START"; //posibles estados PLAY, RETRY, RESUME, END, PAUSE
@@ -119,6 +121,8 @@ namespace TGC.MonoGame.TP
             ocean = new Water(Content);
             islands = new Model[cantIslas];
             Mira = Content.Load<Texture2D>(ContentFolderTextures + "Mira");
+            Life = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida");
+            Life2 = Content.Load<Texture2D>(ContentFolderTextures + "Barra de vida 3");
             for (int isla = 0; isla < cantIslas; isla++)
             {
                 islands[isla] = Content.Load<Model>(ContentFolder3D + "islands/isla" + (isla + 1));
