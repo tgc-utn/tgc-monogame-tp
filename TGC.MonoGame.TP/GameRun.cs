@@ -5,17 +5,43 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Cameras;
 using TGC.MonoGame.TP.Objects;
 using Microsoft.Xna.Framework.Media;
-
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
+using System;
+using System.Collections.Generic;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using NumericVector3 = System.Numerics.Vector3;
 namespace TGC.MonoGame.TP
 {
     internal class GameRun
     {
         private TGCGame Game;
+        private Simulation Simulation { get; set; }
+        private BufferPool BufferPool { get; set; }
         private float time;
         public GameRun(TGCGame game)
         {
             Game = game;
             time = 0;
+            
+            BufferPool = new BufferPool();
+            Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(),
+                new PoseIntegratorCallbacks(new NumericVector3(0, -100, 0)), new PositionFirstTimestepper());
+            Simulation.Statics.Add(new StaticDescription(new NumericVector3(0, -0.5f, 0),
+                new CollidableDescription(Simulation.Shapes.Add(new Box(2000, 1, 2000)), 0.1f)));
+            
+            /*var boxIndex = Simulation.Shapes.Add(boxShape);
+            var position = new NumericVector3(-30 + i * 10 + 1, j * 10 + 1, -40);
+
+            var bodyDescription = BodyDescription.CreateDynamic(position, boxInertia,
+                new CollidableDescription(boxIndex, 0.1f), new BodyActivityDescription(0.01f));
+
+            var bodyHandle = Simulation.Bodies.Add(bodyDescription);*/
         }
 
 
@@ -23,10 +49,12 @@ namespace TGC.MonoGame.TP
         {
             
             Game.GraphicsDevice.Clear(Color.CornflowerBlue);
-            
             Game.MainShip.Draw();
-            Game.Barco2.Draw(Game.World * Matrix.CreateTranslation(120, 25, 0), Game.Camera.View, Game.Camera.Projection);
-            Game.Barco3.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.1f) * Matrix.CreateTranslation(-100f, 0, 0), Game.Camera.View, Game.Camera.Projection);
+            for (int eShip = 0; eShip < Game.CountEnemyShip; eShip++)
+            {
+                Game.EnemyShips[eShip].Draw();
+            }
+
             
             
             Game.Rock.Draw( Matrix.CreateRotationY(MathHelper.Pi/2)*Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-800, 20, 0), Game.Camera.View, Game.Camera.Projection);
