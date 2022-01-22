@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP.Components.Spawner
     {
         private int enemies = 10;
         private Vector3 Position { get; set; }
-        private int timer = 300;
+        private float timer = 300;
 
         public void SetPosition(Vector3 Position)
         {
@@ -24,7 +24,7 @@ namespace TGC.MonoGame.TP.Components.Spawner
 
         public void Update(TGCGame tgcGame)
         {
-            timer--; 
+            timer -= 0.5f; 
             if (enemies > 0 && timer == 0) 
             {
                 tgcGame.AddEnemy(Position);

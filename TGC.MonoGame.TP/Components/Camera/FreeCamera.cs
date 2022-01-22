@@ -3,6 +3,7 @@
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
     using System;
+    using System.Diagnostics;
 
     /// <summary>
     /// Defines the <see cref="FreeCamera" />.
@@ -34,6 +35,16 @@
         /// </summary>
         private float bobOscilate = 0f;
 
+        /// <summary>
+        /// Define de dash hability power starts on 51
+        /// </summary>
+        private float dashPower;
+
+        /// <summary>
+        /// Define if player is dashing or not
+        /// </summary>
+        private bool isDashing;
+
         // Angles
         /// <summary>
         /// Defines the pitch.
@@ -50,6 +61,25 @@
         public Vector2 Column3Position = new Vector2(2650, 50);
         public Vector2 Column4Position = new Vector2(2650, 2650);
 
+        public void SetDashPower(float newDashPower)
+        {
+            dashPower = newDashPower;
+        }
+
+        public float GetDashPower()
+        {
+            return dashPower;
+        }
+
+        public void SetIsDashing(bool newIsDashing)
+        {
+            isDashing = newIsDashing;
+        }
+
+        public bool GetIsDashing()
+        {
+            return isDashing;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FreeCamera"/> class.
@@ -102,7 +132,7 @@
             changed = false;
             ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
-
+            
             if (changed)
                 CalculateView();
         }
@@ -128,9 +158,17 @@
             var currentMovementSpeed = MovementSpeed;
 
             var newPosition = Position;
-            
-            if (keyboardState.IsKeyDown(Keys.LeftShift))
-                currentMovementSpeed *= 5f;
+
+            if (dashPower >= 50 && isDashing) isDashing = false;
+
+            if (dashPower < 51) dashPower += 0.1f;
+
+            if (keyboardState.IsKeyDown(Keys.LeftShift) && dashPower >= 50 && !isDashing)
+            {
+                dashPower -= 50;
+                isDashing = true;
+                currentMovementSpeed *= 150f;
+            }                
 
             if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
@@ -169,9 +207,6 @@
                 && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column3Position) >= 125
                 && Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), Column4Position) >= 125)
                     Position = new Vector3(newPosition.X, bobOscilate, newPosition.Z);
-
-            //    if (Vector2.Distance(new Vector2(newPosition.X, newPosition.Z), new Vector2(-2700, newPosition.Z)) <= 50 && Vector3.Dot(FrontDirection,  Vector3.UnitX) < 0 && keyboardState.IsKeyDown(Keys.W))
-            //        Position = new Vector3(newPosition.X, bobOscilate, Position.Z + FrontDirection.Z);
             }
         }
 

@@ -13,9 +13,12 @@ namespace TGC.MonoGame.TP.Components.Enemy
         private float Velocity { get; set; }
         private int Life { get; set; }
 
+        private readonly int minDistance = 100;
+
         public Enemy()
         {
-            Velocity = 0.005f;
+            Random random = new Random();
+            Velocity = 2f * random.Next(1,3);
             Life = 130;
         }
 
@@ -59,9 +62,30 @@ namespace TGC.MonoGame.TP.Components.Enemy
             Life -= Damage;
         }
 
-        public void Update(Vector3 CamaraPosition)
+        public void Update(Vector3 CameraPosition, List<Enemy> OtherEnemies, Vector3 PlayerPosition)
         {
-            Position += (CamaraPosition - Position) * Velocity;
+            Vector3 distance = CameraPosition - Position;
+            Position += (distance) * Velocity/200;
+
+            foreach(Enemy enemy in OtherEnemies) 
+            {
+                if (this != enemy && Vector3.Distance(Position,enemy.Position) < minDistance)
+                {
+                    AvoidCollision(enemy.Position);
+                }
+            }
+
+            if (Vector3.Distance(Position, PlayerPosition) < minDistance)
+            {
+                AvoidCollision(PlayerPosition);
+            }
+        }
+
+        private void AvoidCollision(Vector3 EnemyPosition)
+        {
+            Vector3 direction = Position - EnemyPosition;
+            direction.Normalize();
+            Position += direction;
         }
     }
 }

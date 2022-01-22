@@ -318,6 +318,18 @@
 /processorParam:TextureFormat=Color
 /build:Models/monsterlarge/Texture/WhiteBone_Albedo.png
 
+#begin Models/monsterlarge/Texture/WhiteBone_Albedo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/monsterlarge/Texture/WhiteBone_Albedo.png
+
 #begin Models/monsterlarge/Texture/WhiteBone_Normal.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -513,4 +525,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/ccreteflr016a_COLOR.jpg
+
+#begin Textures/WhiteBone_Albedo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/WhiteBone_Albedo.png
 

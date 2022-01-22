@@ -31,5 +31,10 @@
         {
             Position = newPosition;
         }
+
+        public Vector3 GetPosition() 
+        {
+            return Position;
+        }
     }
 }

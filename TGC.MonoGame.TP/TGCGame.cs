@@ -81,7 +81,8 @@
         /// Gets or sets the Column.
         /// </summary>
         private Model Column { get; set; }
-        private Model SpawnerModel { get; set; }
+        private Effect RedIlluminationEffect { get; set; }
+        private SpawnerModel SpawnerModel { get; set; }
         private Spawner Spawner { get; set; }
         private Model Skull { get; set; }
         private Model BulletModel { get; set; }
@@ -110,11 +111,18 @@
         /// </summary>
         private Boolean GamePause { get; set; }
         private Boolean ClickPressed { get; set; }
-
         private Player Player { get; set; }
-
-        private Enemy Enemy { get; set; }
         private List<Enemy> Enemies { get; set; }
+
+        /// <summary>
+        /// Define de dash hability power starts on 51
+        /// </summary>
+        private float dashPower = 51f;
+
+        /// <summary>
+        /// Define if player is dashing or not
+        /// </summary>
+        private bool isDashing = false;
 
         private Particle particle { get; set; }
 
@@ -144,6 +152,8 @@
             // Initialize Camera
             var screenSize = new Point(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height / 2);
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitZ * 350, screenSize);
+            Camera.SetDashPower(dashPower);
+            Camera.SetIsDashing(isDashing);
 
             // Initialize player
             Player = new Player(Camera.Position);
@@ -159,14 +169,11 @@
             Map = new Map();
             
             Bullets = new List<Bullet>();
-            
-            Enemy = new Enemy();
-            Enemy.SetPosition(new Vector3(200, 13, 250));
 
             Enemies = new List<Enemy>();
 
             Spawner = new Spawner();
-            Spawner.SetPosition(new Vector3(850, 0, 850));
+            Spawner.SetPosition(new Vector3(850, 120, 850));
 
             // Arranco el Game Pause en true para evitar que el jugador se mueva
             GamePause = true;
@@ -206,10 +213,8 @@
             modelEffectSkull.EnableDefaultLighting();
 
             // Load Spawner model
-            SpawnerModel = Content.Load<Model>(ContentFolder3D + "monsterlarge/MonsterLarge");
-            var modelEffectSpawner = (BasicEffect)SpawnerModel.Meshes[0].Effects[0];
-            modelEffectSpawner.DiffuseColor = Color.White.ToVector3();
-            modelEffectSpawner.EnableDefaultLighting();
+            SpawnerModel = new SpawnerModel();
+            SpawnerModel.LoadContent(ContentFolder3D, Content);
 
             // Load shotgun model
             Shotgun = Content.Load<Model>(ContentFolder3D + "shotgun/shotgun");
@@ -220,6 +225,21 @@
             Song = Content.Load<Song>(ContentFolderMusic + "doom-ost-damnation");
             MediaPlayer.IsRepeating = true;
             //MediaPlayer.Play(Song);
+
+            // Change the BasicShader name
+            RedIlluminationEffect = Content.Load<Effect>(ContentFolderEffect + "BasicShader");
+            
+            RedIlluminationEffect.Parameters["ambientColor"].SetValue(Color.Red.ToVector3());
+            RedIlluminationEffect.Parameters["diffuseColor"].SetValue(Color.White.ToVector3());
+            RedIlluminationEffect.Parameters["specularColor"].SetValue(Color.Wheat.ToVector3());
+
+            RedIlluminationEffect.Parameters["KAmbient"].SetValue(0.4f);
+            RedIlluminationEffect.Parameters["KDiffuse"].SetValue(0.85f);
+            RedIlluminationEffect.Parameters["KSpecular"].SetValue(0.15f);
+            RedIlluminationEffect.Parameters["shininess"].SetValue(100f);
+
+            SpawnerModel.SetEffect(RedIlluminationEffect);
+
             base.LoadContent();
         }
 
@@ -255,7 +275,7 @@
                 if (mouse.LeftButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
                 {
                     Bullet singleBullet = new Bullet();
-                    singleBullet.SetPosition(Camera.Position + Camera.FrontDirection * 50f);
+                    singleBullet.SetPosition(Camera.Position + Camera.FrontDirection * 25f);
                     singleBullet.SetDirection(Camera.FrontDirection);
                     singleBullet.SetUp(Camera.UpDirection);
                     Bullets.Add(singleBullet);
@@ -265,13 +285,13 @@
                 if (mouse.RightButton == ButtonState.Pressed && !ClickPressed && Bullets.Count < 15 && Recoil == 0)
                 {
                     Bullet Bullet1 = new Bullet();
-                    Bullet1.SetPosition(Camera.Position + Camera.FrontDirection * 190f);
+                    Bullet1.SetPosition(Camera.Position + Camera.FrontDirection * 50f);
                     Bullet1.SetDirection(Camera.FrontDirection);
                     Bullet1.SetUp(Camera.UpDirection);
                     Bullets.Add(Bullet1);
 
                     Bullet Bullet2 = new Bullet();
-                    Bullet2.SetPosition(Camera.Position + Vector3.Up * 5 + Camera.FrontDirection * 50f);
+                    Bullet2.SetPosition(Camera.Position + Vector3.Up * 5 + Camera.FrontDirection * 25f);
                     Bullet2.SetDirection(Camera.FrontDirection);
                     Bullet2.SetUp(Camera.UpDirection);
                     Bullets.Add(Bullet2);
@@ -285,29 +305,20 @@
                 {
                     Bullets.Clear();
                 }
+                                
+                float totalGameTime = (float)gameTime.TotalGameTime.TotalSeconds;
 
-                foreach (Bullet bullet in Bullets)
-                {
-                    bullet.Update();
+                SpawnerModel.Update(totalGameTime, Spawner);
 
-                    if(Vector3.Distance(bullet.GetPosition(), Enemy.GetPosition())<50 && !bullet.GetDidDamage())
-                    {
-                        Enemy.TakeDamage(bullet.GetDamage());
-                        bullet.DoDamage();
-                    }
-                }
-
-                Vector3 EnemyPosition = Enemy.GetPosition();
-                Enemy.SetUp(Camera.UpDirection);
-                Enemy.SetDirection(Vector3.Normalize(new Vector3(EnemyPosition.X - Camera.Position.X, 0, EnemyPosition.Z - Camera.Position.Z)));
-                Enemy.Update(Camera.Position);
+                RedIlluminationEffect.Parameters["lightPosition"].SetValue(Camera.Position);
+                RedIlluminationEffect.Parameters["eyePosition"].SetValue(Camera.Position);
 
                 foreach (Enemy enemy in Enemies)
                 {
                     Vector3 enemyPos = enemy.GetPosition();
                     enemy.SetUp(Camera.UpDirection);
                     enemy.SetDirection(Vector3.Normalize(new Vector3(enemyPos.X - Camera.Position.X, 0, enemyPos.Z - Camera.Position.Z)));
-                    enemy.Update(Camera.Position);
+                    enemy.Update(Camera.Position, Enemies, Camera.Position);
 
                     foreach (Bullet bullet in Bullets)
                     {
@@ -335,19 +346,6 @@
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            if (Recoil > 0)
-            {
-                Recoil -= 0.25f;
-            }
-            
-            Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
-            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * MathHelper.Lerp(40, 35, Recoil) + cameraRight * 10 - Camera.UpDirection * 4;
-            Matrix shotgunWorld = Matrix.CreateScale(0.1f, 0.1f, 0.1f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
-            Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
-
-          //  Vector3 particlePosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * 60 + cameraRight * 10 - Camera.UpDirection * 4;
-          //  Matrix particleWorld = Matrix.CreateWorld(Camera.Position, -cameraRight, Camera.UpDirection);
-          //  particle.Draw(World * Matrix.CreateTranslation(Camera.Position - Vector3.UnitZ * 150), Camera.View, Camera.Projection);
 
             var mouse = Mouse.GetState();
             if (mouse.LeftButton == ButtonState.Pressed && Recoil == 0)
@@ -358,16 +356,10 @@
             {
                 Recoil = 13.5f;
             }
-
+            
             Map.Draw(World, Camera.View, Camera.Projection);
-            SpawnerModel.Draw(World * Matrix.CreateRotationY((float)gameTime.TotalGameTime.TotalSeconds) * Matrix.CreateTranslation(Spawner.GetPosition().X, 13 * MathF.Sin((float)gameTime.TotalGameTime.TotalSeconds) + 50, Spawner.GetPosition().Z), Camera.View, Camera.Projection);
 
-            if (Enemy.GetLife() > 0)
-            {
-                Vector3 SkullRight = Vector3.Cross(Enemy.GetDirection(), Enemy.GetUp());
-                Vector3 SkullPosition = Enemy.GetPosition() + Enemy.GetDirection() + SkullRight - Enemy.GetUp();
-                Skull.Draw(Matrix.CreateScale(0.75f) * Matrix.CreateWorld(SkullPosition, -SkullRight, Enemy.GetUp()), Camera.View, Camera.Projection);
-            }
+            SpawnerModel.Draw(Camera.View, Camera.Projection);
 
             foreach (Enemy enemy in Enemies)
             {
@@ -384,7 +376,17 @@
                 Vector3 BulletRight = Vector3.Cross(bullet.GetDirection(), bullet.GetUp());
                 Vector3 BulletPosition = bullet.GetPosition() + bullet.GetDirection()+ BulletRight - bullet.GetUp();
                 if (Vector3.Distance(bullet.GetPosition(), Camera.Position) < 2550) BulletModel.Draw(Matrix.CreateScale(5) * Matrix.CreateWorld(BulletPosition, -BulletRight, bullet.GetDirection()), Camera.View, Camera.Projection);
-            }            
+            }
+
+            if (Recoil > 0)
+            {
+                Recoil -= 0.25f;
+            }
+
+            Vector3 cameraRight = Vector3.Cross(Camera.FrontDirection, Camera.UpDirection);
+            Vector3 weaponPosition = new Vector3(Camera.Position.X, 0, Camera.Position.Z) + new Vector3(0, -15, 0) + Camera.FrontDirection * MathHelper.Lerp(40, 35, Recoil) + cameraRight * 10 - Camera.UpDirection * 4;
+            Matrix shotgunWorld = Matrix.CreateScale(0.1f, 0.1f, 0.1f) * Matrix.CreateWorld(weaponPosition, -cameraRight, Camera.UpDirection);
+            Shotgun.Draw(shotgunWorld, Camera.View, Camera.Projection);
 
             base.Draw(gameTime);
         }
