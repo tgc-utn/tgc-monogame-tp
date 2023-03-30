@@ -6,8 +6,8 @@ using Microsoft.Xna.Framework.Input;
 namespace TGC.MonoGame.TP
 {
     /// <summary>
-    ///     Esta es la clase principal  del juego.
-    ///     Inicialmente puede ser renombrado o copiado para hacer más ejemplos chicos, en el caso de copiar para que se
+    ///     Esta es la clase principal del juego.
+    ///     Inicialmente puede ser renombrado o copiado para hacer mas ejemplos chicos, en el caso de copiar para que se
     ///     ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
     /// </summary>
     public class TGCGame : Game
@@ -26,8 +26,7 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            // Descomentar para que el juego sea pantalla completa.
-            // Graphics.IsFullScreen = true;
+            // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
@@ -88,9 +87,13 @@ namespace TGC.MonoGame.TP
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             foreach (var mesh in Model.Meshes)
+            {
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            foreach (var meshPart in mesh.MeshParts)
-                meshPart.Effect = Effect;
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = Effect;
+                }
+            }
 
             base.LoadContent();
         }
@@ -106,8 +109,10 @@ namespace TGC.MonoGame.TP
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 //Salgo del juego.
                 Exit();
+            }
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);

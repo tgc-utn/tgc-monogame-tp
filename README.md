@@ -12,7 +12,7 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
 
 ## Configuración del entorno de desarrollo
 
-Pueden encontrar los pasos a seguir según su sistema operativo en el siguiente documento [install.md](https://github.com/tgc-utn/tgc-monogame-samples/blob/master/docs/install/install.md).
+Los pasos a seguir según su sistema operativo se pueden leer en el siguiente documento [install.md](https://github.com/tgc-utn/tgc-monogame-samples/blob/master/docs/install/install.md).
 
 Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq.org) para los shaders, por lo menos por [ahora](https://github.com/MonoGame/MonoGame/issues/2167).
 
