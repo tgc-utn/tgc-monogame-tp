@@ -1,4 +1,5 @@
 # TGC - MonoGame - TP
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c9e69e2416140c3b1105d295a830c42)](https://app.codacy.com/gh/tgc-utn/tgc-monogame-tp?utm_source=github.com&utm_medium=referral&utm_content=tgc-utn/tgc-monogame-tp&utm_campaign=Badge_Grade)
 [![BCH compliance](https://bettercodehub.com/edge/badge/tgc-utn/tgc-monogame-tp?branch=master)](https://bettercodehub.com/)
 [![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-monogame-tp.svg)](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/LICENSE)
 
