@@ -1,6 +1,7 @@
 # TGC - MonoGame - TP
 
 [![.NET](https://github.com/tgc-utn/tgc-monogame-tp/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tgc-utn/tgc-monogame-tp/actions/workflows/dotnet.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/63382c4441444632b06d83dcc6dab106)](https://app.codacy.com/gh/tgc-utn/tgc-monogame-tp/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-monogame-tp.svg)](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/LICENSE)
 
 [#BuiltWithMonoGame](http://www.monogame.net) and [.NET Core](https://dotnet.microsoft.com)
@@ -8,18 +9,6 @@
 ## Descripción
 
 Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técnicas de Gráficos por Computadora](http://tgc-utn.github.io/) (TGC) en la carrera de Ingeniería en Sistemas de Información. Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN-FRBA).
-
-## Requisitos
-
-- [.NET Core SDK](https://docs.microsoft.com/dotnet/core/install/sdk)
-- El IDE que prefieran:
-  - [Visual Studio Code](https://code.visualstudio.com) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.hlsltools)
-  - [Visual Studio](https://visualstudio.microsoft.com/es/vs) y [HLSL extension](https://marketplace.visualstudio.com/items?itemName=TimGJones.HLSLToolsforVisualStudio)
-  - [Visual Studio for Mac](https://visualstudio.microsoft.com/es/vs/mac)
-  - [Rider](https://www.jetbrains.com/rider)
-- [MonoGame.Framework.DesktopGL](https://www.nuget.org/packages/MonoGame.Framework.DesktopGL) (Se baja automáticamente al hacer build por primera vez)
-
-Más información sobre [.NET Core CLI Tools telemetry](https://aka.ms/dotnet-cli-telemetry) y [Visual Studio Code telemetry](https://code.visualstudio.com/docs/getstarted/telemetry) ya que vienen activas por defecto.
 
 ## Configuración del entorno de desarrollo
 
