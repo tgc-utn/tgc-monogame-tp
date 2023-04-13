@@ -35,22 +35,32 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private Model CarModel { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
-        private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private FollowCamera Camera { get; set; }
+        private Model Model { get; set; }
+
+        // Próximamente
+        // private Car[] misAutos{ get; set; };
+        private Car AutoPrincipal;
+        
+        // Esto hay que sacarlo y tratarlo como un elemento más del mapa
+        // (Elemento World : Todo lo que se tenga que cargar y dibujar en el mapa)
+        // private World elemento { get; set; }; 
+        private Matrix World { get; set; }
         private QuadPrimitive Floor { get; set; }
         private QuadPrimitive Floor2 { get; set; }
-        private FollowCamera Camera { get; set; }
 
         protected override void Initialize()
         {
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
+
+            AutoPrincipal = new Car();
+
 
             World = Matrix.Identity;
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -66,10 +76,23 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-            CarModel = Content.Load<Model>("Models/RacingCar");
+
+            ////    Deberíamos poder cargar los modelos sistemáticamente.
+            //      Para eso todos los elementos que vayamos a cargar tienen que implementar el método .Load(ContentManager)
+            
+            /* foreach (var elemento in Elementos){
+                    elemento.Load(Content)
+                }
+            */
+            AutoPrincipal.Load(Content);
+            
+            //CarModel = Content.Load<Model>("Models/RacingCar");
+
             Floor = new QuadPrimitive(GraphicsDevice);
             Floor2 = new QuadPrimitive(GraphicsDevice);
 
+
+            
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             base.LoadContent();
         }
@@ -79,9 +102,19 @@ namespace TGC.MonoGame.TP
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             
+            ////    Deberíamos poder hacer update de los elementos NO ESTÁTICOS sistemáticamente.
+            //      Para eso todos los elementos que vayamos a cargar tienen que implementar el método 
+            //      de dos maneras : .Update() a los que se mueven automáticamente y .Update( g : Gametime, k : KeyboardState) 
+            //      a los controlables
+
+            // Controlable
+            AutoPrincipal.Update(gameTime, Keyboard.GetState());
+            Camera.Update(gameTime, AutoPrincipal.getWorld());
+
+            // Para el piso
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             World = Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(0f, 50f, 0f);
-            Camera.Update(gameTime, World);
+
             base.Update(gameTime);
         }
 
@@ -89,20 +122,28 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.White);
 
+            ////    Deberíamos poder dibujar los modelos sistemáticamente.
+            //      Para eso todos los elementos que vayamos a cargar tienen que implementar el método .Draw(ContentManager)
+            
+            /* foreach (var elemento in Elementos){
+                    elemento.Draw(Camera.View, Camera.Projection);
+                }
+            */
+            AutoPrincipal.Draw(Camera.View, Camera.Projection);
+            
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
             Effect.Parameters["World"].SetValue(World*Matrix.CreateScale(1000f, 0f, 1000f));
+
             Floor.Draw(Effect);
-            CarModel.Draw(World, Camera.View, Camera.Projection);
 
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkGreen.ToVector3());
             Effect.Parameters["World"].SetValue(World*Matrix.CreateScale(1000f, 0f, 1000f)*Matrix.CreateRotationY(MathHelper.PiOver4)*Matrix.CreateTranslation(10f, 50f, 10f) );
-            Floor2.Draw(Effect);
 
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
+            Floor2.Draw(Effect);
         }
 
         protected override void UnloadContent()
