@@ -37,4 +37,5 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Models/tgc-logo/tgc-logo.fbx
+/build:Models/RacingCar.fbx
 
