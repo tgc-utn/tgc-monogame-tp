@@ -27,8 +27,6 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch;
         private Car Car;
         private Effect Effect;
-        private Matrix View;
-        private Matrix Projection;
         private FollowCamera Camera;
 
         public TGCGame()
@@ -46,20 +44,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             Car = new Car();
 
-            // Necesarias del juego
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
-
-            //Acá inicializamos los objetos que queremos cargar... Después carga la hace automáticamente
-            /*AutoPrincipal = new Car("RacingCarA/RacingCar", new Vector3(-1000f,0,1000f));
-            AutoSecundario = new IACar("", new Vector3(-800f,0,-800f));
-
-            Elementos = new List<IElemento>();
-            Elementos.Add(AutoPrincipal);
-            Elementos.Add(AutoSecundario);
-            
-            */
             base.Initialize();
         }
 
@@ -68,11 +53,6 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             GeometriesManager = new GeometriesManager(GraphicsDevice);
             Car.Load(Content);
-            
-            
-            //foreach (var elemento in Elementos){
-            //        elemento.Load(Content);
-            //}
             
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             base.LoadContent();
@@ -89,25 +69,18 @@ namespace TGC.MonoGame.TP
             Car.Update(keyboardState, dTime);
             Camera.Update(gameTime, Car.World);
 
-            // Controlables
-            //AutoPrincipal.Update(gameTime, Keyboard.GetState());
-            //AutoSecundario.Update(gameTime, Keyboard.GetState());
-            Camera.Update(gameTime, Car.World);
-
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            //AutoPrincipal.Draw(Camera.View, Camera.Projection);
             
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
 
             Car.Model.Draw(Car.World, Camera.View, Camera.Projection);
             new Floor().Draw(Effect);
-
         }
 
         protected override void UnloadContent()
