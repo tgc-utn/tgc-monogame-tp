@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -5,10 +6,8 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TGC.MonoGame.TP
 {
-    public class Car
+    public class Car : IElementoDinamico
     {
-        internal Model Model;
-        internal Matrix World = Matrix.Identity;
         private Vector3 Position;
         private Vector3 Velocity;
         private float AccelerationMagnitude = 2500f;
@@ -16,15 +15,14 @@ namespace TGC.MonoGame.TP
         private float JumpPower = 50000f;
         private float Turning = 0f;
 
-        public void Load(ContentManager content)
-        {
-            Model = content.Load<Model>("Models/RacingCarA/RacingCar");
-        }
+        public Car(string ubicacionAuto, Vector3 posicionInicial) : base(ubicacionAuto,posicionInicial){}
 
-        public void Update(KeyboardState keyboardState, float dTime)
+        public override void Update(GameTime gameTime, KeyboardState keyboardState)
         {
             float accelerationSense = 0f;
             Vector3 acceleration = Vector3.Zero;
+            float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
 
             // GRAVEDAD
             float floor = 0f;
