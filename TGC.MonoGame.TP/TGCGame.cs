@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -19,32 +20,23 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
 
-        /// <summary>
-        ///     Constructor del juego.
-        /// </summary>
-        public TGCGame()
-        {
-            // Maneja la configuracion y la administracion del dispositivo grafico.
-            Graphics = new GraphicsDeviceManager(this);
-            // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
-            // Carpeta raiz donde va a estar toda la Media.
-            Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
-            IsMouseVisible = true;
-        }
-
+        internal static TGCGame Game;
+        internal static GeometriesManager GeometriesManager;
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private Model CarModel { get; set; }
+        private Car Car { get; set; }
         private Effect Effect { get; set; }
-        private float Rotation { get; set; }
-        private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-        private QuadPrimitive Floor { get; set; }
-        private QuadPrimitive Floor2 { get; set; }
         private FollowCamera Camera { get; set; }
+
+        public TGCGame()
+        {
+            Game = this;
+            Graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+        }
 
         protected override void Initialize()
         {
@@ -52,7 +44,7 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            World = Matrix.Identity;
+            Car = new Car();
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
@@ -64,24 +56,24 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            GeometriesManager = new GeometriesManager(GraphicsDevice);
 
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-            CarModel = Content.Load<Model>("Models/RacingCar");
-            Floor = new QuadPrimitive(GraphicsDevice);
-            Floor2 = new QuadPrimitive(GraphicsDevice);
-
+            Car.Load(Content);
+            
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             base.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
         {
+            KeyboardState keyboardState =Keyboard.GetState();
+            float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            World = Matrix.CreateScale(0.5f) * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(0f, 50f, 0f);
-            Camera.Update(gameTime, World);
+            Car.Update(keyboardState, dTime);
+            Camera.Update(gameTime, Car.World);
             base.Update(gameTime);
         }
 
@@ -91,24 +83,14 @@ namespace TGC.MonoGame.TP
 
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            Effect.Parameters["World"].SetValue(World*Matrix.CreateScale(1000f, 0f, 1000f));
-            Floor.Draw(Effect);
-            CarModel.Draw(World, Camera.View, Camera.Projection);
 
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkGreen.ToVector3());
-            Effect.Parameters["World"].SetValue(World*Matrix.CreateScale(1000f, 0f, 1000f)*Matrix.CreateRotationY(MathHelper.PiOver4)*Matrix.CreateTranslation(10f, 50f, 10f) );
-            Floor2.Draw(Effect);
-
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
+            Car.Model.Draw(Car.World, Camera.View, Camera.Projection);
+            new Floor().Draw(Effect);
         }
 
         protected override void UnloadContent()
         {
             Content.Unload();
-
             base.UnloadContent();
         }
     }
