@@ -18,7 +18,7 @@ namespace TGC.MonoGame.TP
 
         public void Load(ContentManager content)
         {
-            Model = content.Load<Model>("Models/RacingCar");
+            Model = content.Load<Model>("Models/RacingCarA/RacingCar");
         }
 
         public void Update(KeyboardState keyboardState, float dTime)
