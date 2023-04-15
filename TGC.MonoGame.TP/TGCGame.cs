@@ -27,7 +27,8 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Car Car;
-        private List<IElementoDinamico> AutosIA;
+        private List<IElementoDinamico> AutosEnemigos;
+        private List<IElemento> Muebles;
         private Effect Effect;
         private FollowCamera Camera;
 
@@ -46,13 +47,21 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             Car = new Car("Models/RacingCarA/RacingCar", new Vector3(0f,0f,0f));
 
-            
-            AutosIA = new List<IElementoDinamico>();
+            #region CargaElementosDinámicos
+            AutosEnemigos = new List<IElementoDinamico>();
             var posicionesAutosIA = new Vector3(0f,0f,0f);           
             for(int i=0; i<10; i++){
-                var unAutoIA = new IACar("Models/RacingCarA/RacingCar", posicionesAutosIA);
-                AutosIA.Add(unAutoIA);
+                var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
+
+                var unAuto = new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA);
+                AutosEnemigos.Add(unAuto);
                 posicionesAutosIA += new Vector3(1500f,0f,1500f);
+            }
+            #endregion
+            
+            Muebles = new List<IElemento>();
+            for(int i = 0 ; i<100*20 ; i+=100){
+                Muebles.Add(new Mueble("chair", 10f, new Vector3(   i , 20f , -70f )));
             }
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -65,8 +74,11 @@ namespace TGC.MonoGame.TP
             GeometriesManager = new GeometriesManager(GraphicsDevice);
             Car.Load(Content);
 
-            foreach(var autoIA in AutosIA){
-                autoIA.Load(Content);
+            foreach(var a in AutosEnemigos){
+                a.Load(Content);
+            }
+            foreach(var m in Muebles){
+                m.Load(Content);
             }
             
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -83,8 +95,8 @@ namespace TGC.MonoGame.TP
             
             Car.Update(gameTime, keyboardState);
             
-            foreach(var autoIA in AutosIA){
-                autoIA.Update(gameTime, keyboardState);
+            foreach(var a in AutosEnemigos){
+                a.Update(gameTime, keyboardState);
             }
 
             Camera.Update(gameTime, Car.World);
@@ -99,8 +111,11 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
 
-            foreach(var autoIA in AutosIA){
-                autoIA.Draw(Camera.View, Camera.Projection);
+            foreach(var a in AutosEnemigos){
+                a.Draw(Camera.View, Camera.Projection);
+            }
+            foreach(var m in Muebles){
+                m.Draw(Camera.View, Camera.Projection);
             }
 
             Car.Draw(Camera.View, Camera.Projection);
