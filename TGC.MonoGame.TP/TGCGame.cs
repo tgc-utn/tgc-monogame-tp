@@ -52,7 +52,7 @@ namespace TGC.MonoGame.TP
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
             var posicionesAutosIA = new Vector3(0f,0f,0f);           
-            for(int i=0; i<10; i++){
+            for(int i=0; i<20; i++){
                 var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
 
                 var unAuto = new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA);
