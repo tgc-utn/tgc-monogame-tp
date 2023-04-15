@@ -115,18 +115,15 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.White);
 
+            Mapa.Draw(Camera.View, Camera.Projection);
+            Car.Draw(Camera.View, Camera.Projection);
+
             foreach(var a in AutosEnemigos){
                 a.Draw(Camera.View, Camera.Projection);
             }
             foreach(var m in Muebles){
                 m.Draw(Camera.View, Camera.Projection);
             }
-
-            Mapa.Draw(Camera.View, Camera.Projection);
-            Car.Draw(Camera.View, Camera.Projection);
-            //Effect.Parameters["View"].SetValue(Camera.View);
-            //Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            //PisoMapa.Draw(Effect);
         }
         protected override void UnloadContent()
         {
