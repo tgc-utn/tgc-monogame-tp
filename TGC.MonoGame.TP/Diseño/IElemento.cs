@@ -14,11 +14,13 @@ namespace TGC.MonoGame.TP{
         public string Origen {get; set;} // '/Models/Carpeta/Modelo.fbx'
         
         public IElemento(string path, Vector3 posicionInicial){
-            Origen = path;
+            if(path!=null)
+                Origen = path;
             World = Matrix.CreateTranslation(posicionInicial);
             PosicionInicial = posicionInicial;
         }
         public void Load(ContentManager contentManager){
+            if(Origen!=null)
             Model = contentManager.Load<Model>(Origen);
             return;
         }

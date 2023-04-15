@@ -27,7 +27,8 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Car Car;
-        private Floor PisoMapa;
+        //private Floor PisoMapa;
+        private Mapa Mapa;
         private List<IElementoDinamico> AutosEnemigos;
         private List<IElemento> Muebles;
         private Effect Effect;
@@ -46,8 +47,10 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
+
             Car = new Car("Models/RacingCarA/RacingCar", new Vector3(0f,0f,0f));
-            PisoMapa = new Floor();
+            //PisoMapa = new Floor();
+            Mapa = new Mapa();
 
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
@@ -61,13 +64,14 @@ namespace TGC.MonoGame.TP
             }
             #endregion
             
+            #region CargaElementosEstáticos
             Muebles = new List<IElemento>();
             for(int i = 0 ; i<100*20 ; i+=100){
                 Muebles.Add(new Mueble("chair", 10f, new Vector3(   i , 40f , -30f )));
             }
             Muebles.Add( new Mueble("mesa", 12f, new Vector3(415f,0f,415f) ));
             Muebles.Add( new Mueble("mesa", 12f, new Vector3(30f,0f,415f) ));
-
+            #endregion
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             base.Initialize();
@@ -85,11 +89,10 @@ namespace TGC.MonoGame.TP
             foreach(var m in Muebles){
                 m.Load(Content);
             }
-            
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Mapa.Load(Content);
+            //Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             base.LoadContent();
         }
-
         protected override void Update(GameTime gameTime)
         {
             KeyboardState keyboardState =Keyboard.GetState();
@@ -108,7 +111,6 @@ namespace TGC.MonoGame.TP
 
             base.Update(gameTime);
         }
-
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
@@ -120,13 +122,12 @@ namespace TGC.MonoGame.TP
                 m.Draw(Camera.View, Camera.Projection);
             }
 
+            Mapa.Draw(Camera.View, Camera.Projection);
             Car.Draw(Camera.View, Camera.Projection);
-
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            PisoMapa.Draw(Effect);
+            //Effect.Parameters["View"].SetValue(Camera.View);
+            //Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            //PisoMapa.Draw(Effect);
         }
-
         protected override void UnloadContent()
         {
             Content.Unload();

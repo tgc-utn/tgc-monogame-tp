@@ -1,21 +1,22 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
 {
-    public class Floor
+    public class Mapa : IElemento
     {
         private Vector3[] Colors;
         private int[] ColorIndex;
         private Matrix[] WorlMatrixs;
-        
+        private Effect Effect;
         private readonly float TileSize = 500f;
         private readonly int Width = 50;
         private readonly int Hight = 50;
         private readonly int TileQuantity;
 
-        public Floor()
+        public Mapa():base(null,Vector3.Zero)
         {
             TileQuantity = Width * Hight;
 
@@ -33,12 +34,6 @@ namespace TGC.MonoGame.TP
                 new Color(39, 89, 97   ).ToVector3(),
                 new Color(61, 118, 98   ).ToVector3(),
             };
-            /* Colors = new Vector3[]
-            {
-                Color.DarkBlue.ToVector3(),
-                Color.DarkGreen.ToVector3()
-            }; */
-
             
             Matrix Scale = Matrix.CreateScale(TileSize, 0f, TileSize);
 
@@ -53,8 +48,14 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        public void Draw(Effect Effect)
+        public new void Load(ContentManager content){
+            Effect = content.Load<Effect>("Effects/BasicShader");
+        }
+
+        public new void Draw(Matrix view, Matrix projection)
         {
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
             for(int i=0;i<TileQuantity;i++)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(Colors[ColorIndex[i]]);
