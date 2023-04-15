@@ -26,11 +26,11 @@ namespace TGC.MonoGame.TP
         internal static GeometriesManager GeometriesManager;
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
+        
         private Car Car;
         private Mapa Mapa;
         private List<IElementoDinamico> AutosEnemigos;
         private List<IElemento> Muebles;
-        private Effect Effect;
         private FollowCamera Camera;
 
         public TGCGame()
@@ -47,11 +47,12 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            Car = new Car("Models/RacingCarA/RacingCar", Vector3.Zero);
+            Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero);
             Mapa = new Mapa();
 
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
+            
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
             for(int i=0; i<20; i++){
                 var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
@@ -65,14 +66,16 @@ namespace TGC.MonoGame.TP
             #region CargaElementosEstáticos
             Muebles = new List<IElemento>();
             for(int i = 0 ; i<100*20 ; i+=100){
-                Muebles.Add(new Mueble("chair", 10f, new Vector3(   i , 40f , -30f )));
+                Muebles.Add(new Mueble("Chair", 10f, new Vector3(   i , 40f , -30f )));
             }
-            Muebles.Add( new Mueble("mesa", 12f, new Vector3(415f,0f,415f) ));
-            Muebles.Add( new Mueble("mesa", 12f, new Vector3(30f,0f,415f) ));
+            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f) ));
+            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f) ));
             #endregion
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-            
+
+            Muebles.Add(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f)));
+    
             base.Initialize();
         }
 

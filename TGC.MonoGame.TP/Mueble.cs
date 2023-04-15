@@ -11,6 +11,7 @@ namespace TGC.MonoGame.TP
         private const string UbicacionMuebles = "Models/Muebles/";
         private Vector3 Position;
 
+        //Que reciba una MATRIZ INICIAL no una posición inicial
         public Mueble(string nombreMueble, float escala, Vector3 posicionInicial) : base(UbicacionMuebles+nombreMueble+"/"+nombreMueble,posicionInicial){
             World *= Matrix.CreateScale(escala);
 

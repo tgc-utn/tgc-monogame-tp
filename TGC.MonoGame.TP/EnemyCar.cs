@@ -71,9 +71,6 @@ namespace TGC.MonoGame.TP{
       
 
         /* Acá funciones propias del auto */
-        public Matrix getWorld(){
-            return World;
-        }
         //public void saltar(){}        
         //public void doblar(){}        
         //public void usarPowerUp(){}        

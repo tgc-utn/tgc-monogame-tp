@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP{
         public void Load(ContentManager contentManager){
             if(Origen!=null)
             Model = contentManager.Load<Model>(Origen);
-            return;
+            return; 
         }
         public void Draw (Matrix view, Matrix projection){
             Model.Draw(World,view,projection);

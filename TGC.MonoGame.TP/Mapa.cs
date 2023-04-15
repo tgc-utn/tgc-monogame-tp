@@ -5,7 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
 {
-    public class Mapa : IElemento
+    // PISO
+    public class Mapa
     {
         private Vector3[] Colors;
         private int[] ColorIndex;
@@ -16,7 +17,7 @@ namespace TGC.MonoGame.TP
         private readonly int Hight = 50;
         private readonly int TileQuantity;
 
-        public Mapa():base(null,Vector3.Zero)
+        public Mapa()
         {
             TileQuantity = Width * Hight;
 
@@ -48,11 +49,11 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        public new void Load(ContentManager content){
+        public void Load(ContentManager content){
             Effect = content.Load<Effect>("Effects/BasicShader");
         }
 
-        public new void Draw(Matrix view, Matrix projection)
+        public void Draw(Matrix view, Matrix projection)
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
