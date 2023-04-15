@@ -11,8 +11,8 @@ namespace TGC.MonoGame.TP
         private Matrix[] WorlMatrixs;
         
         private readonly float TileSize = 500f;
-        private readonly int Width = 50;
-        private readonly int Hight = 50;
+        private readonly int Width = 10;
+        private readonly int Hight = 10;
         private readonly int TileQuantity;
 
         public Floor()
@@ -47,8 +47,8 @@ namespace TGC.MonoGame.TP
                 for(int j=0;j<Hight;j++)
                 {
                     var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%Colors.Length;
-                    ColorIndex[i*10+j] = indiceColor;
-                    WorlMatrixs[i*10+j] = Scale * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
+                    ColorIndex[i*Hight+j] = indiceColor;
+                    WorlMatrixs[i*Hight+j] = Scale * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
                 }
             }
         }
