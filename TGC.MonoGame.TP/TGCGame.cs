@@ -27,6 +27,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Car Car;
+        private Floor PisoMapa;
         private List<IElementoDinamico> AutosEnemigos;
         private List<IElemento> Muebles;
         private Effect Effect;
@@ -46,6 +47,7 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             Car = new Car("Models/RacingCarA/RacingCar", new Vector3(0f,0f,0f));
+            PisoMapa = new Floor();
 
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
@@ -107,9 +109,6 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
 
             foreach(var a in AutosEnemigos){
                 a.Draw(Camera.View, Camera.Projection);
@@ -119,7 +118,10 @@ namespace TGC.MonoGame.TP
             }
 
             Car.Draw(Camera.View, Camera.Projection);
-            new Floor().Draw(Effect);
+
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            PisoMapa.Draw(Effect);
         }
 
         protected override void UnloadContent()
