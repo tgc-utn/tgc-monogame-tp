@@ -51,20 +51,23 @@ namespace TGC.MonoGame.TP
 
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
-            var posicionesAutosIA = new Vector3(0f,0f,0f);           
+            var posicionesAutosIA = new Vector3(0f,0f,300f);           
             for(int i=0; i<20; i++){
                 var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
 
                 var unAuto = new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA);
                 AutosEnemigos.Add(unAuto);
-                posicionesAutosIA += new Vector3(1500f,0f,1500f);
+                posicionesAutosIA += new Vector3(500f,0f,500f);
             }
             #endregion
             
             Muebles = new List<IElemento>();
             for(int i = 0 ; i<100*20 ; i+=100){
-                Muebles.Add(new Mueble("chair", 10f, new Vector3(   i , 20f , -70f )));
+                Muebles.Add(new Mueble("chair", 10f, new Vector3(   i , 40f , -30f )));
             }
+            Muebles.Add( new Mueble("mesa", 12f, new Vector3(415f,0f,415f) ));
+            Muebles.Add( new Mueble("mesa", 12f, new Vector3(30f,0f,415f) ));
+
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             base.Initialize();

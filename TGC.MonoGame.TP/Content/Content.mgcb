@@ -19,7 +19,7 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
 
-#begin 3D/chair/chair.fbx
+#begin Models/Muebles .fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -37,25 +37,8 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Models/Muebles/chair/chair.fbx
-
-#begin 3D/skybox/cube.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
 /build:Models/Muebles/cube/cube.fbx
+/build:Models/Muebles/mesa/mesa.fbx
 
 #begin Models/ .fbx
 /importer:FbxImporter

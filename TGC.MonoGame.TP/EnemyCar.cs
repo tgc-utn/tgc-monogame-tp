@@ -16,20 +16,25 @@ namespace TGC.MonoGame.TP{
 
         public EnemyCar(string path, float escala, Vector3 posicionInicial) : base(UbicacionAuto, posicionInicial) {
             Escala = escala; //aprox 0.07 está bien
+            Traslacion = posicionInicial;
         }
         public override void Update(GameTime gameTime, KeyboardState keyboard){
             var traslacionRelativa = Traslacion + PosicionInicial;
+            const float limiteInferior = 5000f;
+            const float limiteSuperior = 0f;
+            const float limiteDerecho = 300f;
+            const float limiteIzquierdo = 5000f;
 
             // En cuadrado alrededor del mapa
             switch(Direccion.X){
                 case 1f: //bajando
-                    if(traslacionRelativa.X>5000f){
+                    if(traslacionRelativa.X>limiteInferior){
                         Direccion.X = 0f;
                         Direccion.Z = 1f;
                     }
                 break;
                 case -1f: //subiendo
-                    if(traslacionRelativa.X<0f){
+                    if(traslacionRelativa.X<limiteSuperior){
                         Direccion.X = 0f;
                         Direccion.Z = -1f;
                     }
@@ -37,13 +42,13 @@ namespace TGC.MonoGame.TP{
                 case 0f: //movimiento lateral
                     switch(Direccion.Z){
                         case 1f: //yendo a la izquierda
-                            if(traslacionRelativa.Z>5000f){
+                            if(traslacionRelativa.Z>limiteIzquierdo){
                                 Direccion.Z = 0f;
                                 Direccion.X = -1f;
                             }
                         break;
                         case -1f: //yendo a la derecha
-                            if(traslacionRelativa.Z<0f){
+                            if(traslacionRelativa.Z<limiteDerecho){
                                 Direccion.Z = 0f;
                                 Direccion.X = 1f;
                             }

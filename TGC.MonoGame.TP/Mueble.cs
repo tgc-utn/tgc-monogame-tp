@@ -9,7 +9,6 @@ namespace TGC.MonoGame.TP
     public class Mueble : IElemento
     {
         private const string UbicacionMuebles = "Models/Muebles/";
-        private float Scale = 1f;
         private Vector3 Position;
 
         public Mueble(string nombreMueble, float escala, Vector3 posicionInicial) : base(UbicacionMuebles+nombreMueble+"/"+nombreMueble,posicionInicial){
