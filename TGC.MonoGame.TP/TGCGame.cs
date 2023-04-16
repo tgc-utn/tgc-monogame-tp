@@ -71,11 +71,10 @@ namespace TGC.MonoGame.TP
             Muebles.Add( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f), new Vector3(0, MathHelper.PiOver2, 0) ));
             Muebles.Add( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f), Vector3.Zero ));
             Muebles.Add( new Mueble("Inodoro", 15f, new Vector3(30f,0f,215f), new Vector3(0, MathHelper.PiOver2, 0) ));
+            Muebles.Add(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f), Vector3.Zero));
             #endregion
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-
-            Muebles.Add(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f), Vector3.Zero));
     
             base.Initialize();
         }
@@ -120,6 +119,16 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.White);
 
             Mapa.Draw(Camera.View, Camera.Projection);
+
+            /*
+            Effect Efecto = Content.Load<Effect>("Effects/BasicShader");
+            Efecto.Parameters["View"].SetValue(Camera.View);
+            Efecto.Parameters["Projection"].SetValue(Camera.Projection);
+            Efecto.Parameters["DiffuseColor"].SetValue(new Color(117, 115, 162).ToVector3());
+            Efecto.Parameters["World"].SetValue(Matrix.CreateScale(25000f, 0f, 5000f) * Matrix.CreateRotationX(MathHelper.PiOver2) * Matrix.CreateTranslation(new Vector3(24500f, 5000f, -500f)));
+            GeometriesManager.Quad.Draw(Efecto);
+            */
+            
             Car.Draw(Camera.View, Camera.Projection);
 
             foreach(var a in AutosEnemigos){
