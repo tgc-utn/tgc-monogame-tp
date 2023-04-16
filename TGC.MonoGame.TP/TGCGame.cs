@@ -47,7 +47,7 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero);
+            Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero, Vector3.Zero);
             Mapa = new Mapa();
 
             #region CargaElementosDinámicos
@@ -57,7 +57,7 @@ namespace TGC.MonoGame.TP
             for(int i=0; i<20; i++){
                 var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
 
-                var unAuto = new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA);
+                var unAuto = new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA, Vector3.Zero);
                 AutosEnemigos.Add(unAuto);
                 posicionesAutosIA += new Vector3(500f,0f,500f);
             }
@@ -66,15 +66,16 @@ namespace TGC.MonoGame.TP
             #region CargaElementosEstáticos
             Muebles = new List<IElemento>();
             for(int i = 0 ; i<100*20 ; i+=100){
-                Muebles.Add(new Mueble("Chair", 10f, new Vector3(   i , 40f , -30f )));
+                Muebles.Add(new Mueble("Chair", 10f, new Vector3(   i , 40f , -30f ), Vector3.Zero));
             }
-            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f) ));
-            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f) ));
+            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f), new Vector3(0, MathHelper.PiOver2, 0) ));
+            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f), Vector3.Zero ));
+            Muebles.Add( new Mueble("Inodoro", 15f, new Vector3(30f,0f,215f), new Vector3(0, MathHelper.PiOver2, 0) ));
             #endregion
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
-            Muebles.Add(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f)));
+            Muebles.Add(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f), Vector3.Zero));
     
             base.Initialize();
         }

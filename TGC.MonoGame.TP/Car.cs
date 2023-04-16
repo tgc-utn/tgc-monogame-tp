@@ -15,7 +15,7 @@ namespace TGC.MonoGame.TP
         private float JumpPower = 50000f;
         private float Turning = 0f;
 
-        public Car(string ubicacionAuto, Vector3 posicionInicial) : base(ubicacionAuto,posicionInicial){}
+        public Car(string ubicacionAuto, Vector3 posicionInicial, Vector3 rotacion) : base(ubicacionAuto,posicionInicial, rotacion){}
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState)
         {

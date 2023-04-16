@@ -12,7 +12,7 @@ namespace TGC.MonoGame.TP
         private Vector3 Position;
 
         //Que reciba una MATRIZ INICIAL no una posición inicial
-        public Mueble(string nombreMueble, float escala, Vector3 posicionInicial) : base(UbicacionMuebles+nombreMueble+"/"+nombreMueble,posicionInicial){
+        public Mueble(string nombreMueble, float escala, Vector3 posicionInicial, Vector3 rotacion) : base(UbicacionMuebles+nombreMueble+"/"+nombreMueble,posicionInicial, rotacion){
             World *= Matrix.CreateScale(escala);
 
             //no se si es necesario guardarla

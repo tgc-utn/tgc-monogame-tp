@@ -14,7 +14,7 @@ namespace TGC.MonoGame.TP{
         private Vector3 Direccion = new Vector3(1f,0f,0f);
         private float Escala;
 
-        public EnemyCar(string path, float escala, Vector3 posicionInicial) : base(UbicacionAuto, posicionInicial) {
+        public EnemyCar(string path, float escala, Vector3 posicionInicial, Vector3 rotacion) : base(UbicacionAuto, posicionInicial, rotacion) {
             Escala = escala; //aprox 0.07 está bien
             Traslacion = posicionInicial;
         }
