@@ -5,22 +5,23 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
 {
-    public class Mapa : IElemento
+    // PISO
+    public class Mapa
     {
         private Vector3[] Colors;
         private int[] ColorIndex;
-        private Matrix[] WorlMatrixs;
+        private Matrix[] WorldMatrixs;
         private Effect Effect;
         private readonly float TileSize = 500f;
         private readonly int Width = 10;
         private readonly int Hight = 10;
         private readonly int TileQuantity;
 
-        public Mapa():base(null,Vector3.Zero)
+        public Mapa()
         {
             TileQuantity = Width * Hight;
 
-            WorlMatrixs = new Matrix[TileQuantity];
+            WorldMatrixs = new Matrix[TileQuantity];
             ColorIndex = new int[TileQuantity];
             Colors = new Vector3 []{
                 new Color(254, 183, 129   ).ToVector3(),
@@ -42,24 +43,25 @@ namespace TGC.MonoGame.TP
                 for(int j=0;j<Hight;j++)
                 {
                     var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%Colors.Length;
-                    ColorIndex[i*Hight+j] = indiceColor;
-                    WorlMatrixs[i*Hight+j] = Scale * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
+
+                    ColorIndex[i*Width+j] = indiceColor;
+                    WorldMatrixs[i*Width+j] = Scale * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
                 }
             }
         }
 
-        public new void Load(ContentManager content){
+        public void Load(ContentManager content){
             Effect = content.Load<Effect>("Effects/BasicShader");
         }
 
-        public new void Draw(Matrix view, Matrix projection)
+        public void Draw(Matrix view, Matrix projection)
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
             for(int i=0;i<TileQuantity;i++)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(Colors[ColorIndex[i]]);
-                Effect.Parameters["World"].SetValue(WorlMatrixs[i]);
+                Effect.Parameters["World"].SetValue(WorldMatrixs[i]);
                 TGCGame.GeometriesManager.Quad.Draw(Effect);
             }
         }

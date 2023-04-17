@@ -36,9 +36,12 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/chair/chair.fbx
-/build:Models/Muebles/cube/cube.fbx
-/build:Models/Muebles/mesa/mesa.fbx
+/build:Models/Muebles/Chair/Chair.fbx
+/build:Models/Muebles/Cube/Cube.fbx
+/build:Models/Muebles/Mesa/Mesa.fbx
+/build:Models/Muebles/Sillon/Sillon.fbx
+/build:Models/Muebles/inodoro/inodoro.fbx
+/build:Models/RacingCar/RacingCar.fbx
 
 #begin Models/ .fbx
 /importer:FbxImporter
@@ -57,6 +60,5 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/RacingCarA/RacingCar.fbx
 /build:Models/CombatVehicle/Vehicle.fbx
 
