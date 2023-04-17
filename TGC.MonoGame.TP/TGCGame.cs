@@ -26,14 +26,9 @@ namespace TGC.MonoGame.TP
         internal static GeometriesManager GeometriesManager;
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
-        
         private Car Car;
-
-        private List<IElementoDinamico> AutosEnemigos;
-        private List<IElemento> Muebles;
+        private List<Habitacion> HabitacionesPrueba;
         private FollowCamera Camera;
-
-        private Habitacion HabitacionPrueba;
 
         public TGCGame()
         {
@@ -50,32 +45,21 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
 
             Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero, Vector3.Zero);
-            HabitacionPrueba = new Habitacion(10, 10, Vector3.Zero);
 
-            #region CargaElementosDinámicos
-            AutosEnemigos = new List<IElementoDinamico>();
+            HabitacionesPrueba = new List<Habitacion>();
+            HabitacionesPrueba.Add(
+                new Habitacion(10, 10, new Vector3(0f,0f,0f)).Principal()            
+            );
+            HabitacionesPrueba.Add(
+                new Habitacion(10, 10, new Vector3(-10000f,0f,-10000f)).Principal()
+            );
+            HabitacionesPrueba.Add(
+                new Habitacion(10, 10, new Vector3(0,0f,-10000f)).Principal()
+            );
+            HabitacionesPrueba.Add(
+                new Habitacion(10, 10, new Vector3(-10000f,0f,0)).Cocina()
+            );
             
-            var posicionesAutosIA = new Vector3(0f,0f,300f);           
-            for(int i=0; i<20; i++){
-                var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
-
-                var unAuto = new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA, Vector3.Zero);
-                AutosEnemigos.Add(unAuto);
-                posicionesAutosIA += new Vector3(500f,0f,500f);
-            }
-            #endregion
-            
-            #region CargaElementosEstáticos
-            Muebles = new List<IElemento>();
-            for(int i = 0 ; i<100*20 ; i+=100){
-                Muebles.Add(new Mueble("Chair", 10f, new Vector3(   i , 40f , -30f ), Vector3.Zero));
-            }
-            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            Muebles.Add( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f), Vector3.Zero ));
-            Muebles.Add( new Mueble("Inodoro", 15f, new Vector3(30f,0f,215f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            Muebles.Add(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f), Vector3.Zero));
-            #endregion
-
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
     
             base.Initialize();
@@ -86,16 +70,10 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             GeometriesManager = new GeometriesManager(GraphicsDevice);
             
+            foreach(var h in HabitacionesPrueba){
+                h.Load(Content);
+            }
             Car.Load(Content);
-            HabitacionPrueba.Load(Content);
-
-            foreach(var a in AutosEnemigos){
-                a.Load(Content);
-            }
-            foreach(var m in Muebles){
-                m.Load(Content);
-            }
-          
             base.LoadContent();
         }
         protected override void Update(GameTime gameTime)
@@ -107,11 +85,10 @@ namespace TGC.MonoGame.TP
                 Exit();
             
             Car.Update(gameTime, keyboardState);
-            
-            foreach(var a in AutosEnemigos){
-                a.Update(gameTime, keyboardState);
-            }
 
+            foreach(var h in HabitacionesPrueba){
+                h.Update(gameTime, keyboardState);
+            }
             Camera.Update(gameTime, Car.World);
 
             base.Update(gameTime);
@@ -120,20 +97,10 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.White);
 
-            HabitacionPrueba.Draw(Camera.View, Camera.Projection);
-/* 
-            var pared = Pared.Derecha(10,10,Vector3.Zero);
-            pared.Load(Content);
-            pared.Draw(Camera.View, Camera.Projection);
-             */
+            foreach(var h in HabitacionesPrueba){
+                h.Draw(Camera.View, Camera.Projection);
+            }
             Car.Draw(Camera.View, Camera.Projection);
-
-            foreach(var a in AutosEnemigos){
-                a.Draw(Camera.View, Camera.Projection);
-            }
-            foreach(var m in Muebles){
-                m.Draw(Camera.View, Camera.Projection);
-            }
         }
         protected override void UnloadContent()
         {

@@ -9,7 +9,7 @@ namespace TGC.MonoGame.TP{
     public abstract class IElemento  {
         public Matrix World {get; set;}
         private Model Model;
-        public Vector3 PosicionInicial;
+        public Vector3 PosicionInicial {get; set;}
         public Vector3 rotacion;
         //AGREGAR EFFECT
         public string Origen {get; set;} // '/Models/Carpeta/Modelo.fbx'
@@ -20,6 +20,11 @@ namespace TGC.MonoGame.TP{
             Matrix Rotation = Matrix.CreateRotationX(rotacion.X) * Matrix.CreateRotationY(rotacion.Y) * Matrix.CreateRotationZ(rotacion.Z);
             World = Rotation * Matrix.CreateTranslation(posicionInicial);
             PosicionInicial = posicionInicial;
+        }
+
+        public void newPosicionInicial(Vector3 posicionInicial){
+            PosicionInicial = posicionInicial;
+            World *= Matrix.CreateTranslation(posicionInicial);
         }
         public void Load(ContentManager contentManager){
             if(Origen!=null)

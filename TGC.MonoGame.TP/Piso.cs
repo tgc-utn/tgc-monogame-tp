@@ -55,6 +55,24 @@ namespace TGC.MonoGame.TP
             }
         }
 
+        public Piso Cocina(){
+            Colors = new Vector3 []{
+                new Color(215, 215, 215   ).ToVector3(),
+                new Color(33, 33, 37   ).ToVector3()
+            };
+            for(int i=0;i<Ancho;i++)
+            {
+                for(int j=0;j<Alto;j++)
+                {
+                    var indiceColor = (i+j)%Colors.Length;
+
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                }
+            }
+
+            return this;
+        }
+
         public void Load(ContentManager content){
             Effect = content.Load<Effect>("Effects/BasicShader");
         }
