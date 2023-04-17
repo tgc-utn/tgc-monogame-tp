@@ -6,23 +6,28 @@ using Microsoft.Xna.Framework.Graphics;
 namespace TGC.MonoGame.TP
 {
     // PISO
-    public class Mapa
+    public class Piso
     {
         private Vector3[] Colors;
         private int[] ColorIndex;
         private Matrix[] WorldMatrixs;
+        internal Vector3 PosicionInicial;
         private Effect Effect;
+        //LOS TAMAÑOS SE SUPLICAN, Por una razon que conozco pero no les voy a decir porque me llevaria mucho tiempo
         private readonly float TileSize = 500f;
-        private readonly int Width = 10;
-        private readonly int Hight = 10;
-        private readonly int TileQuantity;
+        private readonly int Ancho;
+        private readonly int Alto;
+        private readonly int CantidadDeBaldosa;
 
-        public Mapa()
+        public Piso(int Ancho, int Alto, Vector3 PosicionInicial)
         {
-            TileQuantity = Width * Hight;
+            this.PosicionInicial = PosicionInicial; 
+            this.Ancho = Ancho;
+            this.Alto = Alto;
+            CantidadDeBaldosa = Ancho * Alto;
 
-            WorldMatrixs = new Matrix[TileQuantity];
-            ColorIndex = new int[TileQuantity];
+            WorldMatrixs = new Matrix[CantidadDeBaldosa];
+            ColorIndex = new int[CantidadDeBaldosa];
             Colors = new Vector3 []{
                 new Color(254, 183, 129   ).ToVector3(),
                 new Color(233, 130, 89   ).ToVector3(),
@@ -38,14 +43,14 @@ namespace TGC.MonoGame.TP
             
             Matrix Scale = Matrix.CreateScale(TileSize, 0f, TileSize);
 
-            for(int i=0;i<Width;i++)
+            for(int i=0;i<Ancho;i++)
             {
-                for(int j=0;j<Hight;j++)
+                for(int j=0;j<Alto;j++)
                 {
                     var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%Colors.Length;
 
-                    ColorIndex[i*Width+j] = indiceColor;
-                    WorldMatrixs[i*Width+j] = Scale * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                    WorldMatrixs[i*Ancho+j] = Scale * Matrix.CreateTranslation(PosicionInicial) * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
                 }
             }
         }
@@ -58,7 +63,7 @@ namespace TGC.MonoGame.TP
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            for(int i=0;i<TileQuantity;i++)
+            for(int i=0;i<CantidadDeBaldosa;i++)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(Colors[ColorIndex[i]]);
                 Effect.Parameters["World"].SetValue(WorldMatrixs[i]);

@@ -28,7 +28,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch;
         
         private Car Car;
-        private Mapa Mapa;
+        private Piso Mapa;
         private List<IElementoDinamico> AutosEnemigos;
         private List<IElemento> Muebles;
         private FollowCamera Camera;
@@ -48,7 +48,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
 
             Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero, Vector3.Zero);
-            Mapa = new Mapa();
+            Mapa = new Piso(10, 10, Vector3.Zero);// new Vector3(2000, 0, 2000));
 
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
@@ -120,16 +120,11 @@ namespace TGC.MonoGame.TP
 
             Mapa.Draw(Camera.View, Camera.Projection);
 
-            /*
-            Effect Efecto = Content.Load<Effect>("Effects/BasicShader");
-            Efecto.Parameters["View"].SetValue(Camera.View);
-            Efecto.Parameters["Projection"].SetValue(Camera.Projection);
-            Efecto.Parameters["DiffuseColor"].SetValue(new Color(117, 115, 162).ToVector3());
-            Efecto.Parameters["World"].SetValue(Matrix.CreateScale(25000f, 0f, 5000f) * Matrix.CreateRotationX(MathHelper.PiOver2) * Matrix.CreateTranslation(new Vector3(24500f, 5000f, -500f)));
-            GeometriesManager.Quad.Draw(Efecto);
-            */
-            
             Car.Draw(Camera.View, Camera.Projection);
+
+            var pared = new Pared(10,10, Vector3.Zero, true);
+            pared.Load(Content);
+            pared.Draw(Camera.View, Camera.Projection);
 
             foreach(var a in AutosEnemigos){
                 a.Draw(Camera.View, Camera.Projection);
