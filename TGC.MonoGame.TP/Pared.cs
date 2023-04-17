@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -35,6 +37,11 @@ namespace TGC.MonoGame.TP
             Efecto.Parameters["View"].SetValue(View);
             Efecto.Parameters["Projection"].SetValue(Projection);
             TGCGame.GeometriesManager.Quad.Draw(Efecto); 
+        }
+
+        public static implicit operator Pared(List<Pared> v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -28,10 +28,12 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch;
         
         private Car Car;
-        private Piso Mapa;
+
         private List<IElementoDinamico> AutosEnemigos;
         private List<IElemento> Muebles;
         private FollowCamera Camera;
+
+        private Habitacion HabitacionPrueba;
 
         public TGCGame()
         {
@@ -48,7 +50,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
 
             Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero, Vector3.Zero);
-            Mapa = new Piso(10, 10, Vector3.Zero);// new Vector3(2000, 0, 2000));
+            HabitacionPrueba = new Habitacion(10, 10, Vector3.Zero);
 
             #region CargaElementosDinámicos
             AutosEnemigos = new List<IElementoDinamico>();
@@ -85,7 +87,7 @@ namespace TGC.MonoGame.TP
             GeometriesManager = new GeometriesManager(GraphicsDevice);
             
             Car.Load(Content);
-            Mapa.Load(Content);
+            HabitacionPrueba.Load(Content);
 
             foreach(var a in AutosEnemigos){
                 a.Load(Content);
@@ -118,13 +120,13 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.White);
 
-            Mapa.Draw(Camera.View, Camera.Projection);
+            HabitacionPrueba.Draw(Camera.View, Camera.Projection);
+
+            var pared = new Pared(10,10,Vector3.Zero, false);
+            //pared.Load(Content);
+            //pared.Draw(Camera.View, Camera.Projection);
 
             Car.Draw(Camera.View, Camera.Projection);
-
-            var pared = new Pared(10,10, Vector3.Zero, true);
-            pared.Load(Content);
-            pared.Draw(Camera.View, Camera.Projection);
 
             foreach(var a in AutosEnemigos){
                 a.Draw(Camera.View, Camera.Projection);
