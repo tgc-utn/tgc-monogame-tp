@@ -17,51 +17,50 @@ namespace TGC.MonoGame.TP
         private Pared ParedQueAnda;
 
         //Ancho y Alto en Cantidad de Baldosas
-        public Habitacion(int Ancho, int Alto, Vector3 PosicionInicial)
+        public Habitacion(int ancho, int alto, Vector3 posicionInicial)
         {
-            this.Ancho = Ancho;
-            this.Alto = Alto;
-            this.PosicionInicial = PosicionInicial;
+            Ancho = ancho;
+            Alto = alto;
+            PosicionInicial = posicionInicial;
 
             ElementosDinamicos = new List<IElementoDinamico>();
             Elementos = new List<IElemento>();
-            Piso = new Piso(Ancho, Alto, PosicionInicial);
+            Piso = new Piso(ancho, alto, posicionInicial);
 
             Paredes = new List<Pared>();
-            //Paredes.Add(new Pared(Ancho, Alto, PosicionInicial, true));
-            //Paredes.Add(new Pared(Ancho, Alto, PosicionInicial + new Vector3(Ancho * 500f, 0, 0), true));
-            Paredes.Add(new Pared(Ancho, Alto, PosicionInicial + new Vector3(Ancho * 5000f, 0, Ancho * 5000f), false));
-            Paredes.Add(new Pared(Ancho, Alto, PosicionInicial + new Vector3(0, 0, Ancho * 5000f), false));          
+            Paredes.Add(Pared.Arriba (10, 10, Vector3.Zero));
+           /*  Paredes.Add(Pared.Derecha   (ancho, alto, posicionInicial + new Vector3(0, 0, ancho * 5000f)));          
+            Paredes.Add(Pared.Izquierda    (ancho, alto, posicionInicial + new Vector3(ancho * 5000f, 0, ancho * 5000f)));
+            Paredes.Add(Pared.Abajo     (ancho, alto, posicionInicial + new Vector3(0, 0, ancho * 5000f))); */          
 
-            ParedQueAnda = new Pared(10, 10, Vector3.Zero, false);
-
+            ParedQueAnda = Pared.Arriba(10, 10, Vector3.Zero);
         }
 
-        public void Load(ContentManager Content)
+        public void Load(ContentManager content)
         {
-            Piso.Load(Content);
-            ParedQueAnda.Load(Content);
+            ParedQueAnda.Load(content);
+            Piso.Load(content);
 
             foreach(var pared in Paredes)
-                pared.Load(Content);
+                pared.Load(content);
             foreach(var elemento in ElementosDinamicos)
-                elemento.Load(Content);
+                elemento.Load(content);
             foreach(var elemento in Elementos)
-                elemento.Load(Content);  
+                elemento.Load(content);  
         }
 
-        public void Draw(Matrix View, Matrix Projection)
+        public void Draw(Matrix view, Matrix projection)
         {
-            Piso.Draw(View, Projection);
-            ParedQueAnda.Draw(View, Projection);
+            Piso.Draw(view, projection);
+            //ParedQueAnda.Draw(view, projection);
 
             foreach(var pared in Paredes)
-                pared.Draw(View, Projection);
+                pared.Draw(view, projection);
 
             foreach(var elemento in ElementosDinamicos)
-                elemento.Draw(View, Projection);
+                elemento.Draw(view, projection);
             foreach(var elemento in Elementos)
-                elemento.Draw(View, Projection);
+                elemento.Draw(view, projection);
         }
     }
 }

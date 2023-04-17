@@ -121,11 +121,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.White);
 
             HabitacionPrueba.Draw(Camera.View, Camera.Projection);
-
-            var pared = new Pared(10,10,Vector3.Zero, false);
-            //pared.Load(Content);
-            //pared.Draw(Camera.View, Camera.Projection);
-
+/* 
+            var pared = Pared.Derecha(10,10,Vector3.Zero);
+            pared.Load(Content);
+            pared.Draw(Camera.View, Camera.Projection);
+             */
             Car.Draw(Camera.View, Camera.Projection);
 
             foreach(var a in AutosEnemigos){
