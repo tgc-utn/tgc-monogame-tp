@@ -46,6 +46,17 @@ namespace TGC.MonoGame.TP
             Elementos.Add(elem);
         }
 
+        public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
+            var oficina = new Habitacion(alto, ancho, posicionInicial);
+
+            oficina.Piso.Oficina();
+            oficina.AddElemento(new Mueble("Silla-Oficina", 10f,new Vector3(100f,0f,100f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f)));
+//            oficina.AddElemento(new Mueble("Gabinete", 10f,Vector3.Zero, new Vector3(0f,0f,MathHelper.Pi)));
+            oficina.AddElemento(new Mueble("Cafe-Rojo", 10f,new Vector3(100f,50f,100f), new Vector3(-MathHelper.PiOver2,0f,0f)));
+
+            
+            return oficina;
+        }
         public static Habitacion Cocina(int ancho, int alto, Vector3 posicionInicial){
             Habitacion cocina = new Habitacion(ancho,alto,posicionInicial);
             cocina.Piso.Cocina();
@@ -53,9 +64,6 @@ namespace TGC.MonoGame.TP
             cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(200f,0f,200f), new Vector3(0, 0, 0) ));
             cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(300f,100f,300f), new Vector3(0, MathHelper.PiOver2, MathHelper.Pi) ));
             cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(400f,0f,400f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            
-
-
             return cocina;
         }
         public static Habitacion Principal(int ancho, int alto, Vector3 posicionInicial){

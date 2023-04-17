@@ -46,9 +46,11 @@ namespace TGC.MonoGame.TP
 
             Car = new Car("Models/RacingCar/RacingCar", Vector3.Zero, Vector3.Zero);
 
+
+            //Creo que cada habitación debería tener su medida ya establecida (10x10, 10x5, 4x2, etc.) no pasarla por parámetro
             HabitacionesPrueba = new List<Habitacion>();
             HabitacionesPrueba.Add(
-                Habitacion.Principal(10, 10, new Vector3(0f,0f,0f))         
+                Habitacion.Oficina(10, 10, new Vector3(0f,0f,0f))         
             );
             HabitacionesPrueba.Add(
                 Habitacion.Principal(10, 10, new Vector3(-10000f,0f,-10000f))

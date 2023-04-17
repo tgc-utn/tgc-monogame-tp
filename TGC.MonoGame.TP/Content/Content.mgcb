@@ -19,6 +19,27 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
 
+#begin Models/Muebles/ .obj
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/Muebles/Silla-Oficina/Silla-Oficina.obj
+/build:Models/Muebles/Cafe-Rojo/Cafe-Rojo.obj
+/build:Models/Muebles/Gabinete/Gabinete.obj
+
 #begin Models/Muebles .fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -42,23 +63,5 @@
 /build:Models/Muebles/Sillon/Sillon.fbx
 /build:Models/Muebles/inodoro/inodoro.fbx
 /build:Models/RacingCar/RacingCar.fbx
-
-#begin Models/ .fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
 /build:Models/CombatVehicle/Vehicle.fbx
 

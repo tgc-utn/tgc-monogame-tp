@@ -8,7 +8,7 @@ namespace TGC.MonoGame.TP
     // PISO
     public class Piso
     {
-        private Vector3[] Colors;
+        private Vector3[] ColorPallette;
         private int[] ColorIndex;
         private Matrix[] WorldMatrixs;
         internal Vector3 PosicionInicial;
@@ -28,7 +28,7 @@ namespace TGC.MonoGame.TP
 
             WorldMatrixs = new Matrix[CantidadDeBaldosa];
             ColorIndex = new int[CantidadDeBaldosa];
-            Colors = new Vector3 []{
+            ColorPallette = new Vector3 []{
                 new Color(254, 183, 129   ).ToVector3(),
                 new Color(233, 130, 89   ).ToVector3(),
                 new Color(186, 83, 68   ).ToVector3(),
@@ -47,7 +47,7 @@ namespace TGC.MonoGame.TP
             {
                 for(int j=0;j<Alto;j++)
                 {
-                    var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%Colors.Length;
+                    var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%ColorPallette.Length;
 
                     ColorIndex[i*Ancho+j] = indiceColor;
                     WorldMatrixs[i*Ancho+j] = Scale * Matrix.CreateTranslation(PosicionInicial) * Matrix.CreateTranslation(TileSize*i*2, 0, TileSize*j*2);
@@ -55,21 +55,53 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        public Piso Cocina(){
-            Colors = new Vector3 []{
-                new Color(215, 215, 215   ).ToVector3(),
-                new Color(33, 33, 37   ).ToVector3()
-            };
+        private void SetIndexIntercalado(){
             for(int i=0;i<Ancho;i++)
             {
                 for(int j=0;j<Alto;j++)
                 {
-                    var indiceColor = (i+j)%Colors.Length;
+                    var indiceColor = (i+j)%ColorPallette.Length;
 
                     ColorIndex[i*Ancho+j] = indiceColor;
                 }
             }
+        }  
+        private void SetIndexRandom(){
+            for(int i=0;i<Ancho;i++)
+            {
+                for(int j=0;j<Alto;j++)
+                {
+                    var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%ColorPallette.Length;
 
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                }
+            }
+        }  
+
+
+        public Piso Oficina(){
+            //Pallette link : https://coolors.co/palette/edc4b3-e6b8a2-deab90-d69f7e-cd9777-c38e70-b07d62-9d6b53-8a5a44-774936
+            ColorPallette = new Vector3 []{
+                new Color(237, 196, 179     ).ToVector3(),
+                new Color(230, 184, 162     ).ToVector3(),
+                new Color(222, 171, 144        ).ToVector3(),
+                new Color(214, 159, 126     ).ToVector3(),
+                new Color(205, 151, 119     ).ToVector3(),
+                new Color(195, 142, 112     ).ToVector3(),
+                new Color(176, 125, 98        ).ToVector3(),
+                new Color(157, 107, 83     ).ToVector3(),
+                new Color(138, 90, 68     ).ToVector3(),
+                new Color(119, 73, 54        ).ToVector3()
+            };
+            SetIndexRandom();
+            return this;
+        }
+        public Piso Cocina(){
+            ColorPallette = new Vector3 []{
+                new Color(215, 215, 215   ).ToVector3(),
+                new Color(33, 33, 37   ).ToVector3()
+            };
+            SetIndexIntercalado();
             return this;
         }
 
@@ -83,7 +115,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(projection);
             for(int i=0;i<CantidadDeBaldosa;i++)
             {
-                Effect.Parameters["DiffuseColor"].SetValue(Colors[ColorIndex[i]]);
+                Effect.Parameters["DiffuseColor"].SetValue(ColorPallette[ColorIndex[i]]);
                 Effect.Parameters["World"].SetValue(WorldMatrixs[i]);
                 TGCGame.GeometriesManager.Quad.Draw(Effect);
             }
