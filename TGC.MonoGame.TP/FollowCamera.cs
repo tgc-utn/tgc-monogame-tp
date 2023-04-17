@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +8,11 @@ namespace TGC.MonoGame.TP
 {
     class FollowCamera
     {
-        private const float AxisDistanceToTarget = 2000f;
+        private float AxisDistanceToTarget = 2000f;
 
-        private const float AngleFollowSpeed = 0.015f;
+        private float AngleFollowSpeed = 0.015f;
 
-        private const float AngleThreshold = 0.85f;
+        private float AngleThreshold = 0.85f;
 
         public Matrix Projection { get; private set; }
 
@@ -26,6 +27,19 @@ namespace TGC.MonoGame.TP
         public FollowCamera(float aspectRatio)
         {
             Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 100000f);
+        }
+
+        public void Mover(KeyboardState keyboardState){
+            var multiplicador = 1f;
+            if(keyboardState.IsKeyDown(Keys.LeftShift)){
+                multiplicador = 10f;
+            }   
+            if(keyboardState.IsKeyDown(Keys.Down)){
+                AxisDistanceToTarget += 20f*multiplicador;
+            }
+            if(keyboardState.IsKeyDown(Keys.Up)){
+                AxisDistanceToTarget -= 20f*multiplicador;
+            }
         }
 
         public void Update(GameTime gameTime, Matrix followedWorld)

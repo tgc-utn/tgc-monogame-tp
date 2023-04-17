@@ -19,7 +19,7 @@ namespace TGC.MonoGame.TP
         private Pared ParedQueAnda;
 
         //Ancho y Alto en Cantidad de Baldosas
-        public Habitacion(int ancho, int alto, Vector3 posicionInicial)
+        private Habitacion(int ancho, int alto, Vector3 posicionInicial)
         {
             Ancho = ancho;
             Alto = alto;
@@ -27,7 +27,7 @@ namespace TGC.MonoGame.TP
 
             ElementosDinamicos = new List<IElementoDinamico>();
             Elementos = new List<IElemento>();
-            Piso = new Piso(ancho, alto, posicionInicial);
+            Piso = new Piso(ancho, alto, posicionInicial); // Se carga el default
 
             Paredes = new List<Pared>();
             Paredes.Add(Pared.Arriba (10, 10, Vector3.Zero));
@@ -37,7 +37,6 @@ namespace TGC.MonoGame.TP
 
             ParedQueAnda = Pared.Arriba(10, 10, Vector3.Zero);
         }
-        
         public void AddDinamico( IElementoDinamico elem ){
             elem.newPosicionInicial(PosicionInicial);
             ElementosDinamicos.Add(elem);
@@ -47,33 +46,40 @@ namespace TGC.MonoGame.TP
             Elementos.Add(elem);
         }
 
-        public Habitacion Cocina(){
-            //acá más lógica de cocina
-            Piso = Piso.Cocina();
-            return Principal();
-        }
-        public Habitacion Principal(){
+        public static Habitacion Cocina(int ancho, int alto, Vector3 posicionInicial){
+            Habitacion cocina = new Habitacion(ancho,alto,posicionInicial);
+            cocina.Piso.Cocina();
+            cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(100f,0f,100f), new Vector3(0, MathHelper.PiOver2*3f, 0) ));
+            cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(200f,0f,200f), new Vector3(0, 0, 0) ));
+            cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(300f,100f,300f), new Vector3(0, MathHelper.PiOver2, MathHelper.Pi) ));
+            cocina.AddElemento( new Mueble("Inodoro", 15f, new Vector3(400f,0f,400f), new Vector3(0, MathHelper.PiOver2, 0) ));
             
+
+
+            return cocina;
+        }
+        public static Habitacion Principal(int ancho, int alto, Vector3 posicionInicial){
+            Habitacion principal = new Habitacion(ancho,alto,posicionInicial);
             #region CargaElementosDinámicos
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
             for(int i=0; i<20; i++){
                 var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
-                AddDinamico(new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA, Vector3.Zero));
+                principal.AddDinamico(new EnemyCar("Models/CombatVehicle/Vehicle", escala, posicionesAutosIA, Vector3.Zero));
                 posicionesAutosIA += new Vector3(500f,0f,500f);
             }
             #endregion
             
             #region CargaElementosEstáticos
             for(int i = 0 ; i<100*20 ; i+=100){
-                AddElemento(new Mueble("Chair", 10f, new Vector3(   i , 40f , -30f ), Vector3.Zero));
+                principal.AddElemento(new Mueble("Chair", 10f, new Vector3(   i , 40f , -30f ), Vector3.Zero));
             }
-            AddElemento( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            AddElemento( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f), Vector3.Zero ));
-            AddElemento( new Mueble("Inodoro", 15f, new Vector3(30f,0f,215f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            AddElemento(new Mueble("Sillon", 10f, new Vector3(250f,30f,250f), Vector3.Zero));
+            principal.AddElemento( new Mueble("Mesa", 12f, new Vector3(415f,0f,415f), new Vector3(0, MathHelper.PiOver2, 0) ));
+            principal.AddElemento( new Mueble("Mesa", 12f, new Vector3(30f,0f,415f), Vector3.Zero ));
+            principal.AddElemento( new Mueble("Inodoro", 15f, new Vector3(30f,0f,215f), new Vector3(0, MathHelper.PiOver2, 0) ));
+            principal.AddElemento( new Mueble("Sillon", 10f, new Vector3(250f,30f,250f), Vector3.Zero));
             #endregion
 
-            return this;
+            return principal;
         }
 
         public void Load(ContentManager content)

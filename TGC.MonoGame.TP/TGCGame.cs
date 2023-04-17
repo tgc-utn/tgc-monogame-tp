@@ -48,16 +48,16 @@ namespace TGC.MonoGame.TP
 
             HabitacionesPrueba = new List<Habitacion>();
             HabitacionesPrueba.Add(
-                new Habitacion(10, 10, new Vector3(0f,0f,0f)).Principal()            
+                Habitacion.Principal(10, 10, new Vector3(0f,0f,0f))         
             );
             HabitacionesPrueba.Add(
-                new Habitacion(10, 10, new Vector3(-10000f,0f,-10000f)).Principal()
+                Habitacion.Principal(10, 10, new Vector3(-10000f,0f,-10000f))
             );
             HabitacionesPrueba.Add(
-                new Habitacion(10, 10, new Vector3(0,0f,-10000f)).Principal()
+                Habitacion.Principal(10, 10, new Vector3(0,0f,-10000f))
             );
             HabitacionesPrueba.Add(
-                new Habitacion(10, 10, new Vector3(-10000f,0f,0)).Cocina()
+                Habitacion.Cocina(10, 10, new Vector3(-10000f,0f,0))
             );
             
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -89,6 +89,8 @@ namespace TGC.MonoGame.TP
             foreach(var h in HabitacionesPrueba){
                 h.Update(gameTime, keyboardState);
             }
+            Camera.Mover(keyboardState);
+
             Camera.Update(gameTime, Car.World);
 
             base.Update(gameTime);
