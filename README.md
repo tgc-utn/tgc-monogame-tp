@@ -11,11 +11,11 @@
 Juego interactivo realizado por alumnos de la carrera de Ingeniería en Sistemas de Información. Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN-FRBA) para la cátedra [Técnicas de Gráficos por Computadora](http://tgc-utn.github.io/) (TGC)
 
 ## Diseño Actual
-![DiseñoActual](https://user-images.githubusercontent.com/22857096/232848566-efbd58b0-4afa-4236-9829-bfb6537efde5.png)
-
 Clases Verdes  |  Clases Amarillas | Clases Rojas
 ------- | ------------------| ------
 Clases que vamos a utilizar *solo para implementar su lógica.* Son de apoyo y **no deberían ser modificadas.** | Se van a modificar constantemente. Acá va toda la lógica de movimiento, ubicación en el espacio, colisiones, etc | Son Interfaces o de apoyo para un desarrollo libre de errores o confusiones
+
+<img src="https://user-images.githubusercontent.com/22857096/232848566-efbd58b0-4afa-4236-9829-bfb6537efde5.png" width=90% height=90%>
 
 
 ## ¿ Cómo jugar ?
