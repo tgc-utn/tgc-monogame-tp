@@ -21,20 +21,17 @@ Clases que vamos a utilizar *solo para implementar su lógica.* Son de apoyo y *
 
 Legajo  |  Apellido, Nombre | Apodo
 ------- | ------------------| ------
-1634161 |	Cabral, Sebastian Rolando |	----
-1645020 |	Greco	Luca | ----
+1590273 |	Nielsen Pellinacci, Juan Manuel	| *Juanma*
+1634161 |	Cabral, Sebastian Rolando |	*Sebas*
 1523430 |	Montecchia, Eduardo	| ----
-1590273 |	Nielsen Pellinacci, Juan Manuel	| _Juanma_
-1605677 |	Veloso, Rocio Belen	| ----
-1307198 |	Villegas Avalos,	Carlos Alejandro | _Charly_
+1605677 |	Veloso, Rocio Belen	| *Ro*
+1307198 |	Villegas Avalos,	Carlos Alejandro | *Charly*
+1645020 |	Greco	Luca | ----
 
 ## Capturas
 
 > Acá las capturas
-![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot2](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
 
 ## Game Play
 
 >Acá el Video Gameplay
-[![Watch the video](https://img.youtube.com/vi/pgEwUC0jvH4/0.jpg)](https://www.youtube.com/playlist?list=PLRM4L32DjvnazuMl8wZlbpEYL5Qh63ulG)
