@@ -39,6 +39,7 @@
 /build:Models/Muebles/Silla-Oficina/Silla-Oficina.obj
 /build:Models/Muebles/Cafe-Rojo/Cafe-Rojo.obj
 /build:Models/Muebles/Gabinete/Gabinete.obj
+/build:Models/Muebles/Misil/Misil.fbx
 
 #begin Models/Muebles .fbx
 /importer:FbxImporter
