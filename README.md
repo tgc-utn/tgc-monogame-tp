@@ -27,12 +27,12 @@ Driftea tu camino a la victoria destruyendo a tus enemigos con armas y poderes. 
 # Equipo CAFErojo 
 Apellido, Nombre | Apodo | Pit Rol
 ------------------| ------ | -----
-Nielsen Pellinacci, Juan Manuel	| *Juanma* | Jackman
-Cabral, Sebastian Rolando |	*Sebas* | Gas man 
-Montecchia, Eduardo	| ---- | Mecánico
-Veloso, Rocio Belen	| *Ro* | Wheel-gunner
+Nielsen Pellinacci, J. Manuel	| *Juanma* | Jackman
+Cabral, Sebastian Rolando |	*Sebas* | Wheel-gunner 
+Montecchia, Eduardo	| ---- | Wheel-gunner
+Veloso, Rocio Belen	| *Ro* | Gas (wo)man
 Villegas Avalos,	Carlos Alejandro | *Charly* |  Tire carrier
-Greco	Luca | ---- | Spectator
+Greco,	Luca | ---- | Spectator
 
 ## Diseño Actual
 Clases Verdes  |  Clases Amarillas | Clases Rojas
