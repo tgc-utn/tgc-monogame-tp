@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TGC.MonoGame.TP.Entities;
+namespace TGC.MonoGame.TP.Entities.Islands;
 
 public class Island
 { 

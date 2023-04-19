@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Entities;
+using TGC.MonoGame.TP.Entities.Islands;
 
 namespace TGC.MonoGame.TP
 {
