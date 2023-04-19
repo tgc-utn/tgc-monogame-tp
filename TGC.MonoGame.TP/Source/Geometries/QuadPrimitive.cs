@@ -18,13 +18,22 @@ namespace TGC.MonoGame.TP.Geometries
 
         private void CreateVertexBuffer(GraphicsDevice graphicsDevice)
         {
-            var textureCoordinateLowerLeft = Vector2.Zero;
-            var textureCoordinateLowerRight = Vector2.UnitX;
-            var textureCoordinateUpperLeft = Vector2.UnitY;
-            var textureCoordinateUpperRight = Vector2.One;
+            Vector2 textureCoordinateLowerLeft = Vector2.Zero;
+            Vector2 textureCoordinateLowerRight = Vector2.UnitX;
+            Vector2 textureCoordinateUpperLeft = Vector2.UnitY;
+            Vector2 textureCoordinateUpperRight = Vector2.One;
 
             var vertices = new[]
             {
+                // Possitive X, Possitive Z
+                new VertexPositionNormalTexture(Vector3.Zero, Vector3.Up, textureCoordinateUpperRight),
+                // Possitive X, Negative Z
+                new VertexPositionNormalTexture(Vector3.UnitZ, Vector3.Up, textureCoordinateLowerRight),
+                // Negative X, Possitive Z
+                new VertexPositionNormalTexture(Vector3.UnitZ + Vector3.UnitX, Vector3.Up, textureCoordinateUpperLeft),
+                // Negative X, Negative Z
+                new VertexPositionNormalTexture(Vector3.UnitX, Vector3.Up, textureCoordinateLowerLeft)
+                /*
                 // Possitive X, Possitive Z
                 new VertexPositionNormalTexture(Vector3.UnitX + Vector3.UnitZ, Vector3.Up, textureCoordinateUpperRight),
                 // Possitive X, Negative Z
@@ -33,6 +42,7 @@ namespace TGC.MonoGame.TP.Geometries
                 new VertexPositionNormalTexture(Vector3.UnitZ - Vector3.UnitX, Vector3.Up, textureCoordinateUpperLeft),
                 // Negative X, Negative Z
                 new VertexPositionNormalTexture(-Vector3.UnitX - Vector3.UnitZ, Vector3.Up, textureCoordinateLowerLeft)
+                */
             };
 
             Vertices = new VertexBuffer(graphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length,
@@ -44,8 +54,8 @@ namespace TGC.MonoGame.TP.Geometries
         {
             var indices = new ushort[]
             {
-                3, 1, 0, 
-                3, 0, 2,
+                0, 1, 2, 
+                0, 3, 2,
             };
 
             Indices = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, indices.Length,
