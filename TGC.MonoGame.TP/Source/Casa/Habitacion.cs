@@ -41,8 +41,6 @@ namespace TGC.MonoGame.TP
             //oficina.AddElemento(new Mueble("Gabinete", 10f,Vector3.Zero, new Vector3(0f,0f,MathHelper.Pi)));
             oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, 10f,new Vector3(100f,50f,100f), new Vector3(-MathHelper.PiOver2,0f,0f)));
 
-
-
             return oficina;
         }
         public static Habitacion Cocina(int ancho, int alto, Vector3 posicionInicial){
