@@ -5,7 +5,7 @@
 /intermediateDir:obj
 /platform:Windows
 /config:
-/profile:HiDef
+/profile:Reach
 /compress:False
 
 #-------------------------------- References --------------------------------#
@@ -77,7 +77,7 @@
 /processorParam:GenerateTangentFrames=False
 /processorParam:PremultiplyTextureAlpha=True
 /processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:ResizeTexturesToPowerOfTwo=True
 /processorParam:RotationX=0
 /processorParam:RotationY=0
 /processorParam:RotationZ=0
@@ -144,7 +144,7 @@
 /processorParam:GenerateTangentFrames=False
 /processorParam:PremultiplyTextureAlpha=True
 /processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:ResizeTexturesToPowerOfTwo=True
 /processorParam:RotationX=0
 /processorParam:RotationY=0
 /processorParam:RotationZ=0
@@ -211,7 +211,7 @@
 /processorParam:GenerateTangentFrames=False
 /processorParam:PremultiplyTextureAlpha=True
 /processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:ResizeTexturesToPowerOfTwo=True
 /processorParam:RotationX=0
 /processorParam:RotationY=0
 /processorParam:RotationZ=0
@@ -230,7 +230,7 @@
 /processorParam:GenerateTangentFrames=False
 /processorParam:PremultiplyTextureAlpha=True
 /processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:ResizeTexturesToPowerOfTwo=True
 /processorParam:RotationX=0
 /processorParam:RotationY=0
 /processorParam:RotationZ=0
@@ -1065,7 +1065,7 @@
 /processorParam:GenerateTangentFrames=False
 /processorParam:PremultiplyTextureAlpha=True
 /processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:ResizeTexturesToPowerOfTwo=True
 /processorParam:RotationX=0
 /processorParam:RotationY=0
 /processorParam:RotationZ=0

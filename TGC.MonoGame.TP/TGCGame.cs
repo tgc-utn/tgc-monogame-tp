@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
@@ -21,7 +22,10 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderTextures = "Textures/";
         private FollowCamera FollowCamera { get; set; }
         private ShipPlayer Ship { get; set; }
+        private Effect Effect { get; set; }
         private Island[] Islands { get; set; }
+        private IslandGenerator IslandGenerator { get; set; }
+
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -45,25 +49,16 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
 
-            // Configuramos nuestras matrices de la escena.
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             Ship = new ShipPlayer();
-            Islands = new[]
-            {
-                new Island(Matrix.CreateTranslation(0, 0, 25000) * Matrix.CreateScale(0.3f)),
-                new Island(Matrix.CreateTranslation(20000, 0, 0) * Matrix.CreateScale(0.1f)),
-                new Island(Matrix.CreateTranslation(25000, 0, 20000) * Matrix.CreateScale(0.3f))
-            };
+            IslandGenerator = new IslandGenerator();
             base.Initialize();
         }
 
@@ -75,12 +70,15 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            Ship.LoadContent(Content);
-            string[] islandPaths = { "Island1/Island1", "Island2/Island2", "Island3/Island3" };
-            for (var i = 0; i < islandPaths.Length; i++)
+            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Ship.LoadContent(Content, Effect);
+            IslandGenerator.LoadContent(Content, Effect);
+            Islands = new[]
             {
-                Islands[i].LoadContent(Content, islandPaths[i]);
-            }
+                IslandGenerator.Create(0, new Vector3(0, 0, 4000), 0.3f),
+                IslandGenerator.Create(1, new Vector3(4000, 0, 0), 0.3f),
+                IslandGenerator.Create(2, new Vector3(5000, 0, 4000), 0.3f),
+            };
             base.LoadContent();
         }
 

@@ -10,7 +10,6 @@ namespace TGC.MonoGame.TP.Entities;
 public class ShipPlayer
 {
     public const string ContentFolder3D = "Models/";
-    public const string ContentFolderEffects = "Effects/";
     private Model Model { get; set; }
     private Effect Effect { get; set; }
     private Matrix World { get; set; }
@@ -27,10 +26,10 @@ public class ShipPlayer
         Rotation = 0f;
     }
     
-    public void LoadContent(ContentManager content)
+    public void LoadContent(ContentManager content, Effect effect)
     {
+        Effect = effect;
         Model = content.Load<Model>(ContentFolder3D + "ShipA/Ship");
-        Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
         foreach (var mesh in Model.Meshes)
         {
