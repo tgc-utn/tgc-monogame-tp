@@ -16,7 +16,7 @@ namespace TGC.MonoGame.TP
         #endregion
 
         private readonly ContentManager ContentManager;
-        internal readonly Model M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon, M_Televisor1, M_MuebleTV;
+        internal readonly Model M_Alfil, M_Torre, M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon, M_Televisor1, M_MuebleTV;
         internal readonly Effect E_BasicShader;
         internal readonly QuadPrimitive G_Quad;
         
@@ -24,7 +24,10 @@ namespace TGC.MonoGame.TP
         {
             ContentManager = Content;
             ContentManager.RootDirectory = "Content";
-
+            //PRUEBA
+            M_Alfil = LoadModel("Muebles/Alfil/Alfil");
+            M_Torre = LoadModel("Muebles/Torre/Torre");
+            
             //Geometrias
             G_Quad = new QuadPrimitive(GraphicsDevice);
 

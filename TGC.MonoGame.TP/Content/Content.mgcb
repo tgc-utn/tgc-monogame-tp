@@ -40,6 +40,9 @@
 /build:Models/Muebles/Cafe-Rojo/Cafe-Rojo.obj
 /build:Models/Muebles/Gabinete/Gabinete.obj
 /build:Models/Muebles/Misil/Misil.obj
+/build:Models/Muebles/Alfil/Alfil.obj
+/build:Models/Muebles/Torre/Torre.obj
+
 
 #begin Models/Muebles .fbx
 /importer:FbxImporter

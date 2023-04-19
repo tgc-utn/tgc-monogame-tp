@@ -35,21 +35,21 @@ namespace TGC.MonoGame.TP
         public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
             var oficina = new Habitacion(alto, ancho, posicionInicial);
 
+            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Torre , new Vector3(1500f,0f,2500f)));
+            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Alfil , new Vector3(1500f,0f,3500f)));
+            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Torre , new Vector3(2500f,0f,3500f)));
+            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Alfil , new Vector3(2500f,0f,2500f)));
+
+
             oficina.Piso.Oficina();
-            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Misil, 5f,new Vector3(0f,0f,0f), new Vector3(0f,0f,0f)));
-            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina, 10f,new Vector3(100f,0f,100f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f)));
-            //oficina.AddElemento(new Mueble("Gabinete", 10f,Vector3.Zero, new Vector3(0f,0f,MathHelper.Pi)));
-            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, 10f,new Vector3(100f,50f,100f), new Vector3(-MathHelper.PiOver2,0f,0f)));
+            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina,new Vector3(1000f,0f,1000f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f), 10f));
+            oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(1000f,500f,1000f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
 
             return oficina;
         }
         public static Habitacion Cocina(int ancho, int alto, Vector3 posicionInicial){
             Habitacion cocina = new Habitacion(ancho,alto,posicionInicial);
             cocina.Piso.Cocina();
-            cocina.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(100f,0f,100f), new Vector3(0, MathHelper.PiOver2*3f, 0)));
-            cocina.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(200f,0f,200f), new Vector3(0, 0, 0)));
-            cocina.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(300f,100f,300f), new Vector3(0, MathHelper.PiOver2, MathHelper.Pi)));
-            cocina.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(400f,0f,400f), new Vector3(0, MathHelper.PiOver2, 0)));
             return cocina;
         }
         
@@ -66,14 +66,14 @@ namespace TGC.MonoGame.TP
             
             #region CargaMueblesEstáticos
             for(int i = 0 ; i<100*20 ; i+=100){
-                principal.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, 10f, new Vector3(   i * 10, 400f , -300f ), Vector3.Zero));
+                principal.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3(   i * 10, 400f , -300f ), Vector3.Zero, 10f));
             }
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, 12f, new Vector3(4150f,0f,4150f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, 12f, new Vector3(300f,0f,4150f), Vector3.Zero ));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(300f,0f,2150f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, 10f, new Vector3(2500f,300f,2500f), Vector3.Zero));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, 10f, new Vector3(6500f,1000f,4500f), new Vector3(0, 0, MathHelper.PiOver2)));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV, 1f, new Vector3(6500f,0f,4500f), Vector3.Zero));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, new Vector3(4150f,0f,4150f), new Vector3(0, MathHelper.PiOver2, 0), 12f ));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, new Vector3(300f,0f,4150f), 12f ));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, new Vector3(300f,0f,2150f), new Vector3(0, MathHelper.PiOver2, 0), 15f ));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(2500f,300f,2500f), 10f));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(6500f,1000f,4500f), new Vector3(0, 0, MathHelper.PiOver2),10f));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV, new Vector3(6500f,0f,4500f)));
 
             #endregion
 
