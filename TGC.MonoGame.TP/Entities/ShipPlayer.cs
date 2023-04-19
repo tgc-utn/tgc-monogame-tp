@@ -48,7 +48,7 @@ public class ShipPlayer
         // Capturar Input teclado
         ResolveShipRotation(deltaTime, keyboardState);
         ResolveShipMovement(deltaTime, keyboardState);
-        World = Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position) * Matrix.CreateScale(0.3f);
+        World = Matrix.CreateScale(0.025f) * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
         followCamera.Update(gameTime, World);
     }
 
