@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
@@ -11,7 +10,7 @@ namespace TGC.MonoGame.TP
         private int Alto;
         private Vector3 PosicionInicial;
         private bool EsHorizontal;
-        private Effect Efecto;
+        private Effect Efecto = TGCGame.GameContent.E_BasicShader;
         private Pared(int ancho, int alto, Vector3 posicionInicial,bool esHorizontal){
             Ancho = ancho;
             Alto = alto;
@@ -32,7 +31,7 @@ namespace TGC.MonoGame.TP
             return new Pared(ancho,alto,Vector3.Zero,true);
         }
 
-        public void Load(ContentManager Content)
+        /*public void Load(ContentManager Content)
         {
             Efecto = Content.Load<Effect>("Effects/BasicShader");
 
@@ -43,14 +42,9 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateRotationX(MathHelper.PiOver2) *
                 Rotacion *
                 Matrix.CreateTranslation(PosicionInicial));  
-        }
+        }*/
 
-        public void Draw(Matrix View, Matrix Projection)
-        {
-            Efecto.Parameters["View"].SetValue(View);
-            Efecto.Parameters["Projection"].SetValue(Projection);
-            TGCGame.GeometriesManager.Quad.Draw(Efecto); 
-        }
+        public void Draw() => TGCGame.GameContent.G_Quad.Draw(Efecto);
 
         public static implicit operator Pared(List<Pared> v)
         {

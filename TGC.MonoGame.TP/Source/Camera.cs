@@ -1,12 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace TGC.MonoGame.TP
 {
-    class FollowCamera
+    class Camera
     {
         private float AxisDistanceToTarget = 2000f;
 
@@ -24,7 +22,7 @@ namespace TGC.MonoGame.TP
 
         private Vector3 PastRightVector { get; set; } = Vector3.Right;
 
-        public FollowCamera(float aspectRatio)
+        public Camera(float aspectRatio)
         {
             Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 100000f);
         }

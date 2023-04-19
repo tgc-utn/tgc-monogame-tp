@@ -1,13 +1,11 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace TGC.MonoGame.TP
 {
-    public class Car : IElementoDinamico
-    {
+    public class Auto : IElementoDinamico
+    { 
         private Vector3 Position;
         private Vector3 Velocity;
         private float AccelerationMagnitude = 2500f;
@@ -15,7 +13,10 @@ namespace TGC.MonoGame.TP
         private float JumpPower = 50000f;
         private float Turning = 0f;
 
-        public Car(string ubicacionAuto, Vector3 posicionInicial, Vector3 rotacion) : base(ubicacionAuto,posicionInicial, rotacion){}
+        public Auto(Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion)
+        {
+            Model = TGCGame.GameContent.M_Auto;
+        }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState)
         {

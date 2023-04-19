@@ -5,20 +5,23 @@ using Microsoft.Xna.Framework.Input;
 namespace TGC.MonoGame.TP{
     class EnemyCar : IElementoDinamico {
         
-        //   Variables escondidas
+        // Variables escondidas
         // Matrix World : Para hacerle modificaciones
         // String UbicacionModelo : Para ubicar al modelo
-        private const string UbicacionAuto = "Models/CombatVehicle/Vehicle"; 
         private const float Velocidad = 500f;
         private Vector3 Traslacion = new Vector3(0f,0f, 0f);
         private Vector3 Direccion = new Vector3(1f,0f,0f);
         private float Escala;
 
-        public EnemyCar(string path, float escala, Vector3 posicionInicial, Vector3 rotacion) : base(UbicacionAuto, posicionInicial, rotacion) {
+        public EnemyCar(float escala, Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion) 
+        {
+            Model = TGCGame.GameContent.M_AutoEnemigo;
             Escala = escala; //aprox 0.07 está bien
             Traslacion = posicionInicial;
         }
-        public override void Update(GameTime gameTime, KeyboardState keyboard){
+        
+        public override void Update(GameTime gameTime, KeyboardState keyboard)
+        {
             var traslacionRelativa = Traslacion + PosicionInicial;
             const float limiteInferior = 5000f;
             const float limiteSuperior = 0f;

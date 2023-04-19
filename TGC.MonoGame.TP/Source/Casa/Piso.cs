@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
@@ -12,7 +11,7 @@ namespace TGC.MonoGame.TP
         private int[] ColorIndex;
         private Matrix[] WorldMatrixs;
         internal Vector3 PosicionInicial;
-        private Effect Effect;
+        private Effect Effect = TGCGame.GameContent.E_BasicShader;
         //LOS TAMAÑOS SE SUPLICAN, Por una razon que conozco pero no les voy a decir porque me llevaria mucho tiempo
         private readonly float TileSize = 500f;
         private readonly int Ancho;
@@ -105,19 +104,13 @@ namespace TGC.MonoGame.TP
             return this;
         }
 
-        public void Load(ContentManager content){
-            Effect = content.Load<Effect>("Effects/BasicShader");
-        }
-
         public void Draw(Matrix view, Matrix projection)
         {
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
             for(int i=0;i<CantidadDeBaldosa;i++)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(ColorPallette[ColorIndex[i]]);
                 Effect.Parameters["World"].SetValue(WorldMatrixs[i]);
-                TGCGame.GeometriesManager.Quad.Draw(Effect);
+                TGCGame.GameContent.G_Quad.Draw(Effect);
             }
         }
     }
