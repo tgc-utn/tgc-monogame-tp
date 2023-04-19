@@ -7,8 +7,8 @@ namespace TGC.MonoGame.TP
     {
         private Vector3 Position;
 
-        public Mueble(Model Model, float escala, Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion){
-            World *= Matrix.CreateScale(escala);
+        public Mueble(Model Model, float escala, Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion, escala){
+            //World *= Matrix.CreateScale(escala);
 
             this.Model = Model;
             //no se si es necesario guardarla

@@ -27,10 +27,10 @@ namespace TGC.MonoGame.TP
             Piso = new Piso(ancho, alto, posicionInicial); // Se carga el default
 
             Paredes = new List<Pared>();
-            Paredes.Add(Pared.Arriba (10, 10, Vector3.Zero));
-            Paredes.Add(Pared.Abajo (10, 10, Vector3.Zero));
-            Paredes.Add(Pared.Izquierda (10, 10, Vector3.Zero));
-            Paredes.Add(Pared.Derecha (10, 10, Vector3.Zero));
+            Paredes.Add(Pared.Arriba (10, 10, posicionInicial));
+            Paredes.Add(Pared.Abajo (10, 10, posicionInicial));
+            Paredes.Add(Pared.Izquierda (10, 10, posicionInicial));
+            Paredes.Add(Pared.Derecha (10, 10, posicionInicial));
         }
         public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
             var oficina = new Habitacion(alto, ancho, posicionInicial);
@@ -68,12 +68,15 @@ namespace TGC.MonoGame.TP
             
             #region CargaMueblesEstáticos
             for(int i = 0 ; i<100*20 ; i+=100){
-                principal.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, 10f, new Vector3(   i , 40f , -30f ), Vector3.Zero));
+                principal.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, 10f, new Vector3(   i * 10, 400f , -300f ), Vector3.Zero));
             }
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, 12f, new Vector3(415f,0f,415f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, 12f, new Vector3(30f,0f,415f), Vector3.Zero ));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(30f,0f,215f), new Vector3(0, MathHelper.PiOver2, 0) ));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, 10f, new Vector3(250f,30f,250f), Vector3.Zero));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, 12f, new Vector3(4150f,0f,4150f), new Vector3(0, MathHelper.PiOver2, 0) ));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesa, 12f, new Vector3(300f,0f,4150f), Vector3.Zero ));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Inodoro, 15f, new Vector3(300f,0f,2150f), new Vector3(0, MathHelper.PiOver2, 0) ));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, 10f, new Vector3(2500f,300f,2500f), Vector3.Zero));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, 10f, new Vector3(6500f,1000f,4500f), new Vector3(0, 0, MathHelper.PiOver2)));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV, 1f, new Vector3(6500f,0f,4500f), Vector3.Zero));
+
             #endregion
 
             return principal;
@@ -98,8 +101,8 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
-            //foreach(var pared in Paredes)
-            //    pared.Draw(view, projection);
+            foreach(var pared in Paredes)
+                pared.Draw();
             foreach(var elemento in MueblesDinamicos)
                 elemento.Draw(view, projection);
             foreach(var elemento in Muebles)
