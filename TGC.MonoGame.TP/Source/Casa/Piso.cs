@@ -12,7 +12,6 @@ namespace TGC.MonoGame.TP
         private Matrix[] WorldMatrixs;
         internal Vector3 PosicionInicial;
         private Effect Effect = TGCGame.GameContent.E_BasicShader;
-        //LOS TAMAÑOS SE SUPLICAN, Por una razon que conozco pero no les voy a decir porque me llevaria mucho tiempo
         private readonly float TileSize = 1000f;
         private readonly int Ancho;
         private readonly int Alto;

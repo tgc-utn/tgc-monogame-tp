@@ -16,7 +16,6 @@ namespace TGC.MonoGame.TP
         #endregion
 
         private readonly ContentManager ContentManager;
-
         internal readonly Model M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon;
         internal readonly Effect E_BasicShader;
         internal readonly QuadPrimitive G_Quad;
@@ -43,11 +42,9 @@ namespace TGC.MonoGame.TP
             M_Silla = LoadModel("Muebles/chair/chair");
             M_Mesa = LoadModel("Muebles/mesa/mesa");
             M_Sillon = LoadModel("Muebles/Sillon/Sillon");
-            
-            
         }
 
         public Model LoadModel(string dir) => ContentManager.Load<Model>(ContentFolder3D + dir);
-           
+         
     }
 }

@@ -15,7 +15,6 @@ namespace TGC.MonoGame.TP.Geometries
 
         private IndexBuffer Indices { get; set; }
 
-
         private void CreateVertexBuffer(GraphicsDevice graphicsDevice)
         {
             Vector2 textureCoordinateLowerLeft = Vector2.Zero;
@@ -33,16 +32,6 @@ namespace TGC.MonoGame.TP.Geometries
                 new VertexPositionNormalTexture(Vector3.UnitZ + Vector3.UnitX, Vector3.Up, textureCoordinateUpperLeft),
                 // Negative X, Negative Z
                 new VertexPositionNormalTexture(Vector3.UnitX, Vector3.Up, textureCoordinateLowerLeft)
-                /*
-                // Possitive X, Possitive Z
-                new VertexPositionNormalTexture(Vector3.UnitX + Vector3.UnitZ, Vector3.Up, textureCoordinateUpperRight),
-                // Possitive X, Negative Z
-                new VertexPositionNormalTexture(Vector3.UnitX - Vector3.UnitZ, Vector3.Up, textureCoordinateLowerRight),
-                // Negative X, Possitive Z
-                new VertexPositionNormalTexture(Vector3.UnitZ - Vector3.UnitX, Vector3.Up, textureCoordinateUpperLeft),
-                // Negative X, Negative Z
-                new VertexPositionNormalTexture(-Vector3.UnitX - Vector3.UnitZ, Vector3.Up, textureCoordinateLowerLeft)
-                */
             };
 
             Vertices = new VertexBuffer(graphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length,
@@ -69,7 +58,7 @@ namespace TGC.MonoGame.TP.Geometries
 
             graphicsDevice.SetVertexBuffer(Vertices);
             graphicsDevice.Indices = Indices;
-
+            
             foreach (var effectPass in effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();

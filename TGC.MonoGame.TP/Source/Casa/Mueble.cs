@@ -14,5 +14,7 @@ namespace TGC.MonoGame.TP
             //no se si es necesario guardarla
             Position = posicionInicial;
         }
+
+        
     }
 }

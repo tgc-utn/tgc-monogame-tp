@@ -12,30 +12,12 @@ namespace TGC.MonoGame.TP
         //AGREGAR ESCALA
         //AGREGAR EFFECT
         
-        public IElemento(Vector3 posicionInicial, Vector3 rotacion){
-            PosicionInicial = posicionInicial;
-            Rotar(rotacion);
-            Trasladar(posicionInicial);
+        public IElemento(Vector3 posicionInicial, Vector3 rotacion, float escala = 1f){
+            World = Matrix.CreateScale(escala) * 
+                    Matrix.CreateRotationX(rotacion.X) * Matrix.CreateRotationY(rotacion.Y) * Matrix.CreateRotationZ(rotacion.Z) * 
+                    Matrix.CreateTranslation(posicionInicial);
         }
-        public IElemento(Vector3 posicionInicial, Vector3 rotacion, float escala){
-            Escalar(escala);
-
-            PosicionInicial = posicionInicial;
-            Rotar(rotacion);
-            Trasladar(posicionInicial);
-        }
-
-    
-        private void Escalar(float escala){
-            World *= Matrix.CreateScale(escala);
-        }
-        private void Rotar(Vector3 rotacion){
-            World *= Matrix.CreateRotationX(rotacion.X) * Matrix.CreateRotationY(rotacion.Y) * Matrix.CreateRotationZ(rotacion.Z);
-        }
-        private void Trasladar(Vector3 posicionInicial){
-            World = World * Matrix.CreateTranslation(posicionInicial);
-        }
-    
+        
         public void newPosicionInicial(Vector3 posicionInicial){
             PosicionInicial = posicionInicial;
             World *= Matrix.CreateTranslation(posicionInicial);
