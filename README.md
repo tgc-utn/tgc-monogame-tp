@@ -4,32 +4,17 @@
 
 *[#BuiltWithMonoGame](http://www.monogame.net) and [.NET Core](https://dotnet.microsoft.com)*
 
-# Descripción
+# Acerca del juego
 
-Juego interactivo realizado por alumnos de la carrera de Ingeniería en Sistemas de Información. Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN-FRBA) para la cátedra [Técnicas de Gráficos por Computadora](http://tgc-utn.github.io/) (TGC)
+Driftea tu camino a la victoria destruyendo a tus enemigos con armas y poderes. Un divertido Battle Royale offline desarrollado por alummnos de la UTN.
 
-## Diseño Actual
-Clases Verdes  |  Clases Amarillas | Clases Rojas
-------- | ------------------| ------
-Clases que vamos a utilizar *solo para implementar su lógica.* Son de apoyo y **no deberían ser modificadas.** | Se van a modificar constantemente. Acá va toda la lógica de movimiento, ubicación en el espacio, colisiones, etc | Son Interfaces o de apoyo para un desarrollo libre de errores o confusiones
+# ¿ Cómo jugar ?
 
-<img src="https://user-images.githubusercontent.com/22857096/232848566-efbd58b0-4afa-4236-9829-bfb6537efde5.png" width=90% height=90%>
-
-
-## ¿ Cómo jugar ?
-
-> Acá la información de descarga y jugabilidad
-
-## Integrantes
-
-Legajo  |  Apellido, Nombre | Apodo
-------- | ------------------| ------
-1590273 |	Nielsen Pellinacci, Juan Manuel	| *Juanma*
-1634161 |	Cabral, Sebastian Rolando |	*Sebas*
-1523430 |	Montecchia, Eduardo	| ----
-1605677 |	Veloso, Rocio Belen	| *Ro*
-1307198 |	Villegas Avalos,	Carlos Alejandro | *Charly*
-1645020 |	Greco	Luca | ----
+- "W" : Acelera
+- "S" : Frena / Marcha atrás
+- "A" y "D" : Mueve el volante
+- "Espacio" : Salta
+- "E" o "Click" : Tira tu Power-Up
 
 ## Capturas
 
@@ -38,3 +23,20 @@ Legajo  |  Apellido, Nombre | Apodo
 ## Game Play
 
 >Acá el Video Gameplay
+
+# Equipo CAFErojo 
+Apellido, Nombre | Apodo | Pit Rol
+------------------| ------ | -----
+Nielsen Pellinacci, Juan Manuel	| *Juanma* | Jackman
+Cabral, Sebastian Rolando |	*Sebas* | Gas man 
+Montecchia, Eduardo	| ---- | Mecánico
+Veloso, Rocio Belen	| *Ro* | Wheel-gunner
+Villegas Avalos,	Carlos Alejandro | *Charly* |  Tire carrier
+Greco	Luca | ---- | Spectator
+
+## Diseño Actual
+Clases Verdes  |  Clases Amarillas | Clases Rojas
+------- | ------------------| ------
+Clases que vamos a utilizar *solo para implementar su lógica.* Son de apoyo y **no deberían ser modificadas.** | Se van a modificar constantemente. Acá va toda la lógica de movimiento, ubicación en el espacio, colisiones, etc | Son Interfaces o de apoyo para un desarrollo libre de errores o confusiones
+
+<img src="https://user-images.githubusercontent.com/22857096/232848566-efbd58b0-4afa-4236-9829-bfb6537efde5.png" width=100% height=100%>
