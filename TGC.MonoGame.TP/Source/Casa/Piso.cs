@@ -60,7 +60,6 @@ namespace TGC.MonoGame.TP
                 for(int j=0;j<Alto;j++)
                 {
                     var indiceColor = (i+j)%ColorPallette.Length;
-
                     ColorIndex[i*Ancho+j] = indiceColor;
                 }
             }
@@ -75,9 +74,17 @@ namespace TGC.MonoGame.TP
                     ColorIndex[i*Ancho+j] = indiceColor;
                 }
             }
-        }  
-
-
+        } 
+        private void SetIndexCuadrado(){
+            for(int i=0;i<Ancho;i++)
+            {
+                for(int j=0;j<Alto;j++)
+                {
+                    var indiceColor = (i%2==1 || j%2==1) ? 0 : 1; 
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                }
+            }
+        } 
         public Piso Oficina(){
             //Pallette link : https://coolors.co/palette/edc4b3-e6b8a2-deab90-d69f7e-cd9777-c38e70-b07d62-9d6b53-8a5a44-774936
             ColorPallette = new Vector3 []{
@@ -103,6 +110,12 @@ namespace TGC.MonoGame.TP
             SetIndexIntercalado();
             return this;
         }
+/*      EN PROGRESO 
+        public Piso Cuadrado(){
+            SetIndexCuadrado();
+            return this;
+        }
+ */
 
         public void Draw(Matrix view, Matrix projection)
         {
