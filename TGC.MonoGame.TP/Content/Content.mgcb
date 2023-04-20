@@ -42,6 +42,8 @@
 /build:Models/Muebles/Misil/Misil.obj
 /build:Models/Muebles/Alfil/Alfil.obj
 /build:Models/Muebles/Torre/Torre.obj
+/build:Models/Muebles/Televisor1/Televisor.obj
+/build:Models/Muebles/MuebleTV/MuebleTV.obj
 
 
 #begin Models/Muebles .fbx
@@ -68,6 +70,4 @@
 /build:Models/Muebles/inodoro/inodoro.fbx
 /build:Models/RacingCar/RacingCar.fbx
 /build:Models/CombatVehicle/Vehicle.fbx
-/build:Models/Muebles/Televisor1/Televisor.fbx
-/build:Models/Muebles/MuebleTV/MuebleTV.fbx
 
