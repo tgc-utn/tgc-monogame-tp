@@ -16,7 +16,10 @@ namespace TGC.MonoGame.TP
         #endregion
 
         private readonly ContentManager ContentManager;
-        internal readonly Model M_Alfil, M_Torre, M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon, M_Televisor1, M_MuebleTV;
+        internal readonly Model M_Alfil, M_Torre, M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon, M_Televisor1, M_MuebleTV, M_Planta,
+                M_Escritorio, M_Cocine, M_Plantis;
+
+
         internal readonly Effect E_BasicShader;
         internal readonly QuadPrimitive G_Quad;
         
@@ -46,9 +49,11 @@ namespace TGC.MonoGame.TP
             M_Mesa = LoadModel("Muebles/mesa/mesa");
             M_Sillon = LoadModel("Muebles/Sillon/Sillon");
             M_Televisor1 = LoadModel("Muebles/Televisor1/Televisor");
-            M_MuebleTV = LoadModel("Muebles/MuebleTV/MuebleTV");
-
-            
+            M_MuebleTV = LoadModel("Muebles/MuebleTV/MuebleTV"); 
+            M_Planta = LoadModel("Muebles/Planta/Planta");
+            M_Escritorio = LoadModel("Muebles/Escritorio/Escritorio");
+            M_Plantis = LoadModel("Muebles/Plantis/Plantis");
+            M_Cocine = LoadModel("Muebles/Cocine/Cocine");
             
         }
 
