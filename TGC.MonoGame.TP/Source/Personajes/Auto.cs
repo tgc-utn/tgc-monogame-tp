@@ -16,6 +16,7 @@ namespace TGC.MonoGame.TP
         public Auto(Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion)
         {
             Model = TGCGame.GameContent.M_Auto;
+            Position = posicionInicial;
         }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState)
