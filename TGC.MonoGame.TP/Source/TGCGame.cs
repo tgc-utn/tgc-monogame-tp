@@ -40,7 +40,7 @@ namespace TGC.MonoGame.TP
             GameContent = new Content(Content, GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Auto = new Auto(new Vector3(5500,0f,-13000f), Vector3.Zero);
+            Auto = new Auto(Vector3.Zero, Vector3.Zero);
             //Creo que cada habitación debería tener su medida ya establecida (10x10, 10x5, 4x2, etc.) no pasarla por parámetro
             HabitacionesPrueba = new List<Habitacion>();
             HabitacionesPrueba.Add(Habitacion.SalaConferencias(10, 10, new Vector3(-5000f,0f,-5000f)));

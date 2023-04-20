@@ -27,10 +27,10 @@ namespace TGC.MonoGame.TP
             Piso = new Piso(ancho, alto, posicionInicial); // Se carga el default
 
             Paredes = new List<Pared>();
-            /* Paredes.Add(Pared.Arriba (10, 10, posicionInicial));
-            Paredes.Add(Pared.Abajo (10, 10, posicionInicial));
-            Paredes.Add(Pared.Izquierda (10, 10, posicionInicial));
-            Paredes.Add(Pared.Derecha (10, 10, posicionInicial)); */
+            Paredes.Add(Pared.Arriba (ancho, alto, posicionInicial));
+            Paredes.Add(Pared.Abajo (ancho, alto, posicionInicial));
+            Paredes.Add(Pared.Izquierda (ancho, alto, posicionInicial));
+            Paredes.Add(Pared.Derecha (ancho, alto, posicionInicial));
         }
         public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
             var oficina = new Habitacion(alto, ancho, posicionInicial);

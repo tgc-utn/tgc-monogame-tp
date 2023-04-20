@@ -17,20 +17,20 @@ namespace TGC.MonoGame.TP
             Ancho = ancho;
             Alto = alto;
             PosicionInicial = posicionInicial;
-            EsHorizontal = esHorizontal;
+            EsHorizontal = esHorizontal;            
         }
 
         public static Pared Izquierda(int ancho, int alto, Vector3 posicionInicial){
-            return new Pared(ancho,alto, posicionInicial + new Vector3(0f, 0f, alto*500f) ,false);
+            return new Pared(ancho,alto, posicionInicial + new Vector3(0f, 0f, 0f) ,false);
         }
         public static Pared Derecha(int ancho, int alto, Vector3 posicionInicial){
-            return new Pared(ancho,alto,posicionInicial + new Vector3(0f, 0f, alto*500f) ,false);
+            return new Pared(ancho,alto,posicionInicial + new Vector3(0f, 0f, 10000f) ,false);
         }
         public static Pared Arriba(int ancho, int alto, Vector3 posicionInicial){
-            return new Pared(ancho,alto,posicionInicial + new Vector3(ancho*250, 0f, alto*500f) ,true);
+            return new Pared(ancho,alto,posicionInicial + new Vector3(0f, 0f, 0f) ,true);
         }
         public static Pared Abajo(int ancho, int alto, Vector3 posicionInicial){
-            return new Pared(ancho,alto,posicionInicial + new Vector3(ancho*250f, 0f, alto*500f) ,true);
+            return new Pared(ancho,alto,posicionInicial + new Vector3(10000f, 0f, 0f) ,true);
         }
 
         /*public void Load(ContentManager Content)
@@ -48,16 +48,13 @@ namespace TGC.MonoGame.TP
 
         public void Draw(){ 
 
+            Matrix Traslacion = Matrix.CreateTranslation(PosicionInicial);
             Efecto.Parameters["DiffuseColor"].SetValue(new Color(117, 115, 162).ToVector3());
-            Matrix Rotacion = !EsHorizontal ? Matrix.Identity : Matrix.CreateRotationY(MathHelper.PiOver2);
-            World = Matrix.Identity * Matrix.CreateScale(Ancho*500f, 0f, Alto*500f) * Matrix.CreateRotationX(MathHelper.PiOver2) * Rotacion;  
+            Matrix Rotacion = !EsHorizontal ? Matrix.CreateRotationY(MathHelper.PiOver2) : Matrix.Identity;
+            World = Matrix.Identity * Matrix.CreateScale(Ancho*400f, 0f, Alto*1000f) * Matrix.CreateRotationZ(MathHelper.PiOver2) * Rotacion * Traslacion;  
             Efecto.Parameters["World"].SetValue(World); 
-            TGCGame.GameContent.G_Quad.Draw(Efecto);
-        }
 
-        public static implicit operator Pared(List<Pared> v)
-        {
-            throw new NotImplementedException();
+            TGCGame.GameContent.G_Quad.Draw(Efecto);
         }
     }
 }
