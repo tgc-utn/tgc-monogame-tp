@@ -67,8 +67,8 @@ namespace TGC.MonoGame.TP
                 salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3( i , 400f , 6400f ), 10f));
                 salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3( i , 400f , 5700f ), 10f));
             }
-            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(3000f,800f,8200f), new Vector3(0, 0, MathHelper.PiOver2),10f));
-            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV, new Vector3(3000f,0f,9200f)));
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(2750f,50f,9200f)));
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(3200f,150f,9200f),10f));            
             #endregion
             #region Set Sillones
             var RotacionSet = new Vector3(0f, MathHelper.PiOver4,0f);
@@ -112,8 +112,8 @@ namespace TGC.MonoGame.TP
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Silla, new Vector3(4750f,370f,4450f), new Vector3(0, -MathHelper.PiOver2*1.3f, 0), 10f));
 
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(7500f,100f,3500f), new Vector3(0, MathHelper.Pi, 0), 10f));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(7500f,750f,1300f), new Vector3(MathHelper.Pi,0, MathHelper.PiOver2), 10f));
-            principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV, new Vector3(7500f,0f,350f), Vector3.Zero));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(7500f,150f,300f), 10f));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(7950f,50f,350f), new Vector3(0f,MathHelper.Pi,0f)));
 
             #endregion
 
