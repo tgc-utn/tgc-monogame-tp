@@ -6,7 +6,7 @@
 
 # Acerca del juego
 
-Driftea tu camino a la victoria destruyendo a tus enemigos con armas y poderes. Un divertido Battle Royale offline desarrollado por alummnos de la UTN.
+Driftea tu camino a la victoria destruyendo enemigos con armas y poderes. Un divertido Battle Royale offline desarrollado por alumnos de la UTN.
 
 # ¿ Cómo jugar ?
 
@@ -32,7 +32,7 @@ Cabral, Sebastian Rolando |	*Sebas* | Wheel-gunner
 Montecchia, Eduardo	| ---- | Wheel-gunner
 Veloso, Rocio Belen	| *Ro* | Gas (wo)man
 Villegas Avalos,	Carlos Alejandro | *Charly* |  Tire carrier
-Greco,	Luca | ---- | Spectator
+Greco,	Luca | Luquitas | Tire carrier
 
 ## Diseño Actual
 Clases Verdes  |  Clases Amarillas | Clases Rojas
