@@ -8,6 +8,8 @@ namespace TGC.MonoGame.TP
     public class Pared{
         private int Ancho;
         private int Alto;
+        private float Altura = 500f;
+        private static float Escala = 1000f;
         private Vector3 PosicionInicial;
         private bool EsHorizontal;
         private Effect Efecto = TGCGame.GameContent.E_BasicShader;
@@ -21,35 +23,21 @@ namespace TGC.MonoGame.TP
 
             Matrix Traslacion = Matrix.CreateTranslation(PosicionInicial);
             Matrix Rotacion = !EsHorizontal ? Matrix.CreateRotationY(MathHelper.PiOver2) : Matrix.Identity;
-            World = Matrix.Identity * Matrix.CreateScale(2000f, 0f, Alto*1000f) * Matrix.CreateRotationZ(MathHelper.PiOver2) * Rotacion * Traslacion;            
+            World = Matrix.Identity * Matrix.CreateScale(Altura, 0f, Alto*Escala) * Matrix.CreateRotationZ(MathHelper.PiOver2) * Rotacion * Traslacion;            
         }
 
         public static Pared Izquierda(int ancho, int alto, Vector3 posicionInicial){
             return new Pared(ancho,alto, posicionInicial + new Vector3(0f, 0f, 0f + 0f) ,false);
         }
         public static Pared Derecha(int ancho, int alto, Vector3 posicionInicial){
-            return new Pared(ancho,alto,posicionInicial + new Vector3(0f, 0f, alto * 1000f - 0f) ,false);
+            return new Pared(ancho,alto,posicionInicial + new Vector3(0f, 0f, alto * Escala - 0f) ,false);
         }
         public static Pared Arriba(int ancho, int alto, Vector3 posicionInicial){
             return new Pared(ancho,alto,posicionInicial + new Vector3(0f + 0f, 0f, 0f) ,true);
         }
         public static Pared Abajo(int ancho, int alto, Vector3 posicionInicial){
-            return new Pared(ancho,alto,posicionInicial + new Vector3(ancho * 1000f - 0f, 0f, 0f) ,true);
+            return new Pared(ancho,alto,posicionInicial + new Vector3(ancho * Escala - 0f, 0f, 0f) ,true);
         }
-
-        /*public void Load(ContentManager Content)
-        {
-            Efecto = Content.Load<Effect>("Effects/BasicShader");
-
-            Efecto.Parameters["DiffuseColor"].SetValue(new Color(117, 115, 162).ToVector3());
-            Matrix Rotacion = !EsHorizontal ? Matrix.Identity : Matrix.CreateRotationY(MathHelper.PiOver2);
-            Efecto.Parameters["World"].SetValue(
-                Matrix.CreateScale(Ancho*500f, 0f, Alto*500f) *
-                Matrix.CreateRotationX(MathHelper.PiOver2) *
-                Rotacion *
-                Matrix.CreateTranslation(PosicionInicial));  
-        }*/
-
         public void Draw(){ 
   
             Efecto.Parameters["World"].SetValue(World); 
