@@ -52,38 +52,13 @@ namespace TGC.MonoGame.TP
                 }
             }
         }
-
-        private void SetIndexIntercalado(){
-            for(int i=0;i<Ancho;i++)
-            {
-                for(int j=0;j<Alto;j++)
-                {
-                    var indiceColor = (i+j)%ColorPallette.Length;
-                    ColorIndex[i*Ancho+j] = indiceColor;
-                }
-            }
-        }  
-        private void SetIndexRandom(){
-            for(int i=0;i<Ancho;i++)
-            {
-                for(int j=0;j<Alto;j++)
-                {
-                    var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%ColorPallette.Length;
-
-                    ColorIndex[i*Ancho+j] = indiceColor;
-                }
-            }
-        } 
-        private void SetIndexCuadrado(){
-            for(int i=0;i<Ancho;i++)
-            {
-                for(int j=0;j<Alto;j++)
-                {
-                    var indiceColor = (i%2==1 || j%2==1) ? 0 : 1; 
-                    ColorIndex[i*Ancho+j] = indiceColor;
-                }
-            }
-        } 
+        public Piso Rojo(){
+            ColorPallette = new Vector3 []{
+                new Color(19, 38, 47).ToVector3()
+            };
+            SetIndexRandom();
+            return this;
+        }
         public Piso Oficina(){
             //Pallette link : https://coolors.co/palette/edc4b3-e6b8a2-deab90-d69f7e-cd9777-c38e70-b07d62-9d6b53-8a5a44-774936
             ColorPallette = new Vector3 []{
@@ -115,7 +90,37 @@ namespace TGC.MonoGame.TP
             return this;
         }
  */
+         private void SetIndexIntercalado(){
+            for(int i=0;i<Ancho;i++)
+            {
+                for(int j=0;j<Alto;j++)
+                {
+                    var indiceColor = (i+j)%ColorPallette.Length;
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                }
+            }
+        }  
+        private void SetIndexRandom(){
+            for(int i=0;i<Ancho;i++)
+            {
+                for(int j=0;j<Alto;j++)
+                {
+                    var indiceColor = ( Convert.ToInt32(Random.Shared.NextSingle()*100) )%ColorPallette.Length;
 
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                }
+            }
+        } 
+        private void SetIndexCuadrado(){
+            for(int i=0;i<Ancho;i++)
+            {
+                for(int j=0;j<Alto;j++)
+                {
+                    var indiceColor = (i%2==1 || j%2==1) ? 0 : 1; 
+                    ColorIndex[i*Ancho+j] = indiceColor;
+                }
+            }
+        } 
         public void Draw(Matrix view, Matrix projection)
         {
             for(int i=0;i<CantidadDeBaldosa;i++)
