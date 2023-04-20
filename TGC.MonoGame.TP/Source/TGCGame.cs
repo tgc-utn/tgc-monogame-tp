@@ -71,7 +71,7 @@ namespace TGC.MonoGame.TP
             GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
 
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.Black);
 
             foreach(Habitacion habitacion in HabitacionesPrueba)
                 habitacion.Draw(Camera.View, Camera.Projection);
