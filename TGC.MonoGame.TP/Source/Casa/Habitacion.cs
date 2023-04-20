@@ -27,10 +27,10 @@ namespace TGC.MonoGame.TP
             Piso = new Piso(ancho, alto, posicionInicial); // Se carga el default
 
             Paredes = new List<Pared>();
-            Paredes.Add(Pared.Arriba (10, 10, posicionInicial));
+            /* Paredes.Add(Pared.Arriba (10, 10, posicionInicial));
             Paredes.Add(Pared.Abajo (10, 10, posicionInicial));
             Paredes.Add(Pared.Izquierda (10, 10, posicionInicial));
-            Paredes.Add(Pared.Derecha (10, 10, posicionInicial));
+            Paredes.Add(Pared.Derecha (10, 10, posicionInicial)); */
         }
         public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
             var oficina = new Habitacion(alto, ancho, posicionInicial);
@@ -49,10 +49,46 @@ namespace TGC.MonoGame.TP
         }
         public static Habitacion Cocina(int ancho, int alto, Vector3 posicionInicial){
             Habitacion cocina = new Habitacion(ancho,alto,posicionInicial);
+            #region Hormiguitas
+            var posicionesAutosIA = new Vector3(0f,0f,300f);           
+            for(int i=0; i<20; i++){
+                var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
+                cocina.AddDinamico(new EnemyCar(escala, posicionesAutosIA, Vector3.Zero));
+                posicionesAutosIA += new Vector3(500f,0f,500f);
+            }
+            #endregion
+
             cocina.Piso.Cocina();
             return cocina;
         }
         
+        public static Habitacion SalaConferencias(int ancho, int alto, Vector3 posicionInicial){
+            var salaConferencias = new Habitacion(ancho,alto,posicionInicial);
+            salaConferencias.Piso.Rojo();
+
+
+            #region Set Televisión, Rack y Sillas
+            for(int i = 2000 ; i<1000*6 ; i+=1000){
+                salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3(   i , 400f , 7100f ), 10f));
+                salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3(   i , 400f , 6400f ), 10f));
+                salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3(   i , 400f , 5700f ), 10f));
+                salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3(   i , 400f , 5000f ), 10f));
+            }
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(3000f,1000f,7500f), new Vector3(0, 0, MathHelper.PiOver2),10f));
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV, new Vector3(3000f,0f,8500f)));
+            #endregion
+
+            #region Set Sillones
+            var RotacionSet = new Vector3(0f, MathHelper.PiOver4,0f);
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(6000f,150f,4000f), new Vector3(0,MathHelper.PiOver2,0)+RotacionSet, 10f));
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(5950f,150f,1850f),RotacionSet, 10f));
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(8100f,150f,1900f), new Vector3(0,-MathHelper.PiOver2,0)+RotacionSet, 10f));
+            #endregion
+
+            return salaConferencias;
+        }
+
+
         public static Habitacion Principal(int ancho, int alto, Vector3 posicionInicial){
             Habitacion principal = new Habitacion(ancho,alto,posicionInicial);
             #region CargaMueblesDinámicos
