@@ -6,15 +6,17 @@
 
 # Acerca del juego
 
-Driftea tu camino a la victoria destruyendo enemigos con armas y poderes. Un divertido Battle Royale offline desarrollado por alumnos de la UTN.
+🚗 Driftea tu camino a la victoria destruyendo enemigos con armas y poderes 🚀 <br>
+
+_Un divertido Battle Royale offline desarrollado por alumnos de la UTN FRBA._
 
 # ¿ Cómo jugar ?
 
-- "W" : Acelera
-- "S" : Frena / Marcha atrás
-- "A" y "D" : Mueve el volante
-- "Espacio" : Salta
-- "E" o "Click" : Tira tu Power-Up
+- **"W"** para _Acelerar_
+- **"S"** para _Frenar_ o ir _Marcha atrás_
+- **"A"** y **"D"** para _Mover el volante_
+- **"Espacio"** para _Saltar_
+- **"E"** o **"Click"** para _Tirar tu Power-Up_
 
 ## Capturas
 
