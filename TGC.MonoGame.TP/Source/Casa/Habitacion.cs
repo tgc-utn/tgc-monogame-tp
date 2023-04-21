@@ -85,6 +85,29 @@ namespace TGC.MonoGame.TP
             salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(5950f,150f,1850f),RotacionSet, 10f));
             salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(8100f,150f,1900f), new Vector3(0,-MathHelper.PiOver2,0)+RotacionSet, 10f));
             #endregion
+            
+            #region LEGOS!
+            Vector3 traslacionLegos = new Vector3(2500f,0f,2500f);
+            Vector3 desplazamientoRandom, rotacionRandom;
+            float random1, random2, random3;
+            Mueble lego;
+            for(int i=0; i<200; i++){
+                random1 = (Random.Shared.NextSingle());
+                random2 = (Random.Shared.NextSingle()-0.5f);
+                random3 = (Random.Shared.NextSingle()-0.5f);
+                desplazamientoRandom = new Vector3((2000f*MathF.Cos(random1*MathHelper.TwoPi))*random2,0f,2000f*(MathF.Sin(random1*MathHelper.TwoPi)*random2));
+                rotacionRandom = new Vector3(0f,MathHelper.Pi*random3, 0f);
+                //var randomColor = new Vector3( (random1*1000)%256, (random2*1000)%256, (random3*1000)%256);
+                
+                lego = new Mueble(TGCGame.GameContent.M_Lego , desplazamientoRandom+traslacionLegos, rotacionRandom, 5f);
+                salaConferencias.AddElemento(lego);
+            }
+            traslacionLegos += new Vector3(-1000f,0f,-1000f);
+            salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Lego , traslacionLegos + new Vector3(0f,300f, 0f), new Vector3(MathHelper.PiOver2,MathHelper.PiOver4, 0f), 35f));
+            salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Lego , traslacionLegos + new Vector3(0f,0f, 700f), new Vector3(0f,0f, 0f), 35f));
+            salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Lego , traslacionLegos + new Vector3(0f,150f, 1200f), new Vector3(MathHelper.PiOver4/2,MathHelper.PiOver4/2, 0f), 35f));
+            #endregion
+            
             #region Set Ajedrez
             var desplazamientoSet = new Vector3(6650f,0f,2650f);
             salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Torre , desplazamientoSet));

@@ -48,6 +48,7 @@
 /build:Models/Muebles/Escritorio/Escritorio.obj
 /build:Models/Muebles/Cocine/Cocine.obj
 /build:Models/Muebles/Plantis/Plantis.obj
+/build:Models/Muebles/Lego/Lego.obj
 
 
 
@@ -69,12 +70,11 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
+/build:Models/RacingCar/RacingCar.fbx
+/build:Models/CombatVehicle/Vehicle.fbx
 /build:Models/Muebles/Chair/Chair.fbx
 /build:Models/Muebles/Cube/Cube.fbx
 /build:Models/Muebles/Mesa/Mesa.fbx
 /build:Models/Muebles/Sillon/Sillon.fbx
 /build:Models/Muebles/inodoro/inodoro.fbx
-
-/build:Models/RacingCar/RacingCar.fbx
-/build:Models/CombatVehicle/Vehicle.fbx
 

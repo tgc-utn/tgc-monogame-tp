@@ -17,7 +17,7 @@ namespace TGC.MonoGame.TP
 
         private readonly ContentManager ContentManager;
         internal readonly Model M_Alfil, M_Torre, M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon, M_Televisor1, M_MuebleTV, M_Planta,
-                M_Escritorio, M_Cocine, M_Plantis;
+                M_Escritorio, M_Cocine, M_Plantis, M_Lego;
 
 
         internal readonly Effect E_BasicShader;
@@ -54,6 +54,7 @@ namespace TGC.MonoGame.TP
             M_Escritorio = LoadModel("Muebles/Escritorio/Escritorio");
             M_Plantis = LoadModel("Muebles/Plantis/Plantis");
             M_Cocine = LoadModel("Muebles/Cocine/Cocine");
+            M_Lego = LoadModel("Muebles/Lego/Lego");
             
         }
 
