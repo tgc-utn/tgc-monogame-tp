@@ -12,6 +12,7 @@ namespace TGC.MonoGame.TP
         private Vector3 PosicionInicial;
         private Piso Piso;
         private List<Pared> Paredes;
+        private List<Puerta> Puertas;
         private List<IElementoDinamico> MueblesDinamicos;
         private List<IElemento> Muebles;
 
@@ -27,15 +28,29 @@ namespace TGC.MonoGame.TP
             Piso = new Piso(ancho, alto, posicionInicial); // Se carga el default
 
             Paredes = new List<Pared>();
-            Paredes.Add(Pared.Arriba (ancho, alto, posicionInicial));
-            Paredes.Add(Pared.Abajo (ancho, alto, posicionInicial));
-            Paredes.Add(Pared.Izquierda (ancho, alto, posicionInicial));
-            Paredes.Add(Pared.Derecha (ancho, alto, posicionInicial));
+            Puertas = new List<Puerta>();
+            
+            
+            //Puertas.Add(Puerta.PuertaArriba(2f, ancho, posicionInicial));
+            //Puertas.Add(Puerta.PuertaAbajo(2f, ancho, posicionInicial));
+            //Puertas.Add(Puerta.PuertaIzquierda(2f, ancho, posicionInicial));
+            //Puertas.Add(Puerta.PuertaDerecha(2f, ancho, posicionInicial));
+
+            //Paredes.Add(Pared.Arriba (ancho, posicionInicial));
+            //
+            //Paredes.Add(Pared.Izquierda(ancho, alto ,posicionInicial));
+            //Paredes.Add(Pared.Derecha(ancho, alto ,posicionInicial));
         }
         public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
             var oficina = new Habitacion(alto, ancho, posicionInicial);
 
             oficina.Piso.Oficina();
+            oficina.AddPared(Pared.Abajo (ancho, alto, posicionInicial));
+            oficina.AddPared(Pared.Arriba(ancho, alto, posicionInicial));
+            oficina.AddPared(Pared.Derecha(ancho, alto, posicionInicial));
+            oficina.AddPuerta(Puerta.Izquierda(1f, ancho, posicionInicial));
+
+
             oficina.AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina,new Vector3(1000f,0f,1000f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f), 10f));
             oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(1000f,500f,1000f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
         
@@ -58,6 +73,11 @@ namespace TGC.MonoGame.TP
             
 
             cocina.Piso.Cocina();
+            cocina.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
+            cocina.AddPared(Pared.Arriba(ancho, alto, posicionInicial));
+            cocina.AddPared(Pared.Derecha(ancho, alto, posicionInicial));
+            cocina.AddPuerta(Puerta.Abajo(3f, ancho, posicionInicial));
+
 
             cocina.AddElemento(new Mueble(TGCGame.GameContent.M_Cocine, new Vector3(500f,500f,500f), new Vector3(0f,0f,0f), 2f));
 
@@ -68,6 +88,10 @@ namespace TGC.MonoGame.TP
         public static Habitacion SalaConferencias(int ancho, int alto, Vector3 posicionInicial){
             var salaConferencias = new Habitacion(ancho,alto,posicionInicial);
             salaConferencias.Piso.Rojo();
+            salaConferencias.AddPared(Pared.Abajo (ancho, alto, posicionInicial));
+            salaConferencias.AddPuerta(Puerta.Izquierda(5f, ancho, posicionInicial));
+            salaConferencias.AddPuerta(Puerta.Derecha(1f, ancho, posicionInicial));
+            salaConferencias.AddPuerta(Puerta.Arriba(3f, ancho, posicionInicial));
 
             #region Set Televisión, Rack y Sillas
             for(int i = 2000 ; i<1000*6 ; i+=1000){
@@ -124,6 +148,12 @@ namespace TGC.MonoGame.TP
 
         public static Habitacion Principal(int ancho, int alto, Vector3 posicionInicial){
             Habitacion principal = new Habitacion(ancho,alto,posicionInicial);
+
+            principal.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
+            principal.AddPared(Pared.Arriba(ancho, alto, posicionInicial));
+            principal.AddPared(Pared.Abajo(ancho, alto, posicionInicial));
+            principal.AddPuerta(Puerta.Derecha(5f, ancho, posicionInicial));
+
             #region CargaMueblesDinámicos
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
             for(int i=0; i<20; i++){
@@ -162,6 +192,14 @@ namespace TGC.MonoGame.TP
             Muebles.Add(elem);
         }
 
+        private void AddPared( Pared pared ){
+            Paredes.Add(pared);
+        }
+
+        private void AddPuerta( Puerta puerta ){
+            Puertas.Add(puerta);
+        }
+
         public void Update(GameTime gameTime, KeyboardState keyboardState){
             foreach(var e in MueblesDinamicos){
                 e.Update(gameTime, keyboardState);
@@ -172,6 +210,8 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
+            foreach(var puerta in Puertas)
+                puerta.Draw();
             foreach(var pared in Paredes)
                 pared.Draw();
             foreach(var elemento in MueblesDinamicos)
