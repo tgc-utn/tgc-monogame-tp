@@ -13,6 +13,7 @@ namespace TGC.MonoGame.TP
         }
         
         // Hola Seba... Las dos clases siguientes son para probar los modelos mas rapido... en el origen y escala 1
+        // Holi n_n
         public Mueble(Model Model) : base(Vector3.Zero, Vector3.Zero, 1f){
             this.Model = Model;
         }

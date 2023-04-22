@@ -20,7 +20,8 @@ namespace TGC.MonoGame.TP
                 M_Escritorio, M_Cocine, M_Plantis, M_Lego;
 
 
-        internal readonly Effect E_BasicShader;
+        internal readonly Effect E_BasicShader, E_TextureShader, E_SpirtalShader;
+        internal readonly Texture2D T_Alfombra;
         internal readonly QuadPrimitive G_Quad;
         
         internal Content(ContentManager Content, GraphicsDevice GraphicsDevice)
@@ -35,7 +36,12 @@ namespace TGC.MonoGame.TP
             G_Quad = new QuadPrimitive(GraphicsDevice);
 
             //Efectos
-            E_BasicShader = ContentManager.Load<Effect>("Effects/BasicShader");;
+            E_BasicShader = LoadEffect("BasicShader");
+            E_TextureShader = LoadEffect("TextureShader");
+            E_SpirtalShader = LoadEffect("SpiralShader");
+
+            //texturas
+            T_Alfombra = LoadTexture("Alfombra");
 
             //Modelos
             M_Auto = LoadModel("RacingCar/RacingCar");
@@ -59,6 +65,8 @@ namespace TGC.MonoGame.TP
         }
 
         public Model LoadModel(string dir) => ContentManager.Load<Model>(ContentFolder3D + dir);
+        public Effect LoadEffect(string dir) => ContentManager.Load<Effect>(ContentFolderEffects + dir);
+        public Texture2D LoadTexture(string dir) => ContentManager.Load<Texture2D>(ContentFolderTextures + dir);
            
     }
 }

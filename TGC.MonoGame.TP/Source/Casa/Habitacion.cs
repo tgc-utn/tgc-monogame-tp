@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -50,7 +51,6 @@ namespace TGC.MonoGame.TP
             oficina.AddPared(Pared.Derecha(ancho, alto, posicionInicial));
             oficina.AddPuerta(Puerta.Izquierda(1f, ancho, posicionInicial));
 
-
             oficina.AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina,new Vector3(1000f,0f,1000f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f), 10f));
             oficina.AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(1000f,500f,1000f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
         
@@ -70,7 +70,6 @@ namespace TGC.MonoGame.TP
                 posicionesAutosIA += new Vector3(500f,0f,500f);
             }
             #endregion
-            
 
             cocina.Piso.Cocina();
             cocina.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
@@ -80,7 +79,6 @@ namespace TGC.MonoGame.TP
 
 
             cocina.AddElemento(new Mueble(TGCGame.GameContent.M_Cocine, new Vector3(500f,500f,500f), new Vector3(0f,0f,0f), 2f));
-
 
             return cocina;
         }
@@ -173,7 +171,6 @@ namespace TGC.MonoGame.TP
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Silla, new Vector3(4750f,370f,3650f), new Vector3(0, -MathHelper.PiOver2*0.7f, 0), 10f));
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Silla, new Vector3(4750f,370f,4450f), new Vector3(0, -MathHelper.PiOver2*1.3f, 0), 10f));
 
-
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(7500f,100f,3500f), new Vector3(0, MathHelper.Pi, 0), 10f));
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(7500f,150f,300f), 10f));
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(7950f,50f,350f), new Vector3(0f,MathHelper.Pi,0f)));
@@ -210,6 +207,8 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
+            new Alfombra(Matrix.CreateScale(3000f, 0f, 2000f)*Matrix.CreateRotationY(MathHelper.Pi/3)*Matrix.CreateTranslation(new Vector3(-12000f,10f,200f))).Draw();
+
             foreach(var puerta in Puertas)
                 puerta.Draw();
             foreach(var pared in Paredes)

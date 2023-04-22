@@ -24,14 +24,14 @@ namespace TGC.MonoGame.TP.Geometries
 
             var vertices = new[]
             {
-                // Possitive X, Possitive Z
-                new VertexPositionNormalTexture(Vector3.Zero, Vector3.Up, textureCoordinateUpperRight),
-                // Possitive X, Negative Z
-                new VertexPositionNormalTexture(Vector3.UnitZ, Vector3.Up, textureCoordinateLowerRight),
-                // Negative X, Possitive Z
-                new VertexPositionNormalTexture(Vector3.UnitZ + Vector3.UnitX, Vector3.Up, textureCoordinateUpperLeft),
-                // Negative X, Negative Z
-                new VertexPositionNormalTexture(Vector3.UnitX, Vector3.Up, textureCoordinateLowerLeft)
+                // (0,0,0)
+                new VertexPositionNormalTexture(Vector3.Zero, Vector3.Up, textureCoordinateLowerLeft),
+                // (0,0,1)
+                new VertexPositionNormalTexture(Vector3.UnitZ, Vector3.Up, textureCoordinateUpperLeft),
+                // (1,0,1)
+                new VertexPositionNormalTexture(Vector3.UnitZ + Vector3.UnitX, Vector3.Up, textureCoordinateUpperRight),
+                // (1,0,0)
+                new VertexPositionNormalTexture(Vector3.UnitX, Vector3.Up, textureCoordinateLowerRight)
             };
 
             Vertices = new VertexBuffer(graphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length,

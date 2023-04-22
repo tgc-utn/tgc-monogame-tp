@@ -68,10 +68,14 @@ namespace TGC.MonoGame.TP
         }
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.Clear(Color.Black);
+           
             GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
+            
+            GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
 
-            GraphicsDevice.Clear(Color.Black);
 
             foreach(Habitacion habitacion in HabitacionesPrueba)
                 habitacion.Draw(Camera.View, Camera.Projection);
