@@ -84,6 +84,15 @@ namespace TGC.MonoGame.TP
             SetIndexIntercalado();
             return this;
         }
+
+        public Piso Banio(){
+            ColorPallette = new Vector3 []{
+                new Color(113, 196, 189   ).ToVector3(),
+                new Color(74, 103, 101   ).ToVector3()
+            };
+            SetIndexIntercalado();
+            return this;
+        }
 /*      EN PROGRESO 
         public Piso Cuadrado(){
             SetIndexCuadrado();

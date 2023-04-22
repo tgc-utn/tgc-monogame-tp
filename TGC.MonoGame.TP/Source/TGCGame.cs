@@ -47,6 +47,7 @@ namespace TGC.MonoGame.TP
             HabitacionesPrueba.Add(Habitacion.Cocina(10, 10, new Vector3(-15000f,0f,-5000f)));
             HabitacionesPrueba.Add(Habitacion.Principal(10, 10, new Vector3(-5000f,0f,5000f)));
             HabitacionesPrueba.Add(Habitacion.Oficina(5, 5, new Vector3(0f,0f,-10000f)));
+            HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
         }
 
         protected override void Update(GameTime gameTime)

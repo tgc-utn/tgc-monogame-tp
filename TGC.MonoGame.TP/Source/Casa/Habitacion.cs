@@ -82,6 +82,18 @@ namespace TGC.MonoGame.TP
 
             return cocina;
         }
+
+        public static Habitacion Banio(int ancho, int alto, Vector3 posicionInicial){
+            Habitacion banio = new Habitacion(ancho,alto,posicionInicial);
+
+            banio.Piso.Banio();
+            banio.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
+            banio.AddPared(Pared.Arriba(ancho, alto, posicionInicial));
+            banio.AddPared(Pared.Derecha(ancho, alto, posicionInicial));
+            banio.AddPuerta(Puerta.Abajo(2f, ancho, posicionInicial));
+
+            return banio;
+        }
         
         public static Habitacion SalaConferencias(int ancho, int alto, Vector3 posicionInicial){
             var salaConferencias = new Habitacion(ancho,alto,posicionInicial);
@@ -148,7 +160,7 @@ namespace TGC.MonoGame.TP
             Habitacion principal = new Habitacion(ancho,alto,posicionInicial);
 
             principal.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
-            principal.AddPared(Pared.Arriba(ancho, alto, posicionInicial));
+            principal.AddPuerta(Puerta.Arriba(8f, ancho, posicionInicial));
             principal.AddPared(Pared.Abajo(ancho, alto, posicionInicial));
             principal.AddPuerta(Puerta.Derecha(5f, ancho, posicionInicial));
 
