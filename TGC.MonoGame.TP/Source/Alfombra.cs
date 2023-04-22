@@ -12,7 +12,7 @@ namespace TGC.MonoGame.TP
         
         internal void Draw() {
             TGCGame.GameContent.E_TextureShader.Parameters["World"].SetValue(World); 
-            TGCGame.GameContent.E_TextureShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Alfombra); 
+            TGCGame.GameContent.E_TextureShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Alfombra);
             TGCGame.GameContent.G_Quad.Draw(TGCGame.GameContent.E_TextureShader);
         }
     }

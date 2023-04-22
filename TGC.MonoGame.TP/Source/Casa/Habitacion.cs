@@ -219,7 +219,7 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
-            new Alfombra(Matrix.CreateScale(3000f, 0f, 2000f)*Matrix.CreateRotationY(MathHelper.Pi/3)*Matrix.CreateTranslation(new Vector3(-12000f,10f,200f))).Draw();
+            new Alfombra(Matrix.CreateScale(3000f, 0f, 2000f)*Matrix.CreateRotationY(MathHelper.Pi/3)*Matrix.CreateTranslation(new Vector3(-12000f,20f,200f))).Draw();
 
             foreach(var puerta in Puertas)
                 puerta.Draw();

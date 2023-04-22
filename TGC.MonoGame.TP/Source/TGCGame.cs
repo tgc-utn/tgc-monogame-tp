@@ -77,11 +77,17 @@ namespace TGC.MonoGame.TP
             GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
 
+            GameContent.E_SpirtalShader.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_SpirtalShader.Parameters["Projection"].SetValue(Camera.Projection);
+            GameContent.E_SpirtalShader.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+
 
             foreach(Habitacion habitacion in HabitacionesPrueba)
                 habitacion.Draw(Camera.View, Camera.Projection);
 
             Auto.Draw(Camera.View, Camera.Projection);
+
+            new Televisor(new Vector3(-3000f, 0f, 10000f)).Draw(Camera.View, Camera.Projection);
         }
         protected override void UnloadContent()
         {
