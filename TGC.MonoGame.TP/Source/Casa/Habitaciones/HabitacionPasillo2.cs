@@ -11,6 +11,8 @@ namespace TGC.MonoGame.TP
         AddPuerta(Puerta.Arriba(2f, Size, posicionInicial));
         AddPared(Pared.Derecha(Size, Size, posicionInicial));
         
+        AddElemento( new Mueble(TGCGame.GameContent.M_Aparador, new Vector3(3300f,-400f,3400f), new Vector3(0f,-MathHelper.PiOver2,0f), 15f));
+
         }
 
     }
