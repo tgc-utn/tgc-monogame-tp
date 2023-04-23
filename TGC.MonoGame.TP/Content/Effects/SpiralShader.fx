@@ -59,7 +59,7 @@ float2 rotate(float2 Point, float Rotation)
 float spiralFunction(float2 Point) 
 {
     float distanceToCenter = length(Point);
-    float radius = atan(Point.y/Point.x);
+    float radius = sin(Point.y/Point.x);
     float thickness = 0.1;
 
     return step(distanceToCenter, radius+thickness) - step(distanceToCenter, radius-thickness);

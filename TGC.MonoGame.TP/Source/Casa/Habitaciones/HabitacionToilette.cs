@@ -10,7 +10,6 @@ namespace TGC.MonoGame.TP
             AddPared(Pared.Izquierda (Size, Size, posicionInicial));
             AddPared(Pared.Arriba(Size, Size, posicionInicial));
             AddPared(Pared.Derecha(Size, Size, posicionInicial));
-            AddPuerta(Puerta.Abajo(2f, Size, posicionInicial));
 
             
             AddElemento(new Mueble(TGCGame.GameContent.M_Inodoro, new Vector3(1500f, 0f, 500f), new Vector3(0f, 0f, 0f), 15f));

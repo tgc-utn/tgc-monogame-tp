@@ -7,15 +7,15 @@ namespace TGC.MonoGame.TP
         private const int Size = 10;
         public HabitacionPrincipal(Vector3 posicionInicial):base(Size,Size,posicionInicial){
             AddPared(Pared.Izquierda (Size, Size, posicionInicial));
-            AddPuerta(Puerta.Arriba(8f, Size, posicionInicial));
+            AddPuerta(Puerta.Arriba(3f, Size, posicionInicial));
             AddPared(Pared.Abajo(Size, Size, posicionInicial));
-            AddPuerta(Puerta.Derecha(4f, Size, posicionInicial));
+            AddPuerta(Puerta.Derecha(7f, Size, posicionInicial));
 
             #region CargaMueblesDinámicos
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
             for(int i=0; i<20; i++){
                 var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
-                AddDinamico(new EnemyCar(escala, posicionesAutosIA, Vector3.Zero));
+                //AddDinamico(new EnemyCar(escala, posicionesAutosIA, Vector3.Zero));
                 posicionesAutosIA += new Vector3(500f,0f,500f);
             }
             #endregion
@@ -40,7 +40,7 @@ namespace TGC.MonoGame.TP
             AddElemento( new Mueble(TGCGame.GameContent.M_Mesita, new Vector3(8000f, 0f, 8200f), new Vector3(0f, MathHelper.Pi, 0f), 20f));
             AddElemento( new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(8000f, 390f, 8150f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
             AddElemento( new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(8050f, 390f, 8350f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
-            AddElemento( new Mueble(TGCGame.GameContent.M_Aparador, new Vector3(750f,-400f,7000f), new Vector3(0f,MathHelper.PiOver2,0f), 15f));
+            AddElemento( new Mueble(TGCGame.GameContent.M_Aparador, new Vector3(750f,-400f,8500f), new Vector3(0f,MathHelper.PiOver2,0f), 15f));
             #endregion
 
         }

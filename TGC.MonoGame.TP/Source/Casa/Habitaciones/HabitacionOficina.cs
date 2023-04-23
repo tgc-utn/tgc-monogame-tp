@@ -7,9 +7,8 @@ namespace TGC.MonoGame.TP
         public HabitacionOficina(Vector3 posicionInicial):base(Size,Size,posicionInicial){
             Piso.Oficina();
             AddPared(Pared.Abajo (Size, Size, posicionInicial));
-            AddPared(Pared.Arriba(Size, Size, posicionInicial));
             AddPared(Pared.Derecha(Size, Size, posicionInicial));
-            AddPuerta(Puerta.Izquierda(1f, Size, posicionInicial));
+            AddPuerta(Puerta.Arriba(2f, Size, posicionInicial));
 
             AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina,new Vector3(1000f,0f,1000f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f), 10f));
             AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(1000f,500f,1000f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));

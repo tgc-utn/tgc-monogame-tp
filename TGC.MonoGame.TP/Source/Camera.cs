@@ -75,10 +75,10 @@ namespace TGC.MonoGame.TP
             var right = Vector3.Cross(forward, Vector3.Up);
             var cameraCorrectUp = Vector3.Cross(right, forward);
 
-            //View = Matrix.CreateLookAt(offsetedPosition, followedPosition, cameraCorrectUp);
+            View = Matrix.CreateLookAt(offsetedPosition, followedPosition, cameraCorrectUp);
 
             //Matriz de vista isometrica
-            View = Matrix.CreateLookAt(followedPosition + new Vector3(1, 1, 1) * AxisDistanceToTarget, followedPosition, Vector3.Up);
+            //View = Matrix.CreateLookAt(followedPosition + new Vector3(1, 1, 1) * AxisDistanceToTarget, followedPosition, Vector3.Up);
 
         }
     }

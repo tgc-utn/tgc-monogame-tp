@@ -47,12 +47,15 @@ namespace TGC.MonoGame.TP
             tvPrincipal2 = new Televisor(new Vector3(-4300f, 700f, 12300f), MathHelper.PiOver2);
             tvConferencias = new Televisor(new Vector3(-5000f,0f,-5000f) + new Vector3(3200f,150f,9200f), MathHelper.Pi);
 
-            Hogar.Add( new HabitacionConferencias (new Vector3(-5000f,0f,-5000f)));
-            Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,-1000f)));
+            //Hogar.Add( new HabitacionConferencias (new Vector3(-5000f,0f,-5000f)));
+            Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,7000f)));
             Hogar.Add( new HabitacionPrincipal    (new Vector3(-5000f,0f,5000f)));
-            Hogar.Add( new HabitacionOficina      (new Vector3(0f,0f,-10000f)));
-            Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,-1000f)));
-            Hogar.Add( new HabitacionToilette     (new Vector3(-9000, 0f, 5000)));
+            Hogar.Add( new HabitacionOficina      (new Vector3(-1000f,0f,0f)));
+            Hogar.Add( new HabitacionToilette     (new Vector3(-9000, 0f, -1000)));
+            Hogar.Add( new HabitacionPasillo1     (new Vector3(-5000f, 0f, 1000f)));
+            Hogar.Add( new HabitacionPasillo2     (new Vector3(-5000f, 0f, -3000f)));
+            Hogar.Add( new HabitacionDormitorio1  (new Vector3(-1000f, 0f, -5000f)));
+            Hogar.Add( new HabitacionDormitorio2  (new Vector3(-10000f, 0f, -6000f)));
             //HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
         }
 
@@ -94,9 +97,9 @@ namespace TGC.MonoGame.TP
 
 
             //Puesto acá solo para probar
-            tvConferencias.Draw();            
-            tvPrincipal1.Draw();            
-            tvPrincipal2.Draw();            
+            //tvConferencias.Draw();            
+            //tvPrincipal1.Draw();            
+            //tvPrincipal2.Draw();            
         }
         protected override void UnloadContent()
         {
