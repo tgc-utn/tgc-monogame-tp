@@ -15,8 +15,8 @@ public class ShipPlayer
     private Matrix World { get; set; }
     private float Rotation { get; set; }
     private Vector3 Position { get; set; }
-    private float RotationVelocity { get; set; } = 10f;
-    private float Velocity { get; set; } = 5000f;
+    private float RotationVelocity { get; set; } = 1.5f;
+    private float Velocity { get; set; } = 700f;
 
     // Uso el constructor como el Initialize
     public ShipPlayer()
@@ -45,6 +45,7 @@ public class ShipPlayer
     {
         var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
         var keyboardState = Keyboard.GetState();
+        
         // Capturar Input teclado
         ResolveShipRotation(deltaTime, keyboardState);
         ResolveShipMovement(deltaTime, keyboardState);

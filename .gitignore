@@ -61,3 +61,5 @@ ehthumbs_vista.db
 .idea/
 *.iml
 *.ipr
+
+.mgstats
