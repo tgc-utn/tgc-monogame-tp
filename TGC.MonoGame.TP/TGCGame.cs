@@ -74,12 +74,13 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             Ship.LoadContent(Content, Effect);
             IslandGenerator.LoadContent(Content, Effect);
-            Islands = new[]
-            {
-                IslandGenerator.Create(0, new Vector3(0, 0, 4000), 0.3f),
-                IslandGenerator.Create(1, new Vector3(4000, 0, 0), 0.3f),
-                IslandGenerator.Create(2, new Vector3(5000, 0, 4000), 0.3f),
-            };
+            // Islands = new[]
+            // {
+            //     IslandGenerator.Create(0, new Vector3(0, 0, 4000), 0.3f),
+            //     IslandGenerator.Create(1, new Vector3(4000, 0, 0), 0.3f),
+            //     IslandGenerator.Create(2, new Vector3(5000, 0, 4000), 0.3f),
+            // };
+            Islands = IslandGenerator.CreateRandomIslands(100, 50000f, 50000f);
             base.LoadContent();
         }
 

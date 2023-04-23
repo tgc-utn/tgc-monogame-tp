@@ -15,8 +15,8 @@ public class ShipPlayer
     private Matrix World { get; set; }
     private float Rotation { get; set; }
     private Vector3 Position { get; set; }
-    private float RotationVelocity { get; set; } = 1.5f;
-    private float Velocity { get; set; } = 700f;
+    private float RotationVelocity { get; set; } = 10f;
+    private float Velocity { get; set; } = 5000f;
 
     // Uso el constructor como el Initialize
     public ShipPlayer()
