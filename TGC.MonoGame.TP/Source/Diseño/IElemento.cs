@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP
             PosicionInicial = posicionInicial;
             World *= Matrix.CreateTranslation(posicionInicial);
         }
-        public void Draw (Matrix view, Matrix projection){
+        public virtual void Draw (Matrix view, Matrix projection){
             Model.Draw(World,view,projection);
         }
     }

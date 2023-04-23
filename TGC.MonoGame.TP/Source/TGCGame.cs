@@ -13,8 +13,9 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Auto Auto;
-        private List<IHabitacion> Hogar = new List<IHabitacion>();
         private Camera Camera;
+        Televisor tvPrincipal1, tvConferencias, tvPrincipal2; 
+        private List<IHabitacion> Hogar = new List<IHabitacion>();
 
         public TGCGame()
         {
@@ -41,12 +42,17 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             Auto = new Auto(Vector3.Zero, Vector3.Zero);
-            //Creo que cada habitación debería tener su medida ya establecida (10x10, 10x5, 4x2, etc.) no pasarla por parámetro
-           
-            Hogar.Add( new HabitacionConferencias (10, 10, new Vector3(-5000f,0f,-5000f)));
-            Hogar.Add( new HabitacionCocina       (6, 6,   new Vector3(-11000f,0f,-1000f)));
-            Hogar.Add( new HabitacionPrincipal    (10, 10, new Vector3(-5000f,0f,5000f)));
-            Hogar.Add( new HabitacionOficina      (5, 5,   new Vector3(0f,0f,-10000f)));
+
+            tvPrincipal1 = new Televisor(new Vector3(-5000f,0f,5000f) + new Vector3(7500f,150f,300f), 0f);
+            tvPrincipal2 = new Televisor(new Vector3(-4300f, 700f, 12300f), MathHelper.PiOver2);
+            tvConferencias = new Televisor(new Vector3(-5000f,0f,-5000f) + new Vector3(3200f,150f,9200f), MathHelper.Pi);
+
+            Hogar.Add( new HabitacionConferencias (new Vector3(-5000f,0f,-5000f)));
+            Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,-1000f)));
+            Hogar.Add( new HabitacionPrincipal    (new Vector3(-5000f,0f,5000f)));
+            Hogar.Add( new HabitacionOficina      (new Vector3(0f,0f,-10000f)));
+            Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,-1000f)));
+            Hogar.Add( new HabitacionToilette     (new Vector3(-9000, 0f, 5000)));
             //HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
         }
 
@@ -77,17 +83,20 @@ namespace TGC.MonoGame.TP
             GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
 
-            GameContent.E_SpirtalShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_SpirtalShader.Parameters["Projection"].SetValue(Camera.Projection);
-            GameContent.E_SpirtalShader.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
-
+            GameContent.E_SpiralShader.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_SpiralShader.Parameters["Projection"].SetValue(Camera.Projection);
+            GameContent.E_SpiralShader.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
 
             foreach(IHabitacion habitacion in Hogar)
                 habitacion.Draw(Camera.View, Camera.Projection);
 
             Auto.Draw(Camera.View, Camera.Projection);
 
-            new Televisor(new Vector3(-4300f, 700f, 12300f)).Draw(Camera.View, Camera.Projection);
+
+            //Puesto acá solo para probar
+            tvConferencias.Draw();            
+            tvPrincipal1.Draw();            
+            tvPrincipal2.Draw();            
         }
         protected override void UnloadContent()
         {

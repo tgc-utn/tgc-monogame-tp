@@ -20,7 +20,7 @@ namespace TGC.MonoGame.TP
                 M_Escritorio, M_Cocine, M_Plantis, M_Lego, M_Baniera,M_Sofa, M_Mesita, M_Aparador, M_Bacha;
 
 
-        internal readonly Effect E_BasicShader, E_TextureShader, E_SpirtalShader;
+        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader;
         internal readonly Texture2D T_Alfombra;
         internal readonly QuadPrimitive G_Quad;
         
@@ -28,9 +28,6 @@ namespace TGC.MonoGame.TP
         {
             ContentManager = Content;
             ContentManager.RootDirectory = "Content";
-            //PRUEBA
-            M_Alfil = LoadModel("Muebles/Alfil/Alfil");
-            M_Torre = LoadModel("Muebles/Torre/Torre");
             
             //Geometrias
             G_Quad = new QuadPrimitive(GraphicsDevice);
@@ -38,7 +35,7 @@ namespace TGC.MonoGame.TP
             //Efectos
             E_BasicShader = LoadEffect("BasicShader");
             E_TextureShader = LoadEffect("TextureShader");
-            E_SpirtalShader = LoadEffect("SpiralShader");
+            E_SpiralShader = LoadEffect("SpiralShader");
 
             //texturas
             T_Alfombra = LoadTexture("Alfombra");
@@ -58,9 +55,11 @@ namespace TGC.MonoGame.TP
             M_MuebleTV = LoadModel("Muebles/MuebleTV/MuebleTV"); 
             M_Planta = LoadModel("Muebles/Planta/Planta");
             M_Escritorio = LoadModel("Muebles/Escritorio/Escritorio");
+            M_Alfil = LoadModel("Muebles/Alfil/Alfil");
+            M_Torre = LoadModel("Muebles/Torre/Torre");
             M_Plantis = LoadModel("Muebles/Plantis/Plantis");
             M_Cocine = LoadModel("Muebles/Cocine/Cocine");
-            M_Lego = LoadModel("Muebles/Lego/Lego");
+            M_Lego = LoadModel("Muebles/Lego/Lego", E_BasicShader);
             M_Baniera = LoadModel("Muebles/Baniera/Baniera");
             M_Mesita = LoadModel("Muebles/Mesita/Mesita");
             M_Sofa = LoadModel("Muebles/Sofa/Sofa");
@@ -73,5 +72,15 @@ namespace TGC.MonoGame.TP
         public Effect LoadEffect(string dir) => ContentManager.Load<Effect>(ContentFolderEffects + dir);
         public Texture2D LoadTexture(string dir) => ContentManager.Load<Texture2D>(ContentFolderTextures + dir);
            
+
+        // PARA CARGAR UN MODELO CON SU EFECTO
+        // Si se carga de otra forma el efecto que se quiera, va a romper
+        public Model LoadModel(string dir, Effect shader){
+            var model = LoadModel(dir);
+            foreach(var mesh in model.Meshes)
+            foreach(var meshPart in mesh.MeshParts)
+                meshPart.Effect= shader;
+            return model;
+        }
     }
 }

@@ -3,12 +3,13 @@ using Microsoft.Xna.Framework;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionOficina : IHabitacion{
-        public HabitacionOficina(int ancho, int alto, Vector3 posicionInicial):base(ancho,alto,posicionInicial){
+        private const int Size = 5;
+        public HabitacionOficina(Vector3 posicionInicial):base(Size,Size,posicionInicial){
             Piso.Oficina();
-            AddPared(Pared.Abajo (ancho, alto, posicionInicial));
-            AddPared(Pared.Arriba(ancho, alto, posicionInicial));
-            AddPared(Pared.Derecha(ancho, alto, posicionInicial));
-            AddPuerta(Puerta.Izquierda(1f, ancho, posicionInicial));
+            AddPared(Pared.Abajo (Size, Size, posicionInicial));
+            AddPared(Pared.Arriba(Size, Size, posicionInicial));
+            AddPared(Pared.Derecha(Size, Size, posicionInicial));
+            AddPuerta(Puerta.Izquierda(1f, Size, posicionInicial));
 
             AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina,new Vector3(1000f,0f,1000f), new Vector3(-MathHelper.PiOver2,MathHelper.PiOver4,0f), 10f));
             AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(1000f,500f,1000f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
