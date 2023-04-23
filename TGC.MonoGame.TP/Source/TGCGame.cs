@@ -44,7 +44,7 @@ namespace TGC.MonoGame.TP
             //Creo que cada habitación debería tener su medida ya establecida (10x10, 10x5, 4x2, etc.) no pasarla por parámetro
             HabitacionesPrueba = new List<Habitacion>();
             HabitacionesPrueba.Add(Habitacion.SalaConferencias(10, 10, new Vector3(-5000f,0f,-5000f)));
-            HabitacionesPrueba.Add(Habitacion.Cocina(10, 10, new Vector3(-15000f,0f,-5000f)));
+            HabitacionesPrueba.Add(Habitacion.Cocina(6, 6, new Vector3(-11000f,0f,-1000f)));
             HabitacionesPrueba.Add(Habitacion.Principal(10, 10, new Vector3(-5000f,0f,5000f)));
             HabitacionesPrueba.Add(Habitacion.Oficina(5, 5, new Vector3(0f,0f,-10000f)));
             HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
@@ -87,7 +87,7 @@ namespace TGC.MonoGame.TP
 
             Auto.Draw(Camera.View, Camera.Projection);
 
-            new Televisor(new Vector3(-3000f, 0f, 10000f)).Draw(Camera.View, Camera.Projection);
+            new Televisor(new Vector3(-4300f, 700f, 12300f)).Draw(Camera.View, Camera.Projection);
         }
         protected override void UnloadContent()
         {

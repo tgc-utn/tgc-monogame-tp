@@ -30,17 +30,6 @@ namespace TGC.MonoGame.TP
 
             Paredes = new List<Pared>();
             Puertas = new List<Puerta>();
-            
-            
-            //Puertas.Add(Puerta.PuertaArriba(2f, ancho, posicionInicial));
-            //Puertas.Add(Puerta.PuertaAbajo(2f, ancho, posicionInicial));
-            //Puertas.Add(Puerta.PuertaIzquierda(2f, ancho, posicionInicial));
-            //Puertas.Add(Puerta.PuertaDerecha(2f, ancho, posicionInicial));
-
-            //Paredes.Add(Pared.Arriba (ancho, posicionInicial));
-            //
-            //Paredes.Add(Pared.Izquierda(ancho, alto ,posicionInicial));
-            //Paredes.Add(Pared.Derecha(ancho, alto ,posicionInicial));
         }
         public static Habitacion Oficina(int ancho, int alto, Vector3 posicionInicial){
             var oficina = new Habitacion(alto, ancho, posicionInicial);
@@ -75,10 +64,11 @@ namespace TGC.MonoGame.TP
             cocina.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
             cocina.AddPared(Pared.Arriba(ancho, alto, posicionInicial));
             cocina.AddPared(Pared.Derecha(ancho, alto, posicionInicial));
-            cocina.AddPuerta(Puerta.Abajo(3f, ancho, posicionInicial));
+            cocina.AddPuerta(Puerta.Abajo(1f, ancho, posicionInicial));
 
 
             cocina.AddElemento(new Mueble(TGCGame.GameContent.M_Cocine, new Vector3(500f,500f,500f), new Vector3(0f,0f,0f), 2f));
+            
 
             return cocina;
         }
@@ -92,6 +82,10 @@ namespace TGC.MonoGame.TP
             banio.AddPared(Pared.Derecha(ancho, alto, posicionInicial));
             banio.AddPuerta(Puerta.Abajo(2f, ancho, posicionInicial));
 
+            banio.AddElemento(new Mueble(TGCGame.GameContent.M_Inodoro, new Vector3(1500f, 0f, 500f), new Vector3(0f, 0f, 0f), 15f));
+            banio.AddElemento(new Mueble(TGCGame.GameContent.M_Baniera, new Vector3(1500f, 0f, 3400f), new Vector3(0f, MathHelper.Pi, 0f), 3f));
+            banio.AddElemento( new Mueble(TGCGame.GameContent.M_Bacha, new Vector3(3000f, 1000f, -100f), new Vector3(-MathHelper.PiOver2, 0f, 0f), 2f));
+
             return banio;
         }
         
@@ -99,9 +93,9 @@ namespace TGC.MonoGame.TP
             var salaConferencias = new Habitacion(ancho,alto,posicionInicial);
             salaConferencias.Piso.Rojo();
             salaConferencias.AddPared(Pared.Abajo (ancho, alto, posicionInicial));
-            salaConferencias.AddPuerta(Puerta.Izquierda(5f, ancho, posicionInicial));
+            salaConferencias.AddPuerta(Puerta.Izquierda(4f, ancho, posicionInicial));
             salaConferencias.AddPuerta(Puerta.Derecha(1f, ancho, posicionInicial));
-            salaConferencias.AddPuerta(Puerta.Arriba(3f, ancho, posicionInicial));
+            salaConferencias.AddPuerta(Puerta.Arriba(1f, ancho, posicionInicial));
 
             #region Set Televisión, Rack y Sillas
             for(int i = 2000 ; i<1000*6 ; i+=1000){
@@ -110,8 +104,9 @@ namespace TGC.MonoGame.TP
                 salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3( i , 400f , 6400f ), 10f));
                 salaConferencias.AddElemento(new Mueble(TGCGame.GameContent.M_Silla, new Vector3( i , 400f , 5700f ), 10f));
             }
-            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(2750f,50f,9200f)));
-            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(3200f,150f,9200f),10f));            
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(2750f,50f,9700f)));
+            salaConferencias.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(3200f,150f,9700f),10f));
+
             #endregion
             #region Set Sillones
             var RotacionSet = new Vector3(0f, MathHelper.PiOver4,0f);
@@ -125,7 +120,7 @@ namespace TGC.MonoGame.TP
             Vector3 desplazamientoRandom, rotacionRandom;
             float random1, random2, random3;
             Mueble lego;
-            for(int i=0; i<200; i++){
+            for(int i=0; i<100; i++){
                 random1 = (Random.Shared.NextSingle());
                 random2 = (Random.Shared.NextSingle()-0.5f);
                 random3 = (Random.Shared.NextSingle()-0.5f);
@@ -162,7 +157,7 @@ namespace TGC.MonoGame.TP
             principal.AddPared(Pared.Izquierda (ancho, alto, posicionInicial));
             principal.AddPuerta(Puerta.Arriba(8f, ancho, posicionInicial));
             principal.AddPared(Pared.Abajo(ancho, alto, posicionInicial));
-            principal.AddPuerta(Puerta.Derecha(5f, ancho, posicionInicial));
+            principal.AddPuerta(Puerta.Derecha(4f, ancho, posicionInicial));
 
             #region CargaMueblesDinámicos
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
@@ -186,6 +181,11 @@ namespace TGC.MonoGame.TP
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(7500f,100f,3500f), new Vector3(0, MathHelper.Pi, 0), 10f));
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(7500f,150f,300f), 10f));
             principal.AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(7950f,50f,350f), new Vector3(0f,MathHelper.Pi,0f)));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Sofa, new Vector3(8000f, 0f, 9350f), new Vector3(0f, MathHelper.Pi, 0f)));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Mesita, new Vector3(8000f, 0f, 8200f), new Vector3(0f, MathHelper.Pi, 0f), 20f));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(8000f, 390f, 8150f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
+            principal.AddElemento( new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(8050f, 390f, 8350f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
+            principal.AddElemento(new Mueble(TGCGame.GameContent.M_Aparador, new Vector3(750f,-400f,7000f), new Vector3(0f,MathHelper.PiOver2,0f), 15f));
 
             #endregion
 
@@ -219,7 +219,7 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
-            new Alfombra(Matrix.CreateScale(3000f, 0f, 2000f)*Matrix.CreateRotationY(MathHelper.Pi/3)*Matrix.CreateTranslation(new Vector3(-12000f,20f,200f))).Draw();
+            new Alfombra(Matrix.CreateScale(3000f, 0f, 2000f)*Matrix.CreateRotationY(MathHelper.Pi/3)*Matrix.CreateTranslation(new Vector3(1500f,10f,14000f))).Draw();
 
             foreach(var puerta in Puertas)
                 puerta.Draw();

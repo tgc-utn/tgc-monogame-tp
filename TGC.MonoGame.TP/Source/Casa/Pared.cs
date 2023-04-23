@@ -40,7 +40,7 @@ namespace TGC.MonoGame.TP
         public void Draw(){ 
   
             Efecto.Parameters["World"].SetValue(World); 
-            Efecto.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+            Efecto.Parameters["DiffuseColor"].SetValue(Color.DarkGray.ToVector3());
 
             TGCGame.GameContent.G_Quad.Draw(Efecto);
         }
