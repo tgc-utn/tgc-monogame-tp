@@ -13,7 +13,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Auto Auto;
-        private List<Habitacion> HabitacionesPrueba;
+        private List<IHabitacion> Hogar = new List<IHabitacion>();
         private Camera Camera;
 
         public TGCGame()
@@ -42,12 +42,12 @@ namespace TGC.MonoGame.TP
 
             Auto = new Auto(Vector3.Zero, Vector3.Zero);
             //Creo que cada habitación debería tener su medida ya establecida (10x10, 10x5, 4x2, etc.) no pasarla por parámetro
-            HabitacionesPrueba = new List<Habitacion>();
-            HabitacionesPrueba.Add(Habitacion.SalaConferencias(10, 10, new Vector3(-5000f,0f,-5000f)));
-            HabitacionesPrueba.Add(Habitacion.Cocina(6, 6, new Vector3(-11000f,0f,-1000f)));
-            HabitacionesPrueba.Add(Habitacion.Principal(10, 10, new Vector3(-5000f,0f,5000f)));
-            HabitacionesPrueba.Add(Habitacion.Oficina(5, 5, new Vector3(0f,0f,-10000f)));
-            HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
+           
+            Hogar.Add( new HabitacionConferencias (10, 10, new Vector3(-5000f,0f,-5000f)));
+            Hogar.Add( new HabitacionCocina       (6, 6,   new Vector3(-11000f,0f,-1000f)));
+            Hogar.Add( new HabitacionPrincipal    (10, 10, new Vector3(-5000f,0f,5000f)));
+            Hogar.Add( new HabitacionOficina      (5, 5,   new Vector3(0f,0f,-10000f)));
+            //HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
         }
 
         protected override void Update(GameTime gameTime)
@@ -59,7 +59,7 @@ namespace TGC.MonoGame.TP
             
             Auto.Update(gameTime, keyboardState);
 
-            foreach(Habitacion habitacion in HabitacionesPrueba)
+            foreach(IHabitacion habitacion in Hogar)
                 habitacion.Update(gameTime, keyboardState);
             
             Camera.Mover(keyboardState);
@@ -82,7 +82,7 @@ namespace TGC.MonoGame.TP
             GameContent.E_SpirtalShader.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
 
 
-            foreach(Habitacion habitacion in HabitacionesPrueba)
+            foreach(IHabitacion habitacion in Hogar)
                 habitacion.Draw(Camera.View, Camera.Projection);
 
             Auto.Draw(Camera.View, Camera.Projection);

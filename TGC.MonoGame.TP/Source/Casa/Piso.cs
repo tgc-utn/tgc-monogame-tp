@@ -15,17 +15,17 @@ namespace TGC.MonoGame.TP
         private readonly float TileSize = 1000f;
         private readonly int Ancho;
         private readonly int Alto;
-        private readonly int CantidadDeBaldosa;
+        private readonly int CantidadBaldosas;
 
         public Piso(int Ancho, int Alto, Vector3 PosicionInicial)
         {
             this.PosicionInicial = PosicionInicial; 
             this.Ancho = Ancho;
             this.Alto = Alto;
-            CantidadDeBaldosa = Ancho * Alto;
+            CantidadBaldosas = Ancho * Alto;
 
-            WorldMatrixs = new Matrix[CantidadDeBaldosa];
-            ColorIndex = new int[CantidadDeBaldosa];
+            WorldMatrixs = new Matrix[CantidadBaldosas];
+            ColorIndex = new int[CantidadBaldosas];
             ColorPallette = new Vector3 []{
                 new Color(254, 183, 129   ).ToVector3(),
                 new Color(233, 130, 89   ).ToVector3(),
@@ -52,7 +52,7 @@ namespace TGC.MonoGame.TP
                 }
             }
         }
-        public Piso Rojo(){
+        public Piso Azul(){
             ColorPallette = new Vector3 []{
                 new Color(19, 38, 47).ToVector3()
             };
@@ -84,7 +84,6 @@ namespace TGC.MonoGame.TP
             SetIndexIntercalado();
             return this;
         }
-
         public Piso Banio(){
             ColorPallette = new Vector3 []{
                 new Color(113, 196, 189   ).ToVector3(),
@@ -99,7 +98,7 @@ namespace TGC.MonoGame.TP
             return this;
         }
  */
-         private void SetIndexIntercalado(){
+        private void SetIndexIntercalado(){
             for(int i=0;i<Ancho;i++)
             {
                 for(int j=0;j<Alto;j++)
@@ -132,7 +131,7 @@ namespace TGC.MonoGame.TP
         } 
         public void Draw(Matrix view, Matrix projection)
         {
-            for(int i=0;i<CantidadDeBaldosa;i++)
+            for(int i=0;i<CantidadBaldosas;i++)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(ColorPallette[ColorIndex[i]]);
                 Effect.Parameters["World"].SetValue(WorldMatrixs[i]);
