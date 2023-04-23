@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.TP
 {
-    public class HabitacionCocina : Habitacion{
+    public class HabitacionCocina : IHabitacion{
         public HabitacionCocina(int ancho, int alto, Vector3 posicionInicial):base(ancho,alto,posicionInicial){
             #region Hormiguitas
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
