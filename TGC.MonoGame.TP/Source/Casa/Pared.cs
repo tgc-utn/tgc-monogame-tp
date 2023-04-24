@@ -7,7 +7,7 @@ namespace TGC.MonoGame.TP
 {
     public class Pared{
         private float Ancho;
-        private float Altura = 2500f;
+        private float Altura = 1000f;
         private static float Escala = 1000f;
         private Vector3 PosicionInicial;
         private bool EsHorizontal;
