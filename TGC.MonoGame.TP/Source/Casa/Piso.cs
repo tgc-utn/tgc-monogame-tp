@@ -90,10 +90,15 @@ namespace TGC.MonoGame.TP
             return this;
         }
         public Piso Cocina(){
-            ColorPallette = new Vector3 []{
+            /* ColorPallette = new Vector3 []{
                 new Color(215, 215, 215   ).ToVector3(),
                 new Color(33, 33, 37   ).ToVector3()
+            }; */
+            ColorPallette = new Vector3 []{
+                new Color(246, 216, 174).ToVector3(),
+                new Color(73, 73, 77   ).ToVector3()
             };
+
             SetIndexIntercalado();
             return this;
         }

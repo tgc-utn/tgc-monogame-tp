@@ -21,8 +21,34 @@ namespace TGC.MonoGame.TP
             AddPared(Pared.Derecha(Size, Size, posicionInicial));
 
 
-            AddElemento(new Mueble(TGCGame.GameContent.M_Cocine, new Vector3(500f,500f,500f), new Vector3(0f,0f,0f), 2f));
+            
+            var sentidoHorizontal = new Vector3(0f,MathHelper.PiOver2,0f);
+            var alturaMesada = 600f;
+            #region SetCocina
+            AddElemento(new Mueble(TGCGame.GameContent.M_MesadaLateral2, new Vector3(0f,0f,900f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_PlatosApilados, new Vector3(200f,alturaMesada,200f), 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_MesadaCentral,  new Vector3(0f,0f,1500f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Olla,           new Vector3(300f,alturaMesada+100f,1500f), 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Plato,          new Vector3(400f,alturaMesada*2,1200f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Plato,          new Vector3(400f,alturaMesada*2,1600f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Plato,          new Vector3(400f,alturaMesada*2,1800f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_MesadaLateral,  new Vector3(0f,0f,2100f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_PlatoGrande,    new Vector3(200f,alturaMesada,2300f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Botella,        new Vector3(1100f,alturaMesada,200f), 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Maceta2,        new Vector3(200f,alturaMesada,2400f), 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Maceta3,        new Vector3(200f,alturaMesada,2900f), 20f));
+            #endregion
 
+
+            AddElemento(new Mueble(TGCGame.GameContent.M_Cocine,    new Vector3(2500f,500f,500f), 2f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Olla,      new Vector3(2350f,alturaMesada,400f), 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Alacena,   new Vector3(200f,alturaMesada*2,3900f), sentidoHorizontal, 20f));
+            AddElemento(new Mueble(TGCGame.GameContent.M_Alacena,   new Vector3(3000f,alturaMesada*2,0f), 20f));
+            
+            AddElemento(new Mueble(TGCGame.GameContent.M_Maceta,    new Vector3(5400f,0f,5400f), 60f));
+            
+            AddElemento(new Mueble(TGCGame.GameContent.M_Maceta4,   new Vector3(400f,0f,5400f), 60f));
+            
         }
     }    
 }

@@ -24,11 +24,12 @@ namespace TGC.MonoGame.TP
 
         public Camera(float aspectRatio)
         {
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 100000f);
+            //Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 100000f);
 
             //Matriz de proyeccion casi isometrica, entre mas cerca del 0 este el primer 
             // valor se respeta mas la isometria pero tambien se rompe todo si es muy bajo
-            //Projection = Matrix.CreatePerspectiveFieldOfView(0.5f, aspectRatio, 0.1f, 100000f);
+            Projection = Matrix.CreatePerspectiveFieldOfView(0.5f, aspectRatio, 0.1f, 100000f);
+            AxisDistanceToTarget = 5000f;
         }
 
         public void Mover(KeyboardState keyboardState){
