@@ -21,7 +21,7 @@ namespace TGC.MonoGame.TP
                 M_Televisor1 , M_MuebleTV, M_Planta , M_Escritorio, M_Cocine, M_Plantis, M_Lego, M_Baniera,M_Sofa, M_Mesita, M_Aparador, 
                 M_Bacha, M_Organizador, M_Cajonera, M_CamaMarinera , M_MesadaCentral, M_MesadaLateral, M_MesadaLateral2, M_Alacena, 
                 M_Botella, M_Maceta, M_Maceta2, M_Maceta3, M_Maceta4, M_Olla, M_ParedCocina, M_Plato, M_PlatoGrande, M_PlatosApilados,
-                M_Mesada
+                M_Mesada, M_AutoPegni
                 ;
 
         internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader;
@@ -46,6 +46,7 @@ namespace TGC.MonoGame.TP
 
             //Modelos
             M_Auto = LoadModel("RacingCar/RacingCar");
+            M_AutoPegni = LoadModel("Autos/PegniZonda/PegniZonda");
             M_AutoEnemigo = LoadModel("CombatVehicle/Vehicle");
 
             M_Inodoro = LoadModel("Muebles/inodoro/inodoro");

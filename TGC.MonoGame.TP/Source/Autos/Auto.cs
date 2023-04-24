@@ -13,6 +13,7 @@ namespace TGC.MonoGame.TP
         private float Rotation;
         private float JumpPower = 50000f;
         private float Turning = 0f;
+        private bool cambio = false;
 
         public Auto(Vector3 posicionInicial) : base(posicionInicial, Vector3.Zero)
         {
@@ -26,6 +27,11 @@ namespace TGC.MonoGame.TP
             Vector3 acceleration = Vector3.Zero;
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
+            if(keyboardState.IsKeyDown(Keys.M) && !cambio ){
+                cambio = true;
+                Model = TGCGame.GameContent.M_AutoPegni;
+            }
+            
             // GRAVEDAD
             float floor = 0f;
             Vector3 Gravity = -Vector3.Up * 15f;
