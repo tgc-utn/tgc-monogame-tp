@@ -23,7 +23,8 @@ namespace TGC.MonoGame.TP.Entities
             Effect = new BasicEffect(graphicsDevice);
             GraphicsDevice = graphicsDevice;
             _cantidadDeFilas = cantidadDeQuadPorLinea;
-            Waves = new float[10, 10];
+            Waves = new float[50, 50];
+            Quad = new SimpleQuad(graphicsDevice, Effect);
         }
 
         // Capaz la segunda versión estaría buena que sea algo así.
@@ -90,7 +91,7 @@ namespace TGC.MonoGame.TP.Entities
             {
                 for (int j = 0; j < Waves.GetLength(1) - 1; j++)
                 {
-                    Quad = new SimpleQuad(GraphicsDevice, Effect, new [,]
+                    Quad.ModifyVertexBuffer(new [,]
                     {
                         { Waves[i, j+1], Waves[i, j] },
                         { Waves[i+1, j+1], Waves[i+1, j]}

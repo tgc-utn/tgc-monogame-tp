@@ -9,17 +9,14 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a textured quad.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        public SimpleQuad(GraphicsDevice graphicsDevice, BasicEffect effect, float[,] heigths)
+        public SimpleQuad(GraphicsDevice graphicsDevice, BasicEffect effect)
         {
             Effect = effect;
-            CreateVertexBuffer(graphicsDevice, heigths);
+            Vertices = new VertexBuffer(graphicsDevice, VertexPositionColorNormal.VertexDeclaration, 4,
+                BufferUsage.WriteOnly);
             CreateIndexBuffer(graphicsDevice);
         }
 
-        public void render()
-        {
-            
-        }
         /// <summary>
         ///     Represents a list of 3D vertices to be streamed to the graphics device.
         /// </summary>
@@ -40,7 +37,7 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a vertex buffer for the figure with the given information.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        private void CreateVertexBuffer(GraphicsDevice graphicsDevice, float[,] heights)
+        public void ModifyVertexBuffer(float[,] heights)
         {
             // Set the position and texture coordinate for each vertex
             // Normals point Up as the Quad is originally XZ aligned
@@ -55,9 +52,6 @@ namespace TGC.MonoGame.TP.Entities
                 // Negative X, Negative Z
                 new VertexPositionColorNormal(Vector3.UnitZ - Vector3.UnitX + Vector3.UnitY * heights[0,0], Color.Blue, Vector3.UnitY)
             };
-
-            Vertices = new VertexBuffer(graphicsDevice, VertexPositionColorNormal.VertexDeclaration, vertices.Length,
-                BufferUsage.WriteOnly);
             Vertices.SetData(vertices);
         }
 
