@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
@@ -34,6 +33,7 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
+            // Graphics.IsFullScreen = true;
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
@@ -74,13 +74,7 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             Ship.LoadContent(Content, Effect);
             IslandGenerator.LoadContent(Content, Effect);
-            // Islands = new[]
-            // {
-            //     IslandGenerator.Create(0, new Vector3(0, 0, 4000), 0.3f),
-            //     IslandGenerator.Create(1, new Vector3(4000, 0, 0), 0.3f),
-            //     IslandGenerator.Create(2, new Vector3(5000, 0, 4000), 0.3f),
-            // };
-            Islands = IslandGenerator.CreateRandomIslands(100, 50000f, 50000f);
+            Islands = IslandGenerator.CreateRandomIslands(200, 1500f, 1500f);
             base.LoadContent();
         }
 

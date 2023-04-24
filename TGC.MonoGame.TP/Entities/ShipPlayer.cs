@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 using TGC.MonoGame.TP.Camera;
 
 namespace TGC.MonoGame.TP.Entities;
@@ -15,8 +16,8 @@ public class ShipPlayer
     private Matrix World { get; set; }
     private float Rotation { get; set; }
     private Vector3 Position { get; set; }
-    private float RotationVelocity { get; set; } = 10f;
-    private float Velocity { get; set; } = 5000f;
+    private float RotationVelocity { get; set; } = 3f;
+    private float Velocity { get; set; } = 10f;
 
     // Uso el constructor como el Initialize
     public ShipPlayer()
@@ -49,7 +50,8 @@ public class ShipPlayer
         // Capturar Input teclado
         ResolveShipRotation(deltaTime, keyboardState);
         ResolveShipMovement(deltaTime, keyboardState);
-        World = Matrix.CreateScale(0.025f) * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
+        World = Matrix.CreateScale(0.00025f) * Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
+        Debug.WriteLine("[Ship Position] " + Position);
         followCamera.Update(gameTime, World);
     }
 

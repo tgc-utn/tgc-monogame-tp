@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 using TGC.MonoGame.TP.Entities.Islands;
 
 namespace TGC.MonoGame.TP.Entities;
@@ -40,17 +41,20 @@ public class IslandGenerator
 
     public Island[] CreateRandomIslands(int qty, float maxX, float maxZ)
     {
+        Debug.WriteLine("[CreateRandomIslands] qty: " + qty + " maxX: " + maxX + " maxZ: " + maxZ);
         Island[] islands = new Island[qty];
 
         Random rnd = new Random();
         for (int i = 0; i < qty; i++)
         {
-            float islandX = rnd.NextSingle() * maxX;
-            float islandZ = rnd.NextSingle() * maxZ;
-            
-            Console.WriteLine("[Creating Island] X: " + islandX + " - Z: " + islandZ);
+            float islandX = (rnd.NextSingle() - .5f) * maxX;
+            float islandZ = (rnd.NextSingle() - .5f) * maxZ;
+            Vector3 islandVector = new Vector3(islandX, 0, islandZ);
+            Debug.WriteLine("[Creating Island " + i + "] " + islandVector);
 
-            islands[i] = Create(rnd.Next(_islandPaths.Length), new Vector3(islandX, 0, islandZ), 0.2f);
+            float islandScale = rnd.NextSingle() / 100;
+            float islandRotation = rnd.NextSingle() * Convert.ToSingle(Math.PI) * 2f;
+            islands[i] = Create(rnd.Next(_islandPaths.Length), new Vector3(islandX, 0, islandZ), islandScale, islandRotation);
         }
 
         return islands;
