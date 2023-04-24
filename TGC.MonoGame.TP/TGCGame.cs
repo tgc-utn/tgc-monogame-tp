@@ -25,7 +25,7 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private Island[] Islands { get; set; }
         private IslandGenerator IslandGenerator { get; set; }
-
+        private Water Water { get; set; }
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -75,6 +75,7 @@ namespace TGC.MonoGame.TP
             Ship.LoadContent(Content, Effect);
             IslandGenerator.LoadContent(Content, Effect);
             Islands = IslandGenerator.CreateRandomIslands(200, 1500f, 1500f);
+            Water = new Water(GraphicsDevice, 100);
             base.LoadContent();
         }
 
@@ -104,6 +105,7 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.Aqua);
             Ship.Draw(FollowCamera);
+            Water.Draw(Matrix.CreateTranslation(-600f,0.04f, -600f), FollowCamera.View, FollowCamera.Projection);
             foreach (var island in Islands)
             {
                 island.Draw();
