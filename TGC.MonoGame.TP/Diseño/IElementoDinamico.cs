@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace TGC.MonoGame.TP
+namespace TGC.MonoGame.TP.Design
 {
     public abstract class IElementoDinamico : IElemento, IDinamico  {
         public IElementoDinamico(Vector3 posicionInicial, Vector3 rotacion, float escala = 1f) : base(posicionInicial, rotacion, escala){}
