@@ -62,7 +62,7 @@ namespace TGC.MonoGame.TP
             foreach(var hab in Hogar)
                 Console.WriteLine("Habitacion cargada con {0:D}"+ " elementos.", hab.cantidadElementos());
             //Auto ( posicionInicial )
-            Auto = new Auto(Hogar[0].getCenter());
+            Auto = new Auto(Hogar[7].getCenter());
         }
 
         protected override void Update(GameTime gameTime)
