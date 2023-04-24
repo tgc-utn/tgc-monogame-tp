@@ -9,13 +9,17 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a textured quad.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        public SimpleQuad(GraphicsDevice graphicsDevice, BasicEffect effect)
+        public SimpleQuad(GraphicsDevice graphicsDevice, BasicEffect effect, float[,] heigths)
         {
             Effect = effect;
-            CreateVertexBuffer(graphicsDevice);
+            CreateVertexBuffer(graphicsDevice, heigths);
             CreateIndexBuffer(graphicsDevice);
         }
 
+        public void render()
+        {
+            
+        }
         /// <summary>
         ///     Represents a list of 3D vertices to be streamed to the graphics device.
         /// </summary>
@@ -36,21 +40,20 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a vertex buffer for the figure with the given information.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        private void CreateVertexBuffer(GraphicsDevice graphicsDevice)
+        private void CreateVertexBuffer(GraphicsDevice graphicsDevice, float[,] heights)
         {
             // Set the position and texture coordinate for each vertex
             // Normals point Up as the Quad is originally XZ aligned
-
             var vertices = new[]
             {
-                // Possitive X, Possitive Z
-                new VertexPositionColorNormal(Vector3.UnitX + Vector3.UnitZ,Color.Aquamarine ,Vector3.UnitY),
-                // Possitive X, Negative Z
-                new VertexPositionColorNormal(Vector3.UnitX - Vector3.UnitZ, Color.Blue, Vector3.UnitY),
-                // Negative X, Possitive Z
-                new VertexPositionColorNormal(-Vector3.UnitX - Vector3.UnitZ, Color.Aqua, Vector3.UnitY),
+                // Positive X, Positive Z
+                new VertexPositionColorNormal(Vector3.UnitX + Vector3.UnitZ + Vector3.UnitY * heights[1,0],Color.Aquamarine ,Vector3.UnitY),
+                // Positive X, Negative Z
+                new VertexPositionColorNormal(Vector3.UnitX - Vector3.UnitZ + Vector3.UnitY * heights[1,1], Color.Blue, Vector3.UnitY),
+                // Negative X, Positive Z
+                new VertexPositionColorNormal(-Vector3.UnitX - Vector3.UnitZ + Vector3.UnitY * heights[0,1], Color.Aqua, Vector3.UnitY),
                 // Negative X, Negative Z
-                new VertexPositionColorNormal(Vector3.UnitZ - Vector3.UnitX, Color.Blue, Vector3.UnitY)
+                new VertexPositionColorNormal(Vector3.UnitZ - Vector3.UnitX + Vector3.UnitY * heights[0,0], Color.Blue, Vector3.UnitY)
             };
 
             Vertices = new VertexBuffer(graphicsDevice, VertexPositionColorNormal.VertexDeclaration, vertices.Length,

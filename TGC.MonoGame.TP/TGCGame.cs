@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
@@ -26,6 +27,7 @@ namespace TGC.MonoGame.TP
         private Island[] Islands { get; set; }
         private IslandGenerator IslandGenerator { get; set; }
         private Water Water { get; set; }
+        private float WaterCounter { get; set; }
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -56,7 +58,7 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
-
+            WaterCounter = 0;
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             Ship = new ShipPlayer();
             IslandGenerator = new IslandGenerator();
@@ -92,8 +94,13 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
+            WaterCounter += (float) gameTime.ElapsedGameTime.TotalSeconds;
+            if (WaterCounter > 0.5)
+            {
+                Water.UpdateWaves();
+                WaterCounter = 0;
+            }
             Ship.Update(gameTime, FollowCamera);
-
             base.Update(gameTime);
         }
 
@@ -105,7 +112,7 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.Aqua);
             Ship.Draw(FollowCamera);
-            Water.Draw(Matrix.CreateTranslation(-600f,0.04f, -600f), FollowCamera.View, FollowCamera.Projection);
+            Water.DrawWaves(Matrix.CreateTranslation(-100,0.0005f, -100), FollowCamera.View, FollowCamera.Projection);
             foreach (var island in Islands)
             {
                 island.Draw();

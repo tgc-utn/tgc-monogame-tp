@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.TP.Entities
@@ -12,15 +14,16 @@ namespace TGC.MonoGame.TP.Entities
         //Quise utilizar BasicShader y no pude cargar los vertex buffer e index
         private BasicEffect Effect { get; set; }
         private SimpleQuad Quad { get; set; }
-
+        private GraphicsDevice GraphicsDevice { get; set; }
+        private float[,] Waves { get; set; }
         private int _cantidadDeFilas;
 
         public Water(GraphicsDevice graphicsDevice, int cantidadDeQuadPorLinea)
         {
             Effect = new BasicEffect(graphicsDevice);
-
+            GraphicsDevice = graphicsDevice;
             _cantidadDeFilas = cantidadDeQuadPorLinea;
-            Quad = new SimpleQuad(graphicsDevice, Effect);
+            Waves = new float[10, 10];
         }
 
         // Capaz la segunda versión estaría buena que sea algo así.
@@ -65,6 +68,39 @@ namespace TGC.MonoGame.TP.Entities
 
         }
 
+        public void UpdateWaves()
+        {
+            Random rnd = new Random();
+            for (int i = 0; i < Waves.GetLength(0); i++)
+            {
+                for (int j = 0; j < Waves.GetLength(1); j++)
+                {
+                    Waves[i, j] = rnd.NextSingle();
+                }
+            }
+        }
 
+        public void DrawWaves(Matrix posicionInicial, Matrix view, Matrix projection)
+        {
+            float proximaDistancia = 0f;
+            float distanciaEnX = 0f;
+            float escala = 10f;
+            Matrix world = Matrix.CreateScale(new Vector3(escala, 1, escala)) * posicionInicial;
+            for (int i = 0; i < Waves.GetLength(0) - 1; i++)
+            {
+                for (int j = 0; j < Waves.GetLength(1) - 1; j++)
+                {
+                    Quad = new SimpleQuad(GraphicsDevice, Effect, new [,]
+                    {
+                        { Waves[i, j+1], Waves[i, j] },
+                        { Waves[i+1, j+1], Waves[i+1, j]}
+                    });
+                    Quad.Draw(Matrix.CreateTranslation(new Vector3(distanciaEnX, 0f, proximaDistancia)) * world, view, projection);   
+                    proximaDistancia += 2f;
+                }
+                proximaDistancia = 0;
+                distanciaEnX += 2f;
+            }
+        }
     }
 }
