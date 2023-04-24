@@ -52,6 +52,9 @@ namespace TGC.MonoGame.TP
                 }
             }
         }
+        public Vector3 getCenter(){
+            return PosicionInicial+new Vector3(Ancho*TileSize/2,0f,Alto*TileSize/2);
+        }
         public Piso Azul(){
             ColorPallette = new Vector3 []{
                 new Color(19, 38, 47).ToVector3()

@@ -14,7 +14,7 @@ namespace TGC.MonoGame.TP
         private Effect Efecto = TGCGame.GameContent.E_BasicShader;
         private Matrix World;
 
-        private Pared(float ancho, Vector3 posicionInicial,bool esHorizontal){
+        private Pared(float ancho, Vector3 posicionInicial,bool esHorizontal = false){
             Ancho = ancho;
             PosicionInicial = posicionInicial;
             EsHorizontal = esHorizontal;
@@ -25,11 +25,11 @@ namespace TGC.MonoGame.TP
         }
 
         public static Pared Izquierda(float ancho, float alto, Vector3 posicionInicial){
-            return new Pared(ancho, posicionInicial + new Vector3(0f, 0f, ancho * Escala) ,false);
+            return new Pared(ancho, posicionInicial + new Vector3(0f, 0f, ancho * Escala));
             
         }
         public static Pared Derecha(float ancho, float alto, Vector3 posicionInicial){
-            return new Pared(ancho, posicionInicial, false);
+            return new Pared(ancho, posicionInicial);
         }
         public static Pared Arriba(float ancho, float alto, Vector3 posicionInicial){
             return new Pared(ancho, posicionInicial, true);
@@ -38,7 +38,6 @@ namespace TGC.MonoGame.TP
             return new Pared(ancho, posicionInicial + new Vector3(alto * Escala - 0f, 0f, 0f) ,true);
         }
         public void Draw(){ 
-  
             Efecto.Parameters["World"].SetValue(World); 
             Efecto.Parameters["DiffuseColor"].SetValue(Color.DarkGray.ToVector3());
 

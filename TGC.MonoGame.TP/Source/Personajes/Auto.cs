@@ -13,7 +13,7 @@ namespace TGC.MonoGame.TP
         private float JumpPower = 50000f;
         private float Turning = 0f;
 
-        public Auto(Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion)
+        public Auto(Vector3 posicionInicial) : base(posicionInicial, Vector3.Zero)
         {
             Model = TGCGame.GameContent.M_Auto;
             Position = posicionInicial;
@@ -24,7 +24,6 @@ namespace TGC.MonoGame.TP
             float accelerationSense = 0f;
             Vector3 acceleration = Vector3.Zero;
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
 
             // GRAVEDAD
             float floor = 0f;
@@ -72,6 +71,10 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateScale(0.75f) * 
                 MatrixRotation *
                 Matrix.CreateTranslation(Position);
+        }
+
+        public void Teleport(Vector3 toXYZ){
+            Position = toXYZ;
         }
     }
 }

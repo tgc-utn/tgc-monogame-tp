@@ -13,6 +13,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Auto Auto;
+        private int IndiceHabAuto = 0;
         private Camera Camera; 
         private List<IHabitacion> Hogar = new List<IHabitacion>();
 
@@ -40,8 +41,7 @@ namespace TGC.MonoGame.TP
             GameContent = new Content(Content, GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Auto = new Auto(Vector3.Zero, Vector3.Zero);
-
+            //Seteando las variables de los efectos que *No van a cambiar*
             GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
             GameContent.E_SpiralShader.Parameters["View"].SetValue(Camera.View);
@@ -58,6 +58,9 @@ namespace TGC.MonoGame.TP
             Hogar.Add( new HabitacionPasillo2     (new Vector3(-5000f, 0f, -3000f)));
             Hogar.Add( new HabitacionDormitorio1  (new Vector3(-1000f, 0f, -5000f)));
             Hogar.Add( new HabitacionDormitorio2  (new Vector3(-10000f, 0f, -6000f)));
+
+            //Auto ( posicionInicial )
+            Auto = new Auto(Hogar[0].getCenter());
         }
 
         protected override void Update(GameTime gameTime)
@@ -67,6 +70,12 @@ namespace TGC.MonoGame.TP
                 Exit();
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds); 
             
+            if (Keyboard.GetState().IsKeyDown(Keys.T)){
+                IndiceHabAuto++;
+                if(IndiceHabAuto >= Hogar.Count) IndiceHabAuto = 0;
+                
+                Auto.Teleport(Hogar[IndiceHabAuto].getCenter());
+            }else
             Auto.Update(gameTime, keyboardState);
 
             foreach(IHabitacion habitacion in Hogar)

@@ -40,6 +40,10 @@ namespace TGC.MonoGame.TP
             Muebles.Add(elem);
         }
 
+        public Vector3 getCenter(){
+            return Piso.getCenter();
+        }
+
         public void AddPared( Pared pared ){
             Paredes.Add(pared);
         }
