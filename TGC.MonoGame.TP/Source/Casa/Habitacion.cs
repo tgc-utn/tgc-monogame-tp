@@ -44,6 +44,9 @@ namespace TGC.MonoGame.TP
         public Vector3 getCenter(){
             return Piso.getCenter();
         }
+        public int cantidadElementos(){
+            return this.Muebles.Count;
+        }
 
         public void AddPared( Pared pared ){
             Paredes.Add(pared);

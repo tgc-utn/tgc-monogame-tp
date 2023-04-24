@@ -59,6 +59,8 @@ namespace TGC.MonoGame.TP
             Hogar.Add( new HabitacionDormitorio1  (new Vector3(-1000f, 0f, -5000f)));
             Hogar.Add( new HabitacionDormitorio2  (new Vector3(-10000f, 0f, -6000f)));
 
+            foreach(var hab in Hogar)
+                Console.WriteLine("Habitacion cargada con {0:D}"+ " elementos.", hab.cantidadElementos());
             //Auto ( posicionInicial )
             Auto = new Auto(Hogar[0].getCenter());
         }
