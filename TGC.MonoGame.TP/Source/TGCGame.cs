@@ -13,8 +13,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Auto Auto;
-        private Camera Camera;
-        Televisor tvPrincipal1, tvConferencias, tvPrincipal2; 
+        private Camera Camera; 
         private List<IHabitacion> Hogar = new List<IHabitacion>();
 
         public TGCGame()
@@ -43,11 +42,14 @@ namespace TGC.MonoGame.TP
 
             Auto = new Auto(Vector3.Zero, Vector3.Zero);
 
-            tvPrincipal1 = new Televisor(new Vector3(-5000f,0f,5000f) + new Vector3(7500f,150f,300f), 0f);
-            tvPrincipal2 = new Televisor(new Vector3(-4300f, 700f, 12300f), MathHelper.PiOver2);
-            tvConferencias = new Televisor(new Vector3(-5000f,0f,-5000f) + new Vector3(3200f,150f,9200f), MathHelper.Pi);
+            GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
+            GameContent.E_SpiralShader.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_SpiralShader.Parameters["Projection"].SetValue(Camera.Projection);
+            GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
 
-            //Hogar.Add( new HabitacionConferencias (new Vector3(-5000f,0f,-5000f)));
+            //Hogar.Add( new HabitacionTipo ( Vector3 ubicacionEsquinaSuperiorDerecha ));
             Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,7000f)));
             Hogar.Add( new HabitacionPrincipal    (new Vector3(-5000f,0f,5000f)));
             Hogar.Add( new HabitacionOficina      (new Vector3(-1000f,0f,0f)));
@@ -56,7 +58,6 @@ namespace TGC.MonoGame.TP
             Hogar.Add( new HabitacionPasillo2     (new Vector3(-5000f, 0f, -3000f)));
             Hogar.Add( new HabitacionDormitorio1  (new Vector3(-1000f, 0f, -5000f)));
             Hogar.Add( new HabitacionDormitorio2  (new Vector3(-10000f, 0f, -6000f)));
-            //HabitacionesPrueba.Add(Habitacion.Banio(4, 4, new Vector3(-9000, 0f, 5000)));
         }
 
         protected override void Update(GameTime gameTime)
@@ -93,13 +94,7 @@ namespace TGC.MonoGame.TP
             foreach(IHabitacion habitacion in Hogar)
                 habitacion.Draw(Camera.View, Camera.Projection);
 
-            Auto.Draw(Camera.View, Camera.Projection);
-
-
-            //Puesto acá solo para probar
-            //tvConferencias.Draw();            
-            //tvPrincipal1.Draw();            
-            //tvPrincipal2.Draw();            
+            Auto.Draw(Camera.View, Camera.Projection);          
         }
         protected override void UnloadContent()
         {

@@ -2,13 +2,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 namespace TGC.MonoGame.TP
 {
-    public class Televisor
-    {
+    public class Televisor : IElemento{
         private Vector3 Position;
-        private Model Model => TGCGame.GameContent.M_Televisor1;
-        private Matrix World;
+        private new Model Model => TGCGame.GameContent.M_Televisor1;
 
-        public Televisor(Vector3 Position, float rotacion) {
+        public Televisor(Vector3 Position, float rotacion):base(Position, new Vector3(0f,rotacion,0f)) {
             this.Position = Position;
             World =  Matrix.CreateScale(10f) *
                     Matrix.CreateRotationY(rotacion) *
@@ -20,7 +18,7 @@ namespace TGC.MonoGame.TP
                 meshPart.Effect=bShader;
         }
         
-        internal void Draw() 
+        public override void Draw(Matrix view, Matrix projection) 
         {/* 
             Matrix ScreenWorld =    Matrix.CreateScale(500f, 0f, 1000f) * 
                                     Matrix.CreateRotationZ(MathHelper.PiOver2) * 

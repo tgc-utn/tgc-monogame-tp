@@ -6,10 +6,12 @@ namespace TGC.MonoGame.TP
     public class HabitacionPrincipal : IHabitacion{
         private const int Size = 10;
         public HabitacionPrincipal(Vector3 posicionInicial):base(Size,Size,posicionInicial){
+
             AddPared(Pared.Izquierda (Size, Size, posicionInicial));
             AddPuerta(Puerta.Arriba(3f, Size, posicionInicial));
             AddPared(Pared.Abajo(Size, Size, posicionInicial));
             AddPuerta(Puerta.Derecha(7f, Size, posicionInicial));
+            
 
             #region CargaMueblesDinámicos
             var posicionesAutosIA = new Vector3(0f,0f,300f);           
@@ -34,6 +36,7 @@ namespace TGC.MonoGame.TP
             // SI QUERÉS PONER EL TELEVISOR ACÁ, 
             // ELIMINA LOS TELEVISORES DEL DRAW EN EL TGCGAME.CS
             //AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(7500f,150f,300f), 10f));
+            AddElemento( new Televisor(new Vector3(7500f,150f,300f), 0f) );
             AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(7950f,50f,350f), new Vector3(0f,MathHelper.Pi,0f)));          
 
             AddElemento( new Mueble(TGCGame.GameContent.M_Sofa, new Vector3(8000f, 0f, 9350f), new Vector3(0f, MathHelper.Pi, 0f)));
@@ -41,6 +44,7 @@ namespace TGC.MonoGame.TP
             AddElemento( new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(8000f, 390f, 8150f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
             AddElemento( new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(8050f, 390f, 8350f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
             AddElemento( new Mueble(TGCGame.GameContent.M_Aparador, new Vector3(750f,-400f,8500f), new Vector3(0f,MathHelper.PiOver2,0f), 15f));
+            AddElemento( new Televisor(new Vector3(150f, 650f, 8800f), MathHelper.PiOver2) );
             #endregion
 
         }
