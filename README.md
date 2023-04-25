@@ -19,8 +19,7 @@ _Un divertido Battle Royale offline desarrollado por alumnos de la UTN FRBA._
 - **"E"** o **"Click"** para _Tirar tu Power-Up_
 
 ## Capturas
-
-> Acá las capturas
+<img src="https://user-images.githubusercontent.com/22857096/234354687-ebb92530-eb2f-48e0-a533-9f2be9a9c426.png" width=50% height=50%><img src="https://user-images.githubusercontent.com/22857096/234354699-d0fe534b-6b23-4df4-9602-cfa3ed667776.png" width=50% height=50%><img src="https://user-images.githubusercontent.com/22857096/234354706-96bb71d1-d945-4ecd-8014-4fe43a5ee2fe.png" width=50% height=50%><img src="https://user-images.githubusercontent.com/22857096/234354724-0fe0fc1c-c063-4d63-b5ac-f44a0c510924.png" width=50% height=50%>
 
 ## Game Play
 
