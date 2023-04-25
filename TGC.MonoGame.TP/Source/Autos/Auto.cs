@@ -14,11 +14,13 @@ namespace TGC.MonoGame.TP
         private float JumpPower = 50000f;
         private float Turning = 0f;
         private bool cambio = false;
+        private float Escala = 0.75f;
 
-        public Auto(Vector3 posicionInicial) : base(posicionInicial, Vector3.Zero)
+        public Auto(Vector3 posicionInicial, float escala = 0.75f) : base(posicionInicial, Vector3.Zero, escala)
         {
             Model = TGCGame.GameContent.M_Auto;
             Position = posicionInicial;
+            Escala = escala;
         }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -30,6 +32,7 @@ namespace TGC.MonoGame.TP
             if(keyboardState.IsKeyDown(Keys.M) && !cambio ){
                 cambio = true;
                 Model = TGCGame.GameContent.M_AutoPegni;
+                Escala = 0.3f;
             }
             
             // GRAVEDAD
@@ -75,7 +78,7 @@ namespace TGC.MonoGame.TP
             
             // MATRIZ DE MUNDO
             World = 
-                Matrix.CreateScale(0.75f) * 
+                Matrix.CreateScale(Escala) * 
                 MatrixRotation *
                 Matrix.CreateTranslation(Position);
         }
