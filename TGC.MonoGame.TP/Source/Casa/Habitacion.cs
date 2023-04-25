@@ -45,7 +45,7 @@ namespace TGC.MonoGame.TP
             return Piso.getCenter();
         }
         public int cantidadElementos(){
-            return this.Muebles.Count;
+            return this.Muebles.Count + this.MueblesDinamicos.Count;
         }
 
         public void AddPared( Pared pared ){

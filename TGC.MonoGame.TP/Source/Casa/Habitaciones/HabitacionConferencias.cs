@@ -61,12 +61,9 @@ namespace TGC.MonoGame.TP
             AddElemento(new Mueble(TGCGame.GameContent.M_Alfil , desplazamientoSet + new Vector3(0f,0f,400f)));
             AddElemento(new Mueble(TGCGame.GameContent.M_Torre , desplazamientoSet + new Vector3(400f,0f,400f)));
             AddElemento(new Mueble(TGCGame.GameContent.M_Alfil , desplazamientoSet + new Vector3(400f,0f,0f)));
-
             #endregion
 
             AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(2750f,50f,9700f)));
-            //AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(3200f,150f,9700f),10f));
-           
         }
     }    
 }

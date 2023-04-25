@@ -14,11 +14,10 @@ namespace TGC.MonoGame.TP
             
 
             #region CargaMueblesDinámicos
-            var posicionesAutosIA = new Vector3(0f,0f,300f);           
-            for(int i=0; i<20; i++){
-                var escala = 0.04f * Random.Shared.NextSingle() + 0.04f;
-                //AddDinamico(new EnemyCar(escala, posicionesAutosIA, Vector3.Zero));
-                posicionesAutosIA += new Vector3(500f,0f,500f);
+            var posicionesAutosIA = new Vector3(1000f,0f,6000f);           
+            for(int i=1; i<6; i++){
+                AddDinamico(new EnemyCar(new Vector3(i*1000f,0f,6000f), Vector3.Zero));
+                AddDinamico(new EnemyCar(new Vector3(1001f,0f,i*1000f), Vector3.Zero));
             }
             #endregion
             
@@ -33,9 +32,6 @@ namespace TGC.MonoGame.TP
             AddElemento( new Mueble(TGCGame.GameContent.M_Silla, new Vector3(4750f,370f,4450f), new Vector3(0, -MathHelper.PiOver2*1.3f, 0), 10f));
 
             AddElemento( new Mueble(TGCGame.GameContent.M_Sillon, new Vector3(7500f,100f,3500f), new Vector3(0, MathHelper.Pi, 0), 10f));
-            // SI QUERÉS PONER EL TELEVISOR ACÁ, 
-            // ELIMINA LOS TELEVISORES DEL DRAW EN EL TGCGAME.CS
-            //AddElemento( new Mueble(TGCGame.GameContent.M_Televisor1, new Vector3(7500f,150f,300f), 10f));
             AddElemento( new Televisor(new Vector3(7500f,150f,300f), 0f) );
             AddElemento( new Mueble(TGCGame.GameContent.M_MuebleTV,   new Vector3(7950f,50f,350f), new Vector3(0f,MathHelper.Pi,0f)));          
 

@@ -5,29 +5,26 @@ using TGC.MonoGame.TP.Design;
 
 namespace TGC.MonoGame.TP{
     class EnemyCar : IElementoDinamico {
-        
-        // Variables escondidas
-        // Matrix World : Para hacerle modificaciones
-        // String UbicacionModelo : Para ubicar al modelo
         private const float Velocidad = 500f;
         private Vector3 Traslacion = new Vector3(0f,0f, 0f);
-        private Vector3 Direccion = new Vector3(1f,0f,0f);
+        private Vector3 Direccion = new Vector3(0f,0f,0f); // Si está en cero, están inmóviles
         private float Escala;
 
-        public EnemyCar(float escala, Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion) 
+        public EnemyCar(Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion) 
         {
             Model = TGCGame.GameContent.M_AutoEnemigo;
-            Escala = escala; //aprox 0.07 está bien
+            Escala = 0.07f;
             Traslacion = posicionInicial;
         }
         
         public override void Update(GameTime gameTime, KeyboardState keyboard)
         {
-            var traslacionRelativa = Traslacion + PosicionInicial;
-            const float limiteInferior = 5000f;
-            const float limiteSuperior = 0f;
-            const float limiteDerecho = 300f;
-            const float limiteIzquierdo = 5000f;
+            var traslacionRelativa = Traslacion;
+            //var traslacionRelativa = Traslacion + PosicionInicial;
+            const float limiteInferior = 5500f;
+            const float limiteSuperior = 1000f;
+            const float limiteDerecho = 1000f;
+            const float limiteIzquierdo = 7000f;
 
             // En cuadrado alrededor del mapa
             switch(Direccion.X){
@@ -63,10 +60,6 @@ namespace TGC.MonoGame.TP{
 
             Traslacion.X += Velocidad*Direccion.X * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             Traslacion.Z += Velocidad*Direccion.Z * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            // Movimiento anterior
-            //Traslacion.X += 5f*MathF.Sin(Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds)*2);
-            //Traslacion.Z += 5f*MathF.Sin(Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds)/2);
 
             World = Matrix.CreateScale(Escala)
                     *Matrix.CreateTranslation(PosicionInicial)
