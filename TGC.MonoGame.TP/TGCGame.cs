@@ -95,7 +95,7 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
             WaterCounter += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            if (WaterCounter > 0.5)
+            if (WaterCounter > .5)
             {
                 Water.UpdateWaves();
                 WaterCounter = 0;

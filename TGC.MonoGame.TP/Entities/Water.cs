@@ -10,8 +10,8 @@ namespace TGC.MonoGame.TP.Entities
     /// </summary>
     public class Water
     {
-        //Uso BasicEffect porque en los tutoriales lo usan
-        //Quise utilizar BasicShader y no pude cargar los vertex buffer e index
+        // Uso BasicEffect porque en los tutoriales lo usan
+        // Quise utilizar BasicShader y no pude cargar los vertex buffer e index
         private BasicEffect Effect { get; set; }
         private SimpleQuad Quad { get; set; }
         private GraphicsDevice GraphicsDevice { get; set; }
@@ -76,7 +76,7 @@ namespace TGC.MonoGame.TP.Entities
             {
                 for (int j = 0; j < Waves.GetLength(1); j++)
                 {
-                    Waves[i, j] = rnd.NextSingle();
+                    Waves[i, j] = rnd.NextSingle() - 1.5f;
                 }
             }
         }
