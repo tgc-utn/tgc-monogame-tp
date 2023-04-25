@@ -9,7 +9,7 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a textured quad.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        public SimpleQuad(GraphicsDevice graphicsDevice, BasicEffect effect)
+        public SimpleQuad(GraphicsDevice graphicsDevice, Effect effect)
         {
             Effect = effect;
             Vertices = new VertexBuffer(graphicsDevice, VertexPositionColorNormal.VertexDeclaration, 4,
@@ -31,7 +31,7 @@ namespace TGC.MonoGame.TP.Entities
         /// <summary>
         ///     Built-in effect that supports optional texturing, vertex coloring, fog, and lighting.
         /// </summary>
-        public BasicEffect Effect { get; private set; }
+        public Effect Effect { get; private set; }
 
         /// <summary>
         ///     Create a vertex buffer for the figure with the given information.
@@ -77,13 +77,10 @@ namespace TGC.MonoGame.TP.Entities
         /// <param name="projection">The projection matrix, normally from the application.</param>
         public void Draw(Matrix world, Matrix view, Matrix projection)
         {
-            // Set BasicEffect parameters.
-            Effect.World = world;
-            Effect.View = view;
-            Effect.Projection = projection;
-            Effect.VertexColorEnabled = true;
-
-            // Draw the model, using BasicEffect.
+            Effect.Parameters["World"].SetValue(world);
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
             Draw(Effect);
         }
 

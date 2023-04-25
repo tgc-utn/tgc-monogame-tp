@@ -77,7 +77,7 @@ namespace TGC.MonoGame.TP
             Ship.LoadContent(Content, Effect);
             IslandGenerator.LoadContent(Content, Effect);
             Islands = IslandGenerator.CreateRandomIslands(200, 1500f, 1500f);
-            Water = new Water(GraphicsDevice, 100);
+            Water = new Water(GraphicsDevice,Effect, 100);
             base.LoadContent();
         }
 
