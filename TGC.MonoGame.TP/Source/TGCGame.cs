@@ -52,17 +52,17 @@ namespace TGC.MonoGame.TP
             //Hogar.Add( new HabitacionTipo ( Vector3 ubicacionEsquinaSuperiorDerecha ));
             Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,7000f)));
             Hogar.Add( new HabitacionPrincipal    (new Vector3(-5000f,0f,5000f)));
-            Hogar.Add( new HabitacionOficina      (new Vector3(-1000f,0f,0f)));
             Hogar.Add( new HabitacionToilette     (new Vector3(-9000, 0f, -1000)));
             Hogar.Add( new HabitacionPasillo1     (new Vector3(-5000f, 0f, 1000f)));
             Hogar.Add( new HabitacionPasillo2     (new Vector3(-5000f, 0f, -3000f)));
+            Hogar.Add( new HabitacionOficina      (new Vector3(-1000f,0f,0f)));
             Hogar.Add( new HabitacionDormitorio1  (new Vector3(-1000f, 0f, -5000f)));
             Hogar.Add( new HabitacionDormitorio2  (new Vector3(-10000f, 0f, -6000f)));
 
             foreach(var hab in Hogar)
                 Console.WriteLine("Habitacion cargada con {0:D}"+ " elementos.", hab.cantidadElementos());
             //Auto ( posicionInicial )
-            Auto = new Auto(Hogar[7].getCenter());
+            Auto = new Auto(Hogar[2].getCenter());
         }
 
         protected override void Update(GameTime gameTime)
