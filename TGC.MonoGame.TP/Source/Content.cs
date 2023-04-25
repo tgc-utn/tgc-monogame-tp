@@ -21,7 +21,7 @@ namespace TGC.MonoGame.TP
                 M_Televisor1 , M_MuebleTV, M_Planta , M_Escritorio, M_Cocine, M_Plantis, M_Lego, M_Baniera,M_Sofa, M_Mesita, M_Aparador, 
                 M_Bacha, M_Organizador, M_Cajonera, M_CamaMarinera , M_MesadaCentral, M_MesadaLateral, M_MesadaLateral2, M_Alacena, 
                 M_Botella, M_Maceta, M_Maceta2, M_Maceta3, M_Maceta4, M_Olla, M_ParedCocina, M_Plato, M_PlatoGrande, M_PlatosApilados,
-                M_Mesada, M_AutoPegni
+                M_Mesada, M_AutoPegni, M_Heladera
                 ;
 
         internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader;
@@ -73,6 +73,8 @@ namespace TGC.MonoGame.TP
             M_Organizador = LoadModel("Muebles/Organizador/Organizador");
             M_Cajonera = LoadModel("Muebles/Cajonera/Cajonera");
             M_CamaMarinera = LoadModel("Muebles/CamaMarinera/CamaMarinera");
+            
+
 
             #region SetCocina
             M_MesadaCentral = LoadModel("Muebles/SetCocina/MesadaCentral");
@@ -90,6 +92,7 @@ namespace TGC.MonoGame.TP
             M_Plato = LoadModel("Muebles/SetCocina/Plato");
             M_PlatoGrande = LoadModel("Muebles/SetCocina/PlatoGrande");
             M_PlatosApilados = LoadModel("Muebles/SetCocina/PlatosApilados");
+            M_Heladera = LoadModel("Muebles/SetCocina/Heladera");
             #endregion
         }
 

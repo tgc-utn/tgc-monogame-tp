@@ -51,6 +51,8 @@ namespace TGC.MonoGame.TP
             
             AddElemento(new Mueble(TGCGame.GameContent.M_Maceta4,   new Vector3(400f,0f,5400f), 60f));
             
+            AddElemento(new Mueble(TGCGame.GameContent.M_Heladera,   new Vector3(400f,700f,4000f), 1f));
+
         }
     }    
 }
