@@ -8,6 +8,7 @@ namespace TGC.MonoGame.TP
     public class Piso
     {
         private Vector3[] ColorPallette;
+        private Texture2D TexturaBaldosa = TGCGame.GameContent.T_PisoMadera;
         private int[] ColorIndex;
         private Matrix[] WorldMatrixs;
         internal Vector3 PosicionInicial;
@@ -96,16 +97,13 @@ namespace TGC.MonoGame.TP
             return this;
         }
         public Piso Cocina(){
-            /* ColorPallette = new Vector3 []{
-                new Color(215, 215, 215   ).ToVector3(),
-                new Color(33, 33, 37   ).ToVector3()
-            }; */
-            ColorPallette = new Vector3 []{
-                new Color(246, 216, 174).ToVector3(),
-                new Color(73, 73, 77   ).ToVector3()
-            };
-
-            SetIndexIntercalado();
+            Effect = TGCGame.GameContent.E_TextureShader;
+            TexturaBaldosa = TGCGame.GameContent.T_PisoCeramica;
+            return this;
+        }
+        public Piso Alfombrado(){
+            Effect = TGCGame.GameContent.E_TextureShader;
+            TexturaBaldosa = TGCGame.GameContent.T_PisoAlfombrado;
             return this;
         }
         public Piso Banio(){
@@ -116,12 +114,6 @@ namespace TGC.MonoGame.TP
             SetIndexIntercalado();
             return this;
         }
-/*      EN PROGRESO 
-        public Piso Cuadrado(){
-            SetIndexCuadrado();
-            return this;
-        }
- */
         private void SetIndexIntercalado(){
             for(int i=0;i<Ancho;i++)
             {
@@ -158,7 +150,7 @@ namespace TGC.MonoGame.TP
             for(int i=0;i<CantidadBaldosas;i++)
             {
                 Effect.Parameters["DiffuseColor"]?.SetValue(ColorPallette[ColorIndex[i]]);
-                Effect.Parameters["Texture"]?.SetValue(TGCGame.GameContent.T_PisoMadera);
+                Effect.Parameters["Texture"]?.SetValue(TexturaBaldosa);
                 Effect.Parameters["World"].SetValue(WorldMatrixs[i]);
                 TGCGame.GameContent.G_Quad.Draw(Effect);
             }

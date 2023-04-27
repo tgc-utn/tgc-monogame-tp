@@ -37,6 +37,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/SpiralShader.fx
 
+#begin Effects/TextureMirrorShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/TextureMirrorShader.fx
+
 #begin Effects/TextureShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -960,6 +966,12 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/RacingCar/RacingCar.fbx
 
+#begin Music/SynthWars.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/SynthWars.mp3
+
 #begin Textures/Alfombra.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -983,6 +995,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/MeshFilter.jpg
+
+#begin Textures/PisoAlfombra.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/PisoAlfombra.jpg
+
+#begin Textures/PisoCeramica.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/PisoCeramica.jpg
 
 #begin Textures/PisoMadera.jpg
 /importer:TextureImporter

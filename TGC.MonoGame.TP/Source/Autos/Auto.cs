@@ -10,15 +10,16 @@ namespace TGC.MonoGame.TP
         private Vector3 Position;
         private Vector3 Velocity;
         private float AccelerationMagnitude = 2000f;
+        private float AceleracionRelativa = 0f;
         private float Rotation;
         private float JumpPower = 50000f;
         private float Turning = 0f;
         private bool cambio = false;
-        private float Escala = 0.25f;
+        private float Escala = 0.15f;
 
-        public Auto(Vector3 posicionInicial, float escala = 0.25f) : base(posicionInicial, Vector3.Zero, escala)
+        public Auto(Vector3 posicionInicial, float escala = 0.15f) : base(posicionInicial, Vector3.Zero, escala)
         {
-            Model = TGCGame.GameContent.M_Auto;
+            Model = TGCGame.GameContent.M_AutoPegni;
             Position = posicionInicial;
             Escala = escala;
         }
@@ -31,8 +32,8 @@ namespace TGC.MonoGame.TP
 
             if(keyboardState.IsKeyDown(Keys.M) && !cambio ){
                 cambio = true;
-                Model = TGCGame.GameContent.M_AutoPegni;
-                Escala = 0.15f;
+                Model = TGCGame.GameContent.M_Auto;
+                Escala = 0.25f;
             }
             
             // GRAVEDAD
@@ -75,7 +76,7 @@ namespace TGC.MonoGame.TP
 
             Velocity += acceleration * dTime;
             Position += Velocity * dTime;
-            
+
             // MATRIZ DE MUNDO
             World = 
                 Matrix.CreateScale(Escala) * 

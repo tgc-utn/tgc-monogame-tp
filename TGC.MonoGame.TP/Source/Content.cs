@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using TGC.MonoGame.TP.Geometries;
+using Microsoft.Xna.Framework.Media;
 
 namespace TGC.MonoGame.TP
 {
@@ -24,8 +25,9 @@ namespace TGC.MonoGame.TP
                 M_Mesada, M_AutoPegni, M_Heladera, M_Dragon, M_Dragona
                 ;
 
-        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter;
-        internal readonly Texture2D T_Alfombra, T_PisoMadera;
+        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter, E_TextureMirror;
+        internal readonly Texture2D T_Alfombra, T_PisoMadera, T_PisoCeramica, T_PisoAlfombrado;
+        internal readonly Song S_SynthWars;
         internal readonly QuadPrimitive G_Quad;
         
         internal Content(ContentManager Content, GraphicsDevice GraphicsDevice)
@@ -33,20 +35,26 @@ namespace TGC.MonoGame.TP
             ContentManager = Content;
             ContentManager.RootDirectory = "Content";
             
-            //Geometrias
+            // Geometrias
             G_Quad = new QuadPrimitive(GraphicsDevice);
 
-            //Efectos
+            // Efectos
             E_BasicShader       = LoadEffect("BasicShader");
             E_TextureShader     = LoadEffect("TextureShader");
+            E_TextureMirror     = LoadEffect("TextureMirrorShader");
             E_SpiralShader      = LoadEffect("SpiralShader");
             E_BlacksFilter      = LoadEffect("BlacksFilter");
 
-            //texturas
+            // Texturas
             T_Alfombra          = LoadTexture("Alfombra");
             T_PisoMadera        = LoadTexture("PisoMadera");
+            T_PisoCeramica      = LoadTexture("PisoCeramica");
+            T_PisoAlfombrado    = LoadTexture("PisoAlfombra");
 
-            //Modelos
+            // Sonidos
+            S_SynthWars         = LoadSong("SynthWars");
+            
+            // Modelos
             M_Auto              = LoadModel("RacingCar/RacingCar");
             M_AutoPegni         = LoadModel("Autos/PegniZonda/PegniZonda");
             M_AutoEnemigo       = LoadModel("CombatVehicle/Vehicle");
@@ -77,9 +85,7 @@ namespace TGC.MonoGame.TP
             M_CamaMarinera      = LoadModel("Muebles/CamaMarinera/CamaMarinera");
             M_Dragon            = LoadModel("Muebles/Dragon/Dragon");
             M_Dragona           = LoadModel("Muebles/Dragona/Dragona");
-            
-
-
+        
             #region SetCocina
             M_MesadaCentral     = LoadModel("Muebles/SetCocina/MesadaCentral");
             M_MesadaLateral     = LoadModel("Muebles/SetCocina/MesadaLateral");
@@ -103,6 +109,7 @@ namespace TGC.MonoGame.TP
         public Model LoadModel(string dir) => ContentManager.Load<Model>(ContentFolder3D + dir);
         public Effect LoadEffect(string dir) => ContentManager.Load<Effect>(ContentFolderEffects + dir);
         public Texture2D LoadTexture(string dir) => ContentManager.Load<Texture2D>(ContentFolderTextures + dir);
+        public Song LoadSong(string dir) => ContentManager.Load<Song>(ContentFolderMusic + dir);
            
 
         // PARA CARGAR UN MODELO CON SU EFECTO

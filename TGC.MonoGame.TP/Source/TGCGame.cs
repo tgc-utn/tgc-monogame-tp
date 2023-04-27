@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace TGC.MonoGame.TP
 {
@@ -16,6 +17,7 @@ namespace TGC.MonoGame.TP
         private int IndiceHabAuto = 0;
         private Camera Camera; 
         private List<IHabitacion> Hogar = new List<IHabitacion>();
+        private Song Soundtrack;
 
         public TGCGame()
         {
@@ -29,8 +31,10 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
             Camera = new Camera(GraphicsDevice.Viewport.AspectRatio);
+    
     
             base.Initialize();
         }
@@ -41,13 +45,10 @@ namespace TGC.MonoGame.TP
             GameContent = new Content(Content, GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //Seteando las variables de los efectos que *No van a cambiar*
-            GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
-            GameContent.E_SpiralShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_SpiralShader.Parameters["Projection"].SetValue(Camera.Projection);
-            GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
+            Soundtrack = TGCGame.GameContent.S_SynthWars;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0.8f;
+
 
             //Hogar.Add( new HabitacionTipo ( Vector3 ubicacionEsquinaSuperiorDerecha ));
             Hogar.Add( new HabitacionPrincipal    (new Vector3(-5000f,0f,5000f)));
@@ -73,13 +74,26 @@ namespace TGC.MonoGame.TP
                 Exit();
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds); 
             
+            // Teleport
             if (Keyboard.GetState().IsKeyDown(Keys.T)){
                 IndiceHabAuto++;
                 if(IndiceHabAuto >= Hogar.Count) IndiceHabAuto = 0;
-                
                 Auto.Teleport(Hogar[IndiceHabAuto].getCenter());
-            }else
+            }
+            else
             Auto.Update(gameTime, keyboardState);
+
+
+            // Control de la música
+            if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
+                MediaPlayer.Play(Soundtrack);
+            else if (keyboardState.IsKeyUp(Keys.W) && MediaPlayer.State == MediaState.Playing)
+                MediaPlayer.Pause();
+            else if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Paused)
+                MediaPlayer.Resume();
+            else if (keyboardState.IsKeyDown(Keys.P) && MediaPlayer.State == MediaState.Playing)
+                MediaPlayer.Stop();
+
 
             foreach(IHabitacion habitacion in Hogar)
                 habitacion.Update(gameTime, keyboardState);
@@ -92,12 +106,14 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-           
             GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
             
             GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
+            
+            GameContent.E_TextureMirror.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_TextureMirror.Parameters["Projection"].SetValue(Camera.Projection);
 
             GameContent.E_SpiralShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_SpiralShader.Parameters["Projection"].SetValue(Camera.Projection);
