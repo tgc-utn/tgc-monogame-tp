@@ -63,6 +63,12 @@ namespace TGC.MonoGame.TP
             return this;
         }
 
+        public Piso Madera(){
+            Effect = TGCGame.GameContent.E_TextureShader;
+            return this;
+        }
+
+
         public Piso ConColor(Color color){
             ColorPallette = new Vector3 []{
                 color.ToVector3()
@@ -151,7 +157,8 @@ namespace TGC.MonoGame.TP
         {
             for(int i=0;i<CantidadBaldosas;i++)
             {
-                Effect.Parameters["DiffuseColor"].SetValue(ColorPallette[ColorIndex[i]]);
+                Effect.Parameters["DiffuseColor"]?.SetValue(ColorPallette[ColorIndex[i]]);
+                Effect.Parameters["Texture"]?.SetValue(TGCGame.GameContent.T_PisoMadera);
                 Effect.Parameters["World"].SetValue(WorldMatrixs[i]);
                 TGCGame.GameContent.G_Quad.Draw(Effect);
             }

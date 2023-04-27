@@ -6,6 +6,7 @@ namespace TGC.MonoGame.TP
     public class HabitacionPrincipal : IHabitacion{
         private const int Size = 10;
         public HabitacionPrincipal(Vector3 posicionInicial):base(Size,Size,posicionInicial){
+            Piso = Piso.Madera();
 
             AddPared(Pared.Izquierda (Size, Size, posicionInicial));
             AddPuerta(Puerta.Arriba(3f, Size, posicionInicial));

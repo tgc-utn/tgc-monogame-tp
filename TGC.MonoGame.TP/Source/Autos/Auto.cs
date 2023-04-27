@@ -9,14 +9,14 @@ namespace TGC.MonoGame.TP
     { 
         private Vector3 Position;
         private Vector3 Velocity;
-        private float AccelerationMagnitude = 2500f;
+        private float AccelerationMagnitude = 2000f;
         private float Rotation;
         private float JumpPower = 50000f;
         private float Turning = 0f;
         private bool cambio = false;
-        private float Escala = 0.75f;
+        private float Escala = 0.25f;
 
-        public Auto(Vector3 posicionInicial, float escala = 0.75f) : base(posicionInicial, Vector3.Zero, escala)
+        public Auto(Vector3 posicionInicial, float escala = 0.25f) : base(posicionInicial, Vector3.Zero, escala)
         {
             Model = TGCGame.GameContent.M_Auto;
             Position = posicionInicial;
@@ -32,7 +32,7 @@ namespace TGC.MonoGame.TP
             if(keyboardState.IsKeyDown(Keys.M) && !cambio ){
                 cambio = true;
                 Model = TGCGame.GameContent.M_AutoPegni;
-                Escala = 0.3f;
+                Escala = 0.15f;
             }
             
             // GRAVEDAD

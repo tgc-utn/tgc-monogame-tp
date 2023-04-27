@@ -24,8 +24,8 @@ namespace TGC.MonoGame.TP
                 M_Mesada, M_AutoPegni, M_Heladera, M_Dragon, M_Dragona
                 ;
 
-        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader;
-        internal readonly Texture2D T_Alfombra;
+        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter;
+        internal readonly Texture2D T_Alfombra, T_PisoMadera;
         internal readonly QuadPrimitive G_Quad;
         
         internal Content(ContentManager Content, GraphicsDevice GraphicsDevice)
@@ -37,64 +37,66 @@ namespace TGC.MonoGame.TP
             G_Quad = new QuadPrimitive(GraphicsDevice);
 
             //Efectos
-            E_BasicShader = LoadEffect("BasicShader");
-            E_TextureShader = LoadEffect("TextureShader");
-            E_SpiralShader = LoadEffect("SpiralShader");
+            E_BasicShader       = LoadEffect("BasicShader");
+            E_TextureShader     = LoadEffect("TextureShader");
+            E_SpiralShader      = LoadEffect("SpiralShader");
+            E_BlacksFilter      = LoadEffect("BlacksFilter");
 
             //texturas
-            T_Alfombra = LoadTexture("Alfombra");
+            T_Alfombra          = LoadTexture("Alfombra");
+            T_PisoMadera        = LoadTexture("PisoMadera");
 
             //Modelos
-            M_Auto          = LoadModel("RacingCar/RacingCar");
-            M_AutoPegni     = LoadModel("Autos/PegniZonda/PegniZonda");
-            M_AutoEnemigo   = LoadModel("CombatVehicle/Vehicle");
+            M_Auto              = LoadModel("RacingCar/RacingCar");
+            M_AutoPegni         = LoadModel("Autos/PegniZonda/PegniZonda");
+            M_AutoEnemigo       = LoadModel("CombatVehicle/Vehicle");
 
-            M_Inodoro = LoadModel("Muebles/inodoro/inodoro");
-            M_Misil = LoadModel("Muebles/Misil/Misil");
-            M_SillaOficina = LoadModel("Muebles/Silla-Oficina/Silla-Oficina");
-            M_Cafe = LoadModel("Muebles/Cafe-Rojo/Cafe-Rojo");
-            M_Silla = LoadModel("Muebles/chair/chair");
-            M_Mesa = LoadModel("Muebles/mesa/mesa");
-            M_Sillon = LoadModel("Muebles/Sillon/Sillon");
-            M_Televisor1 = LoadModel("Muebles/Televisor1/Televisor");
-            M_MuebleTV = LoadModel("Muebles/MuebleTV/MuebleTV"); 
-            M_Planta = LoadModel("Muebles/Planta/Planta");
-            M_Escritorio = LoadModel("Muebles/Escritorio/Escritorio");
-            M_Alfil = LoadModel("Muebles/Alfil/Alfil");
-            M_Torre  = LoadModel("Muebles/Torre/Torre");
-            M_Plantis = LoadModel("Muebles/Plantis/Plantis");
-            M_Cocine = LoadModel("Muebles/Cocine/Cocine");
-            M_Lego  = LoadModel("Muebles/Lego/Lego", E_BasicShader);
-            M_Baniera = LoadModel("Muebles/Baniera/Baniera");
-            M_Mesita = LoadModel("Muebles/Mesita/Mesita");
-            M_Sofa = LoadModel("Muebles/Sofa/Sofa");
-            M_Aparador = LoadModel("Muebles/Aparador/Aparador");
-            M_Bacha = LoadModel("Muebles/Bacha/Bacha");
-            M_Organizador = LoadModel("Muebles/Organizador/Organizador");
-            M_Cajonera = LoadModel("Muebles/Cajonera/Cajonera");
-            M_CamaMarinera = LoadModel("Muebles/CamaMarinera/CamaMarinera");
-            M_Dragon = LoadModel("Muebles/Dragon/Dragon");
-            M_Dragona = LoadModel("Muebles/Dragona/Dragona");
+            M_Inodoro           = LoadModel("Muebles/inodoro/inodoro");
+            M_Misil             = LoadModel("Muebles/Misil/Misil");
+            M_SillaOficina      = LoadModel("Muebles/Silla-Oficina/Silla-Oficina");
+            M_Cafe              = LoadModel("Muebles/Cafe-Rojo/Cafe-Rojo");
+            M_Silla             = LoadModel("Muebles/chair/chair");
+            M_Mesa              = LoadModel("Muebles/mesa/mesa");
+            M_Sillon            = LoadModel("Muebles/Sillon/Sillon");
+            M_Televisor1        = LoadModel("Muebles/Televisor1/Televisor");
+            M_MuebleTV          = LoadModel("Muebles/MuebleTV/MuebleTV"); 
+            M_Planta            = LoadModel("Muebles/Planta/Planta");
+            M_Escritorio        = LoadModel("Muebles/Escritorio/Escritorio");
+            M_Alfil             = LoadModel("Muebles/Alfil/Alfil");
+            M_Torre             = LoadModel("Muebles/Torre/Torre");
+            M_Plantis           = LoadModel("Muebles/Plantis/Plantis");
+            M_Cocine            = LoadModel("Muebles/Cocine/Cocine");
+            M_Lego              = LoadModel("Muebles/Lego/Lego", E_BasicShader);
+            M_Baniera           = LoadModel("Muebles/Baniera/Baniera");
+            M_Mesita            = LoadModel("Muebles/Mesita/Mesita");
+            M_Sofa              = LoadModel("Muebles/Sofa/Sofa");
+            M_Aparador          = LoadModel("Muebles/Aparador/Aparador");
+            M_Bacha             = LoadModel("Muebles/Bacha/Bacha");
+            M_Organizador       = LoadModel("Muebles/Organizador/Organizador");
+            M_Cajonera          = LoadModel("Muebles/Cajonera/Cajonera");
+            M_CamaMarinera      = LoadModel("Muebles/CamaMarinera/CamaMarinera");
+            M_Dragon            = LoadModel("Muebles/Dragon/Dragon");
+            M_Dragona           = LoadModel("Muebles/Dragona/Dragona");
             
 
 
             #region SetCocina
-            M_MesadaCentral = LoadModel("Muebles/SetCocina/MesadaCentral");
-            M_MesadaLateral = LoadModel("Muebles/SetCocina/MesadaLateral");
-            M_MesadaLateral2 = LoadModel("Muebles/SetCocina/MesadaLateral2");
-            M_Mesada = LoadModel("Muebles/SetCocina/Mesada");
-            M_Alacena = LoadModel("Muebles/SetCocina/Alacena");
-            M_Botella = LoadModel("Muebles/SetCocina/Botella");
-            M_Maceta = LoadModel("Muebles/SetCocina/Maceta");
-            M_Maceta2 = LoadModel("Muebles/SetCocina/Maceta2");
-            M_Maceta3 = LoadModel("Muebles/SetCocina/Maceta3");
-            M_Maceta4 = LoadModel("Muebles/SetCocina/Maceta4");
-            M_Olla = LoadModel("Muebles/SetCocina/Olla");
-            M_ParedCocina = LoadModel("Muebles/SetCocina/ParedCocina");
-            M_Plato = LoadModel("Muebles/SetCocina/Plato");
-            M_PlatoGrande = LoadModel("Muebles/SetCocina/PlatoGrande");
-            M_PlatosApilados = LoadModel("Muebles/SetCocina/PlatosApilados");
-            M_Heladera = LoadModel("Muebles/SetCocina/Heladera");
+            M_MesadaCentral     = LoadModel("Muebles/SetCocina/MesadaCentral");
+            M_MesadaLateral     = LoadModel("Muebles/SetCocina/MesadaLateral");
+            M_MesadaLateral2    = LoadModel("Muebles/SetCocina/MesadaLateral2");
+            M_Mesada            = LoadModel("Muebles/SetCocina/Mesada");
+            M_Alacena           = LoadModel("Muebles/SetCocina/Alacena");
+            M_Botella           = LoadModel("Muebles/SetCocina/Botella");
+            M_Maceta            = LoadModel("Muebles/SetCocina/Maceta");
+            M_Maceta2           = LoadModel("Muebles/SetCocina/Maceta2");
+            M_Maceta3           = LoadModel("Muebles/SetCocina/Maceta3");
+            M_Maceta4           = LoadModel("Muebles/SetCocina/Maceta4");
+            M_Olla              = LoadModel("Muebles/SetCocina/Olla");
+            M_ParedCocina       = LoadModel("Muebles/SetCocina/ParedCocina");
+            M_Plato             = LoadModel("Muebles/SetCocina/Plato");
+            M_PlatoGrande       = LoadModel("Muebles/SetCocina/PlatoGrande");
+            M_PlatosApilados    = LoadModel("Muebles/SetCocina/PlatosApilados");
+            M_Heladera          = LoadModel("Muebles/SetCocina/Heladera");
             #endregion
         }
 

@@ -29,7 +29,7 @@ namespace TGC.MonoGame.TP
             //Matriz de proyeccion casi isometrica, entre mas cerca del 0 este el primer 
             // valor se respeta mas la isometria pero tambien se rompe todo si es muy bajo
             Projection = Matrix.CreatePerspectiveFieldOfView(0.5f, aspectRatio, 0.1f, 100000f);
-            AxisDistanceToTarget = 5000f;
+            AxisDistanceToTarget = 1000f;
         }
 
         public void Mover(KeyboardState keyboardState){
@@ -76,10 +76,10 @@ namespace TGC.MonoGame.TP
             var right = Vector3.Cross(forward, Vector3.Up);
             var cameraCorrectUp = Vector3.Cross(right, forward);
 
-            View = Matrix.CreateLookAt(offsetedPosition, followedPosition, cameraCorrectUp);
+            //View = Matrix.CreateLookAt(offsetedPosition, followedPosition, cameraCorrectUp);
 
             //Matriz de vista isometrica
-            //View = Matrix.CreateLookAt(followedPosition + new Vector3(1, 1, 1) * AxisDistanceToTarget, followedPosition, Vector3.Up);
+            View = Matrix.CreateLookAt(followedPosition + new Vector3(1, 1, 1) * AxisDistanceToTarget, followedPosition, Vector3.Up);
 
         }
     }

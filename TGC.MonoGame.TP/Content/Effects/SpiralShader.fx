@@ -59,7 +59,7 @@ float2 rotate(float2 Point, float Rotation)
 float spiralFunction(float2 Point) 
 {
     float distanceToCenter = length(Point);
-    float radius = sin(Point.y/Point.x);
+    float radius = atan(Point.y/Point.x);
     float thickness = 0.1;
 
     return step(distanceToCenter, radius+thickness) - step(distanceToCenter, radius-thickness);
@@ -73,9 +73,9 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 
     float pi = 3.14;
 
-    float2 domain1 = rotate(coordinates, Time);
-    float2 domain2 = rotate(coordinates, Time + pi/3.0);
-    float2 domain3 = rotate(coordinates, Time + pi*2.0/3.0);
+    float2 domain1 = rotate(coordinates, 0.0);
+    float2 domain2 = rotate(coordinates, 0.0 + pi/3.0);
+    float2 domain3 = rotate(coordinates, 0.0 + pi*2.0/3.0);
 
     float function1 = spiralFunction(domain1);
     float function2 = spiralFunction(domain2);
