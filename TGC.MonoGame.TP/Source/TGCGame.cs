@@ -48,9 +48,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
             //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
-            Soundtrack = TGCGame.GameContent.S_SynthWars;
+            Soundtrack = GameContent.S_SynthWars;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = 0.8f;
+
+            GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
 
             //Hogar.Add( new HabitacionTipo ( Vector3 ubicacionEsquinaSuperiorDerecha ));
@@ -109,21 +111,12 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            GameContent.E_BasicShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_BasicShader.Parameters["Projection"].SetValue(Camera.Projection);
-            
-            GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
-            
-            GameContent.E_BlacksFilter.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_BlacksFilter.Parameters["Projection"].SetValue(Camera.Projection);
-            
-            GameContent.E_TextureMirror.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_TextureMirror.Parameters["Projection"].SetValue(Camera.Projection);
 
-            GameContent.E_SpiralShader.Parameters["View"].SetValue(Camera.View);
-            GameContent.E_SpiralShader.Parameters["Projection"].SetValue(Camera.Projection);
-            GameContent.E_SpiralShader.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+            foreach (var e in GameContent.Efectos){
+                e.Parameters["View"].SetValue(Camera.View);
+                e.Parameters["Projection"].SetValue(Camera.Projection);
+                e.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+            }
 
             foreach(IHabitacion habitacion in Hogar)
                 habitacion.Draw(Camera.View, Camera.Projection);

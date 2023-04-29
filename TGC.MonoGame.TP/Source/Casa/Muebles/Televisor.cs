@@ -21,16 +21,7 @@ namespace TGC.MonoGame.TP
         }
         
         public override void Draw(Matrix view, Matrix projection) 
-        {/* 
-            Matrix ScreenWorld =    Matrix.CreateScale(500f, 0f, 1000f) * 
-                                    Matrix.CreateRotationZ(MathHelper.PiOver2) * 
-                                    Matrix.CreateTranslation(new Vector3(50f, 200f, -500f)) * //Fix: Centrado en el televisor
-                                    Matrix.CreateTranslation(Position); 
-
-            TGCGame.GameContent.E_SpiralShader.Parameters["World"].SetValue(ScreenWorld); 
-            TGCGame.GameContent.G_Quad.Draw(TGCGame.GameContent.E_SpiralShader);
- */
-            //Model.Draw(Televisor,View,Projection);
+        {
             var bShader = TGCGame.GameContent.E_SpiralShader;
             bShader.Parameters["Texture"]?.SetValue(TGCGame.GameContent.T_PisoMadera);
             bShader.Parameters["Filter"]?.SetValue(TGCGame.GameContent.T_MeshFilter);

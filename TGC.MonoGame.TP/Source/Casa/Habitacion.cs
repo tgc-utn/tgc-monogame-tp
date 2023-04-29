@@ -16,6 +16,7 @@ namespace TGC.MonoGame.TP
         private List<Puerta> Puertas;
         private List<IElementoDinamico> MueblesDinamicos;
         private List<IElemento> Muebles;
+        private List<Elemento> Elementos;
 
         //Ancho y Alto en Cantidad de Baldosas
         public IHabitacion(int ancho, int alto, Vector3 posicionInicial)
@@ -26,6 +27,7 @@ namespace TGC.MonoGame.TP
 
             MueblesDinamicos = new List<IElementoDinamico>();
             Muebles = new List<IElemento>();
+            Elementos = new List<Elemento>();
             Piso = new Piso(ancho, alto, posicionInicial); // Se carga el default
 
             Paredes = new List<Pared>();
@@ -35,6 +37,10 @@ namespace TGC.MonoGame.TP
         public void AddDinamico( IElementoDinamico elem ){
             elem.newPosicionInicial(PosicionInicial);
             MueblesDinamicos.Add(elem);
+        }
+        public void AddElemento( Elemento e ){
+            e.SetPosicionInicial(e.PosicionInicial+PosicionInicial);
+            Elementos.Add(e);
         }
         public void AddElemento( IElemento elem ){
             elem.newPosicionInicial(PosicionInicial);
@@ -66,16 +72,19 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
-            //new Alfombra(Matrix.CreateScale(3000f, 0f, 2000f)*Matrix.CreateRotationY(MathHelper.Pi/3)*Matrix.CreateTranslation(new Vector3(-12000f,20f,200f))).Draw();
-
-            foreach(var puerta in Puertas)
+            
+           /*  foreach(var puerta in Puertas)
                 puerta.Draw();
             foreach(var pared in Paredes)
-                pared.Draw();
+                pared.Draw(); */
             foreach(var elemento in MueblesDinamicos)
                 elemento.Draw(view, projection);
             foreach(var elemento in Muebles)
                 elemento.Draw(view, projection);
+            foreach(var elemento in Muebles)
+                elemento.Draw(view, projection);
+            foreach(var e in Elementos)
+                e.Draw();
         }
     }
 }

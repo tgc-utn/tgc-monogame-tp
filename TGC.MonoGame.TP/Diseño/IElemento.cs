@@ -23,7 +23,12 @@ namespace TGC.MonoGame.TP.Design
             World *= Matrix.CreateTranslation(posicionInicial);
         }
         public virtual void Draw (Matrix view, Matrix projection){
-            Model.Draw(World,view,projection);
+            foreach(var mesh in Model.Meshes){
+                foreach(var meshPart in mesh.MeshParts){
+                    meshPart.Effect.Parameters["World"]?.SetValue(World);
+                }
+            mesh.Draw();
+            }
         }
     }
 }
