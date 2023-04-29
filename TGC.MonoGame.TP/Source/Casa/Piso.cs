@@ -102,7 +102,7 @@ namespace TGC.MonoGame.TP
             return this;
         }
         public Piso Alfombrado(){
-            Effect = TGCGame.GameContent.E_TextureShader;
+            Effect = TGCGame.GameContent.E_TextureMirror;
             TexturaBaldosa = TGCGame.GameContent.T_PisoAlfombrado;
             return this;
         }

@@ -45,6 +45,9 @@ namespace TGC.MonoGame.TP
             GameContent = new Content(Content, GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;         
+            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+
             Soundtrack = TGCGame.GameContent.S_SynthWars;
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = 0.8f;
@@ -111,6 +114,9 @@ namespace TGC.MonoGame.TP
             
             GameContent.E_TextureShader.Parameters["View"].SetValue(Camera.View);
             GameContent.E_TextureShader.Parameters["Projection"].SetValue(Camera.Projection);
+            
+            GameContent.E_BlacksFilter.Parameters["View"].SetValue(Camera.View);
+            GameContent.E_BlacksFilter.Parameters["Projection"].SetValue(Camera.Projection);
             
             GameContent.E_TextureMirror.Parameters["View"].SetValue(Camera.View);
             GameContent.E_TextureMirror.Parameters["Projection"].SetValue(Camera.Projection);

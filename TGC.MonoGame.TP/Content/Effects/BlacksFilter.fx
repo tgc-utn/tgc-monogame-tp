@@ -17,10 +17,10 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
-texture ModelTexture;
+texture Texture;
 sampler2D TextureSampler = sampler_state
 {
-    Texture = (ModelTexture);
+    Texture = (Texture);
     MagFilter = Linear;
     MinFilter = Linear;
     AddressU = Wrap;
@@ -28,9 +28,9 @@ sampler2D TextureSampler = sampler_state
 };
 
 texture Filter;
-sampler2D OverlapTextureSampler = sampler_state
+sampler2D FilterSampler = sampler_state
 {
-    Texture = (OverlapTexture);
+    Texture = (Filter);
     MagFilter = Linear;
     MinFilter = Linear;
     AddressU = Mirror;
@@ -53,11 +53,8 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 {
     // Clear the output
 	VertexShaderOutput output = (VertexShaderOutput)0;
-    // Model space to World space
     float4 worldPosition = mul(input.Position, World);
-    // World space to View space
     float4 viewPosition = mul(worldPosition, View);
-	// View space to Projection space
     output.Position = mul(viewPosition, Projection);
 
     output.TextureCoordinate = input.TextureCoordinate;
@@ -65,15 +62,15 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     return output;
 }
 
-float4 MainPS(VertexShaderOutput input) : COLOR
+float4 MainPS(VertexShaderOutput input) : COLOR0
 {
     float4 colorTexture = tex2D(TextureSampler, input.TextureCoordinate);
-    float4 colorOverlap = tex2D(OverlapTextureSampler, input.TextureCoordinate);
+    float4 colorOverlap = tex2D(FilterSampler, input.TextureCoordinate);
 
-    if(colorOverlap.r<0.1){
-        return (0,0,0,0);
+    if(colorOverlap.r<0.5){
+        return float4(0.0 , 0.0 , 0.0 , 0.0);
     }
-    else return float4(colorTexture);
+    return float4(colorTexture);
 }
 
 technique BasicColorDrawing

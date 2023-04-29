@@ -32,6 +32,8 @@ namespace TGC.MonoGame.TP
  */
             //Model.Draw(Televisor,View,Projection);
             var bShader = TGCGame.GameContent.E_SpiralShader;
+            bShader.Parameters["Texture"]?.SetValue(TGCGame.GameContent.T_PisoMadera);
+            bShader.Parameters["Filter"]?.SetValue(TGCGame.GameContent.T_MeshFilter);
             bShader.Parameters["World"].SetValue(World);
             
             foreach(var mesh in Model.Meshes)

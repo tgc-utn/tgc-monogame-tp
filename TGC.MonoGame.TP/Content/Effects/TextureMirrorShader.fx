@@ -23,7 +23,7 @@ sampler2D textureSampler = sampler_state
     Texture = (Texture);
     MagFilter = Linear;
     MinFilter = Linear;
-    AddressU = Mirror;
+    AddressU = Wrap;
     AddressV = Mirror;
 };
 

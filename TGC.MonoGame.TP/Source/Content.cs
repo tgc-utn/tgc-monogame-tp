@@ -26,7 +26,7 @@ namespace TGC.MonoGame.TP
                 ;
 
         internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter, E_TextureMirror;
-        internal readonly Texture2D T_Alfombra, T_PisoMadera, T_PisoCeramica, T_PisoAlfombrado;
+        internal readonly Texture2D T_Alfombra, T_PisoMadera, T_PisoCeramica, T_PisoAlfombrado, T_MeshFilter;
         internal readonly Song S_SynthWars;
         internal readonly QuadPrimitive G_Quad;
         
@@ -50,6 +50,7 @@ namespace TGC.MonoGame.TP
             T_PisoMadera        = LoadTexture("PisoMadera");
             T_PisoCeramica      = LoadTexture("PisoCeramica");
             T_PisoAlfombrado    = LoadTexture("PisoAlfombra");
+            T_MeshFilter        = LoadTexture("MeshFilter");
 
             // Sonidos
             S_SynthWars         = LoadSong("SynthWars");
