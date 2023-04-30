@@ -49,7 +49,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 	VertexShaderOutput output = (VertexShaderOutput)0;
     // Model space to World space
     float4 worldPosition = mul(input.Position, World);
-    worldPosition.y += 0.5 * worldPosition.x * cos(Time * 0.5);
+    worldPosition.y += 0.5 * cos(Time * worldPosition.x * 0.5);
     // World space to View space
     float4 viewPosition = mul(worldPosition, View);	
 	// View space to Projection space

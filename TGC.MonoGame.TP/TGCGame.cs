@@ -109,7 +109,7 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.Aqua);
             Ship.Draw(FollowCamera);
-            Water.Draw(Matrix.CreateTranslation(0,0.0005f, 0), FollowCamera.View, FollowCamera.Projection, Time);
+            Water.Draw(Matrix.CreateTranslation(-100,0.0005f, -100), FollowCamera.View, FollowCamera.Projection, Time);
             foreach (var island in Islands)
             {
                 island.Draw();

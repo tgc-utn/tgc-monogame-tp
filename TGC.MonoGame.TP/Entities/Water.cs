@@ -34,13 +34,12 @@ namespace TGC.MonoGame.TP.Entities
         /// <param name="projection"></param>
         public void Draw(Matrix posicionInicial, Matrix view, Matrix projection, float time)
         {
-            float escala = 10f;
+            float escala = 6f;
             float proximaDistancia = 0f;
             float distanciaEnX = 0f;
 
             Matrix world = Matrix.CreateScale(escala) * posicionInicial;
-            Quad.Draw(world, view, projection, time);
-            /*for (int i = 0; i < CantidadDeFilas; ++i)
+            for (int i = 0; i < CantidadDeFilas; ++i)
             {
                 for (int j = 0; j < CantidadDeFilas; ++j)
                 {
@@ -51,7 +50,7 @@ namespace TGC.MonoGame.TP.Entities
                 }
                 proximaDistancia = 0;
                 distanciaEnX += 2f;
-            }*/
+            }
         }
     }
 }
