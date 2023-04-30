@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Design;
 
@@ -17,11 +18,12 @@ namespace TGC.MonoGame.TP
         private bool cambio = false;
         private float Escala = 0.15f;
 
-        public Auto(Vector3 posicionInicial, float escala = 0.15f) : base(posicionInicial, Vector3.Zero, escala)
+        public Auto(Vector3 posicionInicial, float escala = 0.15f) 
+        : base(TGCGame.GameContent.M_AutoPegni, Vector3.Zero, Vector3.Zero, escala)
         {
-            Model = TGCGame.GameContent.M_AutoPegni;
             Position = posicionInicial;
             Escala = escala;
+            this.SetEffect(TGCGame.GameContent.E_SpiralShader);
         }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState)

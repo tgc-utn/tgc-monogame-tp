@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using TGC.MonoGame.TP.Design;
 
 namespace TGC.MonoGame.TP
 {
@@ -11,7 +12,15 @@ namespace TGC.MonoGame.TP
         AddPuerta(Puerta.Arriba(2f, Size, posicionInicial));
         AddPared(Pared.Derecha(Size, Size, posicionInicial));
         
-        AddElemento( new Mueble(TGCGame.GameContent.M_Aparador, new Vector3(3300f,-400f,3400f), new Vector3(0f,-MathHelper.PiOver2,0f), 15f));
+        var carpintero = new ElementoBuilder();
+
+        carpintero.Modelo(TGCGame.GameContent.M_Aparador)
+            .ConPosicion(3300f, 3400f)
+            .ConRotacion(0f,-MathHelper.PiOver2,0f)
+            .ConEscala(15f)
+            .ConAltura(-400f);
+
+            AddElemento(carpintero.BuildMueble());
 
         }
 

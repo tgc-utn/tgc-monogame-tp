@@ -8,13 +8,13 @@ namespace TGC.MonoGame.TP{
         private const float Velocidad = 500f;
         private Vector3 Traslacion = new Vector3(0f,0f, 0f);
         private Vector3 Direccion = new Vector3(0f,0f,0f); // Si está en cero, están inmóviles
-        private float Escala;
+        private const float Escala = 7f;
 
-        public EnemyCar(Vector3 posicionInicial, Vector3 rotacion) : base(posicionInicial, rotacion) 
+        public EnemyCar(float posX, float posY, float posZ, Vector3 rotacion) 
+        : base(TGCGame.GameContent.M_AutoEnemigo, new Vector3(posX,posY,posZ), Vector3.Zero, Escala)
         {
-            Model = TGCGame.GameContent.M_AutoEnemigo;
-            Escala = 0.07f;
-            Traslacion = posicionInicial;
+            Traslacion = new Vector3(posX, posY, posZ);
+            this.SetEffect(TGCGame.GameContent.E_BasicShader);
         }
         
         public override void Update(GameTime gameTime, KeyboardState keyboard)
@@ -62,16 +62,8 @@ namespace TGC.MonoGame.TP{
             Traslacion.Z += Velocidad*Direccion.Z * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             World = Matrix.CreateScale(Escala)
-                    *Matrix.CreateTranslation(PosicionInicial)
+                    *Matrix.CreateTranslation(this.GetPosicionInicial())
                     *Matrix.CreateTranslation(Traslacion.X,50f,Traslacion.Z);
         }
-      
-
-        /* Acá funciones propias del auto */
-        //public void saltar(){}        
-        //public void doblar(){}        
-        //public void usarPowerUp(){}        
-        //public void usarLaser(){}     
-
     }
 }

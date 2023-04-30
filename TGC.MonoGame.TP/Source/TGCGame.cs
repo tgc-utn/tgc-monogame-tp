@@ -121,7 +121,7 @@ namespace TGC.MonoGame.TP
             foreach(IHabitacion habitacion in Hogar)
                 habitacion.Draw(Camera.View, Camera.Projection);
 
-            Auto.Draw(Camera.View, Camera.Projection);          
+            Auto.Draw();          
         }
         protected override void UnloadContent()
         {

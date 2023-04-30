@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using TGC.MonoGame.TP.Design;
 
 namespace TGC.MonoGame.TP
 {
@@ -10,13 +11,37 @@ namespace TGC.MonoGame.TP
             AddPared(Pared.Derecha(Size, Size, posicionInicial));
             AddPuerta(Puerta.Arriba(2f, Size, posicionInicial));
 
-            AddElemento(new Mueble(TGCGame.GameContent.M_SillaOficina,new Vector3(4000f,0f,1000f), new Vector3(-MathHelper.PiOver2,-MathHelper.PiOver4,0f), 10f));
-            AddElemento(new Mueble(TGCGame.GameContent.M_Cafe, new Vector3(4000f,500f,1000f), new Vector3(-MathHelper.PiOver2,0f,0f), 10f));
-        
-            AddElemento(new Mueble(TGCGame.GameContent.M_Planta, new Vector3(500f,0f,500f), new Vector3(0f,0f,0f), 15f));
-            AddElemento(new Mueble(TGCGame.GameContent.M_Escritorio, new Vector3(3500f,0f,1500f), new Vector3(0f, MathHelper.Pi, 0f), 170f));
-            AddElemento(new Mueble(TGCGame.GameContent.M_Plantis, new Vector3(4700f,0f,3500f), new Vector3(0f,0f,0f), 15f));
+            var carpintero = new ElementoBuilder();
+            
+            carpintero.Modelo(TGCGame.GameContent.M_SillaOficina)
+                .ConPosicion(4000f, 1000f)
+                .ConRotacion(-MathHelper.PiOver2,-MathHelper.PiOver4,0f)
+                .ConEscala(10f);
+                AddElemento(carpintero.BuildMueble());
 
+            carpintero.Modelo(TGCGame.GameContent.M_Cafe)
+                .ConPosicion(4000f, 1000f)
+                .ConRotacion(-MathHelper.PiOver2,0f,0f)
+                .ConEscala(10f)
+                .ConAltura(500f);
+                AddElemento(carpintero.BuildMueble());
+            
+            carpintero.Modelo(TGCGame.GameContent.M_Planta)
+                .ConPosicion(500f,500f)
+                .ConEscala(15f);
+                AddElemento(carpintero.BuildMueble());
+            
+            carpintero.Modelo(TGCGame.GameContent.M_Escritorio)
+                .ConPosicion(3500f, 1500f)
+                .ConRotacion(0f, MathHelper.Pi, 0f)
+                .ConEscala(170f)
+                .ConAltura(500f);
+                AddElemento(carpintero.BuildMueble());
+            
+            carpintero.Modelo(TGCGame.GameContent.M_Plantis)
+                .ConPosicion(4700f, 3500f)
+                .ConEscala(15f);
+                AddElemento(carpintero.BuildMueble());
         }
     }    
 }

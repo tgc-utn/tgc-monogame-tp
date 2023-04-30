@@ -19,7 +19,7 @@ namespace TGC.MonoGame.TP
         #endregion
 
         private readonly ContentManager ContentManager;
-        internal readonly Model 
+        internal Model 
                 M_Alfil, M_Torre, M_Auto, M_AutoEnemigo, M_Inodoro, M_Misil, M_SillaOficina, M_Cafe, M_Silla, M_Mesa, M_Sillon, 
                 M_Televisor1 , M_MuebleTV, M_Planta , M_Escritorio, M_Cocine, M_Plantis, M_Lego, M_Baniera,M_Sofa, M_Mesita, M_Aparador, 
                 M_Bacha, M_Organizador, M_Cajonera, M_CamaMarinera , M_MesadaCentral, M_MesadaLateral, M_MesadaLateral2, M_Alacena, 
@@ -112,20 +112,12 @@ namespace TGC.MonoGame.TP
         }
 
         public Model LoadModel(string dir) => ContentManager.Load<Model>(ContentFolder3D + dir);
-        public Effect LoadEffect(string dir) {
-            Effect ef = ContentManager.Load<Effect>(ContentFolderEffects + dir);
-            return ef;
-        }
+        public Effect LoadEffect(string dir) => ContentManager.Load<Effect>(ContentFolderEffects + dir);
         public Texture2D LoadTexture(string dir) => ContentManager.Load<Texture2D>(ContentFolderTextures + dir);
         public Song LoadSong(string dir) => ContentManager.Load<Song>(ContentFolderMusic + dir);
-           
-
-        // PARA CARGAR UN MODELO CON SU EFECTO
-        // Si se carga de otra forma el efecto que se quiera, va a romper
+        
         public Model LoadModel(Effect shader, string dir){
             var model = LoadModel(dir);
-
-            shader.Parameters["DiffuseColor"]?.SetValue(Color.Red.ToVector3());
 
             foreach(var mesh in model.Meshes)
             foreach(var meshPart in mesh.MeshParts)
