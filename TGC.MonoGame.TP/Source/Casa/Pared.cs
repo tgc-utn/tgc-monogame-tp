@@ -11,7 +11,7 @@ namespace TGC.MonoGame.TP
         private static float Escala = 1000f;
         private Vector3 PosicionInicial;
         private bool EsHorizontal;
-        private Effect Efecto = TGCGame.GameContent.E_BasicShader;
+        private Effect Efecto = TGCGame.GameContent.E_TextureMirror;
         private Matrix World;
 
         private Pared(float ancho, Vector3 posicionInicial,bool esHorizontal = false){
@@ -39,7 +39,7 @@ namespace TGC.MonoGame.TP
         }
         public void Draw(){ 
             Efecto.Parameters["World"].SetValue(World); 
-            Efecto.Parameters["DiffuseColor"].SetValue(Color.DarkGray.ToVector3());
+            Efecto.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Concreto);
 
             TGCGame.GameContent.G_Quad.Draw(Efecto);
         }

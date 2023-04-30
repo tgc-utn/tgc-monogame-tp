@@ -46,11 +46,11 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
-            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             Soundtrack = GameContent.S_SynthWars;
             MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = 0.8f;
+            MediaPlayer.Volume = 0.5f;
 
             GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
@@ -110,7 +110,7 @@ namespace TGC.MonoGame.TP
         }
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.DimGray);
 
             foreach (var e in GameContent.Efectos){
                 e.Parameters["View"].SetValue(Camera.View);

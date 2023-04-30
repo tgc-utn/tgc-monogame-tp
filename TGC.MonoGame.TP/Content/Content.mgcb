@@ -43,6 +43,80 @@
 /processorParam:DebugMode=Auto
 /build:Effects/TextureShader.fx
 
+#begin Models/Autos/CombatVehicle/CombatVehicle.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/Autos/CombatVehicle/CombatVehicle.fbx
+
+#begin Models/Autos/CombatVehicle/Tex_0001_1.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/CombatVehicle/Tex_0001_1.png
+
+#begin Models/Autos/CombatVehicle/Tex_0004_4.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/CombatVehicle/Tex_0004_4.png
+
+#begin Models/Autos/CombatVehicle/Tex_0006_6.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/CombatVehicle/Tex_0006_6.png
+
+#begin Models/Autos/CombatVehicle/Weapons.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/Autos/CombatVehicle/Weapons.fbx
+
 #begin Models/Autos/PegniZonda/PegniZonda.obj
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -62,7 +136,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Autos/PegniZonda/PegniZonda.obj
 
-#begin Models/CombatVehicle/Vehicle.fbx
+#begin Models/Autos/RacingCar/RacingCar.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -79,7 +153,79 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/CombatVehicle/Vehicle.fbx
+/build:Models/Autos/RacingCar/RacingCar.fbx
+
+#begin Models/Autos/RacingCar/Vehicle_basecolor.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/RacingCar/Vehicle_basecolor.png
+
+#begin Models/Autos/RacingCar/Vehicle_cavity.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/RacingCar/Vehicle_cavity.png
+
+#begin Models/Autos/RacingCar/Vehicle_emission.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/RacingCar/Vehicle_emission.png
+
+#begin Models/Autos/RacingCar/Vehicle_metallic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/RacingCar/Vehicle_metallic.png
+
+#begin Models/Autos/RacingCar/Vehicle_normal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/RacingCar/Vehicle_normal.png
+
+#begin Models/Autos/RacingCar/Vehicle_rougness.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Autos/RacingCar/Vehicle_rougness.png
 
 #begin Models/Muebles/Alfil/Alfil.obj
 /importer:FbxImporter
@@ -423,30 +569,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Muebles/Mesita/Mesita.FBX
 
-#begin Models/Muebles/Mesita/Nikari side table_wood.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=True
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/Muebles/Mesita/Nikari side table_wood.jpg
-
-#begin Models/Muebles/Mesita/Nikari-side-table-1-prev.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=True
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/Muebles/Mesita/Nikari-side-table-1-prev.jpg
-
 #begin Models/Muebles/Misil/Misil.obj
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -542,7 +664,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Muebles/Plantis/Plantis.obj
 
-#begin Models/Muebles/SetCocina/Alacena.obj
+#begin Models/Muebles/SetCocina/Alacena/Alacena.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -559,9 +681,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Alacena.obj
+/build:Models/Muebles/SetCocina/Alacena/Alacena.obj
 
-#begin Models/Muebles/SetCocina/Botella.obj
+#begin Models/Muebles/SetCocina/Botella/Botella.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -578,9 +700,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Botella.obj
+/build:Models/Muebles/SetCocina/Botella/Botella.obj
 
-#begin Models/Muebles/SetCocina/Heladera.fbx
+#begin Models/Muebles/SetCocina/Heladera/Heladera.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -597,9 +719,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Heladera.fbx
+/build:Models/Muebles/SetCocina/Heladera/Heladera.fbx
 
-#begin Models/Muebles/SetCocina/Maceta.obj
+#begin Models/Muebles/SetCocina/Maceta/Maceta.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -616,9 +738,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Maceta.obj
+/build:Models/Muebles/SetCocina/Maceta/Maceta.obj
 
-#begin Models/Muebles/SetCocina/Maceta2.obj
+#begin Models/Muebles/SetCocina/Maceta2/Maceta2.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -635,9 +757,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Maceta2.obj
+/build:Models/Muebles/SetCocina/Maceta2/Maceta2.obj
 
-#begin Models/Muebles/SetCocina/Maceta3.obj
+#begin Models/Muebles/SetCocina/Maceta3/Maceta3.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -654,9 +776,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Maceta3.obj
+/build:Models/Muebles/SetCocina/Maceta3/Maceta3.obj
 
-#begin Models/Muebles/SetCocina/Maceta4.obj
+#begin Models/Muebles/SetCocina/Maceta4/Maceta4.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -673,9 +795,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Maceta4.obj
+/build:Models/Muebles/SetCocina/Maceta4/Maceta4.obj
 
-#begin Models/Muebles/SetCocina/Mesada.obj
+#begin Models/Muebles/SetCocina/Mesada/Mesada.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -692,9 +814,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Mesada.obj
+/build:Models/Muebles/SetCocina/Mesada/Mesada.obj
 
-#begin Models/Muebles/SetCocina/MesadaCentral.obj
+#begin Models/Muebles/SetCocina/MesadaCentral/MesadaCentral.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -711,9 +833,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/MesadaCentral.obj
+/build:Models/Muebles/SetCocina/MesadaCentral/MesadaCentral.obj
 
-#begin Models/Muebles/SetCocina/MesadaLateral.obj
+#begin Models/Muebles/SetCocina/MesadaLateral/MesadaLateral.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -730,9 +852,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/MesadaLateral.obj
+/build:Models/Muebles/SetCocina/MesadaLateral/MesadaLateral.obj
 
-#begin Models/Muebles/SetCocina/MesadaLateral2.obj
+#begin Models/Muebles/SetCocina/MesadaLateral2/MesadaLateral2.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -749,9 +871,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/MesadaLateral2.obj
+/build:Models/Muebles/SetCocina/MesadaLateral2/MesadaLateral2.obj
 
-#begin Models/Muebles/SetCocina/Olla.obj
+#begin Models/Muebles/SetCocina/Olla/Olla.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -768,9 +890,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Olla.obj
+/build:Models/Muebles/SetCocina/Olla/Olla.obj
 
-#begin Models/Muebles/SetCocina/ParedCocina.obj
+#begin Models/Muebles/SetCocina/ParedCocina/ParedCocina.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -787,9 +909,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/ParedCocina.obj
+/build:Models/Muebles/SetCocina/ParedCocina/ParedCocina.obj
 
-#begin Models/Muebles/SetCocina/Plato.obj
+#begin Models/Muebles/SetCocina/Plato/Plato.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -806,9 +928,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/Plato.obj
+/build:Models/Muebles/SetCocina/Plato/Plato.obj
 
-#begin Models/Muebles/SetCocina/PlatoGrande.obj
+#begin Models/Muebles/SetCocina/PlatoGrande/PlatoGrande.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -825,9 +947,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/PlatoGrande.obj
+/build:Models/Muebles/SetCocina/PlatoGrande/PlatoGrande.obj
 
-#begin Models/Muebles/SetCocina/PlatosApilados.obj
+#begin Models/Muebles/SetCocina/PlatosApilados/PlatosApilados.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -844,9 +966,21 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/SetCocina/PlatosApilados.obj
+/build:Models/Muebles/SetCocina/PlatosApilados/PlatosApilados.obj
 
-#begin Models/Muebles/Silla-Oficina/Silla-Oficina.obj
+#begin Models/Muebles/SillaOficina/10239_Office_Chair_v1_Diffuse.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Muebles/SillaOficina/10239_Office_Chair_v1_Diffuse.jpg
+
+#begin Models/Muebles/SillaOficina/SillaOficina.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -854,7 +988,7 @@
 /processorParam:DefaultEffect=BasicEffect
 /processorParam:GenerateMipmaps=True
 /processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyTextureAlpha=False
 /processorParam:PremultiplyVertexColors=True
 /processorParam:ResizeTexturesToPowerOfTwo=False
 /processorParam:RotationX=0
@@ -862,8 +996,8 @@
 /processorParam:RotationZ=0
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/Muebles/Silla-Oficina/Silla-Oficina.obj
+/processorParam:TextureFormat=NoChange
+/build:Models/Muebles/SillaOficina/SillaOficina.obj
 
 #begin Models/Muebles/Sillon/Sillon.fbx
 /importer:FbxImporter
@@ -903,7 +1037,43 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Muebles/Sofa/Sofa.fbx
 
-#begin Models/Muebles/Televisor1/Televisor.obj
+#begin Models/Muebles/Televisor/Render01.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Muebles/Televisor/Render01.png
+
+#begin Models/Muebles/Televisor/Render02.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Muebles/Televisor/Render02.png
+
+#begin Models/Muebles/Televisor/Render03.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Muebles/Televisor/Render03.png
+
+#begin Models/Muebles/Televisor/Televisor.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -920,7 +1090,19 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Muebles/Televisor1/Televisor.obj
+/build:Models/Muebles/Televisor/Televisor.obj
+
+#begin Models/Muebles/Televisor/Texture.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/Muebles/Televisor/Texture.jpg
 
 #begin Models/Muebles/Torre/Torre.obj
 /importer:FbxImporter
@@ -941,25 +1123,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/Muebles/Torre/Torre.obj
 
-#begin Models/RacingCar/RacingCar.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/RacingCar/RacingCar.fbx
-
 #begin Music/SynthWars.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
@@ -978,6 +1141,90 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Alfombra.jpg
 
+#begin Textures/Autos/CombatVehicle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Autos/CombatVehicle.png
+
+#begin Textures/Autos/RacingCarMetalic.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Autos/RacingCarMetalic.png
+
+#begin Textures/Bricks.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Bricks.jpg
+
+#begin Textures/Concreto.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Concreto.jpg
+
+#begin Textures/MaderaNikari.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/MaderaNikari.jpg
+
+#begin Textures/Marmol.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Marmol.jpg
+
+#begin Textures/MarmolNegro.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/MarmolNegro.jpg
+
 #begin Textures/MeshFilter.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -989,6 +1236,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/MeshFilter.jpg
+
+#begin Textures/Muebles/Dragon.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Muebles/Dragon.jpg
+
+#begin Textures/Muebles/SillaOficina.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Muebles/SillaOficina.jpg
 
 #begin Textures/PisoAlfombra.jpg
 /importer:TextureImporter
@@ -1025,4 +1296,28 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/PisoMadera.jpg
+
+#begin Textures/PisoMaderaClaro.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/PisoMaderaClaro.jpg
+
+#begin Textures/Reboque.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Reboque.jpg
 

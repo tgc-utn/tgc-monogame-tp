@@ -29,15 +29,6 @@ namespace TGC.MonoGame.TP
             ColorIndex = new int[CantidadBaldosas];
             ColorPallette = new Vector3 []{
                 new Color(254, 183, 129   ).ToVector3(),
-                new Color(233, 130, 89   ).ToVector3(),
-                new Color(186, 83, 68   ).ToVector3(),
-                new Color(104, 55, 59   ).ToVector3(),
-                new Color(76, 38, 39   ).ToVector3(),
-                new Color(117, 115, 162   ).ToVector3(),
-                new Color(78, 76, 121   ).ToVector3(),
-                new Color(45, 48, 85   ).ToVector3(),
-                new Color(39, 89, 97   ).ToVector3(),
-                new Color(61, 118, 98   ).ToVector3(),
             };
             
             Matrix Scale = Matrix.CreateScale(TileSize, 0f, TileSize);
@@ -94,6 +85,11 @@ namespace TGC.MonoGame.TP
                 new Color(119, 73, 54        ).ToVector3()
             };
             SetIndexRandom();
+            return this;
+        }
+        public Piso Texturado(Texture2D texturaPiso){
+            Effect = TGCGame.GameContent.E_TextureShader;
+            TexturaBaldosa = texturaPiso;
             return this;
         }
         public Piso Cocina(){

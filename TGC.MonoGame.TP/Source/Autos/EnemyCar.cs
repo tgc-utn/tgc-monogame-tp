@@ -14,9 +14,15 @@ namespace TGC.MonoGame.TP{
         : base(TGCGame.GameContent.M_AutoEnemigo, new Vector3(posX,posY,posZ), Vector3.Zero, Escala)
         {
             Traslacion = new Vector3(posX, posY, posZ);
-            this.SetEffect(TGCGame.GameContent.E_BasicShader);
+            this.SetEffect(TGCGame.GameContent.E_TextureShader);
         }
-        
+
+        public override void Draw()
+        {
+            TGCGame.GameContent.E_TextureShader
+                .Parameters["Texture"].SetValue(TGCGame.GameContent.T_CombatVehicle);
+            base.Draw();
+        }
         public override void Update(GameTime gameTime, KeyboardState keyboard)
         {
             var traslacionRelativa = Traslacion;

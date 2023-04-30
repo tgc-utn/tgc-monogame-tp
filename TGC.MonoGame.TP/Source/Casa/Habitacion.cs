@@ -15,7 +15,7 @@ namespace TGC.MonoGame.TP
         private List<Pared> Paredes;
         private List<Puerta> Puertas;
         private List<IElementoDinamico> ElementosDinamicos;
-        private List<Elemento> Elementos;
+        internal List<Elemento> Elementos;
 
         //Ancho y Alto en Cantidad de Baldosas
         public IHabitacion(int ancho, int alto, Vector3 posicionInicial)
@@ -67,15 +67,20 @@ namespace TGC.MonoGame.TP
         public void Draw(Matrix view, Matrix projection)
         {
             Piso.Draw(view, projection);
-            
-           /*  foreach(var puerta in Puertas)
+
+            foreach(var puerta in Puertas)
                 puerta.Draw();
             foreach(var pared in Paredes)
-                pared.Draw(); */
+                pared.Draw();
 
-            // ya refactorizado
+            this.DrawDinamicos();
+            this.DrawElementos();
+        }
+        public virtual void DrawDinamicos(){
             foreach(var e in ElementosDinamicos)
                 e.Draw();
+        }
+        public virtual void DrawElementos(){
             foreach(var e in Elementos)
                 e.Draw();
         }

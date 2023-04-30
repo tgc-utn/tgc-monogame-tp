@@ -41,6 +41,9 @@ namespace TGC.MonoGame.TP.Design
         public Vector3 GetPosicionInicial(){
             return this.PosicionInicial;
         }
+        public string GetTag(){
+            return (Model.Tag != null)? Model.Tag.ToString() : "";
+        }
         public void SetEffect(Effect Shader){
             foreach(var mesh in Model.Meshes)
             foreach(var meshPart in mesh.MeshParts)
