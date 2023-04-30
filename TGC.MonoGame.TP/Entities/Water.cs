@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.TP.Entities
@@ -12,15 +10,13 @@ namespace TGC.MonoGame.TP.Entities
     {
         private SimpleQuad Quad { get; set; }
         private GraphicsDevice GraphicsDevice { get; set; }
-        private float[,] Waves { get; set; }
-        private int _cantidadDeFilas;
+        private int CantidadDeFilas { get; set; }
 
-        public Water(GraphicsDevice graphicsDevice, Effect effect, int cantidadDeQuadPorLinea)
+        public Water(GraphicsDevice graphicsDevice, Effect effect, int cantidadDeQuadPorLinea, Texture2D texture)
         {
             GraphicsDevice = graphicsDevice;
-            _cantidadDeFilas = cantidadDeQuadPorLinea;
-            Waves = new float[50, 50];
-            Quad = new SimpleQuad(graphicsDevice, effect);
+            CantidadDeFilas = cantidadDeQuadPorLinea;
+            Quad = new SimpleQuad(graphicsDevice, effect, texture);
         }
 
         // Capaz la segunda versión estaría buena que sea algo así.
@@ -36,68 +32,26 @@ namespace TGC.MonoGame.TP.Entities
         /// <param name="posicionInicial"></param>
         /// <param name="view"></param>
         /// <param name="projection"></param>
-        public void Draw(Matrix posicionInicial, Matrix view, Matrix projection)
+        public void Draw(Matrix posicionInicial, Matrix view, Matrix projection, float time)
         {
-            float escala = 6f;
+            float escala = 10f;
             float proximaDistancia = 0f;
             float distanciaEnX = 0f;
 
             Matrix world = Matrix.CreateScale(escala) * posicionInicial;
-
-            for(int i = 0; i < _cantidadDeFilas; ++i)
+            Quad.Draw(world, view, projection, time);
+            /*for (int i = 0; i < CantidadDeFilas; ++i)
             {
-
-
-                for(int j = 0; j < _cantidadDeFilas; ++j)
+                for (int j = 0; j < CantidadDeFilas; ++j)
                 {
-                    //Dibujo columna
-                    Quad.Draw(Matrix.CreateTranslation(new Vector3(distanciaEnX, 0f, proximaDistancia)) * world, view, projection);
-
+                    Matrix translation = Matrix.CreateTranslation(new Vector3(distanciaEnX, 0, proximaDistancia));
+                    Quad.Draw(translation * world, view, projection, time);
                     //Harcodeado porque el tamaño de cada simpleQuad es de 2x2.
                     proximaDistancia += 2f;
-
-                }
-
-                proximaDistancia = 0;
-                //Idem arriba
-                distanciaEnX += 2f;
-            }
-
-        }
-
-        public void UpdateWaves()
-        {
-            Random rnd = new Random();
-            for (int i = 0; i < Waves.GetLength(0); i++)
-            {
-                for (int j = 0; j < Waves.GetLength(1); j++)
-                {
-                    Waves[i, j] = rnd.NextSingle() - 1.5f;
-                }
-            }
-        }
-
-        public void DrawWaves(Matrix posicionInicial, Matrix view, Matrix projection)
-        {
-            float proximaDistancia = 0f;
-            float distanciaEnX = 0f;
-            float escala = 10f;
-            Matrix world = Matrix.CreateScale(new Vector3(escala, 1, escala)) * posicionInicial;
-            for (int i = 0; i < Waves.GetLength(0) - 1; i++)
-            {
-                for (int j = 0; j < Waves.GetLength(1) - 1; j++)
-                {
-                    Quad.ModifyVertexBuffer(new [,]
-                    {
-                        { Waves[i, j+1], Waves[i, j] },
-                        { Waves[i+1, j+1], Waves[i+1, j]}
-                    });
-                    Quad.Draw(Matrix.CreateTranslation(new Vector3(distanciaEnX, 0f, proximaDistancia)) * world, view, projection);   
-                    proximaDistancia += 2f;
                 }
                 proximaDistancia = 0;
                 distanciaEnX += 2f;
-            }
+            }*/
         }
     }
 }

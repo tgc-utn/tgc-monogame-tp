@@ -27,7 +27,7 @@ namespace TGC.MonoGame.TP
         private Island[] Islands { get; set; }
         private IslandGenerator IslandGenerator { get; set; }
         private Water Water { get; set; }
-        private float WaterCounter { get; set; }
+        private float Time { get; set; }
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -58,10 +58,10 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
-            WaterCounter = 0;
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             Ship = new ShipPlayer();
             IslandGenerator = new IslandGenerator();
+            Time = 0;
             base.Initialize();
         }
 
@@ -73,11 +73,13 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            var waterTexture = Content.Load<Texture2D>(ContentFolderTextures + "cuadrado-testing");
+            var textureEffect = Content.Load<Effect>(ContentFolderEffects + "TextureShader");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             Ship.LoadContent(Content, Effect);
             IslandGenerator.LoadContent(Content, Effect);
             Islands = IslandGenerator.CreateRandomIslands(200, 1500f, 1500f);
-            Water = new Water(GraphicsDevice,Effect, 100);
+            Water = new Water(GraphicsDevice,textureEffect, 100, waterTexture);
             base.LoadContent();
         }
 
@@ -88,17 +90,12 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            Time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
-            }
-            WaterCounter += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            if (WaterCounter > .5)
-            {
-                Water.UpdateWaves();
-                WaterCounter = 0;
             }
             Ship.Update(gameTime, FollowCamera);
             base.Update(gameTime);
@@ -112,7 +109,7 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.Aqua);
             Ship.Draw(FollowCamera);
-            Water.DrawWaves(Matrix.CreateTranslation(-100,0.0005f, -100), FollowCamera.View, FollowCamera.Projection);
+            Water.Draw(Matrix.CreateTranslation(0,0.0005f, 0), FollowCamera.View, FollowCamera.Projection, Time);
             foreach (var island in Islands)
             {
                 island.Draw();

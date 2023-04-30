@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics; 
 
 namespace TGC.MonoGame.TP.Entities
@@ -9,11 +11,11 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a textured quad.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        public SimpleQuad(GraphicsDevice graphicsDevice, Effect effect)
+        public SimpleQuad(GraphicsDevice graphicsDevice, Effect effect, Texture2D texture)
         {
             Effect = effect;
-            Vertices = new VertexBuffer(graphicsDevice, VertexPositionColorNormal.VertexDeclaration, 4,
-                BufferUsage.WriteOnly);
+            Texture = texture;
+            SetVertexBuffer(graphicsDevice);
             CreateIndexBuffer(graphicsDevice);
         }
 
@@ -21,6 +23,7 @@ namespace TGC.MonoGame.TP.Entities
         ///     Represents a list of 3D vertices to be streamed to the graphics device.
         /// </summary>
         private VertexBuffer Vertices { get; set; }
+        private Texture2D Texture { get; set; }
 
         /// <summary>
         ///     Describes the rendering order of the vertices in a vertex buffer, using counter-clockwise winding.
@@ -37,21 +40,27 @@ namespace TGC.MonoGame.TP.Entities
         ///     Create a vertex buffer for the figure with the given information.
         /// </summary>
         /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        public void ModifyVertexBuffer(float[,] heights)
+        public void SetVertexBuffer(GraphicsDevice graphicsDevice)
         {
+            var textureCoordinateLowerLeft = Vector2.Zero;
+            var textureCoordinateLowerRight = Vector2.UnitX;
+            var textureCoordinateUpperLeft = Vector2.UnitY;
+            var textureCoordinateUpperRight = Vector2.One;
             // Set the position and texture coordinate for each vertex
             // Normals point Up as the Quad is originally XZ aligned
             var vertices = new[]
             {
                 // Positive X, Positive Z
-                new VertexPositionColorNormal(Vector3.UnitX + Vector3.UnitZ + Vector3.UnitY * heights[1,0],Color.Aquamarine ,Vector3.UnitY),
+                new VertexPositionNormalTexture(Vector3.UnitX + Vector3.UnitZ,Vector3.UnitY, textureCoordinateUpperRight),
                 // Positive X, Negative Z
-                new VertexPositionColorNormal(Vector3.UnitX - Vector3.UnitZ + Vector3.UnitY * heights[1,1], Color.Blue, Vector3.UnitY),
+                new VertexPositionNormalTexture(Vector3.UnitX - Vector3.UnitZ, Vector3.UnitY, textureCoordinateLowerLeft),
                 // Negative X, Positive Z
-                new VertexPositionColorNormal(-Vector3.UnitX - Vector3.UnitZ + Vector3.UnitY * heights[0,1], Color.Aqua, Vector3.UnitY),
+                new VertexPositionNormalTexture(-Vector3.UnitX - Vector3.UnitZ, Vector3.UnitY, textureCoordinateLowerRight),
                 // Negative X, Negative Z
-                new VertexPositionColorNormal(Vector3.UnitZ - Vector3.UnitX + Vector3.UnitY * heights[0,0], Color.Blue, Vector3.UnitY)
+                new VertexPositionNormalTexture(Vector3.UnitZ - Vector3.UnitX, Vector3.UnitY, textureCoordinateUpperLeft)
             };
+            Vertices = new VertexBuffer(graphicsDevice, VertexPositionNormalTexture.VertexDeclaration, 4,
+                BufferUsage.None);
             Vertices.SetData(vertices);
         }
 
@@ -65,7 +74,7 @@ namespace TGC.MonoGame.TP.Entities
             };
 
             Indices = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, indices.Length,
-                BufferUsage.WriteOnly);
+                BufferUsage.None);
             Indices.SetData(indices);
         }
 
@@ -75,12 +84,13 @@ namespace TGC.MonoGame.TP.Entities
         /// <param name="world">The world matrix for this box.</param>
         /// <param name="view">The view matrix, normally from the camera.</param>
         /// <param name="projection">The projection matrix, normally from the application.</param>
-        public void Draw(Matrix world, Matrix view, Matrix projection)
+        public void Draw(Matrix world, Matrix view, Matrix projection, float time)
         {
             Effect.Parameters["World"].SetValue(world);
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+            Effect.Parameters["ModelTexture"].SetValue(Texture);
+            Effect.Parameters["Time"].SetValue(time);
             Draw(Effect);
         }
 
@@ -97,12 +107,13 @@ namespace TGC.MonoGame.TP.Entities
             // Set our vertex declaration, vertex buffer, and index buffer.
             graphicsDevice.SetVertexBuffer(Vertices);
             graphicsDevice.Indices = Indices;
-            
+            graphicsDevice.BlendState = BlendState.Additive;
             foreach (var effectPass in effect.CurrentTechnique.Passes)
             {
                 effectPass.Apply();
                 graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, Indices.IndexCount / 3);
             }
+            graphicsDevice.BlendState = BlendState.Opaque;
         }
     }
 }
