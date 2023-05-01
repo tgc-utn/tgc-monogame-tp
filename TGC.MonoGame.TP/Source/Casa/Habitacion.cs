@@ -45,10 +45,24 @@ namespace TGC.MonoGame.TP
             Elementos.Add(e);
         }
 
-        public Vector3 getCenter(){
-            return Piso.getCenter();
-        }
-        public Vector3 getVerticeExtremo() => this.getCenter()*2;
+        public Vector3 GetCenter() => Piso.getCenter();
+        public Vector3 GetVerticeInicio() => this.PosicionInicial;
+        public Vector3 GetVerticeExtremo() => this.GetCenter()*2;
+        public (Vector3 principio, Vector3 final) GetSegmentoSuperior() =>
+                    ( this.GetVerticeInicio(),
+                    new Vector3(this.GetVerticeInicio().X, 0f , this.GetVerticeExtremo().Z));
+        public (Vector3 principio, Vector3 final) GetSegmentoInferior() =>
+                    (new Vector3(this.GetVerticeExtremo().X, 0f , this.GetVerticeInicio().Z),
+                    this.GetVerticeExtremo());
+        public (Vector3 principio, Vector3 final) GetSegmentoDerecha() =>
+                    (this.GetVerticeInicio(),
+                    new Vector3(this.GetVerticeExtremo().X, 0f , this.GetVerticeInicio().Z));
+        public (Vector3 principio, Vector3 final) GetSegmentoIzquierda() =>
+                    (new Vector3(this.GetVerticeInicio().X, 0f , this.GetVerticeExtremo().Z),
+                    this.GetVerticeExtremo());
+
+        public List<Pared> GetParedes() => Paredes;
+        public void SetPared(Pared p) => Paredes.Add(p);
 
         public int cantidadElementos(){
             // Para debuggear
@@ -56,30 +70,37 @@ namespace TGC.MonoGame.TP
         }
 
         public void SetParedArriba(Pared p){
-            p.Ubicar(PosicionInicial, Ancho);
+            var puntoInicial = PosicionInicial;
+            var puntoFinal   = puntoInicial    + new Vector3(0f,0f,this.Ancho*S_METRO);
+            
+            p.Ubicar(puntoInicial, puntoFinal);
 
             ParedArriba = p;
             Paredes.Add(p);
         }
         public void SetParedDerecha(Pared p){
+            var puntoInicial = PosicionInicial;
+            var puntoFinal   = puntoInicial    + new Vector3(this.Largo*S_METRO,0f,0);
 
-            p.Ubicar(PosicionInicial, Largo);
+            p.Ubicar(puntoInicial, puntoFinal);
 
             ParedDerecha = p;
             Paredes.Add(p);
         }
         public void SetParedAbajo(Pared p){
-            var posicionArranque = PosicionInicial + new Vector3(this.Largo,0f,0f);
+            var puntoInicial = PosicionInicial + new Vector3(this.Largo*S_METRO,0f,0f);
+            var puntoFinal   = puntoInicial    + new Vector3(0f,0f,this.Ancho*S_METRO);
 
-            p.Ubicar(posicionArranque, Ancho);
+            p.Ubicar(puntoInicial, puntoFinal);
 
             ParedAbajo = p;
             Paredes.Add(p);
         }
         public void SetParedIzquierda(Pared p){
-            var posicionArranque = PosicionInicial + new Vector3(0f,0f,this.Ancho);
+            var puntoInicial = PosicionInicial + new Vector3(0f,0f,this.Ancho*S_METRO);
+            var puntoFinal   = puntoInicial    + new Vector3(this.Largo*S_METRO,0f,0f);
 
-            p.Ubicar(posicionArranque, Largo);
+            p.Ubicar(puntoInicial, puntoFinal);
             
             ParedIzquierda = p;
             Paredes.Add(p);

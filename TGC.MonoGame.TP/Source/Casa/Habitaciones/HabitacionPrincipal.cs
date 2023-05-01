@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP
 
             var posicionInicial = new Vector3(posicionX,0f,posicionZ);
             
-            Piso.ConTextura(TGCGame.GameContent.T_PisoMadera);
+            Piso.ConTextura(TGCGame.GameContent.T_PisoMadera, 10);
  
             Amueblar();
         }        

@@ -11,6 +11,7 @@ namespace TGC.MonoGame.TP
         
         private Vector3 ColorDefault = new Color(19, 38, 47).ToVector3();
         private Texture2D TexturaBaldosa = TGCGame.GameContent.T_PisoMadera;
+        private float CantidadBaldosas = 1f;
         private Matrix World;
         internal Vector3 PosicionInicial;
         private Effect Effect = TGCGame.GameContent.E_BasicShader;
@@ -23,7 +24,6 @@ namespace TGC.MonoGame.TP
             PosicionInicial = posicionInicial; 
             MetrosAncho = metrosAncho;
             MetrosLargo = metrosLargo;
-            //MetrosCuadrados = metrosAncho * metrosLargo;
             
             Matrix Scale = Matrix.CreateScale(S_METRO * metrosAncho, 0f, S_METRO * metrosLargo);
             World = Scale 
@@ -33,17 +33,14 @@ namespace TGC.MonoGame.TP
             return PosicionInicial + ( new Vector3(MetrosLargo,0f,MetrosAncho) * S_METRO );
         }
         public Vector3 getCenter() => this.getVerticeExtremo()/2;
-
-        public Piso Azul(){
-            ColorDefault = new Color(19, 38, 47).ToVector3();
-            return this;
-        }
+        
         public Piso ConColor(Color color){
             ColorDefault = color.ToVector3();
             return this;
         }
-        public Piso ConTextura(Texture2D texturaPiso){
-            Effect = TGCGame.GameContent.E_TextureShader;
+        public Piso ConTextura(Texture2D texturaPiso, float cantidadBaldosas = 1){
+            Effect = TGCGame.GameContent.E_TextureTiles;
+            CantidadBaldosas = cantidadBaldosas;
             TexturaBaldosa = texturaPiso;
             return this;
         }
@@ -51,6 +48,7 @@ namespace TGC.MonoGame.TP
         {
             Effect.Parameters["DiffuseColor"]?.SetValue(ColorDefault);
             Effect.Parameters["Texture"]?.SetValue(TexturaBaldosa);
+            Effect.Parameters["TileAmount"]?.SetValue(CantidadBaldosas);
             Effect.Parameters["World"].SetValue(World);
             TGCGame.GameContent.G_Quad.Draw(Effect);
         }

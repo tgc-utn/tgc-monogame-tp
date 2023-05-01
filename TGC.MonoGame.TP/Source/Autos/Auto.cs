@@ -8,7 +8,7 @@ namespace TGC.MonoGame.TP
 {
     public class Auto : IElementoDinamico
     { 
-        private const float AUTO_SCALE = 0.15f;
+        private const float AUTO_SCALE = 0.00015f * TGCGame.S_METRO;
         private Vector3 Position;
         private Vector3 Velocity;
         private float AccelerationMagnitude = 2000f;
@@ -85,10 +85,6 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateScale(Escala) * 
                 MatrixRotation *
                 Matrix.CreateTranslation(Position);
-        }
-
-        public void Teleport(Vector3 toXYZ){
-            Position = toXYZ;
         }
     }
 }

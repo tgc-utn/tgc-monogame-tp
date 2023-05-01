@@ -6,7 +6,7 @@ namespace TGC.MonoGame.TP
     public class HabitacionOficina : IHabitacion{
         public const int Size = 5;
         public HabitacionOficina(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
-            Piso = Piso.ConTextura(TGCGame.GameContent.T_PisoMaderaClaro);
+            Piso = Piso.ConTextura(TGCGame.GameContent.T_PisoMaderaClaro, 5);
 
             var posicionInicial = new Vector3(posicionX,0f,posicionZ);
 

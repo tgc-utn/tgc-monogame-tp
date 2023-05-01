@@ -27,7 +27,8 @@ namespace TGC.MonoGame.TP
                 M_Mesada, M_AutoPegni, M_Heladera, M_Dragon, M_Dragona
                 ;
 
-        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter, E_TextureMirror;
+        internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter, 
+                            E_TextureMirror, E_TextureTiles;
         internal readonly Texture2D T_Alfombra, T_PisoMadera, T_PisoCeramica, T_PisoAlfombrado, 
                             T_MeshFilter, T_MaderaNikari, T_SillaOficina, T_PisoMaderaClaro, T_Dragon,
                             T_RacingCar, T_CombatVehicle, T_Ladrillos, T_Marmol, T_MarmolNegro, T_Reboque, T_Concreto;
@@ -46,6 +47,7 @@ namespace TGC.MonoGame.TP
             // Efectos
             Efectos.Add(E_BasicShader   = LoadEffect("BasicShader")         );
             Efectos.Add(E_TextureShader = LoadEffect("TextureShader")       );
+            Efectos.Add(E_TextureTiles  = LoadEffect("TextureTiles")       );
             Efectos.Add(E_TextureMirror = LoadEffect("TextureMirrorShader") );
             Efectos.Add(E_SpiralShader  = LoadEffect("SpiralShader")        );
             Efectos.Add(E_BlacksFilter  = LoadEffect("BlacksFilter")        );

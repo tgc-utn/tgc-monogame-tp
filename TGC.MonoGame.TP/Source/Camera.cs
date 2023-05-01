@@ -6,7 +6,7 @@ namespace TGC.MonoGame.TP
 {
     class Camera
     {
-        private float AxisDistanceToTarget = 2000f;
+        private float AxisDistanceToTarget = 4f * TGCGame.S_METRO;
 
         private float AngleFollowSpeed = 0.015f;
 

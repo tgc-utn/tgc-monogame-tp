@@ -9,42 +9,41 @@ namespace TGC.MonoGame.TP
         private const float S_METRO = TGCGame.S_METRO;
         private float Largo;
         private float Altura = S_METRO*2;
-        private Vector3 PosicionInicial = Vector3.Zero;
-        private bool EsHorizontal;
+        protected Vector3 PuntoInicial = Vector3.Zero;
+        protected Vector3 PuntoFinal;
+        public readonly bool EsHorizontal;
         private Effect Efecto = TGCGame.GameContent.E_TextureShader;
         private Matrix World;
 
-        public Pared(bool esHorizontal = false){
+        public Pared(Vector3 puntoInicio, Vector3 puntoFinal, bool esHorizontal = false){
+            PuntoInicial = puntoInicio;
+            PuntoFinal = puntoFinal;
             EsHorizontal = esHorizontal;
-            World = Matrix.Identity;            
-        }
-
-        public Pared Abierta(){
-            return this;
-        }
-        public Pared Cerrada(){
-            return this;
+            Ubicar(puntoInicio, puntoFinal);
         }
 
         ///<summary> Me dibujo de derecha a izquierda (Horizontal) o de arriba para abajo (Vertical) </summary>
-        public void Ubicar(Vector3 posicionInicial, float largo){
-            PosicionInicial = posicionInicial;
-            
-            Largo = largo * S_METRO;
+        public void Ubicar(Vector3 puntoInicial, Vector3 puntoFinal){
+            PuntoInicial = puntoInicial;
+            PuntoFinal = puntoFinal;
 
-            Matrix Escala       =  EsHorizontal ? Matrix.CreateScale(Altura,0,Largo)  : Matrix.CreateScale(Altura,0,Largo);
+            //Largo = largoAbsoluto;
+            Largo = (EsHorizontal)? puntoFinal.Z - puntoInicial.Z : puntoFinal.X - puntoInicial.X;
+            
+            Matrix Escala       = Matrix.CreateScale(Altura,0,Largo);
             Matrix LevantarQuad = Matrix.CreateRotationZ(MathHelper.PiOver2);
-            Matrix Rotacion     =  EsHorizontal ? Matrix.Identity                : Matrix.CreateRotationY(MathHelper.PiOver2);
-            Matrix Traslacion   = Matrix.CreateTranslation(PosicionInicial.X * S_METRO,-100f,PosicionInicial.Z * S_METRO);
+            Matrix Rotacion     = EsHorizontal ? Matrix.CreateRotationY(0) : Matrix.CreateRotationY(MathHelper.PiOver2);
+            Matrix Traslacion   = Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z);
 
             World = Escala * LevantarQuad * Rotacion * Traslacion ;
         }
-
         public void Draw(){ 
             Efecto.Parameters["World"].SetValue(World); 
             Efecto.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Concreto);
 
             TGCGame.GameContent.G_Quad.Draw(Efecto);
         }
+        
+        public void SetPuntoInicio(Vector3 nuevoPunto) => PuntoInicial = nuevoPunto;
     }
 }
