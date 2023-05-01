@@ -4,11 +4,12 @@ using Microsoft.Xna.Framework;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionPasillo1 : IHabitacion{
-        private const int Size = 4;
-        public HabitacionPasillo1(Vector3 posicionInicial):base(Size,Size,posicionInicial){  
-            Piso.Alfombrado();
+        public const int Size = 4;
+        public HabitacionPasillo1(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){  
+            Piso.ConTextura(TGCGame.GameContent.T_PisoAlfombrado);
 
-            AddPuerta(Puerta.Arriba(2f, Size, posicionInicial));
+            var posicionInicial = new Vector3(posicionX,0f,posicionZ);
+
         }
 
     }

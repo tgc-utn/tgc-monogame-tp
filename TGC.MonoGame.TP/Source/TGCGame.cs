@@ -4,11 +4,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using TGC.MonoGame.TP.Design;
 
 namespace TGC.MonoGame.TP
 {
     public class TGCGame : Game
     {
+        public const float S_METRO = 500f;
         internal static TGCGame Game;
         internal static Content GameContent;
         private GraphicsDeviceManager Graphics;
@@ -34,8 +36,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.BlendState = BlendState.Opaque;
 
             Camera = new Camera(GraphicsDevice.Viewport.AspectRatio);
-    
-    
+        
             base.Initialize();
         }
 
@@ -46,7 +47,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             Soundtrack = GameContent.S_SynthWars;
             MediaPlayer.IsRepeating = true;
@@ -54,21 +55,9 @@ namespace TGC.MonoGame.TP
 
             GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
-
-            //Hogar.Add( new HabitacionTipo ( Vector3 ubicacionEsquinaSuperiorDerecha ));
-            Hogar.Add( new HabitacionPrincipal    (new Vector3(-5000f,0f,5000f)));
-            Hogar.Add( new HabitacionCocina       (new Vector3(-11000f,0f,7000f)));
-            Hogar.Add( new HabitacionToilette     (new Vector3(-9000, 0f, -1000)));
-            Hogar.Add( new HabitacionPasillo1     (new Vector3(-5000f, 0f, 1000f)));
-            Hogar.Add( new HabitacionPasillo2     (new Vector3(-5000f, 0f, -3000f)));
-            Hogar.Add( new HabitacionOficina      (new Vector3(-1000f,0f,0f)));
-            Hogar.Add( new HabitacionDormitorio1  (new Vector3(-1000f, 0f, -5000f)));
-            Hogar.Add( new HabitacionDormitorio2  (new Vector3(-10000f, 0f, -6000f)));
-
-            foreach(var hab in Hogar)
-                Console.WriteLine("Habitacion cargada con {0:D}"+ " modelos.", hab.cantidadElementos());
+            disponerHabitaciones();
+            construirParedes();
             
-            //Auto ( posicionInicial )
             Auto = new Auto(Hogar[0].getCenter());
         }
 
@@ -88,7 +77,6 @@ namespace TGC.MonoGame.TP
             else
             Auto.Update(gameTime, keyboardState);
 
-
             // Control de la música
             if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
                 MediaPlayer.Play(Soundtrack);
@@ -98,7 +86,6 @@ namespace TGC.MonoGame.TP
                 MediaPlayer.Resume();
             else if (keyboardState.IsKeyDown(Keys.P) && MediaPlayer.State == MediaState.Playing)
                 MediaPlayer.Stop();
-
 
             foreach(IHabitacion habitacion in Hogar)
                 habitacion.Update(gameTime, keyboardState);
@@ -119,10 +106,42 @@ namespace TGC.MonoGame.TP
             }
 
             foreach(IHabitacion habitacion in Hogar)
-                habitacion.Draw(Camera.View, Camera.Projection);
+                habitacion.Draw();
 
             Auto.Draw();          
         }
+
+        // Esto debería ir en una nueva clase : Casa.
+         private void disponerHabitaciones(){
+            // DISPOSICIÓN RELATIVA DE HABITACIONES. 
+            //      TAREA :  Sacar el S_METRO de acá y de Elemento. 
+            //               Dejarlo solo que dependa de la Habitación definir las posiciones
+            //               de los objetos (en AddElemento y cuandodefinimos la PosicionInicial)
+            Hogar.Add( new HabitacionPrincipal(0f,0f));
+            Hogar.Add( new HabitacionCocina(-HabitacionCocina.Size * S_METRO, S_METRO * HabitacionPrincipal.Size/2) );
+            Hogar.Add( new HabitacionPasillo1(0f, -HabitacionPasillo1.Size * S_METRO) );
+            Hogar.Add( new HabitacionToilette(-HabitacionToilette.Size * S_METRO, 0));
+            Hogar.Add( new HabitacionPasillo2(0f, -Hogar[2].Ancho*2 * S_METRO));
+            Hogar.Add( new HabitacionOficina(0f, -S_METRO *(Hogar[2].Ancho*2+HabitacionOficina.Size)));
+            Hogar.Add( new HabitacionDormitorio1(-S_METRO * HabitacionDormitorio1.Size , -Hogar[2].Ancho*2 * S_METRO ));
+            Hogar.Add( new HabitacionDormitorio2(Hogar[2].Ancho * S_METRO , -Hogar[2].Ancho*2 * S_METRO));
+            Hogar.Add( new HabitacionToilette(Hogar[5].getVerticeExtremo().X,Hogar[5].getVerticeExtremo().Z - HabitacionToilette.Size*S_METRO));
+
+            foreach(var hab in Hogar)
+                Console.WriteLine("Habitacion cargada con {0:D}"+ " modelos.", hab.cantidadElementos());
+        }
+
+        private void construirParedes(){
+            foreach(var hab in Hogar){
+                hab.SetParedArriba   (new Pared(true).Cerrada());
+                hab.SetParedAbajo    (new Pared(true).Cerrada());
+                hab.SetParedIzquierda(new Pared().Cerrada());
+                hab.SetParedDerecha  (new Pared().Cerrada());
+            }
+        }
+
+
+
         protected override void UnloadContent()
         {
             Content.Unload();

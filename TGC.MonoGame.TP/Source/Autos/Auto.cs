@@ -8,6 +8,7 @@ namespace TGC.MonoGame.TP
 {
     public class Auto : IElementoDinamico
     { 
+        private const float AUTO_SCALE = 0.15f;
         private Vector3 Position;
         private Vector3 Velocity;
         private float AccelerationMagnitude = 2000f;
@@ -15,10 +16,10 @@ namespace TGC.MonoGame.TP
         private float Rotation;
         private float JumpPower = 50000f;
         private float Turning = 0f;
+        private float Escala = AUTO_SCALE;
         private bool cambio = false;
-        private float Escala = 0.15f;
 
-        public Auto(Vector3 posicionInicial, float escala = 0.15f) 
+        public Auto(Vector3 posicionInicial, float escala = AUTO_SCALE) 
         : base(TGCGame.GameContent.M_AutoPegni, Vector3.Zero, Vector3.Zero, escala)
         {
             Position = posicionInicial;

@@ -5,16 +5,13 @@ using TGC.MonoGame.TP.Design;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionDormitorio1 : IHabitacion{
-        private const int Size = 5;
+        public const int Size = 5;
 
         // / / / / / / / / /
         // LA DE LOS LEGOS
-        public HabitacionDormitorio1(Vector3 posicionInicial):base(Size,Size,posicionInicial){
-            Piso.Azul();
+        public HabitacionDormitorio1(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
 
-            AddPared(Pared.Abajo (Size, Size, posicionInicial));
-            AddPared(Pared.Derecha(Size, Size, posicionInicial));
-            AddPuerta(Puerta.Arriba(1f, Size, posicionInicial));
+            var posicionInicial = new Vector3(posicionX,0f,posicionZ);
 
             Amueblar();
         }

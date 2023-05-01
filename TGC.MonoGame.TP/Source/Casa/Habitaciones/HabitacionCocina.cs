@@ -5,14 +5,12 @@ using TGC.MonoGame.TP.Design;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionCocina : IHabitacion{
-        private const int Size = 6;
-        public HabitacionCocina(Vector3 posicionInicial):base(Size,Size,posicionInicial){
-            Piso.Cocina();
+        public const int Size = 6;
+        public HabitacionCocina(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
+            Piso.ConTextura(TGCGame.GameContent.T_PisoCeramica);
 
-            AddPared(Pared.Izquierda (Size, Size, posicionInicial));
-            AddPared(Pared.Arriba(Size, Size, posicionInicial));
-            AddPared(Pared.Derecha(Size, Size, posicionInicial));
-
+            var posicionInicial = new Vector3(posicionX,0f,posicionZ);
+            
             Amueblar();
         }
         public override void DrawElementos(){

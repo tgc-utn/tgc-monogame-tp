@@ -5,26 +5,26 @@ using TGC.MonoGame.TP.Design;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionPrincipal : IHabitacion{
-        private const int Size = 10;
-        public HabitacionPrincipal(Vector3 posicionInicial):base(Size,Size,posicionInicial){
+        public const int Size = 10;
+        public HabitacionPrincipal(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
 
-            Piso = Piso.Madera();
+            var posicionInicial = new Vector3(posicionX,0f,posicionZ);
             
-            // Esto debería abstraerse a una entidad CASA que cree y ubique las paredes 
-            // según la ubicacion de la casa
-            AddPared(Pared.Izquierda (Size, Size, posicionInicial));
-            AddPuerta(Puerta.Arriba(3f, Size, posicionInicial));
-            AddPared(Pared.Abajo(Size, Size, posicionInicial));
-            AddPuerta(Puerta.Derecha(7f, Size, posicionInicial));
-            
+            Piso.ConTextura(TGCGame.GameContent.T_PisoMadera);
+ 
             Amueblar();
         }        
         public override void DrawElementos(){
             var tShader = TGCGame.GameContent.E_TextureShader;
             var bShader = TGCGame.GameContent.E_BasicShader;
+            var fShader = TGCGame.GameContent.E_BlacksFilter;
+            
             foreach(var e in Elementos){
                 switch(e.GetTag()){
                     case "Mesa":
+                        fShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_MaderaNikari);      
+                        fShader.Parameters["Filter"].SetValue(TGCGame.GameContent.T_MeshFilter);      
+                    break;
                     case "Chair":
                     case "Mesita":
                         tShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_MaderaNikari);      
@@ -32,10 +32,6 @@ namespace TGC.MonoGame.TP
                     case "Sofa":
                         tShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Alfombra);      
                     break;
-                    case "Aparador":
-                        e.SetEffect(tShader);
-                        tShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_MaderaNikari);      
-                        break;
                     case "Sillon":
                     case "CafeRojo":
                         bShader.Parameters["DiffuseColor"].SetValue(Color.DarkRed.ToVector3());
@@ -138,14 +134,14 @@ namespace TGC.MonoGame.TP
                 .ConPosicion(8050f, 8350f);
                 AddElemento( carpintero.BuildMueble() );
             
-
-            carpintero.Modelo(TGCGame.GameContent.M_Aparador)
+            //Está bugueado
+            /* carpintero.Modelo(TGCGame.GameContent.M_Aparador)
                 .ConEscala(15f)
                 .ConPosicion(getCenter().X,getCenter().Z)
                 .ConRotacion(MathHelper.Pi,0,-MathHelper.PiOver2)
                 .ConShader(tShader)
                 .ConAltura(300f);
-                AddElemento( carpintero.BuildMueble() );
+                AddElemento( carpintero.BuildMueble() ); */
 
             carpintero.Modelo(TGCGame.GameContent.M_Televisor)
                 .ConEscala(10f)

@@ -4,15 +4,11 @@ using TGC.MonoGame.TP.Design;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionToilette : IHabitacion{
-        private const int Size = 4;
-        public HabitacionToilette(Vector3 posicionInicial):base(Size,Size,posicionInicial){
-
-            Piso.Banio();
-            
-            AddPared(Pared.Izquierda (Size, Size, posicionInicial));
-            AddPared(Pared.Arriba(Size, Size, posicionInicial));
-            AddPared(Pared.Derecha(Size, Size, posicionInicial));
-
+        public const int Size = 4;
+        public HabitacionToilette(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
+ 
+            var posicionInicial = new Vector3(posicionX,0f,posicionZ);
+                       
             Amueblar();
         }
 

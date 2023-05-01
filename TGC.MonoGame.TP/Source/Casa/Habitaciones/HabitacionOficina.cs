@@ -4,13 +4,11 @@ using TGC.MonoGame.TP.Design;
 namespace TGC.MonoGame.TP
 {
     public class HabitacionOficina : IHabitacion{
-        private const int Size = 5;
-        public HabitacionOficina(Vector3 posicionInicial):base(Size,Size,posicionInicial){
-            Piso = Piso.Texturado(TGCGame.GameContent.T_PisoMaderaClaro);
+        public const int Size = 5;
+        public HabitacionOficina(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
+            Piso = Piso.ConTextura(TGCGame.GameContent.T_PisoMaderaClaro);
 
-            AddPared(Pared.Abajo (Size, Size, posicionInicial));
-            AddPared(Pared.Derecha(Size, Size, posicionInicial));
-            AddPuerta(Puerta.Arriba(2f, Size, posicionInicial));
+            var posicionInicial = new Vector3(posicionX,0f,posicionZ);
 
             Amueblar();
         }

@@ -6,37 +6,40 @@ using Microsoft.Xna.Framework.Graphics;
 namespace TGC.MonoGame.TP
 {
     public class Pared{
-        private float Ancho;
-        private float Altura = 1000f;
-        private static float Escala = 1000f;
-        private Vector3 PosicionInicial;
+        private const float S_METRO = TGCGame.S_METRO;
+        private float Largo;
+        private float Altura = S_METRO*2;
+        private Vector3 PosicionInicial = Vector3.Zero;
         private bool EsHorizontal;
-        private Effect Efecto = TGCGame.GameContent.E_TextureMirror;
+        private Effect Efecto = TGCGame.GameContent.E_TextureShader;
         private Matrix World;
 
-        private Pared(float ancho, Vector3 posicionInicial,bool esHorizontal = false){
-            Ancho = ancho;
-            PosicionInicial = posicionInicial;
+        public Pared(bool esHorizontal = false){
             EsHorizontal = esHorizontal;
-
-            Matrix Traslacion = Matrix.CreateTranslation(PosicionInicial);
-            Matrix Rotacion = !EsHorizontal ? Matrix.CreateRotationY(MathHelper.PiOver2) : Matrix.Identity;
-            World = Matrix.Identity * Matrix.CreateScale(Altura, 0f, Ancho*Escala) * Matrix.CreateRotationZ(MathHelper.PiOver2) * Rotacion * Traslacion;            
+            World = Matrix.Identity;            
         }
 
-        public static Pared Izquierda(float ancho, float alto, Vector3 posicionInicial){
-            return new Pared(ancho, posicionInicial + new Vector3(0f, 0f, ancho * Escala));
+        public Pared Abierta(){
+            return this;
+        }
+        public Pared Cerrada(){
+            return this;
+        }
+
+        ///<summary> Me dibujo de derecha a izquierda (Horizontal) o de arriba para abajo (Vertical) </summary>
+        public void Ubicar(Vector3 posicionInicial, float largo){
+            PosicionInicial = posicionInicial;
             
+            Largo = largo * S_METRO;
+
+            Matrix Escala       =  EsHorizontal ? Matrix.CreateScale(Altura,0,Largo)  : Matrix.CreateScale(Altura,0,Largo);
+            Matrix LevantarQuad = Matrix.CreateRotationZ(MathHelper.PiOver2);
+            Matrix Rotacion     =  EsHorizontal ? Matrix.Identity                : Matrix.CreateRotationY(MathHelper.PiOver2);
+            Matrix Traslacion   = Matrix.CreateTranslation(PosicionInicial.X * S_METRO,-100f,PosicionInicial.Z * S_METRO);
+
+            World = Escala * LevantarQuad * Rotacion * Traslacion ;
         }
-        public static Pared Derecha(float ancho, float alto, Vector3 posicionInicial){
-            return new Pared(ancho, posicionInicial);
-        }
-        public static Pared Arriba(float ancho, float alto, Vector3 posicionInicial){
-            return new Pared(ancho, posicionInicial, true);
-        }
-        public static Pared Abajo(float ancho, float alto, Vector3 posicionInicial){
-            return new Pared(ancho, posicionInicial + new Vector3(alto * Escala - 0f, 0f, 0f) ,true);
-        }
+
         public void Draw(){ 
             Efecto.Parameters["World"].SetValue(World); 
             Efecto.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Concreto);

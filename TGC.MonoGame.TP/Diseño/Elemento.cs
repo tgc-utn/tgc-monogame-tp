@@ -5,6 +5,7 @@ namespace TGC.MonoGame.TP.Design
 {
     /// Crea un elemento estático en la posición del vector PosicionInicial
     public class Elemento  {
+        internal const float S_RELATIVE = TGCGame.S_METRO * 0.001f;
         public Matrix World = Matrix.Identity ;
         protected Model Model {get; set;}
         private Effect Shader {get; set;} 
@@ -20,9 +21,9 @@ namespace TGC.MonoGame.TP.Design
         }
         public void Initialize(Model modelo, Vector3 posicionInicial, Vector3 rotacion, Effect shader, float escala = 1f){
             Model = modelo;
-            Escala = escala;
+            Escala = S_RELATIVE*escala;
             Rotacion = rotacion;
-            PosicionInicial = posicionInicial;
+            PosicionInicial = S_RELATIVE*posicionInicial;
             SetEffect(Shader);
             
             actualizarMundo();
