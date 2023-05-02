@@ -30,6 +30,18 @@ namespace TGC.MonoGame.TP
                     case "Dragona":
                         bShader.Parameters["DiffuseColor"].SetValue(Color.MediumVioletRed.ToVector3());
                     break;
+                    case "Cama":
+                        tShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_PisoMaderaClaro);
+                    break;
+                    case "Juego":
+                        bShader.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                    break;
+                    case "Puff":
+                        bShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+                    break;
+                    case "Armario1":
+                        tShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_PisoMadera);
+                    break;
 
                     default:
                     break;
@@ -51,6 +63,27 @@ namespace TGC.MonoGame.TP
                 .ConAltura(2000f)
                 .ConRotacion(MathHelper.PiOver4,MathHelper.PiOver4,0f);
                 AddElemento(carpintero.BuildMueble());
+
+          /*  carpintero.Modelo(TGCGame.GameContent.M_Cama)
+                .ConPosicion(1000f, 2000f)
+                .ConAltura(0f)
+                AddElemento(carpintero.BuildMueble());
+
+            carpintero.Modelo(TGCGame.GameContent.M_Juego)
+                .ConPosicion(3000f, 400f)
+                .ConAltura(500f)
+                AddElemento(carpintero.BuildMueble());
+            
+            carpintero.Modelo(TGCGame.GameContent.M_Puff)
+                .ConPosicion(4000f, 300f)
+                .ConAltura(0f)
+                AddElemento(carpintero.BuildMueble());
+
+            carpintero.Modelo(TGCGame.GameContent.M_Armario1)
+                .ConPosicion(4700f, 2000f)
+                .ConAltura(500f)
+                .ConRotacion(0f,-MathHelper.Pi,0f);
+                AddElemento(carpintero.BuildMueble());  */
                 
             carpintero.Modelo(TGCGame.GameContent.M_Dragona)
                 .ConPosicion(400f, 4500f)
