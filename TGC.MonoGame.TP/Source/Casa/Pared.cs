@@ -38,8 +38,11 @@ namespace TGC.MonoGame.TP
             World = Escala * LevantarQuad * Rotacion * Traslacion ;
         }
         public void Draw(){ 
+            Draw(TGCGame.GameContent.T_MarmolNegro);
+        }
+        public void Draw(Texture2D textura){ 
             Efecto.Parameters["World"].SetValue(World); 
-            Efecto.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Concreto);
+            Efecto.Parameters["Texture"]?.SetValue(textura);
 
             TGCGame.GameContent.G_Quad.Draw(Efecto);
         }

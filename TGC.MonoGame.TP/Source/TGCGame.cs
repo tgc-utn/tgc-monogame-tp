@@ -16,6 +16,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Auto Auto;
+        private Auto2 Auto2;
         private int IndiceHabAuto = 0;
         private Camera Camera; 
         private Casa Casa;
@@ -34,9 +35,14 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             GraphicsDevice.BlendState = BlendState.Opaque;
+            TGCGame.Game.
 
             Camera = new Camera(GraphicsDevice.Viewport.AspectRatio);
             Casa = new Casa();
+
+            Game.Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+            Game.Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            Game.Graphics.ApplyChanges();
         
             base.Initialize();
         }
@@ -62,6 +68,7 @@ namespace TGC.MonoGame.TP
             Casa.LoadContent();
             
             Auto = new Auto(Casa.GetCenter(1));
+            Auto2 = new Auto2(Casa.GetCenter(1));
         }
 
         protected override void Update(GameTime gameTime)
@@ -72,6 +79,7 @@ namespace TGC.MonoGame.TP
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds); 
 
             Auto.Update(gameTime, keyboardState);
+            Auto2.Update(gameTime, keyboardState);
 
             // Control de la música
             if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
@@ -85,7 +93,7 @@ namespace TGC.MonoGame.TP
 
             Casa.Update(gameTime, keyboardState);
             
-            Camera.Mover(keyboardState);
+            //Camera.Mover(keyboardState);
             Camera.Update(gameTime, Auto.World);
 
             base.Update(gameTime);
@@ -102,6 +110,7 @@ namespace TGC.MonoGame.TP
             Casa.Draw();
 
             Auto.Draw();          
+            Auto2.Draw();          
         }
 
         // Esto debería ir en una nueva clase : Casa.

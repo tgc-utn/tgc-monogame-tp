@@ -25,7 +25,16 @@ namespace TGC.MonoGame.TP{
         }
         public void Draw(){
             foreach(var h in Habitaciones) h.Draw();
-            foreach(var p in Esqueleto) p.Draw();
+
+            for(int i = 0 ; i<10 ; i++)
+                Esqueleto[i].Draw(TGCGame.GameContent.T_Ladrillos);
+            for(int i = 10; i<15 ; i++)
+                Esqueleto[i].Draw(TGCGame.GameContent.T_Concreto);
+
+            for(int i = 15; i< Esqueleto.Count; i++){
+                Esqueleto[i].Draw();
+            }
+                
         }
 
         public Vector3 GetCenter(int indexHabitacion){
@@ -54,44 +63,47 @@ namespace TGC.MonoGame.TP{
         }
 
         private void construirParedes(){
-            // Establezco segmentos de habitaciones
-            var segmentosHorizontales = new List<(Vector3 inicio,Vector3 final)>();
-            var segmentosVerticales   = new List<(Vector3 inicio,Vector3 final)>();
-            
-            foreach(var h in Habitaciones){
-                segmentosHorizontales.Add(h.GetSegmentoSuperior());
-                segmentosHorizontales.Add(h.GetSegmentoInferior());
-                
-                segmentosVerticales.Add(h.GetSegmentoDerecha());
-                segmentosVerticales.Add(h.GetSegmentoIzquierda());
-            }
 
-            // Poner todas las paredes
-            foreach(var s in segmentosHorizontales)
-                Esqueleto.Add(new Pared(s.inicio, s.final, true));
-            foreach(var s in segmentosVerticales)
-                Esqueleto.Add(new Pared(s.inicio, s.final, false));
+            // Paredes exteriores
+            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoSuperior().final, Habitaciones[1].GetSegmentoInferior().final, true));
+            Esqueleto.Add(new Pared(Habitaciones[1].GetSegmentoIzquierda().inicio, Habitaciones[1].GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoInferior().inicio, Habitaciones[0].GetSegmentoInferior().final, true));
+            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoIzquierda().inicio, Habitaciones[0].GetSegmentoIzquierda().final));
+            Esqueleto.Add(new Pared(Habitaciones[3].GetSegmentoIzquierda().inicio, Habitaciones[3].GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoIzquierda().inicio, Habitaciones[6].GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoInferior ().final, Habitaciones[2].GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoInferior ().inicio, Habitaciones[7].GetSegmentoInferior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoIzquierda().inicio, Habitaciones[7].GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[8].GetSegmentoInferior ().inicio, Habitaciones[8].GetSegmentoInferior ().final, true ));
+
+            // Paredes HabitacionPrincipal
+            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoSuperior().inicio, Habitaciones[0].GetSegmentoSuperior().final, true));
+            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoDerecha().inicio, Habitaciones[0].GetSegmentoDerecha().final));
+            // Paredes cortadas del Pasillo 1 (el más cercano a la principal)
+            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoInferior ().inicio, Habitaciones[6].GetSegmentoInferior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoSuperior ().final, Habitaciones[2].GetSegmentoInferior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoIzquierda().inicio, Habitaciones[7].GetSegmentoDerecha().inicio, false ));
+            
+            // Paredes cocina ( primera cortada )
+            Esqueleto.Add(new Pared(Habitaciones[1].GetSegmentoDerecha().inicio, Habitaciones[1].GetSegmentoDerecha().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[1].GetSegmentoSuperior ().inicio, Habitaciones[1].GetSegmentoSuperior ().final, true ));
+            
+            // Paredes baños
+            Esqueleto.Add(new Pared(Habitaciones[3].GetSegmentoDerecha().inicio, Habitaciones[3].GetSegmentoDerecha().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[3].GetSegmentoSuperior ().inicio, Habitaciones[3].GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[8].GetSegmentoDerecha  ().inicio, Habitaciones[8].GetSegmentoDerecha  ().final, false ));
+            // Paredes Dormitorio1 (Lego)
+            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoDerecha().inicio, Habitaciones[6].GetSegmentoDerecha().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoSuperior ().inicio, Habitaciones[6].GetSegmentoSuperior ().final, true ));
+            // Paredes Dormitorio2 (Dragones)
+            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoSuperior ().inicio, Habitaciones[7].GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoDerecha  ().inicio, Habitaciones[7].GetSegmentoDerecha  ().final, false ));
+            // Paredes oficina
+            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoSuperior ().inicio, Habitaciones[5].GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoDerecha  ().inicio, Habitaciones[5].GetSegmentoDerecha  ().final, false ));
+            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoInferior ().inicio, Habitaciones[5].GetSegmentoInferior ().final, true ));
 
             Console.WriteLine("CheckPoint");
-
-            /* // Redefino Segmentos para que no sean Colineares
-            for(int i = 0 ; i<segmentosHorizontales.Count ; i++){
-                var sTest = segmentosHorizontales[i];
-                
-                for(int j = 0 ; j<segmentosHorizontales.Count ; j++){
-                    var s = segmentosHorizontales[j];
-                    // Colineares
-                    if(sTest.inicio.X == s.inicio.X){
-                        if(sTest.inicio.Z < s.final.Z && sTest.inicio.Z >= s.inicio.Z){
-                            
-                            //ActualizarSegmento
-                            if(i!=j) segmentosHorizontales[i] = (s.final, sTest.final);
-                        }
-                    }
-                }
-            }
-            Console.WriteLine("CheckPoint"); */
         }
-
     }
 }
