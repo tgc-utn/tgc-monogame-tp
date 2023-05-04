@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 namespace TGC.MonoGame.TP.Entities
 {
@@ -8,21 +9,24 @@ namespace TGC.MonoGame.TP.Entities
     /// </summary>
     public class Water
     {
-        private SimpleQuad Quad { get; set; }
+        public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderTextures = "Textures/";
+        public const int RowsOfQuads = 100;
+        private Quad Quad { get; set; }
         private GraphicsDevice GraphicsDevice { get; set; }
-        private int CantidadDeFilas { get; set; }
 
-        public Water(GraphicsDevice graphicsDevice, Effect effect, int cantidadDeQuadPorLinea, Texture2D texture)
+        public Water(GraphicsDevice graphicsDevice)
         {
             GraphicsDevice = graphicsDevice;
-            CantidadDeFilas = cantidadDeQuadPorLinea;
-            Quad = new SimpleQuad(graphicsDevice, effect, texture);
+            Quad = new Quad(graphicsDevice, RowsOfQuads);
         }
 
-        // Capaz la segunda versión estaría buena que sea algo así.
-        // indicando donde empieza y donde termina el mar. y capaz otro valor que indique el tamaño de los quads
-        // Draw(Vector3 posicionInicial, Vector3 posicionFinal, Matrix view, Matrix projection)
-
+        public void LoadContent(ContentManager Content)
+        {
+            var waterTexture = Content.Load<Texture2D>(ContentFolderTextures + "cuadrado-testing");
+            var textureEffect = Content.Load<Effect>(ContentFolderEffects + "OceanShader");
+            Quad.LoadContent(textureEffect, waterTexture);
+        }
 
         /// <summary>
         /// Recibe la posicion donde se va a empezar a generar el mar. 
@@ -32,25 +36,11 @@ namespace TGC.MonoGame.TP.Entities
         /// <param name="posicionInicial"></param>
         /// <param name="view"></param>
         /// <param name="projection"></param>
-        public void Draw(Matrix posicionInicial, Matrix view, Matrix projection, float time)
+        public void Draw(Matrix view, Matrix projection, float time)
         {
-            float escala = 6f;
-            float proximaDistancia = 0f;
-            float distanciaEnX = 0f;
-
-            Matrix world = Matrix.CreateScale(escala) * posicionInicial;
-            for (int i = 0; i < CantidadDeFilas; ++i)
-            {
-                for (int j = 0; j < CantidadDeFilas; ++j)
-                {
-                    Matrix translation = Matrix.CreateTranslation(new Vector3(distanciaEnX, 0, proximaDistancia));
-                    Quad.Draw(translation * world, view, projection, time);
-                    //Harcodeado porque el tamaño de cada simpleQuad es de 2x2.
-                    proximaDistancia += 2f;
-                }
-                proximaDistancia = 0;
-                distanciaEnX += 2f;
-            }
+            float escala = 10f;
+            Matrix world = Matrix.CreateScale(escala) * Matrix.CreateTranslation(0,0.0005f, 0);
+            Quad.Draw(world, view, projection, time);
         }
     }
 }

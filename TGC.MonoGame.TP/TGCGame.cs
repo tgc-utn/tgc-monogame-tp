@@ -62,6 +62,7 @@ namespace TGC.MonoGame.TP
             Ship = new ShipPlayer();
             IslandGenerator = new IslandGenerator();
             Time = 0;
+            Water = new Water(GraphicsDevice);
             base.Initialize();
         }
 
@@ -73,13 +74,11 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            var waterTexture = Content.Load<Texture2D>(ContentFolderTextures + "cuadrado-testing");
-            var textureEffect = Content.Load<Effect>(ContentFolderEffects + "TextureShader");
+            Water.LoadContent(Content);
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             Ship.LoadContent(Content, Effect);
             IslandGenerator.LoadContent(Content, Effect);
             Islands = IslandGenerator.CreateRandomIslands(200, 1500f, 1500f);
-            Water = new Water(GraphicsDevice,textureEffect, 100, waterTexture);
             base.LoadContent();
         }
 
@@ -109,7 +108,7 @@ namespace TGC.MonoGame.TP
         {
             GraphicsDevice.Clear(Color.Aqua);
             Ship.Draw(FollowCamera);
-            Water.Draw(Matrix.CreateTranslation(-100,0.0005f, -100), FollowCamera.View, FollowCamera.Projection, Time);
+            Water.Draw(FollowCamera.View, FollowCamera.Projection, Time);
             foreach (var island in Islands)
             {
                 island.Draw();

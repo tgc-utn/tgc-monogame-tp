@@ -19,6 +19,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
 
+#begin Effects/OceanShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/OceanShader.fx
+
 #begin Effects/TextureShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
