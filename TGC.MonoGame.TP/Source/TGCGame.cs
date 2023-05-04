@@ -67,8 +67,8 @@ namespace TGC.MonoGame.TP
 
             Casa.LoadContent();
             
-            Auto = new Auto(Casa.GetCenter(1));
-            Auto2 = new Auto2(Casa.GetCenter(1));
+            Auto  = new Auto (Casa.GetCenter(0));
+            Auto2 = new Auto2(Casa.GetCenter(0));
         }
 
         protected override void Update(GameTime gameTime)
@@ -80,7 +80,7 @@ namespace TGC.MonoGame.TP
 
             Auto.Update(gameTime, keyboardState);
             Auto2.Update(gameTime, keyboardState);
-
+                                    
             // Control de la música
             if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
                 MediaPlayer.Play(Soundtrack);

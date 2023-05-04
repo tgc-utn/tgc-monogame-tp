@@ -38,6 +38,7 @@ namespace TGC.MonoGame.TP
             Elementos.Add(e);
         }
 
+        public Vector3 GetMiddlePoint() => Piso.GetMiddlePoint();
         public Vector3 GetCenter() => Piso.getCenter();
         public Vector3 GetVerticeInicio() => this.PosicionInicial;
         public Vector3 GetVerticeExtremo() => this.GetCenter()*2;

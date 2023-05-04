@@ -29,10 +29,13 @@ namespace TGC.MonoGame.TP
             World = Scale 
                     * Matrix.CreateTranslation(PosicionInicial);
         }
-        public Vector3 getVerticeExtremo(){
+        public Vector3 GetVerticeExtremo(){
             return PosicionInicial + ( new Vector3(MetrosLargo,0f,MetrosAncho) * S_METRO );
         }
-        public Vector3 getCenter() => this.getVerticeExtremo()/2;
+        public Vector3 GetMiddlePoint(){
+            return PosicionInicial + ( new Vector3(MetrosLargo*0.5f,0f,MetrosAncho*0.5f) * S_METRO );
+        }
+        public Vector3 getCenter() => this.GetVerticeExtremo()*0.5f;
         
         public Piso ConColor(Color color){
             ColorDefault = color.ToVector3();

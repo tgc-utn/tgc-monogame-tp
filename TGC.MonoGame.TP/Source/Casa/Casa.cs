@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -39,9 +38,9 @@ namespace TGC.MonoGame.TP{
 
         public Vector3 GetCenter(int indexHabitacion){
             if(indexHabitacion>0 && indexHabitacion < Habitaciones.Count)
-                return Habitaciones[indexHabitacion].GetCenter();
+                return Habitaciones[indexHabitacion].GetMiddlePoint();
             else
-                return Habitaciones[0].GetCenter();
+                return Habitaciones[0].GetMiddlePoint();
         }
         private void disponerHabitaciones(){
             // DISPOSICIÓN RELATIVA DE HABITACIONES. 
@@ -63,45 +62,62 @@ namespace TGC.MonoGame.TP{
         }
 
         private void construirParedes(){
+            var hPrincipal = Habitaciones[0];
+            var hCocina    = Habitaciones[1];
+            var hPasilloPr = Habitaciones[2];
+            var hBanioPr   = Habitaciones[3];
+            var hOficina   = Habitaciones[5];
+            var hDormiLego = Habitaciones[6];
+            var hDormiDrag = Habitaciones[7];
+            var hBanioOf   = Habitaciones[8];
+
+            // Todas las paredes que tengan como punto de inicio el final de un segmento, son paredes "cortadas"
 
             // Paredes exteriores
-            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoSuperior().final, Habitaciones[1].GetSegmentoInferior().final, true));
-            Esqueleto.Add(new Pared(Habitaciones[1].GetSegmentoIzquierda().inicio, Habitaciones[1].GetSegmentoIzquierda().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoInferior().inicio, Habitaciones[0].GetSegmentoInferior().final, true));
-            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoIzquierda().inicio, Habitaciones[0].GetSegmentoIzquierda().final));
-            Esqueleto.Add(new Pared(Habitaciones[3].GetSegmentoIzquierda().inicio, Habitaciones[3].GetSegmentoIzquierda().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoIzquierda().inicio, Habitaciones[6].GetSegmentoIzquierda().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoInferior ().final, Habitaciones[2].GetSegmentoSuperior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoInferior ().inicio, Habitaciones[7].GetSegmentoInferior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoIzquierda().inicio, Habitaciones[7].GetSegmentoIzquierda().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[8].GetSegmentoInferior ().inicio, Habitaciones[8].GetSegmentoInferior ().final, true ));
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoSuperior ().final,  hCocina   .GetSegmentoInferior ().final, true));
+            Esqueleto.Add(new Pared(hCocina   .GetSegmentoIzquierda().inicio, hCocina   .GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoInferior ().inicio, hPrincipal.GetSegmentoInferior ().final, true));
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoIzquierda().inicio, hPrincipal.GetSegmentoIzquierda().final));
+            Esqueleto.Add(new Pared(hBanioPr  .GetSegmentoIzquierda().inicio, hBanioPr  .GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoSuperior().final,  hPasilloPr.GetSegmentoInferior().final, true ));
+            Esqueleto.Add(new Pared(hDormiLego.GetSegmentoIzquierda().inicio, hDormiLego.GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoInferior ().inicio, hDormiDrag.GetSegmentoInferior ().final, true ));
+            Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoIzquierda().inicio, hDormiDrag.GetSegmentoIzquierda().final, false ));
+            Esqueleto.Add(new Pared(hBanioOf  .GetSegmentoInferior ().inicio, hBanioOf  .GetSegmentoInferior ().final, true ));
 
             // Paredes HabitacionPrincipal
-            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoSuperior().inicio, Habitaciones[0].GetSegmentoSuperior().final, true));
-            Esqueleto.Add(new Pared(Habitaciones[0].GetSegmentoDerecha().inicio, Habitaciones[0].GetSegmentoDerecha().final));
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoSuperior().inicio, hPrincipal.GetSegmentoSuperior().final, true));
+            Esqueleto[10].AddPuerta(0.60f);
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoDerecha ().inicio, hPrincipal.GetSegmentoDerecha ().final));
+            Esqueleto[11].AddPuerta(0.10f);
             // Paredes cortadas del Pasillo 1 (el más cercano a la principal)
-            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoInferior ().inicio, Habitaciones[6].GetSegmentoInferior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoSuperior ().final, Habitaciones[2].GetSegmentoInferior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoIzquierda().inicio, Habitaciones[7].GetSegmentoDerecha().inicio, false ));
+            Esqueleto.Add(new Pared(hDormiLego.GetSegmentoInferior().inicio, hDormiLego.GetSegmentoInferior().final, true ));
+            Esqueleto[12].AddPuerta(0.25f);
+            Esqueleto.Add(new Pared(hDormiLego.GetSegmentoInferior ().final,  hPasilloPr.GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(hOficina.GetSegmentoIzquierda ().inicio, hDormiDrag.GetSegmentoDerecha ().inicio, false ));
+            Esqueleto[14].AddPuerta(0.25f);
             
             // Paredes cocina ( primera cortada )
-            Esqueleto.Add(new Pared(Habitaciones[1].GetSegmentoDerecha().inicio, Habitaciones[1].GetSegmentoDerecha().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[1].GetSegmentoSuperior ().inicio, Habitaciones[1].GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(hCocina.GetSegmentoDerecha ().inicio, hCocina.GetSegmentoDerecha ().final, false ));
+            Esqueleto.Add(new Pared(hCocina.GetSegmentoSuperior().inicio, hCocina.GetSegmentoSuperior().final, true ));
             
             // Paredes baños
-            Esqueleto.Add(new Pared(Habitaciones[3].GetSegmentoDerecha().inicio, Habitaciones[3].GetSegmentoDerecha().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[3].GetSegmentoSuperior ().inicio, Habitaciones[3].GetSegmentoSuperior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[8].GetSegmentoDerecha  ().inicio, Habitaciones[8].GetSegmentoDerecha  ().final, false ));
+            Esqueleto.Add(new Pared(hBanioPr.GetSegmentoDerecha ().inicio, hBanioPr.GetSegmentoDerecha ().final, false ));
+            Esqueleto.Add(new Pared(hBanioPr.GetSegmentoSuperior().inicio, hBanioPr.GetSegmentoSuperior().final, true ));
+            Esqueleto.Add(new Pared(hBanioOf.GetSegmentoDerecha ().inicio, hBanioOf.GetSegmentoDerecha ().final, false ));
             // Paredes Dormitorio1 (Lego)
-            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoDerecha().inicio, Habitaciones[6].GetSegmentoDerecha().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[6].GetSegmentoSuperior ().inicio, Habitaciones[6].GetSegmentoSuperior ().final, true ));
+            Esqueleto.Add(new Pared(hDormiLego.GetSegmentoDerecha ().inicio, hDormiLego.GetSegmentoDerecha ().final, false ));
+            Esqueleto.Add(new Pared(hDormiLego.GetSegmentoSuperior().inicio, hDormiLego.GetSegmentoSuperior().final, true ));
             // Paredes Dormitorio2 (Dragones)
-            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoSuperior ().inicio, Habitaciones[7].GetSegmentoSuperior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[7].GetSegmentoDerecha  ().inicio, Habitaciones[7].GetSegmentoDerecha  ().final, false ));
+            Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoSuperior().inicio, hDormiDrag.GetSegmentoSuperior().final, true ));
+            Esqueleto[22].AddPuerta(0.25f);
+            Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoDerecha ().inicio, hDormiDrag.GetSegmentoDerecha ().final, false ));
+            Esqueleto[23].AddPuerta(0.25f);
             // Paredes oficina
-            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoSuperior ().inicio, Habitaciones[5].GetSegmentoSuperior ().final, true ));
-            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoDerecha  ().inicio, Habitaciones[5].GetSegmentoDerecha  ().final, false ));
-            Esqueleto.Add(new Pared(Habitaciones[5].GetSegmentoInferior ().inicio, Habitaciones[5].GetSegmentoInferior ().final, true ));
+            Esqueleto.Add(new Pared(hOficina.GetSegmentoSuperior().inicio, hOficina.GetSegmentoSuperior().final, true ));
+            Esqueleto.Add(new Pared(hOficina.GetSegmentoDerecha ().inicio, hOficina.GetSegmentoDerecha ().final, false ));
+            Esqueleto.Add(new Pared(hOficina.GetSegmentoInferior().inicio, hOficina.GetSegmentoInferior().final, true ));
+            Esqueleto[26].AddPuerta(0.25f);
 
             Console.WriteLine("CheckPoint");
         }

@@ -35,6 +35,7 @@ namespace TGC.MonoGame.TP
         internal readonly List<Effect> Efectos = new List<Effect>();
         internal readonly Song S_SynthWars;
         internal readonly QuadPrimitive G_Quad;
+        internal readonly CuboPrimitive G_Cubo;
         
         internal Content(ContentManager Content, GraphicsDevice GraphicsDevice)
         {
@@ -43,6 +44,7 @@ namespace TGC.MonoGame.TP
 
             // Geometrias
             G_Quad = new QuadPrimitive(GraphicsDevice);
+            G_Cubo = new CuboPrimitive(GraphicsDevice);
 
             // Efectos
             Efectos.Add(E_BasicShader   = LoadEffect("BasicShader")         );
