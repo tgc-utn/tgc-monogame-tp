@@ -35,12 +35,13 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            // Graphics.IsFullScreen = true;
-            // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
+            
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 200;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 200;
+            Graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
-            IsMouseVisible = true;
         }
 
         private GraphicsDeviceManager Graphics { get; }

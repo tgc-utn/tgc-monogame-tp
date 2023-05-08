@@ -35,7 +35,7 @@ namespace TGC.MonoGame.TP.Camera
 
             // Perspective camera
             // Uso 60° como FOV, aspect ratio, pongo las distancias a near plane y far plane en 0.1 y 100000 (mucho) respectivamente
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 2f, aspectRatio, 0.1f, 1000f);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 1.8f, aspectRatio, 0.1f, 1000f);
         }
 
         /// <summary>
