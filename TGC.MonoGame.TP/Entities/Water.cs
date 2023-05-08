@@ -38,7 +38,7 @@ namespace TGC.MonoGame.TP.Entities
         /// <param name="projection"></param>
         public void Draw(Matrix view, Matrix projection, float time)
         {
-            float escala = 10f;
+            float escala = 100f;
             Matrix world = Matrix.CreateScale(escala) * Matrix.CreateTranslation(0,0.0005f, 0);
             Quad.Draw(world, view, projection, time);
         }

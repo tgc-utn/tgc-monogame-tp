@@ -28,7 +28,8 @@ namespace TGC.MonoGame.TP.Entities
         public void SetVertexBuffer(GraphicsDevice graphicsDevice, int rows)
         {
             float subdivisionPosition = 2f / rows;
-            float subdivisionTexture = 1f / rows;
+            // Si queremos que todo el quad tenga la misma textura
+            // float subdivisionTexture = 1f / rows;
             List<VertexPositionNormalTexture> vertices = new List<VertexPositionNormalTexture>();
 
             /*
@@ -43,7 +44,8 @@ namespace TGC.MonoGame.TP.Entities
                     vertices.Add(new (
                         new Vector3(Convert.ToSingle(i * subdivisionPosition - 1), 0, Convert.ToSingle(j * subdivisionPosition - 1)),
                         Vector3.UnitY,
-                        new Vector2(Convert.ToSingle(subdivisionTexture * i), Convert.ToSingle(subdivisionTexture * j)))
+                        // new Vector2(Convert.ToSingle(subdivisionTexture * i), Convert.ToSingle(subdivisionTexture * j)))
+                        new Vector2(Convert.ToSingle(i % 2 == 0 ? 0 : 1), Convert.ToSingle(j % 2 == 0 ? 0 : 1)))
                     );
                 }
             }
