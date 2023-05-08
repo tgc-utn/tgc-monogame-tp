@@ -1,6 +1,6 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Design;
 
@@ -18,6 +18,7 @@ namespace TGC.MonoGame.TP
         private float Turning = 0f;
         private float Escala = AUTO_SCALE;
         private bool cambio = false;
+        private List<IElementoDinamico> ElementosArrojados = new List<IElementoDinamico>();
 
         public Auto(Vector3 posicionInicial, float escala = AUTO_SCALE) 
         : base(TGCGame.GameContent.M_AutoPegni, Vector3.Zero, Vector3.Zero, escala)
@@ -32,6 +33,14 @@ namespace TGC.MonoGame.TP
             float accelerationSense = 0f;
             Vector3 acceleration = Vector3.Zero;
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            var mouseState = Mouse.GetState();
+            if(mouseState.LeftButton.HasFlag(ButtonState.Pressed) && ElementosArrojados.Count<3){
+                ElementosArrojados.Add(new Misil(Position, Vector3.Zero));
+                }
+
+            foreach (var e in ElementosArrojados) e.Update(gameTime, keyboardState); 
+            
 
             if(keyboardState.IsKeyDown(Keys.M) && !cambio ){
                 cambio = true;
@@ -85,6 +94,12 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateScale(Escala) * 
                 MatrixRotation *
                 Matrix.CreateTranslation(Position);
+        }   
+        public override void Draw(){
+            foreach(var e in ElementosArrojados) e.Draw();
+            base.Draw();
         }
     }
+
 }
+    

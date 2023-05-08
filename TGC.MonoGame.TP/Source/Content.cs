@@ -24,11 +24,10 @@ namespace TGC.MonoGame.TP
                 M_Televisor , M_MuebleTV, M_Planta , M_Escritorio, M_Cocine, M_Plantis, M_Lego, M_Baniera,M_Sofa, M_Mesita, M_Aparador, 
                 M_Bacha, M_Organizador, M_Cajonera, M_CamaMarinera , M_MesadaCentral, M_MesadaLateral, M_MesadaLateral2, M_Alacena, 
                 M_Botella, M_Maceta, M_Maceta2, M_Maceta3, M_Maceta4, M_Olla, M_ParedCocina, M_Plato, M_PlatoGrande, M_PlatosApilados,
-                M_Mesada, M_AutoPegni, M_Heladera, M_Dragon, M_Dragona, M_Cama, M_Juego, M_Puff, M_Estantes, M_Armario1
-                ;
+                M_Mesada, M_AutoPegni, M_Heladera, M_Dragon, M_Dragona, M_Cama, M_Juego, M_Puff, M_Estantes, M_Armario1;
 
         internal readonly Effect E_BasicShader, E_TextureShader, E_SpiralShader, E_BlacksFilter, 
-                            E_TextureMirror, E_TextureTiles;
+                            E_TextureMirror, E_TextureTiles, E_Traslucid;
         internal readonly Texture2D T_Alfombra, T_PisoMadera, T_PisoCeramica, T_PisoAlfombrado, 
                             T_MeshFilter, T_MaderaNikari, T_SillaOficina, T_PisoMaderaClaro, T_Dragon,
                             T_RacingCar, T_CombatVehicle, T_Ladrillos, T_Marmol, T_MarmolNegro, T_Reboque, T_Concreto;
@@ -53,6 +52,7 @@ namespace TGC.MonoGame.TP
             Efectos.Add(E_TextureMirror = LoadEffect("TextureMirrorShader") );
             Efectos.Add(E_SpiralShader  = LoadEffect("SpiralShader")        );
             Efectos.Add(E_BlacksFilter  = LoadEffect("BlacksFilter")        );
+            Efectos.Add(E_Traslucid     = LoadEffect("TextureTraslucida")        );
 
 
             // Texturas
@@ -81,7 +81,7 @@ namespace TGC.MonoGame.TP
             M_AutoPegni         = LoadModel("Autos/", "PegniZonda"    );
             M_AutoEnemigo       = LoadModel("Autos/", "CombatVehicle" );
             
-            M_Misil             = LoadModel("Muebles/", "Misil"       );
+            M_Misil             = LoadModel("Autos/", "Misil"         );
             
             //Living
             M_Silla             = LoadModel("Muebles/", "Chair"       );

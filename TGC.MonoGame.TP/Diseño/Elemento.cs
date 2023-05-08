@@ -9,9 +9,9 @@ namespace TGC.MonoGame.TP.Design
         public Matrix World = Matrix.Identity ;
         protected Model Model {get; set;}
         private Effect Shader {get; set;} 
-        private Vector3 PosicionInicial {get; set;}
         private Vector3 Rotacion {get; set;}
-        private float Escala {get; set;}
+        private Vector3 PosicionInicial {get; set;}
+        internal float Escala {get; set;}
 
         public Elemento(Model modelo, Vector3 posicionInicial, Vector3 rotacion, float escala = 1f){
             Initialize(modelo, posicionInicial, rotacion, TGCGame.GameContent.E_BasicShader, escala);

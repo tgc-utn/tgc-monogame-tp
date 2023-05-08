@@ -6,17 +6,19 @@ using Microsoft.Xna.Framework.Graphics;
 namespace TGC.MonoGame.TP
 {
     public class Pared{
+        private Matrix WorldCerrada;
+        private Matrix WorldLateral1, WorldLateral2;
         private float Largo;
         private float LargoPuerta = TGCGame.S_METRO * 2f;
-        public const float Grosor = TGCGame.S_METRO*0.1f;
+        public const float Grosor = TGCGame.S_METRO * 0.1f;
         public const float Altura = TGCGame.S_METRO * 2f;
         protected Vector3 PuntoInicial = Vector3.Zero;
         protected Vector3 PuntoFinal;
         public readonly bool EsHorizontal;
         private bool ConPuerta = false;
         private Effect Efecto = TGCGame.GameContent.E_TextureShader;
-        private Matrix WorldCerrada;
-        private Matrix WorldLateral1, WorldLateral2;
+        private Matrix AutoProyectado;
+        
 
         public Pared(Vector3 puntoInicio, Vector3 puntoFinal, bool esHorizontal = false){
             PuntoInicial = puntoInicio;
@@ -78,6 +80,14 @@ namespace TGC.MonoGame.TP
                 Efecto.Parameters["World"].SetValue(WorldCerrada); 
                 TGCGame.GameContent.G_Cubo.Draw(Efecto);
             }            
+        }
+
+        public void SetProjectedAuto(Matrix projectedAuto){
+            AutoProyectado = projectedAuto;
+        }
+
+        public void SetEffect(Effect nuevoEfecto){
+            Efecto = nuevoEfecto;
         }
         
         public void SetPuntoInicio(Vector3 nuevoPunto) => PuntoInicial = nuevoPunto;

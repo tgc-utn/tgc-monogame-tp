@@ -71,7 +71,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float2 coordinates = input.TextureCoordinate * 2.0 - 1.0;
     float3 color = float3(input.TextureCoordinate.x, input.TextureCoordinate.y, 1.0);
 
-    float pi = 3.14;
+    float pi = 3.1415926535897932384626433832795;
 
     float2 domain1 = rotate(coordinates, 0.0);
     float2 domain2 = rotate(coordinates, 0.0 + pi/3.0);

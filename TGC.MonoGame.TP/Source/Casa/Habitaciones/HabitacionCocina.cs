@@ -17,8 +17,8 @@ namespace TGC.MonoGame.TP
             var mShader = TGCGame.GameContent.E_TextureMirror;
             var bShader = TGCGame.GameContent.E_BasicShader;
             var tShader = TGCGame.GameContent.E_TextureShader;
-            foreach(var e in Elementos){
-                switch(e.GetTag()){
+            foreach(var mueble in Elementos){
+                switch(mueble.GetTag()){
                     case "Olla":
                         bShader.Parameters["DiffuseColor"].SetValue(Color.DarkSlateBlue.ToVector3());
                     break;
@@ -32,7 +32,7 @@ namespace TGC.MonoGame.TP
                         mShader.Parameters["Texture"].SetValue(TGCGame.GameContent.T_Marmol);
                     break;
                 }
-                e.Draw();
+                mueble.Draw();
             }
         }
         private void Amueblar(){

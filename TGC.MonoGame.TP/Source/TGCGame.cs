@@ -56,19 +56,22 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
             //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
-            Soundtrack = GameContent.S_SynthWars;
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = 0.5f;
+            // Soundtrack = GameContent.S_SynthWars;
+            // MediaPlayer.IsRepeating = true;
+            // MediaPlayer.Volume = 0.5f;
 
             foreach (var e in GameContent.Efectos){
                 e.Parameters["Projection"].SetValue(Camera.Projection);
             }
+
+            // Defaults
             GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            GameContent.E_BlacksFilter.Parameters["Filter"].SetValue(TGCGame.GameContent.T_MeshFilter); 
 
             Casa.LoadContent();
             
             Auto  = new Auto (Casa.GetCenter(0));
-            Auto2 = new Auto2(Casa.GetCenter(0));
+            Auto2 = new Auto2(Casa.GetCenter(1));
         }
 
         protected override void Update(GameTime gameTime)
@@ -82,14 +85,14 @@ namespace TGC.MonoGame.TP
             Auto2.Update(gameTime, keyboardState);
                                     
             // Control de la música
-            if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
-                MediaPlayer.Play(Soundtrack);
-            else if (keyboardState.IsKeyUp(Keys.W) && MediaPlayer.State == MediaState.Playing)
-                MediaPlayer.Pause();
-            else if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Paused)
-                MediaPlayer.Resume();
-            else if (keyboardState.IsKeyDown(Keys.P) && MediaPlayer.State == MediaState.Playing)
-                MediaPlayer.Stop();
+            // if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
+            //     MediaPlayer.Play(Soundtrack);
+            // else if (keyboardState.IsKeyUp(Keys.W) && MediaPlayer.State == MediaState.Playing)
+            //     MediaPlayer.Pause();
+            // else if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Paused)
+            //     MediaPlayer.Resume();
+            // else if (keyboardState.IsKeyDown(Keys.P) && MediaPlayer.State == MediaState.Playing)
+            //     MediaPlayer.Stop();
 
             Casa.Update(gameTime, keyboardState);
             
@@ -107,10 +110,10 @@ namespace TGC.MonoGame.TP
                 e.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
             }
 
-            Casa.Draw();
 
             Auto.Draw();          
             Auto2.Draw();          
+            Casa.Draw();
         }
 
         // Esto debería ir en una nueva clase : Casa.

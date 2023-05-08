@@ -7,13 +7,10 @@ namespace TGC.MonoGame.TP
     public class HabitacionPrincipal : IHabitacion{
         public const int Size = 10;
         public HabitacionPrincipal(float posicionX, float posicionZ):base(Size,Size,new Vector3(posicionX,0f,posicionZ)){
-
             var posicionInicial = new Vector3(posicionX,0f,posicionZ);
-            
             Piso.ConTextura(TGCGame.GameContent.T_PisoMadera, 10);
- 
             Amueblar();
-        }        
+        }
         public override void DrawElementos(){
             var tShader = TGCGame.GameContent.E_TextureShader;
             var bShader = TGCGame.GameContent.E_BasicShader;
