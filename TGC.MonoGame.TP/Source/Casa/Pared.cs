@@ -6,8 +6,10 @@ using Microsoft.Xna.Framework.Graphics;
 namespace TGC.MonoGame.TP
 {
     public class Pared{
-        private Matrix WorldCerrada;
-        private Matrix WorldLateral1, WorldLateral2;
+        // private Matrix WorldCerrada;
+        // private Matrix WorldLateral1, WorldLateral2;
+        private List<Matrix> Worlds = new List<Matrix>();
+        private List<float> DistanciasPuertas = new List<float>();
         private float Largo;
         private float LargoPuerta = TGCGame.S_METRO * 2f;
         public const float Grosor = TGCGame.S_METRO * 0.1f;
@@ -15,7 +17,7 @@ namespace TGC.MonoGame.TP
         protected Vector3 PuntoInicial = Vector3.Zero;
         protected Vector3 PuntoFinal;
         public readonly bool EsHorizontal;
-        private bool ConPuerta = false;
+        // private bool ConPuerta = false;
         private Effect Efecto = TGCGame.GameContent.E_TextureShader;
         private Matrix AutoProyectado;
         
@@ -40,28 +42,56 @@ namespace TGC.MonoGame.TP
             Matrix Rotacion     = EsHorizontal ? Matrix.CreateRotationY(0) : Matrix.CreateRotationY(MathHelper.PiOver2);
             Matrix Traslacion   = Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z);
 
-            WorldCerrada = Escala * LevantarQuad * Rotacion * Traslacion ;
+            var worldCerrada = Escala * LevantarQuad * Rotacion * Traslacion ;
+            Worlds.Add(worldCerrada);
         }
         /// <summary> La distancia es un valor entre 0 y 1. Siendo 0 el principio y 1 el final</summary>
         public void AddPuerta(float distanciaPonderada){
-            // La idea es generalizar esto con una lista de distancias ponderadas y una lista de matrices de mundo 
-            // por segmento de pared
-
-            ConPuerta = true;
-
-            Matrix Escala       = Matrix.CreateScale(Altura,Grosor,Largo*distanciaPonderada);
+            this.DistanciasPuertas.Add(distanciaPonderada);
+            this.DistanciasPuertas.Sort();
             Matrix LevantarQuad = Matrix.CreateRotationZ(MathHelper.PiOver2);
             Matrix Rotacion     = EsHorizontal ? Matrix.CreateRotationY(0) : Matrix.CreateRotationY(MathHelper.PiOver2);
-            Matrix Traslacion   = Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z);
+            this.Worlds = new List<Matrix>();
+            
+            
+            Matrix Escala;
+            Matrix Traslacion;
+            Matrix WorldAux;
+            int i;
+            float largoParedRestante = Largo;
+            float ponderacionRestante = 1f;
+            float corrimiento = 0f;
 
-            WorldLateral1 = Escala * LevantarQuad * Rotacion * Traslacion ;
-            
-            Escala       = Matrix.CreateScale(Altura,Grosor,Largo*(1 - distanciaPonderada) - LargoPuerta);
+            // si agregan 2 puertas muy pegadas solo cambiar el corrimiento, no crear un mundo nuevo
+            for(i = 0 ; i < DistanciasPuertas.Count ; i++){
+                var largoParedActual = largoParedRestante*this.DistanciasPuertas[i] * ponderacionRestante;
+
+                Escala       = Matrix.CreateScale(Altura,Grosor,largoParedActual);
+                Traslacion   = (EsHorizontal)? 
+                            Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z + corrimiento ) :
+                            Matrix.CreateTranslation(PuntoInicial.X + corrimiento ,-100f,PuntoInicial.Z) ;
+
+                WorldAux = Escala * LevantarQuad * Rotacion * Traslacion ;
+                this.Worlds.Add(WorldAux);
+                
+
+                ponderacionRestante = ((largoParedRestante-LargoPuerta)/Largo);
+                DistanciasPuertas.ForEach(d => d -= (largoParedActual/Largo) );
+                corrimiento +=(largoParedActual + LargoPuerta);
+                largoParedRestante  -= (largoParedActual + LargoPuerta);
+            }
+
+            // dibuja la última
+            Escala       = Matrix.CreateScale(Altura,Grosor,largoParedRestante);
             Traslacion   = (EsHorizontal)? 
-                            Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z + distanciaPonderada * Largo + LargoPuerta) :
-                            Matrix.CreateTranslation(PuntoInicial.X +distanciaPonderada * Largo + LargoPuerta,-100f,PuntoInicial.Z) ;
+                            Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z + corrimiento ) :
+                            Matrix.CreateTranslation(PuntoInicial.X + corrimiento,-100f,PuntoInicial.Z) ;
             
-            WorldLateral2 = Escala * LevantarQuad * Rotacion * Traslacion ;
+            WorldAux = Escala * LevantarQuad * Rotacion * Traslacion ;
+                            
+            this.Worlds.Add(WorldAux);
+                     
+            
 
         }
         public void Draw(){ 
@@ -70,16 +100,21 @@ namespace TGC.MonoGame.TP
         public void Draw(Texture2D textura){ 
             Efecto.Parameters["Texture"]?.SetValue(textura);
 
+            foreach( var w in Worlds){
+                Efecto.Parameters["World"].SetValue(w); 
+                TGCGame.GameContent.G_Cubo.Draw(Efecto);
+            }
+
             // Generalizar para tener mas puertas
-            if(ConPuerta){
-                Efecto.Parameters["World"].SetValue(WorldLateral1); 
-                TGCGame.GameContent.G_Cubo.Draw(Efecto);
-                Efecto.Parameters["World"].SetValue(WorldLateral2); 
-                TGCGame.GameContent.G_Cubo.Draw(Efecto);
-            }else{
-                Efecto.Parameters["World"].SetValue(WorldCerrada); 
-                TGCGame.GameContent.G_Cubo.Draw(Efecto);
-            }            
+            // if(ConPuerta){
+            //     Efecto.Parameters["World"].SetValue(WorldLateral1); 
+            //     TGCGame.GameContent.G_Cubo.Draw(Efecto);
+            //     Efecto.Parameters["World"].SetValue(WorldLateral2); 
+            //     TGCGame.GameContent.G_Cubo.Draw(Efecto);
+            // }else{
+            //     Efecto.Parameters["World"].SetValue(WorldCerrada); 
+            //     TGCGame.GameContent.G_Cubo.Draw(Efecto);
+            // }            
         }
 
         public void SetProjectedAuto(Matrix projectedAuto){

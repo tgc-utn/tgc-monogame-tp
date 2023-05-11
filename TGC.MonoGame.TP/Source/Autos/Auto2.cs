@@ -20,7 +20,7 @@ namespace TGC.MonoGame.TP
         private bool cambio = false;
 
         public Auto2(Vector3 posicionInicial, float escala = AUTO_SCALE) 
-        : base(TGCGame.GameContent.M_AutoPegni, Vector3.Zero, Vector3.Zero, escala)
+        : base(TGCGame.GameContent.M_Auto, Vector3.Zero, Vector3.Zero, escala)
         {
             Position = posicionInicial;
             Escala = escala;

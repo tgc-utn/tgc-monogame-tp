@@ -90,7 +90,8 @@ namespace TGC.MonoGame.TP{
 
             // Paredes HabitacionPrincipal
             Esqueleto.Add(new Pared(hPrincipal.GetSegmentoSuperior().inicio, hPrincipal.GetSegmentoSuperior().final, true));
-            Esqueleto[10].AddPuerta(0.60f);
+            Esqueleto[10].AddPuerta(0.50f);
+            Esqueleto[10].AddPuerta(0.10f);
             Esqueleto.Add(new Pared(hPrincipal.GetSegmentoDerecha ().inicio, hPrincipal.GetSegmentoDerecha ().final));
             Esqueleto[11].AddPuerta(0.10f);
             // Paredes cortadas del Pasillo 1 (el más cercano a la principal)
