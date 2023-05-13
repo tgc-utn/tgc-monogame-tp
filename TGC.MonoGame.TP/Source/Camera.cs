@@ -78,7 +78,7 @@ namespace TGC.MonoGame.TP
             //View = Matrix.CreateLookAt(offsetedPosition, followedPosition, cameraCorrectUp);
 
             //Matriz de vista isometrica
-            View = Matrix.CreateLookAt(followedPosition + new Vector3(1, 1, 1) * AxisDistanceToTarget, followedPosition, Vector3.Up);
+            View = Matrix.CreateLookAt(followedPosition + new Vector3(1, 1, 1) * AxisDistanceToTarget, followedPosition, new Vector3(-1, 1, -1));
 
         }
     }
