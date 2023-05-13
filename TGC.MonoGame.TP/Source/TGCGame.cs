@@ -54,7 +54,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
-            //GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+            // GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             // Soundtrack = GameContent.S_SynthWars;
             // MediaPlayer.IsRepeating = true;
@@ -96,7 +96,7 @@ namespace TGC.MonoGame.TP
 
             Casa.Update(gameTime, keyboardState);
             
-            //Camera.Mover(keyboardState);
+            Camera.Mover(keyboardState);
             Camera.Update(gameTime, Auto.World);
 
             base.Update(gameTime);

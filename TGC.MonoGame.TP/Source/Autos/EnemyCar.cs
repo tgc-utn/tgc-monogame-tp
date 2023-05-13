@@ -5,13 +5,13 @@ using TGC.MonoGame.TP.Design;
 
 namespace TGC.MonoGame.TP{
     class EnemyCar : IElementoDinamico {
+        const float ESCALA = 7f;
         private const float Velocidad = 500f;
         private Vector3 Traslacion = new Vector3(0f,0f, 0f);
         private Vector3 Direccion = new Vector3(0f,0f,0f); // Si está en cero, están inmóviles
-        private const float Escala = 7f;
 
         public EnemyCar(float posX, float posY, float posZ, Vector3 rotacion) 
-        : base(TGCGame.GameContent.M_AutoEnemigo, new Vector3(posX,posY,posZ), Vector3.Zero, Escala)
+        : base(TGCGame.GameContent.M_AutoEnemigo, new Vector3(posX,posY,posZ), Vector3.Zero, ESCALA)
         {
             Traslacion = new Vector3(posX, posY, posZ);
             this.SetEffect(TGCGame.GameContent.E_TextureShader);
