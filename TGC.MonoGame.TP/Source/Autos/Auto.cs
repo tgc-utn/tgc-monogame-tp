@@ -12,11 +12,8 @@ namespace TGC.MonoGame.TP
         private const float MAX_SPEED = 2100f; // . . . Aproximada (la medí)
         private const float ACCELERATION_MAGNITUDE = 2000f;
         private const float JUMP_POWER = 50000f;
-        private const float AUTO_SCALE = 0.15f * TGCGame.S_METRO;
-        
-        // [BUG] Si la constante S_METRO cambia de valor, las ruedas no escalan bien
-        // Creo que hay que hacer depender esta constante de S_METRO 
-        private const float ERROR_TRASLACION_RUEDAS = 0.75f;
+        private const float AUTO_SCALE = 0.08f * TGCGame.S_METRO;
+        private const float ERROR_TRASLACION_RUEDAS = AUTO_SCALE*0.01f;
         private Vector3 Position;
         private Vector3 Velocity;
         private float VelocidadTablero = 0f; // . . . . Velocidad absoluta
@@ -116,13 +113,12 @@ namespace TGC.MonoGame.TP
             WheelTurning = (WheelTurning>0)?  WheelTurning - WHEEL_TURNING_LIMIT*dTime*2*CoeficienteVelocidad 
                                             : WheelTurning + WHEEL_TURNING_LIMIT*dTime*2*CoeficienteVelocidad;
 
-            // MATRIZ DE MUNDO
+
+            // MATRIZ DE MUNDO AUTO
             World = 
                 Matrix.CreateScale(Escala) * 
                 matrixRotation *
                 Matrix.CreateTranslation(Position);
-
-
 
             // DEBUG TABLERO AUTO 
             Console.WriteLine("> > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > ", acceleration.X, acceleration.Y, acceleration.Z);
@@ -180,51 +176,6 @@ namespace TGC.MonoGame.TP
                     default: 
                     break;
                 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // if(bone.Name == "WheelB" || bone.Name == "WheelA" || bone.Name == "WheelC" || bone.Name == "WheelD"){
-                //     if(bone.Name == "WheelB" || bone.Name == "WheelA"){                        
-                //         Matrix MatrixRotation = Matrix.CreateRotationY(Rotation+WheelTurning);
-                //         World = 
-                //             Matrix.CreateScale(Escala) * 
-                //             MatrixRotation *
-                //             Matrix.CreateTranslation(Position);
-                //     }
-                //     foreach(var mesh in bone.Meshes){
-                //         World *= Matrix.CreateTranslation(bone.Transform.Translation);
-                //         foreach( var meshPart in mesh.MeshParts){
-                //             meshPart.Effect = TGCGame.GameContent.E_BasicShader;
-                //             if(bone.Name == "WheelB" || bone.Name == "WheelA"){
-                //                 meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
-                //             }   
-                //             if(bone.Name == "WheelC" || bone.Name == "WheelD"){
-                //                 meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
-                //             }   
-                //             meshPart.Effect.Parameters["World"]?.SetValue(World);
-                //         }
-                //         mesh.Draw(); 
-                //     }
-                // }
             }
         }
     }
