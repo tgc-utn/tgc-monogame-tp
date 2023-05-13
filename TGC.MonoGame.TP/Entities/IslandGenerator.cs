@@ -39,7 +39,7 @@ public class IslandGenerator
         return new Island(IslandsModel[modelNumber], world, Effect);
     }
 
-    public Island[] CreateRandomIslands(int qty, float maxX, float maxZ)
+    public Island[] CreateRandomIslands(int qty, float maxX, float maxZ, float noSpawnRadius)
     {
         Debug.WriteLine("[CreateRandomIslands] qty: " + qty + " maxX: " + maxX + " maxZ: " + maxZ);
         Island[] islands = new Island[qty];
@@ -47,8 +47,15 @@ public class IslandGenerator
         Random rnd = new Random();
         for (int i = 0; i < qty; i++)
         {
-            float islandX = (rnd.NextSingle() - .5f) * maxX;
-            float islandZ = (rnd.NextSingle() - .5f) * maxZ;
+            // Resto .5f para "centralizar" el punto de origen de las islas.
+            var rndX = rnd.NextSingle() - .5f;
+            var rndZ = rnd.NextSingle() - .5f;
+
+            rndX += Math.Sign(rndX) * noSpawnRadius;
+            rndZ += Math.Sign(rndZ) * noSpawnRadius;
+            
+            float islandX = rndX * maxX;
+            float islandZ = rndZ * maxZ;
             Vector3 islandVector = new Vector3(islandX, 0, islandZ);
             Debug.WriteLine("[Creating Island " + i + "] " + islandVector);
 
