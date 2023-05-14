@@ -21,6 +21,9 @@ namespace TGC.MonoGame.TP
         private Camera Camera; 
         private Casa Casa;
         private Song Soundtrack;
+        private BoundingBox Cajita1;
+        private BoundingBox Cajita2;
+
 
         public TGCGame()
         {
@@ -64,6 +67,19 @@ namespace TGC.MonoGame.TP
                 e.Parameters["Projection"].SetValue(Camera.Projection);
             }
 
+            Vector3 origen = Vector3.Zero;
+            Vector3 fin = new Vector3(1f,1f,1f);
+            
+            Vector3 desplazamiento = new Vector3(5f,0f,5f);
+
+            Cajita1 = new BoundingBox(origen, fin);
+            Cajita2 = new BoundingBox(origen+desplazamiento, fin+desplazamiento);
+
+
+            Console.WriteLine("> > > > > EN LOAD CONTENT");
+            Console.WriteLine("Acá no se tendrían que intersectar");
+            Console.WriteLine(Cajita1.Intersects(Cajita2));
+
             // Defaults
             GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
             GameContent.E_BlacksFilter.Parameters["Filter"].SetValue(TGCGame.GameContent.T_MeshFilter); 
@@ -98,6 +114,15 @@ namespace TGC.MonoGame.TP
             
             Camera.Mover(keyboardState);
             Camera.Update(gameTime, Auto.World);
+
+            Console.WriteLine("> > > > > EN UPDATE");
+            // Acá no se intersectan
+            Cajita2.Min = new Vector3(0.5f,0.5f,0.5f);
+            Cajita2.Max = new Vector3(1.5f,1.5f,1.5f);
+
+            Console.WriteLine("Acá se van a intersectar");
+            Console.WriteLine(Cajita1.Intersects(Cajita2));
+
 
             base.Update(gameTime);
         }
