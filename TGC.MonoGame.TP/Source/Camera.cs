@@ -44,26 +44,9 @@ namespace TGC.MonoGame.TP
             }
         }
 
-        public void Update(GameTime gameTime, Matrix followedWorld)
+        public void Update(Matrix followedWorld)
         {
-            var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            
             var followedPosition = followedWorld.Translation;
-
-            var followedRight = followedWorld.Right;
-
-            if (Vector3.Dot(followedRight, PastRightVector) > AngleThreshold)
-            {
-                RightVectorInterpolator += elapsedTime * AngleFollowSpeed;
-
-                RightVectorInterpolator = MathF.Min(RightVectorInterpolator, 1f);
-
-                CurrentRightVector = Vector3.Lerp(CurrentRightVector, followedRight, RightVectorInterpolator * RightVectorInterpolator);
-            }
-            else
-                RightVectorInterpolator = 0f;
-
-            PastRightVector = followedRight;
             
             var offsetedPosition = followedPosition 
                 + CurrentRightVector * AxisDistanceToTarget

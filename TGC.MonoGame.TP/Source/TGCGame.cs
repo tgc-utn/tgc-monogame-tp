@@ -38,7 +38,6 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             GraphicsDevice.BlendState = BlendState.Opaque;
-            TGCGame.Game.
 
             Camera = new Camera(GraphicsDevice.Viewport.AspectRatio);
             Casa = new Casa();
@@ -57,6 +56,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
+            // Culling
             // GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             // Soundtrack = GameContent.S_SynthWars;
@@ -113,7 +113,7 @@ namespace TGC.MonoGame.TP
             Casa.Update(gameTime, keyboardState);
             
             Camera.Mover(keyboardState);
-            Camera.Update(gameTime, Auto.World);
+            Camera.Update(Auto.World);
 
             Console.WriteLine("> > > > > EN UPDATE");
             // Acá no se intersectan
@@ -140,11 +140,7 @@ namespace TGC.MonoGame.TP
             Auto2.Draw();          
             Casa.Draw();
         }
-
-        // Esto debería ir en una nueva clase : Casa.
-
-
-
+        
         protected override void UnloadContent()
         {
             Content.Unload();
