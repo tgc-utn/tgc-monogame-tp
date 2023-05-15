@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP
     { 
         private const float WHEEL_TURNING_LIMIT = 0.5f;
         private const float MAX_SPEED = 2100f; // . . . Aproximada (la medí)
-        private const float ACCELERATION_MAGNITUDE = 2000f;
+        private const float ACCELERATION_MAGNITUDE = 4000f;
         private const float JUMP_POWER = 50000f;
         private const float AUTO_SCALE = 0.08f * TGCGame.S_METRO;
         private const float ERROR_TRASLACION_RUEDAS = AUTO_SCALE*0.01f;
@@ -22,6 +22,8 @@ namespace TGC.MonoGame.TP
         private float Turning = 0f;
         private float WheelTurning = 0f;
         private float WheelRotation = 0f;
+        private float WheelRotationF = 0f;
+        private float TurboRestante = 1000f;
 
         public Auto(Vector3 posicionInicial, float escala = AUTO_SCALE) 
         : base(TGCGame.GameContent.M_Auto, Vector3.Zero, Vector3.Zero, escala)
@@ -37,6 +39,12 @@ namespace TGC.MonoGame.TP
             Vector3 acceleration = Vector3.Zero;
 
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            //float  velocidadDeRotacion = (float)Math.Atan(Velocity.Length()/100) / MathHelper.PiOver2;
+            //Console.WriteLine("Vel. tablero : . . . . . . . . . . . {0:F}", velocidadDeRotacion);
+            //Console.WriteLine("Velocity.length() : . . . . . . . . . . . {0:F}", Velocity.Length());
+
+
             
             // GRAVEDAD
             float floor = 0f;
@@ -48,32 +56,39 @@ namespace TGC.MonoGame.TP
             foreach( var key in pressedKeys){
                 switch(key){
                     case Keys.A:
-                        Turning += 1f;
+                        
                         WheelTurning = (WheelTurning<WHEEL_TURNING_LIMIT)? // Qué no gire de más
-                                          WheelTurning+WHEEL_TURNING_LIMIT*dTime*4f*CoeficienteVelocidad
+                                          WheelTurning+WHEEL_TURNING_LIMIT*dTime*4f
                                         : WHEEL_TURNING_LIMIT; 
                     break;
                     case Keys.D:
                         WheelTurning = (WheelTurning>(-1)*WHEEL_TURNING_LIMIT)? // Qué no gire de más
-                                          WheelTurning-WHEEL_TURNING_LIMIT*dTime*4f*CoeficienteVelocidad
+                                          WheelTurning-WHEEL_TURNING_LIMIT*dTime*4f
                                         : (-1)*WHEEL_TURNING_LIMIT; 
-                        Turning -= 1f;
+                        //Turning -= 1f * Math.Min(CoeficienteVelocidad*3, 1) * (WheelTurning * -2);
                     break;
                     case Keys.W:
                         accelerationSense = 1f;
+                        
                     break;
                     case Keys.S:
                         accelerationSense = -0.5f; //Reversa mas lenta
                     break;
                 }
+
+            if(TurboRestante > 0 && keyboardState.IsKeyDown(Keys.F)){ //Turbo
+                TurboRestante--;
+                accelerationSense*=2;
             }
-            // if(pressedKeys.Length == 0) WheelTurning = 0f;
+
+            }
+            Turning += 1f * Math.Min(CoeficienteVelocidad*3, 1) * (WheelTurning * 3); //El giro depende del giro de la rueda
 
             Rotation = Turning * dTime;
 
             if(Position.Y<floor){
-                Position = new Vector3(Position.X, floor, Position.Z);
-                Velocity = new Vector3(Velocity.X, 0, Velocity.Z);
+                Position.Y = floor;
+                Velocity.Y = 0;
 
                 // ACELERACIÓN
 
@@ -81,10 +96,14 @@ namespace TGC.MonoGame.TP
                 acceleration = accelerationDirection * accelerationSense * ACCELERATION_MAGNITUDE;
 
                 // ROZAMIENTO
-                float u = -1.35f; //Coeficiente de Rozamiento
+                float u = -2.35f; //Coeficiente de Rozamiento
                 if (keyboardState.IsKeyDown(Keys.LeftShift)) // LShift para Frenar
                     u*=2;
-                Vector3 friction = new Vector3(Velocity.X, 0, Velocity.Z) * u * dTime;
+                Vector3 friction = 
+                    (new Vector3(Velocity.X * (1 - Math.Abs(World.Forward.X / 40)), 0, Velocity.Z * (1 - Math.Abs(World.Forward.Z / 40))) +
+                     new Vector3(Velocity.X, 0, Velocity.Z))* 
+                    u * 
+                    dTime;
                 Velocity += friction;
             }
             else {
@@ -107,8 +126,11 @@ namespace TGC.MonoGame.TP
 
             
             // ROTACIÓN RUEDAS (distinto en reversa y para adelante)
-            WheelRotation = (accelerationSense>0)? WheelRotation+(CoeficienteVelocidad) * MathHelper.PiOver4 
+            WheelRotation = (accelerationSense>=0)? WheelRotation+(CoeficienteVelocidad) * MathHelper.PiOver4 
                                                  : WheelRotation-(CoeficienteVelocidad) * MathHelper.PiOver4;
+            // WheelRotationF = (accelerationSense>=0)? WheelRotationF+(CoeficienteVelocidad) * MathHelper.PiOver4 
+            //                                      : WheelRotationF-(CoeficienteVelocidad) * MathHelper.PiOver4;                                     
+            // WheelRotationF = (WheelRotationF * 0.8f)%MathHelper.TwoPi;                                    
             WheelRotation = WheelRotation%MathHelper.TwoPi; // para que no acumule al infinito
             WheelTurning = (WheelTurning>0)?  WheelTurning - WHEEL_TURNING_LIMIT*dTime*2*CoeficienteVelocidad 
                                             : WheelTurning + WHEEL_TURNING_LIMIT*dTime*2*CoeficienteVelocidad;
@@ -121,11 +143,12 @@ namespace TGC.MonoGame.TP
                 Matrix.CreateTranslation(Position);
 
             // DEBUG TABLERO AUTO 
-            Console.WriteLine("> > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > ", acceleration.X, acceleration.Y, acceleration.Z);
-            // Console.WriteLine("Velocity : . . . . . . . . . . . . . x: {0:F}, y: {1:F}", Velocity.X, Velocity.Z);
-            Console.WriteLine("Vel. tablero : . . . . . . . . . . . {0:F}", VelocidadTablero);
-            Console.WriteLine("Velocidad alcanzada :    . . . . . . {0:F}%", (CoeficienteVelocidad) * 100f);
-            Console.WriteLine("Giro rueda (radianes) :  . . . . . . {0:F}", (CoeficienteVelocidad) * MathHelper.TwoPi);
+            // Console.WriteLine("> > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > ", acceleration.X, acceleration.Y, acceleration.Z);
+            Console.WriteLine("Velocity : . . . . . . . . . . . . . x: {0:F}, y: {1:F}", World.Forward.X, World.Forward.Z);
+            // Console.WriteLine("Vel. tablero : . . . . . . . . . . . {0:F}", VelocidadTablero);
+             Console.WriteLine("Velocidad alcanzada :    . . . . . . {0:F}%", (CoeficienteVelocidad * 100f));
+            // Console.WriteLine("Giro rueda (radianes) :  . . . . . . {0:F}", (CoeficienteVelocidad) * MathHelper.TwoPi);
+            Console.WriteLine("Ruedas :    . . . . . . {0:F}", (WheelTurning)); 
         }   
         public override void Draw(){
             // acá se están dibujando las ruedas una vez. sacarlas del dibujado.
@@ -146,7 +169,7 @@ namespace TGC.MonoGame.TP
                                 // Escalo -> Rotación extra -> Llevo a su lugar -> Rotación auto -> Traslación auto
                                 World = 
                                         // Matrix.CreateRotationX(VelocidadTablero*WHEEL_SPEED_AMOUNT) *
-                                        Matrix.CreateRotationX(WheelRotation*CoeficienteVelocidad) *
+                                        Matrix.CreateRotationX(WheelRotation) *
                                         Matrix.CreateRotationY(WheelTurning) *
                                         Matrix.CreateScale(Escala) * 
                                         Matrix.CreateTranslation(bone.Transform.Translation*ERROR_TRASLACION_RUEDAS) *
