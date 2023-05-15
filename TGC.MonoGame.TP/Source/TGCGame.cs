@@ -21,6 +21,9 @@ namespace TGC.MonoGame.TP
         private Camera Camera; 
         private Casa Casa;
         private Song Soundtrack;
+        private BoundingBox Cajita1;
+        private BoundingBox Cajita2;
+
 
         public TGCGame()
         {
@@ -35,7 +38,6 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             GraphicsDevice.BlendState = BlendState.Opaque;
-            TGCGame.Game.
 
             Camera = new Camera(GraphicsDevice.Viewport.AspectRatio);
             Casa = new Casa();
@@ -54,6 +56,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
+            // Culling
             // GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
             // Soundtrack = GameContent.S_SynthWars;
@@ -63,6 +66,19 @@ namespace TGC.MonoGame.TP
             foreach (var e in GameContent.Efectos){
                 e.Parameters["Projection"].SetValue(Camera.Projection);
             }
+
+            Vector3 origen = Vector3.Zero;
+            Vector3 fin = new Vector3(1f,1f,1f);
+            
+            Vector3 desplazamiento = new Vector3(5f,0f,5f);
+
+            Cajita1 = new BoundingBox(origen, fin);
+            Cajita2 = new BoundingBox(origen+desplazamiento, fin+desplazamiento);
+
+
+            Console.WriteLine("> > > > > EN LOAD CONTENT");
+            Console.WriteLine("Acá no se tendrían que intersectar");
+            Console.WriteLine(Cajita1.Intersects(Cajita2));
 
             // Defaults
             GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
@@ -97,7 +113,16 @@ namespace TGC.MonoGame.TP
             Casa.Update(gameTime, keyboardState);
             
             Camera.Mover(keyboardState);
-            Camera.Update(gameTime, Auto.World);
+            Camera.Update(Auto.World);
+
+            Console.WriteLine("> > > > > EN UPDATE");
+            // Acá no se intersectan
+            Cajita2.Min = new Vector3(0.5f,0.5f,0.5f);
+            Cajita2.Max = new Vector3(1.5f,1.5f,1.5f);
+
+            Console.WriteLine("Acá se van a intersectar");
+            Console.WriteLine(Cajita1.Intersects(Cajita2));
+
 
             base.Update(gameTime);
         }
@@ -115,11 +140,7 @@ namespace TGC.MonoGame.TP
             Auto2.Draw();          
             Casa.Draw();
         }
-
-        // Esto debería ir en una nueva clase : Casa.
-
-
-
+        
         protected override void UnloadContent()
         {
             Content.Unload();
