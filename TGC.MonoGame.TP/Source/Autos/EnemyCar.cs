@@ -1,11 +1,16 @@
 using System;
+using BepuPhysics;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.Design;
 
 namespace TGC.MonoGame.TP{
     class EnemyCar : IElementoDinamico {
         const float ESCALA = 7f;
+        const float SIMU_BOX_SCALE = 0.01f;
+        private BodyHandle Handle;
         private const float Velocidad = 500f;
         private Vector3 Traslacion = new Vector3(0f,0f, 0f);
         private Vector3 Direccion = new Vector3(0f,0f,0f); // Si está en cero, están inmóviles
@@ -15,61 +20,45 @@ namespace TGC.MonoGame.TP{
         {
             Traslacion = new Vector3(posX, posY, posZ);
             this.SetEffect(TGCGame.GameContent.E_TextureShader);
+
+            var boxSize = (Utils.ModelSize(Model))*SIMU_BOX_SCALE;
+            var boxShape = new Box(boxSize.X,boxSize.Y,boxSize.Z); // a chequear
+            var boxInertia = boxShape.ComputeInertia(15);
+            var boxIndex = TGCGame.Simulation.Shapes.Add(boxShape);
+
+            Handle = TGCGame.Simulation.Bodies.Add(BodyDescription.CreateDynamic(
+                            (this.GetPosicionInicial()).ToBepu(),
+                            boxInertia,
+                            new CollidableDescription(boxIndex, 0.1f),
+                            new BodyActivityDescription(0.01f)));
+
         }
 
-        public override void Draw()
-        {
-            TGCGame.GameContent.E_TextureShader
-                .Parameters["Texture"].SetValue(TGCGame.GameContent.T_CombatVehicle);
-            base.Draw();
-        }
         public override void Update(GameTime gameTime, KeyboardState keyboard)
         {
-            var traslacionRelativa = Traslacion;
-            //var traslacionRelativa = Traslacion + PosicionInicial;
-            const float limiteInferior = 5500f;
-            const float limiteSuperior = 1000f;
-            const float limiteDerecho = 1000f;
-            const float limiteIzquierdo = 7000f;
+            var simuWorld = TGCGame.Simulation.Bodies.GetBodyReference(Handle);
+            var position = simuWorld.Pose.Position;
+            var quaternion = simuWorld.Pose.Orientation;
+            World =
+                Matrix.CreateScale(Escala) *
+                Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W)) * 
+                Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
+        }
+        public override void Draw()
+        {
+            // var simuWorld = TGCGame.Simulation.Bodies.GetBodyReference(Handle);            
+            // var aabb = simuWorld.BoundingBox;
+            // TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.HotPink);
 
-            // En cuadrado alrededor del mapa
-            switch(Direccion.X){
-                case 1f: //bajando
-                    if(traslacionRelativa.X>limiteInferior){
-                        Direccion.X = 0f;
-                        Direccion.Z = 1f;
-                    }
-                break;
-                case -1f: //subiendo
-                    if(traslacionRelativa.X<limiteSuperior){
-                        Direccion.X = 0f;
-                        Direccion.Z = -1f;
-                    }
-                break;
-                case 0f: //movimiento lateral
-                    switch(Direccion.Z){
-                        case 1f: //yendo a la izquierda
-                            if(traslacionRelativa.Z>limiteIzquierdo){
-                                Direccion.Z = 0f;
-                                Direccion.X = -1f;
-                            }
-                        break;
-                        case -1f: //yendo a la derecha
-                            if(traslacionRelativa.Z<limiteDerecho){
-                                Direccion.Z = 0f;
-                                Direccion.X = 1f;
-                            }
-                        break;
-                    }
-                break;
+            TGCGame.GameContent.E_TextureShader
+                .Parameters["Texture"].SetValue(TGCGame.GameContent.T_CombatVehicle);
+
+            foreach(var mesh in Model.Meshes){
+                foreach(var meshPart in mesh.MeshParts){
+                    meshPart.Effect.Parameters["World"]?.SetValue(World);
+                }
+            mesh.Draw();
             }
-
-            Traslacion.X += Velocidad*Direccion.X * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            Traslacion.Z += Velocidad*Direccion.Z * Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            World = Matrix.CreateScale(Escala)
-                    *Matrix.CreateTranslation(this.GetPosicionInicial())
-                    *Matrix.CreateTranslation(Traslacion.X,50f,Traslacion.Z);
         }
     }
 }

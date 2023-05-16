@@ -28,8 +28,12 @@ namespace TGC.MonoGame.TP{
             Esqueleto[10].SetEffect(TGCGame.GameContent.E_BlacksFilter);
             Esqueleto[10].Draw(TGCGame.GameContent.T_Concreto);
             
-            for(int i = 0 ; i<10 ; i++)
+            for(int i = 0 ; i<8 ; i++)
                 Esqueleto[i].Draw(TGCGame.GameContent.T_Ladrillos);
+            for(int i = 8 ; i<11 ; i++){   
+                Esqueleto[i].SetEffect(TGCGame.GameContent.E_BlacksFilter);
+                Esqueleto[i].Draw(TGCGame.GameContent.T_Concreto);
+            }
             for(int i = 11; i<15 ; i++)
                 Esqueleto[i].Draw(TGCGame.GameContent.T_Concreto);
 
@@ -79,14 +83,16 @@ namespace TGC.MonoGame.TP{
             // Paredes exteriores
             Esqueleto.Add(new Pared(hPrincipal.GetSegmentoSuperior ().final,  hCocina   .GetSegmentoInferior ().final, true));
             Esqueleto.Add(new Pared(hCocina   .GetSegmentoIzquierda().inicio, hCocina   .GetSegmentoIzquierda().final, false ));
-            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoInferior ().inicio, hPrincipal.GetSegmentoInferior ().final, true));
-            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoIzquierda().inicio, hPrincipal.GetSegmentoIzquierda().final));
             Esqueleto.Add(new Pared(hBanioPr  .GetSegmentoIzquierda().inicio, hBanioPr  .GetSegmentoIzquierda().final, false ));
             Esqueleto.Add(new Pared(hDormiDrag .GetSegmentoSuperior().final,   hPasilloPr.GetSegmentoInferior().final, true ));
             Esqueleto.Add(new Pared(hDormiLego.GetSegmentoIzquierda().inicio, hDormiLego.GetSegmentoIzquierda().final, false ));
             Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoInferior ().inicio, hDormiDrag.GetSegmentoInferior ().final, true ));
             Esqueleto.Add(new Pared(hDormiDrag.GetSegmentoIzquierda().inicio, hDormiDrag.GetSegmentoIzquierda().final, false ));
             Esqueleto.Add(new Pared(hBanioOf  .GetSegmentoInferior ().inicio, hBanioOf  .GetSegmentoInferior ().final, true ));
+            
+            // Exteriores de la principal 
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoIzquierda().inicio, hPrincipal.GetSegmentoIzquierda().final));
+            Esqueleto.Add(new Pared(hPrincipal.GetSegmentoInferior ().inicio, hPrincipal.GetSegmentoInferior ().final, true));
 
             // Paredes HabitacionPrincipal
             Esqueleto.Add(new Pared(hPrincipal.GetSegmentoSuperior().inicio, hPrincipal.GetSegmentoSuperior().final, true));

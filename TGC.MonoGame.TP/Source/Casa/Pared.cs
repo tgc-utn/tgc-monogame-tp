@@ -38,8 +38,7 @@ namespace TGC.MonoGame.TP
             Box boxito = (!EsHorizontal)? new Box(esteNumerito*2, Altura, Grosor) 
                                         : new Box(Grosor, Altura, otroNumerito*2);
 
-            Handle = TGCGame.Simulation.Statics.Add(
-                                            new StaticDescription(
+            Handle = TGCGame.Simulation.Statics.Add( new StaticDescription(
                                                 new Vector3(esteNumerito, Altura*0.5f, otroNumerito).ToBepu(),
                                                 TGCGame.Simulation.Shapes.Add(boxito)));
         }
@@ -114,10 +113,10 @@ namespace TGC.MonoGame.TP
         }
         public void Draw(Texture2D textura){ 
             
-            var body = TGCGame.Simulation.Statics.GetStaticReference(Handle);
-            var aabb = body.BoundingBox;
+            // var body = TGCGame.Simulation.Statics.GetStaticReference(Handle);
+            // var aabb = body.BoundingBox;
 
-            TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.Black);
+            // TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.Black);
 
             Efecto.Parameters["Texture"]?.SetValue(textura);
 

@@ -16,6 +16,7 @@ namespace TGC.MonoGame.TP
         private Texture2D TexturaBaldosa = TGCGame.GameContent.T_PisoMadera;
         private float CantidadBaldosas = 1f;
         private Matrix World;
+        private StaticHandle Handle;
         internal Vector3 PosicionInicial;
         private Effect Effect = TGCGame.GameContent.E_BasicShader;
         private readonly float MetrosAncho;
@@ -34,7 +35,7 @@ namespace TGC.MonoGame.TP
 
             var boxito = new Box(MetrosAncho*2,1f, MetrosLargo*2);
             
-            TGCGame.Simulation.Statics.Add( new StaticDescription(
+            Handle = TGCGame.Simulation.Statics.Add( new StaticDescription(
                                                 PosicionInicial.ToBepu()-Vector3.UnitY.ToBepu(),
                                                 TGCGame.Simulation.Shapes.Add(boxito)
                                                 ));
@@ -59,6 +60,12 @@ namespace TGC.MonoGame.TP
         }
         public void Draw()
         {
+            // var body = TGCGame.Simulation.Statics.GetStaticReference(Handle);
+            // var aabb = body.BoundingBox;
+
+            // TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.Red);
+
+
             Effect.Parameters["DiffuseColor"]?.SetValue(ColorDefault);
             Effect.Parameters["Texture"]?.SetValue(TexturaBaldosa);
             Effect.Parameters["TileAmount"]?.SetValue(CantidadBaldosas);

@@ -31,7 +31,7 @@ namespace TGC.MonoGame.TP
 
         public void AddDinamico( IElementoDinamico e ){
             e.SetPosicionInicial(e.GetPosicionInicial()+PosicionInicial);
-            Elementos.Add(e);
+            ElementosDinamicos.Add(e);
         }
         public void AddElemento( Elemento e ){
             e.SetPosicionInicial(e.GetPosicionInicial()+PosicionInicial);
@@ -78,6 +78,8 @@ namespace TGC.MonoGame.TP
         }
         public virtual void DrawElementos(){
             foreach(var e in Elementos)
+                e.Draw();
+            foreach(var e in ElementosDinamicos)
                 e.Draw();
         }
     }

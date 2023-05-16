@@ -16,7 +16,7 @@ namespace TGC.MonoGame.TP
 {
     public class TGCGame : Game
     {
-        public const float GRAVITY = -15f;
+        public const float GRAVITY = -150f;
         public const float S_METRO = 250f; // Prueben con 250 y con 1000
         internal static TGCGame Game;
         internal static Content GameContent;
@@ -57,8 +57,8 @@ namespace TGC.MonoGame.TP
             Camera = new Camera(GraphicsDevice.Viewport.AspectRatio);
             Casa = new Casa();
 
-            Game.Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            Game.Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            Game.Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height*3/4;
+            Game.Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width*3/4;
             Game.Graphics.ApplyChanges();
         
             Gizmos = new Gizmos();
@@ -72,7 +72,7 @@ namespace TGC.MonoGame.TP
             Simulation = Simulation.Create(
                                 BufferPool, 
                                 new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
-                                new PoseIntegratorCallbacks(new NumericVector3(0, GRAVITY, 0)), 
+                                new PoseIntegratorCallbacks(new NumericVector3(0, GRAVITY, 0), 0.5f, 0.5f), 
                                 new SolveDescription(8, 1));
 
             // > > > > Fin simulación
@@ -104,7 +104,7 @@ namespace TGC.MonoGame.TP
             Casa.LoadContent();
             
             Auto  = new Auto (Casa.GetCenter(0));
-            Auto2 = new Auto2(Casa.GetCenter(1));
+            Auto2 = new Auto2(Casa.GetCenter(0));
         }
 
         protected override void Update(GameTime gameTime)
@@ -134,7 +134,7 @@ namespace TGC.MonoGame.TP
 
             Casa.Update(gameTime, keyboardState);
             
-            Camera.Mover(keyboardState);
+            // Camera.Mover(keyboardState);
             Camera.Update(Auto.World);
 
             base.Update(gameTime);

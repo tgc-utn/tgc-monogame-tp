@@ -1,89 +1,111 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Design;
+using TGC.MonoGame.TP.Collisions;
+using BepuVector3    = System.Numerics.Vector3;
+using BepuQuaternion = System.Numerics.Quaternion;
+using TGC.MonoGame.Samples.Viewer.Gizmos;
+using BepuPhysics;
+using BepuPhysics.Collidables;
 
 namespace TGC.MonoGame.TP
 {
     public class Auto2 : IElementoDinamico
     { 
-        private const float AUTO_SCALE = 0.00015f * TGCGame.S_METRO;
+        private const float ANGULAR_SPEED = 90f;
+        private const float LINEAR_SPEED = 30f;
+        private const float AUTO_SCALE = 0.08f * TGCGame.S_METRO;
+        private const float ERROR_TRASLACION_RUEDAS = AUTO_SCALE*0.01f;
+        private BodyHandle Handle;
         private Vector3 Position;
-        private Vector3 Velocity;
-        private float AccelerationMagnitude = 2000f;
-        private float AceleracionRelativa = 0f;
         private float Rotation;
-        private float JumpPower = 50000f;
-        private float Turning = 0f;
-        private bool cambio = false;
-
+        private float WheelTurning = 0f;
+        private float WheelRotation = 0f;
+        
         public Auto2(Vector3 posicionInicial, float escala = AUTO_SCALE) 
-        : base(TGCGame.GameContent.M_AutoPegni, Vector3.Zero, Vector3.Zero, escala)
+        : base(TGCGame.GameContent.M_Auto, Vector3.Zero, Vector3.Zero, escala)
         {
-            Position = posicionInicial;
+            Position = posicionInicial + new Vector3(0,0.05f,0);
             Escala = escala;
             this.SetEffect(TGCGame.GameContent.E_SpiralShader);
+                
+            var boxSize = (Utils.ModelSize(Model))*0.015f*AUTO_SCALE;
+            var boxShape = new Box(boxSize.X,boxSize.Y,boxSize.Z); // a chequear
+            var boxInertia = boxShape.ComputeInertia(1);
+            var boxIndex = TGCGame.Simulation.Shapes.Add(boxShape);
+
+            Handle = TGCGame.Simulation.Bodies.Add(BodyDescription.CreateDynamic(
+                            new BepuVector3(Position.X,Position.Y,Position.Z),
+                            boxInertia,
+                            new CollidableDescription(boxIndex, 0.1f),
+                            new BodyActivityDescription(0.01f)));
         }
 
         public override void Update(GameTime gameTime, KeyboardState keyboardState)
-        {
-            float accelerationSense = 0f;
-            Vector3 acceleration = Vector3.Zero;
+        {   
+            var simuWorld = TGCGame.Simulation.Bodies.GetBodyReference(Handle);
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            var linearImpulse = Vector3.Zero;
+            var angularImpulse = Vector3.Zero;
 
-            if(keyboardState.IsKeyDown(Keys.M) && !cambio ){
-                cambio = true;
-                Model = TGCGame.GameContent.M_Auto;
-                Escala = 0.25f;
+            var pressedKeys = keyboardState.GetPressedKeys();
+            if(pressedKeys.Length>0) simuWorld.Awake = true;
+
+            foreach(var key in pressedKeys){
+                switch(key){
+                    case Keys.Left:
+                        angularImpulse = new Vector3(0,ANGULAR_SPEED,0);
+                    break;
+                    case Keys.Right:
+                        angularImpulse = new Vector3(0,-ANGULAR_SPEED,0);
+                    break;
+                    case Keys.Down:
+                        linearImpulse = Utils.FowardFromQuaternion(simuWorld.Pose.Orientation)*(-LINEAR_SPEED);
+                    break;
+                    case Keys.Up:
+                        linearImpulse = Utils.FowardFromQuaternion(simuWorld.Pose.Orientation)*(LINEAR_SPEED);
+                    break;
+                    case Keys.Space:
+                    break;
+                }
             }
+
+            simuWorld.ApplyAngularImpulse(angularImpulse.ToBepu());
+            simuWorld.ApplyLinearImpulse(linearImpulse.ToBepu());
+
+            //WORLD MATRIX
+            Position = simuWorld.Pose.Position;
+            var quaternion = simuWorld.Pose.Orientation;
+            World =
+                Matrix.CreateScale(Escala) *
+                Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W)) * 
+                Matrix.CreateTranslation(new Vector3(Position.X, Position.Y, Position.Z));
+        }   
+
+        public override void Draw(){
+            var body = TGCGame.Simulation.Bodies.GetBodyReference(Handle);
             
-            // GRAVEDAD
-            float floor = 0f;
-            Vector3 Gravity = -Vector3.Up * 15f;
-            Matrix MatrixRotation = Matrix.CreateRotationY(Rotation);
-  
-            // GIRO
-            Turning += keyboardState.IsKeyDown(Keys.Left) ? 1f : 0;
-            Turning -= keyboardState.IsKeyDown(Keys.Right) ? 1f : 0;
-            Rotation = Turning * dTime;
-
-            if(Position.Y<floor){
-                Position = new Vector3(Position.X, floor, Position.Z);
-                Velocity = new Vector3(Velocity.X, 0, Velocity.Z);
+            var aabb = body.BoundingBox;
             
-                // ACELERACION
-                if (keyboardState.IsKeyDown(Keys.Up))
-                    accelerationSense = 1f;
-                else if (keyboardState.IsKeyDown(Keys.Down))
-                    accelerationSense = -0.5f; //Reversa mas lenta
-
-                Vector3 accelerationDirection = -MatrixRotation.Forward;
-                acceleration = accelerationDirection * accelerationSense * AccelerationMagnitude;
-
-                // ROZAMIENTO
-                float u = -1.35f; //Coeficiente de Rozamiento
-                if (keyboardState.IsKeyDown(Keys.LeftShift)) // LShift para Frenar
-                    u*=2;
-                Vector3 Friction = new Vector3(Velocity.X, 0, Velocity.Z) * u * dTime;
-                Velocity += Friction;
+            TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.Red);
+            
+            // acá se están dibujando las ruedas una vez. sacarlas del dibujado.
+            foreach(var bone in Model.Bones){
+                switch(bone.Name){
+                    default:
+                        foreach(var mesh in bone.Meshes){  
+                            foreach(var meshPart in mesh.MeshParts){
+                                meshPart.Effect.Parameters["World"]?.SetValue(World);
+                            }
+                            mesh.Draw();
+                        }
+                    break;
+                }
             }
-            else {
-                Velocity += Gravity;
-            }
-            
-            // SALTO
-            if (keyboardState.IsKeyDown(Keys.Space) && Position.Y==floor)
-                Velocity += Vector3.Up * JumpPower * dTime;
-
-            Velocity += acceleration * dTime;
-            Position += Velocity * dTime;
-
-            // MATRIZ DE MUNDO
-            World = 
-                Matrix.CreateScale(Escala) * 
-                MatrixRotation *
-                Matrix.CreateTranslation(Position);
         }
     }
+
 }
+    
