@@ -1,6 +1,9 @@
 using System;
+using BepuPhysics;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP
 {
@@ -15,25 +18,32 @@ namespace TGC.MonoGame.TP
         private Matrix World;
         internal Vector3 PosicionInicial;
         private Effect Effect = TGCGame.GameContent.E_BasicShader;
-        private readonly int MetrosAncho;
-        private readonly int MetrosLargo;
+        private readonly float MetrosAncho;
+        private readonly float MetrosLargo;
         //private readonly int MetrosCuadrados;
 
         public Piso(int metrosAncho, int metrosLargo, Vector3 posicionInicial)
         {
             PosicionInicial = posicionInicial; 
-            MetrosAncho = metrosAncho;
-            MetrosLargo = metrosLargo;
+            MetrosAncho = metrosAncho * S_METRO;
+            MetrosLargo = metrosLargo * S_METRO;
             
-            Matrix Scale = Matrix.CreateScale(S_METRO * metrosAncho, 0f, S_METRO * metrosLargo);
+            Matrix Scale = Matrix.CreateScale(MetrosAncho, 0f, MetrosLargo);
             World = Scale 
                     * Matrix.CreateTranslation(PosicionInicial);
+
+            var boxito = new Box(MetrosAncho*2,1f, MetrosLargo*2);
+            
+            TGCGame.Simulation.Statics.Add( new StaticDescription(
+                                                PosicionInicial.ToBepu()-Vector3.UnitY.ToBepu(),
+                                                TGCGame.Simulation.Shapes.Add(boxito)
+                                                ));
         }
         public Vector3 GetVerticeExtremo(){
-            return PosicionInicial + ( new Vector3(MetrosLargo,0f,MetrosAncho) * S_METRO );
+            return PosicionInicial + ( new Vector3(MetrosLargo,0f,MetrosAncho) );
         }
         public Vector3 GetMiddlePoint(){
-            return PosicionInicial + ( new Vector3(MetrosLargo*0.5f,0f,MetrosAncho*0.5f) * S_METRO );
+            return PosicionInicial + ( new Vector3(MetrosLargo*0.5f,0f,MetrosAncho*0.5f) );
         }
         public Vector3 getCenter() => this.GetVerticeExtremo()*0.5f;
         

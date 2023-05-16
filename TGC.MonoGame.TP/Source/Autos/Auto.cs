@@ -56,35 +56,73 @@ namespace TGC.MonoGame.TP
         public override void Update(GameTime gameTime, KeyboardState keyboardState)
         {   
             var simuWorld = TGCGame.Simulation.Bodies.GetBodyReference(Handle);
-            var boxSize = Utils.ModelSize(Model);
-            var angularImpulse = Vector3.Zero;
-            var linearImpulse = Vector3.Zero;
-
-
+            float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+        
             // DETECCIÓN DE GIRO Y DIRECCIÓN
+            float accelerationSense = 0f;
+            Vector3 acceleration = Vector3.Zero;
+
             var pressedKeys = keyboardState.GetPressedKeys();
             foreach( var key in pressedKeys){
                 switch(key){
                     case Keys.A:
-                        angularImpulse = new Vector3(0,1.2f,0);
+                        WheelTurning = (WheelTurning<WHEEL_TURNING_LIMIT)? // Qué no gire de más
+                                          WheelTurning+WHEEL_TURNING_LIMIT*dTime*4f
+                                        : WHEEL_TURNING_LIMIT; 
                     break;
                     case Keys.D:
-                        angularImpulse = new Vector3(0,-1.2f,0);
+                        WheelTurning = (WheelTurning>(-1)*WHEEL_TURNING_LIMIT)? // Qué no gire de más
+                                          WheelTurning-WHEEL_TURNING_LIMIT*dTime*4f
+                                        : (-1)*WHEEL_TURNING_LIMIT;
                     break;
                     case Keys.W:
-                        linearImpulse = Utils.FowardFromQuaternion(simuWorld.Pose.Orientation)*ACCELERATION_MAGNITUDE;
+                        accelerationSense = 1f;
+                        
                     break;
                     case Keys.S:
-                        linearImpulse = -Utils.FowardFromQuaternion(simuWorld.Pose.Orientation)*ACCELERATION_MAGNITUDE;
+                        accelerationSense = -0.5f; //Reversa mas lenta
                     break;
                 }
+
+            if(TurboRestante > 0 && keyboardState.IsKeyDown(Keys.F)){ //Turbo
+                TurboRestante--;
+                accelerationSense*=2;
             }
 
-            linearImpulse += Vector3.UnitY * -15f; 
+            }
 
-            simuWorld.ApplyLinearImpulse(linearImpulse.ToBepu());
-            simuWorld.ApplyAngularImpulse(angularImpulse.ToBepu());
+            var right = keyboardState.IsKeyDown(Keys.D) ? 1 : 0;
+            var left = keyboardState.IsKeyDown(Keys.A) ? 1 : 0;
+            var axis = left - right;
+            Turning += WheelTurning * 0.3f; //El giro depende del giro de la rueda
 
+            //ROTACION
+            Quaternion rotation = Quaternion.CreateFromAxisAngle(Vector3.Up, axis * dTime * 0.5f);
+
+            simuWorld.Pose.Orientation = simuWorld.Pose.Orientation * rotation.ToBepu();
+
+            Vector3 accelerationDirection = Utils.FowardFromQuaternion(simuWorld.Pose.Orientation);
+            acceleration = accelerationDirection * accelerationSense * ACCELERATION_MAGNITUDE;
+            
+            // SALTO
+            if (keyboardState.IsKeyDown(Keys.Space))// TODO; Checkear que toque el piso
+                Velocity += Vector3.Up * JUMP_POWER * dTime;
+            Velocity += acceleration * dTime;
+
+            // ROTACIÓN RUEDAS (distinto en reversa y para adelante)
+            WheelRotation = (accelerationSense>=0)? WheelRotation+(CoeficienteVelocidad) * MathHelper.PiOver4 
+                                                 : WheelRotation-(CoeficienteVelocidad) * MathHelper.PiOver4;
+            WheelTurning = (WheelTurning>0)?  WheelTurning - WHEEL_TURNING_LIMIT*dTime*2*CoeficienteVelocidad 
+                                            : WheelTurning + WHEEL_TURNING_LIMIT*dTime*2*CoeficienteVelocidad;
+
+            //ACELERACION
+            simuWorld.Velocity.Linear += new BepuVector3(Velocity.X,Velocity.Y,Velocity.Z);
+            
+            if(simuWorld.Velocity.Linear.Length()>MAX_SPEED)
+                simuWorld.Velocity.Linear = (Vector3.Normalize(simuWorld.Velocity.Linear.ToVector3()) * MAX_SPEED).ToBepu(); 
+
+
+            //WORLD MATRIX
             Position = simuWorld.Pose.Position;
             var quaternion = simuWorld.Pose.Orientation;
             World =
@@ -95,11 +133,12 @@ namespace TGC.MonoGame.TP
 
             // DEBUG TABLERO AUTO 
             // Console.WriteLine("> > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > ", acceleration.X, acceleration.Y, acceleration.Z);
-            Console.WriteLine("Velocity : . . . . . . . . . . . . . x: {0:F}, y: {1:F}", World.Forward.X, World.Forward.Z);
-            // Console.WriteLine("Vel. tablero : . . . . . . . . . . . {0:F}", VelocidadTablero);
-             Console.WriteLine("Velocidad alcanzada :    . . . . . . {0:F}%", (CoeficienteVelocidad * 100f));
+            Console.WriteLine("Velocity : . . . . . . . . . . . . . x: {0:F}, z: {1:F}", Velocity.X, Velocity.Z);
+            Console.WriteLine("BepuVelocity :   . . . . . . . . . . . x: {0:F}, y:{1:F}", simuWorld.Velocity.Linear.X,simuWorld.Velocity.Linear.Z);
+            Console.WriteLine("Vel. tablero : . . . . . . . . . . . {0:F}", VelocidadTablero);
+            Console.WriteLine("Velocidad alcanzada :    . . . . . . {0:F}%", (CoeficienteVelocidad * 100f));
             // Console.WriteLine("Giro rueda (radianes) :  . . . . . . {0:F}", (CoeficienteVelocidad) * MathHelper.TwoPi);
-            Console.WriteLine("Ruedas :    . . . . . . {0:F}", (WheelTurning)); 
+            // Console.WriteLine("Ruedas :    . . . . . . {0:F}", (WheelTurning)); 
         }   
 
         public override void Draw(){

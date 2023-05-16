@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using BepuPhysics;
 using BepuPhysics.Constraints;
 using BepuUtilities;
@@ -11,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.Samples.Physics.Bepu;
 using TGC.MonoGame.Samples.Viewer.Gizmos;
-using TGC.MonoGame.TP.Collisions;
+using NumericVector3 = System.Numerics.Vector3;
 
 namespace TGC.MonoGame.TP
 {
@@ -21,14 +20,14 @@ namespace TGC.MonoGame.TP
         public const float S_METRO = 250f; // Prueben con 250 y con 1000
         internal static TGCGame Game;
         internal static Content GameContent;
-        internal static Gizmos Gizmos;
-        internal static Simulation Simulation;
-        private BufferPool BufferPool;
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
+        internal static Simulation Simulation;
+        internal static Gizmos Gizmos;
+        public SimpleThreadDispatcher ThreadDispatcher { get; private set; }
+        public BufferPool BufferPool { get; private set; }
         private Auto Auto;
         private Auto2 Auto2;
-        private int IndiceHabAuto = 0;
         private Camera Camera; 
         private Casa Casa;
         private Song Soundtrack;
@@ -43,7 +42,12 @@ namespace TGC.MonoGame.TP
 
         protected override void Initialize()
         {
-            BufferPool = new BufferPool();
+            // > > > > Simulación
+            BufferPool = new BufferPool(); // optimización
+            var targetThreadCount = Math.Max(1,
+                Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
+            ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
+            // > > > > Fin simulación
 
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
@@ -58,7 +62,7 @@ namespace TGC.MonoGame.TP
             Game.Graphics.ApplyChanges();
         
             Gizmos = new Gizmos();
-        
+
             base.Initialize();
         }
 
@@ -68,7 +72,7 @@ namespace TGC.MonoGame.TP
             Simulation = Simulation.Create(
                                 BufferPool, 
                                 new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
-                                new PoseIntegratorCallbacks(new Vector3(0, GRAVITY, 0).ToBepu(), 0.5f, 0.8f), 
+                                new PoseIntegratorCallbacks(new NumericVector3(0, GRAVITY, 0)), 
                                 new SolveDescription(8, 1));
 
             // > > > > Fin simulación
@@ -77,10 +81,10 @@ namespace TGC.MonoGame.TP
             base.LoadContent();
             GameContent = new Content(Content, GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            
-            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
 
-            GraphicsDevice.BlendState = BlendState.AlphaBlend;         
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;     
+
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));    
             // Culling
             // GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
@@ -97,10 +101,6 @@ namespace TGC.MonoGame.TP
             
             Vector3 desplazamiento = new Vector3(5f,0f,5f);
 
-            // Defaults
-            GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
-            GameContent.E_BlacksFilter.Parameters["Filter"].SetValue(TGCGame.GameContent.T_MeshFilter); 
-
             Casa.LoadContent();
             
             Auto  = new Auto (Casa.GetCenter(0));
@@ -109,10 +109,10 @@ namespace TGC.MonoGame.TP
 
         protected override void Update(GameTime gameTime)
         {
-            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
-            var threadDispatcher = new ThreadDispatcher(Environment.ProcessorCount);
 
-            Simulation.Timestep(1 / 120f, threadDispatcher);
+            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+
+            Simulation.Timestep(1 / 60f, ThreadDispatcher);
 
             KeyboardState keyboardState =Keyboard.GetState();
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -153,13 +153,18 @@ namespace TGC.MonoGame.TP
             Auto2.Draw();          
             Casa.Draw();
 
-            
+
             Gizmos.Draw();
         }
         
         protected override void UnloadContent()
         {
+            // TODO check why Simulation.Dispose method sometimes fails
+            Simulation.Dispose();
+            BufferPool.Clear();
+            ThreadDispatcher.Dispose();
             Content.Unload();
+
             base.UnloadContent();
         }
     }
