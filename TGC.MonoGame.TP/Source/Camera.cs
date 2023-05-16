@@ -32,15 +32,15 @@ namespace TGC.MonoGame.TP
         }
 
         public void Mover(KeyboardState keyboardState){
-            var multiplicador = 1f;
+            var multiplicador = 0.25f*TGCGame.S_METRO;
             if(keyboardState.IsKeyDown(Keys.LeftShift)){
-                multiplicador = 10f;
+                multiplicador = 1f;
             }   
             if(keyboardState.IsKeyDown(Keys.Down)){
-                AxisDistanceToTarget += 20f*multiplicador;
+                AxisDistanceToTarget += 2f*multiplicador;
             }
             if(keyboardState.IsKeyDown(Keys.Up)){
-                AxisDistanceToTarget -= 20f*multiplicador;
+                AxisDistanceToTarget -= 2f*multiplicador;
             }
         }
 

@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using BepuPhysics;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP
 {
@@ -20,6 +23,7 @@ namespace TGC.MonoGame.TP
         // private bool ConPuerta = false;
         private Effect Efecto = TGCGame.GameContent.E_TextureShader;
         private Matrix AutoProyectado;
+        private StaticHandle Handle;
         
 
         public Pared(Vector3 puntoInicio, Vector3 puntoFinal, bool esHorizontal = false){
@@ -27,6 +31,17 @@ namespace TGC.MonoGame.TP
             PuntoFinal = puntoFinal;
             EsHorizontal = esHorizontal;
             Ubicar(puntoInicio, puntoFinal);
+ 
+            var esteNumerito = (PuntoInicial.X+PuntoFinal.X)*0.5f;
+            var otroNumerito = (PuntoInicial.Z+PuntoFinal.Z)*0.5f;
+
+            Box boxito = (!EsHorizontal)? new Box(esteNumerito*2, Altura, Grosor) 
+                                        : new Box(Grosor, Altura, otroNumerito*2);
+
+            Handle = TGCGame.Simulation.Statics.Add(
+                                            new StaticDescription(
+                                                new Vector3(esteNumerito, Altura*0.5f, otroNumerito).ToBepu(),
+                                                TGCGame.Simulation.Shapes.Add(boxito)));
         }
 
         ///<summary> Pared Completamente Cerrada. Me dibujo de derecha a izquierda (Horizontal) o de arriba para abajo (Vertical) </summary>
@@ -40,7 +55,7 @@ namespace TGC.MonoGame.TP
             Matrix Escala       = Matrix.CreateScale(Altura,Grosor,Largo);
             Matrix LevantarQuad = Matrix.CreateRotationZ(MathHelper.PiOver2);
             Matrix Rotacion     = EsHorizontal ? Matrix.CreateRotationY(0) : Matrix.CreateRotationY(MathHelper.PiOver2);
-            Matrix Traslacion   = Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z);
+            Matrix Traslacion   = Matrix.CreateTranslation(PuntoInicial.X,-0,PuntoInicial.Z);
 
             var worldCerrada = Escala * LevantarQuad * Rotacion * Traslacion ;
             Worlds.Add(worldCerrada);
@@ -68,8 +83,8 @@ namespace TGC.MonoGame.TP
 
                 Escala       = Matrix.CreateScale(Altura,Grosor,largoParedActual);
                 Traslacion   = (EsHorizontal)? 
-                            Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z + corrimiento ) :
-                            Matrix.CreateTranslation(PuntoInicial.X + corrimiento ,-100f,PuntoInicial.Z) ;
+                            Matrix.CreateTranslation(PuntoInicial.X,-0,PuntoInicial.Z + corrimiento ) :
+                            Matrix.CreateTranslation(PuntoInicial.X + corrimiento ,-0,PuntoInicial.Z) ;
 
                 WorldAux = Escala * LevantarQuad * Rotacion * Traslacion ;
                 this.Worlds.Add(WorldAux);
@@ -84,8 +99,8 @@ namespace TGC.MonoGame.TP
             // dibuja la última
             Escala       = Matrix.CreateScale(Altura,Grosor,largoParedRestante);
             Traslacion   = (EsHorizontal)? 
-                            Matrix.CreateTranslation(PuntoInicial.X,-100f,PuntoInicial.Z + corrimiento ) :
-                            Matrix.CreateTranslation(PuntoInicial.X + corrimiento,-100f,PuntoInicial.Z) ;
+                            Matrix.CreateTranslation(PuntoInicial.X,-0,PuntoInicial.Z + corrimiento ) :
+                            Matrix.CreateTranslation(PuntoInicial.X + corrimiento,-0,PuntoInicial.Z) ;
             
             WorldAux = Escala * LevantarQuad * Rotacion * Traslacion ;
                             
@@ -98,6 +113,12 @@ namespace TGC.MonoGame.TP
             Draw(TGCGame.GameContent.T_MarmolNegro);
         }
         public void Draw(Texture2D textura){ 
+            
+            var body = TGCGame.Simulation.Statics.GetStaticReference(Handle);
+            var aabb = body.BoundingBox;
+
+            TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.Black);
+
             Efecto.Parameters["Texture"]?.SetValue(textura);
 
             foreach( var w in Worlds){

@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepuPhysics;
+using BepuPhysics.Constraints;
+using BepuUtilities;
+using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using TGC.MonoGame.TP.Design;
+using TGC.MonoGame.Samples.Physics.Bepu;
+using TGC.MonoGame.Samples.Viewer.Gizmos;
+using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP
 {
     public class TGCGame : Game
     {
-        public const float S_METRO = 500f; // Prueben con 250 y con 1000
+        public const float GRAVITY = -15f;
+        public const float S_METRO = 250f; // Prueben con 250 y con 1000
         internal static TGCGame Game;
         internal static Content GameContent;
+        internal static Gizmos Gizmos;
+        internal static Simulation Simulation;
+        private BufferPool BufferPool;
         private GraphicsDeviceManager Graphics;
         private SpriteBatch SpriteBatch;
         private Auto Auto;
@@ -21,8 +32,6 @@ namespace TGC.MonoGame.TP
         private Camera Camera; 
         private Casa Casa;
         private Song Soundtrack;
-        private BoundingBox Cajita1;
-        private BoundingBox Cajita2;
 
 
         public TGCGame()
@@ -34,6 +43,8 @@ namespace TGC.MonoGame.TP
 
         protected override void Initialize()
         {
+            BufferPool = new BufferPool();
+
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
@@ -46,14 +57,28 @@ namespace TGC.MonoGame.TP
             Game.Graphics.PreferredBackBufferWidth  = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             Game.Graphics.ApplyChanges();
         
+            Gizmos = new Gizmos();
+        
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
+            // > > > > Simulación
+            Simulation = Simulation.Create(
+                                BufferPool, 
+                                new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
+                                new PoseIntegratorCallbacks(new Vector3(0, GRAVITY, 0).ToBepu(), 0.5f, 0.8f), 
+                                new SolveDescription(8, 1));
+
+            // > > > > Fin simulación
+
+
             base.LoadContent();
             GameContent = new Content(Content, GraphicsDevice);
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
 
             GraphicsDevice.BlendState = BlendState.AlphaBlend;         
             // Culling
@@ -72,14 +97,6 @@ namespace TGC.MonoGame.TP
             
             Vector3 desplazamiento = new Vector3(5f,0f,5f);
 
-            Cajita1 = new BoundingBox(origen, fin);
-            Cajita2 = new BoundingBox(origen+desplazamiento, fin+desplazamiento);
-
-
-            Console.WriteLine("> > > > > EN LOAD CONTENT");
-            Console.WriteLine("Acá no se tendrían que intersectar");
-            Console.WriteLine(Cajita1.Intersects(Cajita2));
-
             // Defaults
             GameContent.E_BasicShader.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
             GameContent.E_BlacksFilter.Parameters["Filter"].SetValue(TGCGame.GameContent.T_MeshFilter); 
@@ -92,6 +109,11 @@ namespace TGC.MonoGame.TP
 
         protected override void Update(GameTime gameTime)
         {
+            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+            var threadDispatcher = new ThreadDispatcher(Environment.ProcessorCount);
+
+            Simulation.Timestep(1 / 120f, threadDispatcher);
+
             KeyboardState keyboardState =Keyboard.GetState();
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -115,15 +137,6 @@ namespace TGC.MonoGame.TP
             Camera.Mover(keyboardState);
             Camera.Update(Auto.World);
 
-            Console.WriteLine("> > > > > EN UPDATE");
-            // Acá no se intersectan
-            Cajita2.Min = new Vector3(0.5f,0.5f,0.5f);
-            Cajita2.Max = new Vector3(1.5f,1.5f,1.5f);
-
-            Console.WriteLine("Acá se van a intersectar");
-            Console.WriteLine(Cajita1.Intersects(Cajita2));
-
-
             base.Update(gameTime);
         }
         protected override void Draw(GameTime gameTime)
@@ -139,6 +152,9 @@ namespace TGC.MonoGame.TP
             Auto.Draw();          
             Auto2.Draw();          
             Casa.Draw();
+
+            
+            Gizmos.Draw();
         }
         
         protected override void UnloadContent()

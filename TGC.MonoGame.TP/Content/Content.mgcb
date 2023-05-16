@@ -25,6 +25,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BlacksFilter.fx
 
+#begin Effects/Gizmos.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Gizmos.fx
+
 #begin Effects/SpiralShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -257,6 +263,44 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/Autos/RacingCar/Vehicle_rougness.png
+
+#begin Models/geometries/arrow.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/geometries/arrow.fbx
+
+#begin Models/geometries/sphere.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/geometries/sphere.fbx
 
 #begin Models/Muebles/Alfil/Alfil.obj
 /importer:FbxImporter
