@@ -25,14 +25,14 @@ namespace TGC.MonoGame.TP{
         public void Draw(){
             foreach(var h in Habitaciones) h.Draw();
 
-            Esqueleto[10].SetEffect(TGCGame.GameContent.E_BlacksFilter);
+            Esqueleto[10].SetEffect(TGCGame.GameContent.E_TextureShader);
             Esqueleto[10].Draw(TGCGame.GameContent.T_Concreto);
             
             for(int i = 0 ; i<8 ; i++)
                 Esqueleto[i].Draw(TGCGame.GameContent.T_Ladrillos);
             for(int i = 8 ; i<11 ; i++){   
-                Esqueleto[i].SetEffect(TGCGame.GameContent.E_BlacksFilter);
-                Esqueleto[i].Draw(TGCGame.GameContent.T_Concreto);
+                //Esqueleto[i].SetEffect(TGCGame.GameContent.E_TextureShader);
+                //Esqueleto[i].Draw(TGCGame.GameContent.T_Concreto);
             }
             for(int i = 11; i<15 ; i++)
                 Esqueleto[i].Draw(TGCGame.GameContent.T_Concreto);
@@ -40,7 +40,14 @@ namespace TGC.MonoGame.TP{
             for(int i = 15; i< Esqueleto.Count; i++){
                 Esqueleto[i].Draw();
             }
-                
+
+            Esqueleto[9].SetEffect(TGCGame.GameContent.E_BlacksFilter);
+            Esqueleto[9].Draw(TGCGame.GameContent.T_Ladrillos);
+
+            Esqueleto[8].SetEffect(TGCGame.GameContent.E_BlacksFilter);
+            Esqueleto[8].Draw(TGCGame.GameContent.T_Ladrillos);
+
+
         }
 
         public Vector3 GetCenter(int indexHabitacion){

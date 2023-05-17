@@ -39,7 +39,7 @@ namespace TGC.MonoGame.TP
                                         : new Box(Grosor, Altura, otroNumerito*2);
 
             Handle = TGCGame.Simulation.Statics.Add( new StaticDescription(
-                                                new Vector3(esteNumerito, Altura*0.5f, otroNumerito).ToBepu(),
+                                                new Vector3(esteNumerito, Altura*0.5f, otroNumerito + Grosor).ToBepu(),
                                                 TGCGame.Simulation.Shapes.Add(boxito)));
         }
 

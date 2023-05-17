@@ -15,17 +15,20 @@ namespace TGC.MonoGame.TP
     public class Auto : IElementoDinamico
     { 
         private const float WHEEL_TURNING_LIMIT = 0.5f;
-        private const float ANGULAR_SPEED = 600f;
+        private const float ANGULAR_SPEED = 900f;
         private const float LINEAR_SPEED = 80f;
         private const float AUTO_SCALE = 0.08f * TGCGame.S_METRO;
         private const float SIMU_BOX_SCALE = 0.010f*AUTO_SCALE;
-        private const float WHEEL_ROTATION_FACTOR = 0.000005f; // Factor de ajuste para la rotación
-        private const float JUMP_POWER = 10f; // Factor de ajuste para la rotación
-        private bool isJumping = false;
+        private const float WHEEL_ROTATION_FACTOR = 0.000008f; // Factor de ajuste para la rotación
+        private const float JUMP_POWER = 1000f; // Factor de ajuste para la rotación
+        private bool puedeSaltar = true;
         private BodyHandle Handle;
         private Vector3 Position;
         private float WheelRotation; // Tal vez pueda usarse también como rotación del auto
         private float WheelTurning = 0f;
+        private float Turbo = 1000;
+
+        private float Vel_Turbo = 1f;
 
         public Auto(Vector3 posicionInicial, float escala = AUTO_SCALE) 
         : base(TGCGame.GameContent.M_Auto, Vector3.Zero, Vector3.Zero, escala)
@@ -52,21 +55,20 @@ namespace TGC.MonoGame.TP
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             var linearImpulse = Vector3.Zero;
             var angularImpulse = Vector3.Zero;
-
+            Vel_Turbo = 1f;
             var pressedKeys = keyboardState.GetPressedKeys();
             if(pressedKeys.Length>0) simuWorld.Awake = true;
 
             foreach(var key in pressedKeys){
                 switch(key){
                     case Keys.A:
-                        angularImpulse = new Vector3(0,ANGULAR_SPEED,0);
                         WheelTurning = (WheelTurning<WHEEL_TURNING_LIMIT)? // Qué no gire de más
                                                                     WheelTurning+WHEEL_TURNING_LIMIT*dTime*4f
                                                                   : WHEEL_TURNING_LIMIT; 
 
                     break;
                     case Keys.D:
-                        angularImpulse = new Vector3(0,-ANGULAR_SPEED,0);
+                        
                         WheelTurning = (WheelTurning>(-1)*WHEEL_TURNING_LIMIT)? // Qué no gire de más
                                                                    WheelTurning-WHEEL_TURNING_LIMIT*dTime*4f
                                                                  : (-1)*WHEEL_TURNING_LIMIT;
@@ -78,13 +80,30 @@ namespace TGC.MonoGame.TP
                         linearImpulse = Utils.FowardFromQuaternion(simuWorld.Pose.Orientation)*(LINEAR_SPEED);
                     break;
                     case Keys.Space:
-                        // if(!isJumping){
-                        //     linearImpulse += new Vector3(0,JUMP_POWER,0);
-                        //     isJumping = false;
-                        // }
+                         if(puedeSaltar){
+                             linearImpulse = Utils.UpFromQuaternion(simuWorld.Pose.Orientation.ToQuaternion())*JUMP_POWER;
+                             puedeSaltar = false;
+                         }
+                    break;
+                    case Keys.LeftShift:
+                        if(Turbo > 0){
+                            Vel_Turbo = 1.5f;
+                            Turbo--;
+                        }
                     break;
                 }
             }
+            
+            var velocidadActual = simuWorld.Velocity.Linear.ToVector3();
+
+            var coeficienteVelocidad = (Math.Abs(velocidadActual.X) + Math.Abs(velocidadActual.Y) + Math.Abs(velocidadActual.Z)) / 2000;
+
+            Console.WriteLine("Velocidad alcanzada :    . . . . . . {0:F}%", (coeficienteVelocidad * 100f));
+
+
+            angularImpulse = new Vector3(0,ANGULAR_SPEED,0)*WheelTurning*Math.Min(coeficienteVelocidad*4, 1);
+
+            WheelTurning = WheelTurning > 0 ? WheelTurning - WHEEL_TURNING_LIMIT*dTime : WheelTurning + WHEEL_TURNING_LIMIT*dTime;
 
             // if(simuWorld.Pose.Position.Y > 0){
             //     simuWorld.ApplyLinearImpulse((Vector3.UnitY*-10f).ToBepu());
@@ -93,13 +112,14 @@ namespace TGC.MonoGame.TP
 
             simuWorld.ApplyAngularImpulse(angularImpulse.ToBepu());
             // simuWorld.ApplyLinearImpulse(linearImpulse.ToBepu());
-            simuWorld.ApplyImpulse(linearImpulse.ToBepu(), Utils.FowardFromQuaternion((simuWorld.Pose.Orientation.ToQuaternion())*2).ToBepu());
+            simuWorld.ApplyImpulse(linearImpulse.ToBepu() * Vel_Turbo, Utils.FowardFromQuaternion((simuWorld.Pose.Orientation.ToQuaternion())*2).ToBepu());
 
             WheelRotation += simuWorld.Velocity.Angular.Y * WHEEL_ROTATION_FACTOR;
 
             //WORLD MATRIX
             Position = simuWorld.Pose.Position;
             var quaternion = simuWorld.Pose.Orientation;
+            
             World =
                 Matrix.CreateScale(Escala) *
                 Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z, quaternion.W)) * 
@@ -109,7 +129,7 @@ namespace TGC.MonoGame.TP
         public override void Draw(){
             var simuWorld = TGCGame.Simulation.Bodies.GetBodyReference(Handle);
             
-            var aabb = simuWorld.BoundingBox;
+            //var aabb = simuWorld.BoundingBox;
             
             // TGCGame.Gizmos.DrawCube((aabb.Max + aabb.Min) / 2f, aabb.Max - aabb.Min, Color.Black);
             

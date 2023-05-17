@@ -32,7 +32,7 @@ namespace TGC.MonoGame.TP
         }
 
         public void Mover(KeyboardState keyboardState){
-            var multiplicador = 0.25f*TGCGame.S_METRO;
+            var multiplicador = 0.025f*TGCGame.S_METRO;
             if(keyboardState.IsKeyDown(Keys.LeftShift)){
                 multiplicador = 1f;
             }   

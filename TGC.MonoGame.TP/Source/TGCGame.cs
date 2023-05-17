@@ -72,7 +72,7 @@ namespace TGC.MonoGame.TP
             Simulation = Simulation.Create(
                                 BufferPool, 
                                 new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
-                                new PoseIntegratorCallbacks(new NumericVector3(0, GRAVITY, 0), 0.5f, 0.5f), 
+                                new PoseIntegratorCallbacks(new NumericVector3(0, GRAVITY, 0), 0.7f, 0.9f), 
                                 new SolveDescription(8, 1));
 
             // > > > > Fin simulación
@@ -104,7 +104,7 @@ namespace TGC.MonoGame.TP
             Casa.LoadContent();
             
             Auto  = new Auto (Casa.GetCenter(0));
-            Auto2 = new Auto2(Casa.GetCenter(0));
+            //Auto2 = new Auto2(Casa.GetCenter(0));
         }
 
         protected override void Update(GameTime gameTime)
@@ -120,7 +120,7 @@ namespace TGC.MonoGame.TP
             float dTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds); 
 
             Auto.Update(gameTime, keyboardState);
-            Auto2.Update(gameTime, keyboardState);
+            //Auto2.Update(gameTime, keyboardState);
                                     
             // Control de la música
             // if (keyboardState.IsKeyDown(Keys.W) && MediaPlayer.State == MediaState.Stopped)
@@ -134,7 +134,7 @@ namespace TGC.MonoGame.TP
 
             Casa.Update(gameTime, keyboardState);
             
-            // Camera.Mover(keyboardState);
+            Camera.Mover(keyboardState);
             Camera.Update(Auto.World);
 
             base.Update(gameTime);
@@ -150,11 +150,11 @@ namespace TGC.MonoGame.TP
 
 
             Auto.Draw();          
-            Auto2.Draw();          
+            //Auto2.Draw();          
             Casa.Draw();
 
 
-            Gizmos.Draw();
+            //Gizmos.Draw();
         }
         
         protected override void UnloadContent()

@@ -69,6 +69,23 @@ namespace TGC.MonoGame.TP.Collisions {
                                 1 - 2 * (q.X*q.X + q.Y*q.Y));
         }
 
+        public static Vector3 UpFromQuaternion(Quaternion q){
+
+        // Normalizar el cuaternión
+        Quaternion normalizedQuaternion = Quaternion.Normalize(q);
+
+        // Vector de referencia (0, 1, 0)
+        Vector3 referenceVector = new Vector3(0, 1, 0);
+
+        // Aplicar la rotación al vector de referencia
+        Vector3 upRotated = Vector3.Transform(referenceVector, normalizedQuaternion);
+
+        // Normalizar el vector "up" resultante
+        Vector3 up = Vector3.Normalize(upRotated);
+
+        return up;
+        }
+
         /// <summarize> Devuelve el tamaño de la caja que envuelve tu corazon </summarize> 
         public static Vector3 ModelSize(Model model)
             {
