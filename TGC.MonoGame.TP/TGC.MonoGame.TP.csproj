@@ -30,6 +30,32 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Content\Effects\AlphaBlending.fx" />
+    <ClCompile Include="Content\Effects\BackFace.fx" />
+    <ClCompile Include="Content\Effects\BasicShader.fx" />
+    <ClCompile Include="Content\Effects\BlinnPhong.fx" />
+    <ClCompile Include="Content\Effects\BlinnPhongTypes.fx" />
+    <ClCompile Include="Content\Effects\Bloom.fx" />
+    <ClCompile Include="Content\Effects\ComboRata.fx" />
+    <ClCompile Include="Content\Effects\DebugTexture.fx" />
+    <ClCompile Include="Content\Effects\EnvironmentMap.fx" />
+    <ClCompile Include="Content\Effects\GaussianBlur.fx" />
+    <ClCompile Include="Content\Effects\Gizmos.fx" />
+    <ClCompile Include="Content\Effects\MipMapping.fx" />
+    <ClCompile Include="Content\Effects\MRT.fx" />
+    <ClCompile Include="Content\Effects\PBR.fx" />
+    <ClCompile Include="Content\Effects\ShaderVisualizer.fx" />
+    <ClCompile Include="Content\Effects\ShadowMap.fx" />
+    <ClCompile Include="Content\Effects\SkyBox.fx" />
+    <ClCompile Include="Content\Effects\Terrain.fx" />
+    <ClCompile Include="Content\Effects\TextureMerge.fx" />
+    <ClCompile Include="Content\Effects\TextureTiling.fx" />
+    <ClCompile Include="Content\Effects\ToonShading.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Pistas\" />
+  </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />
     <Exec Command="dotnet tool restore" />
