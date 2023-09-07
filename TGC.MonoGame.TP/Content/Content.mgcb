@@ -13,11 +13,126 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/hullA.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/hullA.jpg;Models/textures_mod/hullA.jpg
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/hullB.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/hullB.jpg;Models/textures_mod/hullB.jpg
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/hullC.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/hullC.jpg;Models/textures_mod/hullC.jpg
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/mask.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/mask.png;Models/textures_mod/mask.png
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/normal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/normal.png;Models/textures_mod/normal.png
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/treadmills_mask.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/treadmills_mask.png;Models/textures_mod/treadmills_mask.png
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/treadmills_normal.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/treadmills_normal.png;Models/textures_mod/treadmills_normal.png
+
+#begin ../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/treadmills.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../Desktop/tgc-media-2023-2c/TankWars/T90/textures_mod/treadmills.png;Models/textures_mod/treadmills.png
+
 #begin Effects/BasicShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
+
+#begin Models/T90.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/T90.fbx
 
 #begin Models/tgc-logo/tgc-logo.fbx
 /importer:FbxImporter
