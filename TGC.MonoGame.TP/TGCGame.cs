@@ -1,8 +1,7 @@
-﻿using System;
+﻿﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-//using Object3D;
 
 namespace TGC.MonoGame.TP
 {
@@ -36,15 +35,16 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        //private Model Model { get; set; }
-        //private Effect Effect { get; set; }
-        //private float Rotation { get; set; }
-        //private Matrix World { get; set; }
-        //private Matrix View { get; set; }
-        //private Matrix Projection { get; set; }
-        private Object prueba { get; set; }
-        private FollowCamera CamaraLoca{ get; set; }
+        private Model Model { get; set; }
+        private Model T90 { get; set; }
+        private Model Panzer{ get; set; }
+        private Effect Effect { get; set; }
+        private float Rotation { get; set; }
 
+        private Object Prueba { get; set; }
+        private Texture2D Textura { get; set; }
+
+        private FollowCamera FollowCamera { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -62,21 +62,10 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
-            //Tamaño de pantalla 
-            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
-            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            Graphics.ApplyChanges();
-
-            // Configuramos nuestras matrices de la escena.
-            /*World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 1500, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250000);*/
-
-            CamaraLoca = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+            // Configuramos nuestras matrices de la escena, en este caso se realiza en el objeto FollowCamara
+            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             base.Initialize();
-            prueba = new Object(Vector3.Zero, Content.Load<Model>(ContentFolder3D + "T90"), Content.Load<Effect>(ContentFolderEffects + "BasicShader"));
         }
 
         /// <summary>
@@ -89,23 +78,17 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del logo.
-            //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            // Cargo el modelo del tanque.
+            T90 = Content.Load<Model>(ContentFolder3D + "T90");
 
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            //Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            // Cargo el efecto basico propio declarado en el Content pipeline.
+            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            /*foreach (var mesh in Model.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }*/
+            // Cargo la textura correspondiente                        
+            Textura = Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB");
+
+            Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
+            Prueba.LoadContent();
 
             base.LoadContent();
         }
@@ -126,9 +109,11 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-            CamaraLoca.Update(gameTime, prueba._world);
-            // Basado en el tiempo que paso se va generando una rotacion.
-            // Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            //Prueba._position += Vector3.Right/100;
+            //Prueba._world = Matrix.CreateTranslation(Prueba._position);
+
+            // Lógica del juego acá (por ahora solo renderiza un mundo)
+            
 
             base.Update(gameTime);
         }
@@ -140,24 +125,10 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.BlueViolet);
 
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            /*Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
-
-            foreach (var mesh in Model.Meshes)
-            {
-                World = mesh.ParentBone.Transform * rotationMatrix;
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
-            }*/
-
-            prueba.Draw(CamaraLoca.View, CamaraLoca.Projection);
-
-
+            Prueba.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
+            FollowCamera.Update(gameTime, Prueba.World);
         }
 
         /// <summary>
