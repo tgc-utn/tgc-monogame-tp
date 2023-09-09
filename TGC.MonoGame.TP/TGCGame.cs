@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -41,6 +42,11 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private SpherePrimitive Sphere { get; set; }
+        private Vector3 SpherePosition { get; set; }
+        private float Yaw { get; set; }
+        private float Pitch { get; set; }
+        private float Roll { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -56,6 +62,7 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
+            
             // Seria hasta aca.
 
             // Configuramos nuestras matrices de la escena.
@@ -63,6 +70,8 @@ namespace TGC.MonoGame.TP
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            
+            Sphere = new SpherePrimitive(GraphicsDevice, 10);
 
             base.Initialize();
         }
@@ -78,26 +87,26 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            //Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
+            /*foreach (var mesh in Model.Meshes)
             {
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
                 foreach (var meshPart in mesh.MeshParts)
                 {
                     meshPart.Effect = Effect;
                 }
-            }
+            }*/
 
             base.LoadContent();
         }
-
+        
         /// <summary>
         ///     Se llama en cada frame.
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
@@ -116,6 +125,11 @@ namespace TGC.MonoGame.TP
 
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            
+            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Yaw += time * 0.4f;
+            Pitch += time * 0.8f;
+            Roll += time * 0.9f;
 
             base.Update(gameTime);
         }
@@ -130,17 +144,38 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
+            //Effect.Parameters["View"].SetValue(View);
+            //Effect.Parameters["Projection"].SetValue(Projection);
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+            //var rotationMatrix = Matrix.CreateRotationY(Rotation);
+            
+            DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll);
 
-            foreach (var mesh in Model.Meshes)
+            /*foreach (var mesh in Model.Meshes)
             {
                 World = mesh.ParentBone.Transform * rotationMatrix;
                 Effect.Parameters["World"].SetValue(World);
                 mesh.Draw();
-            }
+            }*/
+        }
+        
+        /// <summary>
+        ///     Draw the geometry applying a rotation and translation.
+        /// </summary>
+        /// <param name="geometry">The geometry to draw.</param>
+        /// <param name="position">The position of the geometry.</param>
+        /// <param name="yaw">Vertical axis (yaw).</param>
+        /// <param name="pitch">Transverse axis (pitch).</param>
+        /// <param name="roll">Longitudinal axis (roll).</param>
+        private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll)
+        {
+            var effect = geometry.Effect;
+
+            effect.World = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position);
+            effect.View = View;
+            effect.Projection = Projection;
+
+            geometry.Draw(effect);
         }
 
         /// <summary>
