@@ -39,6 +39,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Effect Effect { get; set; }
+        private Effect TexturedEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -86,10 +87,9 @@ namespace TGC.MonoGame.TP
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
             SpherePosition = new Vector3(0f, 5f, 0f);
-            
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
             
-            FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f) * Matrix.CreateTranslation(0, 0, 0);
+            FloorWorld = Matrix.CreateScale(50f, 0.001f, 200f) * Matrix.CreateTranslation(0, 0, 0);
 
             base.Initialize();
         }
@@ -171,18 +171,10 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
-            //var rotationMatrix = Matrix.CreateRotationY(Rotation);
             
             Quad.Draw(Effect);
             
-            DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll);
-
-            /*foreach (var mesh in Model.Meshes)
-            {
-                World = mesh.ParentBone.Transform * rotationMatrix;
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
-            }*/
+            DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
         }
         
         /// <summary>
@@ -193,14 +185,13 @@ namespace TGC.MonoGame.TP
         /// <param name="yaw">Vertical axis (yaw).</param>
         /// <param name="pitch">Transverse axis (pitch).</param>
         /// <param name="roll">Longitudinal axis (roll).</param>
-        private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll)
+        /// <param name="effect">Used to set and query effects.</param>;
+        private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll, Effect effect)
         {
-            var effect = geometry.Effect;
-
-            effect.World = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position);
-            effect.View = Camera.View;
-            effect.Projection = Camera.Projection;
-
+            Effect.Parameters["World"].SetValue(Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position));
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.IndianRed.ToVector3());
             geometry.Draw(effect);
         }
 
