@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
@@ -47,6 +48,9 @@ namespace TGC.MonoGame.TP
         private float Yaw { get; set; }
         private float Pitch { get; set; }
         private float Roll { get; set; }
+        private QuadPrimitive Quad { get; set; }
+        private Matrix FloorWorld { get; set; }
+        private Camera Camera { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -69,14 +73,23 @@ namespace TGC.MonoGame.TP
             Graphics.ApplyChanges();
             
             // Seria hasta aca.
+            
+            var size = GraphicsDevice.Viewport.Bounds.Size;
+            size.X /= 2;
+            size.Y /= 2;
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+
+            SpherePosition = new Vector3(0f, 5f, 0f);
             
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
+            
+            FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f) * Matrix.CreateTranslation(0, 0, 0);
 
             base.Initialize();
         }
@@ -90,13 +103,16 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            // Create our Quad (to draw the Floor)
+            Quad = new QuadPrimitive(GraphicsDevice);
 
             // Cargo el modelo del logo.
             //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            //Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
@@ -120,6 +136,8 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            
+            Camera.Update(gameTime);
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -146,13 +164,16 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            //Effect.Parameters["View"].SetValue(View);
-            //Effect.Parameters["Projection"].SetValue(Projection);
-            //Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+            Effect.Parameters["World"].SetValue(FloorWorld);
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
             //var rotationMatrix = Matrix.CreateRotationY(Rotation);
+            
+            Quad.Draw(Effect);
             
             DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll);
 
@@ -177,8 +198,8 @@ namespace TGC.MonoGame.TP
             var effect = geometry.Effect;
 
             effect.World = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position);
-            effect.View = View;
-            effect.Projection = Projection;
+            effect.View = Camera.View;
+            effect.Projection = Camera.Projection;
 
             geometry.Draw(effect);
         }
