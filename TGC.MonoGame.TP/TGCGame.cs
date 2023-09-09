@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -39,7 +40,6 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Effect Effect { get; set; }
-        private Effect TexturedEffect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
         private Matrix View { get; set; }
@@ -50,7 +50,7 @@ namespace TGC.MonoGame.TP
         private float Pitch { get; set; }
         private float Roll { get; set; }
         private QuadPrimitive Quad { get; set; }
-        private Matrix FloorWorld { get; set; }
+        private List<Matrix> _floorMatrices;
         private Camera Camera { get; set; }
 
         /// <summary>
@@ -88,10 +88,22 @@ namespace TGC.MonoGame.TP
 
             SpherePosition = new Vector3(0f, 5f, 0f);
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
-            
-            FloorWorld = Matrix.CreateScale(50f, 0.001f, 200f) * Matrix.CreateTranslation(0, 0, 0);
+
+            //FloorWorld = Matrix.CreateScale(50f, 0.001f, 200f) * Matrix.CreateTranslation(0, 0, 0);
+
+            _floorMatrices = new List<Matrix>();
+            CreateFloor(new Vector3(50f, 0.001f, 200f), Vector3.Zero);
+            CreateFloor(new Vector3(50f, 0.001f, 200f), new Vector3(300f, 0f, 0f));
+            CreateFloor(new Vector3(200f, 0.001f, 50f), new Vector3(150f, 0f, -200f));
+            CreateFloor(new Vector3(200f, 0.001f, 50f), new Vector3(150f, 0f, 200f));
 
             base.Initialize();
+        }
+        
+        private void CreateFloor(Vector3 scale, Vector3 position)
+        {
+            var floorWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+            _floorMatrices.Add(floorWorld);
         }
 
         /// <summary>
@@ -167,16 +179,27 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["World"].SetValue(FloorWorld);
+            /*Effect.Parameters["World"].SetValue(FloorWorld);
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
-            
-            Quad.Draw(Effect);
-            
+            Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());*/
+
+            foreach (var floorWorld in _floorMatrices)
+            {
+                // Configura la matriz de mundo del efecto con la matriz del Floor actual
+                Effect.Parameters["World"].SetValue(floorWorld);
+                Effect.Parameters["View"].SetValue(Camera.View);
+                Effect.Parameters["Projection"].SetValue(Camera.Projection);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
+                
+                Quad.Draw(Effect);
+            }
+
+            //Quad.Draw(Effect);
+
             DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
         }
-        
+
         /// <summary>
         ///     Draw the geometry applying a rotation and translation.
         /// </summary>
