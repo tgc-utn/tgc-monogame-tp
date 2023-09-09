@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.Gemotries.Textures;
+using TGC.MonoGame.TP.Pistas;
 
 namespace TGC.MonoGame.TP
 {
@@ -28,10 +29,10 @@ namespace TGC.MonoGame.TP
         
         private const float CameraFollowRadius = 100f;
         private const float CameraUpDistance = 80f;
-        private const float RobotSideSpeed = 100f;
-        private const float RobotJumpSpeed = 150f;
+        private const float SphereSideSpeed = 100f;
+        private const float SphereJumpSpeed = 150f;
         private const float Gravity = 350f;
-        private const float RobotRotatingVelocity = 0.06f;
+        private const float SphereRotatingVelocity = 0.06f;
         private const float EPSILON = 0.00001f;
 
 
@@ -41,21 +42,21 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
 
         // Geometries
-        private Model Robot { get; set; }
+        private Model Sphere { get; set; }
         private BoxPrimitive BoxPrimitive { get; set; }
         private QuadPrimitive Quad { get; set; }
 
         
 
-        // Robot internal matrices and vectors
-        private Matrix RobotScale { get; set; }
-        private Matrix RobotRotation { get; set; }
-        private Vector3 RobotPosition { get; set; }
-        private Vector3 RobotVelocity { get; set; }
-        private Vector3 RobotAcceleration { get; set; }
-        private Vector3 RobotFrontDirection { get; set; }
+        // Sphere internal matrices and vectors
+        private Matrix SphereScale { get; set; }
+        private Matrix SphereRotation { get; set; }
+        private Vector3 SpherePosition { get; set; }
+        private Vector3 SphereVelocity { get; set; }
+        private Vector3 SphereAcceleration { get; set; }
+        private Vector3 SphereFrontDirection { get; set; }
         
-        // A boolean indicating if the Robot is on the ground
+        // A boolean indicating if the Sphere is on the ground
         private bool OnGround { get; set; }
 
 
@@ -63,7 +64,7 @@ namespace TGC.MonoGame.TP
         private Matrix BoxWorld { get; set; }
         private Matrix[] StairsWorld { get; set; }
         private Matrix FloorWorld { get; set; }
-        private Matrix RobotWorld { get; set; }
+        private Matrix SphereWorld { get; set; }
         
         // Camera
         private FollowCamera FollowCamera { get; set; }
@@ -91,8 +92,12 @@ namespace TGC.MonoGame.TP
         // Bounding Boxes representing our colliders (floor, stairs, boxes)
         private BoundingBox[] Colliders { get; set; }
 
-        private BoundingCylinder RobotCylinder { get; set; }
+        private BoundingCylinder SphereCylinder { get; set; }
         
+        
+        // Pistas
+        Pista1 pista1 { get; set; }
+        private Matrix Platform1World { get; set;} 
         
         
         /// <summary>
@@ -133,23 +138,23 @@ namespace TGC.MonoGame.TP
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 20f);
             Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
             
-            // Set the ground flag to false, as the Robot starts in the air
+            // Set the ground flag to false, as the Sphere starts in the air
             OnGround = false;
 
-            // Robot position and matrix initialization
-            RobotPosition = Vector3.UnitX * 30f;
-            RobotScale = Matrix.CreateScale(0.3f);
+            // Sphere position and matrix initialization
+            SpherePosition = Vector3.UnitX * 30f;
+            SphereScale = Matrix.CreateScale(0.2f);
 
-            RobotCylinder = new BoundingCylinder(RobotPosition, 10f, 20f);
-            RobotRotation = Matrix.Identity;
-            RobotFrontDirection = Vector3.Backward;
+            SphereCylinder = new BoundingCylinder(SpherePosition, 10f, 20f);
+            SphereRotation = Matrix.Identity;
+            SphereFrontDirection = Vector3.Backward;
 
             
 
             // Create World matrices for our stairs
             StairsWorld = new Matrix[]
             {
-                Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 0f, 0f),
+                Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 3f, 125f),
                 Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 9f, 140f),
                 Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 15f, 155f),
                 Matrix.CreateScale(70f, 6f, 40f) * Matrix.CreateTranslation(0f, 21f, 182.5f),
@@ -179,10 +184,13 @@ namespace TGC.MonoGame.TP
             Colliders[index] = new BoundingBox(new Vector3(-200f, -0.001f, -200f), new Vector3(200f, 0f, 200f));
 
             // Set the Acceleration (which in this case won't change) to the Gravity pointing down
-            RobotAcceleration = Vector3.Down * Gravity;
+            SphereAcceleration = Vector3.Down * Gravity;
 
             // Initialize the Velocity as zero
-            RobotVelocity = Vector3.Zero;
+            SphereVelocity = Vector3.Zero;
+            
+            pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f);
+            
 
 
             base.Initialize();
@@ -192,10 +200,10 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Load the models
-            Robot = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
+            Sphere = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
 
-            // Enable default lighting for the Robot
-            foreach (var mesh in Robot.Meshes)
+            // Enable default lighting for the Sphere
+            foreach (var mesh in Sphere.Meshes)
                 ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
             
             // Create a BasicEffect to draw the Box
@@ -218,22 +226,22 @@ namespace TGC.MonoGame.TP
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, WoodenTexture);
 
 
-            // Calculate the height of the Model of the Robot
+            // Calculate the height of the Model of the Sphere
             // Create a Bounding Box from it, then subtract the max and min Y to get the height
 
             // Use the height to set the Position of the robot 
-            // (it is half the height, multiplied by its scale in Y -RobotScale.M22-)
+            // (it is half the height, multiplied by its scale in Y -SphereScale.M22-)
 
-            var extents = BoundingVolumesExtensions.CreateAABBFrom(Robot);
+            var extents = BoundingVolumesExtensions.CreateAABBFrom(Sphere);
             var height = extents.Max.Y - extents.Min.Y;
 
-            RobotPosition += height * 0.5f * Vector3.Up * RobotScale.M22;
+            SpherePosition += height * 0.5f * Vector3.Up * SphereScale.M22;
 
-            // Assign the center of the Cylinder as the Robot Position
-            RobotCylinder.Center = RobotPosition;
+            // Assign the center of the Cylinder as the Sphere Position
+            SphereCylinder.Center = SpherePosition;
 
-            // Update our World Matrix to draw the Robot
-            RobotWorld = RobotScale * Matrix.CreateTranslation(RobotPosition);
+            // Update our World Matrix to draw the Sphere
+            SphereWorld = SphereScale * Matrix.CreateTranslation(SpherePosition);
             
 
             base.LoadContent();
@@ -256,32 +264,32 @@ namespace TGC.MonoGame.TP
             // Also, recalculate the Front Directoin
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                RobotRotation *= Matrix.CreateRotationY(-RobotRotatingVelocity);
-                RobotFrontDirection = Vector3.Transform(Vector3.Backward, RobotRotation);
+                SphereRotation *= Matrix.CreateRotationY(-SphereRotatingVelocity);
+                SphereFrontDirection = Vector3.Transform(Vector3.Backward, SphereRotation);
             }
             else if (keyboardState.IsKeyDown(Keys.A))
             {
-                RobotRotation *= Matrix.CreateRotationY(RobotRotatingVelocity);
-                RobotFrontDirection = Vector3.Transform(Vector3.Backward, RobotRotation);
+                SphereRotation *= Matrix.CreateRotationY(SphereRotatingVelocity);
+                SphereFrontDirection = Vector3.Transform(Vector3.Backward, SphereRotation);
             }
 
-            // Check for the Jump key press, and add velocity in Y only if the Robot is on the ground
+            // Check for the Jump key press, and add velocity in Y only if the Sphere is on the ground
             if (keyboardState.IsKeyDown(Keys.Space) && OnGround)
-                RobotVelocity += Vector3.Up * RobotJumpSpeed;
+                SphereVelocity += Vector3.Up * SphereJumpSpeed;
 
-            // Check for key presses and add a velocity in the Robot's Front Direction
+            // Check for key presses and add a velocity in the Sphere's Front Direction
             if (keyboardState.IsKeyDown(Keys.W))
-                RobotVelocity += RobotFrontDirection * RobotSideSpeed;
+                SphereVelocity += SphereFrontDirection * SphereSideSpeed;
             else if (keyboardState.IsKeyDown(Keys.S))
-                RobotVelocity -= RobotFrontDirection * RobotSideSpeed;
+                SphereVelocity -= SphereFrontDirection * SphereSideSpeed;
 
             // Add the Acceleration to our Velocity
             // Multiply by the deltaTime to have the Position affected by deltaTime * deltaTime
             // https://gafferongames.com/post/integration_basics/
-            RobotVelocity += RobotAcceleration * deltaTime;
+            SphereVelocity += SphereAcceleration * deltaTime;
 
             // Scale the velocity by deltaTime
-            var scaledVelocity = RobotVelocity * deltaTime;
+            var scaledVelocity = SphereVelocity * deltaTime;
 
             // Solve the Vertical Movement first (could be done in other order)
             SolveVerticalMovement(scaledVelocity);
@@ -293,17 +301,17 @@ namespace TGC.MonoGame.TP
             SolveHorizontalMovementSliding(scaledVelocity);
 
 
-            // Update the RobotPosition based on the updated Cylinder center
-            RobotPosition = RobotCylinder.Center;
+            // Update the SpherePosition based on the updated Cylinder center
+            SpherePosition = SphereCylinder.Center;
 
             // Reset the horizontal velocity, as accumulating this is not needed in this sample
-            RobotVelocity = new Vector3(0f, RobotVelocity.Y, 0f);
+            SphereVelocity = new Vector3(0f, SphereVelocity.Y, 0f);
 
-            // Update the Robot World Matrix
-            RobotWorld = RobotScale * RobotRotation * Matrix.CreateTranslation(RobotPosition);
+            // Update the Sphere World Matrix
+            SphereWorld = SphereScale * SphereRotation * Matrix.CreateTranslation(SpherePosition);
             
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
-            //FollowCamera.Update(gameTime, RobotWorld);
+            //FollowCamera.Update(gameTime, SphereWorld);
             Camera.Update(gameTime);
             base.Update(gameTime);
         }
@@ -314,12 +322,12 @@ namespace TGC.MonoGame.TP
         /// <param name="scaledVelocity">The current velocity scaled by deltaTime</param>
         private void SolveVerticalMovement(Vector3 scaledVelocity)
         {
-            // If the Robot has vertical velocity
+            // If the Sphere has vertical velocity
             if (scaledVelocity.Y == 0f)
                 return;
 
             // Start by moving the Cylinder
-            RobotCylinder.Center += Vector3.Up * scaledVelocity.Y;
+            SphereCylinder.Center += Vector3.Up * scaledVelocity.Y;
             // Set the OnGround flag on false, update it later if we find a collision
             OnGround = false;
 
@@ -329,14 +337,14 @@ namespace TGC.MonoGame.TP
             var foundIndex = -1;
             for (var index = 0; index < Colliders.Length; index++)
             {
-                if (!RobotCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                if (!SphereCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
                     continue;
                 
                 // If we collided with something, set our velocity in Y to zero to reset acceleration
-                RobotVelocity = new Vector3(RobotVelocity.X, 0f, RobotVelocity.Z);
+                SphereVelocity = new Vector3(SphereVelocity.X, 0f, SphereVelocity.Z);
 
                 // Set our index and collision flag to true
-                // The index is to tell which collider the Robot intersects with
+                // The index is to tell which collider the Sphere intersects with
                 collided = true;
                 foundIndex = index;
                 break;
@@ -349,7 +357,7 @@ namespace TGC.MonoGame.TP
             {
                 var collider = Colliders[foundIndex];
                 var colliderY = BoundingVolumesExtensions.GetCenter(collider).Y;
-                var cylinderY = RobotCylinder.Center.Y;
+                var cylinderY = SphereCylinder.Center.Y;
                 var extents = BoundingVolumesExtensions.GetExtents(collider);
 
                 float penetration;
@@ -357,22 +365,22 @@ namespace TGC.MonoGame.TP
                 // Also, set the OnGround flag to true
                 if (cylinderY > colliderY)
                 {
-                    penetration = colliderY + extents.Y - cylinderY + RobotCylinder.HalfHeight;
+                    penetration = colliderY + extents.Y - cylinderY + SphereCylinder.HalfHeight;
                     OnGround = true;
                 }
 
                 // If we are on bottom of the collider, push down
                 else
-                    penetration = -cylinderY - RobotCylinder.HalfHeight + colliderY - extents.Y;
+                    penetration = -cylinderY - SphereCylinder.HalfHeight + colliderY - extents.Y;
 
                 // Move our Cylinder so we are not colliding anymore
-                RobotCylinder.Center += Vector3.Up * penetration;
+                SphereCylinder.Center += Vector3.Up * penetration;
                 collided = false;
 
                 // Check for collisions again
                 for (var index = 0; index < Colliders.Length; index++)
                 {
-                    if (!RobotCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                    if (!SphereCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
                         continue;
 
                     // Iterate until we don't collide with anything anymore
@@ -395,29 +403,29 @@ namespace TGC.MonoGame.TP
                 return;
             
             // Start by moving the Cylinder horizontally
-            RobotCylinder.Center += new Vector3(scaledVelocity.X, 0f, scaledVelocity.Z);
+            SphereCylinder.Center += new Vector3(scaledVelocity.X, 0f, scaledVelocity.Z);
 
             // Check intersection for every collider
             for (var index = 0; index < Colliders.Length; index++)
             {
-                if (!RobotCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                if (!SphereCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
                     continue;
 
                 // Get the intersected collider and its center
                 var collider = Colliders[index];
                 var colliderCenter = BoundingVolumesExtensions.GetCenter(collider);
 
-                // The Robot collided with this thing
-                // Is it a step? Can the Robot climb it?
+                // The Sphere collided with this thing
+                // Is it a step? Can the Sphere climb it?
                 bool stepClimbed = SolveStepCollision(collider, index);
 
-                // If the Robot collided with a step and climbed it, stop here
+                // If the Sphere collided with a step and climbed it, stop here
                 // Else go on
                 if (stepClimbed)
                     return;
 
                 // Get the cylinder center at the same Y-level as the box
-                var sameLevelCenter = RobotCylinder.Center;
+                var sameLevelCenter = SphereCylinder.Center;
                 sameLevelCenter.Y = colliderCenter.Y;
 
                 // Find the closest horizontal point from the box
@@ -430,20 +438,20 @@ namespace TGC.MonoGame.TP
 
                 // Our penetration is the difference between the radius of the Cylinder and the Normal Vector
                 // For precission problems, we push the cylinder with a small increment to prevent re-colliding into the geometry
-                var penetration = RobotCylinder.Radius - normalVector.Length() + EPSILON;
+                var penetration = SphereCylinder.Radius - normalVector.Length() + EPSILON;
 
                 // Push the center out of the box
                 // Normalize our Normal Vector using its length first
-                RobotCylinder.Center += (normalVector / normalVectorLength * penetration);
+                SphereCylinder.Center += (normalVector / normalVectorLength * penetration);
             }
             
         }
 
         /// <summary>
-        ///     Solves the intersection between the Robot and a collider.
+        ///     Solves the intersection between the Sphere and a collider.
         /// </summary>
-        /// <param name="collider">The collider the Robot intersected with</param>
-        /// <param name="colliderIndex">The index of the collider in the collider array the Robot intersected with</param>
+        /// <param name="collider">The collider the Sphere intersected with</param>
+        /// <param name="colliderIndex">The index of the collider in the collider array the Sphere intersected with</param>
         /// <returns>True if the collider was a step and it was climbed, False otherwise</returns>
         private bool SolveStepCollision(BoundingBox collider, int colliderIndex)
         {
@@ -459,26 +467,26 @@ namespace TGC.MonoGame.TP
 
             // Is the base of the cylinder close to the step top?
             // If not, exit
-            var distanceToTop = MathF.Abs((RobotCylinder.Center.Y - RobotCylinder.HalfHeight) - (colliderCenter.Y + extents.Y));
+            var distanceToTop = MathF.Abs((SphereCylinder.Center.Y - SphereCylinder.HalfHeight) - (colliderCenter.Y + extents.Y));
             if (distanceToTop >= 12f)
                 return false;
 
             // We want to climb the step
             // It is climbable if we can reposition our cylinder in a way that
             // it doesn't collide with anything else
-            var pastPosition = RobotCylinder.Center;
-            RobotCylinder.Center += Vector3.Up * distanceToTop;
+            var pastPosition = SphereCylinder.Center;
+            SphereCylinder.Center += Vector3.Up * distanceToTop;
             for (int index = 0; index < Colliders.Length; index++)
-                if (index != colliderIndex && RobotCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                if (index != colliderIndex && SphereCylinder.Intersects(Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
                 {
                     // We found a case in which the cylinder
                     // intersects with other colliders, so the climb is not possible
-                    RobotCylinder.Center = pastPosition;
+                    SphereCylinder.Center = pastPosition;
                     return false;
                 }
 
             // If we got here the climb was possible
-            // (And the Robot position was already updated)
+            // (And the Sphere position was already updated)
             return true;
         }
 
@@ -493,9 +501,9 @@ namespace TGC.MonoGame.TP
             // Calculate the ViewProjection matrix
             //var viewProjection = FollowCamera.View * FollowCamera.Projection;
             var viewProjection = Camera.View * Camera.Projection;
-            // Robot drawing
+            // Sphere drawing
             // El dibujo del auto debe ir aca.
-            Robot.Draw(RobotWorld, Camera.View, Camera.Projection);
+            Sphere.Draw(SphereWorld, Camera.View, Camera.Projection);
 
             // Floor drawing
             
@@ -542,6 +550,8 @@ namespace TGC.MonoGame.TP
             BoxesEffect.Texture = WoodenTexture;
             BoxPrimitive.Draw(BoxesEffect);
 
+            
+            pista1.Draw(Camera.View,Camera.Projection);
 
             
 

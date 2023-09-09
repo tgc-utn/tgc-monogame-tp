@@ -53,9 +53,6 @@
     <ClCompile Include="Content\Effects\TextureTiling.fx" />
     <ClCompile Include="Content\Effects\ToonShading.fx" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pistas\" />
-  </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />
     <Exec Command="dotnet tool restore" />
