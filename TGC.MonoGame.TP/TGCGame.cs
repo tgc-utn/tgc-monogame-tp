@@ -94,22 +94,32 @@ namespace TGC.MonoGame.TP
             _boxMatrices = new List<Matrix>();
             
             // Platform
+            
+            // Side platforms
             CreateBox(new Vector3(50f, 6f, 200f), Vector3.Zero);
             CreateBox(new Vector3(50f, 6f, 200f), new Vector3(300f, 0f, 0f));
             CreateBox(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, -200f));
             CreateBox(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, 200f));
             
+            // Corner platforms
             CreateBox(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, -185f));
             CreateBox(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, 185f));
             CreateBox(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, -185f));
             CreateBox(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, 185f));
             
+            // Center platform
+            
+            CreateBox(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f));
+            
             // Ramp
+            
+            // Side ramps
             CreateBox(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f), Matrix.CreateRotationX(0.2f));
             CreateBox(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
             CreateBox(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
             CreateBox(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
             
+            // Corner ramps
             CreateBox(new Vector3(40f, 6f, 50f), new Vector3(40f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
             CreateBox(new Vector3(40f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
             CreateBox(new Vector3(40f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
