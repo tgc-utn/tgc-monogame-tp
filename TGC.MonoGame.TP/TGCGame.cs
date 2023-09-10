@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -30,18 +34,43 @@ namespace TGC.MonoGame.TP
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
+            // Hace que el mouse sea visible.
             IsMouseVisible = true;
         }
-
+    
+        // Graphics
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private Effect Effect { get; set; }
-        private float Rotation { get; set; }
+        
+        // Camera
+        private Camera Camera { get; set; }
+        
+        // Scene
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-
+        
+        // Geometries
+        private SpherePrimitive Sphere { get; set; }
+        private QuadPrimitive Quad { get; set; }
+        private BoxPrimitive BoxPrimitive { get; set; }
+        
+        // Sphere position & rotation
+        private Vector3 SpherePosition { get; set; }
+        private float Yaw { get; set; }
+        private float Pitch { get; set; }
+        private float Roll { get; set; }
+        
+        // World matrices
+        private List<Matrix> _platformMatrices;
+        
+        // Effects
+        private Effect Effect { get; set; }
+        
+        // Textures
+        private Texture2D StonesTexture { get; set; }
+        
+        
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -49,22 +78,147 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
-
+            
+            // Configuro las dimensiones de la pantalla.
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.ApplyChanges();
+            
+            // Camera
+            var size = GraphicsDevice.Viewport.Bounds.Size;
+            size.X /= 2;
+            size.Y /= 2;
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            
+            // Sphere
+            SpherePosition = new Vector3(0f, 10f, 0f);
+            Sphere = new SpherePrimitive(GraphicsDevice, 10);
+            
+            // Box/platforms
+            _platformMatrices = new List<Matrix>();
+            
+            /*
+             ===================================================================================================
+             Circuit 1
+             ===================================================================================================    
+            */
+            
+            // Platform
+            // Side platforms
+            CreatePlatform(new Vector3(50f, 6f, 200f), Vector3.Zero);
+            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(300f, 0f, 0f));
+            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, -200f));
+            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, 200f));
+            
+            // Corner platforms
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, -185f));
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, 185f));
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, -185f));
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, 185f));
+            
+            // Center platform
+            // La idea sería que se vaya moviendo 
+            CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f));
+            
+            // Ramp
+            // Side ramps
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f), Matrix.CreateRotationX(0.2f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
+            
+            // Corner ramps
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
+            
+            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
+            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            
+            /*
+             ===================================================================================================
+             Circuit 2
+             ===================================================================================================
+            */
+            
+            // Platform
+            // Side platforms
+            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(-600f, 0f, 0f));
+            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(-300f, 0f, 0f));
+            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-450f, 0f, -200f));
+            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-450f, 0f, 200f));
+            
+            // Corner platforms
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-600f, 9.5f, -185f));
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-600f, 9.5f, 185f));
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-300f, 9.5f, -185f));
+            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-300f, 9.5f, 185f));
+            
+            // Center platform
+            // La idea sería que se vaya moviendo 
+            CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-450f, 0f, 0f));
+            
+            // Ramp
+            // Side ramps
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-600f, 5f, -125f), Matrix.CreateRotationX(0.2f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-600f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
+            
+            // Corner ramps
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-560f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-560f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-340f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-340f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
+            
+            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-555f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
+            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-345f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            
+            /*
+             ===================================================================================================
+             Bridge between Circuit 1 and Circuit 2
+             ===================================================================================================
+            */
+            
+            // Platform
+            CreatePlatform(new Vector3(90f, 6f, 30f), new Vector3(-50f, 0f, 0f));
+            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-120f, 0f, 0f));
+            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-160f, 0f, 0f));
+            
+            // Ramp
+            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
 
             base.Initialize();
+        }
+
+        /// <summary>
+        ///     Creates a platform with the specified scale, position and rotation.
+        /// </summary>
+        /// <param name="scale">The scale of the platform</param>
+        /// <param name="position">The position of the platform</param>
+        /// <param name="rotation">The rotation of the platform</param>
+        private void CreatePlatform(Vector3 scale, Vector3 position, Matrix rotation)
+        {
+            var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
+            _platformMatrices.Add(platformWorld);
+        }
+        
+        /// <summary>
+        ///     Creates a platform with the specified scale and position.
+        /// </summary>
+        /// <param name="scale">The scale of the platform</param>
+        /// <param name="position">The position of the platform</param>
+        private void CreatePlatform(Vector3 scale, Vector3 position)
+        {
+            var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+            _platformMatrices.Add(platformWorld);
         }
 
         /// <summary>
@@ -76,9 +230,17 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+            
+            // Create our Quad (to draw the Floor)
+            Quad = new QuadPrimitive(GraphicsDevice);
+            
+            // Create our box
+            BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, StonesTexture);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -86,18 +248,18 @@ namespace TGC.MonoGame.TP
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
+            /*foreach (var mesh in Model.Meshes)
             {
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
                 foreach (var meshPart in mesh.MeshParts)
                 {
                     meshPart.Effect = Effect;
                 }
-            }
+            }*/
 
             base.LoadContent();
         }
-
+        
         /// <summary>
         ///     Se llama en cada frame.
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
@@ -106,6 +268,8 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            
+            Camera.Update(gameTime);
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -113,9 +277,11 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            
+            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Yaw += time * 0.4f;
+            Pitch += time * 0.8f;
+            Roll += time * 0.9f;
 
             base.Update(gameTime);
         }
@@ -127,20 +293,39 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
-
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
-
-            foreach (var mesh in Model.Meshes)
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            
+            foreach (var platformWorld in _platformMatrices)
             {
-                World = mesh.ParentBone.Transform * rotationMatrix;
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
-            }
+                // Configura la matriz de mundo del efecto con la matriz del Floor actual
+                Effect.Parameters["World"].SetValue(platformWorld);
+                Effect.Parameters["View"].SetValue(Camera.View);
+                Effect.Parameters["Projection"].SetValue(Camera.Projection);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
+                
+                BoxPrimitive.Draw(Effect);
+            }  
+            
+
+            DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
+        }
+
+        /// <summary>
+        ///     Draw the geometry applying a rotation and translation.
+        /// </summary>
+        /// <param name="geometry">The geometry to draw.</param>
+        /// <param name="position">The position of the geometry.</param>
+        /// <param name="yaw">Vertical axis (yaw).</param>
+        /// <param name="pitch">Transverse axis (pitch).</param>
+        /// <param name="roll">Longitudinal axis (roll).</param>
+        /// <param name="effect">Used to set and query effects.</param>;
+        private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll, Effect effect)
+        {
+            Effect.Parameters["World"].SetValue(Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position));
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.IndianRed.ToVector3());
+            geometry.Draw(effect);
         }
 
         /// <summary>
