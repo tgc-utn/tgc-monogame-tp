@@ -62,7 +62,7 @@ namespace TGC.MonoGame.TP
         private float Roll { get; set; }
         
         // World matrices
-        private List<Matrix> _boxMatrices;
+        private List<Matrix> _platformMatrices;
         
         // Effects
         private Effect Effect { get; set; }
@@ -101,7 +101,7 @@ namespace TGC.MonoGame.TP
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
             
             // Box/platforms
-            _boxMatrices = new List<Matrix>();
+            _platformMatrices = new List<Matrix>();
             
             // Platform
             
@@ -142,26 +142,26 @@ namespace TGC.MonoGame.TP
         }
 
         /// <summary>
-        ///     Creates a box with the specified scale and position.
+        ///     Creates a platform with the specified scale, position and rotation.
         /// </summary>
-        /// <param name="scale">The scale of the box</param>
-        /// <param name="position">The position of the box</param>
-        /// <param name="rotation">The rotation of the box</param>
+        /// <param name="scale">The scale of the platform</param>
+        /// <param name="position">The position of the platform</param>
+        /// <param name="rotation">The rotation of the platform</param>
         private void CreatePlatform(Vector3 scale, Vector3 position, Matrix rotation)
         {
-            var boxWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
-            _boxMatrices.Add(boxWorld);
+            var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
+            _platformMatrices.Add(platformWorld);
         }
         
         /// <summary>
-        ///     Creates a box with the specified scale and position.
+        ///     Creates a platform with the specified scale and position.
         /// </summary>
-        /// <param name="scale">The scale of the box</param>
-        /// <param name="position">The position of the box</param>
+        /// <param name="scale">The scale of the platform</param>
+        /// <param name="position">The position of the platform</param>
         private void CreatePlatform(Vector3 scale, Vector3 position)
         {
-            var boxWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
-            _boxMatrices.Add(boxWorld);
+            var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+            _platformMatrices.Add(platformWorld);
         }
 
         /// <summary>
@@ -238,10 +238,10 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.CornflowerBlue);
             
-            foreach (var boxWorld in _boxMatrices)
+            foreach (var platformWorld in _platformMatrices)
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
-                Effect.Parameters["World"].SetValue(boxWorld);
+                Effect.Parameters["World"].SetValue(platformWorld);
                 Effect.Parameters["View"].SetValue(Camera.View);
                 Effect.Parameters["Projection"].SetValue(Camera.Projection);
                 Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
