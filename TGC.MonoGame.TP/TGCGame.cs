@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Content.Models;
 
 namespace TGC.MonoGame.TP
 {
@@ -18,11 +19,15 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        private RacingCar RacingCar { get; set; }
+        private CityScene CityScene { get; set; }
+        //private FollowCamera FollowCamera { get; set; }
+		private FollowCameraRight FollowCamera { get; set; }
 
-        /// <summary>
-        ///     Constructor del juego.
-        /// </summary>
-        public TGCGame()
+		/// <summary>
+		///     Constructor del juego.
+		/// </summary>
+		public TGCGame()
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
@@ -48,23 +53,23 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
+            // Enciendo Back-Face culling.
+            // Configuro Blend State a Opaco.
             var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
+            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
-            // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            // Configuro las dimensiones de la pantalla.
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 250;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 250;
+            Graphics.ApplyChanges();
+                
+            // Creo una camara para seguir a nuestro auto.
+            //FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+			FollowCamera = new FollowCameraRight(GraphicsDevice.Viewport.AspectRatio);
 
-            base.Initialize();
+			base.Initialize();
         }
 
         /// <summary>
@@ -77,23 +82,15 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            // Creo la escena de la ciudad.
+            CityScene = new CityScene(Content);
+
+            // La carga de contenido debe ser realizada aca.
+            RacingCar = new RacingCar(Content);
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
 
             base.LoadContent();
         }
@@ -106,16 +103,18 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-
-            // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
 
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            // La logica debe ir aca.
+            RacingCar.Update(keyboardState, gameTime);
+            
+            // Actualizo la camara, enviandole la matriz de mundo del auto.
+            FollowCamera.Update(gameTime, RacingCar.World);
 
             base.Update(gameTime);
         }
@@ -127,20 +126,13 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
-
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
-
-            foreach (var mesh in Model.Meshes)
-            {
-                World = mesh.ParentBone.Transform * rotationMatrix;
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
-            }
+            GraphicsDevice.Clear(Color.Gray);
+            
+            // Dibujo la ciudad.
+            CityScene.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
+            
+            // El dibujo del auto debe ir aca.
+            RacingCar.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
         }
 
         /// <summary>
