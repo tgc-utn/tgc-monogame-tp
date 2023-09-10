@@ -29,6 +29,7 @@
     <PackageReference Include="BepuPhysics" Version="2.4.0" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Content\Effects\AlphaBlending.fx" />

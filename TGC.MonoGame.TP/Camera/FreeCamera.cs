@@ -16,6 +16,8 @@ namespace TGC.MonoGame.TP.Camera
         private Vector2 pastMousePosition;
         private float pitch;
 
+        private bool godMode;
+
         // Angles
         private float yaw = -90f;
 
@@ -61,6 +63,17 @@ namespace TGC.MonoGame.TP.Camera
             var currentMovementSpeed = MovementSpeed;
             if (keyboardState.IsKeyDown(Keys.LeftShift))
                 currentMovementSpeed *= 5f;
+
+            if (keyboardState.IsKeyDown(Keys.G))
+                if (!godMode) godMode = true;
+                else godMode = false;
+
+            if (godMode && keyboardState.IsKeyDown(Keys.Space))
+                Position += Vector3.Up;
+
+            if(godMode && keyboardState.IsKeyDown(Keys.LeftShift))
+                Position += Vector3.Down;
+
 
             if (keyboardState.IsKeyDown(Keys.M))
             {
