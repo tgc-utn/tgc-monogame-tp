@@ -104,9 +104,9 @@ namespace TGC.MonoGame.TP
             _platformMatrices = new List<Matrix>();
             
             /*
-             =================================
+             ===================================================================================================
              Circuit 1
-             =================================    
+             ===================================================================================================    
             */
             
             // Platform
@@ -143,9 +143,9 @@ namespace TGC.MonoGame.TP
             CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
             
             /*
-             =================================
+             ===================================================================================================
              Circuit 2
-             =================================
+             ===================================================================================================
             */
             
             // Platform
@@ -180,6 +180,20 @@ namespace TGC.MonoGame.TP
             
             CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-555f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
             CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-345f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            
+            /*
+             ===================================================================================================
+             Bridge between Circuit 1 and Circuit 2
+             ===================================================================================================
+            */
+            
+            // Platform
+            CreatePlatform(new Vector3(90f, 6f, 30f), new Vector3(-50f, 0f, 0f));
+            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-120f, 0f, 0f));
+            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-160f, 0f, 0f));
+            
+            // Ramp
+            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
 
             base.Initialize();
         }
