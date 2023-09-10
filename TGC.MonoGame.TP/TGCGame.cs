@@ -99,6 +99,11 @@ namespace TGC.MonoGame.TP
             CreateBox(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, -200f));
             CreateBox(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, 200f));
             
+            CreateBox(new Vector3(50f, 6f, 70f), new Vector3(0f, 9.5f, -190f));
+            CreateBox(new Vector3(50f, 6f, 70f), new Vector3(0f, 9.5f, 190f));
+            CreateBox(new Vector3(50f, 6f, 70f), new Vector3(300f, 9.5f, -190f));
+            CreateBox(new Vector3(50f, 6f, 70f), new Vector3(300f, 9.5f, 190f));
+            
             // Ramp
             CreateBox(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f), Matrix.CreateRotationX(0.2f));
             CreateBox(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
