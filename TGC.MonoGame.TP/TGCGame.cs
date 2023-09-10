@@ -46,6 +46,8 @@ namespace TGC.MonoGame.TP
 
         private FollowCamera FollowCamera { get; set; }
 
+        private Suelo Suelo {get; set;}
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -64,6 +66,7 @@ namespace TGC.MonoGame.TP
 
             // Configuramos nuestras matrices de la escena, en este caso se realiza en el objeto FollowCamara
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+
 
             base.Initialize();
         }
@@ -89,6 +92,9 @@ namespace TGC.MonoGame.TP
 
             Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
             Prueba.LoadContent();
+
+            Suelo = new Suelo(GraphicsDevice);
+            Suelo.Effect = Effect;
 
             base.LoadContent();
         }
@@ -129,6 +135,8 @@ namespace TGC.MonoGame.TP
 
             Prueba.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
             FollowCamera.Update(gameTime, Prueba.World);
+
+            Suelo.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
         }
 
         /// <summary>
