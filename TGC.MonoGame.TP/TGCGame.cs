@@ -100,8 +100,8 @@ namespace TGC.MonoGame.TP
         // Pistas
         Pista1 pista1 { get; set; }
         Pista2 pista2 { get; set; }
-        /*
-         Pista3 pista3 {get; set;}
+        Pista3 pista3 {get; set;}
+         /*
          Pista4 pista4 {get; set;}
          Pista5 pista5 {get; set;} 
          */
@@ -199,8 +199,8 @@ namespace TGC.MonoGame.TP
             
             pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f);
             pista2 = new Pista2(Content, GraphicsDevice, 100f, 300f, 450f);
+            pista3 = new Pista3(Content, GraphicsDevice, 250f, -3f, 10f);
             /*
-            pista3 = new Pista3(Content, GraphicsDevice, 100f, 500f, 450f);
             pista4 = new Pista4(Content, GraphicsDevice, 100f, 700f, 450f);
             pista5 = new Pista5(Content, GraphicsDevice, 100f, 1000f, 450f);
              */
@@ -571,7 +571,7 @@ namespace TGC.MonoGame.TP
             
             pista1.Draw(Camera.View,Camera.Projection);
             pista2.Draw(Camera.View, Camera.Projection);
-            //pista3.Draw(Camera.View, Camera.Projection);
+            pista3.Draw(Camera.View, Camera.Projection);
             //pista4.Draw(Camera.View, Camera.Projection);
             //pista5.Draw(Camera.View, Camera.Projection);
 
