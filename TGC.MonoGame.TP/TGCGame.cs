@@ -108,7 +108,7 @@ namespace TGC.MonoGame.TP
             CreateBox(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, 185f));
             
             // Center platform
-            
+            // La idea sería que se vaya moviendo 
             CreateBox(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f));
             
             // Ramp
@@ -124,6 +124,9 @@ namespace TGC.MonoGame.TP
             CreateBox(new Vector3(40f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
             CreateBox(new Vector3(40f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
             CreateBox(new Vector3(40f, 6f, 50f), new Vector3(260f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
+            
+            CreateBox(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
+            CreateBox(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
 
             base.Initialize();
         }
