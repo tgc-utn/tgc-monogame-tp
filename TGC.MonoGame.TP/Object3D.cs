@@ -21,7 +21,7 @@ namespace TGC.MonoGame.TP
         public Object(Vector3 Position, Model modelo, Effect efecto, Texture2D textura){
             this.Position = Position;
 
-            World = Matrix.CreateTranslation(Position);
+            World = Matrix.CreateWorld(Position, Vector3.Forward, Vector3.Up);
             
             Model = modelo;
 
@@ -53,10 +53,13 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
 
+            var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
+            Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+
             foreach (var mesh in Model.Meshes)
             {
-                var MeshWorld = mesh.ParentBone.Transform;
-                Effect.Parameters["World"].SetValue(MeshWorld*World);
+                var meshWorld = modelMeshesBaseTransforms[mesh.ParentBone.Index];
+                Effect.Parameters["World"].SetValue(meshWorld*World);
                 mesh.Draw();
             }
         }

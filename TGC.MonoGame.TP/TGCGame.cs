@@ -1,4 +1,5 @@
-﻿﻿using System;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -41,6 +42,8 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
 
+        private List<Object> objetos3D { get; set; }  
+
         private Object Prueba { get; set; }
         private Texture2D Textura { get; set; }
 
@@ -64,6 +67,12 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
+
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.ApplyChanges();
+
+            objetos3D = new List<Object>();
 
             // Configuramos nuestras matrices de la escena, en este caso se realiza en el objeto FollowCamara
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -89,10 +98,13 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             // Cargo la textura correspondiente                        
-            Textura = Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB");
+            Textura = Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA");
 
-            Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
-            Prueba.LoadContent();
+            //Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
+            
+            InitializeTanks();
+            objetos3D.ForEach(o => o.LoadContent());
+            //Prueba.LoadContent();
 
             Suelo = new Suelo(GraphicsDevice);
             Suelo.Effect = Effect;
@@ -101,6 +113,14 @@ namespace TGC.MonoGame.TP
             Roca.Effect = Effect;
 
             base.LoadContent();
+        }
+
+        private void InitializeTanks()
+        {
+            objetos3D.Add(new Object(new Vector3(1000f, 0, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
+            objetos3D.Add(new Object(new Vector3(-1000f, 0, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
+            objetos3D.Add(new Object(new Vector3(1000f, 0, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
+            objetos3D.Add(new Object(new Vector3(-1000f, 0, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
         }
 
         /// <summary>
@@ -119,8 +139,8 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-            //Prueba._position += Vector3.Right/100;
-            //Prueba._world = Matrix.CreateTranslation(Prueba._position);
+            //objetos3D[1].Position += Vector3.Backward * 5;
+            //objetos3D[1].World = Matrix.CreateTranslation(objetos3D[1].Position);
 
             // Lógica del juego acá (por ahora solo renderiza un mundo)
             
@@ -137,11 +157,14 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.BlueViolet);
 
-            Prueba.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
-            FollowCamera.Update(gameTime, Prueba.World);
+            //Prueba.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
+            objetos3D.ForEach(a => a.Draw(gameTime, FollowCamera.View, FollowCamera.Projection));
+            FollowCamera.Update(gameTime, objetos3D[0].World);
 
             Suelo.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
+
             Roca.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
+            
         }
 
         /// <summary>
