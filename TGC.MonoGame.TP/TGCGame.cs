@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -52,6 +53,9 @@ namespace TGC.MonoGame.TP
         private QuadPrimitive Quad { get; set; }
         private List<Matrix> _floorMatrices;
         private Camera Camera { get; set; }
+        private BoxPrimitive BoxPrimitive { get; set; }
+        private List<Matrix> _boxMatrices;
+        private Texture2D StonesTexture { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -60,50 +64,77 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
             
             // Configuro las dimensiones de la pantalla.
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
             
-            // Seria hasta aca.
-            
+            // Camera
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
             Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
-
+            
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
-            SpherePosition = new Vector3(0f, 5f, 0f);
+            SpherePosition = new Vector3(0f, 10f, 0f);
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
 
-            //FloorWorld = Matrix.CreateScale(50f, 0.001f, 200f) * Matrix.CreateTranslation(0, 0, 0);
+            /*_floorMatrices = new List<Matrix>();
+            CreateFloor(new Vector3(50f, 6f, 200f), Vector3.Zero, 0f);
+            CreateFloor(new Vector3(50f, 0.001f, 200f), new Vector3(300f, 0f, 0f), 0f);
+            CreateFloor(new Vector3(200f, 0.001f, 50f), new Vector3(150f, 0f, -200f), 0f);
+            CreateFloor(new Vector3(200f, 0.001f, 50f), new Vector3(150f, 0f, 200f), 0f);*/
 
-            _floorMatrices = new List<Matrix>();
-            CreateFloor(new Vector3(50f, 0.001f, 200f), Vector3.Zero);
-            CreateFloor(new Vector3(50f, 0.001f, 200f), new Vector3(300f, 0f, 0f));
-            CreateFloor(new Vector3(200f, 0.001f, 50f), new Vector3(150f, 0f, -200f));
-            CreateFloor(new Vector3(200f, 0.001f, 50f), new Vector3(150f, 0f, 200f));
+            _boxMatrices = new List<Matrix>();
+            
+            // Plain
+            CreateBox(new Vector3(50f, 6f, 200f), Vector3.Zero);
+            CreateBox(new Vector3(50f, 6f, 200f), new Vector3(300f, 0f, 0f));
+            CreateBox(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, -200f));
+            CreateBox(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, 200f));
+            
+            // Ramp
+            CreateBox(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f), Matrix.CreateRotationX(0.2f));
+            CreateBox(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
+            CreateBox(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
+            CreateBox(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
 
             base.Initialize();
         }
         
-        private void CreateFloor(Vector3 scale, Vector3 position)
+        private void CreateFloor(Vector3 scale, Vector3 position, float inclination)
         {
-            var floorWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+            var floorWorld = Matrix.CreateScale(scale) * Matrix.CreateRotationZ(inclination) * Matrix.CreateTranslation(position);
             _floorMatrices.Add(floorWorld);
+        }
+
+        /// <summary>
+        ///     Creates a box with the specified scale and position.
+        /// </summary>
+        /// <param name="scale">The scale of the box</param>
+        /// <param name="position">The position of the box</param>
+        /// <param name="rotation">The rotation of the box</param>
+        private void CreateBox(Vector3 scale, Vector3 position, Matrix rotation)
+        {
+            var boxWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
+            _boxMatrices.Add(boxWorld);
+        }
+        
+        /// <summary>
+        ///     Creates a box with the specified scale and position.
+        /// </summary>
+        /// <param name="scale">The scale of the box</param>
+        /// <param name="position">The position of the box</param>
+        private void CreateBox(Vector3 scale, Vector3 position)
+        {
+            var boxWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+            _boxMatrices.Add(boxWorld);
         }
 
         /// <summary>
@@ -116,8 +147,13 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
+            StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+            
             // Create our Quad (to draw the Floor)
             Quad = new QuadPrimitive(GraphicsDevice);
+            
+            // Create our box
+            BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, StonesTexture);
 
             // Cargo el modelo del logo.
             //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
@@ -184,7 +220,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());*/
 
-            foreach (var floorWorld in _floorMatrices)
+            /*foreach (var floorWorld in _floorMatrices)
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
                 Effect.Parameters["World"].SetValue(floorWorld);
@@ -193,9 +229,19 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
                 
                 Quad.Draw(Effect);
-            }
-
-            //Quad.Draw(Effect);
+            }*/
+            
+            foreach (var boxWorld in _boxMatrices)
+            {
+                // Configura la matriz de mundo del efecto con la matriz del Floor actual
+                Effect.Parameters["World"].SetValue(boxWorld);
+                Effect.Parameters["View"].SetValue(Camera.View);
+                Effect.Parameters["Projection"].SetValue(Camera.Projection);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
+                
+                BoxPrimitive.Draw(Effect);
+            }  
+            
 
             DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
         }
