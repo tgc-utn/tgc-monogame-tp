@@ -130,10 +130,10 @@ namespace TGC.MonoGame.TP
             CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
             
             // Corner ramps
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(40f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(260f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
+            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
             
             CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
             CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
