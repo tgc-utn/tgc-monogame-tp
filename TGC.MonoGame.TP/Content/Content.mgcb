@@ -189,18 +189,6 @@
 /processorParam:TextureFormat=Color
 /build:Models/powerups/arrowup/arrow_bump.png
 
-#begin Models/powerups/arrowup/arrow_bump.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/arrow_bump.png
-
 #begin Models/powerups/arrowup/arrow_metalness.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -212,30 +200,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/powerups/arrowup/arrow_metalness.png
-
-#begin Models/powerups/arrowup/arrow_metalness.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/arrow_metalness.png
-
-#begin Models/powerups/arrowup/arrow_roughness.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/arrow_roughness.png
 
 #begin Models/powerups/arrowup/arrow_roughness.png
 /importer:TextureImporter
@@ -268,25 +232,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/powerups/arrowup/arrow.obj
 
-#begin Models/powerups/arrowup/arrow.obj
-/importer:OpenAssetImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/powerups/arrowup/arrow.obj
-
 #begin Models/powerups/arrowup/arrow.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -298,30 +243,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/powerups/arrowup/arrow.png
-
-#begin Models/powerups/arrowup/arrow.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/arrow.png
-
-#begin Models/powerups/arrowup/textures/arrow_albedo.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/textures/arrow_albedo.png
 
 #begin Models/powerups/arrowup/textures/arrow_albedo.png
 /importer:TextureImporter
@@ -347,30 +268,6 @@
 /processorParam:TextureFormat=Color
 /build:Models/powerups/arrowup/textures/arrow_bump.png
 
-#begin Models/powerups/arrowup/textures/arrow_bump.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/textures/arrow_bump.png
-
-#begin Models/powerups/arrowup/textures/arrow_emissive.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/textures/arrow_emissive.png
-
 #begin Models/powerups/arrowup/textures/arrow_emissive.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -394,30 +291,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/powerups/arrowup/textures/arrow_metalness.png
-
-#begin Models/powerups/arrowup/textures/arrow_metalness.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/textures/arrow_metalness.png
-
-#begin Models/powerups/arrowup/textures/arrow_roughness.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/powerups/arrowup/textures/arrow_roughness.png
 
 #begin Models/powerups/arrowup/textures/arrow_roughness.png
 /importer:TextureImporter
@@ -500,6 +373,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/signs/StreetSign.fbx
 
+#begin Models/signs/warning_panel.glb
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/signs/warning_panel.glb
+
 #begin Models/skybox/cube.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -519,6 +411,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/skybox/cube.fbx
 
+#begin Models/sonic/classic_sonic_hdfull_rigged.glb
+/importer:OpenAssetImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/sonic/classic_sonic_hdfull_rigged.glb
+
 #begin Models/tgcito-classic/tgcito-classic.obj
 /importer:OpenAssetImporter
 /processor:ModelProcessor
@@ -537,6 +448,25 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Models/tgcito-classic/tgcito-classic.obj
+
+#begin Models/tree/maple_tree.glb
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/tree/maple_tree.glb
 
 #begin Textures/city/ang1.jpg
 /importer:TextureImporter
