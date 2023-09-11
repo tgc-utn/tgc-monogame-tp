@@ -26,7 +26,8 @@ namespace TGC.MonoGame.TP.Pistas
         private float box1InitialXPosition;
 
         //Rush powerup
-        private Matrix RushPowerup { get; set; }
+        private Model RushModel { get; set; }
+        private Matrix[] RushPowerups { get; set; }
 
         // GraphicsDevice
         private GraphicsDevice GraphicsDevice { get; set; }
@@ -42,7 +43,19 @@ namespace TGC.MonoGame.TP.Pistas
 
         private void Initialize(float x, float y, float z)
         {
-            //lista de boxes
+            //powerUps
+
+            Matrix basicRush = Matrix.CreateScale(0.2f, 0.2f, 0.2f) * Matrix.CreateRotationX(1.5707f);
+            RushPowerups = new Matrix[]
+            {
+                basicRush * Matrix.CreateRotationY(-1.5707f) * Matrix.CreateTranslation(x, y + 30f, z + 210f),
+                basicRush * Matrix.CreateRotationY(-1.5707f) * Matrix.CreateTranslation(x, y + 30f, z + 720f),
+                basicRush * Matrix.CreateTranslation(x + 1200f, y + 130f, z + 1350f),
+                basicRush * Matrix.CreateRotationY(-1.5707f) * Matrix.CreateTranslation(x + 1500f, y + 150f, z + 2000f)
+            };
+
+
+            //lista de plataformas
             Platforms = new Matrix[]
             {
                 Matrix.CreateScale(300f, 5f, 500f) * Matrix.CreateTranslation(x, y, z),
@@ -58,17 +71,19 @@ namespace TGC.MonoGame.TP.Pistas
                 Matrix.CreateScale(100f, 5f, 100f) * Matrix.CreateTranslation(x + 1200f, y + 100f, z + 1350f),
                 Matrix.CreateScale(100f, 5f, 300f) * Matrix.CreateTranslation(x + 1450f, y + 100f, z + 1350f),
                 Matrix.CreateScale(500f, 5f, 500f) * Matrix.CreateTranslation(x + 1500f, y + 120f, z + 1800f),
-                Matrix.CreateScale(500f, 5f, 100f) * Matrix.CreateTranslation(x + 1500f, y + 120f, z + 2250f),
-                Matrix.CreateScale(100f, 5f, 100f) * Matrix.CreateTranslation(x + 1900f, y + 140f, z + 2250f),
+                Matrix.CreateScale(500f, 5f, 100f) * Matrix.CreateTranslation(x + 1500f, y + 120f, z + 2150f),
+                Matrix.CreateScale(100f, 5f, 100f) * Matrix.CreateTranslation(x + 1900f, y + 140f, z + 2150f),
 
             };
 
+            //Cajas movibles
             Boxes = new Matrix[]
             {
                Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x - 150f, y + 50f, z + 830f),
                Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x + 150f, y + 50f, z + 870f)
             };
 
+            //logica inicial para calcular el movimiento
             box1InitialXPosition = Boxes[0].Translation.X;
 
             MovingRight = true;
@@ -79,6 +94,10 @@ namespace TGC.MonoGame.TP.Pistas
             // Cargar Texturas
             Texture2D CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
+
+            RushModel = Content.Load<Model>("Models/powerups/arrowpush/tinker");
+            foreach (var mesh in RushModel.Meshes)
+               ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
 
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
@@ -114,7 +133,7 @@ namespace TGC.MonoGame.TP.Pistas
         {
             Array.ForEach(Platforms, Platform => BoxPrimitive.Draw(Platform, view, projection));
             Array.ForEach(Boxes, Box => BoxPrimitive.Draw(Box, view, projection));
-
+            Array.ForEach(RushPowerups, PowerUp => RushModel.Draw(PowerUp, view, projection));
         }
 
     }
