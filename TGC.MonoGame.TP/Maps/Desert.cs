@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Props;
+using TGC.MonoGame.TP.Props.PropType;
 using TGC.MonoGame.TP.References;
 using TGC.MonoGame.TP.Scenarys;
 using TGC.MonoGame.TP.Tanks;
@@ -15,14 +17,24 @@ public class Desert : Map
     protected Tank Player { get; }
     protected List<Tank> Enemies { get; } = new List<Tank>();
     protected List<Tank> Alies { get; } = new List<Tank>();
+    protected List<StaticProp> Props { get; } = new List<StaticProp>();
 
     public Desert(int numberOfTanks, ModelReference AliesTank, ModelReference EnemiesTank)
     {
-        Scenary = new Scenary(Models.Scenary.Desert, Vector3.Zero);
+        Scenary = new Scenary(Models.Scenary.Desert, Vector3.UnitZ * -12f);
         Scenary.GetSpawnPoints(numberOfTanks, false)
             .ForEach(spawnPoint => Alies.Add(new Tank(EnemiesTank, spawnPoint)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
             .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint)));
+        Models.Scenary.Desert.PropsReference
+            .ForEach(prop =>
+            {
+                if (prop.Repetitions > 1)
+                    Scenary.GetCircularPoints(prop.Repetitions, prop.Position, 40f)
+                        .ForEach(position => Props.Add(new StaticProp(prop, position)));
+                else
+                    Props.Add(new StaticProp(prop));
+            });
     }
 
     public override void Load(ContentManager content, Effect effect)
@@ -32,6 +44,13 @@ public class Desert : Map
             enemy.Load(content, effect);
         foreach (var alie in Alies)
             alie.Load(content, effect);
+        foreach (var prop in Props)
+            prop.Load(content, effect);
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        return;
     }
 
     public override void Draw(Matrix view, Matrix projection)
@@ -41,5 +60,7 @@ public class Desert : Map
             enemy.Draw(view, projection);
         foreach (var alie in Alies)
             alie.Draw(view, projection);
+        foreach (var prop in Props)
+            prop.Draw(view, projection);
     }
 }

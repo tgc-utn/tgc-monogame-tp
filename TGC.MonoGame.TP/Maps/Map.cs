@@ -18,4 +18,5 @@ public abstract class Map
 
     public abstract void Load(ContentManager content, Effect effect);
     public abstract void Draw(Matrix view, Matrix projection);
+    public abstract void Update(GameTime gameTime);
 }

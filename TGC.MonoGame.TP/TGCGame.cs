@@ -46,9 +46,9 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
-            Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitZ, 30f, 0.5f);
+            Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
             
-            Map = new Desert(10, Models.Tank.KF51, Models.Tank.T90);
+            Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90);
             
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
@@ -90,6 +90,7 @@ namespace TGC.MonoGame.TP
             }
             
             Camera.Update(gameTime);
+            Map.Update(gameTime);
 
             base.Update(gameTime);
         }

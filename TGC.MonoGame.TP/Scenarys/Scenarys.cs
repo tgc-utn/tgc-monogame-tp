@@ -23,16 +23,19 @@ public class Scenary
     
     public List<Vector3> GetSpawnPoints(int numberOfTanks, bool isAlies)
     {
-        List<Vector3> spawnPoints = new List<Vector3>();
-        float circleRadius = Math.Min(numberOfTanks * 3f, 20f);
-        Vector3 position = isAlies ? Reference.AliesSpawn : Reference.EnemiesSpawn;
-        for (int i = 0; i < numberOfTanks; i++)
+        return GetCircularPoints(numberOfTanks, isAlies ? Reference.AliesSpawn : Reference.EnemiesSpawn);
+    }
+    
+    public List<Vector3> GetCircularPoints(int numberObjs, Vector3 centerPosition, float circleRadius = 20f)
+    {
+        List<Vector3> points = new List<Vector3>();
+        for (int i = 0; i < numberObjs; i++)
         {
-            float angle = MathHelper.TwoPi * i / numberOfTanks;
-            Vector3 spawnPoint = position + circleRadius * new Vector3((float)Math.Cos(angle), 0f, (float)Math.Sin(angle));
-            spawnPoints.Add(spawnPoint);
+            float angle = MathHelper.TwoPi * i / numberObjs;
+            Vector3 point = centerPosition + circleRadius * new Vector3((float)Math.Cos(angle), 0f, (float)Math.Sin(angle));
+            points.Add(point);
         }
-        return spawnPoints;
+        return points;
     }
 
     public void Load(ContentManager content, Effect effect)
