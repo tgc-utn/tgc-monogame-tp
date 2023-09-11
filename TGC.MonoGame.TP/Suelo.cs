@@ -18,10 +18,10 @@ namespace TGC.MonoGame.TP
         {
             var vertices = new[]
             {
-                new VertexPositionColor(new Vector3(-20f, -20f, 0f),Color.Red),
-                new VertexPositionColor(new Vector3(-20f, 20f, 0f),Color.Red),
-                new VertexPositionColor(new Vector3(20f, 20f, 0f),Color.Red),
-                new VertexPositionColor(new Vector3(20f, -20f, 0f),Color.Red)
+                new VertexPositionColor(new Vector3(-50f, -50f, 0f),Color.Red),
+                new VertexPositionColor(new Vector3(-50f, 50f, 0f),Color.Red),
+                new VertexPositionColor(new Vector3(50f, 50f, 0f),Color.Red),
+                new VertexPositionColor(new Vector3(50f, -50f, 0f),Color.Red)
             };
 
             var indices = new ushort[]

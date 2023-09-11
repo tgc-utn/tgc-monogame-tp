@@ -50,7 +50,8 @@ namespace TGC.MonoGame.TP
         private FollowCamera FollowCamera { get; set; }
 
         private Suelo Suelo {get; set;}
-        private Roca Roca {get; set;}
+        private Model roca {get; set;}
+        private Object Roca {get;set;}
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -109,8 +110,9 @@ namespace TGC.MonoGame.TP
             Suelo = new Suelo(GraphicsDevice);
             Suelo.Effect = Effect;
 
-            Roca = new Roca(GraphicsDevice, new Vector3(0f,5f,0f), 10f);
-            Roca.Effect = Effect;
+            roca = Content.Load<Model>(ContentFolder3D + "sphere");
+            Roca = new Object(new Vector3(0f,0f,0f), roca, Effect,null);
+            Roca.LoadContent();
 
             base.LoadContent();
         }
@@ -163,7 +165,7 @@ namespace TGC.MonoGame.TP
 
             Suelo.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
 
-            Roca.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
+            Roca.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
             
         }
 
