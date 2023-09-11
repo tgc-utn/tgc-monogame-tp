@@ -202,7 +202,7 @@ namespace TGC.MonoGame.TP
             /*
             pista3 = new Pista3(Content, GraphicsDevice, 100f, 500f, 450f);
             pista4 = new Pista4(Content, GraphicsDevice, 100f, 700f, 450f);
-            pista5 = new Pista5(Content, GraphicsDevice, 100f, 1000f, 450f);
+            pista5 = new Pista5(Content, GraphicsDevice, 100f, 10f, 450f);
              */
 
 
@@ -327,9 +327,10 @@ namespace TGC.MonoGame.TP
 
             // Update the Sphere World Matrix
             SphereWorld = SphereScale * SphereRotation * Matrix.CreateTranslation(SpherePosition);
-            
+
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
+            pista2.Update(deltaTime);
             Camera.Update(gameTime);
             base.Update(gameTime);
         }
