@@ -21,12 +21,12 @@ public class Desert : Map
 
     public Desert(int numberOfTanks, ModelReference AliesTank, ModelReference EnemiesTank)
     {
-        Scenary = new Scenary(Models.Scenary.Desert, Vector3.UnitZ * -12f);
+        Scenary = new Scenary(Models.Scenary.Plane, new Vector3(-0.1f,-0.1f,-0.1f));
         Scenary.GetSpawnPoints(numberOfTanks, false)
             .ForEach(spawnPoint => Alies.Add(new Tank(EnemiesTank, spawnPoint)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
             .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint)));
-        Models.Scenary.Desert.PropsReference
+        Scenary.Reference.PropsReference
             .ForEach(prop =>
             {
                 if (prop.Repetitions > 1)

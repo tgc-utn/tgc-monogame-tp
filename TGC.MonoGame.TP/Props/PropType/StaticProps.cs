@@ -32,11 +32,11 @@ public class StaticProp
     {
         Model = content.Load<Model>(Reference.Prop.Path);
         Effect = effect;
-        if (Reference.MeshIndex == -1)
+        if (Reference.Prop.MeshIndex == -1)
             foreach (var modelMeshPart in Model.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
                 modelMeshPart.Effect = Effect;
         else
-            foreach (var modelMeshPart in Model.Meshes[Reference.MeshIndex].MeshParts)
+            foreach (var modelMeshPart in Model.Meshes[Reference.Prop.MeshIndex].MeshParts)
                 modelMeshPart.Effect = Effect;
     }
 
@@ -50,7 +50,7 @@ public class StaticProp
         Effect.Parameters["DiffuseColor"].SetValue(Reference.Prop.Color.ToVector3());
 
         // Draw the model.
-        if (Reference.MeshIndex == -1)
+        if (Reference.Prop.MeshIndex == -1)
         {
             foreach (var mesh in Model.Meshes)
             {
@@ -60,8 +60,8 @@ public class StaticProp
         }
         else
         {
-            Effect.Parameters["World"].SetValue(Model.Meshes[Reference.MeshIndex].ParentBone.Transform * World);
-            Model.Meshes[Reference.MeshIndex].Draw();
+            Effect.Parameters["World"].SetValue(Model.Meshes[Reference.Prop.MeshIndex].ParentBone.Transform * World);
+            Model.Meshes[Reference.Prop.MeshIndex].Draw();
         }
         /**/
     }

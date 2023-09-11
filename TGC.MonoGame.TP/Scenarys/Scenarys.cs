@@ -11,7 +11,7 @@ namespace TGC.MonoGame.TP.Scenarys;
 public class Scenary
 {
     private Model Model;
-    private ScenaryReference Reference;
+    public ScenaryReference Reference { get; }
     private Effect Effect;
     private Matrix World;
 

@@ -1379,6 +1379,25 @@
 /processorParam:TextureFormat=Color
 /build:Models/props/walls/textures/WallBlock_03_Roughness.png
 
+#begin Models/scenary/plane.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/scenary/plane.fbx
+
 #begin Models/scenary/scenary.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
