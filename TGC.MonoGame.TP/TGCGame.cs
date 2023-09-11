@@ -52,6 +52,7 @@ namespace TGC.MonoGame.TP
         private Suelo Suelo {get; set;}
         private Model roca {get; set;}
         private Object Roca {get;set;}
+        private Effect EffectRoca {get;set;}
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -111,7 +112,8 @@ namespace TGC.MonoGame.TP
             Suelo.Effect = Effect;
 
             roca = Content.Load<Model>(ContentFolder3D + "sphere");
-            Roca = new Object(new Vector3(0f,0f,0f), roca, Effect,null);
+            EffectRoca = Content.Load<Effect>(ContentFolderEffects + "BasicShaderRock");
+            Roca = new Object(new Vector3(0f,0f,0f), roca, EffectRoca,null);
             Roca.LoadContent();
 
             base.LoadContent();
