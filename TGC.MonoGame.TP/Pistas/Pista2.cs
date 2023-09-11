@@ -29,6 +29,11 @@ namespace TGC.MonoGame.TP.Pistas
         private Model RushModel { get; set; }
         private Matrix[] RushPowerups { get; set; }
 
+        //Signs
+
+        private Model SignModel { get; set; }
+        private Matrix[] Signs { get; set; }
+
         // GraphicsDevice
         private GraphicsDevice GraphicsDevice { get; set; }
 
@@ -87,6 +92,17 @@ namespace TGC.MonoGame.TP.Pistas
             box1InitialXPosition = Boxes[0].Translation.X;
 
             MovingRight = true;
+
+            //Signs 
+
+            Signs = new Matrix[]
+            {
+                Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateRotationY((float)(Math.PI/2)) *
+                Matrix.CreateTranslation(x + 45f, y - 130f, z+210f),
+                Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateTranslation(x + 1080f, y + 45f, z+1380f),
+                Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateRotationY((float)(Math.PI/2)) *
+                Matrix.CreateTranslation(x + 1430, y - 10f, z+2010f)
+            };
         }
 
         private void LoadContent(ContentManager Content)
@@ -95,9 +111,16 @@ namespace TGC.MonoGame.TP.Pistas
             Texture2D CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
 
-            RushModel = Content.Load<Model>("Models/powerups/arrowpush/tinker");
+            //Carga modelo Rush
+            RushModel = Content.Load<Model>(
+                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "arrowpush/tinker") ;
             foreach (var mesh in RushModel.Meshes)
                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
+
+            //Carga modelo sign
+            SignModel = Content.Load<Model>("Models/signs/warningSign/untitled");
+            foreach (var mesh in SignModel.Meshes)
+                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
 
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
@@ -134,6 +157,7 @@ namespace TGC.MonoGame.TP.Pistas
             Array.ForEach(Platforms, Platform => BoxPrimitive.Draw(Platform, view, projection));
             Array.ForEach(Boxes, Box => BoxPrimitive.Draw(Box, view, projection));
             Array.ForEach(RushPowerups, PowerUp => RushModel.Draw(PowerUp, view, projection));
+            Array.ForEach(Signs, Sign => SignModel.Draw(Sign, view, projection));
         }
 
     }
