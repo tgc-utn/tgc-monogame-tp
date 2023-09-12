@@ -240,7 +240,7 @@ public static class Models
             $"{ContentFolder.Models}/tanks/kf51/source/kf51",
             0.1f,
             Matrix.CreateRotationX((float)Math.PI / 2) * Matrix.CreateRotationY((float)Math.PI / 2),
-            Color.DarkGreen
+            Color.Yellow
         );
 
         public static readonly ModelReference T90 = new ModelReference(
