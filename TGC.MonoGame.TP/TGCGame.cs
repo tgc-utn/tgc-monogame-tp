@@ -198,9 +198,9 @@ namespace TGC.MonoGame.TP
             SphereVelocity = Vector3.Zero;
             
             pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f);
-            pista2 = new Pista2(Content, GraphicsDevice, 100f, 300f, 450f);
-            pista3 = new Pista3(Content, GraphicsDevice, 250f, -3f, 10f);
-            pista4 = new Pista4(Content, GraphicsDevice, 100f, 700f, 450f);
+            pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f);
+            pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f);
+            pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f);
             /*
             pista5 = new Pista5(Content, GraphicsDevice, 100f, 1000f, 450f);
              */

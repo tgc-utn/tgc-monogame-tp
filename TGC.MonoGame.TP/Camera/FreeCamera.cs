@@ -62,7 +62,7 @@ namespace TGC.MonoGame.TP.Camera
 
             var currentMovementSpeed = MovementSpeed;
             if (keyboardState.IsKeyDown(Keys.LeftShift))
-                currentMovementSpeed *= 5f;
+                currentMovementSpeed *= 15f;
 
             if (keyboardState.IsKeyDown(Keys.G))
                 if (!godMode) godMode = true;
