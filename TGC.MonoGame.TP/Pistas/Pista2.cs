@@ -34,6 +34,11 @@ namespace TGC.MonoGame.TP.Pistas
         private Model SignModel { get; set; }
         private Matrix[] Signs { get; set; }
 
+        //Sonic
+
+        private Model SonicModel { get; set; }  
+        private Matrix Sonic { get; set; }
+
         // GraphicsDevice
         private GraphicsDevice GraphicsDevice { get; set; }
 
@@ -103,6 +108,11 @@ namespace TGC.MonoGame.TP.Pistas
                 Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateRotationY((float)(Math.PI/2)) *
                 Matrix.CreateTranslation(x + 1430, y - 10f, z+2010f)
             };
+
+            //Sonic
+            Sonic = Matrix.CreateScale(2f, 2f, 2f) *
+                Matrix.CreateRotationY((float)(Math.PI/2)) *
+                Matrix.CreateTranslation(x + 20f, y, z+100f);
         }
 
         private void LoadContent(ContentManager Content)
@@ -120,6 +130,12 @@ namespace TGC.MonoGame.TP.Pistas
             //Carga modelo sign
             SignModel = Content.Load<Model>("Models/signs/warningSign/untitled");
             foreach (var mesh in SignModel.Meshes)
+                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
+
+            //Carga modelo Sonic
+            SonicModel = Content.Load<Model>(
+                ConfigurationManager.AppSettings["ContentFolder3D"] + "/sonic/source/sonic");
+            foreach (var mesh in SonicModel.Meshes)
                 ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
 
             // Cargar Primitiva de caja con textura
@@ -158,6 +174,7 @@ namespace TGC.MonoGame.TP.Pistas
             Array.ForEach(Boxes, Box => BoxPrimitive.Draw(Box, view, projection));
             Array.ForEach(RushPowerups, PowerUp => RushModel.Draw(PowerUp, view, projection));
             Array.ForEach(Signs, Sign => SignModel.Draw(Sign, view, projection));
+            SonicModel.Draw(Sonic, view, projection);
         }
 
     }
