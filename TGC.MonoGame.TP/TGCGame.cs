@@ -327,9 +327,10 @@ namespace TGC.MonoGame.TP
 
             // Update the Sphere World Matrix
             SphereWorld = SphereScale * SphereRotation * Matrix.CreateTranslation(SpherePosition);
-            
+
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
+            pista2.Update(deltaTime);
             Camera.Update(gameTime);
             base.Update(gameTime);
         }
