@@ -69,6 +69,10 @@ namespace TGC.MonoGame.TP
         
         // Textures
         private Texture2D StonesTexture { get; set; }
+
+        // Models
+        private Model StarModel { get; set; }
+        private Matrix StarWorld { get; set; }
         
         
         /// <summary>
@@ -99,6 +103,8 @@ namespace TGC.MonoGame.TP
             // Sphere
             SpherePosition = new Vector3(0f, 10f, 0f);
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
+
+            StarWorld = Matrix.Identity;
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
@@ -241,10 +247,12 @@ namespace TGC.MonoGame.TP
 
             // Cargo el modelo del logo.
             //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            StarModel = Content.Load<Model>(ContentFolder3D + "star/Gold_Star");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            loadEffectOnMesh(StarModel, Effect);
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
@@ -308,6 +316,24 @@ namespace TGC.MonoGame.TP
             
 
             DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
+
+            StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
+            DrawModel(StarWorld, StarModel, Effect);
+            StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(150f, 5f, 0f);
+            DrawModel(StarWorld, StarModel, Effect);
+        }
+
+        private void DrawModel(Matrix world, Model model, Effect effect){
+            effect.Parameters["View"].SetValue(Camera.View);
+            effect.Parameters["Projection"].SetValue(Camera.Projection);
+            effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
+
+            foreach (var mesh in model.Meshes)
+            {
+                Matrix meshMatrix = mesh.ParentBone.Transform;
+                effect.Parameters["World"].SetValue(meshMatrix * world);
+                mesh.Draw();
+            }
         }
 
         /// <summary>
@@ -337,6 +363,17 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+        public static void loadEffectOnMesh(Model modelo,Effect efecto)
+        {
+            foreach (var mesh in modelo.Meshes)
+            {
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = efecto;
+                }
+            }
         }
     }
 }
