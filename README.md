@@ -20,10 +20,12 @@ Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com
 
 ## Integrantes
 
-TGC, Tgcito  |  Apellido, Nombre
+Legajo       |  Apellido, Nombre
 ------------ | -------------
-| <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500"> |
-
+2039187      | Ortiz, Dante Ariel
+1636777      | Mio, Diego
+1636066      | Singereisky, Ariel Gustavo
+1774098      | Watson, Tomás Manuel
 ## Capturas
 
 ![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
