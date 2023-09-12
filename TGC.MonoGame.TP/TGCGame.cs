@@ -63,8 +63,6 @@ namespace TGC.MonoGame.TP
 
 
         // World matrices
-        private Matrix BoxWorld { get; set; }
-        private Matrix[] StairsWorld { get; set; }
         private Matrix FloorWorld { get; set; }
         private Matrix SphereWorld { get; set; }
         
@@ -75,17 +73,13 @@ namespace TGC.MonoGame.TP
 
         // Textures
         private Texture2D StonesTexture { get; set; }
-        private Texture2D WoodenTexture { get; set; }
-        private Texture2D CobbleTexture { get; set; }
 
-        
+
         // Effects
 
         // Tiling Effect for the floor
         private Effect TilingEffect { get; set; }
-
-        // Effect for the stairs and boxes
-        private BasicEffect BoxesEffect { get; set; }
+        
 
         
         
@@ -102,10 +96,7 @@ namespace TGC.MonoGame.TP
         Pista2 pista2 { get; set; }
         Pista3 pista3 {get; set;}
         Pista4 pista4 {get; set;}
-         /*
-         Pista5 pista5 {get; set;} 
-         */
-        private Matrix Platform1World { get; set;} 
+
         
         
         /// <summary>
@@ -159,35 +150,16 @@ namespace TGC.MonoGame.TP
 
             
 
-            // Create World matrices for our stairs
-            StairsWorld = new Matrix[]
-            {
-                Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 3f, 125f),
-                Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 9f, 140f),
-                Matrix.CreateScale(70f, 6f, 15f) * Matrix.CreateTranslation(0f, 15f, 155f),
-                Matrix.CreateScale(70f, 6f, 40f) * Matrix.CreateTranslation(0f, 21f, 182.5f),
-                Matrix.CreateScale(15f, 6f, 40f) * Matrix.CreateTranslation(-42.5f, 27f, 182.5f),
-                Matrix.CreateScale(15f, 6f, 40f) * Matrix.CreateTranslation(-57.5f, 33f, 182.5f),
-                Matrix.CreateScale(15f, 6f, 40f) * Matrix.CreateTranslation(-72.5f, 39f, 182.5f),
-                Matrix.CreateScale(100f, 6f, 100f) * Matrix.CreateTranslation(-130f, 45f, 152.5f),
-            };
-
             // Create World matrices for the Floor and Box
             FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f);
-            BoxWorld = Matrix.CreateScale(50f) * Matrix.CreateTranslation(85f, 15f, -15f);
 
             // Create Bounding Boxes for the static geometries
             // Stairs + Floor + Box
-            Colliders = new BoundingBox[StairsWorld.Length + 2];
+            Colliders = new BoundingBox[1];
 
             // Instantiate Bounding Boxes for the stairs
             int index = 0;
-            for (; index < StairsWorld.Length; index++)
-                Colliders[index] = BoundingVolumesExtensions.FromMatrix(StairsWorld[index]);
-
-            // Instantiate a BoundingBox for the Box
-            Colliders[index] = BoundingVolumesExtensions.FromMatrix(BoxWorld);
-            index++;
+            
             // Instantiate a BoundingBox for the Floor. Note that the height is almost zero
             Colliders[index] = new BoundingBox(new Vector3(-200f, -0.001f, -200f), new Vector3(200f, 0f, 200f));
 
@@ -219,9 +191,6 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Sphere.Meshes)
                 ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
             
-            // Create a BasicEffect to draw the Box
-            BoxesEffect = new BasicEffect(GraphicsDevice);
-            BoxesEffect.TextureEnabled = true;
 
             // Load our Tiling Effect
             TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
@@ -229,14 +198,10 @@ namespace TGC.MonoGame.TP
 
             // Load Textures
             StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
-            WoodenTexture = Content.Load<Texture2D>(ContentFolderTextures + "wood/caja-madera-1");
-            CobbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/adoquin");
 
             // Create our Quad (to draw the Floor)
             Quad = new QuadPrimitive(GraphicsDevice);
             
-            // Create our Box Model
-            BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, WoodenTexture);
 
 
             // Calculate the height of the Model of the Sphere
@@ -537,44 +502,14 @@ namespace TGC.MonoGame.TP
             TilingEffect.Parameters["Texture"].SetValue(StonesTexture);
             Quad.Draw(TilingEffect);
 
-
-            // Steps drawing
-
-            // Set the Technique inside the TilingEffect to "WorldTiling"
-            // We want to use the world position of the steps to define how to sample the Texture
-            TilingEffect.CurrentTechnique = TilingEffect.Techniques["WorldTiling"];
-            // Set the Texture that the Steps will use
-            TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);
-            // Set the Tiling value
-            TilingEffect.Parameters["Tiling"].SetValue(Vector2.One * 0.05f);
-
-            // Draw every Step
-            for (int index = 0; index < StairsWorld.Length; index++)
-            {
-                // Get the World Matrix
-                var matrix = StairsWorld[index];
-                // Set the World Matrix
-                TilingEffect.Parameters["World"].SetValue(matrix);
-                // Set the WorldViewProjection Matrix
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
-            }
-
-
-            // Draw the Box, setting every matrix and its Texture
-            BoxesEffect.World = BoxWorld;
-            BoxesEffect.View = Camera.View;
-            BoxesEffect.Projection = Camera.Projection;
-
-            BoxesEffect.Texture = WoodenTexture;
-            BoxPrimitive.Draw(BoxesEffect);
+            
 
             
             pista1.Draw(Camera.View,Camera.Projection);
             pista2.Draw(Camera.View, Camera.Projection);
             pista3.Draw(Camera.View, Camera.Projection);
             pista4.Draw(Camera.View, Camera.Projection);
-            //pista5.Draw(Camera.View, Camera.Projection);
+            
 
 
 
