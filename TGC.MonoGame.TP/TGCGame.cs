@@ -174,7 +174,7 @@ namespace TGC.MonoGame.TP
 
             // Create World matrices for the Floor and Box
             FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f);
-            BoxWorld = Matrix.CreateScale(30f) * Matrix.CreateTranslation(85f, 15f, -15f);
+            BoxWorld = Matrix.CreateScale(50f) * Matrix.CreateTranslation(85f, 15f, -15f);
 
             // Create Bounding Boxes for the static geometries
             // Stairs + Floor + Box
