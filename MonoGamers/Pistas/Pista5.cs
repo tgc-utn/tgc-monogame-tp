@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TGC.MonoGame.TP.Pistas
+namespace MonoGamers.Pistas
 {
     internal class Pista5
     {

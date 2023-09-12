@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TGC.MonoGame.TP.Gemotries.Textures;
+using MonoGamers.Gemotries.Textures;
 
 //"Perdoname, plataformas de salto!"
 
-namespace TGC.MonoGame.TP.Pistas;
+namespace MonoGamers.Pistas;
 public class Pista3
 { 
     

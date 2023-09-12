@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace TGC.MonoGame.TP.Camera
+namespace MonoGamers.Camera
 {
     /// <summary>
     /// Una camara que sigue objetos

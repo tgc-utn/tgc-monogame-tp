@@ -2,11 +2,11 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using TGC.MonoGame.TP.Gemotries.Textures;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGamers.Gemotries.Textures;
 
 
-namespace TGC.MonoGame.TP.Pistas;
+namespace MonoGamers.Pistas;
 
 public class Pista1
 { 

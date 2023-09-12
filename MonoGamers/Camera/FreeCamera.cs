@@ -2,7 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace TGC.MonoGame.TP.Camera
+namespace MonoGamers.Camera
 {
     internal class FreeCamera : Camera
     {

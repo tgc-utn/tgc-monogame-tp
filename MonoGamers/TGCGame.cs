@@ -5,12 +5,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TGC.MonoGame.TP.Camera;
-using TGC.MonoGame.TP.Collisions;
-using TGC.MonoGame.TP.Gemotries.Textures;
-using TGC.MonoGame.TP.Pistas;
+using MonoGamers.Camera;
+using MonoGamers.Collisions;
+using MonoGamers.Gemotries.Textures;
+using MonoGamers.Pistas;
 
-namespace TGC.MonoGame.TP
+namespace MonoGamers
 {
     /// <summary>
     ///     Esta es la clase principal del juego.
