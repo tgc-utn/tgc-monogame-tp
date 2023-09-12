@@ -25,6 +25,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShaderRock.fx
 
+#begin Effects/Floor.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/Floor.fx
+
 #begin Models/Rock/rock.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -47,7 +53,7 @@
 #begin Models/T90.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyColor=176,68,68,0
 /processorParam:ColorKeyEnabled=True
 /processorParam:DefaultEffect=BasicEffect
 /processorParam:GenerateMipmaps=True
@@ -122,6 +128,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/textures_mod/normal.png
+
+#begin Models/textures_mod/tierra.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/textures_mod/tierra.png
 
 #begin Models/textures_mod/treadmills_mask.png
 /importer:TextureImporter
