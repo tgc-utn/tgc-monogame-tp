@@ -35,7 +35,7 @@ namespace TGC.MonoGame.TP
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
 
-            Effect.Parameters["ModelTexture"].SetValue(Texture);
+            //Effect.Parameters["ModelTexture"].SetValue(Texture);
 
             // Al mesh le asigno el Effect (solo textura por ahora)
             foreach (var mesh in Model.Meshes)
@@ -52,6 +52,7 @@ namespace TGC.MonoGame.TP
             // Tanto la vista como la proyección vienen de la cámara por parámetro
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["ModelTexture"].SetValue(Texture);
 
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);

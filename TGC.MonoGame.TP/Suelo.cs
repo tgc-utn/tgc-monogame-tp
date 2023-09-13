@@ -1,65 +1,126 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-
 
 namespace TGC.MonoGame.TP
-{    
-    public class Suelo
+{
+    /// <summary>
+    ///     The quad is like a plane but its made by two triangle and the surface is oriented in the XY plane of the local
+    ///     coordinate space.
+    /// </summary>
+    public class QuadPrimitive
     {
-        private VertexBuffer vertexBuffer {get;set;}
-        private IndexBuffer indexBuffer {get;set;}
-
-        public Effect Effect {get; set;}
-
-        public Suelo(GraphicsDevice GraphicsDevice)
+        /// <summary>
+        ///     Create a textured quad.
+        /// </summary>
+        /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
+        public QuadPrimitive(GraphicsDevice graphicsDevice, Texture2D textura)
         {
+            CreateVertexBuffer(graphicsDevice);
+            CreateIndexBuffer(graphicsDevice);
+
+            Effect = new BasicEffect(graphicsDevice);
+            Effect.TextureEnabled = true;
+            Effect.EnableDefaultLighting();
+            Effect.Texture = textura;
+        }
+
+        /// <summary>
+        ///     Represents a list of 3D vertices to be streamed to the graphics device.
+        /// </summary>
+        private VertexBuffer Vertices { get; set; }
+
+        /// <summary>
+        ///     Describes the rendering order of the vertices in a vertex buffer, using counter-clockwise winding.
+        /// </summary>
+        private IndexBuffer Indices { get; set; }
+
+
+        /// <summary>
+        ///     Built-in effect that supports optional texturing, vertex coloring, fog, and lighting.
+        /// </summary>
+        public BasicEffect Effect { get; private set; }
+
+        /// <summary>
+        ///     Create a vertex buffer for the figure with the given information.
+        /// </summary>
+        /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
+        private void CreateVertexBuffer(GraphicsDevice graphicsDevice)
+        {
+            // Set the position and texture coordinate for each vertex
+            // Normals point Up as the Quad is originally XZ aligned
+
+            var textureCoordinateLowerLeft = Vector2.Zero;
+            var textureCoordinateLowerRight = Vector2.UnitX;
+            var textureCoordinateUpperLeft = Vector2.UnitY;
+            var textureCoordinateUpperRight = Vector2.One;
+
             var vertices = new[]
             {
-                new VertexPositionColor(new Vector3(-50f, -50f, 0f),Color.Red),
-                new VertexPositionColor(new Vector3(-50f, 50f, 0f),Color.Red),
-                new VertexPositionColor(new Vector3(50f, 50f, 0f),Color.Red),
-                new VertexPositionColor(new Vector3(50f, -50f, 0f),Color.Red)
+                // Possitive X, Possitive Z (1,1) 0
+                new VertexPositionNormalTexture(Vector3.UnitX + Vector3.UnitZ, Vector3.Up, textureCoordinateUpperRight),
+                // Possitive X, Negative Z (1,-1) 1
+                new VertexPositionNormalTexture(Vector3.UnitX - Vector3.UnitZ, Vector3.Up, textureCoordinateLowerRight),
+                // Negative X, Possitive Z (-1,1) 2
+                new VertexPositionNormalTexture(Vector3.UnitZ - Vector3.UnitX, Vector3.Up, textureCoordinateUpperLeft),
+                // Negative X, Negative Z (-1,-1) 3
+                new VertexPositionNormalTexture(-Vector3.UnitX - Vector3.UnitZ, Vector3.Up, textureCoordinateLowerLeft)
             };
 
+            Vertices = new VertexBuffer(graphicsDevice, VertexPositionNormalTexture.VertexDeclaration, vertices.Length,
+                BufferUsage.WriteOnly);
+            Vertices.SetData(vertices);
+        }
+
+        private void CreateIndexBuffer(GraphicsDevice graphicsDevice)
+        {
+            // Set the index buffer for each vertex, using clockwise winding
             var indices = new ushort[]
             {
-                2, 1, 0,
-                0, 2, 3
+                3, 1, 0, 
+                3, 0, 2,
             };
-        
-            vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, vertices.Length, BufferUsage.None);
-            vertexBuffer.SetData(vertices);
 
-            indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, 6, BufferUsage.None);
-            indexBuffer.SetData(indices);
-
+            Indices = new IndexBuffer(graphicsDevice, IndexElementSize.SixteenBits, indices.Length,
+                BufferUsage.WriteOnly);
+            Indices.SetData(indices);
         }
 
-        public void Draw(GameTime gameTime, GraphicsDevice graphicsDevice, Matrix View, Matrix Projection)
+        /// <summary>
+        ///     Draw the Quad.
+        /// </summary>
+        /// <param name="world">The world matrix for this box.</param>
+        /// <param name="view">The view matrix, normally from the camera.</param>
+        /// <param name="projection">The projection matrix, normally from the application.</param>
+        public void Draw(Matrix world, Matrix view, Matrix projection)
         {
+            // Set BasicEffect parameters.
+            Effect.World = world;
+            Effect.View = view;
+            Effect.Projection = projection;
 
-            graphicsDevice.SetVertexBuffer(vertexBuffer);
-            graphicsDevice.Indices = indexBuffer;
+            // Draw the model, using BasicEffect.
+            Draw(Effect);
+        }
 
-//            Effect.Parameters["World"].SetValue(Matrix.Identity);
-//            Effect.Parameters["View"].SetValue(View);
-//            Effect.Parameters["Projection"].SetValue(Projection);
-//            Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+        /// <summary>
+        ///     Draws the primitive model, using the specified effect. Unlike the other Draw overload where you just specify the
+        ///     world/view/projection matrices and color, this method does not set any render states, so you must make sure all
+        ///     states are set to sensible values before you call it.
+        /// </summary>
+        /// <param name="effect">Used to set and query effects, and to choose techniques.</param>
+        public void Draw(Effect effect)
+        {
+            var graphicsDevice = effect.GraphicsDevice;
 
+            // Set our vertex declaration, vertex buffer, and index buffer.
+            graphicsDevice.SetVertexBuffer(Vertices);
+            graphicsDevice.Indices = Indices;
 
-            foreach(var pass in Effect.CurrentTechnique.Passes)
+            foreach (var effectPass in effect.CurrentTechnique.Passes)
             {
-                pass.Apply();
-                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
+                effectPass.Apply();
+                graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, Indices.IndexCount / 3);
             }
-
-            //graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
         }
     }
-        
-
-
 }
