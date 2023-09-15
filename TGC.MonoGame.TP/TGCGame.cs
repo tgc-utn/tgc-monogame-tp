@@ -58,6 +58,7 @@ namespace TGC.MonoGame.TP
         private Model roca {get; set;}
         private Object Roca {get;set;}
         private Effect EffectRoca {get;set;}
+        private Texture2D TexturaRoca {get;set;}
         
 
         /// <summary>
@@ -136,12 +137,11 @@ namespace TGC.MonoGame.TP
 
             //cargo el modelo de la roca
             roca = Content.Load<Model>(ContentFolder3D + "Rock/rock");
-            // este efecto esta hecho asi nomas y solo pone las cosas verdes
+            TexturaRoca = Content.Load<Texture2D>(ContentFolder3D + "Rock/tex/FBX_OBJ");
             EffectRoca = Content.Load<Effect>(ContentFolderEffects + "BasicShaderRock");
-            Roca = new Object(new Vector3(0f,0f,0f), roca, EffectRoca,null);
+            Roca = new Object(new Vector3(-500,0f,-1000), roca, EffectRoca,TexturaRoca);
             Roca.LoadContent();
-
-            Roca.World = Matrix.CreateScale(50f) * Roca.World;
+            Roca.World = Matrix.CreateScale(0.25f) * Roca.World;
 
             InitializeTanks();
             objetos3D.ForEach(o => o.LoadContent());
