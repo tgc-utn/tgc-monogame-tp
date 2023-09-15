@@ -82,83 +82,73 @@ public static class Models
     {
         //EdificioEnorme
         public static readonly ModelReference Building_House_0 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
-            0.01f,
+            $"{ContentFolder.Models}/props/buildings/building1",
+            10f,
             Matrix.Identity,
-            Color.DarkRed,
-            9
+            Color.DarkRed
         );
         
         public static readonly ModelReference Building_House_1 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building2",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            1
+            Color.DarkRed
         );
         
         public static readonly ModelReference Building_House_2 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building3",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            2
+            Color.DarkRed
         );
 
         public static readonly ModelReference Building_House_3 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building4",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            3
+            Color.DarkRed
         );
 
         public static readonly ModelReference Building_House_4 = new ModelReference(
-			$"{ContentFolder.Models}/props/buildings/buildings",
+			$"{ContentFolder.Models}/props/buildings/building5",
 			0.01f,
 			Matrix.Identity,
-			Color.DarkRed,
-			4
+			Color.DarkRed
 		);
 
         public static readonly ModelReference Building_House_5 = new ModelReference(
-			$"{ContentFolder.Models}/props/buildings/buildings",
+			$"{ContentFolder.Models}/props/buildings/building6",
 			0.01f,
 			Matrix.Identity,
-			Color.DarkRed,
-			5
+			Color.DarkRed
 		);
 
         public static readonly ModelReference Building_House_6 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building7",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            6
+            Color.DarkRed
         );
 
         public static readonly ModelReference Building_House_7 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building8",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            14
+            Color.DarkRed
         );
 
         public static readonly ModelReference Building_House_8 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building9",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            21
+            Color.DarkRed
         );
 
         public static readonly ModelReference Building_House_9 = new ModelReference(
-            $"{ContentFolder.Models}/props/buildings/buildings",
+            $"{ContentFolder.Models}/props/buildings/building10",
             0.01f,
             Matrix.Identity,
-            Color.DarkRed,
-            26
+            Color.DarkRed
         );
         
         public static readonly ModelReference Farm = new ModelReference(
@@ -178,59 +168,52 @@ public static class Models
 
         //Roca medio talisman
         public static readonly ModelReference Rock_0 = new ModelReference(
-            $"{ContentFolder.Models}/props/rocks/rocks",
+            $"{ContentFolder.Models}/props/rocks/rock_1",
             0.075f,
             Matrix.Identity,
-            Color.DarkBlue,
-            11
+            Color.DarkBlue
         );
         
         public static readonly ModelReference Rock_1 = new ModelReference(
-            $"{ContentFolder.Models}/props/rocks/rocks",
+            $"{ContentFolder.Models}/props/rocks/rock_2",
             0.012f,
             Matrix.Identity,
-            Color.DarkBlue,
-            3
+            Color.DarkBlue
         );
         
         public static readonly ModelReference Rock_2 = new ModelReference(
-            $"{ContentFolder.Models}/props/rocks/rocks",
+            $"{ContentFolder.Models}/props/rocks/rock_3",
             0.05f,
             Matrix.Identity,
-            Color.DarkBlue,
-            5
+            Color.DarkBlue
         );
         
         public static readonly ModelReference Rock_3 = new ModelReference(
-            $"{ContentFolder.Models}/props/rocks/rocks",
+            $"{ContentFolder.Models}/props/rocks/rock_4",
             0.05f,
             Matrix.Identity,
-            Color.DarkBlue,
-            6
+            Color.DarkBlue
         );
 
         public static readonly ModelReference Wall = new ModelReference(
-            $"{ContentFolder.Models}/props/walls/source/walls",
+            $"{ContentFolder.Models}/props/walls/wall_3",
             0.02f,
             Matrix.Identity,
-            Color.DarkGray,
-            6
+            Color.DarkGray
         );
 
         public static readonly ModelReference Wall_2 = new ModelReference(
-            $"{ContentFolder.Models}/props/walls/source/walls",
+            $"{ContentFolder.Models}/props/walls/wall_2",
             0.05f,
             Matrix.CreateRotationY((float)Math.PI / 2),
-            Color.DarkGray,
-            7
+            Color.DarkGray
         );
 
         public static readonly ModelReference Wall_3 = new ModelReference(
-            $"{ContentFolder.Models}/props/walls/source/walls",
+            $"{ContentFolder.Models}/props/walls/wall_2",
             0.05f,
             Matrix.Identity,
-            Color.DarkGray,
-            7
+            Color.DarkGray
         );
     }
 
