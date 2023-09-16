@@ -1,12 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Linq;
+using BepuPhysics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MonoGamers.Gemotries.Textures;
+using MonoGamers.Geometries.Textures;
+using NumericVector3 = System.Numerics.Vector3;
+using BepuPhysics.Collidables;
+using BepuPhysics.Constraints;
+using BepuUtilities.Memory;
+using MonoGamers.Utilities;
 
 //"Perdoname, plataformas de salto!"
 
@@ -36,32 +38,26 @@ public class Pista3
     
     // ____ World matrices ____
         // Plataformas principales
-            private Matrix Platform1World { get; set;}  
-            private Matrix Platform2World { get; set;}
-            
-        // Floating Platforms
+            private Matrix Platform1World { get; set;}
+
+            // Floating Platforms
             private Matrix[] FloatingPlatformsWorld { get; set; }
             
         // FloatingMovingPlatform (Vertical Movement)
             private Matrix FloatingMovingPlatformWorld { get; set;}
             
-        // AnnoyingWalls
-            private Matrix[] AnnoyingWallsWorld { get; set; }
-            
-        // AnnoyingMovingWalls
-            private Matrix[] AnnoyingMovingWallsWorld { get; set; }
-    
-        // BoxWall
-            private Matrix[] BoxesWorld { get; set; }
-    
+
         // GraphicsDevice
             private GraphicsDevice GraphicsDevice { get; set; }
-
+    
+        // Simulation           
+            private Simulation Simulation { get; set; }
 
 // ======== Constructor de Pista 3 ========            
-    public Pista3(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z )
+    public Pista3(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation )
     {
         GraphicsDevice = graphicsDevice;
+        Simulation = simulation;
         Initialize(x, y, z);
         
         LoadContent(Content);
@@ -75,8 +71,14 @@ public class Pista3
         float lastX = x;
         float lastY = y;
         float lastZ = z;
+        Vector3 scale;
+        Quaternion rot;
+        Vector3 translation;
         
         Platform1World = Matrix.CreateScale(75f, 5f, 75f) * Matrix.CreateTranslation(lastX, lastY, lastZ);
+        Platform1World.Decompose(out scale, out rot, out translation);
+        Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
+            Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
         lastZ += 200f;
         
         // Create World matrices for FloatingPlatformsWorld
@@ -108,8 +110,14 @@ public class Pista3
             Matrix.CreateScale(200f, 5f, 200f) * Matrix.CreateTranslation((lastX += 150f),lastY, lastZ)
         };
 
-        //FloatingMovingPlatformWorld = Matrix.CreateScale(100f, 5f, 100f) *
-                                   //   Matrix.CreateTranslation(lastX, (lastY -= 50f), (lastZ += 200f));
+        for (int index = 0; index < FloatingPlatformsWorld.Length; index++)
+        {
+            var matrix = FloatingPlatformsWorld[index];
+            matrix.Decompose(out scale, out rot, out translation);
+            Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
+                Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+
+        }
     }
     
 // ======== Cargar Contenidos ========

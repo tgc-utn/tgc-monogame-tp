@@ -1,12 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Linq;
+using BepuPhysics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MonoGamers.Gemotries.Textures;
+using MonoGamers.Geometries.Textures;
+using NumericVector3 = System.Numerics.Vector3;
+using BepuPhysics.Collidables;
+using BepuPhysics.Constraints;
+using BepuUtilities.Memory;
+using MonoGamers.Utilities;
 
 namespace MonoGamers.Pistas;
 
@@ -44,23 +46,18 @@ public class Pista4
     // FloatingMovingPlatform (Vertical Movement)
     private Matrix FloatingMovingPlatformWorld { get; set; }
 
-    // AnnoyingWalls
-    private Matrix[] AnnoyingWallsWorld { get; set; }
-
-    // AnnoyingMovingWalls
-    private Matrix[] AnnoyingMovingWallsWorld { get; set; }
-
-    // BoxWall
-    private Matrix[] BoxesWorld { get; set; }
-
     // GraphicsDevice
     private GraphicsDevice GraphicsDevice { get; set; }
+    
+    // Simulation           
+    private Simulation Simulation { get; set; }
 
 
     // ======== Constructor de Pista 4 ========
-    public Pista4(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z)
+    public Pista4(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation)
     {
         GraphicsDevice = graphicsDevice;
+        Simulation = simulation;
         Initialize(x, y, z);
 
         LoadContent(Content);
@@ -73,10 +70,16 @@ public class Pista4
         float lastX = x;
         float lastY = y;
         float lastZ = z;
+        Vector3 scale;
+        Quaternion rot;
+        Vector3 translation;
 
         // Plataforma 1
         Platform1World = Matrix.CreateScale(150f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY, lastZ);
-
+        Platform1World.Decompose(out scale, out rot, out translation);
+        Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
+            Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+        
         FloatingPlatformsWorld = new Matrix[]
         {
             
@@ -110,6 +113,15 @@ public class Pista4
             Matrix.CreateScale(50f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 35f),
             
         };
+        
+        for (int index = 0; index < FloatingPlatformsWorld.Length; index++)
+        {
+            var matrix = FloatingPlatformsWorld[index];
+            matrix.Decompose(out scale, out rot, out translation);
+            Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
+                Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+
+        }
 
     }
 

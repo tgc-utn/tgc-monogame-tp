@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System;
-using MonoGamers.Gemotries.Textures;
+using MonoGamers.Geometries.Textures;
 
 namespace MonoGamers.Pistas
 {

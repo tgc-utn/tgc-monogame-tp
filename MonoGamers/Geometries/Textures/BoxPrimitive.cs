@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoGamers.Gemotries.Textures;
+namespace MonoGamers.Geometries.Textures;
 
 
     /// <summary>
