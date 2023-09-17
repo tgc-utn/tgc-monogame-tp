@@ -8,6 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using MonoGamers.Geometries.Textures;
+using BepuPhysics;
+using NumericVector3 = System.Numerics.Vector3;
+using BepuPhysics.Collidables;
+using BepuPhysics.Constraints;
+using BepuUtilities.Memory;
+using MonoGamers.Utilities;
 
 namespace MonoGamers.Pistas
 {
@@ -41,10 +47,14 @@ namespace MonoGamers.Pistas
 
         // GraphicsDevice
         private GraphicsDevice GraphicsDevice { get; set; }
+        
+        // Simulation           
+        private Simulation Simulation { get; set; }
 
-        public Pista2(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z)
+        public Pista2(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation)
         {
             GraphicsDevice = graphicsDevice;
+            Simulation = simulation;
             Initialize(x, y, z);
 
             LoadContent(Content);
@@ -53,6 +63,9 @@ namespace MonoGamers.Pistas
 
         private void Initialize(float x, float y, float z)
         {
+            Vector3 scale;
+            Quaternion rot;
+            Vector3 translation;
             //powerUps
 
             Matrix basicRush = Matrix.CreateScale(0.2f, 0.2f, 0.2f) * Matrix.CreateRotationX(1.5707f);
@@ -85,6 +98,15 @@ namespace MonoGamers.Pistas
                 Matrix.CreateScale(100f, 5f, 100f) * Matrix.CreateTranslation(x + 1900f, y + 140f, z + 2150f),
 
             };
+            
+            for (int index = 0; index < Platforms.Length; index++)
+            {
+                var matrix = Platforms[index];
+                matrix.Decompose(out scale, out rot, out translation);
+                Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
+                    Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+
+            }
 
             //Cajas movibles
             Boxes = new Matrix[]
@@ -109,6 +131,14 @@ namespace MonoGamers.Pistas
                 Matrix.CreateTranslation(x + 1430, y - 10f, z+2010f)
             };
 
+            for (int index = 0; index < Signs.Length; index++)
+            {
+                var matrix = Signs[index];
+                matrix.Decompose(out scale, out rot, out translation);
+                Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
+                    Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+
+            }
             //Sonic
             Sonic = Matrix.CreateScale(2f, 2f, 2f) *
                 Matrix.CreateRotationY((float)(Math.PI/2)) *

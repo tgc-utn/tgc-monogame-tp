@@ -172,7 +172,7 @@ namespace MonoGamers
             
             // Inicializar pistas
             pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
-            pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f);
+            pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
             pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f, Simulation);
             pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f, Simulation);
             
@@ -213,7 +213,7 @@ namespace MonoGamers
             
             // Create our Sphere and add it to Simulation
                 sphereShape = new Sphere(10f);
-                var position = new NumericVector3(2500f, 150f, 6764f);
+                var position = new NumericVector3(0, 30f, 150f);
                 var initialVelocity = new BodyVelocity(new NumericVector3((float)0f, 0f, 0f));
                 var mass = sphereShape.Radius * sphereShape.Radius * sphereShape.Radius;
                 var bodyDescription = BodyDescription.CreateConvexDynamic(position, initialVelocity, mass, Simulation.Shapes, sphereShape);
@@ -281,7 +281,7 @@ namespace MonoGamers
             }
             
             if (keyboardState.IsKeyDown(Keys.R)) {
-                sphereBody.Pose = new NumericVector3(2500f, 150f, 6764f);
+                sphereBody.Pose = new NumericVector3(0f, 30f, 150f);
             }
 
 
