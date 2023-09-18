@@ -39,7 +39,7 @@ namespace MonoGamers
 
 
         // Camera to draw the scene
-        private Camera.Camera Camera { get; set; }
+        private TargetCamera Camera { get; set; }
         
         private GraphicsDeviceManager Graphics { get; }
 
@@ -110,7 +110,7 @@ namespace MonoGamers
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
-            IsMouseVisible = true;
+            IsMouseVisible = false;
         }
 
 
@@ -128,15 +128,15 @@ namespace MonoGamers
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
-            
-                
-                
-            
+
+
+
+
             // Creo una camara para seguir a la esfera.
             //FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 20f);
-            Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
-            
+            Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
+            //Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
+
             // Set the ground flag to false, as the Sphere starts in the air
             OnGround = false;
 
@@ -296,7 +296,7 @@ namespace MonoGamers
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
             pista2.Update(deltaTime);
-            Camera.Update(gameTime);
+            Camera.UpdateCamera(gameTime, SpherePosition);
             base.Update(gameTime);
         }
 

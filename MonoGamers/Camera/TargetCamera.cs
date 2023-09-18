@@ -1,4 +1,7 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using System;
+using System.Configuration;
 
 namespace MonoGamers.Camera;
 
@@ -11,17 +14,26 @@ namespace MonoGamers.Camera;
         ///     The direction that is "up" from the camera's point of view.
         /// </summary>
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
+        private const float CameraFollowRadius = 100f;
+        private const float CameraUpDistance = 80f;
+        private const float CameraRotatingVelocity = 0.001f;
 
-        /// <summary>
-        ///     Camera looking at a particular direction, which has the up vector (0,1,0).
-        /// </summary>
-        /// <param name="aspectRatio">Aspect ratio, defined as view space width divided by height.</param>
-        /// <param name="position">The position of the camera.</param>
-        /// <param name="targetPosition">The target towards which the camera is pointing.</param>
-        public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition) : base(aspectRatio)
+        private Matrix CameraRotation { get; set; }
+        private Vector2 PastMousePosition { get; set; }
+
+        private bool Rotated { get; set; }
+    /// <summary>
+    ///     Camera looking at a particular direction, which has the up vector (0,1,0).
+    /// </summary>
+    /// <param name="aspectRatio">Aspect ratio, defined as view space width divided by height.</param>
+    /// <param name="position">The position of the camera.</param>
+    /// <param name="targetPosition">The target towards which the camera is pointing.</param>
+    public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition) : base(aspectRatio)
         {
             BuildView(position, targetPosition);
-        }
+            PastMousePosition = Mouse.GetState().Position.ToVector2();
+            CameraRotation = Matrix.Identity;
+    }
 
         /// <summary>
         ///     Camera looking at a particular direction, which has the up vector (0,1,0).
@@ -65,9 +77,52 @@ namespace MonoGamers.Camera;
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
 
-        /// <inheritdoc />
-        public override void Update(GameTime gameTime)
-        {
-            // This camera has no movement, once initialized with position and lookAt it is no longer updated automatically.
-        }
+    public override void Update(GameTime gameTime)
+    {
+        throw new System.NotImplementedException();
     }
+    /// <inheritdoc />
+    public  void UpdateCamera(GameTime gameTime, Vector3 SpherePosition)
+        {
+        // Create a position that orbits the Sphere by its direction (Rotation)
+
+        ProcessMouseMovement((float) gameTime.ElapsedGameTime.TotalSeconds);
+        // Create a normalized vector that points to the back of the Sphere
+         var sphereBack = Vector3.Transform(Vector3.Forward, CameraRotation);
+         // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
+         var orbitalPosition = sphereBack * CameraFollowRadius;
+
+
+         // We will move the Camera in the Y axis by a given distance, relative to the Robot
+         var upDistance = Vector3.Up * CameraUpDistance;
+
+         // Calculate the new Camera Position by using the Robot Position, then adding the vector orbitalPosition that sends 
+         // the camera further in the back of the Robot, and then we move it up by a given distance
+         Position = SpherePosition + orbitalPosition + upDistance;
+
+         // Set our Target as the Robot, the Camera needs to be always pointing to it
+        
+        TargetPosition = SpherePosition;
+
+        // Build our View matrix from the Position and TargetPosition
+        BuildView();
+    }
+    private void ProcessMouseMovement(float elapsedTime)
+    {
+        var mouseState = Mouse.GetState();
+        float deltaX = mouseState.X - PastMousePosition.X;
+
+        if (deltaX > 0)
+        {
+            CameraRotation *= Matrix.CreateRotationY(-CameraRotatingVelocity) * elapsedTime;
+            Rotated = true;
+        }
+        else if (deltaX < 0)
+        {
+            CameraRotation *= Matrix.CreateRotationY(CameraRotatingVelocity) * elapsedTime;
+            Rotated = true;
+        }
+
+        PastMousePosition = mouseState.Position.ToVector2();
+    }
+}

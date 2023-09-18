@@ -8,7 +8,7 @@ namespace MonoGamers.Camera
     /// </summary>
     class FollowCamera
     {
-        private const float AxisDistanceToTarget = 1000f;
+        private const float AxisDistanceToTarget = 100f;
 
         private const float AngleFollowSpeed = 0.015f;
 
@@ -47,7 +47,7 @@ namespace MonoGamers.Camera
         {
             // Obtengo el tiempo
             var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            
+
             // Obtengo la posicion de la matriz de mundo que estoy siguiendo
             var followedPosition = followedWorld.Translation;
 
@@ -77,10 +77,10 @@ namespace MonoGamers.Camera
 
             // Guardo el vector Derecha para usar en la siguiente iteracion
             PastRightVector = followedRight;
-            
+
             // Calculo la posicion del a camara
             // tomo la posicion que estoy siguiendo, agrego un offset en los ejes Y y Derecha
-            var offsetedPosition = followedPosition 
+            var offsetedPosition = followedPosition
                 + CurrentRightVector * AxisDistanceToTarget
                 + Vector3.Up * AxisDistanceToTarget;
 
