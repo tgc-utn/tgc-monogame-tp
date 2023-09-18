@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Configuration;
@@ -16,9 +17,12 @@ namespace MonoGamers.Camera;
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
         private const float CameraFollowRadius = 100f;
         private const float CameraUpDistance = 80f;
-        private const float CameraRotatingVelocity = 0.001f;
+        private const float CameraRotatingVelocity = 0.1f;
+
+    private Viewport Viewport;
 
         private Matrix CameraRotation { get; set; }
+        private float Rotation { get; set; }
         private Vector2 PastMousePosition { get; set; }
 
         private bool Rotated { get; set; }
@@ -28,11 +32,12 @@ namespace MonoGamers.Camera;
     /// <param name="aspectRatio">Aspect ratio, defined as view space width divided by height.</param>
     /// <param name="position">The position of the camera.</param>
     /// <param name="targetPosition">The target towards which the camera is pointing.</param>
-    public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition) : base(aspectRatio)
+    public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition, Viewport viewport) : base(aspectRatio)
         {
             BuildView(position, targetPosition);
             PastMousePosition = Mouse.GetState().Position.ToVector2();
             CameraRotation = Matrix.Identity;
+        Viewport = viewport;
     }
 
         /// <summary>
@@ -88,6 +93,7 @@ namespace MonoGamers.Camera;
 
         ProcessMouseMovement((float) gameTime.ElapsedGameTime.TotalSeconds);
         // Create a normalized vector that points to the back of the Sphere
+        if (Rotated) CameraRotation *= Matrix.CreateRotationY(Rotation);
          var sphereBack = Vector3.Transform(Vector3.Forward, CameraRotation);
          // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
          var orbitalPosition = sphereBack * CameraFollowRadius;
@@ -110,17 +116,30 @@ namespace MonoGamers.Camera;
     private void ProcessMouseMovement(float elapsedTime)
     {
         var mouseState = Mouse.GetState();
-        float deltaX = mouseState.X - PastMousePosition.X;
+        float deltaX = mouseState.X - PastMousePosition.X; 
 
         if (deltaX > 0)
         {
-            CameraRotation *= Matrix.CreateRotationY(-CameraRotatingVelocity) * elapsedTime;
+            Rotation += -CameraRotatingVelocity * elapsedTime;
             Rotated = true;
         }
         else if (deltaX < 0)
         {
-            CameraRotation *= Matrix.CreateRotationY(CameraRotatingVelocity) * elapsedTime;
+            Rotation += CameraRotatingVelocity * elapsedTime;
             Rotated = true;
+        }
+        else
+        {
+            if (Rotation > 0) Rotation -= CameraRotatingVelocity * elapsedTime;
+            else if (Rotation < 0) Rotation += CameraRotatingVelocity * elapsedTime;
+            if (Math.Abs(Rotation) < 0.001f) Rotation = 0;
+        }
+
+        if (mouseState.X < 0 || mouseState.X > Viewport.Width ||
+            mouseState.Y < 0 || mouseState.Y > Viewport.Height)
+        {
+            // Si está fuera de los límites, reajusta la posición del mouse al centro de la ventana
+            Mouse.SetPosition(Viewport.Width / 2, Viewport.Height / 2);
         }
 
         PastMousePosition = mouseState.Position.ToVector2();

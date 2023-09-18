@@ -92,10 +92,10 @@ namespace MonoGamers
         
         
         // Pistas
-        Pista1 pista1 { get; set; }
-        Pista2 pista2 { get; set; }
-        Pista3 pista3 {get; set;}
-        Pista4 pista4 {get; set;}
+        Pista1 Pista1 { get; set; }
+        Pista2 Pista2 { get; set; }
+        Pista3 Pista3 {get; set;}
+        Pista4 Pista4 {get; set;}
 
         
         
@@ -134,7 +134,7 @@ namespace MonoGamers
 
             // Creo una camara para seguir a la esfera.
             //FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-            Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
+            Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero, GraphicsDevice.Viewport);
             //Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
 
             // Set the ground flag to false, as the Sphere starts in the air
@@ -169,10 +169,10 @@ namespace MonoGamers
             // Initialize the Velocity as zero
             SphereVelocity = Vector3.Zero;
             
-            pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f);
-            pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f);
-            pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f);
-            pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f);
+            Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f);
+            Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f);
+            Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f);
+            Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f);
             /*
             pista5 = new Pista5(Content, GraphicsDevice, 100f, 1000f, 450f);
              */
@@ -295,7 +295,7 @@ namespace MonoGamers
 
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
-            pista2.Update(deltaTime);
+            Pista2.Update(deltaTime);
             Camera.UpdateCamera(gameTime, SpherePosition);
             base.Update(gameTime);
         }
@@ -505,10 +505,10 @@ namespace MonoGamers
             
 
             
-            pista1.Draw(Camera.View,Camera.Projection);
-            pista2.Draw(Camera.View, Camera.Projection);
-            pista3.Draw(Camera.View, Camera.Projection);
-            pista4.Draw(Camera.View, Camera.Projection);
+            Pista1.Draw(Camera.View,Camera.Projection);
+            Pista2.Draw(Camera.View, Camera.Projection);
+            Pista3.Draw(Camera.View, Camera.Projection);
+            Pista4.Draw(Camera.View, Camera.Projection);
             
 
 
