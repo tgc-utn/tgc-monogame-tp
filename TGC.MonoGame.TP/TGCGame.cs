@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
@@ -20,6 +21,7 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private Map Map { get; set; }
         private Camera Camera { get; set; }
+        public Gizmos.Gizmos Gizmos { get; }
         
         /// <summary>
         ///     Constructor del juego.
@@ -36,6 +38,8 @@ namespace TGC.MonoGame.TP
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
+            
+            Gizmos = new Gizmos.Gizmos();
         }
 
         /// <summary>
@@ -69,6 +73,8 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(Effects.BasicShader.Path);
             
             Map.Load(Content, Effect);
+            
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
 
             base.LoadContent();
         }
@@ -90,8 +96,8 @@ namespace TGC.MonoGame.TP
             }
             
             Camera.Update(gameTime);
+            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
             Map.Update(gameTime);
-
             base.Update(gameTime);
         }
 
@@ -104,6 +110,7 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.White);
             Map.Draw(Camera.View, Camera.Projection);
+            Gizmos.Draw();
         }
 
         /// <summary>
@@ -113,7 +120,7 @@ namespace TGC.MonoGame.TP
         {
             // Libero los recursos.
             Content.Unload();
-
+            Gizmos.Dispose();
             base.UnloadContent();
         }
     }
