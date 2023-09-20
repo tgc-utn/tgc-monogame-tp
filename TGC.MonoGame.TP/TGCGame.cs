@@ -58,6 +58,7 @@ namespace TGC.MonoGame.TP
         private Model roca {get; set;}
         private Object Roca {get;set;}
         private Effect EffectRoca {get;set;}
+        private Texture2D TexturaRoca {get;set;}
 
         private Tanque MainTanque {get;set;}
         
@@ -116,8 +117,36 @@ namespace TGC.MonoGame.TP
             
             Quad = new QuadPrimitive(GraphicsDevice, Content.Load<Texture2D>(ContentFolder3D + "textures_mod/tierra"));
             
-            //InitializeTanks();
-            //objetos3D.ForEach(o => o.LoadContent());
+            /*foreach (var mesh in Model.Meshes)
+            {
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = Effect;
+                }
+            }*/
+            
+
+            //Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
+            
+            
+            //Prueba.LoadContent();
+
+            //cargo el suelo
+            //trendriamos que cambiar el efecto
+            //Suelo = new Suelo(GraphicsDevice);
+            //Suelo.Effect = Effect;
+
+            //cargo el modelo de la roca
+            roca = Content.Load<Model>(ContentFolder3D + "Rock/rock");
+            // este efecto esta hecho asi nomas y solo pone las cosas verdes
+            EffectRoca = Content.Load<Effect>(ContentFolderEffects + "BasicShaderRock");
+            Roca = new Object(new Vector3(0f,0f,0f), roca, EffectRoca,null);
+            Roca.LoadContent();
+
+            Roca.World = Matrix.CreateScale(50f) * Roca.World;
+
+            InitializeTanks();
+            objetos3D.ForEach(o => o.LoadContent());
 
             base.LoadContent();
         }
