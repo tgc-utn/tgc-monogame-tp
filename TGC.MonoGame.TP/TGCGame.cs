@@ -58,6 +58,8 @@ namespace TGC.MonoGame.TP
         private Model roca {get; set;}
         private Object Roca {get;set;}
         private Effect EffectRoca {get;set;}
+
+        private Tanque MainTanque {get;set;}
         
 
         /// <summary>
@@ -100,58 +102,29 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // Cargo el modelo del tanque.
+            // Cargo el modelo, efecto y textura del tanque que controla el jugador.
             T90 = Content.Load<Model>(ContentFolder3D + "T90");
-            T90A = Content.Load<Model>(ContentFolder3D + "T90");
-            T90B = Content.Load<Model>(ContentFolder3D + "T90");
-            T90C = Content.Load<Model>(ContentFolder3D + "T90");
-
-            // Cargo el efecto basico propio declarado en el Content pipeline.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            // Cargo la textura correspondiente                        
             Textura = Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA");
-
+            MainTanque = new Tanque(
+                    new Vector3(5000f, 150, 1000f), 
+                    T90, 
+                    Content.Load<Effect>(ContentFolderEffects + "BasicShader"), 
+                    Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")
+                    );
+            MainTanque.LoadContent();
             
             Quad = new QuadPrimitive(GraphicsDevice, Content.Load<Texture2D>(ContentFolder3D + "textures_mod/tierra"));
             
-            /*foreach (var mesh in Model.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }*/
-            
-
-            //Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
-            
-            
-            //Prueba.LoadContent();
-
-            //cargo el suelo
-            //trendriamos que cambiar el efecto
-            //Suelo = new Suelo(GraphicsDevice);
-            //Suelo.Effect = Effect;
-
-            //cargo el modelo de la roca
-            roca = Content.Load<Model>(ContentFolder3D + "Rock/rock");
-            // este efecto esta hecho asi nomas y solo pone las cosas verdes
-            EffectRoca = Content.Load<Effect>(ContentFolderEffects + "BasicShaderRock");
-            Roca = new Object(new Vector3(0f,0f,0f), roca, EffectRoca,null);
-            Roca.LoadContent();
-
-            Roca.World = Matrix.CreateScale(50f) * Roca.World;
-
-            InitializeTanks();
-            objetos3D.ForEach(o => o.LoadContent());
+            //InitializeTanks();
+            //objetos3D.ForEach(o => o.LoadContent());
 
             base.LoadContent();
         }
 
         private void InitializeTanks()
         {
-            for (int i = 0; i < 10; i++)
+            /*for (int i = 0; i < 10; i++)
             {
                 objetos3D.Add(new Object(
                     new Vector3(1000f*i, 150, 0), 
@@ -164,11 +137,11 @@ namespace TGC.MonoGame.TP
                     T90, 
                     Content.Load<Effect>(ContentFolderEffects + "BasicShader"), 
                     Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
-            }
-            /*objetos3D.Add(new Object(new Vector3(1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
-            objetos3D.Add(new Object(new Vector3(-1000f, 150, 0), T90A, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
-            objetos3D.Add(new Object(new Vector3(1000f, 150, 1000f), T90B, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
-            objetos3D.Add(new Object(new Vector3(-1000f, 150, 1000f), T90C, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/mask")));*/
+            }*/
+            objetos3D.Add(new Object(new Vector3(1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
+            objetos3D.Add(new Object(new Vector3(-1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
+            objetos3D.Add(new Object(new Vector3(1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
+            objetos3D.Add(new Object(new Vector3(-1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/mask")));
         }
 
         /// <summary>
@@ -187,10 +160,11 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-            //objetos3D[1].Position += Vector3.UnitY * 5;
-            //objetos3D[1].World = Matrix.CreateTranslation(objetos3D[1].Position);
+            //MainTanque.Position += Vector3.UnitY * 5;
+            //MainTanque.World = Matrix.CreateTranslation(MainTanque.Position);
 
             // Lógica del juego acá (por ahora solo renderiza un mundo)
+            MainTanque.Update(gameTime, Keyboard.GetState());
             
 
             base.Update(gameTime);
@@ -200,30 +174,23 @@ namespace TGC.MonoGame.TP
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
-        int posicion = 0;
-        float segundos = 0;
         protected override void Draw(GameTime gameTime)
         {
-            segundos += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.BlueViolet);
 
             //Prueba.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
-            objetos3D.ForEach(a => a.Draw(gameTime, FollowCamera.View, FollowCamera.Projection));
+            //objetos3D.ForEach(a => a.Draw(gameTime, FollowCamera.View, FollowCamera.Projection));
             //FollowCamera.Update(gameTime, objetos3D[3].World);
 
             //Suelo.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
             Quad.Draw(FloorWorld, FollowCamera.View, FollowCamera.Projection);
 
-            Roca.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
+            //Roca.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
+
+            MainTanque.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
             
-            if(segundos > 1.5){
-                posicion++;
-                segundos = 0;
-                if(posicion > 19)
-                    posicion = 0;
-            }
-            FollowCamera.Update(gameTime, objetos3D[posicion].World);
+            FollowCamera.Update(gameTime, MainTanque.World);
             
         }
 

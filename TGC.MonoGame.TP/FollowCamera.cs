@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP
     /// </summary>
     class FollowCamera
     {
-        private const float AxisDistanceToTarget = 1000f;
+        private const float AxisDistanceToTarget = 2000f;
 
         private const float AngleFollowSpeed = 0.015f;
 
@@ -20,11 +20,11 @@ namespace TGC.MonoGame.TP
 
         public Matrix View { get; private set; }
 
-        private Vector3 CurrentRightVector { get; set; } = Vector3.Right;
+        private Vector3 CurrentRightVector { get; set; } = Vector3.Backward;
 
         private float RightVectorInterpolator { get; set; } = 0f;
 
-        private Vector3 PastRightVector { get; set; } = Vector3.Right;
+        private Vector3 PastRightVector { get; set; } = Vector3.Backward;
 
         /// <summary>
         /// Crea una FollowCamera que sigue a una matriz de mundo
@@ -83,8 +83,8 @@ namespace TGC.MonoGame.TP
             // Calculo la posicion del a camara
             // tomo la posicion que estoy siguiendo, agrego un offset en los ejes Y y Derecha
             var offsetedPosition = followedPosition 
-                + CurrentRightVector * AxisDistanceToTarget
-                + Vector3.Up * AxisDistanceToTarget;
+                + CurrentRightVector
+                + Vector3.Up * 5000;
 
             // Calculo el vector Arriba actualizado
             // Nota: No se puede usar el vector Arriba por defecto (0, 1, 0)
