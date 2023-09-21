@@ -1,5 +1,6 @@
 ﻿﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,6 +20,15 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        private const int DistanciaParaArboles = 125;
+        private const int DistanciaParaArbustos = 15;
+        private const int DistanciaParaFlores = 15;
+        private const int DistanciaParaHongos = 15;
+        private const int CantidadDeArboles = 120;
+        private const int CantidadDeArbustos = 50;
+        private const int CantidadDeFlores = 45;
+        private const int CantidadDeHongos = 30;
+        private const int CantidadDeRocas = 30;
 
         /// <summary>
         ///     Constructor del juego.
@@ -45,7 +55,7 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
 
-        private List<Object> objetos3D { get; set; }  
+        private List<Object> Tanques { get; set; }  
 
         private Object Prueba { get; set; }
         private Texture2D Textura { get; set; }
@@ -59,6 +69,8 @@ namespace TGC.MonoGame.TP
         private Object Roca {get;set;}
         private Effect EffectRoca {get;set;}
         private Texture2D TexturaRoca {get;set;}
+
+        private List<Object> Ambiente {get;set;}
 
         private Tanque MainTanque {get;set;}
         
@@ -83,12 +95,14 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
 
-            objetos3D = new List<Object>();
+            Tanques = new List<Object>();
 
             // Configuramos nuestras matrices de la escena, en este caso se realiza en el objeto FollowCamara
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             FloorWorld = Matrix.CreateScale(10000f, 1f, 10000f);
+
+            Ambiente = new List<Object>();
 
             base.Initialize();
         }
@@ -108,7 +122,7 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             Textura = Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA");
             MainTanque = new Tanque(
-                    new Vector3(5000f, 150, 1000f), 
+                    new Vector3(0f, 150, 0f), 
                     T90, 
                     Content.Load<Effect>(ContentFolderEffects + "BasicShader"), 
                     Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")
@@ -117,25 +131,6 @@ namespace TGC.MonoGame.TP
             
             Quad = new QuadPrimitive(GraphicsDevice, Content.Load<Texture2D>(ContentFolder3D + "textures_mod/tierra"));
             
-            /*foreach (var mesh in Model.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }*/
-            
-
-            //Prueba = new Object(Vector3.Left * 10, T90, Effect, Textura);
-            
-            
-            //Prueba.LoadContent();
-
-            //cargo el suelo
-            //trendriamos que cambiar el efecto
-            //Suelo = new Suelo(GraphicsDevice);
-            //Suelo.Effect = Effect;
-
             //cargo el modelo de la roca
             roca = Content.Load<Model>(ContentFolder3D + "Rock/rock");
             // este efecto esta hecho asi nomas y solo pone las cosas verdes
@@ -144,11 +139,140 @@ namespace TGC.MonoGame.TP
             Roca.LoadContent();
 
             Roca.World = Matrix.CreateScale(50f) * Roca.World;
-
+            
+            InitializeAmbient();
             InitializeTanks();
-            objetos3D.ForEach(o => o.LoadContent());
+            Tanques.ForEach(o => o.LoadContent());
+            Ambiente.ForEach(o => o.LoadContent());
 
             base.LoadContent();
+        }
+        private void InitializeAmbient()
+        {
+            List<String> posiblesArboles = new(){
+                "BigTree","BigTree2", "Tree", "SmallTree"
+            };
+
+            // textura de árboles se usa tanto para árboles como arbustos
+            List<String> posiblesTexturasArboles = new(){
+                "Tree", "Tree2", "Tree3", "Tree4", "Tree5", "Tree6", "Tree7"
+            };
+            
+            List<String> posiblesFlores = new(){
+                "Flower","Flower2", "Flower3"
+            };
+
+            List<String> posiblesTexturasFlores = new(){
+                "Flower","Flower2", "Flower3", "Flower4"
+            };
+
+            List<String> posiblesArbustos = new(){
+                "Bush","BigBush", "BiggerBush"
+            };
+
+            List<String> posiblesRocas = new(){
+                "roca1", "roca2", "roca3", "roca4", "roca5", "roca6", "roca7", "roca8"
+            };
+
+            List<String> posiblesTexturasRocas = new(){
+                "TexturaRoca1", "TexturaRoca2"
+            };
+            
+            Vector3 posicionAmbiente;
+            
+            // Árboles
+            for (int i = 0; i < CantidadDeArboles; i++)
+            {
+                posicionAmbiente = SelectNewPosition(DistanciaParaArboles);
+
+                Ambiente.Add(
+                    new Object(
+                        posicionAmbiente,
+                        Content.Load<Model>(ContentFolder3D + "Ambiente/" + posiblesArboles[new Random().Next(0, 3)]),
+                        Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)])
+                        )
+                    );
+            }
+
+            // Arbustos
+            for (int i = 0; i < CantidadDeArbustos; i++)
+            {
+                posicionAmbiente = SelectNewPosition(DistanciaParaArbustos);
+
+                Ambiente.Add(
+                    new Object(
+                        posicionAmbiente,
+                        Content.Load<Model>(ContentFolder3D + "Ambiente/" + posiblesArbustos[new Random().Next(0, 3)]),
+                        Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)])
+                        )
+                    );
+            }
+
+            // Flores
+            for (int i = 0; i < CantidadDeFlores; i++)
+            {
+                posicionAmbiente = SelectNewPosition(DistanciaParaFlores);
+
+                Ambiente.Add(
+                    new Object(
+                        posicionAmbiente,
+                        Content.Load<Model>(ContentFolder3D + "Ambiente/" + posiblesFlores[new Random().Next(0, 2)]),
+                        Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasFlores[new Random().Next(0, 3)])
+                        )
+                    );
+            }
+
+            // Hongos
+            for (int i = 0; i < CantidadDeHongos; i++)
+            {
+                posicionAmbiente = SelectNewPosition(DistanciaParaHongos);
+
+                Ambiente.Add(
+                    new Object(
+                        posicionAmbiente,
+                        Content.Load<Model>(ContentFolder3D + "Ambiente/Mushroom"),
+                        Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
+                        Content.Load<Texture2D>(ContentFolderTextures + "Mushroom"))
+                    );
+            }
+
+            // Rocas
+            for (int i = 0; i < CantidadDeRocas; i++)
+            {
+                posicionAmbiente = SelectNewPosition(100);
+                posicionAmbiente += Vector3.Up * 30;
+
+                Ambiente.Add(
+                    new Object(
+                        posicionAmbiente,
+                        Content.Load<Model>(ContentFolder3D + "Rocas/" + posiblesRocas[new Random().Next(0, 7)]),
+                        Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasRocas[new Random().Next(0, 1)]))
+                    );
+                Ambiente.Last().World = Matrix.CreateScale(300f) * Ambiente.Last().World;
+            }
+        }
+
+        private Vector3 SelectNewPosition(int distanciaMinima)
+        {
+            Vector3 posicionAmbiente = new Vector3();
+            int X;
+            int Z;
+            do
+            { //que genere posiciones hasta que esté a más de lo establecido por parámetro
+                X = new Random().Next(-9500, 9500);
+                Z = new Random().Next(-9500, 9500);
+                posicionAmbiente = new Vector3(X, 0f, Z);
+            }
+            while (
+                Ambiente.Exists(
+                    arbol => Vector3.Distance(arbol.Position, posicionAmbiente) < distanciaMinima
+                    )
+                );
+            return posicionAmbiente;
         }
 
         private void InitializeTanks()
@@ -167,10 +291,10 @@ namespace TGC.MonoGame.TP
                     Content.Load<Effect>(ContentFolderEffects + "BasicShader"), 
                     Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
             }*/
-            objetos3D.Add(new Object(new Vector3(1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
-            objetos3D.Add(new Object(new Vector3(-1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
-            objetos3D.Add(new Object(new Vector3(1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
-            objetos3D.Add(new Object(new Vector3(-1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/mask")));
+            Tanques.Add(new Object(new Vector3(1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
+            Tanques.Add(new Object(new Vector3(-1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
+            Tanques.Add(new Object(new Vector3(1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
+            Tanques.Add(new Object(new Vector3(-1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/mask")));
         }
 
         /// <summary>
@@ -192,7 +316,7 @@ namespace TGC.MonoGame.TP
             //MainTanque.Position += Vector3.UnitY * 5;
             //MainTanque.World = Matrix.CreateTranslation(MainTanque.Position);
 
-            // Lógica del juego acá (por ahora solo renderiza un mundo)
+            // Lógica del juego acá (por ahora solo renderiza un mundo y controlamos al jugador con wasd)
             MainTanque.Update(gameTime, Keyboard.GetState());
             
 
@@ -209,11 +333,13 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.BlueViolet);
 
             //Prueba.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
-            //objetos3D.ForEach(a => a.Draw(gameTime, FollowCamera.View, FollowCamera.Projection));
+            Tanques.ForEach(a => a.Draw(gameTime, FollowCamera.View, FollowCamera.Projection));
+            Ambiente.ForEach(a => a.Draw(gameTime, FollowCamera.View, FollowCamera.Projection));
             //FollowCamera.Update(gameTime, objetos3D[3].World);
 
             //Suelo.Draw(gameTime,GraphicsDevice, FollowCamera.View, FollowCamera.Projection);
             Quad.Draw(FloorWorld, FollowCamera.View, FollowCamera.Projection);
+           
 
             //Roca.Draw(gameTime, FollowCamera.View, FollowCamera.Projection);
 
