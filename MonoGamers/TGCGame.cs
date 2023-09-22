@@ -130,7 +130,7 @@ namespace MonoGamers
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
-            IsMouseVisible = false;
+            IsMouseVisible = true;
         }
 
 
@@ -258,6 +258,10 @@ namespace MonoGamers
             
             var sphereBody= Simulation.Bodies.GetBodyReference(SphereHandle);
             sphereBody.Awake = true;
+            SphereRotation = Camera.CameraRotation;
+            SphereFrontDirection = Vector3.Transform(Vector3.Backward, SphereRotation);
+            SphereLateralDirection = Vector3.Transform(Vector3.Right, SphereRotation);
+            
             if (keyboardState.IsKeyDown(Keys.D))
             {
                 SphereVelocity = -SphereLateralDirection * SphereSideSpeed;
@@ -297,10 +301,6 @@ namespace MonoGamers
                 else godMode = false;
             }
             
-            if (keyboardState.IsKeyDown(Keys.R)) {
-                sphereBody.Pose = new NumericVector3(0f, 30f, 150f);
-            }
-
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
             /* if (keyboardState.IsKeyDown(Keys.U)) {
                 sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
