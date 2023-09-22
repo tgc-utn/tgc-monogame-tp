@@ -44,6 +44,7 @@ namespace TGC.MonoGame.TP
         
         // Camera
         private Camera Camera { get; set; }
+        private TargetCamera TargetCamera { get; set; }
         
         // Scene
         private Matrix World { get; set; }
@@ -96,7 +97,8 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
             
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -283,8 +285,6 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-            
-            Camera.Update(gameTime);
         
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -315,7 +315,32 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
+            UpdateCamera();
+
             base.Update(gameTime);
+        }
+        
+        private void UpdateCamera()
+        {
+            // Create a position that orbits the Robot by its direction (Rotation)
+
+            // Create a normalized vector that points to the back of the Robot
+            var sphereBackDirection = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(Yaw));
+            // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
+            var orbitalPosition = sphereBackDirection * 60f;
+
+            // We will move the Camera in the Y axis by a given distance, relative to the Robot
+            var upDistance = Vector3.Up * 15f;
+
+            // Calculate the new Camera Position by using the Robot Position, then adding the vector orbitalPosition that sends 
+            // the camera further in the back of the Robot, and then we move it up by a given distance
+            TargetCamera.Position = SpherePosition + orbitalPosition + upDistance;
+
+            // Set the Target as the Robot, the Camera needs to be always pointing to it
+            TargetCamera.TargetPosition = SpherePosition;
+
+            // Build the View matrix from the Position and TargetPosition
+            TargetCamera.BuildView();
         }
 
         /// <summary>
@@ -331,8 +356,8 @@ namespace TGC.MonoGame.TP
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
                 Effect.Parameters["World"].SetValue(platformWorld);
-                Effect.Parameters["View"].SetValue(Camera.View);
-                Effect.Parameters["Projection"].SetValue(Camera.Projection);
+                Effect.Parameters["View"].SetValue(TargetCamera.View);
+                Effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
                 Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
                 
                 BoxPrimitive.Draw(Effect);
@@ -348,8 +373,8 @@ namespace TGC.MonoGame.TP
         }
 
         private void DrawModel(Matrix world, Model model, Effect effect){
-            effect.Parameters["View"].SetValue(Camera.View);
-            effect.Parameters["Projection"].SetValue(Camera.Projection);
+            effect.Parameters["View"].SetValue(TargetCamera.View);
+            effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
             effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
 
             foreach (var mesh in model.Meshes)
@@ -363,8 +388,8 @@ namespace TGC.MonoGame.TP
         private void DrawGeometry(GeometricPrimitive geometry, Matrix worldMatrix, Effect effect)
         {
             Effect.Parameters["World"].SetValue(worldMatrix);
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
+            Effect.Parameters["View"].SetValue(TargetCamera.View);
+            Effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.IndianRed.ToVector3());
             geometry.Draw(effect);
         }
