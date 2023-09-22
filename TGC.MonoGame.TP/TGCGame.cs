@@ -73,7 +73,11 @@ namespace TGC.MonoGame.TP
         // Models
         private Model StarModel { get; set; }
         private Matrix StarWorld { get; set; }
-        
+
+        //private Player _player;
+
+        private const float Speed = 50.0f;
+        private const float AngularSpeed = 10.0f;
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -102,12 +106,15 @@ namespace TGC.MonoGame.TP
             
             // Sphere
             SpherePosition = new Vector3(0f, 10f, 0f);
+            World *= Matrix.CreateTranslation(SpherePosition);
             Sphere = new SpherePrimitive(GraphicsDevice, 10);
 
             StarWorld = Matrix.Identity;
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
+
+            //_player = new Player(SpherePosition);
             
             /*
              ===================================================================================================
@@ -278,18 +285,35 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             
             Camera.Update(gameTime);
+        
+            var keyboardState = Keyboard.GetState();
+            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                SpherePosition += World.Forward * time * Speed;
+            }
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                SpherePosition += World.Backward * time * Speed;
+            }
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                Yaw += time * AngularSpeed;
+            }
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                Yaw -= time * AngularSpeed;
+            }
+
+            World = Matrix.CreateRotationY(Yaw) * Matrix.CreateTranslation(SpherePosition);
 
             // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
-            
-            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            Yaw += time * 0.4f;
-            Pitch += time * 0.8f;
-            Roll += time * 0.9f;
 
             base.Update(gameTime);
         }
@@ -315,7 +339,7 @@ namespace TGC.MonoGame.TP
             }  
             
 
-            DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
+            DrawGeometry(Sphere, World, Effect);
 
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
@@ -335,19 +359,10 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
-
-        /// <summary>
-        ///     Draw the geometry applying a rotation and translation.
-        /// </summary>
-        /// <param name="geometry">The geometry to draw.</param>
-        /// <param name="position">The position of the geometry.</param>
-        /// <param name="yaw">Vertical axis (yaw).</param>
-        /// <param name="pitch">Transverse axis (pitch).</param>
-        /// <param name="roll">Longitudinal axis (roll).</param>
-        /// <param name="effect">Used to set and query effects.</param>;
-        private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll, Effect effect)
+        
+        private void DrawGeometry(GeometricPrimitive geometry, Matrix worldMatrix, Effect effect)
         {
-            Effect.Parameters["World"].SetValue(Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position));
+            Effect.Parameters["World"].SetValue(worldMatrix);
             Effect.Parameters["View"].SetValue(Camera.View);
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.IndianRed.ToVector3());
