@@ -7,13 +7,15 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuUtilities.Memory;
 using NumericVector3 = System.Numerics.Vector3;
+using MonoGamers.Checkpoints;
 
-namespace MonoGamers.Utilities;
-
-public class Utils
+namespace MonoGamers.Utilities
 {
-    public static NumericVector3 ToNumericVector3(Vector3 v)
+    public class Utils
     {
-        return new NumericVector3(v.X, v.Y, v.Z);
+        public static NumericVector3 ToNumericVector3(Vector3 v)
+        {
+            return new NumericVector3(v.X, v.Y, v.Z);
+        }
     }
 }

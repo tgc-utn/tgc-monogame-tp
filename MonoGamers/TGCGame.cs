@@ -18,6 +18,7 @@ using MonoGamers.Geometries;
 using MonoGamers.Physics;
 using NumericVector3 = System.Numerics.Vector3;
 using TGC.MonoGame.Samples.Physics.Bepu;
+using MonoGamers.Checkpoints;
 
 namespace MonoGamers
 {
@@ -41,6 +42,7 @@ namespace MonoGamers
         private const float SphereSideSpeed = 300f;
         private const float SphereJumpSpeed = 100000f;
         private const float Gravity = 350f;
+        private const float yMinimo = -450f;
 
         private bool godMode = false;
 
@@ -112,8 +114,11 @@ namespace MonoGamers
         Pista3 pista3 {get; set;}
         Pista4 pista4 {get; set;}
 
+        // Checkpoints
+        private Checkpoint[] Checkpoints { get; set; }
+        private int CurrentCheckpoint { get; set; }
         
-        
+
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -153,8 +158,20 @@ namespace MonoGamers
             // Set the ground flag to false, as the Sphere starts in the air
             OnGround = false;
 
+            // Creo los checkpoints
+            Checkpoints = new Checkpoint[]
+            {
+                new Checkpoint(new Vector3(100f, 10f, 160f)),
+                new Checkpoint(new Vector3(100f, 10f, 4594f)),
+                new Checkpoint(new Vector3(2100f, 150f, 6744f)),
+                new Checkpoint(new Vector3(3300f, 343f, 6800f)),
+
+            };
+            CurrentCheckpoint = 0;
+
             // Sphere position and matrix initialization
             
+            SpherePosition = Checkpoints[CurrentCheckpoint].Position;
             SphereRotation = Matrix.Identity;
             SphereFrontDirection = Vector3.Backward;
             SphereLateralDirection = Vector3.Right;
@@ -213,7 +230,7 @@ namespace MonoGamers
             
             // Create our Sphere and add it to Simulation
                 sphereShape = new Sphere(10f);
-                var position = new NumericVector3(0, 30f, 150f);
+                var position = new NumericVector3(100f, 20f, 150f);
                 var initialVelocity = new BodyVelocity(new NumericVector3((float)0f, 0f, 0f));
                 var mass = sphereShape.Radius * sphereShape.Radius * sphereShape.Radius;
                 var bodyDescription = BodyDescription.CreateConvexDynamic(position, initialVelocity, mass, Simulation.Shapes, sphereShape);
@@ -285,9 +302,22 @@ namespace MonoGamers
             }
 
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
+            /* if (keyboardState.IsKeyDown(Keys.U)) {
+                sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
+            }
+            if (keyboardState.IsKeyDown(Keys.I)) {
+                sphereBody.Pose = new NumericVector3(2090f, 150f, 6744f);
+            }
+            if (keyboardState.IsKeyDown(Keys.O)) {
+                sphereBody.Pose = new NumericVector3(3300f, 343f, 6790f);
+            } */
+
 
             velocidadAngularYAnt = sphereBody.Velocity.Angular.Y;
             velocidadLinearYAnt = sphereBody.Velocity.Linear.Y;
+
+
+            CheckpointManager();
 
             
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
@@ -303,8 +333,30 @@ namespace MonoGamers
         }
 
 
+        private bool CaidaPelota()
+        {
+            return (SpherePosition.Y < yMinimo);
+        }
+        private void CheckpointManager()
+        {
+            var bodyRef = Simulation.Bodies.GetBodyReference(SphereHandle);
 
-
+            if(CaidaPelota())
+            {
+                bodyRef.Pose.Position = MonoGamers.Utilities.Utils.ToNumericVector3(Checkpoints[CurrentCheckpoint].Position);
+                bodyRef.Velocity.Linear = NumericVector3.Zero;
+                bodyRef.Velocity.Angular = NumericVector3.Zero;
+                return;
+            }
+            for(int i = CurrentCheckpoint+1; i < Checkpoints.Length; i++)
+            {
+                if(Checkpoints[i].IsWithinBounds(bodyRef.Pose.Position))
+                {
+                    CurrentCheckpoint = i;
+                    return;
+                }
+            }
+        }
 
         /// <inheritdoc />
         protected override void Draw(GameTime gameTime)
