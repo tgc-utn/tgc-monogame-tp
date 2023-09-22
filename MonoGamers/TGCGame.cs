@@ -99,7 +99,18 @@ namespace MonoGamers
 
         // Textures
         private Texture2D StonesTexture { get; set; }
+        private Texture2D SphereCommonTexture { get; set; }
+        private Texture2D SphereStoneTexture { get; set; }
+        private Texture2D SphereMetalTexture { get; set; }
+        private Texture2D SphereGumTexture { get; set; }
 
+        //Tipo de esfera
+        enum SphereType {
+            Common,
+            Stone,
+            Metal,
+            Gum
+        }
 
         // Effects
 
@@ -221,6 +232,10 @@ namespace MonoGamers
                 
             // Load Textures
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+                SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
+                SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
+                SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
+                SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
 
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
