@@ -1,4 +1,5 @@
 
+using System.Configuration;
 using System.Linq;
 using BepuPhysics;
 using Microsoft.Xna.Framework;
@@ -16,16 +17,6 @@ namespace MonoGamers.Pistas;
 
 public class Pista1
 { 
-    
-// ======== DECALRACION DE VARIABES ========
-    
-    public const string ContentFolder3D = "Models/";
-    public const string ContentFolderEffects = "Effects/";
-    public const string ContentFolderMusic = "Music/";
-    public const string ContentFolderSounds = "Sounds/";
-    public const string ContentFolderSpriteFonts = "SpriteFonts/";
-    public const string ContentFolderTextures = "Textures/";
-    
     // ____ Colliders ____
 
     // Bounding Boxes (for all our models)
@@ -244,8 +235,10 @@ public class Pista1
     private void LoadContent(ContentManager Content)
     {
         // Cargar Texturas
-            CobbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/adoquin");
-            WoodenTexture = Content.Load<Texture2D>(ContentFolderTextures + "wood/caja-madera-1");
+            CobbleTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
+            WoodenTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "wood/caja-madera-1");
         
         // Cargar Primitiva de caja con textura
             BoxPrimitiveCobble = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);

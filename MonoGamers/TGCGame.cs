@@ -46,7 +46,7 @@ namespace MonoGamers
 
 
         // Camera to draw the scene
-        private Camera.Camera Camera { get; set; }
+        private TargetCamera Camera { get; set; }
         
         private GraphicsDeviceManager Graphics { get; }
 
@@ -125,7 +125,7 @@ namespace MonoGamers
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
-            IsMouseVisible = true;
+            IsMouseVisible = false;
         }
 
 
@@ -147,9 +147,9 @@ namespace MonoGamers
 
             // Creo una camara para seguir a la esfera.
             //FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 20f);
-            Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
-            
+            Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero, GraphicsDevice.Viewport);
+            //Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
+
             // Set the ground flag to false, as the Sphere starts in the air
             OnGround = false;
 
@@ -284,6 +284,7 @@ namespace MonoGamers
                 sphereBody.Pose = new NumericVector3(0f, 30f, 150f);
             }
 
+            if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
 
             velocidadAngularYAnt = sphereBody.Velocity.Angular.Y;
             velocidadLinearYAnt = sphereBody.Velocity.Linear.Y;
@@ -296,7 +297,8 @@ namespace MonoGamers
             SpherePosition = pose.Position;
             SphereWorld = Matrix.CreateScale(sphereShape.Radius*2) * Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(SpherePosition);
             pista2.Update(deltaTime);
-            Camera.Update(gameTime);
+            Camera.UpdateCamera(gameTime, SpherePosition);
+
             base.Update(gameTime);
         }
 
