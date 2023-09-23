@@ -121,6 +121,9 @@ namespace MonoGamers
 
         // Tiling Effect for the floor
         private Effect TilingEffect { get; set; }
+
+        // Basic Shader Effect
+        private Effect SphereEffect { get; set; }
         
         
         
@@ -239,10 +242,13 @@ namespace MonoGamers
                 
             // Load Textures
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
-              //   SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
-              //  SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
-              //  SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
-              //  SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
+                SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
+                SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
+                SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
+                SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
+
+            // Load our SphereEffect
+                SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
@@ -425,20 +431,24 @@ namespace MonoGamers
             var viewProjection = Camera.View * Camera.Projection;
             
             // Sphere drawing
-                spherePrimitive.Draw(SphereWorld, Camera.View, Camera.Projection);
+                SphereEffect.CurrentTechnique = SphereEffect.Techniques["BasicColorDrawing"];
+                SphereEffect.Parameters["View"].SetValue(Camera.View);
+                SphereEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                SphereEffect.Parameters["World"].SetValue(SphereWorld);
                 if(SphereType == Type.Common) {
-
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);
                 }
                 if(SphereType == Type.Gum) {
-
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereGumTexture);
                 }
                 if(SphereType == Type.Metal) {
-
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereMetalTexture);
                 }
                 if(SphereType == Type.Stone) {
-
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
                 }
-
+               // spherePrimitive.Draw(SphereWorld, Camera.View, Camera.Projection);
+                spherePrimitive.Draw(SphereEffect);
             // Floor drawing
                 // Set the Technique inside the TilingEffect to "BaseTiling", we want to control the tiling on the floor
                 TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates

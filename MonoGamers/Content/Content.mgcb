@@ -509,6 +509,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/city/cty2x.jpg
 
+#begin Textures/common.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/common.jpg
+
 #begin Textures/floor/adoquin-2.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -617,6 +629,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/ground.jpg
 
+#begin Textures/gum.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/gum.jpg
+
 #begin Textures/heightmaps/colormap.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -664,6 +688,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/heightmaps/terrain-texture-3.jpg
+
+#begin Textures/metal.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/metal.jpg
 
 #begin Textures/overlay.png
 /importer:TextureImporter
@@ -1384,6 +1420,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/skyboxes/sunset/sunset.dds
+
+#begin Textures/stone.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/stone.jpg
 
 #begin Textures/stones.jpg
 /importer:TextureImporter
