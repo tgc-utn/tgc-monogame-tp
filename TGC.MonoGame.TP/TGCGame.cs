@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -77,8 +78,8 @@ namespace TGC.MonoGame.TP
 
         //private Player _player;
 
-        private const float Speed = 50.0f;
-        private const float AngularSpeed = 10.0f;
+        private const float Speed = 50f;
+        private const float AngularSpeed = 5f;
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -289,25 +290,36 @@ namespace TGC.MonoGame.TP
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                SpherePosition += World.Forward * time * Speed;
-            }
-            if (keyboardState.IsKeyDown(Keys.S))
-            {
-                SpherePosition += World.Backward * time * Speed;
-            }
             if (keyboardState.IsKeyDown(Keys.A))
             {
                 Yaw += time * AngularSpeed;
             }
+            
             if (keyboardState.IsKeyDown(Keys.D))
             {
                 Yaw -= time * AngularSpeed;
             }
 
-            World = Matrix.CreateRotationY(Yaw) * Matrix.CreateTranslation(SpherePosition);
+            var rotationY = Matrix.CreateRotationY(Yaw);
+            var forward = rotationY.Forward;
+            
+            if (keyboardState.IsKeyDown(Keys.W))
+            {   
+                SpherePosition += forward * time * Speed;
+                Pitch += time * 0.8f;
+            }
 
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                SpherePosition -= forward * time * Speed;
+                Pitch -= time * 0.8f;
+            }
+
+            var rotationX = Matrix.CreateRotationX(Pitch);
+            var translation = Matrix.CreateTranslation(SpherePosition);
+            
+            World =  rotationX * rotationY * translation;
+            
             // Capturar Input teclado
             if (keyboardState.IsKeyDown(Keys.Escape))
             {
