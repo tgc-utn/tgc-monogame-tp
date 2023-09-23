@@ -447,7 +447,7 @@ namespace MonoGamers
                 if(SphereType == Type.Stone) {
                    SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
                 }
-               // spherePrimitive.Draw(SphereWorld, Camera.View, Camera.Projection);
+                spherePrimitive.Draw(SphereWorld, Camera.View, Camera.Projection);
                 spherePrimitive.Draw(SphereEffect);
             // Floor drawing
                 // Set the Technique inside the TilingEffect to "BaseTiling", we want to control the tiling on the floor
