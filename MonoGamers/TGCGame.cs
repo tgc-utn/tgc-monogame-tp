@@ -19,6 +19,7 @@ using MonoGamers.Physics;
 using TGC.MonoGame.Samples.Physics.Bepu;
 using MonoGamers.Checkpoints;
 using NumericVector3 = System.Numerics.Vector3;
+using MonoGamers.PowerUps;
 
 namespace MonoGamers
 {
@@ -89,6 +90,8 @@ namespace MonoGamers
 
         // Checkpoints
         private Checkpoint[] Checkpoints { get; set; }
+
+        private PowerUp[] PowerUps { get; set; }
         private int CurrentCheckpoint { get; set; }
         
 
@@ -139,7 +142,12 @@ namespace MonoGamers
             };
             CurrentCheckpoint = 0;
 
-            // Sphere position and matrix initialization
+            // PowerUps
+            PowerUps = new PowerUp[]
+            {
+
+            };
+
             
             // Empezar Simulacion
             MonoSimulation = new MonoSimulation();
@@ -230,6 +238,7 @@ namespace MonoGamers
             } */
 
             CheckpointManager();
+            Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
 
             
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.

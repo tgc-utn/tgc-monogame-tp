@@ -26,9 +26,9 @@ namespace MonoGamers.PowerUps
             return BoundingBox.Intersects(BoundingSphere);
         }
 
-        public void ActivateIfBounding(BodyReference bodyReference, MonoSphere sphere)
+        public void ActivateIfBounding(Simulation Simulation, MonoSphere sphere)
         {
-            if (IsWithinBounds(bodyReference.Pose.Position)) Activate(sphere);
+            if (IsWithinBounds(Simulation.Bodies.GetBodyReference(sphere.SphereHandle).Pose.Position)) Activate(sphere);
         }
         public abstract void Activate(MonoSphere sphere);
 
