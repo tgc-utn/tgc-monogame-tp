@@ -17,11 +17,11 @@ namespace MonoGamers.Camera;
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
         private const float CameraFollowRadius = 140f;
         private const float CameraUpDistance = 90f;
-        private const float CameraRotatingVelocity = 0.1f;
+        private const float CameraRotatingVelocity = 0.3f;
 
         private Viewport Viewport;
 
-        private Matrix CameraRotation { get; set; }
+        public Matrix CameraRotation { get; set; }
         private float Rotation { get; set; }
         private Vector2 PastMousePosition { get; set; }
 
