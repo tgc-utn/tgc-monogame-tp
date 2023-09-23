@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 namespace MonoGamers.PowerUps
 {
     internal class RushPowerUp : PowerUp
-    { 
-        public RushPowerUp(Vector3 position) : base(position)
+    {
+        Vector3 FacingDirection;
+        public RushPowerUp(Vector3 position, Vector3 facingDirection) : base(position)
         {
+            FacingDirection=facingDirection;
         }
 
         public override void Activate(MonoSphere sphere)

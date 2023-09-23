@@ -10,6 +10,7 @@ namespace MonoGamers.PowerUps
 {
     internal class FastPowerUp : PowerUp 
     {
+        
         public FastPowerUp(Vector3 position) : base(position)
         {
         }
