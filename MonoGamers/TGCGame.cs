@@ -37,15 +37,13 @@ namespace MonoGamers
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
         
-        private const float CameraFollowRadius = 100f;
-        private const float CameraUpDistance = 80f;
-        private const float SphereSideSpeed = 300f;
-        private const float SphereJumpSpeed = 100000f;
         private const float Gravity = 350f;
         private const float yMinimo = -450f;
 
         private bool godMode = false;
 
+        //Esfera lógica
+        MonoSphere MonoSphere;
 
         // Camera to draw the scene
         private TargetCamera Camera { get; set; }
@@ -53,64 +51,32 @@ namespace MonoGamers
         private GraphicsDeviceManager Graphics { get; }
 
         // Geometries
-        private SpherePrimitive spherePrimitive { get; set; }
         private BoxPrimitive BoxPrimitive { get; set; }
         private QuadPrimitive Floor { get; set; }
         
         private Sphere sphereShape { get; set; }
 
         // Handlers
-        private BodyHandle SphereHandle { get; set; }
         private BodyHandle FloorHandle { get; set; }
         
         // Simulation
         private MonoSimulation MonoSimulation { get; set; }
         private Simulation Simulation { get; set; }
-        
+
 
         /// <summary>
         ///     Gets the thread dispatcher available for use by the simulation.
         /// </summary>
-        
 
-        // Sphere internal matrices and vectors
-        private Matrix SphereRotation { get; set; }
-        private Vector3 SpherePosition { get; set; }
-        private Vector3 SphereVelocity { get; set; }
-        private Vector3 SphereAcceleration { get; set; }
-        private Vector3 SphereFrontDirection { get; set; }
-        private Vector3 SphereLateralDirection { get; set; }
-        
-        // A boolean indicating if the Sphere is on the ground
-        private bool OnGround { get; set; }
         public float velocidadAngularYAnt;
         public float velocidadLinearYAnt;
-        
 
 
         // World matrices
         private Matrix FloorWorld { get; set; }
-        private Matrix SphereWorld { get; set; }
-        
-        // Camera
-        private FollowCamera FollowCamera { get; set; }
 
-
-
-        // Textures
+        //Texturas
         private Texture2D StonesTexture { get; set; }
-        private Texture2D SphereCommonTexture { get; set; }
-        private Texture2D SphereStoneTexture { get; set; }
-        private Texture2D SphereMetalTexture { get; set; }
-        private Texture2D SphereGumTexture { get; set; }
-
-        //Tipo de esfera
-        enum SphereType {
-            Common,
-            Stone,
-            Metal,
-            Gum
-        }
 
         // Effects
 
@@ -118,12 +84,11 @@ namespace MonoGamers
         private Effect TilingEffect { get; set; }
         
         
-        
         // Pistas
-        Pista1 pista1 { get; set; }
-        Pista2 pista2 { get; set; }
-        Pista3 pista3 {get; set;}
-        Pista4 pista4 {get; set;}
+        Pista1 Pista1 { get; set; }
+        Pista2 Pista2 { get; set; }
+        Pista3 Pista3 {get; set;}
+        Pista4 Pista4 {get; set;}
 
         // Checkpoints
         private Checkpoint[] Checkpoints { get; set; }
@@ -141,7 +106,7 @@ namespace MonoGamers
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
-            IsMouseVisible = true;
+            IsMouseVisible = false;
         }
 
 
@@ -166,9 +131,6 @@ namespace MonoGamers
             Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero, GraphicsDevice.Viewport);
             //Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
 
-            // Set the ground flag to false, as the Sphere starts in the air
-            OnGround = false;
-
             // Creo los checkpoints
             Checkpoints = new Checkpoint[]
             {
@@ -181,31 +143,18 @@ namespace MonoGamers
             CurrentCheckpoint = 0;
 
             // Sphere position and matrix initialization
-            
-            SpherePosition = Checkpoints[CurrentCheckpoint].Position;
-            SphereRotation = Matrix.Identity;
-            SphereFrontDirection = Vector3.Backward;
-            SphereLateralDirection = Vector3.Right;
-            
-            
-            // Set the Acceleration (which in this case won't change) to the Gravity pointing down
-            SphereAcceleration = Vector3.Down * Gravity;
 
-            // Initialize the Velocity as zero
-            SphereVelocity = Vector3.Zero;
+            MonoSphere = new MonoSphere(Checkpoints[CurrentCheckpoint].Position, Gravity);
             
             // Empezar Simulacion
             MonoSimulation = new MonoSimulation();
             Simulation = MonoSimulation.Init();
             
             // Inicializar pistas
-            pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
-            pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
-            pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f, Simulation);
-            pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f, Simulation);
-            
-
-
+            Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
+            Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
+            Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f, Simulation);
+            Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f, Simulation);
 
             base.Initialize();
         }
@@ -214,10 +163,9 @@ namespace MonoGamers
         /// <inheritdoc />
         protected override void LoadContent()
         {
-
-            spherePrimitive = new SpherePrimitive(GraphicsDevice);
-            SphereWorld = new Matrix();
-            SphereHandle = new BodyHandle();
+            MonoSphere.spherePrimitive = new SpherePrimitive(GraphicsDevice);
+            MonoSphere.SphereWorld = new Matrix();
+            MonoSphere.SphereHandle = new BodyHandle();
             
             
             /*
@@ -232,10 +180,10 @@ namespace MonoGamers
                 
             // Load Textures
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
-                SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
-                SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
-                SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
-                SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
+                MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
+                MonoSphere.SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
+                MonoSphere.SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
+                MonoSphere.SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
 
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
@@ -249,7 +197,7 @@ namespace MonoGamers
                 var initialVelocity = new BodyVelocity(new NumericVector3((float)0f, 0f, 0f));
                 var mass = sphereShape.Radius * sphereShape.Radius * sphereShape.Radius;
                 var bodyDescription = BodyDescription.CreateConvexDynamic(position, initialVelocity, mass, Simulation.Shapes, sphereShape);
-                SphereHandle = Simulation.Bodies.Add(bodyDescription);
+                MonoSphere.SphereHandle = Simulation.Bodies.Add(bodyDescription);
             
             base.LoadContent();
         }
@@ -271,44 +219,49 @@ namespace MonoGamers
             // By a new matrix containing a new rotation to apply
             // Also, recalculate the Front Directoin
             
-            var sphereBody= Simulation.Bodies.GetBodyReference(SphereHandle);
+            var sphereBody= Simulation.Bodies.GetBodyReference(MonoSphere.SphereHandle);
             sphereBody.Awake = true;
-            SphereRotation = Camera.CameraRotation;
-            SphereFrontDirection = Vector3.Transform(Vector3.Backward, SphereRotation);
-            SphereLateralDirection = Vector3.Transform(Vector3.Right, SphereRotation);
+            MonoSphere.SphereRotation = Camera.CameraRotation;
+            MonoSphere.SphereFrontDirection = Vector3.Transform(Vector3.Backward, MonoSphere.SphereRotation);
+            MonoSphere.SphereLateralDirection = Vector3.Transform(Vector3.Right, MonoSphere.SphereRotation);
             
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                SphereVelocity = -SphereLateralDirection * SphereSideSpeed;
-                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
+                MonoSphere.MoveRight();
+                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
+                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
             }
             else if (keyboardState.IsKeyDown(Keys.A))
             {
-                SphereVelocity = SphereLateralDirection * SphereSideSpeed;
-                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
+                MonoSphere.MoveLeft();
+                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
+                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
             }
 
             // Check for key presses and add a velocity in the Sphere's Front Direction
             if (keyboardState.IsKeyDown(Keys.W))
             {
-                SphereVelocity = SphereFrontDirection * SphereSideSpeed;
-                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
+                MonoSphere.MoveFront();
+                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
+                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
             }
                 
             else if (keyboardState.IsKeyDown(Keys.S))
             {
-                SphereVelocity = SphereFrontDirection * - SphereSideSpeed;
-                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
+                MonoSphere.MoveBack();
+                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
+                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
             }
             
             // Check for the Jump key press, and add velocity in Y only if the Sphere is on the ground
-            if(MathHelper.Distance(sphereBody.Velocity.Linear.Y, velocidadLinearYAnt) < 0.1  && MathHelper.Distance(sphereBody.Velocity.Angular.Y, velocidadAngularYAnt) < 0.1) 
-                    OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
+            if(MathHelper.Distance(sphereBody.Velocity.Linear.Y, velocidadLinearYAnt) < 0.1  
+                && MathHelper.Distance(sphereBody.Velocity.Angular.Y, velocidadAngularYAnt) < 0.1) 
+                    MonoSphere.OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
             
-            if (keyboardState.IsKeyDown(Keys.Space) && OnGround){
-                SphereVelocity = Vector3.Up * SphereJumpSpeed;
-                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
-                OnGround = false;
+            if (keyboardState.IsKeyDown(Keys.Space) && MonoSphere.OnGround){
+                MonoSphere.Jump();
+                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
+                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
             }
             
             if (keyboardState.IsKeyDown(Keys.G)) {
@@ -338,25 +291,21 @@ namespace MonoGamers
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
             
-            var pose = Simulation.Bodies.GetBodyReference(SphereHandle).Pose;
-            SpherePosition = pose.Position;
-            SphereWorld = Matrix.CreateScale(sphereShape.Radius*2) * Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(SpherePosition);
-            pista2.Update(deltaTime);
-            Camera.UpdateCamera(gameTime, SpherePosition);
+            var pose = Simulation.Bodies.GetBodyReference(MonoSphere.SphereHandle).Pose;
+            MonoSphere.SpherePosition = pose.Position;
+            MonoSphere.SphereWorld = Matrix.CreateScale(sphereShape.Radius*2) * 
+                Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(MonoSphere.SpherePosition);
+            Pista2.Update(deltaTime);
+            Camera.UpdateCamera(gameTime, MonoSphere.SpherePosition);
 
             base.Update(gameTime);
         }
 
-
-        private bool CaidaPelota()
-        {
-            return (SpherePosition.Y < yMinimo);
-        }
         private void CheckpointManager()
         {
-            var bodyRef = Simulation.Bodies.GetBodyReference(SphereHandle);
+            var bodyRef = Simulation.Bodies.GetBodyReference(MonoSphere.SphereHandle);
 
-            if(CaidaPelota())
+            if(MonoSphere.SphereFalling(yMinimo))
             {
                 bodyRef.Pose.Position = MonoGamers.Utilities.Utils.ToNumericVector3(Checkpoints[CurrentCheckpoint].Position);
                 bodyRef.Velocity.Linear = NumericVector3.Zero;
@@ -384,7 +333,7 @@ namespace MonoGamers
             var viewProjection = Camera.View * Camera.Projection;
             
             // Sphere drawing
-                spherePrimitive.Draw(SphereWorld, Camera.View, Camera.Projection);
+                MonoSphere.spherePrimitive.Draw(MonoSphere.SphereWorld, Camera.View, Camera.Projection);
 
             // Floor drawing
                 // Set the Technique inside the TilingEffect to "BaseTiling", we want to control the tiling on the floor
@@ -397,10 +346,10 @@ namespace MonoGamers
             
 
             // Dibujamos las pistas
-                pista1.Draw(Camera.View,Camera.Projection);
-                pista2.Draw(Camera.View, Camera.Projection);
-                pista3.Draw(Camera.View, Camera.Projection);
-                pista4.Draw(Camera.View, Camera.Projection);
+                Pista1.Draw(Camera.View,Camera.Projection);
+                Pista2.Draw(Camera.View, Camera.Projection);
+                Pista3.Draw(Camera.View, Camera.Projection);
+                Pista4.Draw(Camera.View, Camera.Projection);
             
 
 
