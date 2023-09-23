@@ -16,7 +16,7 @@ namespace MonoGamers.PowerUps
 
         public override void Activate(MonoSphere sphere)
         {
-            sphere.SphereSideSpeed *= 4;
+            throw new NotImplementedException();
         }
     }
 }

@@ -16,9 +16,9 @@ using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using MonoGamers.Geometries;
 using MonoGamers.Physics;
-using NumericVector3 = System.Numerics.Vector3;
 using TGC.MonoGame.Samples.Physics.Bepu;
 using MonoGamers.Checkpoints;
+using NumericVector3 = System.Numerics.Vector3;
 
 namespace MonoGamers
 {
@@ -67,9 +67,6 @@ namespace MonoGamers
         /// <summary>
         ///     Gets the thread dispatcher available for use by the simulation.
         /// </summary>
-
-        public float velocidadAngularYAnt;
-        public float velocidadLinearYAnt;
 
 
         // World matrices
@@ -143,8 +140,6 @@ namespace MonoGamers
             CurrentCheckpoint = 0;
 
             // Sphere position and matrix initialization
-
-            MonoSphere = new MonoSphere(Checkpoints[CurrentCheckpoint].Position, Gravity);
             
             // Empezar Simulacion
             MonoSimulation = new MonoSimulation();
@@ -155,6 +150,8 @@ namespace MonoGamers
             Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
             Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f, Simulation);
             Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f, Simulation);
+
+            MonoSphere = new MonoSphere(Checkpoints[CurrentCheckpoint].Position, Gravity, Simulation);
 
             base.Initialize();
         }
@@ -192,12 +189,6 @@ namespace MonoGamers
                     Simulation.Shapes.Add(new Box(400f, 0.002f, 400f))));
             
             // Create our Sphere and add it to Simulation
-                sphereShape = new Sphere(10f);
-                var position = new NumericVector3(100f, 20f, 150f);
-                var initialVelocity = new BodyVelocity(new NumericVector3((float)0f, 0f, 0f));
-                var mass = sphereShape.Radius * sphereShape.Radius * sphereShape.Radius;
-                var bodyDescription = BodyDescription.CreateConvexDynamic(position, initialVelocity, mass, Simulation.Shapes, sphereShape);
-                MonoSphere.SphereHandle = Simulation.Bodies.Add(bodyDescription);
             
             base.LoadContent();
         }
@@ -218,51 +209,9 @@ namespace MonoGamers
             // We can stack rotations in a given axis by multiplying our past matrix
             // By a new matrix containing a new rotation to apply
             // Also, recalculate the Front Directoin
-            
-            var sphereBody= Simulation.Bodies.GetBodyReference(MonoSphere.SphereHandle);
-            sphereBody.Awake = true;
-            MonoSphere.SphereRotation = Camera.CameraRotation;
-            MonoSphere.SphereFrontDirection = Vector3.Transform(Vector3.Backward, MonoSphere.SphereRotation);
-            MonoSphere.SphereLateralDirection = Vector3.Transform(Vector3.Right, MonoSphere.SphereRotation);
-            
-            if (keyboardState.IsKeyDown(Keys.D))
-            {
-                MonoSphere.MoveRight();
-                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
-                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
-            }
-            else if (keyboardState.IsKeyDown(Keys.A))
-            {
-                MonoSphere.MoveLeft();
-                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
-                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
-            }
 
-            // Check for key presses and add a velocity in the Sphere's Front Direction
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                MonoSphere.MoveFront();
-                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
-                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
-            }
-                
-            else if (keyboardState.IsKeyDown(Keys.S))
-            {
-                MonoSphere.MoveBack();
-                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
-                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
-            }
-            
-            // Check for the Jump key press, and add velocity in Y only if the Sphere is on the ground
-            if(MathHelper.Distance(sphereBody.Velocity.Linear.Y, velocidadLinearYAnt) < 0.1  
-                && MathHelper.Distance(sphereBody.Velocity.Angular.Y, velocidadAngularYAnt) < 0.1) 
-                    MonoSphere.OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
-            
-            if (keyboardState.IsKeyDown(Keys.Space) && MonoSphere.OnGround){
-                MonoSphere.Jump();
-                sphereBody.ApplyLinearImpulse(new NumericVector3(MonoSphere.SphereVelocity.X,
-                    MonoSphere.SphereVelocity.Y,MonoSphere.SphereVelocity.Z));
-            }
+            MonoSphere.Update(Simulation, Camera, keyboardState);
+
             
             if (keyboardState.IsKeyDown(Keys.G)) {
                 if (!godMode) godMode = true;
@@ -280,21 +229,11 @@ namespace MonoGamers
                 sphereBody.Pose = new NumericVector3(3300f, 343f, 6790f);
             } */
 
-
-            velocidadAngularYAnt = sphereBody.Velocity.Angular.Y;
-            velocidadLinearYAnt = sphereBody.Velocity.Linear.Y;
-
-
             CheckpointManager();
 
             
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
-            
-            var pose = Simulation.Bodies.GetBodyReference(MonoSphere.SphereHandle).Pose;
-            MonoSphere.SpherePosition = pose.Position;
-            MonoSphere.SphereWorld = Matrix.CreateScale(sphereShape.Radius*2) * 
-                Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(MonoSphere.SpherePosition);
             Pista2.Update(deltaTime);
             Camera.UpdateCamera(gameTime, MonoSphere.SpherePosition);
 
