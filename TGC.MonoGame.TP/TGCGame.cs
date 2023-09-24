@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.References;
+using TGC.MonoGame.TP.Tanks;
 
 namespace TGC.MonoGame.TP
 {
@@ -22,6 +23,7 @@ namespace TGC.MonoGame.TP
         private Map Map { get; set; }
         private Camera Camera { get; set; }
         public Gizmos.Gizmos Gizmos { get; }
+        public Tank Tank;
         
         /// <summary>
         ///     Constructor del juego.
@@ -53,6 +55,7 @@ namespace TGC.MonoGame.TP
             Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
             
             Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90);
+            Tank = new Tank(References.Models.Tank.KF51, new Vector3(0, 0, 0));
             
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
@@ -75,6 +78,8 @@ namespace TGC.MonoGame.TP
             Map.Load(Content, Effect);
             
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
+            
+            Tank.Load(Content, Effect);
 
             base.LoadContent();
         }

@@ -10,10 +10,11 @@ namespace TGC.MonoGame.TP.Props.PropType.StaticProps;
 
 public abstract class StaticProp
 {
-    private PropReference Reference;
-    private Model Model;
-    private Effect Effect;
-    private Matrix World;
+    protected PropReference Reference;
+    protected Model Model;
+    protected Effect Effect;
+    protected Matrix World;
+    protected BoundingBox Box;
 
     public StaticProp(PropReference modelReference)
     {
@@ -39,6 +40,9 @@ public abstract class StaticProp
         else
             foreach (var modelMeshPart in Model.Meshes[Reference.Prop.MeshIndex].MeshParts)
                 modelMeshPart.Effect = Effect;
+
+        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min + Reference.Position, Box.Max + Reference.Position);
     }
 
     public void Draw(Matrix view, Matrix projection)
@@ -65,6 +69,8 @@ public abstract class StaticProp
             Model.Meshes[Reference.Prop.MeshIndex].Draw();
         }
         /**/
+        
+        
     }
 
     public void Update(GameTime gameTime)
