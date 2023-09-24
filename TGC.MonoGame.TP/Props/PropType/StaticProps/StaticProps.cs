@@ -2,12 +2,13 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.Props.PropType;
 using TGC.MonoGame.TP.References;
 
-namespace TGC.MonoGame.TP.Props;
+namespace TGC.MonoGame.TP.Props.PropType.StaticProps;
 
-public class StaticProp
+public abstract class StaticProp
 {
     private PropReference Reference;
     private Model Model;
@@ -71,4 +72,6 @@ public class StaticProp
         // Destruir prop
         return;
     }
+
+    public abstract void CollidedWith(ICollidable other);
 }

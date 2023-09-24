@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Props;
 using TGC.MonoGame.TP.Props.PropType;
+using TGC.MonoGame.TP.Props.PropType.StaticProps;
 using TGC.MonoGame.TP.References;
 using TGC.MonoGame.TP.Scenarys;
 using TGC.MonoGame.TP.Tanks;
@@ -31,9 +32,9 @@ public class Desert : Map
             {
                 if (prop.Repetitions > 1)
                     Scenary.GetCircularPoints(prop.Repetitions, prop.Position, 40f)
-                        .ForEach(position => Props.Add(new StaticProp(prop, position)));
+                        .ForEach(position => Props.Add(new SmallStaticProp(prop, position)));
                 else
-                    Props.Add(new StaticProp(prop));
+                    Props.Add(new SmallStaticProp(prop));
             });
     }
 

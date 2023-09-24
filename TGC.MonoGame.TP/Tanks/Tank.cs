@@ -1,12 +1,14 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.References;
 
 namespace TGC.MonoGame.TP.Tanks;
 
-public class Tank
+public class Tank : ICollidable
 {
     private Model Model;
     private ModelReference Reference;
@@ -44,5 +46,17 @@ public class Tank
             Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
             mesh.Draw();
         }
+    }
+
+    public void CollidedWithSmallProp()
+    {
+        Console.WriteLine("Chocaste con prop chico");
+        // TODO frenar un poco el tanque
+    }
+
+    public void CollidedWithLargeProp()
+    {
+        Console.WriteLine("Chocaste con prop grande");
+        // TODO frenar el tanque del todo
     }
 }
