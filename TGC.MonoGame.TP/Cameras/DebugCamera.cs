@@ -31,7 +31,7 @@ public class DebugCamera : Camera
         View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
     }
     
-    public override void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime, Matrix followedWorld) // no se usa el followed world
     {
         var keyboardState = Keyboard.GetState();
         var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
