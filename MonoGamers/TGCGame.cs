@@ -183,8 +183,7 @@ namespace MonoGamers
 
             // Sphere position and matrix initialization
             
-            //SpherePosition = Checkpoints[CurrentCheckpoint].Position;
-            SpherePosition = new Vector3(100f, 10f, 5150f);
+            SpherePosition = Checkpoints[CurrentCheckpoint].Position;
             SphereRotation = Matrix.Identity;
             SphereFrontDirection = Vector3.Backward;
             SphereLateralDirection = Vector3.Right;
