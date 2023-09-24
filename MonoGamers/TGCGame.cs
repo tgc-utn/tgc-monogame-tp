@@ -19,6 +19,7 @@ using MonoGamers.Physics;
 using NumericVector3 = System.Numerics.Vector3;
 using TGC.MonoGame.Samples.Physics.Bepu;
 using MonoGamers.Checkpoints;
+using MonoGamers.Utilities;
 
 namespace MonoGamers
 {
@@ -182,7 +183,8 @@ namespace MonoGamers
 
             // Sphere position and matrix initialization
             
-            SpherePosition = Checkpoints[CurrentCheckpoint].Position;
+            //SpherePosition = Checkpoints[CurrentCheckpoint].Position;
+            SpherePosition = new Vector3(100f, 10f, 5150f);
             SphereRotation = Matrix.Identity;
             SphereFrontDirection = Vector3.Backward;
             SphereLateralDirection = Vector3.Right;
@@ -232,11 +234,12 @@ namespace MonoGamers
                 
             // Load Textures
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+                /*
                 SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
                 SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
                 SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
                 SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
-
+                */
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
                 FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f);
@@ -245,11 +248,12 @@ namespace MonoGamers
             
             // Create our Sphere and add it to Simulation
                 sphereShape = new Sphere(10f);
-                var position = new NumericVector3(100f, 20f, 150f);
+                var position = Utils.ToNumericVector3(SpherePosition);
                 var initialVelocity = new BodyVelocity(new NumericVector3((float)0f, 0f, 0f));
                 var mass = sphereShape.Radius * sphereShape.Radius * sphereShape.Radius;
                 var bodyDescription = BodyDescription.CreateConvexDynamic(position, initialVelocity, mass, Simulation.Shapes, sphereShape);
                 SphereHandle = Simulation.Bodies.Add(bodyDescription);
+                
             
             base.LoadContent();
         }
@@ -341,7 +345,11 @@ namespace MonoGamers
             var pose = Simulation.Bodies.GetBodyReference(SphereHandle).Pose;
             SpherePosition = pose.Position;
             SphereWorld = Matrix.CreateScale(sphereShape.Radius*2) * Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(SpherePosition);
-            pista2.Update(deltaTime);
+            
+            
+            pista1.Update();
+            pista2.Update();
+            
             Camera.UpdateCamera(gameTime, SpherePosition);
 
             base.Update(gameTime);

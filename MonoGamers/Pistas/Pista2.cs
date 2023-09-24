@@ -27,9 +27,12 @@ namespace MonoGamers.Pistas
         private Matrix[] Platforms { get; set; }
 
         //Obstaculos movibles
-        private Matrix[] Boxes { get; set; }
-        private bool MovingRight { get; set; }
-        private float box1InitialXPosition;
+        private Matrix[] MovingBoxes { get; set; }
+        private BodyHandle[] MovingBoxesBodyHandle { get; set; }
+        private Vector3 MovingBoxesScale { get; set; }
+        private float InitialLeftXPositionMovingBoxes;
+        private float InitialRigthXPositionMovingBoxes;
+        private float LengthDistanceDifference = 150f;
 
         //Rush powerup
         private Model RushModel { get; set; }
@@ -109,16 +112,40 @@ namespace MonoGamers.Pistas
             }
 
             //Cajas movibles
-            Boxes = new Matrix[]
+            MovingBoxes = new Matrix[]
             {
-               Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x - 150f, y + 50f, z + 830f),
-               Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x + 150f, y + 50f, z + 870f)
+               Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x + 150f, y + 50f, z + 830f),
+               Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x - 150f, y + 50f, z + 870f)
             };
+            
+            MovingBoxesBodyHandle = new BodyHandle[MovingBoxes.Length];
+            MovingBoxesScale = new Vector3(100f, 100f, 20f);
+            InitialLeftXPositionMovingBoxes = x + 150f;
+            InitialRigthXPositionMovingBoxes = x - 150f;
 
-            //logica inicial para calcular el movimiento
-            box1InitialXPosition = Boxes[0].Translation.X;
 
-            MovingRight = true;
+            
+            for (int index = 0; index < MovingBoxes.Length; index++)
+            {
+                var matrix = MovingBoxes[index];
+                
+                matrix.Decompose(out scale, out rot, out translation);
+                
+                System.Numerics.Quaternion rotationMB = new System.Numerics.Quaternion(rot.X, rot.Y, rot.Z, rot.W);
+                
+                var initialPosMw = new RigidPose(Utils.ToNumericVector3(translation), rotationMB);
+                
+                var annoyingMovingWallsShape = new Box(MovingBoxesScale.X, MovingBoxesScale.Y, MovingBoxesScale.Z);
+                MovingBoxesBodyHandle[index] = (
+                    Simulation.Bodies.Add(BodyDescription.CreateKinematic(initialPosMw,
+                        new CollidableDescription(Simulation.Shapes.Add(annoyingMovingWallsShape), 0.1f,
+                            ContinuousDetection.Passive),
+                        new BodyActivityDescription(-0.1f))));
+
+
+
+            }
+            
 
             //Signs 
 
@@ -172,38 +199,45 @@ namespace MonoGamers.Pistas
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
         }
 
-        public void Update(float elapsedSeconds)
+        public void Update()
         {
-            float box1XPosition = Boxes[0].Translation.X;
-            float box1YPosition = Boxes[0].Translation.Y;
-            float box1ZPosition = Boxes[0].Translation.Z;
-            float box2XPosition = Boxes[1].Translation.X;
-            float box2YPosition = Boxes[1].Translation.Y;
-            float box2ZPosition = Boxes[1].Translation.Z;
-            if (MovingRight)
+            // AnnoyingMovingWalls
+            for (int index = 0; index < MovingBoxesBodyHandle.Length; index++)
             {
-                box1XPosition += 70f * elapsedSeconds;
-                box2XPosition -= 70f * elapsedSeconds;
-                Boxes[0] = Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(box1XPosition, box1YPosition, box1ZPosition);
-                Boxes[1] = Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(box2XPosition, box2YPosition, box2ZPosition);
-                if (box1XPosition >= box1InitialXPosition + 300f) MovingRight = false;
-            }
-            else
-            {
-                box1XPosition -= 70f * elapsedSeconds;
-                box2XPosition += 70f * elapsedSeconds;
-                Boxes[0] = Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(box1XPosition, box1YPosition, box1ZPosition);
-                Boxes[1] = Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(box2XPosition, box2YPosition, box2ZPosition);
-                if (box1XPosition <= box1InitialXPosition) MovingRight = true;
+                var MovingBoxesBodyRef = Simulation.Bodies.GetBodyReference(MovingBoxesBodyHandle[index]);
+                if (index%2 == 0){
+                    if (MovingBoxesBodyRef.Pose.Position.X >= InitialLeftXPositionMovingBoxes)
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 70f ));
+                    if (MovingBoxesBodyRef.Pose.Position.X <= InitialLeftXPositionMovingBoxes - LengthDistanceDifference)
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 70f ));
+                }
+                else
+                {
+                    if (MovingBoxesBodyRef.Pose.Position.X <= InitialRigthXPositionMovingBoxes)
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 70f ));
+                    if (MovingBoxesBodyRef.Pose.Position.X >= InitialRigthXPositionMovingBoxes + LengthDistanceDifference)
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 70f ));
+                }
+
             }
         }
 
         public void Draw(Matrix view, Matrix projection)
         {
             Array.ForEach(Platforms, Platform => BoxPrimitive.Draw(Platform, view, projection));
-            Array.ForEach(Boxes, Box => BoxPrimitive.Draw(Box, view, projection));
             Array.ForEach(RushPowerups, PowerUp => RushModel.Draw(PowerUp, view, projection));
             Array.ForEach(Signs, Sign => SignModel.Draw(Sign, view, projection));
+            
+            // Draw AnnoyingMovingWallsWorld
+            for (int index = 0; index < MovingBoxes.Length; index++)
+            {
+                var poseMw = Simulation.Bodies.GetBodyReference(MovingBoxesBodyHandle[index]).Pose;
+                MovingBoxes[index] = Matrix.CreateScale(MovingBoxesScale) * Matrix.CreateTranslation(poseMw.Position.X, poseMw.Position.Y, poseMw.Position.Z);
+                BoxPrimitive.Draw(MovingBoxes[index], view, projection);
+
+            }
+
+            
             SonicModel.Draw(Sonic, view, projection);
         }
 
