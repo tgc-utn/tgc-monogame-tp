@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Collisions;
-using TGC.MonoGame.TP.Props.PropType;
 using TGC.MonoGame.TP.References;
 
 namespace TGC.MonoGame.TP.Props.PropType.StaticProps;
@@ -14,7 +13,7 @@ public abstract class StaticProp
     protected Model Model;
     protected Effect Effect;
     protected Matrix World;
-    protected BoundingBox Box;
+    public BoundingBox Box; // TODO LA BOX ES GIGANTE NO SE PORQUE, ARREGLAR
 
     public StaticProp(PropReference modelReference)
     {
@@ -73,11 +72,7 @@ public abstract class StaticProp
         
     }
 
-    public void Update(GameTime gameTime)
-    {
-        // Destruir prop
-        return;
-    }
+    public abstract void Update(ICollidable collidable);
 
     public abstract void CollidedWith(ICollidable other);
 }

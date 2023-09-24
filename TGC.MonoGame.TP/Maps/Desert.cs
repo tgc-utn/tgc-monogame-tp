@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Props;
 using TGC.MonoGame.TP.Props.PropType;
 using TGC.MonoGame.TP.Props.PropType.StaticProps;
@@ -15,18 +16,17 @@ namespace TGC.MonoGame.TP.Maps;
 public class Desert : Map
 {
     protected Scenary Scenary { get; }
-    protected Tank Player { get; }
-    protected List<Tank> Enemies { get; } = new List<Tank>();
-    protected List<Tank> Alies { get; } = new List<Tank>();
-    protected List<StaticProp> Props { get; } = new List<StaticProp>();
+    public List<Tank> Enemies { get; } = new List<Tank>();
+    public List<Tank> Allies { get; } = new List<Tank>();
+    public List<StaticProp> Props { get; } = new List<StaticProp>();
 
-    public Desert(int numberOfTanks, ModelReference AliesTank, ModelReference EnemiesTank)
+    public Desert(int numberOfTanks, ModelReference AlliesTank, ModelReference EnemiesTank, Tank player)
     {
         Scenary = new Scenary(Models.Scenary.Plane, new Vector3(-0.1f,-0.1f,-0.1f));
         Scenary.GetSpawnPoints(numberOfTanks, false)
-            .ForEach(spawnPoint => Alies.Add(new Tank(EnemiesTank, spawnPoint)));
+            .ForEach(spawnPoint => Allies.Add(new Tank(EnemiesTank, spawnPoint)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
-            .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint)));
+            .ForEach(spawnPoint => Allies.Add(new Tank(AlliesTank, spawnPoint)));
         Scenary.Reference.PropsReference
             .ForEach(prop =>
             {
@@ -36,6 +36,7 @@ public class Desert : Map
                 else
                     Props.Add(new SmallStaticProp(prop));
             });
+        Player = player;
     }
 
     public override void Load(ContentManager content, Effect effect)
@@ -43,15 +44,33 @@ public class Desert : Map
         Scenary.Load(content, effect);
         foreach (var enemy in Enemies)
             enemy.Load(content, effect);
-        foreach (var alie in Alies)
-            alie.Load(content, effect);
+        foreach (var ally in Allies)
+            ally.Load(content, effect);
         foreach (var prop in Props)
             prop.Load(content, effect);
+        Player.Load(content, effect);
     }
 
-    public override void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime, KeyboardState keyboardState)
     {
-        return;
+        foreach (var enemy in Enemies)
+            enemy.Update(gameTime, keyboardState);
+        foreach (var ally in Allies)
+            ally.Update(gameTime, keyboardState);
+        // foreach (var prop in Props)
+        // {
+        //     foreach (var enemy in Enemies)
+        //     {
+        //         prop.Update(enemy);
+        //     }
+        //     foreach (var ally in Allies)
+        //     {
+        //         prop.Update(ally);
+        //     }
+        //     prop.Update(Player);
+        // }
+        //TODO DESCOMENTAR CUANDO SE ARREGLEN LAS BOXES DE LOS PROPS
+        Player.Update(gameTime, keyboardState);
     }
 
     public override void Draw(Matrix view, Matrix projection)
@@ -59,9 +78,10 @@ public class Desert : Map
         Scenary.Draw(view, projection);
         foreach (var enemy in Enemies)
             enemy.Draw(view, projection);
-        foreach (var alie in Alies)
-            alie.Draw(view, projection);
+        foreach (var ally in Allies)
+            ally.Draw(view, projection);
         foreach (var prop in Props)
             prop.Draw(view, projection);
+        Player.Draw(view, projection);
     }
 }

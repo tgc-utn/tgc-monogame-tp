@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Maps;
+using TGC.MonoGame.TP.Props.PropType.StaticProps;
 using TGC.MonoGame.TP.References;
 using TGC.MonoGame.TP.Tanks;
 
@@ -23,7 +24,6 @@ namespace TGC.MonoGame.TP
         private Map Map { get; set; }
         private Camera Camera { get; set; }
         public Gizmos.Gizmos Gizmos { get; }
-        public Tank Tank;
         
         /// <summary>
         ///     Constructor del juego.
@@ -52,10 +52,10 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
-            Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
+            Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             
-            Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90);
-            Tank = new Tank(References.Models.Tank.KF51, new Vector3(0, 0, 0));
+            var player = new Tank(References.Models.Tank.KF51, new Vector3(0, 0, 0));
+            Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90, player);
             
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
@@ -78,8 +78,6 @@ namespace TGC.MonoGame.TP
             Map.Load(Content, Effect);
             
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
-            
-            Tank.Load(Content, Effect);
 
             base.LoadContent();
         }
@@ -92,17 +90,16 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-
+            var keyboardState = Keyboard.GetState();
             // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
-            
-            Camera.Update(gameTime);
+            Camera.Update(gameTime, Map.Player.World);
             Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
-            Map.Update(gameTime);
+            Map.Update(gameTime, keyboardState);
             base.Update(gameTime);
         }
 
@@ -115,6 +112,9 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.White);
             Map.Draw(Camera.View, Camera.Projection);
+            Gizmos.DrawCube((Map.Player.Box.Max + Map.Player.Box.Min) / 2f, Map.Player.Box.Max - Map.Player.Box.Min, Color.Aqua);
+            // foreach (var prop in Map.Props)
+            //     Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Aqua);
             Gizmos.Draw();
         }
 

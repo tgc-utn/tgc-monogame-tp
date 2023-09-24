@@ -14,7 +14,9 @@ public class Tank : ICollidable
     private Model Model;
     private ModelReference Reference;
     private Effect Effect;
-    private Matrix World;
+    public Matrix World { get; set; }
+    private Vector3 Position;
+    public BoundingBox Box { get; set; }
 
     private float _velocidad;
     private Matrix _rotacion;
@@ -23,6 +25,7 @@ public class Tank : ICollidable
     {
         Reference = model;
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
+        Position = position;
         
         _velocidad = 0;
         _rotacion = Matrix.Identity;
@@ -36,6 +39,9 @@ public class Tank : ICollidable
         {
             modelMeshPart.Effect = Effect;
         }
+        // Creo y ajusto la box
+        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min + Position, Box.Max + Position);
     }
 
     public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -60,6 +66,13 @@ public class Tank : ICollidable
             // Giro der
             _rotacion *= Matrix.CreateRotationY(-0.04f);
         }
+
+        var posicionAnterior = Position;
+        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad;
+        var desplazamiento = Position - posicionAnterior;
+        World = _rotacion * Matrix.CreateTranslation(Position);
+        
+        Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
     }
 
     public void Draw(Matrix view, Matrix projection)
@@ -89,5 +102,10 @@ public class Tank : ICollidable
     {
         Console.WriteLine("Chocaste con prop grande");
         // TODO frenar el tanque del todo
+    }
+
+    public BoundingBox GetBoundingBox()
+    {
+        return Box;
     }
 }
