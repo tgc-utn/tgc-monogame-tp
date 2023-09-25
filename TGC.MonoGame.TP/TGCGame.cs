@@ -315,25 +315,24 @@ namespace TGC.MonoGame.TP
             {
                 Speed += Acceleration * time;
                 PitchSpeed += PitchAcceleration * time;
-                Pitch -= time * PitchSpeed;
             }
             else if (keyboardState.IsKeyDown(Keys.S))
             {
                 Speed -= Acceleration * time;
                 PitchSpeed += PitchAcceleration * time;
-                Pitch += time * PitchSpeed;
             }
             else
             {
                 var decelerationDirection = Math.Sign(Speed) * -1;
+                var pitchDecelerationDirection = Math.Sign(PitchSpeed) * -1;
                 Speed += Acceleration * time * decelerationDirection;
-                PitchSpeed += PitchAcceleration * time * decelerationDirection;
-                Pitch += PitchSpeed * time * decelerationDirection;
+                PitchSpeed += PitchAcceleration * time * pitchDecelerationDirection;
             }
             
             PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
             Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
             SpherePosition += forward * time * Speed;
+            Pitch += PitchSpeed * time * Math.Sign(Speed) * -1;
             
             var rotationX = Matrix.CreateRotationX(Pitch);
             var translation = Matrix.CreateTranslation(SpherePosition);
