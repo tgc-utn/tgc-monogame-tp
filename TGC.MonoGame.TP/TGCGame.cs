@@ -68,6 +68,7 @@ namespace TGC.MonoGame.TP
         
         // Effects
         private Effect Effect { get; set; }
+        private Effect TextureEffect { get; set; }
         
         // Textures
         private Texture2D StonesTexture { get; set; }
@@ -79,11 +80,13 @@ namespace TGC.MonoGame.TP
         //private Player _player;
 
         private float Speed = 0f;
+        private float PitchSpeed = 0f; 
         private const float MaxSpeed = 180f;
+        private const float PitchMaxSpeed = 15f;
+        private const float PitchAcceleration = 5f;
         private const float Acceleration = 60f;
-        private const float Deceleration = 45f;
+        private const float Deceleration = 50f;
         private const float AngularSpeed = 4.5f;
-        private const float PitchSpeed = 0.8f; 
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -268,6 +271,8 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             loadEffectOnMesh(StarModel, Effect);
 
+            TextureEffect = Content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
+
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             /*foreach (var mesh in Model.Meshes)
@@ -309,12 +314,16 @@ namespace TGC.MonoGame.TP
             if (keyboardState.IsKeyDown(Keys.W))
             {
                 Speed += Acceleration * time;
-                Pitch += time * PitchSpeed;
+                PitchSpeed += PitchAcceleration * time;
+                PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
+                Pitch -= time * PitchSpeed;
             }
             else if (keyboardState.IsKeyDown(Keys.S))
             {
                 Speed -= Acceleration * time;
-                Pitch -= time * PitchSpeed;
+                PitchSpeed += PitchAcceleration * time;
+                PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
+                Pitch += time * PitchSpeed;
             }
             else
             {
@@ -385,8 +394,9 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(Effect);
             }  
             
+            Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
 
-            DrawGeometry(Sphere, World, Effect);
+            //DrawGeometry(Sphere, World, TextureEffect);
 
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
@@ -409,10 +419,11 @@ namespace TGC.MonoGame.TP
         
         private void DrawGeometry(GeometricPrimitive geometry, Matrix worldMatrix, Effect effect)
         {
-            Effect.Parameters["World"].SetValue(worldMatrix);
-            Effect.Parameters["View"].SetValue(TargetCamera.View);
-            Effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.IndianRed.ToVector3());
+            effect.Parameters["World"].SetValue(worldMatrix);
+            effect.Parameters["View"].SetValue(TargetCamera.View);
+            effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+            effect.Parameters["DiffuseColor"]?.SetValue(Color.IndianRed.ToVector3());
+            effect.Parameters["Texture"].SetValue(StonesTexture);
             geometry.Draw(effect);
         }
 

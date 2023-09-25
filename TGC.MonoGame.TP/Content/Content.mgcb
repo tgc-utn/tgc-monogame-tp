@@ -19,6 +19,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/BasicShader.fx
 
+#begin Effects/BasicTextureShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/BasicTextureShader.fx
+
 #begin Models/star/Gold_Star.FBX
 /importer:FbxImporter
 /processor:ModelProcessor
