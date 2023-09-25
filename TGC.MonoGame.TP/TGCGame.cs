@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Security.AccessControl;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -85,7 +86,6 @@ namespace TGC.MonoGame.TP
         private const float PitchMaxSpeed = 15f;
         private const float PitchAcceleration = 5f;
         private const float Acceleration = 60f;
-        private const float Deceleration = 50f;
         private const float AngularSpeed = 4.5f;
         
         /// <summary>
@@ -315,22 +315,23 @@ namespace TGC.MonoGame.TP
             {
                 Speed += Acceleration * time;
                 PitchSpeed += PitchAcceleration * time;
-                PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
                 Pitch -= time * PitchSpeed;
             }
             else if (keyboardState.IsKeyDown(Keys.S))
             {
                 Speed -= Acceleration * time;
                 PitchSpeed += PitchAcceleration * time;
-                PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
                 Pitch += time * PitchSpeed;
             }
             else
             {
                 var decelerationDirection = Math.Sign(Speed) * -1;
-                Speed += Deceleration * time * decelerationDirection;
+                Speed += Acceleration * time * decelerationDirection;
+                PitchSpeed += PitchAcceleration * time * decelerationDirection;
+                Pitch += PitchSpeed * time * decelerationDirection;
             }
-
+            
+            PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
             Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
             SpherePosition += forward * time * Speed;
             
