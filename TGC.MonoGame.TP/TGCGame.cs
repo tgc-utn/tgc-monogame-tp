@@ -81,7 +81,7 @@ namespace TGC.MonoGame.TP
         private float Speed = 0f;
         private const float MaxSpeed = 180f;
         private const float Acceleration = 60f;
-        private const float Deceleration = 30f;
+        private const float Deceleration = 45f;
         private const float AngularSpeed = 4.5f;
         private const float PitchSpeed = 0.8f; 
         
@@ -306,32 +306,25 @@ namespace TGC.MonoGame.TP
             var rotationY = Matrix.CreateRotationY(Yaw);
             var forward = rotationY.Forward;
 
-            if (!keyboardState.IsKeyDown(Keys.W) & !keyboardState.IsKeyDown(Keys.S))
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                Speed += Acceleration * time;
+                Pitch += time * PitchSpeed;
+            }
+            else if (keyboardState.IsKeyDown(Keys.S))
+            {
+                Speed -= Acceleration * time;
+                Pitch -= time * PitchSpeed;
+            }
+            else
             {
                 var decelerationDirection = Math.Sign(Speed) * -1;
                 Speed += Deceleration * time * decelerationDirection;
-                Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
-
-                SpherePosition += forward * time * Speed;
             }
+
+            Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
+            SpherePosition += forward * time * Speed;
             
-            if (keyboardState.IsKeyDown(Keys.W))
-            {   
-                Speed += Acceleration * time;
-                Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
-
-                SpherePosition += forward * time * Speed;
-                Pitch += time * PitchSpeed;
-            }
-            if (keyboardState.IsKeyDown(Keys.S))
-            {
-                Speed -= Acceleration * time;
-                Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
-                
-                SpherePosition += forward * time * Speed;
-                Pitch -= time * PitchSpeed;
-            }
-
             var rotationX = Matrix.CreateRotationX(Pitch);
             var translation = Matrix.CreateTranslation(SpherePosition);
             
