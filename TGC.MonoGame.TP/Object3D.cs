@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Collisions;
 
 
 namespace TGC.MonoGame.TP
@@ -13,21 +14,35 @@ namespace TGC.MonoGame.TP
         private Model Model { get; set; }
         public Matrix World { get; set; }
 
+        public bool esVictima = false;
+        public bool esEliminable = false;
+        
         private Texture2D Texture { get; set; }
         public Vector3 Position{ get; set; }
         private float Rotation{ get; set; }
         private Effect Effect { get; set; }
 
-        public Object(Vector3 Position, Model modelo, Effect efecto, Texture2D textura){
+        public OrientedBoundingBox Box { get; set; }
+
+        public Object(Vector3 Position, Model modelo, Effect efecto, Texture2D textura, bool esConstante){
             this.Position = Position;
 
             World = Matrix.CreateWorld(Position, Vector3.Forward, Vector3.Up);
             
             Model = modelo;
 
+            var AABB = BoundingVolumesExtensions.CreateAABBFrom(Model);
+            Box = OrientedBoundingBox.FromAABB(AABB);
+            Box.Center = Position;
+            Box.Orientation = Matrix.Identity;
+            
+            //Box = new OrientedBoundingBox(Position, new Vector3(25,0,25));
+
             Effect = efecto;
 
             Texture = textura;
+
+            esEliminable = esConstante;
         }
 
         public void LoadContent(){

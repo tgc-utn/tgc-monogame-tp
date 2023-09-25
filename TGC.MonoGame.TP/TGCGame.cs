@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,15 +21,15 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
-        private const int DistanciaParaArboles = 125;
+        private const int DistanciaParaArboles = 250;
         private const int DistanciaParaArbustos = 15;
         private const int DistanciaParaFlores = 15;
         private const int DistanciaParaHongos = 15;
-        private const int CantidadDeArboles = 120;
-        private const int CantidadDeArbustos = 50;
-        private const int CantidadDeFlores = 45;
-        private const int CantidadDeHongos = 30;
-        private const int CantidadDeRocas = 30;
+        private const int CantidadDeArboles = 300;
+        private const int CantidadDeArbustos = 500;
+        private const int CantidadDeFlores = 250;
+        private const int CantidadDeHongos = 250;
+        private const int CantidadDeRocas = 120;
 
         /// <summary>
         ///     Constructor del juego.
@@ -55,7 +56,7 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
 
-        private List<Object> Tanques { get; set; }  
+        private List<TanqueEnemigo> Tanques { get; set; }  
 
         private Object Prueba { get; set; }
         private Texture2D Textura { get; set; }
@@ -81,6 +82,8 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
+
+
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
             // Apago el backface culling.
@@ -95,7 +98,7 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
 
-            Tanques = new List<Object>();
+            Tanques = new List<TanqueEnemigo>();
 
             // Configuramos nuestras matrices de la escena, en este caso se realiza en el objeto FollowCamara
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -135,13 +138,15 @@ namespace TGC.MonoGame.TP
             roca = Content.Load<Model>(ContentFolder3D + "Rock/rock");
             // este efecto esta hecho asi nomas y solo pone las cosas verdes
             EffectRoca = Content.Load<Effect>(ContentFolderEffects + "BasicShaderRock");
-            Roca = new Object(new Vector3(0f,0f,0f), roca, EffectRoca,null);
-            Roca.LoadContent();
+            //Roca = new Object(new Vector3(0f,0f,0f), roca, EffectRoca,null);
+            //Roca.LoadContent();
 
-            Roca.World = Matrix.CreateScale(50f) * Roca.World;
+            //Roca.World = Matrix.CreateScale(50f) * Roca.World;
             
-            InitializeAmbient();
+            
             InitializeTanks();
+            InitializeAmbient();
+            
             Tanques.ForEach(o => o.LoadContent());
             Ambiente.ForEach(o => o.LoadContent());
 
@@ -183,14 +188,34 @@ namespace TGC.MonoGame.TP
             // Árboles
             for (int i = 0; i < CantidadDeArboles; i++)
             {
-                posicionAmbiente = SelectNewPosition(DistanciaParaArboles);
-
+                posicionAmbiente = SelectNewPosition(DistanciaParaArboles, 6800);
+                String arbol = posiblesArboles[new Random().Next(0, 3)];
                 Ambiente.Add(
                     new Object(
                         posicionAmbiente,
-                        Content.Load<Model>(ContentFolder3D + "Ambiente/" + posiblesArboles[new Random().Next(0, 3)]),
+                        Content.Load<Model>(ContentFolder3D + "Ambiente/" + arbol),
                         Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
-                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)])
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)]),
+                        arbol.Equals("Tree") 
+                        )
+                    );
+            }
+            
+            // Anillo de árboles
+            for (int i = 0; i < 500; i++)
+            {
+                float angle = new Random().Next(0, 360);
+                float delta = new Random().Next(-150, 150);
+                float dist = 7000 + delta;
+                posicionAmbiente = new Vector3((dist * MathF.Cos(angle)), 0, (dist * MathF.Sin(angle)));
+                String arbol = posiblesArboles[new Random().Next(0, 3)];
+                Ambiente.Add(
+                    new Object(
+                        posicionAmbiente,
+                        Content.Load<Model>(ContentFolder3D + "Ambiente/" + arbol),
+                        Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)]),
+                        arbol.Equals("Tree") 
                         )
                     );
             }
@@ -198,14 +223,15 @@ namespace TGC.MonoGame.TP
             // Arbustos
             for (int i = 0; i < CantidadDeArbustos; i++)
             {
-                posicionAmbiente = SelectNewPosition(DistanciaParaArbustos);
+                posicionAmbiente = SelectNewPosition(DistanciaParaArbustos, 1);
 
                 Ambiente.Add(
                     new Object(
                         posicionAmbiente,
                         Content.Load<Model>(ContentFolder3D + "Ambiente/" + posiblesArbustos[new Random().Next(0, 3)]),
                         Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
-                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)])
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasArboles[new Random().Next(0, 6)]),
+                        true
                         )
                     );
             }
@@ -213,14 +239,15 @@ namespace TGC.MonoGame.TP
             // Flores
             for (int i = 0; i < CantidadDeFlores; i++)
             {
-                posicionAmbiente = SelectNewPosition(DistanciaParaFlores);
+                posicionAmbiente = SelectNewPosition(DistanciaParaFlores, 1);
 
                 Ambiente.Add(
                     new Object(
                         posicionAmbiente,
                         Content.Load<Model>(ContentFolder3D + "Ambiente/" + posiblesFlores[new Random().Next(0, 2)]),
                         Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
-                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasFlores[new Random().Next(0, 3)])
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasFlores[new Random().Next(0, 3)]), 
+                        true
                         )
                     );
             }
@@ -228,21 +255,22 @@ namespace TGC.MonoGame.TP
             // Hongos
             for (int i = 0; i < CantidadDeHongos; i++)
             {
-                posicionAmbiente = SelectNewPosition(DistanciaParaHongos);
+                posicionAmbiente = SelectNewPosition(DistanciaParaHongos, 1);
 
                 Ambiente.Add(
                     new Object(
                         posicionAmbiente,
                         Content.Load<Model>(ContentFolder3D + "Ambiente/Mushroom"),
                         Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
-                        Content.Load<Texture2D>(ContentFolderTextures + "Mushroom"))
+                        Content.Load<Texture2D>(ContentFolderTextures + "Mushroom"),
+                        true)
                     );
             }
 
             // Rocas
             for (int i = 0; i < CantidadDeRocas; i++)
             {
-                posicionAmbiente = SelectNewPosition(100);
+                posicionAmbiente = SelectNewPosition(100, 5000);
                 posicionAmbiente += Vector3.Up * 30;
 
                 Ambiente.Add(
@@ -250,13 +278,14 @@ namespace TGC.MonoGame.TP
                         posicionAmbiente,
                         Content.Load<Model>(ContentFolder3D + "Rocas/" + posiblesRocas[new Random().Next(0, 7)]),
                         Content.Load<Effect>(ContentFolderEffects + "BasicShader"),
-                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasRocas[new Random().Next(0, 1)]))
+                        Content.Load<Texture2D>(ContentFolderTextures + posiblesTexturasRocas[new Random().Next(0, 1)]),
+                        false)
                     );
                 Ambiente.Last().World = Matrix.CreateScale(300f) * Ambiente.Last().World;
             }
         }
 
-        private Vector3 SelectNewPosition(int distanciaMinima)
+        private Vector3 SelectNewPosition(int distanciaMinimaEntreObjetos, int radio)
         {
             Vector3 posicionAmbiente = new Vector3();
             int X;
@@ -268,9 +297,10 @@ namespace TGC.MonoGame.TP
                 posicionAmbiente = new Vector3(X, 0f, Z);
             }
             while (
-                Ambiente.Exists(
-                    arbol => Vector3.Distance(arbol.Position, posicionAmbiente) < distanciaMinima
-                    )
+                Ambiente.Exists( arbol => Vector3.Distance(arbol.Position, posicionAmbiente) < distanciaMinimaEntreObjetos ) ||
+                Vector3.Distance(Vector3.Zero, posicionAmbiente) < radio
+                //Tanques.Exists( tanqueEnemigo => Vector3.Distance(tanqueEnemigo.Position, posicionAmbiente) < 6000 ) ||
+                //Vector3.Distance(MainTanque.Position, posicionAmbiente) < 6000
                 );
             return posicionAmbiente;
         }
@@ -291,10 +321,10 @@ namespace TGC.MonoGame.TP
                     Content.Load<Effect>(ContentFolderEffects + "BasicShader"), 
                     Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
             }*/
-            Tanques.Add(new Object(new Vector3(1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
-            Tanques.Add(new Object(new Vector3(-1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
-            Tanques.Add(new Object(new Vector3(1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
-            Tanques.Add(new Object(new Vector3(-1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/mask")));
+            Tanques.Add(new TanqueEnemigo(new Vector3(1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullA")));
+            Tanques.Add(new TanqueEnemigo(new Vector3(-1000f, 150, 0), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullB")));
+            Tanques.Add(new TanqueEnemigo(new Vector3(1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/hullC")));
+            Tanques.Add(new TanqueEnemigo(new Vector3(-1000f, 150, 1000f), T90, Content.Load<Effect>(ContentFolderEffects + "BasicShader"), Content.Load<Texture2D>(ContentFolder3D + "textures_mod/mask")));
         }
 
         /// <summary>
@@ -302,8 +332,19 @@ namespace TGC.MonoGame.TP
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
         ///     ante ellas.
         /// </summary>
+        
+        int frames = 0;
+        float tiempo = 0;
         protected override void Update(GameTime gameTime)
         {
+            tiempo += (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            frames++;
+            Console.WriteLine("Frames: " + 1000f/(float)(gameTime.ElapsedGameTime.TotalMilliseconds));
+            /*if(tiempo >= 1){
+                Console.WriteLine("Frames: " + frames);
+                frames = 0;
+                tiempo = 0;
+            }*/
             // Aca deberiamos poner toda la logica de actualizacion del juego.
 
             // Capturar Input teclado
@@ -313,11 +354,26 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-            //MainTanque.Position += Vector3.UnitY * 5;
-            //MainTanque.World = Matrix.CreateTranslation(MainTanque.Position);
+            // Control del jugador
+            MainTanque.Update(gameTime, Keyboard.GetState(), Ambiente, Tanques);
 
-            // Lógica del juego acá (por ahora solo renderiza un mundo y controlamos al jugador con wasd)
-            MainTanque.Update(gameTime, Keyboard.GetState());
+            // Colisión del MainTanque con el tanque principal
+            /*Tanques.ForEach(TanqueEnemigoDeLista => {
+                TanqueEnemigoDeLista.Update(gameTime);             // Actualiza el tanque enemigo
+                MainTanque.Intersecta(TanqueEnemigoDeLista);       // Analiza la intersección con el main tanque
+                TanqueEnemigoDeLista.Intersecta(Ambiente);         // Analiza la interseccion entre tanque y ambiente
+            });*/
+            Tanques.ForEach(TanqueEnemigoDeLista => {
+                TanqueEnemigoDeLista.Update(gameTime, Ambiente);
+                });
+            // Colisión del MainTanque con el ambiente (plantas y rocas)
+            /*Ambiente.ForEach(o => {
+                MainTanque.Intersecta(o);
+            });*/
+
+            // Se eliminan los ambientes que hayan chocado
+            Ambiente.RemoveAll(O => O.esVictima);
+            
             
 
             base.Update(gameTime);

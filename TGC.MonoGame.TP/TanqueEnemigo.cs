@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,7 +9,7 @@ using TGC.MonoGame.Samples.Collisions;
 
 namespace TGC.MonoGame.TP
 {    
-    public class Tanque
+    public class TanqueEnemigo
     {
         // Colisión
         public OrientedBoundingBox TankBox { get; set; }
@@ -23,7 +22,6 @@ namespace TGC.MonoGame.TP
 
         protected Texture2D Texture { get; set; }
         public Vector3 Position{ get; set; }
-        public Vector3 OldPosition{ get; set; }
         protected float Rotation{ get; set; }
         protected Effect Effect { get; set; }
 
@@ -33,23 +31,15 @@ namespace TGC.MonoGame.TP
         private Matrix CannonMatrix;
         
 
-        
-        public Vector3 TankVelocity  { get; set; }
-        private Vector3 TankDirection  { get; set; }
-        
-        private Boolean Moving  { get; set; }
-        int Sentido;
-        float Acceleration = 7f;
-        float CurrentAcceleration = 0;
 
-
-        public Tanque(Vector3 Position, Model modelo, Effect efecto, Texture2D textura){
+        public TanqueEnemigo(Vector3 Position, Model modelo, Effect efecto, Texture2D textura){
             this.Position = Position;
 
             World = Matrix.CreateWorld(Position, Vector3.Forward, Vector3.Up);
             
             Model = modelo;
-
+            
+            
             var AABB = BoundingVolumesExtensions.CreateAABBFrom(Model);
             TankBox = OrientedBoundingBox.FromAABB(AABB);
             TankBox.Center = Position;
@@ -114,77 +104,36 @@ namespace TGC.MonoGame.TP
         }
 
         
-        public void Update(GameTime gameTime, KeyboardState key, List<Object> ambiente, List<TanqueEnemigo> enemigos){
+        public Vector3 TankVelocity  { get; set; }
+        private Vector3 TankDirection  { get; set; }
+        
+        private Boolean Moving  { get; set; }
+        int Sentido;
+        float Acceleration = 7f;
+        float CurrentAcceleration = 0;
+
+        public bool Intersecta(Object objeto){
+            return TankBox.Intersects(objeto.Box);
+        }
+
+        public void Update(GameTime gameTime, List<Object> ambiente){
             float deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             float moduloVelocidadXZ = new Vector3(TankVelocity.X, 0f, TankVelocity.Z).Length();
             
-            if(key.IsKeyDown(Keys.W)){ //adeltante
-                Moving = true;
-                CurrentAcceleration = 1;
-                Sentido = 1;
-            }
-            if(key.IsKeyDown(Keys.S)){ //reversa                
-                Moving = true;
-                CurrentAcceleration = -1;
-                Sentido = -1;
-            }
-            if(key.IsKeyDown(Keys.A) && Moving){ 
-                RotationMatrix *= Matrix.CreateRotationY(.03f);
-                TankDirection = Vector3.Transform(Vector3.Forward, RotationMatrix); 
-                TankVelocity = TankDirection * moduloVelocidadXZ * Sentido; 
-                TankBox.Rotate(Matrix.CreateRotationY(.03f));
-            }                
-            if(key.IsKeyDown(Keys.D) && Moving){
-                RotationMatrix *= Matrix.CreateRotationY(-.03f);
-                TankDirection = Vector3.Transform(Vector3.Forward, RotationMatrix); 
-                TankVelocity = TankDirection * moduloVelocidadXZ * Sentido; 
-                TankBox.Rotate(Matrix.CreateRotationY(-.03f));
-            }
-
-            AnalisisDeColision(ambiente, enemigos, moduloVelocidadXZ);
-
             Position += TankVelocity;                               // Actualizo la posición en función de la velocidad actual
-            CurrentAcceleration *= Acceleration;                    // Decido la aceleración
 
             TankBox.Center = Position;
+            TankBox.Orientation = RotationMatrix;
             
-
-            // **** Manejo de aceleración y renderizado del auto en el world **** //
-
-
-            if(Moving && moduloVelocidadXZ < 20f){                  // aceleración sobre el plano XZ
-                TankVelocity += TankDirection * CurrentAcceleration * deltaTime;
-            }
-            else if(TankVelocity.X != 0 || TankVelocity.Z != 0) {   // frenada del auto con desaceleración
-                TankVelocity -= TankVelocity * 2f * deltaTime; 
-                if(moduloVelocidadXZ < 0.1f){                       // analizo el módulo del vector velocidad del plano XZ
+            if(TankVelocity.X != 0 || TankVelocity.Z != 0) {   // frenada del auto con desaceleración
+                TankVelocity -= TankVelocity * deltaTime; 
+                if(moduloVelocidadXZ < 0.1f){                       
                     TankVelocity = new Vector3(0f, TankVelocity.Y, 0f);
                     Sentido = 0;
                     CurrentAcceleration = 0;
                 } 
             } 
 
-            Moving = false;
-
-            //System.Console.WriteLine(Position);
-
-            //El auto en el world
-            World = RotationMatrix * Matrix.CreateTranslation(Position) ;
-            OldPosition = Position;
-        }
-        public void agregarVelocidad(Vector3 velocidad){
-            TankVelocity = velocidad;
-        }
-
-        public bool Intersecta(TanqueEnemigo tanqueEnemigo){
-            return TankBox.Intersects(tanqueEnemigo.TankBox);
-        }
-
-        public bool Intersecta(Object objeto){
-            return TankBox.Intersects(objeto.Box);
-        }
-
-        public void AnalisisDeColision(List<Object> ambiente, List<TanqueEnemigo> enemigos, float rapidez){
             foreach (Object itemEspecifico in ambiente){
                 if(Intersecta(itemEspecifico)){
                     if(itemEspecifico.esEliminable){
@@ -202,15 +151,30 @@ namespace TGC.MonoGame.TP
                 }
             }
 
-            foreach (TanqueEnemigo enemigoEspecifico in enemigos){
-                if(Intersecta(enemigoEspecifico)){
-                    var velocidadMain = TankVelocity;
-                    TankVelocity -= enemigoEspecifico.TankVelocity;
-                    enemigoEspecifico.TankVelocity += velocidadMain/3;
-                    
-                    TankVelocity /= 2; // El tanque enemigo al no tener velocidad en esta entrega simplemente se reduce la velocidad de nuestro tanque
-                }
+            //System.Console.WriteLine("Enemigos rotatio: " + TankBox.Orientation.Equals(RotationMatrix));
+
+ 
+            //System.Console.WriteLine(Position);
+
+            //El auto en el world
+            World = RotationMatrix * Matrix.CreateTranslation(Position) ;
+
+        }
+        public void agregarVelocidad(Vector3 velocidad){
+            TankVelocity += velocidad;
+        }
+        public bool Intersecta(BoundingBox objectoAAnalizar){
+            return TankBox.Intersects(objectoAAnalizar);
+        }
+
+        public bool Intersecta(List<Object> listaDeObjetos){
+
+            foreach (var objeto in listaDeObjetos)
+            {
+                if(TankBox.Intersects(objeto.Box) && objeto.esEliminable)
+                    objeto.esVictima = true;                    
             }
+            return true;
         }
     }
 }
