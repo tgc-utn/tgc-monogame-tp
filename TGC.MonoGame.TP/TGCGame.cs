@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Props.PropType.StaticProps;
 using TGC.MonoGame.TP.References;
@@ -54,9 +55,9 @@ namespace TGC.MonoGame.TP
 
             Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             
-            var player = new Tank(References.Models.Tank.KF51, new Vector3(0, 0, 0));
-            Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90, player);
-            
+            var player = new Tank(References.Models.Tank.KF51, new Vector3(400f, 0, 0));
+            PropReference propReference = new PropReference(References.Models.Props.Rock_3, new Vector3(300f, 0f, 0f));
+            Map = new Desert(0, Models.Tank.KF51, Models.Tank.T90, player, new SmallStaticProp(propReference));
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
         }
@@ -113,6 +114,9 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.White);
             Map.Draw(Camera.View, Camera.Projection);
             Gizmos.DrawCube((Map.Player.Box.Max + Map.Player.Box.Min) / 2f, Map.Player.Box.Max - Map.Player.Box.Min, Color.Aqua);
+            // var box = BoundingVolumesExtension.CreateAABBFrom(Map.Prop.);
+            // box = new BoundingBox(Box.Min + Reference.Position, Box.Max + Reference.Position);
+            Gizmos.DrawCube((Map.Prop.Box.Max + Map.Prop.Box.Min) / 2f, Map.Prop.Box.Max - Map.Prop.Box.Min, Color.Red);
             // foreach (var prop in Map.Props)
             //     Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Aqua);
             Gizmos.Draw();

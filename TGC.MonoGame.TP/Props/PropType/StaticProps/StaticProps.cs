@@ -9,24 +9,17 @@ namespace TGC.MonoGame.TP.Props.PropType.StaticProps;
 
 public abstract class StaticProp
 {
-    protected PropReference Reference;
-    protected Model Model;
+    public PropReference Reference;
+    public Model Model;
     protected Effect Effect;
-    protected Matrix World;
-    public BoundingBox Box; // TODO LA BOX ES GIGANTE NO SE PORQUE, ARREGLAR
+    public Matrix World;
+    public BoundingBox Box; // TODO LA BOX ES trasladada mal NO SE PORQUE, ARREGLAR
 
     public StaticProp(PropReference modelReference)
     {
         Reference = modelReference;
-        World = Matrix.CreateScale(Reference.Prop.Scale) * Reference.Prop.Rotation *
+        World = Reference.Prop.Rotation *
                 Matrix.CreateTranslation(Reference.Position);
-    }
-    
-    public StaticProp(PropReference modelReference, Vector3 position)
-    {
-        Reference = modelReference;
-        World = Matrix.CreateScale(Reference.Prop.Scale) * Reference.Prop.Rotation *
-                Matrix.CreateTranslation(position);
     }
 
     public void Load(ContentManager content, Effect effect)
@@ -39,9 +32,6 @@ public abstract class StaticProp
         else
             foreach (var modelMeshPart in Model.Meshes[Reference.Prop.MeshIndex].MeshParts)
                 modelMeshPart.Effect = Effect;
-
-        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
-        Box = new BoundingBox(Box.Min + Reference.Position, Box.Max + Reference.Position);
     }
 
     public void Draw(Matrix view, Matrix projection)
@@ -54,22 +44,14 @@ public abstract class StaticProp
         Effect.Parameters["DiffuseColor"].SetValue(Reference.Prop.Color.ToVector3());
 
         // Draw the model.
-        if (Reference.Prop.MeshIndex == -1)
+        foreach (var mesh in Model.Meshes)
         {
-            foreach (var mesh in Model.Meshes)
-            {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                mesh.Draw();
-            }
+            Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+            mesh.Draw();
         }
-        else
-        {
-            Effect.Parameters["World"].SetValue(Model.Meshes[Reference.Prop.MeshIndex].ParentBone.Transform * World);
-            Model.Meshes[Reference.Prop.MeshIndex].Draw();
-        }
-        /**/
         
-        
+        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min + World.Translation, Box.Max + World.Translation);
     }
 
     public abstract void Update(ICollidable collidable);

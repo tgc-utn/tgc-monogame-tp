@@ -9,9 +9,6 @@ public class LargeStaticProp : StaticProp
 {
     public LargeStaticProp(PropReference modelReference) : base(modelReference) {}
 
-    public LargeStaticProp(PropReference modelReference, Vector3 position) : base(modelReference, position) {}
-
-
     public override void Update(ICollidable collidable)
     {
         var intersects = Box.Intersects(collidable.GetBoundingBox());
