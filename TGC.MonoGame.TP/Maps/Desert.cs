@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -50,6 +51,8 @@ public class Desert : Map
 
     public override void Update(GameTime gameTime, KeyboardState keyboardState)
     {
+        base.Update(gameTime, keyboardState);
+        
         foreach (var enemy in Enemies)
             enemy.Update(gameTime, keyboardState);
         foreach (var ally in Allies)

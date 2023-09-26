@@ -97,7 +97,7 @@ public class Tank : ICollidable
     public void CollidedWithSmallProp()
     {
         Console.WriteLine("Chocaste con prop chico");
-        //TODO bajar la velocidad
+        _velocidad *= 0.5f;
     }
 
     public void CollidedWithLargeProp()

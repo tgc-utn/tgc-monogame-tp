@@ -50,7 +50,6 @@ public abstract class StaticProp
 
     public void Draw(Matrix view, Matrix projection)
     {
-        if (Destroyed) return;
         Model.Root.Transform = World;
         // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
         Effect.Parameters["View"].SetValue(view);
