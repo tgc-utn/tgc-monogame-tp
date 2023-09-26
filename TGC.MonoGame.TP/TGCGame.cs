@@ -82,11 +82,13 @@ namespace TGC.MonoGame.TP
 
         private float Speed = 0f;
         private float PitchSpeed = 0f; 
+        private float YawSpeed = 0f; 
         private const float MaxSpeed = 180f;
         private const float PitchMaxSpeed = 15f;
-        private const float PitchAcceleration = 5f;
+        private const float YawMaxSpeed = 4.5f;
         private const float Acceleration = 60f;
-        private const float AngularSpeed = 4.5f;
+        private const float PitchAcceleration = 5f;
+        private const float YawAcceleration = 5f;
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -301,12 +303,20 @@ namespace TGC.MonoGame.TP
             
             if (keyboardState.IsKeyDown(Keys.A))
             {
-                Yaw += time * AngularSpeed;
+                YawSpeed += YawAcceleration * time;
             }
-            if (keyboardState.IsKeyDown(Keys.D))
+            else if (keyboardState.IsKeyDown(Keys.D))
             {
-                Yaw -= time * AngularSpeed;
+                YawSpeed -= YawAcceleration * time;
             }
+            else
+            {
+                var yawDecelerationDirection = Math.Sign(YawSpeed) * -1;
+                YawSpeed += YawAcceleration * time * yawDecelerationDirection;
+            }
+            
+            MathHelper.Clamp(YawSpeed, -YawMaxSpeed, YawMaxSpeed);
+            Yaw += YawSpeed * time;
 
             var rotationY = Matrix.CreateRotationY(Yaw);
             var forward = rotationY.Forward;
@@ -314,7 +324,7 @@ namespace TGC.MonoGame.TP
             if (keyboardState.IsKeyDown(Keys.W))
             {
                 Speed += Acceleration * time;
-                PitchSpeed += PitchAcceleration * time;
+                PitchSpeed -= PitchAcceleration * time;
             }
             else if (keyboardState.IsKeyDown(Keys.S))
             {
@@ -332,7 +342,7 @@ namespace TGC.MonoGame.TP
             PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
             Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
             SpherePosition += forward * time * Speed;
-            Pitch += PitchSpeed * time * Math.Sign(Speed) * -1;
+            Pitch += PitchSpeed * time;
             
             var rotationX = Matrix.CreateRotationX(Pitch);
             var translation = Matrix.CreateTranslation(SpherePosition);
