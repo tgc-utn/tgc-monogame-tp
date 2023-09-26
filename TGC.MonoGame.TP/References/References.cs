@@ -48,7 +48,7 @@ public class ScenaryReference : ModelReference
 public class PropReference
 {
     public ModelReference Prop { get; }
-    public Vector3 Position { get; }
+    public Vector3 Position { get; set; }
     public int Repetitions { get; }
 
     public PropReference(ModelReference prop, Vector3 position, int repetitions = 1)
@@ -257,82 +257,82 @@ public static class Models
             new Vector3(350f, 1f, 0f),
             new List<PropReference>
             {
-                //Ciudad 1
-                new PropReference(Props.Building_House_1, new Vector3(150f, 0f, 155f), 4),
-                new PropReference(Props.Building_House_2, new Vector3(180f, 0f, 175f), 4),
-                new PropReference(Props.Building_House_3, new Vector3(210f, 0f, 205f), 4),
-                new PropReference(Props.Building_House_4, new Vector3(120f, 0f, 115f), 4),
-                new PropReference(Props.Building_House_5, new Vector3(200f, 0f, 150f), 4),
-                new PropReference(Props.Building_House_6, new Vector3(230f, 0f, 185f), 4),
-                new PropReference(Props.Building_House_7, new Vector3(160f, 0f, 95f), 4),
-                new PropReference(Props.Building_House_8, new Vector3(120f, 0f, 100f), 4),
-                new PropReference(Props.Building_House_9, new Vector3(70f, 0f, 195f), 4),
-
-                //Ciudad 2
-                new PropReference(Props.Building_House_1, new Vector3(150f, 0f, -195f), 4),
-                new PropReference(Props.Building_House_2, new Vector3(180f, 0f, -175f), 4),
-                new PropReference(Props.Building_House_3, new Vector3(210f, 0f, -145f), 4),
-                new PropReference(Props.Building_House_4, new Vector3(120f, 0f, -235f), 4),
-                new PropReference(Props.Building_House_5, new Vector3(200f, 0f, -200f), 4),
-                new PropReference(Props.Building_House_6, new Vector3(230f, 0f, -165f), 4),
-                new PropReference(Props.Building_House_7, new Vector3(160f, 0f, -255f), 4),
-                new PropReference(Props.Building_House_8, new Vector3(120f, 0f, -250f), 4),
-                new PropReference(Props.Building_House_9, new Vector3(70f, 0f, -155f), 4),
-
-                //Ciudad 3
-                new PropReference(Props.Building_House_1, new Vector3(-200f, 0f, 155f), 4),
-                new PropReference(Props.Building_House_2, new Vector3(-170f, 0f, 175f), 4),
-                new PropReference(Props.Building_House_3, new Vector3(-140f, 0f, 205f), 4),
-                new PropReference(Props.Building_House_4, new Vector3(-230f, 0f, 115f), 4),
-                new PropReference(Props.Building_House_5, new Vector3(-150f, 0f, 150f), 4),
-                new PropReference(Props.Building_House_6, new Vector3(-120f, 0f, 185f), 4),
-                new PropReference(Props.Building_House_7, new Vector3(-210f, 0f, 95f), 4),
-                new PropReference(Props.Building_House_8, new Vector3(-230f, 0f, 100f), 4),
-                new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, 195f), 4),
-
-                //Ciudad 4
-                new PropReference(Props.Building_House_1, new Vector3(-200f, 0f, -195f), 4),
-                new PropReference(Props.Building_House_2, new Vector3(-170f, 0f, -175f), 4),
-                new PropReference(Props.Building_House_3, new Vector3(-140f, 0f, -145f), 4),
-                new PropReference(Props.Building_House_4, new Vector3(-230f, 0f, -235f), 4),
-                new PropReference(Props.Building_House_5, new Vector3(-150f, 0f, -200f), 4),
-                new PropReference(Props.Building_House_6, new Vector3(-120f, 0f, -165f), 4),
-                new PropReference(Props.Building_House_7, new Vector3(-210f, 0f, -255f), 4),
-                new PropReference(Props.Building_House_8, new Vector3(-230f, 0f, -250f), 4),
-                new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, -155f), 4),
-
-                //Murallas Centro
-                new PropReference(Props.Wall, new Vector3(-20f, 0f, 15f), 6),
-                new PropReference(Props.Wall_2, new Vector3(150f, 0f, 80f), 1),
-                new PropReference(Props.Wall_2, new Vector3(300f, 0f, 80f), 1),
-                new PropReference(Props.Wall_2, new Vector3(-100f, 0f, 80f), 1),
-                new PropReference(Props.Wall_2, new Vector3(-250f, 0f, 80f), 1),
-
-                //Murallas Izquierda
-                new PropReference(Props.Wall_2, new Vector3(100f, 0f, -265f), 1),
-                new PropReference(Props.Wall_2, new Vector3(300f, 0f, -265f), 1),
-                new PropReference(Props.Wall_2, new Vector3(-50f, 0f, -265f), 1),
-                new PropReference(Props.Wall_2, new Vector3(-250f, 0f, -265f), 1),
-
-                //Murallas Derecha
-                new PropReference(Props.Wall_2, new Vector3(100f, 0f, 430f), 1),
-                new PropReference(Props.Wall_2, new Vector3(300f, 0f, 430f), 1),
-                new PropReference(Props.Wall_2, new Vector3(-50f, 0f, 430f), 1),
-                new PropReference(Props.Wall_2, new Vector3(-250f, 0f, 430f), 1),
-
-                //Murallas Bases
-                new PropReference(Props.Wall_3, new Vector3(265f, 0f, 215f), 1),
-                new PropReference(Props.Wall_3, new Vector3(265f, 0f, -145f), 1),
-                new PropReference(Props.Wall_3, new Vector3(-440f, 0f, 215f), 1),
-                new PropReference(Props.Wall_3, new Vector3(-440f, 0f, -145f), 1),
-
-                //Granjas
-                new PropReference(Props.Farm, new Vector3(350f, 0f, 0f), 1),
-                new PropReference(Props.Farm, new Vector3(350f, 0f, 350f), 1),
-                new PropReference(Props.Farm, new Vector3(350f, 0f, -350f), 1),
-                new PropReference(Props.Farm_2, new Vector3(-350f, 0f, 0f), 1),
-                new PropReference(Props.Farm_2, new Vector3(-350f, 0f, 350f), 1),
-                new PropReference(Props.Farm_2, new Vector3(-350f, 0f, -350f), 1),
+                // //Ciudad 1
+                // new PropReference(Props.Building_House_1, new Vector3(150f, 0f, 155f), 4),
+                // new PropReference(Props.Building_House_2, new Vector3(180f, 0f, 175f), 4),
+                // new PropReference(Props.Building_House_3, new Vector3(210f, 0f, 205f), 4),
+                // new PropReference(Props.Building_House_4, new Vector3(120f, 0f, 115f), 4),
+                // new PropReference(Props.Building_House_5, new Vector3(200f, 0f, 150f), 4),
+                // new PropReference(Props.Building_House_6, new Vector3(230f, 0f, 185f), 4),
+                // new PropReference(Props.Building_House_7, new Vector3(160f, 0f, 95f), 4),
+                // new PropReference(Props.Building_House_8, new Vector3(120f, 0f, 100f), 4),
+                // new PropReference(Props.Building_House_9, new Vector3(70f, 0f, 195f), 4),
+                //
+                // //Ciudad 2
+                // new PropReference(Props.Building_House_1, new Vector3(150f, 0f, -195f), 4),
+                // new PropReference(Props.Building_House_2, new Vector3(180f, 0f, -175f), 4),
+                // new PropReference(Props.Building_House_3, new Vector3(210f, 0f, -145f), 4),
+                // new PropReference(Props.Building_House_4, new Vector3(120f, 0f, -235f), 4),
+                // new PropReference(Props.Building_House_5, new Vector3(200f, 0f, -200f), 4),
+                // new PropReference(Props.Building_House_6, new Vector3(230f, 0f, -165f), 4),
+                // new PropReference(Props.Building_House_7, new Vector3(160f, 0f, -255f), 4),
+                // new PropReference(Props.Building_House_8, new Vector3(120f, 0f, -250f), 4),
+                // new PropReference(Props.Building_House_9, new Vector3(70f, 0f, -155f), 4),
+                //
+                // //Ciudad 3
+                // new PropReference(Props.Building_House_1, new Vector3(-200f, 0f, 155f), 4),
+                // new PropReference(Props.Building_House_2, new Vector3(-170f, 0f, 175f), 4),
+                // new PropReference(Props.Building_House_3, new Vector3(-140f, 0f, 205f), 4),
+                // new PropReference(Props.Building_House_4, new Vector3(-230f, 0f, 115f), 4),
+                // new PropReference(Props.Building_House_5, new Vector3(-150f, 0f, 150f), 4),
+                // new PropReference(Props.Building_House_6, new Vector3(-120f, 0f, 185f), 4),
+                // new PropReference(Props.Building_House_7, new Vector3(-210f, 0f, 95f), 4),
+                // new PropReference(Props.Building_House_8, new Vector3(-230f, 0f, 100f), 4),
+                // new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, 195f), 4),
+                //
+                // //Ciudad 4
+                // new PropReference(Props.Building_House_1, new Vector3(-200f, 0f, -195f), 4),
+                // new PropReference(Props.Building_House_2, new Vector3(-170f, 0f, -175f), 4),
+                // new PropReference(Props.Building_House_3, new Vector3(-140f, 0f, -145f), 4),
+                // new PropReference(Props.Building_House_4, new Vector3(-230f, 0f, -235f), 4),
+                // new PropReference(Props.Building_House_5, new Vector3(-150f, 0f, -200f), 4),
+                // new PropReference(Props.Building_House_6, new Vector3(-120f, 0f, -165f), 4),
+                // new PropReference(Props.Building_House_7, new Vector3(-210f, 0f, -255f), 4),
+                // new PropReference(Props.Building_House_8, new Vector3(-230f, 0f, -250f), 4),
+                // new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, -155f), 4),
+                //
+                // //Murallas Centro
+                // new PropReference(Props.Wall, new Vector3(-20f, 0f, 15f), 6),
+                // new PropReference(Props.Wall_2, new Vector3(150f, 0f, 80f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(300f, 0f, 80f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(-100f, 0f, 80f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(-250f, 0f, 80f), 1),
+                //
+                // //Murallas Izquierda
+                // new PropReference(Props.Wall_2, new Vector3(100f, 0f, -265f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(300f, 0f, -265f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(-50f, 0f, -265f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(-250f, 0f, -265f), 1),
+                //
+                // //Murallas Derecha
+                // new PropReference(Props.Wall_2, new Vector3(100f, 0f, 430f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(300f, 0f, 430f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(-50f, 0f, 430f), 1),
+                // new PropReference(Props.Wall_2, new Vector3(-250f, 0f, 430f), 1),
+                //
+                // //Murallas Bases
+                // new PropReference(Props.Wall_3, new Vector3(265f, 0f, 215f), 1),
+                // new PropReference(Props.Wall_3, new Vector3(265f, 0f, -145f), 1),
+                // new PropReference(Props.Wall_3, new Vector3(-440f, 0f, 215f), 1),
+                // new PropReference(Props.Wall_3, new Vector3(-440f, 0f, -145f), 1),
+                //
+                // //Granjas
+                // new PropReference(Props.Farm, new Vector3(350f, 0f, 0f), 1),
+                // new PropReference(Props.Farm, new Vector3(350f, 0f, 350f), 1),
+                // new PropReference(Props.Farm, new Vector3(350f, 0f, -350f), 1),
+                // new PropReference(Props.Farm_2, new Vector3(-350f, 0f, 0f), 1),
+                // new PropReference(Props.Farm_2, new Vector3(-350f, 0f, 350f), 1),
+                // new PropReference(Props.Farm_2, new Vector3(-350f, 0f, -350f), 1),
 
                 //Rocas
                 new PropReference(Props.Rock_0, new Vector3(-335f, 0, -20f), 1),
@@ -346,83 +346,83 @@ public static class Models
                 new PropReference(Props.Rock_3, new Vector3(100f, 0, 40f), 1),
                 new PropReference(Props.Rock_0, new Vector3(-100f, 0, -20f), 1),
 
-                new PropReference(Props.Rock_0, new Vector3(-335f, 0, -120f), 1),
-                new PropReference(Props.Rock_2, new Vector3(40f, 0, -50f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-10f, 0, -50f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-20f, 0, -50f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-50f, 0, -50f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-220f, 0, -120f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-180f, 0, -120f), 1),
-                new PropReference(Props.Rock_2, new Vector3(130f, 0, -50f), 1),
-                new PropReference(Props.Rock_3, new Vector3(100f, 0, -50f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-100f, 0, -120f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-335f, 0, -120f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(40f, 0, -50f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-10f, 0, -50f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-20f, 0, -50f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-50f, 0, -50f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-220f, 0, -120f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-180f, 0, -120f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(130f, 0, -50f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(100f, 0, -50f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-100f, 0, -120f), 1),
+                //
+                // new PropReference(Props.Rock_0, new Vector3(-335f, 0, -370f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(40f, 0, -300f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-10f, 0, -300f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-20f, 0, -300f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-50f, 0, -300f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-220f, 0, -370f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-180f, 0, -370f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(130f, 0, -300f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(100f, 0, -300f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-100f, 0, -370f), 1),
+                //
+                // new PropReference(Props.Rock_0, new Vector3(-335f, 0, 235f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(40f, 0, 305f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-10f, 0, 305f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-20f, 0, 305f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-50f, 0, 305f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-220f, 0, 235f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-180f, 0, 235f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(130f, 0, 305f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(100f, 0, 305f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-100f, 0, 235f), 1),
 
-                new PropReference(Props.Rock_0, new Vector3(-335f, 0, -370f), 1),
-                new PropReference(Props.Rock_2, new Vector3(40f, 0, -300f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-10f, 0, -300f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-20f, 0, -300f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-50f, 0, -300f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-220f, 0, -370f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-180f, 0, -370f), 1),
-                new PropReference(Props.Rock_2, new Vector3(130f, 0, -300f), 1),
-                new PropReference(Props.Rock_3, new Vector3(100f, 0, -300f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-100f, 0, -370f), 1),
-
-                new PropReference(Props.Rock_0, new Vector3(-335f, 0, 235f), 1),
-                new PropReference(Props.Rock_2, new Vector3(40f, 0, 305f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-10f, 0, 305f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-20f, 0, 305f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-50f, 0, 305f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-220f, 0, 235f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-180f, 0, 235f), 1),
-                new PropReference(Props.Rock_2, new Vector3(130f, 0, 305f), 1),
-                new PropReference(Props.Rock_3, new Vector3(100f, 0, 305f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-100f, 0, 235f), 1),
-
-                //Rocas en frente
-                new PropReference(Props.Rock_0, new Vector3(-700f, 0, -20f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-325f, 0, 40f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-375f, 0, 40f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-385f, 0, 40f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-415f, 0, 40f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-585f, 0, -20f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-545f, 0, -20f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-235f, 0, 40f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-265f, 0, 40f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-465f, 0, -20f), 1),
-
-                new PropReference(Props.Rock_0, new Vector3(-700f, 0, -120f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-325f, 0, -50f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-375f, 0, -50f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-385f, 0, -50f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-415f, 0, -50f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-585f, 0, -120f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-545f, 0, -120f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-235f, 0, -50f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-265f, 0, -50f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-465f, 0, -120f), 1),
-
-                new PropReference(Props.Rock_0, new Vector3(-700f, 0, -370f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-325f, 0, -300f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-375f, 0, -300f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-385f, 0, -300f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-415f, 0, -300f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-585f, 0, -370f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-545f, 0, -370f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-235f, 0, -300f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-265f, 0, -300f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-465f, 0, -370f), 1),
-
-                new PropReference(Props.Rock_0, new Vector3(-700f, 0, 235f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-325f, 0, 305f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-375f, 0, 305f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-385f, 0, 305f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-415f, 0, 305f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-585f, 0, 235f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-545f, 0, 235f), 1),
-                new PropReference(Props.Rock_2, new Vector3(-235f, 0, 305f), 1),
-                new PropReference(Props.Rock_3, new Vector3(-265f, 0, 305f), 1),
-                new PropReference(Props.Rock_0, new Vector3(-465f, 0, 235f), 1),
+                // //Rocas en frente
+                // new PropReference(Props.Rock_0, new Vector3(-700f, 0, -20f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-325f, 0, 40f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-375f, 0, 40f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-385f, 0, 40f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-415f, 0, 40f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-585f, 0, -20f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-545f, 0, -20f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-235f, 0, 40f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-265f, 0, 40f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-465f, 0, -20f), 1),
+                //
+                // new PropReference(Props.Rock_0, new Vector3(-700f, 0, -120f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-325f, 0, -50f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-375f, 0, -50f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-385f, 0, -50f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-415f, 0, -50f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-585f, 0, -120f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-545f, 0, -120f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-235f, 0, -50f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-265f, 0, -50f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-465f, 0, -120f), 1),
+                //
+                // new PropReference(Props.Rock_0, new Vector3(-700f, 0, -370f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-325f, 0, -300f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-375f, 0, -300f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-385f, 0, -300f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-415f, 0, -300f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-585f, 0, -370f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-545f, 0, -370f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-235f, 0, -300f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-265f, 0, -300f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-465f, 0, -370f), 1),
+                //
+                // new PropReference(Props.Rock_0, new Vector3(-700f, 0, 235f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-325f, 0, 305f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-375f, 0, 305f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-385f, 0, 305f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-415f, 0, 305f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-585f, 0, 235f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-545f, 0, 235f), 1),
+                // new PropReference(Props.Rock_2, new Vector3(-235f, 0, 305f), 1),
+                // new PropReference(Props.Rock_3, new Vector3(-265f, 0, 305f), 1),
+                // new PropReference(Props.Rock_0, new Vector3(-465f, 0, 235f), 1),
             }
         );
 

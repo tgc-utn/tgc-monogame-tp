@@ -16,6 +16,7 @@ public class Tank : ICollidable
     private Effect Effect;
     public Matrix World { get; set; }
     private Vector3 Position;
+    private Vector3 LastPosition;
     public BoundingBox Box { get; set; }
 
     private float _velocidad;
@@ -24,7 +25,6 @@ public class Tank : ICollidable
     public Tank(ModelReference model, Vector3 position)
     {
         Reference = model;
-        World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
         Position = position;
         
         _velocidad = 0;
@@ -33,7 +33,9 @@ public class Tank : ICollidable
     
     public void Load(ContentManager content, Effect effect)
     {
+        World = Reference.Rotation * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Reference.Scale);
         Model = content.Load<Model>(Reference.Path);
+        Model.Root.Transform = World;
         Effect = effect;
         foreach (var modelMeshPart in Model.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
         {
@@ -49,12 +51,12 @@ public class Tank : ICollidable
         if (keyboardState.IsKeyDown(Keys.W))
         {
             // Avanzo
-            _velocidad += 0.1f;
+            _velocidad += 0.01f;
         }
         if (keyboardState.IsKeyDown(Keys.S))
         {
             // Retrocedo
-            _velocidad -= 0.1f;
+            _velocidad -= 0.01f;
         }
         if (keyboardState.IsKeyDown(Keys.A))
         {
@@ -67,10 +69,10 @@ public class Tank : ICollidable
             _rotacion *= Matrix.CreateRotationY(-0.04f);
         }
 
-        var posicionAnterior = Position;
-        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad;
-        var desplazamiento = Position - posicionAnterior;
-        World = _rotacion * Matrix.CreateTranslation(Position);
+        LastPosition = Position;
+        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad * gameTime.ElapsedGameTime.Milliseconds;
+        var desplazamiento = (Position - LastPosition) * Reference.Scale;
+        World = _rotacion * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Reference.Scale);
         
         Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
     }
@@ -95,13 +97,13 @@ public class Tank : ICollidable
     public void CollidedWithSmallProp()
     {
         Console.WriteLine("Chocaste con prop chico");
-        // TODO frenar un poco el tanque
+        //TODO bajar la velocidad
     }
 
     public void CollidedWithLargeProp()
     {
         Console.WriteLine("Chocaste con prop grande");
-        // TODO frenar el tanque del todo
+        //TODO velocidad a 0
     }
 
     public BoundingBox GetBoundingBox()

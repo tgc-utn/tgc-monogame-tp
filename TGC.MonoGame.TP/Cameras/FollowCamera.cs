@@ -5,8 +5,8 @@ namespace TGC.MonoGame.TP.Cameras;
 
 public class FollowCamera : Camera
 {
-    private const float BackwardDistanceToTarget = 500f;
-    private const float UpDistanceToTarget = 150f;
+    private const float BackwardDistanceToTarget = 450f;
+    private const float UpDistanceToTarget = 15f;
     private Vector3 CurrentBackwardVector { get; set; } = Vector3.Backward;
     private float BackwardVectorInterpolator { get; set; } = 0.5f;
     private Vector3 PastBackwardVector { get; set; } = Vector3.Backward;

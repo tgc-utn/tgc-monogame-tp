@@ -8,6 +8,8 @@ namespace TGC.MonoGame.TP.Props.PropType.StaticProps;
 public class SmallStaticProp : StaticProp
 {
     public SmallStaticProp(PropReference modelReference) : base(modelReference) {}
+    
+    public SmallStaticProp(PropReference modelReference, Vector3 position) : base(modelReference, position) {}
 
     public override void Update(ICollidable collidable)
     {
@@ -20,6 +22,6 @@ public class SmallStaticProp : StaticProp
     {
         other.CollidedWithSmallProp();
         Console.WriteLine("Me choco un: " + other.GetType().Name + $"{DateTime.Now}");
-        // TODO destoy prop
+        Destroyed = true;
     }
 }

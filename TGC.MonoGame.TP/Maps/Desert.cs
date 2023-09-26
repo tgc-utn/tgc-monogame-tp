@@ -4,8 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TGC.MonoGame.TP.Props;
-using TGC.MonoGame.TP.Props.PropType;
 using TGC.MonoGame.TP.Props.PropType.StaticProps;
 using TGC.MonoGame.TP.References;
 using TGC.MonoGame.TP.Scenarys;
@@ -15,29 +13,26 @@ namespace TGC.MonoGame.TP.Maps;
 
 public class Desert : Map
 {
-    public Scenary Scenary { get; }
-    public List<Tank> Enemies { get; } = new List<Tank>();
-    public List<Tank> Allies { get; } = new List<Tank>();
-    public List<StaticProp> Props { get; } = new List<StaticProp>();
-
-    public Desert(int numberOfTanks, ModelReference AlliesTank, ModelReference EnemiesTank, Tank player, StaticProp prop)
+    public Desert(int numberOfTanks, ModelReference AlliesTank, ModelReference EnemiesTank, Tank player)
     {
+        Props = new List<StaticProp>();
+        Allies = new List<Tank>();
+        Enemies = new List<Tank>();
+        
         Scenary = new Scenary(Models.Scenary.Plane, new Vector3(-0.1f,-0.1f,-0.1f));
         Scenary.GetSpawnPoints(numberOfTanks, false)
             .ForEach(spawnPoint => Allies.Add(new Tank(EnemiesTank, spawnPoint)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
             .ForEach(spawnPoint => Allies.Add(new Tank(AlliesTank, spawnPoint)));
-        // Scenary.Reference.PropsReference
-        //     .ForEach(prop =>
-        //     {
-        //         if (prop.Repetitions > 1)
-        //             Scenary.GetCircularPoints(prop.Repetitions, prop.Position, 40f)
-        //                 .ForEach(position => Props.Add(new SmallStaticProp(prop, position)));
-        //         else
-        //             Props.Add(new SmallStaticProp(prop));
-        //     });
-        prop.World *= Matrix.CreateScale(1.1f);
-        Prop = prop;
+        Scenary.Reference.PropsReference
+            .ForEach(prop =>
+            {
+                if (prop.Repetitions > 1)
+                    Scenary.GetCircularPoints(prop.Repetitions, prop.Position, 40f)
+                        .ForEach(position => Props.Add(new SmallStaticProp(prop, position)));
+                else
+                    Props.Add(new SmallStaticProp(prop));
+            });
         Player = player;
     }
 
@@ -48,9 +43,8 @@ public class Desert : Map
             enemy.Load(content, effect);
         foreach (var ally in Allies)
             ally.Load(content, effect);
-        // foreach (var prop in Props)
-        //     prop.Load(content, effect);
-        Prop.Load(content, effect);
+        foreach (var prop in Props)
+            prop.Load(content, effect);
         Player.Load(content, effect);
     }
 
@@ -60,19 +54,18 @@ public class Desert : Map
             enemy.Update(gameTime, keyboardState);
         foreach (var ally in Allies)
             ally.Update(gameTime, keyboardState);
-        // foreach (var prop in Props)
-        // {
-        //     foreach (var enemy in Enemies)
-        //     {
-        //         prop.Update(enemy);
-        //     }
-        //     foreach (var ally in Allies)
-        //     {
-        //         prop.Update(ally);
-        //     }
-        //     prop.Update(Player);
-        // }
-        // Prop.Update(Player);
+        foreach (var prop in Props)
+        {
+            // foreach (var enemy in Enemies)
+            // {
+            //     prop.Update(enemy);
+            // }
+            // foreach (var ally in Allies)
+            // {
+            //     prop.Update(ally);
+            // }
+            prop.Update(Player);
+        }
         //TODO DESCOMENTAR CUANDO SE ARREGLEN LAS BOXES DE LOS PROPS. Esto es para que cuando se haga el update cada prop se fije si choca con el tanke o proyectiles
         Player.Update(gameTime, keyboardState);
     }
@@ -84,9 +77,8 @@ public class Desert : Map
             enemy.Draw(view, projection);
         foreach (var ally in Allies)
             ally.Draw(view, projection);
-        // foreach (var prop in Props)
-        //     prop.Draw(view, projection);
-        Prop.Draw(view, projection);
+        foreach (var prop in Props)
+            prop.Draw(view, projection);
         Player.Draw(view, projection);
     }
 }
