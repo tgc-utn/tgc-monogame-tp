@@ -145,7 +145,9 @@ namespace MonoGamers
             // PowerUps
             PowerUps = new PowerUp[]
             {
-
+                new JumpPowerUp(new Vector3(100f, 10f, 160f)),
+                new FastPowerUp(new Vector3(100f, 10f, 160f)),
+                //new RushPowerUp(new Vector3(100f, 10f, 160f)),
             };
 
             
@@ -168,7 +170,7 @@ namespace MonoGamers
         /// <inheritdoc />
         protected override void LoadContent()
         {
-            MonoSphere.spherePrimitive = new SpherePrimitive(GraphicsDevice);
+            MonoSphere.SpherePrimitive = new SpherePrimitive(GraphicsDevice);
             MonoSphere.SphereWorld = new Matrix();
             MonoSphere.SphereHandle = new BodyHandle();
             
@@ -208,9 +210,7 @@ namespace MonoGamers
         {
             // The time that passed between the last loop
                 var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            
-            // Update Simulation
-                MonoSimulation.Update();
+
             
             var keyboardState = Keyboard.GetState();
             // Check for key presses and rotate accordingly
@@ -236,6 +236,9 @@ namespace MonoGamers
             if (keyboardState.IsKeyDown(Keys.O)) {
                 sphereBody.Pose = new NumericVector3(3300f, 343f, 6790f);
             } */
+
+            // Update Simulation
+            MonoSimulation.Update();
 
             CheckpointManager();
             Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
@@ -281,7 +284,7 @@ namespace MonoGamers
             var viewProjection = Camera.View * Camera.Projection;
             
             // Sphere drawing
-                MonoSphere.spherePrimitive.Draw(MonoSphere.SphereWorld, Camera.View, Camera.Projection);
+                MonoSphere.SpherePrimitive.Draw(MonoSphere.SphereWorld, Camera.View, Camera.Projection);
 
             // Floor drawing
                 // Set the Technique inside the TilingEffect to "BaseTiling", we want to control the tiling on the floor

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BepuPhysics;
+using Microsoft.Xna.Framework;
 using MonoGamers.Geometries;
 using System;
 using System.Collections.Generic;
@@ -10,15 +11,19 @@ namespace MonoGamers.PowerUps
 {
     internal class RushPowerUp : PowerUp
     {
-        Vector3 FacingDirection;
-        public RushPowerUp(Vector3 position, Vector3 facingDirection) : base(position)
+        public RushPowerUp(Vector3 position) : base(position)
         {
-            FacingDirection=facingDirection;
         }
 
-        public override void Activate(MonoSphere sphere)
+        public override async void Activate(MonoSphere Sphere)
         {
-            throw new NotImplementedException();
+            if (!Activated)
+            {
+                Activated = true;
+                Sphere.rushed = true;
+                await Task.Delay(4000);
+                Activated = false;
+            }
         }
     }
 }

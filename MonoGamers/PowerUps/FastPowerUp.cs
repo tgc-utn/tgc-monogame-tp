@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BepuPhysics;
+using Microsoft.Xna.Framework;
 using MonoGamers.Geometries;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,17 @@ namespace MonoGamers.PowerUps
         {
         }
 
-        public override void Activate(MonoSphere sphere)
+        public override async void Activate(MonoSphere Sphere)
         {
-            sphere.SphereSideSpeed *= 4;
+            if (!Activated)
+            {
+                Sphere.SphereSideSpeed *= 4;
+                Activated = true;
+                await Task.Delay(4000);
+                Sphere.SphereSideSpeed /= 4;
+                await Task.Delay(4000);
+                Activated = false;
+            }
         }
     }
 }

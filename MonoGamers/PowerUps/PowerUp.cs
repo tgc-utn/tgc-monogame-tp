@@ -14,10 +14,13 @@ namespace MonoGamers.PowerUps
     {
         public Vector3 Position { get; set; }
         public BoundingBox BoundingBox { get; set; }
+
+        public bool Activated;
         protected PowerUp(Vector3 position)
         {
+            Activated = false;
             Position = position;
-            var world = Matrix.CreateScale(500f, 500f, 500f) * Matrix.CreateTranslation(position);
+            var world = Matrix.CreateScale(100f, 100f, 100f) * Matrix.CreateTranslation(position);
             BoundingBox = BoundingVolumesExtensions.FromMatrix(world);
         }
         public bool IsWithinBounds(Vector3 position)
@@ -28,9 +31,10 @@ namespace MonoGamers.PowerUps
 
         public void ActivateIfBounding(Simulation Simulation, MonoSphere sphere)
         {
-            if (IsWithinBounds(Simulation.Bodies.GetBodyReference(sphere.SphereHandle).Pose.Position)) Activate(sphere);
+            BodyReference SphereBody = Simulation.Bodies.GetBodyReference(sphere.SphereHandle);
+            if (IsWithinBounds(SphereBody.Pose.Position)) Activate(sphere);
         }
-        public abstract void Activate(MonoSphere sphere);
+        public abstract void Activate(MonoSphere Sphere);
 
     }
 }

@@ -17,5 +17,10 @@ namespace MonoGamers.Utilities
         {
             return new NumericVector3(v.X, v.Y, v.Z);
         }
+
+        public static float Max(float value1, float value2)
+        {
+            return value1 > value2 ? value1 : value2;
+        } 
     }
 }

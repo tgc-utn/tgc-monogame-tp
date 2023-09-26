@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NumericVector3 = System.Numerics.Vector3;
+using static MonoGamers.Utilities.Utils;
+using BepuPhysics.Constraints.Contact;
 
 namespace MonoGamers.Geometries
 {
@@ -26,13 +28,16 @@ namespace MonoGamers.Geometries
             Gum
         }
 
-        private const float standardSideSpeed = 2000f;
+        private const float StandardSideSpeed = 2000f;
         private const float standardJumpSpeed = 100000f;
+        private const float Friction = 0.5f;
 
         public float SphereSideSpeed;
         public float SphereJumpSpeed;
 
-        public SpherePrimitive spherePrimitive { get; set; }
+        public bool rushed;
+
+        public SpherePrimitive SpherePrimitive { get; set; }
 
         // Sphere internal matrices and vectors
         public Matrix SphereRotation { get; set; }
@@ -65,7 +70,7 @@ namespace MonoGamers.Geometries
         {
             OnGround = true;
 
-            SphereSideSpeed = standardSideSpeed;
+            SphereSideSpeed = StandardSideSpeed;
             SphereJumpSpeed = standardJumpSpeed;
 
             SpherePosition = InitialPosition;
@@ -96,35 +101,24 @@ namespace MonoGamers.Geometries
 
             // Check for key presses and add a velocity in the Sphere's Front Direction
 
-            if (KeyboardState.IsKeyDown(Keys.D))
-            {
-                MoveRight();
-                SphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X, SphereVelocity.Y, SphereVelocity.Z));
-            }
-            else if (KeyboardState.IsKeyDown(Keys.A))
-            {
-                MoveLeft();
-                SphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X, SphereVelocity.Y, SphereVelocity.Z));
-            }
-            if (KeyboardState.IsKeyDown(Keys.W))
-            {
-                MoveFront();
-                SphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X, SphereVelocity.Y, SphereVelocity.Z));
-            }
-            else if (KeyboardState.IsKeyDown(Keys.S))
-            {
-                MoveBack();
-                SphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X, SphereVelocity.Y, SphereVelocity.Z));
-            }
+            if (KeyboardState.IsKeyDown(Keys.D)) MoveRight();
+            else if (KeyboardState.IsKeyDown(Keys.A)) MoveLeft();
+            if (KeyboardState.IsKeyDown(Keys.W)) MoveFront();
+            else if (KeyboardState.IsKeyDown(Keys.S)) MoveBack();
+
             if (MathHelper.Distance(SphereBody.Velocity.Linear.Y, velocidadLinearYAnt) < 0.1
                     && MathHelper.Distance(SphereBody.Velocity.Angular.Y, velocidadAngularYAnt) < 0.1)
-                        OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
+                OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
 
             if (KeyboardState.IsKeyDown(Keys.Space) && OnGround)
             {
                 Jump();
-                SphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X, SphereVelocity.Y, SphereVelocity.Z));
             }
+
+            if (KeyboardState.GetPressedKeys().Length > 0) ApplyImpulse(ref SphereBody, 1f);
+            ApplyStop(ref SphereBody);
+
+            if (rushed) ApplyRush(ref SphereBody);
 
             velocidadAngularYAnt = SphereBody.Velocity.Angular.Y;
             velocidadLinearYAnt = SphereBody.Velocity.Linear.Y;
@@ -133,6 +127,8 @@ namespace MonoGamers.Geometries
             SpherePosition = pose.Position;
             SphereWorld = Matrix.CreateScale(SphereShape.Radius*2) *
                 Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(SpherePosition);
+
+            SphereVelocity = Vector3.Zero;
         }
 
         public void MoveLeft()
@@ -170,6 +166,25 @@ namespace MonoGamers.Geometries
             SphereVelocity = Vector3.Up * SphereJumpSpeed;
             OnGround = false;
         }
+
+        public void ApplyImpulse(ref BodyReference sphereBody, float intensity)
+        {
+            sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X * intensity,
+                SphereVelocity.Y * intensity,
+                SphereVelocity.Z * intensity));
+        }
+        public void ApplyStop(ref BodyReference sphereBody)
+        {
+            if (sphereBody.MotionState.Velocity.Linear.LengthSquared() > 0.0001f)
+                sphereBody.ApplyLinearImpulse(-sphereBody.MotionState.Velocity.Linear * Friction);
+        } 
+        
+        public void ApplyRush(ref BodyReference sphereBody)
+        {
+            ApplyImpulse(ref sphereBody, 10f);
+            rushed = false;
+        }
+
 
         public bool SphereFalling(float LimitY)
         {
