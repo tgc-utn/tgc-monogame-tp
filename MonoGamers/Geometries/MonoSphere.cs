@@ -73,6 +73,8 @@ namespace MonoGamers.Geometries
 
         private float SphereSideTypeSpeed;
         private float SphereJumpTypeSpeed;
+        
+        private bool godMode = false;
 
         public MonoSphere(Vector3 InitialPosition, float Gravity, Simulation Simulation)
         {
@@ -133,18 +135,37 @@ namespace MonoGamers.Geometries
             }
 
             //Cambio de tipo de esfera manualmente
-            if (KeyboardState.IsKeyDown(Keys.T)){
+            
+            if (KeyboardState.IsKeyUp(Keys.G)) {
+                if (!godMode) godMode = true;
+                else godMode = false;
+            }
+            
+            if (KeyboardState.IsKeyDown(Keys.T) && godMode){
                 SphereType = Type.Common;
             }
-            if (KeyboardState.IsKeyDown(Keys.Y)){
+            if (KeyboardState.IsKeyDown(Keys.Y) && godMode){
                 SphereType = Type.Metal;
             }
-            if (KeyboardState.IsKeyDown(Keys.U)){
+            if (KeyboardState.IsKeyDown(Keys.U) && godMode){
                 SphereType = Type.Gum;
             }
-            if (KeyboardState.IsKeyDown(Keys.I)){
+            if (KeyboardState.IsKeyDown(Keys.I) && godMode){
                 SphereType = Type.Stone;
             }
+            
+            if (KeyboardState.IsKeyDown(Keys.D1) && godMode) {
+                sphereBody.Pose = new NumericVector3(100f, 10f, 160f);
+            }            
+            if (KeyboardState.IsKeyDown(Keys.D2) && godMode) {
+                sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
+            }
+            if (KeyboardState.IsKeyDown(Keys.D3) && godMode) {
+                sphereBody.Pose = new NumericVector3(2090f, 150f, 6744f);
+            }
+            if (KeyboardState.IsKeyDown(Keys.D4) && godMode) {
+                sphereBody.Pose = new NumericVector3(3400f, 343f, 6790f);
+            } 
 
             if (KeyboardState.IsKeyDown(Keys.D)) MoveRight();
             else if (KeyboardState.IsKeyDown(Keys.A)) MoveLeft();

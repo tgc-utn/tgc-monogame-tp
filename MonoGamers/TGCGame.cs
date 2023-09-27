@@ -44,7 +44,7 @@ namespace MonoGamers
         private const float yMinimo = -450f;
 
 
-        private bool godMode = false;
+        
 
         //Esfera lógica
         MonoSphere MonoSphere;
@@ -238,21 +238,10 @@ namespace MonoGamers
             MonoSphere.Update(Simulation, Camera, keyboardState);
 
             
-            if (keyboardState.IsKeyDown(Keys.G)) {
-                if (!godMode) godMode = true;
-                else godMode = false;
-            }
+
             
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
-            /* if (keyboardState.IsKeyDown(Keys.U)) {
-                sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
-            }
-            if (keyboardState.IsKeyDown(Keys.I)) {
-                sphereBody.Pose = new NumericVector3(2090f, 150f, 6744f);
-            }
-            if (keyboardState.IsKeyDown(Keys.O)) {
-                sphereBody.Pose = new NumericVector3(3300f, 343f, 6790f);
-            } */
+
 
             // Update Simulation
             MonoSimulation.Update();
