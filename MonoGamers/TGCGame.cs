@@ -21,6 +21,7 @@ using MonoGamers.Checkpoints;
 using MonoGamers.Utilities;
 using NumericVector3 = System.Numerics.Vector3;
 using MonoGamers.PowerUps;
+using MonoGamers.SkyBoxes;
 
 namespace MonoGamers
 {
@@ -77,9 +78,7 @@ namespace MonoGamers
 
         //Texturas
         private Texture2D StonesTexture { get; set; }
-
-        Type SphereType;
-    
+        
 
         // Effects
 
@@ -98,6 +97,9 @@ namespace MonoGamers
 
         // Checkpoints
         private Checkpoint[] Checkpoints { get; set; }
+
+        // Skybox
+        private SkyBox SkyBox { get; set; }
 
         private PowerUp[] PowerUps { get; set; }
         private int CurrentCheckpoint { get; set; }
@@ -145,7 +147,7 @@ namespace MonoGamers
                 new Checkpoint(new Vector3(100f, 10f, 160f)),
                 new Checkpoint(new Vector3(100f, 10f, 4594f)),
                 new Checkpoint(new Vector3(2100f, 150f, 6744f)),
-                new Checkpoint(new Vector3(3300f, 343f, 6800f)),
+                new Checkpoint(new Vector3(3500f, 343f, 6800f)),
 
             };
             CurrentCheckpoint = 0;
@@ -206,8 +208,14 @@ namespace MonoGamers
                 FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f);
                 Simulation.Statics.Add(new StaticDescription(new NumericVector3(0f, 0f, 0f),
                     Simulation.Shapes.Add(new Box(400f, 0.002f, 400f))));
-            
-            // Create our Sphere and add it to Simulation
+
+                var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+                //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/islands/islands");
+                //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
+                //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/sun-in-space/sun-in-space");
+                var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/sunset/sunset");
+                var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+                SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
             
             base.LoadContent();
         }
@@ -315,11 +323,24 @@ namespace MonoGamers
                 Pista2.Draw(Camera.View, Camera.Projection);
                 Pista3.Draw(Camera.View, Camera.Projection);
                 Pista4.Draw(Camera.View, Camera.Projection);
+                
+            // Dibujamos el skybox
+                DrawSkybox(Camera);
             
 
 
 
             base.Draw(gameTime);
+        }
+        
+        private void DrawSkybox(Camera.Camera camera)
+        {
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+            SkyBox.Draw(camera.View, camera.Projection, MonoSphere.SpherePosition);
+            GraphicsDevice.RasterizerState = originalRasterizerState;
         }
     }
 }

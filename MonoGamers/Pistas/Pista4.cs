@@ -67,42 +67,42 @@ public class Pista4
         Vector3 translation;
 
         // Plataforma 1
-        Platform1World = Matrix.CreateScale(150f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY, lastZ);
+        Platform1World = Matrix.CreateScale(375f, 6f, 150f) * Matrix.CreateTranslation(lastX += 200f, lastY, lastZ);
         Platform1World.Decompose(out scale, out rot, out translation);
         Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
             Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
         
         FloatingPlatformsWorld = new Matrix[]
         {
-            
-            Matrix.CreateScale(125f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY += 7f, lastZ += 60f),
-            Matrix.CreateScale(100f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY += 7f, lastZ += 60f),
-            Matrix.CreateScale(75f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY += 7f, lastZ += 60f),
-            Matrix.CreateScale(50f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY += 7f, lastZ += 60f),
-            Matrix.CreateScale(25f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY += 7f, lastZ += 60f),
-            Matrix.CreateScale(25f, 2f, 25f) * Matrix.CreateTranslation(lastX, lastY += 5f, lastZ += 40f),
-            Matrix.CreateScale(25f, 2f, 25f) * Matrix.CreateTranslation(lastX += 30f, lastY += 5f, lastZ),
-            Matrix.CreateScale(25f, 2f, 25f) * Matrix.CreateTranslation(lastX, lastY += 5f, lastZ -= 30f),
-            Matrix.CreateScale(25f, 2f, 25f) * Matrix.CreateTranslation(lastX, lastY += 5f, lastZ -= 30f),
-            Matrix.CreateScale(25f, 2f, 25f) * Matrix.CreateTranslation(lastX -= 30f, lastY += 5f, lastZ),
-            Matrix.CreateScale(25f, 2f, 10f) * Matrix.CreateTranslation(lastX -= 30f, lastY -= 5f, lastZ),
-            Matrix.CreateScale(25f, 2f, 10f) * Matrix.CreateTranslation(lastX -= 40f, lastY -= 5f, lastZ),
-            Matrix.CreateScale(25f, 2f, 10f) * Matrix.CreateTranslation(lastX -= 30f, lastY -= 5f, lastZ),
-            Matrix.CreateScale(25f, 2f, 25f) * Matrix.CreateTranslation(lastX -= 30f, lastY -= 5f, lastZ),
-            Matrix.CreateScale(25f, 2f, 10f) * Matrix.CreateTranslation(lastX, lastY -= 5f, lastZ += 20f),
-            Matrix.CreateScale(25f, 2f, 10f) * Matrix.CreateTranslation(lastX, lastY -= 5f, lastZ += 20f),
-            Matrix.CreateScale(25f, 2f, 10f) * Matrix.CreateTranslation(lastX, lastY -= 5f, lastZ += 20f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX += 12f, lastY, lastZ += 17f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX += 12f, lastY, lastZ += 12f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX -= 12f, lastY, lastZ += 12f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX -= 12f, lastY, lastZ += 12f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX -= 12f, lastY, lastZ += 12f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX, lastY += 3f, lastZ += 12f),
-            Matrix.CreateScale(8f, 2f, 8f) * Matrix.CreateTranslation(lastX, lastY += 3f, lastZ += 12f),
-            Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(lastX, lastY += 3f, lastZ += 12f),
-            Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 12f),
-            Matrix.CreateScale(5f, 2f, 5f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 12f),
-            Matrix.CreateScale(50f, 2f, 50f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 35f),
+            Matrix.CreateScale(375f, 6f, 150f) * Matrix.CreateTranslation(lastX, lastY += 42f, lastZ += 180f),
+            Matrix.CreateScale(300f, 6f, 150f) * Matrix.CreateTranslation(lastX, lastY += 42f, lastZ += 180f),
+            Matrix.CreateScale(225f, 6f, 150f) * Matrix.CreateTranslation(lastX, lastY += 42f, lastZ += 180f),
+            Matrix.CreateScale(150f, 6f, 150f) * Matrix.CreateTranslation(lastX, lastY += 42f, lastZ += 180f),
+            Matrix.CreateScale(75f, 6f, 150f) * Matrix.CreateTranslation(lastX, lastY += 42f, lastZ += 180f),
+            Matrix.CreateScale(75f, 6f, 75f) * Matrix.CreateTranslation(lastX, lastY += 30f, lastZ += 120f),
+            Matrix.CreateScale(75f, 6f, 75f) * Matrix.CreateTranslation(lastX += 90f, lastY += 30f, lastZ),
+            Matrix.CreateScale(75f, 6f, 75f) * Matrix.CreateTranslation(lastX, lastY += 30f, lastZ -= 90f),
+            Matrix.CreateScale(75f, 6f, 75f) * Matrix.CreateTranslation(lastX, lastY += 30f, lastZ -= 90f),
+            Matrix.CreateScale(75f, 6f, 75f) * Matrix.CreateTranslation(lastX -= 90f, lastY += 30f, lastZ),
+            Matrix.CreateScale(75f, 6f, 30f) * Matrix.CreateTranslation(lastX -= 90f, lastY -= 30f, lastZ),
+            Matrix.CreateScale(75f, 6f, 30f) * Matrix.CreateTranslation(lastX -= 120f, lastY -= 30f, lastZ),
+            Matrix.CreateScale(75f, 6f, 30f) * Matrix.CreateTranslation(lastX -= 90f, lastY -= 30f, lastZ),
+            Matrix.CreateScale(75f, 6f, 75f) * Matrix.CreateTranslation(lastX -= 90f, lastY -= 30f, lastZ),
+            Matrix.CreateScale(75f, 6f, 30f) * Matrix.CreateTranslation(lastX, lastY -= 30f, lastZ += 120f),
+            Matrix.CreateScale(75f, 6f, 30f) * Matrix.CreateTranslation(lastX, lastY -= 30f, lastZ += 120f),
+            Matrix.CreateScale(75f, 6f, 30f) * Matrix.CreateTranslation(lastX, lastY -= 30f, lastZ += 120f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX += 36f, lastY, lastZ += 102f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX += 36f, lastY, lastZ += 72f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX -= 36f, lastY, lastZ += 72f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX -= 36f, lastY, lastZ += 72f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX -= 36f, lastY, lastZ += 72f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX, lastY += 18f, lastZ += 72f),
+            Matrix.CreateScale(24f, 6f, 24f) * Matrix.CreateTranslation(lastX, lastY += 18f, lastZ += 72f),
+            Matrix.CreateScale(15f, 6f, 15f) * Matrix.CreateTranslation(lastX, lastY += 18f, lastZ += 72f),
+            Matrix.CreateScale(15f, 6f, 15f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 72f),
+            Matrix.CreateScale(15f, 6f, 15f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 72f),
+            Matrix.CreateScale(150f, 6f, 150f) * Matrix.CreateTranslation(lastX, lastY, lastZ += 200f)
+
             
         };
         
@@ -144,4 +144,3 @@ public class Pista4
         BoxPrimitive.Draw(FloatingMovingPlatformWorld, view, projection);
     }
 }
-
