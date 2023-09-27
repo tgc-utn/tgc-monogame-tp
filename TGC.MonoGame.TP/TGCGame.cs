@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Numerics;
 using System.Security.AccessControl;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
@@ -8,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Geometries;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP
 {
@@ -49,7 +51,7 @@ namespace TGC.MonoGame.TP
         private TargetCamera TargetCamera { get; set; }
         
         // Scene
-        private Matrix World { get; set; }
+        private Matrix SphereWorld { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
         
@@ -60,6 +62,7 @@ namespace TGC.MonoGame.TP
         
         // Sphere position & rotation
         private Vector3 SpherePosition { get; set; }
+        private Matrix SphereScale { get; set; }
         private float Yaw { get; set; }
         private float Pitch { get; set; }
         private float Roll { get; set; }
@@ -76,13 +79,15 @@ namespace TGC.MonoGame.TP
 
         // Models
         private Model StarModel { get; set; }
+        private Model SphereModel { get; set; }
         private Matrix StarWorld { get; set; }
 
         //private Player _player;
 
         private float Speed = 0f;
         private float PitchSpeed = 0f; 
-        private float YawSpeed = 0f; 
+        private float YawSpeed = 0f;
+        //private bool IsJumping = false;
         private const float MaxSpeed = 180f;
         private const float PitchMaxSpeed = 15f;
         private const float YawMaxSpeed = 4.5f;
@@ -111,16 +116,16 @@ namespace TGC.MonoGame.TP
             TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
             
             // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
+            SphereWorld = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             
             // Sphere
             SpherePosition = new Vector3(0f, 10f, 0f);
-            World *= Matrix.CreateTranslation(SpherePosition);
-            Sphere = new SpherePrimitive(GraphicsDevice, 10);
-
+            SphereScale = Matrix.CreateScale(5f);
+            
+            // Star
             StarWorld = Matrix.Identity;
             
             // Box/platforms
@@ -268,12 +273,17 @@ namespace TGC.MonoGame.TP
             //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
             StarModel = Content.Load<Model>(ContentFolder3D + "star/Gold_Star");
 
+            SphereModel = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
+
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             loadEffectOnMesh(StarModel, Effect);
 
             TextureEffect = Content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
+            loadEffectOnMesh(SphereModel, TextureEffect);
+
+            SphereWorld = SphereScale * Matrix.CreateTranslation(SpherePosition);
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
@@ -347,7 +357,7 @@ namespace TGC.MonoGame.TP
             var rotationX = Matrix.CreateRotationX(Pitch);
             var translation = Matrix.CreateTranslation(SpherePosition);
             
-            World =  rotationX * rotationY * translation;
+            SphereWorld = SphereScale * rotationX * rotationY * translation;
             
             // Capturar Input teclado
             if (keyboardState.IsKeyDown(Keys.Escape))
@@ -404,9 +414,9 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(Effect);
             }  
             
-            Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
+            //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
 
-            //DrawGeometry(Sphere, World, TextureEffect);
+            DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, StonesTexture);
 
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
@@ -427,13 +437,26 @@ namespace TGC.MonoGame.TP
             }
         }
         
+        private void DrawTexturedModel(Matrix worldMatrix, Model model, Effect effect, Texture2D texture){
+            effect.Parameters["World"].SetValue(worldMatrix);
+            effect.Parameters["View"].SetValue(TargetCamera.View);
+            effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+            effect.Parameters["DiffuseColor"]?.SetValue(Color.IndianRed.ToVector3());
+            effect.Parameters["Texture"]?.SetValue(texture);
+
+            foreach (var mesh in model.Meshes)
+            {   
+                mesh.Draw();
+            }
+        }
+        
         private void DrawGeometry(GeometricPrimitive geometry, Matrix worldMatrix, Effect effect)
         {
             effect.Parameters["World"].SetValue(worldMatrix);
             effect.Parameters["View"].SetValue(TargetCamera.View);
             effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
             effect.Parameters["DiffuseColor"]?.SetValue(Color.IndianRed.ToVector3());
-            effect.Parameters["Texture"].SetValue(StonesTexture);
+            effect.Parameters["Texture"]?.SetValue(StonesTexture);
             geometry.Draw(effect);
         }
 

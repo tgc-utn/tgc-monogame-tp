@@ -25,8 +25,8 @@ sampler2D textureSampler = sampler_state
     Texture = (Texture);
     MagFilter = Linear;
     MinFilter = Linear;
-    AddressU = Mirror;
-    AddressV = Mirror;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 float Time = 0;
@@ -40,7 +40,7 @@ struct VertexShaderInput
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-	float2 TextureCoordinate : TEXCOORD1;
+	float2 TextureCoordinate : TEXCOORD0;
 };
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
