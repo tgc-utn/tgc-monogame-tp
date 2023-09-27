@@ -291,15 +291,15 @@ public static class Models
                 // new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, 195f), 4),
                 //
                 // //Ciudad 4
-                // new PropReference(Props.Building_House_1, new Vector3(-200f, 0f, -195f), 4),
-                // new PropReference(Props.Building_House_2, new Vector3(-170f, 0f, -175f), 4),
-                // new PropReference(Props.Building_House_3, new Vector3(-140f, 0f, -145f), 4),
-                // new PropReference(Props.Building_House_4, new Vector3(-230f, 0f, -235f), 4),
-                // new PropReference(Props.Building_House_5, new Vector3(-150f, 0f, -200f), 4),
-                // new PropReference(Props.Building_House_6, new Vector3(-120f, 0f, -165f), 4),
-                // new PropReference(Props.Building_House_7, new Vector3(-210f, 0f, -255f), 4),
-                // new PropReference(Props.Building_House_8, new Vector3(-230f, 0f, -250f), 4),
-                // new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, -155f), 4),
+                new PropReference(Props.Building_House_1, new Vector3(-200f, 0f, -195f), 4),
+                new PropReference(Props.Building_House_2, new Vector3(-170f, 0f, -175f), 4),
+                new PropReference(Props.Building_House_3, new Vector3(-140f, 0f, -145f), 4),
+                new PropReference(Props.Building_House_4, new Vector3(-230f, 0f, -235f), 4),
+                new PropReference(Props.Building_House_5, new Vector3(-150f, 0f, -200f), 4),
+                new PropReference(Props.Building_House_6, new Vector3(-120f, 0f, -165f), 4),
+                new PropReference(Props.Building_House_7, new Vector3(-210f, 0f, -255f), 4),
+                new PropReference(Props.Building_House_8, new Vector3(-230f, 0f, -250f), 4),
+                new PropReference(Props.Building_House_9, new Vector3(-280f, 0f, -155f), 4),
                 //
                 // //Murallas Centro
                 // new PropReference(Props.Wall, new Vector3(-20f, 0f, 15f), 6),

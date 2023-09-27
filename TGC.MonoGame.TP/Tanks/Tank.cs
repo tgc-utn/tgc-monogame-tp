@@ -97,17 +97,18 @@ public class Tank : ICollidable
     public void CollidedWithSmallProp()
     {
         Console.WriteLine("Chocaste con prop chico");
-        _velocidad *= 0.5f;
+        _velocidad = 0.5f;
     }
 
     public void CollidedWithLargeProp()
     {
         Console.WriteLine("Chocaste con prop grande");
-        //TODO velocidad a 0
+        _velocidad = 0f;
+        // Corrigiendo la posicion del tanque y de la box
+        var desplazamiento = (LastPosition - Position) * Reference.Scale;
+        Position = LastPosition;
+        Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
     }
 
-    public BoundingBox GetBoundingBox()
-    {
-        return Box;
-    }
+    public BoundingBox GetBoundingBox() { return Box; }
 }
