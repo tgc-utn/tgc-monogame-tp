@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Props;
 using TGC.MonoGame.TP.Props.PropType.StaticProps;
 using TGC.MonoGame.TP.References;
 using TGC.MonoGame.TP.Scenarys;
@@ -66,10 +67,9 @@ public class Desert : Map
             // foreach (var ally in Allies)
             // {
             //     prop.Update(ally);
-            // }
+            // } DESCOMENTAR ESTO SI SE QUIERE QUE LAS COLISIONES TAMBIEN LAS PUEDAN HACER LOS TANQUES CON IA
             prop.Update(Player);
         }
-        //TODO DESCOMENTAR CUANDO SE ARREGLEN LAS BOXES DE LOS PROPS. Esto es para que cuando se haga el update cada prop se fije si choca con el tanke o proyectiles
         Player.Update(gameTime, keyboardState);
     }
 

@@ -1,6 +1,8 @@
+
 ﻿using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.TP.Collisions;
+
 
 public interface ICollidable // hice interface para que el proyectil tambien pueda implementarla
 {
