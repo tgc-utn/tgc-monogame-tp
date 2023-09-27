@@ -44,6 +44,8 @@ namespace MonoGamers
         private const float SphereJumpSpeed = 100000f;
         private const float Gravity = 350f;
         private const float yMinimo = -450f;
+        private float SphereSideTypeSpeed;
+        private float SphereJumpTypeSpeed;
 
         private bool godMode = false;
 
@@ -106,17 +108,23 @@ namespace MonoGamers
         private Texture2D SphereGumTexture { get; set; }
 
         //Tipo de esfera
-        enum SphereType {
+        enum Type {
             Common,
             Stone,
             Metal,
             Gum
         }
 
+        Type SphereType;
+    
+
         // Effects
 
         // Tiling Effect for the floor
         private Effect TilingEffect { get; set; }
+
+        // Basic Shader Effect
+        private Effect SphereEffect { get; set; }
         
         
         
@@ -188,6 +196,8 @@ namespace MonoGamers
             SphereFrontDirection = Vector3.Backward;
             SphereLateralDirection = Vector3.Right;
             
+            //Tipo de esfera
+            SphereType = Type.Common;
             
             // Set the Acceleration (which in this case won't change) to the Gravity pointing down
             SphereAcceleration = Vector3.Down * Gravity;
@@ -233,12 +243,15 @@ namespace MonoGamers
                 
             // Load Textures
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
-                /*
+                
                 SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
                 SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
                 SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
                 SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
-                */
+
+            // Load our SphereEffect
+                SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
                 FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f);
@@ -273,6 +286,39 @@ namespace MonoGamers
             // We can stack rotations in a given axis by multiplying our past matrix
             // By a new matrix containing a new rotation to apply
             // Also, recalculate the Front Directoin
+
+            //Cambio de variables segun el tipo de la esfera
+            if(SphereType == Type.Common){
+                SphereSideTypeSpeed = 0.001f;
+                SphereJumpTypeSpeed= 0.001f;
+            }
+
+            if(SphereType == Type.Metal){
+                SphereSideTypeSpeed = 100f;
+                SphereJumpTypeSpeed= 100f;
+            }
+
+            if(SphereType == Type.Gum){
+              
+            }
+
+            if(SphereType == Type.Stone){
+              
+            }
+
+            //Cambio de tipo de esfera manualmente
+            if (keyboardState.IsKeyDown(Keys.T)){
+                SphereType = Type.Common;
+            }
+            if (keyboardState.IsKeyDown(Keys.Y)){
+                SphereType = Type.Metal;
+            }
+            if (keyboardState.IsKeyDown(Keys.U)){
+                SphereType = Type.Gum;
+            }
+            if (keyboardState.IsKeyDown(Keys.I)){
+                SphereType = Type.Stone;
+            }
             
             var sphereBody= Simulation.Bodies.GetBodyReference(SphereHandle);
             sphereBody.Awake = true;
@@ -282,26 +328,27 @@ namespace MonoGamers
             
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                SphereVelocity = -SphereLateralDirection * SphereSideSpeed;
+                SphereVelocity = -SphereLateralDirection * (SphereSideSpeed + SphereSideTypeSpeed);
                 sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
             }
             else if (keyboardState.IsKeyDown(Keys.A))
             {
-                SphereVelocity = SphereLateralDirection * SphereSideSpeed;
+                SphereVelocity = SphereLateralDirection * (SphereSideSpeed + SphereSideTypeSpeed);
                 sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
             }
 
             // Check for key presses and add a velocity in the Sphere's Front Direction
             if (keyboardState.IsKeyDown(Keys.W))
             {
-                SphereVelocity = SphereFrontDirection * SphereSideSpeed;
-                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
+                SphereVelocity = SphereFrontDirection * (SphereSideSpeed + SphereSideTypeSpeed);
+                sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));              
             }
                 
             else if (keyboardState.IsKeyDown(Keys.S))
             {
-                SphereVelocity = SphereFrontDirection * - SphereSideSpeed;
+                SphereVelocity = SphereFrontDirection * - (SphereSideSpeed + SphereSideTypeSpeed);
                 sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
+                
             }
             
             // Check for the Jump key press, and add velocity in Y only if the Sphere is on the ground
@@ -309,7 +356,7 @@ namespace MonoGamers
                     OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
             
             if (keyboardState.IsKeyDown(Keys.Space) && OnGround){
-                SphereVelocity = Vector3.Up * SphereJumpSpeed;
+                SphereVelocity = Vector3.Up * (SphereJumpSpeed + SphereJumpTypeSpeed);
                 sphereBody.ApplyLinearImpulse(new NumericVector3(SphereVelocity.X,SphereVelocity.Y,SphereVelocity.Z));
                 OnGround = false;
             }
@@ -391,8 +438,24 @@ namespace MonoGamers
             var viewProjection = Camera.View * Camera.Projection;
             
             // Sphere drawing
-                spherePrimitive.Draw(SphereWorld, Camera.View, Camera.Projection);
-
+                SphereEffect.CurrentTechnique = SphereEffect.Techniques["BasicColorDrawing"];
+                SphereEffect.Parameters["View"].SetValue(Camera.View);
+                SphereEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                SphereEffect.Parameters["World"].SetValue(SphereWorld);
+                if(SphereType == Type.Common) {
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);
+                }
+                if(SphereType == Type.Gum) {
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereGumTexture);
+                }
+                if(SphereType == Type.Metal) {
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereMetalTexture);
+                }
+                if(SphereType == Type.Stone) {
+                   SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
+                }
+                
+                spherePrimitive.Draw(SphereEffect);
             // Floor drawing
                 // Set the Technique inside the TilingEffect to "BaseTiling", we want to control the tiling on the floor
                 TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
