@@ -76,6 +76,7 @@ namespace TGC.MonoGame.TP
         
         // Textures
         private Texture2D StonesTexture { get; set; }
+        private Texture2D MarbleTexture { get; set; }
 
         // Models
         private Model StarModel { get; set; }
@@ -265,6 +266,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
             StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+            MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble_black_01_c");
             
             // Create our Quad (to draw the Floor)
             Quad = new QuadPrimitive(GraphicsDevice);
@@ -440,7 +442,7 @@ namespace TGC.MonoGame.TP
             
             //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
 
-            DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, StonesTexture);
+            DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, MarbleTexture);
 
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
