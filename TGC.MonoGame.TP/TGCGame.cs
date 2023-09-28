@@ -87,13 +87,16 @@ namespace TGC.MonoGame.TP
         private float Speed = 0f;
         private float PitchSpeed = 0f; 
         private float YawSpeed = 0f;
-        //private bool IsJumping = false;
+        private float JumpSpeed = 0f;
+        private bool IsJumping = false;
         private const float MaxSpeed = 180f;
         private const float PitchMaxSpeed = 15f;
-        private const float YawMaxSpeed = 4.5f;
+        private const float YawMaxSpeed = 5.8f;
         private const float Acceleration = 60f;
         private const float PitchAcceleration = 5f;
         private const float YawAcceleration = 5f;
+        private const float Gravity = 175f;
+        private const float MaxJumpHeight = 35f;
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -310,6 +313,27 @@ namespace TGC.MonoGame.TP
         
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            if (keyboardState.IsKeyDown(Keys.Space) && !IsJumping)
+            {
+                IsJumping = true; 
+                JumpSpeed = (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity)); 
+            }
+            if (IsJumping)
+            {
+                JumpSpeed -= Gravity * time;
+                var newYPosition = SpherePosition.Y + JumpSpeed * time;
+
+                if (newYPosition <= 0)
+                {
+                    newYPosition = 0;
+                    IsJumping = false;
+                    JumpSpeed = 0;
+                }
+
+                var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+                SpherePosition = newPosition;
+            }
             
             if (keyboardState.IsKeyDown(Keys.A))
             {
@@ -325,7 +349,7 @@ namespace TGC.MonoGame.TP
                 YawSpeed += YawAcceleration * time * yawDecelerationDirection;
             }
             
-            MathHelper.Clamp(YawSpeed, -YawMaxSpeed, YawMaxSpeed);
+            YawSpeed = MathHelper.Clamp(YawSpeed, -YawMaxSpeed, YawMaxSpeed);
             Yaw += YawSpeed * time;
 
             var rotationY = Matrix.CreateRotationY(Yaw);
