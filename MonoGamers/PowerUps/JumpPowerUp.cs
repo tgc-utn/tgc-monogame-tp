@@ -1,6 +1,9 @@
 ﻿using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGamers.Collisions;
 using MonoGamers.Geometries;
 using System;
 using System.Collections.Generic;
@@ -15,16 +18,26 @@ namespace MonoGamers.PowerUps
     {
         public JumpPowerUp(Vector3 position) : base(position)
         {
+           PowerUpWorld = Matrix.CreateScale(0.4f, 0.4f, 0.4f) * Matrix.CreateTranslation(position);
+           var wordBounding = Matrix.CreateScale(10f, 10f, 10f) * Matrix.CreateTranslation(position);
+           BoundingBox = BoundingVolumesExtensions.FromMatrix(wordBounding);
+        }
+
+        public override void LoadContent(ContentManager Content)
+        {
+            PowerUpModel = Content.Load<Model>("Models/powerups/pluma/feather");
+            foreach (var mesh in PowerUpModel.Meshes)
+                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
         }
 
         public override async void Activate(MonoSphere Sphere)
         {
             if (!Activated)
             {
-                Sphere.SphereJumpSpeed *= 1.005f;
+                Sphere.SphereJumpSpeed *= 1.01f;
                 Activated = true;
                 await Task.Delay(4000);
-                Sphere.SphereJumpSpeed /= 1.005f;
+                Sphere.SphereJumpSpeed /= 1.01f;
                 await Task.Delay(4000);
                 Activated = false;
             }

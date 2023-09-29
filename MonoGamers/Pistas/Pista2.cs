@@ -142,8 +142,6 @@ namespace MonoGamers.Pistas
                             ContinuousDetection.Passive),
                         new BodyActivityDescription(-0.1f))));
 
-
-
             }
             
 

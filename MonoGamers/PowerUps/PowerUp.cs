@@ -1,10 +1,14 @@
 ﻿using BepuPhysics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGamers.Collisions;
 using MonoGamers.Geometries;
+using MonoGamers.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,14 +19,49 @@ namespace MonoGamers.PowerUps
         public Vector3 Position { get; set; }
         public BoundingBox BoundingBox { get; set; }
 
+        public Matrix PowerUpWorld { get; set; }
+        public Model PowerUpModel { get; set; }
+
+        private bool GoingUp { get; set; }
+        private bool GoingDown { get; set; }
+
         public bool Activated;
         protected PowerUp(Vector3 position)
         {
             Activated = false;
             Position = position;
-            var world = Matrix.CreateScale(100f, 100f, 100f) * Matrix.CreateTranslation(position);
-            BoundingBox = BoundingVolumesExtensions.FromMatrix(world);
+            GoingUp = true;
+            GoingDown = false;
         }
+
+        public abstract void LoadContent(ContentManager Content);
+
+        public void Update()
+        { 
+            if (GoingUp) { 
+                PowerUpWorld *= Matrix.CreateTranslation(0, 0.2f, 0);
+                if (PowerUpWorld.Translation.Y >= Position.Y+10f)
+                {
+                    GoingUp = false;  
+                    GoingDown = true;
+                }
+            }
+            if (GoingDown)
+            {
+                PowerUpWorld *= Matrix.CreateTranslation(0, -0.2f, 0);
+                if (PowerUpWorld.Translation.Y <= Position.Y)
+                {
+                    GoingUp = true;
+                    GoingDown = false;
+                }
+            }
+
+        }
+        public void Draw(Camera.Camera Camera)
+        {
+            if(!Activated) PowerUpModel.Draw(PowerUpWorld, Camera.View, Camera.Projection);
+        }
+
         public bool IsWithinBounds(Vector3 position)
         {
             var BoundingSphere = new BoundingSphere(position, 5f);
