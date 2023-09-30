@@ -46,6 +46,9 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         
+        // Skybox
+        private SkyBox SkyBox { get; set; }
+        
         // Camera
         private Camera Camera { get; set; }
         private TargetCamera TargetCamera { get; set; }
@@ -83,7 +86,7 @@ namespace TGC.MonoGame.TP
         private Model SphereModel { get; set; }
         private Matrix StarWorld { get; set; }
 
-        //private Player _player;
+        private Player _player;
 
         private float Speed = 0f;
         private float PitchSpeed = 0f; 
@@ -129,13 +132,14 @@ namespace TGC.MonoGame.TP
             SpherePosition = new Vector3(0f, 10f, 0f);
             SphereScale = Matrix.CreateScale(5f);
             
+            // Player
+            _player = new Player(SphereScale, SpherePosition);
+            
             // Star
             StarWorld = Matrix.Identity;
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
-
-            //_player = new Player(SpherePosition);
             
             /*
              ===================================================================================================
@@ -290,6 +294,11 @@ namespace TGC.MonoGame.TP
 
             SphereWorld = SphereScale * Matrix.CreateTranslation(SpherePosition);
 
+            var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/skybox");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             /*foreach (var mesh in Model.Meshes)
@@ -312,78 +321,11 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-        
+            
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            if (keyboardState.IsKeyDown(Keys.Space) && !IsJumping)
-            {
-                IsJumping = true; 
-                JumpSpeed = (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity)); 
-            }
-            if (IsJumping)
-            {
-                JumpSpeed -= Gravity * time;
-                var newYPosition = SpherePosition.Y + JumpSpeed * time;
-
-                if (newYPosition <= 0)
-                {
-                    newYPosition = 0;
-                    IsJumping = false;
-                    JumpSpeed = 0;
-                }
-
-                var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
-                SpherePosition = newPosition;
-            }
-            
-            if (keyboardState.IsKeyDown(Keys.A))
-            {
-                YawSpeed += YawAcceleration * time;
-            }
-            else if (keyboardState.IsKeyDown(Keys.D))
-            {
-                YawSpeed -= YawAcceleration * time;
-            }
-            else
-            {
-                var yawDecelerationDirection = Math.Sign(YawSpeed) * -1;
-                YawSpeed += YawAcceleration * time * yawDecelerationDirection;
-            }
-            
-            YawSpeed = MathHelper.Clamp(YawSpeed, -YawMaxSpeed, YawMaxSpeed);
-            Yaw += YawSpeed * time;
-
-            var rotationY = Matrix.CreateRotationY(Yaw);
-            var forward = rotationY.Forward;
-
-            if (keyboardState.IsKeyDown(Keys.W))
-            {
-                Speed += Acceleration * time;
-                PitchSpeed -= PitchAcceleration * time;
-            }
-            else if (keyboardState.IsKeyDown(Keys.S))
-            {
-                Speed -= Acceleration * time;
-                PitchSpeed += PitchAcceleration * time;
-            }
-            else
-            {
-                var decelerationDirection = Math.Sign(Speed) * -1;
-                var pitchDecelerationDirection = Math.Sign(PitchSpeed) * -1;
-                Speed += Acceleration * time * decelerationDirection;
-                PitchSpeed += PitchAcceleration * time * pitchDecelerationDirection;
-            }
-            
-            PitchSpeed = MathHelper.Clamp(PitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
-            Speed = MathHelper.Clamp(Speed, -MaxSpeed, MaxSpeed);
-            SpherePosition += forward * time * Speed;
-            Pitch += PitchSpeed * time;
-            
-            var rotationX = Matrix.CreateRotationX(Pitch);
-            var translation = Matrix.CreateTranslation(SpherePosition);
-            
-            SphereWorld = SphereScale * rotationX * rotationY * translation;
+            SphereWorld = _player.Update(time, keyboardState);
             
             // Capturar Input teclado
             if (keyboardState.IsKeyDown(Keys.Escape))
@@ -392,17 +334,17 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-            UpdateCamera();
+            UpdateCamera(_player.SpherePosition, _player.Yaw);
 
             base.Update(gameTime);
         }
         
-        private void UpdateCamera()
+        private void UpdateCamera(Vector3 position, float yaw)
         {
             // Create a position that orbits the Robot by its direction (Rotation)
 
             // Create a normalized vector that points to the back of the Robot
-            var sphereBackDirection = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(Yaw));
+            var sphereBackDirection = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(yaw));
             // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
             var orbitalPosition = sphereBackDirection * 60f;
 
@@ -411,10 +353,10 @@ namespace TGC.MonoGame.TP
 
             // Calculate the new Camera Position by using the Robot Position, then adding the vector orbitalPosition that sends 
             // the camera further in the back of the Robot, and then we move it up by a given distance
-            TargetCamera.Position = SpherePosition + orbitalPosition + upDistance;
+            TargetCamera.Position = position + orbitalPosition + upDistance;
 
             // Set the Target as the Robot, the Camera needs to be always pointing to it
-            TargetCamera.TargetPosition = SpherePosition;
+            TargetCamera.TargetPosition = position;
 
             // Build the View matrix from the Position and TargetPosition
             TargetCamera.BuildView();
@@ -448,6 +390,8 @@ namespace TGC.MonoGame.TP
             DrawModel(StarWorld, StarModel, Effect);
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(150f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
+            
+            //SkyBox.Draw(TargetCamera.View, TargetCamera.Projection, new Vector3(0f, 0f, 0f));
         }
 
         private void DrawModel(Matrix world, Model model, Effect effect){
