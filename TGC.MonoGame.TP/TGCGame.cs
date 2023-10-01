@@ -66,9 +66,6 @@ namespace TGC.MonoGame.TP
         // Sphere position & rotation
         private Vector3 SpherePosition { get; set; }
         private Matrix SphereScale { get; set; }
-        private float Yaw { get; set; }
-        private float Pitch { get; set; }
-        private float Roll { get; set; }
         
         // World matrices
         private List<Matrix> _platformMatrices;
@@ -87,20 +84,8 @@ namespace TGC.MonoGame.TP
         private Matrix StarWorld { get; set; }
 
         private Player _player;
-
-        private float Speed = 0f;
-        private float PitchSpeed = 0f; 
-        private float YawSpeed = 0f;
-        private float JumpSpeed = 0f;
-        private bool IsJumping = false;
-        private const float MaxSpeed = 180f;
-        private const float PitchMaxSpeed = 15f;
-        private const float YawMaxSpeed = 5.8f;
-        private const float Acceleration = 60f;
-        private const float PitchAcceleration = 5f;
-        private const float YawAcceleration = 5f;
-        private const float Gravity = 175f;
-        private const float MaxJumpHeight = 35f;
+        
+        //private BoundingBox[] Colliders { get; set; }
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -141,83 +126,9 @@ namespace TGC.MonoGame.TP
             // Box/platforms
             _platformMatrices = new List<Matrix>();
             
-            /*
-             ===================================================================================================
-             Circuit 1
-             ===================================================================================================    
-            */
-            
-            // Platform
-            // Side platforms
-            CreatePlatform(new Vector3(50f, 6f, 200f), Vector3.Zero);
-            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(300f, 0f, 0f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, -200f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, 200f));
-            
-            // Corner platforms
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, 185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, 185f));
-            
-            // Center platform
-            // La idea sería que se vaya moviendo 
-            CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f));
-            
-            // Ramp
-            // Side ramps
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            
-            // Corner ramps
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
-            
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
-            
-            /*
-             ===================================================================================================
-             Circuit 2
-             ===================================================================================================
-            */
-            
-            // Platform
-            // Side platforms
-            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(-600f, 0f, 0f));
-            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(-300f, 0f, 0f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-450f, 0f, -200f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-450f, 0f, 200f));
-            
-            // Corner platforms
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-600f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-600f, 9.5f, 185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-300f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-300f, 9.5f, 185f));
-            
-            // Center platform
-            // La idea sería que se vaya moviendo 
-            CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-450f, 0f, 0f));
-            
-            // Ramp
-            // Side ramps
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-600f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-600f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            
-            // Corner ramps
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-560f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-560f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-340f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-340f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
-            
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-555f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-345f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            Prefab.CreateSquareCircuit(Vector3.Zero);
+            Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
+            _platformMatrices = Prefab.PlatformMatrices;
             
             /*
              ===================================================================================================
