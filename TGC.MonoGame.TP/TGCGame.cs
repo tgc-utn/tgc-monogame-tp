@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Numerics;
-using System.Security.AccessControl;
-using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -85,7 +81,6 @@ namespace TGC.MonoGame.TP
 
         private Player _player;
         
-        //private BoundingBox[] Colliders { get; set; }
         
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.

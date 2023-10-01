@@ -7,7 +7,7 @@ namespace TGC.MonoGame.TP;
 public class Player
 {
     public Vector3 SpherePosition;
-    public float Yaw;
+    public float Yaw { get; private set; }
     private readonly Matrix _sphereScale;
     private float _pitch;
     private float _roll;

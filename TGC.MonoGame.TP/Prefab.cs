@@ -5,7 +5,7 @@ namespace TGC.MonoGame.TP;
 
 public static class Prefab
 {
-    public static List<Matrix> PlatformMatrices =  new List<Matrix>();
+    public static readonly List<Matrix> PlatformMatrices =  new List<Matrix>();
     
     public static void CreateSquareCircuit(Vector3 offset)
     {
