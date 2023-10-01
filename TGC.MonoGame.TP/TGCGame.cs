@@ -1,11 +1,12 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
-using TGC.MonoGame.TP.References;
+using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
 {
@@ -18,11 +19,14 @@ namespace TGC.MonoGame.TP
     {
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
+
         private Effect Effect { get; set; }
+
+        /* ESTO DEBERIA IR HACIA LOS MAPAS */
         private Map Map { get; set; }
         private Camera Camera { get; set; }
-        public Gizmos.Gizmos Gizmos { get; }
-        
+        private Gizmos Gizmos { get; set; }
+
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -38,8 +42,6 @@ namespace TGC.MonoGame.TP
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
-            
-            Gizmos = new Gizmos.Gizmos();
         }
 
         /// <summary>
@@ -50,10 +52,12 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
+
+            Gizmos = new Gizmos();
             Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
-            
-            Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90);
-            
+
+            Map = new PlaneMap(15, Tanks.KF51, Tanks.T90);
+
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
         }
@@ -70,11 +74,13 @@ namespace TGC.MonoGame.TP
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
+
             Effect = Content.Load<Effect>(Effects.BasicShader.Path);
-            
+
             Map.Load(Content, Effect);
-            
-            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
+
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
+
 
             base.LoadContent();
         }
@@ -94,10 +100,10 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            
-            Camera.Update(gameTime);
-            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+
             Map.Update(gameTime);
+            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+            Camera.Update(gameTime);
             base.Update(gameTime);
         }
 
