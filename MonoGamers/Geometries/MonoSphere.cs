@@ -8,12 +8,15 @@ using MonoGamers.PowerUps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using NumericVector3 = System.Numerics.Vector3;
 using static MonoGamers.Utilities.Utils;
 using BepuPhysics.Constraints.Contact;
 using MonoGamers.Utilities;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace MonoGamers.Geometries
 {
@@ -29,9 +32,11 @@ namespace MonoGamers.Geometries
         }
 
         Type SphereType;
-        private const float StandardSideSpeed = 2000f;
-        private const float standardJumpSpeed = 100000f;
+        private const float StandardSideSpeed = 500f;
+        private const float standardJumpSpeed = 55000f;
         private const float Friction = 0.5f;
+        //private const float maxSpeed = 150f;
+
 
         public float SphereSideSpeed;
         public float SphereJumpSpeed;
@@ -96,7 +101,7 @@ namespace MonoGamers.Geometries
             SphereShape = new Sphere(10f);
             var position = Utils.ToNumericVector3(SpherePosition);
             var initialVelocity = new BodyVelocity(new NumericVector3((float)0f, 0f, 0f));
-            var mass = SphereShape.Radius * SphereShape.Radius * SphereShape.Radius;
+            var mass = SphereShape.Radius * SphereShape.Radius * SphereShape.Radius ;
             var bodyDescription = BodyDescription.CreateConvexDynamic(position, initialVelocity, mass, Simulation.Shapes, SphereShape);
             SphereHandle = Simulation.Bodies.Add(bodyDescription);
 
@@ -111,8 +116,9 @@ namespace MonoGamers.Geometries
             SphereRotation = Camera.CameraRotation;
             SphereFrontDirection = Vector3.Transform(Vector3.Backward, SphereRotation);
             SphereLateralDirection = Vector3.Transform(Vector3.Right, SphereRotation);
-
-            // Check for key presses and add a velocity in the Sphere's Front Direction
+            
+            
+            
             
             if(SphereType == Type.Common){
                 SphereSideTypeSpeed = 1f;
@@ -167,22 +173,20 @@ namespace MonoGamers.Geometries
                 sphereBody.Pose = new NumericVector3(3400f, 343f, 6790f);
             } 
 
-            if (KeyboardState.IsKeyDown(Keys.D)) MoveRight();
-            else if (KeyboardState.IsKeyDown(Keys.A)) MoveLeft();
-            if (KeyboardState.IsKeyDown(Keys.W)) MoveFront();
-            else if (KeyboardState.IsKeyDown(Keys.S)) MoveBack();
+            if (KeyboardState.IsKeyDown(Keys.D)) LateralMove( -1f);
+            if (KeyboardState.IsKeyDown(Keys.A)) LateralMove(1f);
+            if (KeyboardState.IsKeyDown(Keys.W)) FrontalMove( 1f);
+            if (KeyboardState.IsKeyDown(Keys.S)) FrontalMove( -1f);
 
             if (MathHelper.Distance(sphereBody.Velocity.Linear.Y, velocidadLinearYAnt) < 0.1
                     && MathHelper.Distance(sphereBody.Velocity.Angular.Y, velocidadAngularYAnt) < 0.1)
                 OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
 
-            if (KeyboardState.IsKeyDown(Keys.Space) && OnGround)
-            {
-                Jump();
-            }
+            if (KeyboardState.IsKeyDown(Keys.Space) && OnGround) Jump();
 
-            if (KeyboardState.GetPressedKeys().Length > 0) ApplyImpulse(ref sphereBody, 1f);
-            ApplyStop(ref sphereBody);
+            /*if (KeyboardState.GetPressedKeys().Length > 0) ApplyImpulse(ref sphereBody, 2f);
+            ApplyStop(ref sphereBody);*/
+            ApplyImpulse(ref sphereBody, 2f);
 
             if (rushed) ApplyRush(ref sphereBody);
 
@@ -196,40 +200,52 @@ namespace MonoGamers.Geometries
 
             SphereVelocity = Vector3.Zero;
         }
+        
 
-        public void MoveLeft()
+        private void LateralMove( float Sense)
         {
-            LateralMove(1f);
+            //var speedOntoDirectionSense = (ActualSpeed * Sense * SphereLateralDirection * SphereLateralDirection / SphereLateralDirection.Length()).Length();
+
+            if (OnGround)
+            {
+                SphereVelocity = Sense * SphereLateralDirection * SphereSideSpeed * SphereSideTypeSpeed;
+            }
+            else
+            {
+                SphereVelocity = Sense * SphereLateralDirection * SphereSideSpeed * SphereSideTypeSpeed *0.2f; 
+            }
         }
 
-        public void MoveRight()
+        private void FrontalMove(float Sense)
         {
-            LateralMove(-1f);
-        }
+            /*var speedOntoDirection = (sphereBody.Velocity.Linear * Sense * SphereFrontDirection * SphereFrontDirection / (SphereFrontDirection.Length() * SphereFrontDirection.Length())).Length();*/
 
-        public void MoveFront()
-        {
-            FrontalMove(1f);
-        }
+            if (OnGround)
+            {
+                SphereVelocity = Sense * SphereFrontDirection * SphereSideSpeed * SphereSideTypeSpeed;
+            }
+            else
+            {
+                SphereVelocity = Sense * SphereFrontDirection * SphereSideSpeed * SphereSideTypeSpeed * 0.2f; 
+            }
+                
+            /*if ( MathHelper.ToDegrees((float)Math.Acos(Vector2.Dot(ActualSpeedV2, SphereFrontDirectionV2) / (ActualSpeedV2.Length() * SphereFrontDirectionV2.Length() ))) < 180f){
+                
+                ApplyImpulse(ref sphereBody, 2f);
+            }
+            else if(MathHelper.ToDegrees((float)Math.Acos(Vector2.Dot(ActualSpeedV2, SphereFrontDirectionV2) / (ActualSpeedV2.Length() * SphereFrontDirectionV2.Length() ))) >= 180f)
+            {
+                ApplyImpulse(ref sphereBody, 100f);
+            }
+                
+            }*/
 
-        public void MoveBack()
-        {
-            FrontalMove(-1f);
-        }
-
-        private void LateralMove(float Direction)
-        {
-            SphereVelocity = Direction * SphereLateralDirection * SphereSideSpeed * SphereSideTypeSpeed;
-        }
-
-        private void FrontalMove(float Direction)
-        {
-            SphereVelocity = Direction * SphereFrontDirection * SphereSideSpeed * SphereSideTypeSpeed;
+            
         }
 
         public void Jump()
         {
-            SphereVelocity = Vector3.Up * SphereJumpSpeed * SphereJumpTypeSpeed;
+            SphereVelocity += Vector3.Up * SphereJumpSpeed * SphereJumpTypeSpeed;
             OnGround = false;
         }
 
