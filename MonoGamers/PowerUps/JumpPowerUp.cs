@@ -7,6 +7,7 @@ using MonoGamers.Collisions;
 using MonoGamers.Geometries;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -25,9 +26,11 @@ namespace MonoGamers.PowerUps
 
         public override void LoadContent(ContentManager Content)
         {
-            PowerUpModel = Content.Load<Model>("Models/powerups/pluma/feather");
-            foreach (var mesh in PowerUpModel.Meshes)
-                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
+            PowerUpModel = Content.Load<Model>(
+                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "pluma/feather");
+            PowerUpEffect = Content.Load<Effect>(
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
+            PowerUpTexture = ((BasicEffect)PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
         }
 
         public override async void Activate(MonoSphere Sphere)

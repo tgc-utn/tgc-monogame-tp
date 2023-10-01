@@ -14,6 +14,7 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using MonoGamers.Utilities;
+using MonoGamers.PowerUps;
 
 namespace MonoGamers.Pistas
 {
@@ -53,6 +54,10 @@ namespace MonoGamers.Pistas
         
         // Simulation           
         private Simulation Simulation { get; set; }
+
+        //efects
+
+        private Effect Effect { get; set; }
 
         public Pista2(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation)
         {
@@ -176,22 +181,19 @@ namespace MonoGamers.Pistas
             Texture2D CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
 
+            Effect = Content.Load<Effect>(
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
+
             //Carga modelo Rush
             RushModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "arrowpush/tinker") ;
-            foreach (var mesh in RushModel.Meshes)
-               ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
 
             //Carga modelo sign
             SignModel = Content.Load<Model>("Models/signs/warningSign/untitled");
-            foreach (var mesh in SignModel.Meshes)
-                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
 
             //Carga modelo Sonic
             SonicModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3D"] + "/sonic/source/sonic");
-            foreach (var mesh in SonicModel.Meshes)
-                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
 
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
@@ -222,9 +224,42 @@ namespace MonoGamers.Pistas
 
         public void Draw(Matrix view, Matrix projection)
         {
-            Array.ForEach(Platforms, Platform => BoxPrimitive.Draw(Platform, view, projection));
-            Array.ForEach(RushPowerups, PowerUp => RushModel.Draw(PowerUp, view, projection));
-            Array.ForEach(Signs, Sign => SignModel.Draw(Sign, view, projection));
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+
+
+            Array.ForEach(Platforms, Platform => {
+                BoxPrimitive.Draw(Platform, view, projection);   
+                });
+            Array.ForEach(RushPowerups, PowerUp =>
+            {
+                Effect.Parameters["World"].SetValue(PowerUp);
+                var meshes = RushModel.Meshes;
+                foreach (var mesh in meshes)
+                {
+                    foreach (var part in mesh.MeshParts)
+                    {
+                        part.Effect = Effect;
+                    }
+
+                    mesh.Draw();
+                }
+                
+            });
+
+            Array.ForEach(Signs, Sign => {
+                Effect.Parameters["World"].SetValue(Sign);
+                var meshes = SignModel.Meshes;
+                foreach (var mesh in meshes)
+                {
+                    foreach (var part in mesh.MeshParts)
+                    {
+                        part.Effect = Effect;
+                    }
+
+                    mesh.Draw();
+                }
+            });
             
             // Draw AnnoyingMovingWallsWorld
             for (int index = 0; index < MovingBoxes.Length; index++)
@@ -235,8 +270,18 @@ namespace MonoGamers.Pistas
 
             }
 
-            
-            SonicModel.Draw(Sonic, view, projection);
+
+            Effect.Parameters["World"].SetValue(Sonic);
+            var sonicmesh = SonicModel.Meshes;
+            foreach (var mesh in sonicmesh)
+            {
+                foreach (var part in mesh.MeshParts)
+                {
+                    part.Effect = Effect;
+                }
+
+                mesh.Draw();
+            }
         }
 
     }

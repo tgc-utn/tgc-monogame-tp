@@ -14,14 +14,12 @@ float4x4 Projection;
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
-	float4 Color : COLOR0;
     float2 TextureCoordinate : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-    float4 Color : COLOR0;
     float2 TextureCoordinate : TEXCOORD1;
 };
 
@@ -42,12 +40,6 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
 	// Animate position
-    float atenuacion = 0.8;
-    float y = input.Position.y;
-    float z = input.Position.z;    
-    input.Position.y = y * cos(Time * atenuacion) - z * sin(Time * atenuacion);
-    input.Position.z = z * cos(Time * atenuacion) + y * sin(Time * atenuacion);
-
     float4 worldPosition = mul(input.Position, World);
     float4 viewPosition = mul(worldPosition, View);
 	
@@ -56,13 +48,6 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 	// Propagate texture coordinates
     output.TextureCoordinate = input.TextureCoordinate;
-
-	// Animate color
-    input.Color.r = abs(sin(Time * atenuacion));
-    input.Color.g = abs(cos(Time * atenuacion));
-
-	// Propagate color by vertex
-    output.Color = input.Color;
 
     return output;
 }
@@ -73,7 +58,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
     textureColor.a = 1;
 	// Color and texture are combined in this example, 80% the color of the texture and 20% that of the vertex
-    return 0.8 * textureColor + 0.2 * input.Color;
+    return textureColor;
 }
 
 technique BasicColorDrawing

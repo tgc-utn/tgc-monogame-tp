@@ -22,8 +22,8 @@ namespace MonoGamers.PowerUps
         {
             PowerUpModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "arrowpush/tinker");
-            foreach (var mesh in PowerUpModel.Meshes)
-                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
+            PowerUpEffect = Content.Load<Effect>(
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
         }
 
         public override async void Activate(MonoSphere Sphere)

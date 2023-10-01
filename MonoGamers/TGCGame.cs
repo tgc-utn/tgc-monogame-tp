@@ -57,8 +57,6 @@ namespace MonoGamers
         // Geometries
         private BoxPrimitive BoxPrimitive { get; set; }
         private QuadPrimitive Floor { get; set; }
-        
-        private Sphere sphereShape { get; set; }
 
         // Handlers
         private BodyHandle FloorHandle { get; set; }
@@ -289,7 +287,7 @@ namespace MonoGamers
                 GraphicsDevice.Clear(Color.CornflowerBlue);
 
             //powerups Drawing
-            Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(Camera));
+                Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(Camera, gameTime));
             
             // Sphere drawinga
                 MonoSphere.Draw(Camera);

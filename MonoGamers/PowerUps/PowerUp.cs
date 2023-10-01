@@ -1,4 +1,5 @@
 ﻿using BepuPhysics;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,6 +22,12 @@ namespace MonoGamers.PowerUps
 
         public Matrix PowerUpWorld { get; set; }
         public Model PowerUpModel { get; set; }
+
+        public Effect PowerUpEffect { get; set; }
+
+        public Texture PowerUpTexture { get; set; }
+
+        private float time { get; set;}
 
         private bool GoingUp { get; set; }
         private bool GoingDown { get; set; }
@@ -57,9 +64,27 @@ namespace MonoGamers.PowerUps
             }
 
         }
-        public void Draw(Camera.Camera Camera)
+        public void Draw(Camera.Camera Camera, GameTime gameTime)
         {
-            if(!Activated) PowerUpModel.Draw(PowerUpWorld, Camera.View, Camera.Projection);
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
+            if (!Activated)
+            {
+                PowerUpEffect.Parameters["World"].SetValue(PowerUpWorld);
+                PowerUpEffect.Parameters["View"].SetValue(Camera.View);
+                PowerUpEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
+                var mesh = PowerUpModel.Meshes.FirstOrDefault();
+                if (mesh != null)
+                {
+                    foreach (var part in mesh.MeshParts)
+                    {
+                        part.Effect = PowerUpEffect;
+                    }
+
+                    mesh.Draw();
+                }
+            }
         }
 
         public bool IsWithinBounds(Vector3 position)

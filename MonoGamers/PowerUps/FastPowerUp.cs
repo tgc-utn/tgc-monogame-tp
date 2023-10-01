@@ -6,6 +6,7 @@ using MonoGamers.Collisions;
 using MonoGamers.Geometries;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,15 +18,23 @@ namespace MonoGamers.PowerUps
 
         public FastPowerUp(Vector3 position) : base(position)
         {
-            PowerUpWorld = Matrix.CreateScale(4f, 4f, 4f) * Matrix.CreateTranslation(position);
-            var wordBounding = Matrix.CreateScale(20f, 20f, 20f) * Matrix.CreateTranslation(position);
-            BoundingBox = BoundingVolumesExtensions.FromMatrix(wordBounding);
+            var quaternion = Quaternion.CreateFromAxisAngle(Vector3.Backward, 0) *
+                         Quaternion.CreateFromAxisAngle(Vector3.Up, (float)Math.PI/2) *
+                         Quaternion.CreateFromAxisAngle(Vector3.Right, 0);
+
+            PowerUpWorld = Matrix.CreateTranslation(position)
+                * Matrix.CreateScale(4f, 4f, 4f)
+                * Matrix.CreateFromQuaternion(quaternion);
+            var worldBounding = Matrix.CreateScale(20f, 20f, 20f) * Matrix.CreateTranslation(position);
+            BoundingBox = BoundingVolumesExtensions.FromMatrix(worldBounding);
         }
     public override void LoadContent(ContentManager Content)
         {
-            PowerUpModel = Content.Load<Model>("Models/powerups/agiltyup/Agility_Up_FBX");
-            foreach (var mesh in PowerUpModel.Meshes)
-                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
+            PowerUpModel = Content.Load<Model>(
+                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "agiltyup/Agility_Up_FBX");
+            PowerUpEffect = Content.Load<Effect>(
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
+            PowerUpTexture = ((BasicEffect)PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
         }
 
         public override async void Activate(MonoSphere Sphere)
