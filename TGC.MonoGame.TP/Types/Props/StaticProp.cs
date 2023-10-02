@@ -33,7 +33,12 @@ public abstract class StaticProp : Resource
         base.Load(content);
         Model.Root.Transform = World;
         Box = BoundingVolumesExtension.CreateAABBFrom(Model);
-        Box = new BoundingBox(Box.Min * Reference.Scale + World.Translation, Box.Max * Reference.Scale + World.Translation);
+        if (Prop.Prop == Utils.Models.Props.Farm || Prop.Prop == Utils.Models.Props.Farm2)
+            Box = new BoundingBox(Box.Min + World.Translation * Reference.Scale, Box.Max + World.Translation * Reference.Scale);
+        else if (Prop.Prop == Utils.Models.Props.T90)
+            Box = new BoundingBox(Box.Min * 0.01f + World.Translation, Box.Max * 0.01f + World.Translation);
+        else
+            Box = new BoundingBox(Box.Min * Reference.Scale + World.Translation, Box.Max * Reference.Scale + World.Translation);
     }
     
     public abstract void Update(ICollidable collidable);

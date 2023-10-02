@@ -950,7 +950,7 @@ public class Scenarios
 
             #endregion
             
-            new PropReference(Props.Farm, new Vector3(0,0,0), PropType.Large),
+            new PropReference(Props.T90, new Vector3(0,0,0), PropType.Large),
         }
     );
 }

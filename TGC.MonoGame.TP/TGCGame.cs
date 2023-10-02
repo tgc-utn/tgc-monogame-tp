@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types;
@@ -21,7 +22,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         /* Debuggin */
-        private const bool FreeCamera = true;
+        private const bool FreeCamera = false;
         private const bool DrawBoundingBoxes = true;
 
         /* ESTO DEBERIA IR A LOS MAPAS */

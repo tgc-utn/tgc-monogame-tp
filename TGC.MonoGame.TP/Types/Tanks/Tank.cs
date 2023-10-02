@@ -51,8 +51,8 @@ public class Tank : Resource, ICollidable
     {
         Reference = model.Tank;
         TankRef = model;
-        World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
         _velocidad = 0;
+        // World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
         Rotation = Matrix.Identity;
         Position = position;
         TurretRotation = Matrix.Identity;
@@ -62,15 +62,17 @@ public class Tank : Resource, ICollidable
     public override void Load(ContentManager content)
     {
         base.Load(content);
+        World = Reference.Rotation * Matrix.CreateTranslation(Position) * Matrix.CreateScale(Reference.Scale);
         Model.Root.Transform = World;
+        
+        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min + Position, Box.Max + Position);
+        
         turretBone = Model.Bones[TankRef.TurretBoneName];
         cannonBone = Model.Bones[TankRef.CannonBoneName];
         turretTransform = turretBone.Transform;
         cannonTransform = cannonBone.Transform;
         boneTransforms = new Matrix[Model.Bones.Count];
-       
-        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
-        Box = new BoundingBox(Box.Min * Reference.Scale + Position, Box.Max * Reference.Scale + Position);
     }
 
     public override void Draw(Matrix view, Matrix projection)
@@ -106,7 +108,7 @@ public class Tank : Resource, ICollidable
         Move(Position);
         _velocidad = Math.Max(0, _velocidad - Friction);
         var desplazamiento = (Position - LastPosition) * Reference.Scale;
-        Box = new BoundingBox(Box.Min * Reference.Scale + desplazamiento, Box.Max * Reference.Scale + desplazamiento);
+        Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
     }
 
     public void ProcessMouse(float elapsedTime)
@@ -185,7 +187,7 @@ public class Tank : Resource, ICollidable
         // Corrigiendo la posicion del tanque y de la box
         var desplazamiento = (LastPosition - Position) * Reference.Scale;
         Position = LastPosition;
-        Box = new BoundingBox(Box.Min * Reference.Scale + desplazamiento, Box.Max * Reference.Scale + desplazamiento);
+        Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
     }
 
     public BoundingBox GetBoundingBox() { return Box; }
