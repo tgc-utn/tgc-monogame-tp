@@ -201,6 +201,21 @@ namespace TGC.MonoGame.TP
             // Ramp
             CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
 
+            /*
+             ===================================================================================================
+             Bridge between Circuit 2 and Circuit 3
+             ===================================================================================================
+            */
+            
+            /*
+             ===================================================================================================
+             Circuit 3
+             ===================================================================================================
+            */
+            
+            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-800f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-920f, 34f, 0f));
+            
             base.Initialize();
         }
 
