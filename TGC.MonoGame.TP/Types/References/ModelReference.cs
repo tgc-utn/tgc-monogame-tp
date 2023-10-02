@@ -7,13 +7,13 @@ public class ModelReference
     public string Path { get; }
     public float Scale { get; }
     public Matrix Rotation { get; }
-    public Color Color { get; }
+    public DrawReference DrawReference { get; }
 
-    public ModelReference(string model, float scale, Matrix normal, Color color)
+    public ModelReference(string model, float scale, Matrix normal, DrawReference drawReference)
     {
         Path = model;
         Scale = scale;
         Rotation = normal;
-        Color = color;
+        DrawReference = drawReference;
     }
 }

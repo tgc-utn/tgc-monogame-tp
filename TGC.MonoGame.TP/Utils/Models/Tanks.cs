@@ -1,24 +1,27 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Types.References;
 
 namespace TGC.MonoGame.TP.Utils.Models;
 
 public class Tanks
 {
-    public static readonly ModelReference KF51 = new ModelReference(
-        $"{ContentFolder.Models}/tanks/kf51/source/kf51",
-        0.1f,
-        Matrix.CreateRotationX((float)Math.PI / 2) * Matrix.CreateRotationY((float)Math.PI / 2),
-        Color.Yellow
+    public static readonly TankReference KF51 = new TankReference(
+        Props.KF51,
+        "KF51_Turret_Msh",
+        "Gun_Msh"
     );
 
-    public static readonly ModelReference T90 = new ModelReference(
-        $"{ContentFolder.Models}/tanks/T90/T90",
-        1f,
-        Matrix.CreateRotationX((float)Math.PI * 3 / 2),
-        Color.DarkOrchid
+    public static readonly TankReference T90 = new TankReference(
+        Props.T90,
+        "Turret",
+        "Cannon"
+    );
+    
+    public static readonly TankReference T90V2 = new TankReference(
+        Props.T90V2,
+        "Turret",
+        "Cannon"
     );
 
     /*
@@ -26,7 +29,7 @@ public class Tanks
         $"{ContentFolder.Models}/tanks/Panzer/Panzer",
         0.1f,
         Matrix.CreateRotationX((float)Math.PI / 2),
-        Color.DarkSeaGreen
+        new ColorReference(Color.DarkSeaGreen)
     );
     */
 }

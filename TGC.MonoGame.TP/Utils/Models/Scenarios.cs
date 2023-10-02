@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Types.References;
@@ -8,12 +9,9 @@ namespace TGC.MonoGame.TP.Utils.Models;
 public class Scenarios
 {
     public static readonly ScenaryReference Plane = new ScenaryReference(
-        $"{ContentFolder.Models}/scenary/plane",
-        1.4f,
-        Matrix.Identity,
-        Color.Black,
-        new Vector3(-475f, 0f, 0f),
-        new Vector3(475f, 0f, 0f),
+        Props.PlaneScene,
+        new Vector3(-400f, 2f, 0f),
+        new Vector3(400f, 2f, 0f),
         new List<PropReference>
         {
             // El mapa mide (si tomamos como escala 1f) 550f x 550f. Entonces -275f <= x <= 275f
@@ -925,7 +923,7 @@ public class Scenarios
             #region Granjas Aliadas
 
             new PropReference(Props.Farm, new Vector3(0, 0, 0), new Repetition(
-                3,
+                2,
                 new FunctionLinear
                 {
                     StartX = 475f,
@@ -940,7 +938,7 @@ public class Scenarios
             #region Granjas Enemigas
 
             new PropReference(Props.Farm2, new Vector3(0, 0, 0), new Repetition(
-                3,
+                2,
                 new FunctionLinear
                 {
                     StartX = -475f,

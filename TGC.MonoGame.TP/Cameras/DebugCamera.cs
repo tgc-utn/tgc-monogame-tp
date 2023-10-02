@@ -64,16 +64,16 @@ public class DebugCamera : Camera
         if (Vector3.Dot(tiltedFront, flatFront) > 0.001f) FrontDirection = Vector3.Normalize(tiltedFront);
 
         // Check for input to move the camera around.
-        if (keyboardState.IsKeyDown(Keys.W))
+        if (keyboardState.IsKeyDown(Keys.I))
             Position += FrontDirection * time * Speed;
 
-        if (keyboardState.IsKeyDown(Keys.S))
+        if (keyboardState.IsKeyDown(Keys.K))
             Position -= FrontDirection * time * Speed;
 
-        if (keyboardState.IsKeyDown(Keys.A))
+        if (keyboardState.IsKeyDown(Keys.J))
             Position += RightDirection * time * Speed;
 
-        if (keyboardState.IsKeyDown(Keys.D))
+        if (keyboardState.IsKeyDown(Keys.L))
             Position -= RightDirection * time * Speed;
 
         View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);

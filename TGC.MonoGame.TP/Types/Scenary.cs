@@ -5,25 +5,24 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Types.References;
+using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.Types;
 
-public class Scenary
+public class Scenary : Resource
 {
-    private Model Model;
-    public ScenaryReference Reference { get; }
-    private Effect Effect;
-    private Matrix World;
+    public ScenaryReference Scene { get; }
 
     public Scenary(ScenaryReference model, Vector3 position)
     {
-        Reference = model;
-        World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
+        Scene = model;
+        Reference = model.Scenary;
+        World = Matrix.CreateScale(Reference.Scale,1,Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
     }
     
     public List<Vector3> GetSpawnPoints(int numberOfTanks, bool isAlies)
     {
-        return GetCircularPoints(numberOfTanks, isAlies ? Reference.AliesSpawn : Reference.EnemiesSpawn);
+        return GetCircularPoints(numberOfTanks, isAlies ? Scene.AliesSpawn : Scene.EnemiesSpawn);
     }
     
     public List<Vector3> GetCircularPoints(int numberObjs, Vector3 centerPosition, float circleRadius = 20f)
@@ -37,30 +36,5 @@ public class Scenary
         }
         return points;
     }
-
-    public void Load(ContentManager content, Effect effect)
-    {
-        Model = content.Load<Model>(Reference.Path);
-        Effect = effect;
-        foreach (var modelMeshPart in Model.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
-        {
-            modelMeshPart.Effect = Effect;
-        }
-    }
     
-    public void Draw(Matrix view, Matrix projection)
-    {
-        Model.Root.Transform = World;
-
-        Effect.Parameters["View"].SetValue(view);
-        Effect.Parameters["Projection"].SetValue(projection);
-        Effect.Parameters["DiffuseColor"].SetValue(Reference.Color.ToVector3());
-
-        // Draw the model.
-        foreach (var mesh in Model.Meshes)
-        {
-            Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-            mesh.Draw();
-        }
-    }
 }

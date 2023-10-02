@@ -19,10 +19,8 @@ namespace TGC.MonoGame.TP
     {
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-
-        private Effect Effect { get; set; }
-
-        /* ESTO DEBERIA IR HACIA LOS MAPAS */
+        
+        /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
         private Camera Camera { get; set; }
         private Gizmos Gizmos { get; set; }
@@ -56,7 +54,7 @@ namespace TGC.MonoGame.TP
             Gizmos = new Gizmos();
             Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
 
-            Map = new PlaneMap(15, Tanks.KF51, Tanks.T90);
+            Map = new PlaneMap(15, Tanks.T90, Tanks.T90V2);
 
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
@@ -74,14 +72,11 @@ namespace TGC.MonoGame.TP
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-
-            Effect = Content.Load<Effect>(Effects.BasicShader.Path);
-
-            Map.Load(Content, Effect);
+            
+            Map.Load(Content);
 
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
-
-
+            
             base.LoadContent();
         }
 
@@ -114,7 +109,7 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
             Map.Draw(Camera.View, Camera.Projection);
             Gizmos.Draw();
         }

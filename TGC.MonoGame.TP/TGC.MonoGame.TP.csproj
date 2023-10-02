@@ -31,7 +31,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\3D\" />
-    <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Content\Effects\Gizmos.fx" />
