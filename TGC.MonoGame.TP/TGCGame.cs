@@ -65,6 +65,10 @@ namespace TGC.MonoGame.TP
         private List<Matrix> _platformMatrices;
         
         // Effects
+        // Effect for the Platforms
+        private Effect PlatformEffect { get; set; }
+
+        // Effect for the ball
         private Effect Effect { get; set; }
         
         // Textures
@@ -200,21 +204,182 @@ namespace TGC.MonoGame.TP
             
             // Ramp
             CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
-
-            /*
-             ===================================================================================================
-             Bridge between Circuit 2 and Circuit 3
-             ===================================================================================================
-            */
             
             /*
              ===================================================================================================
              Circuit 3
              ===================================================================================================
             */
+            float altura = -24;
+            for (int pisos = 0; pisos < 6; pisos++) {
+                altura += 29;
+                // Ramp
+                CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-800f, altura, 0f), Matrix.CreateRotationZ(-0.3f));
+                altura += 29;
+                // Platform
+                CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-920f, altura, 25f));
+                altura += 29;
+                // Ramp
+                CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-800f, altura, 50f), Matrix.CreateRotationZ(0.3f));
+                altura += 29;
+                // Platform
+                CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-680f, altura, 25f));
+            }
             
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-800f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-920f, 34f, 0f));
+            /*
+             ===================================================================================================
+             Bridge between Circuit 3 and Circuit 4
+             ===================================================================================================
+            */
+            
+            // Platform
+            CreatePlatform(new Vector3(50f, 6f, 30f), new Vector3(-620f, altura, 0f));
+            CreatePlatform(new Vector3(50f, 6f, 25f), new Vector3(-560f, altura, 0f));
+            CreatePlatform(new Vector3(50f, 6f, 20f), new Vector3(-500f, altura, 0f));
+            CreatePlatform(new Vector3(50f, 6f, 15f), new Vector3(-440f, altura, 0f));
+            
+            // Ramp
+            CreatePlatform(new Vector3(30f, 6f, 15f), new Vector3(-390f, altura, 0f), Matrix.CreateRotationZ(0.3f));
+            
+            /*
+             ===================================================================================================
+             Maze
+             ===================================================================================================
+            */
+            
+            // Entrance platform
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, altura, 0f));
+            
+            // Maze platform
+            CreatePlatform(new Vector3(750f, 6f, 750f), new Vector3(100f, altura, 0f));
+            
+            // Center platform to go next level, tendria que moverse
+            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(100f, altura, 0f));
+            
+            // Border Walls
+            CreatePlatform(new Vector3(750f, 50f, 6f), new Vector3(100f, altura+25f, 375f));
+            CreatePlatform(new Vector3(750f, 50f, 6f), new Vector3(100f, altura+25f, -375f));
+            CreatePlatform(new Vector3(6f, 50f, 750f), new Vector3(475f, altura+25f, 0f));
+            CreatePlatform(new Vector3(6f, 50f, 350f), new Vector3(-275f, altura+25f, 200f));
+            CreatePlatform(new Vector3(6f, 50f, 350f), new Vector3(-275f, altura+25f, -200f));
+            
+            // Vertical Walls from largest to shortest
+            CreatePlatform(new Vector3(6f, 50f, 250f), new Vector3(225f, altura+25f, -50f));
+            CreatePlatform(new Vector3(6f, 50f, 250f), new Vector3(275f, altura+25f, -200f));
+            CreatePlatform(new Vector3(6f, 50f, 200f), new Vector3(-125f, altura+25f, 225f));
+            CreatePlatform(new Vector3(6f, 50f, 200f), new Vector3(-75f, altura+25f, -75f));
+            CreatePlatform(new Vector3(6f, 50f, 200f), new Vector3(-25f, altura+25f, 175f));
+            CreatePlatform(new Vector3(6f, 50f, 200f), new Vector3(-25f, altura+25f, -125f));
+            CreatePlatform(new Vector3(6f, 50f, 150f), new Vector3(-225f, altura+25f, 250f));
+            CreatePlatform(new Vector3(6f, 50f, 150f), new Vector3(-225f, altura+25f, -100f));
+            CreatePlatform(new Vector3(6f, 50f, 150f), new Vector3(25f, altura+25f, 0f));
+            CreatePlatform(new Vector3(6f, 50f, 150f), new Vector3(275f, altura+25f, 250f));
+            CreatePlatform(new Vector3(6f, 50f, 150f), new Vector3(275f, altura+25f, 50f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(-225f, altura+25f, 75f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(-175f, altura+25f, -25f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(-175f, altura+25f, -225f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(-125f, altura+25f, 25f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(-125f, altura+25f, -225f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(75f, altura+25f, 325f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(75f, altura+25f, 175f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(75f, altura+25f, 25f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(75f, altura+25f, -225f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(125f, altura+25f, -25f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(125f, altura+25f, -225f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(175f, altura+25f, 275f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(175f, altura+25f, 25f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(225f, altura+25f, -325f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(325f, altura+25f, -25f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(375f, altura+25f, 125f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(375f, altura+25f, -275f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(425f, altura+25f, 75f));
+            CreatePlatform(new Vector3(6f, 50f, 100f), new Vector3(425f, altura+25f, -125f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-225f, altura+25f, -300f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-175f, altura+25f, 250f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-175f, altura+25f, 100f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-175f, altura+25f, -350f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-75f, altura+25f, 300f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-75f, altura+25f, 200f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-75f, altura+25f, -300f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-25f, altura+25f, 350f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(-25f, altura+25f, -300f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(25f, altura+25f, 150f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(25f, altura+25f, -150f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(25f, altura+25f, -300f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(75f, altura+25f, -350f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(125f, altura+25f, 100f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(175f, altura+25f, -150f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(175f, altura+25f, -300f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(225f, altura+25f, 150f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(325f, altura+25f, 250f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(325f, altura+25f, -150f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(375f, altura+25f, -100f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(425f, altura+25f, 200f));
+            CreatePlatform(new Vector3(6f, 50f, 50f), new Vector3(425f, altura+25f, -250f));
+            
+            // Columns
+            CreatePlatform(new Vector3(6f, 50f, 6f), new Vector3(125f, altura+25f, 225f));
+            CreatePlatform(new Vector3(6f, 50f, 6f), new Vector3(125f, altura+25f, -325f));
+            CreatePlatform(new Vector3(6f, 50f, 6f), new Vector3(325f, altura+25f, -275f));
+            
+            // Horizontal walls from largest to shortest
+            CreatePlatform(new Vector3(200f, 50f, 6f), new Vector3(-125f, altura+25f, 125f));
+            CreatePlatform(new Vector3(200f, 50f, 6f), new Vector3(225f, altura+25f, 125f));
+            CreatePlatform(new Vector3(150f, 50f, 6f), new Vector3(200f, altura+25f, -225f));
+            CreatePlatform(new Vector3(150f, 50f, 6f), new Vector3(100f, altura+25f, -125f));
+            CreatePlatform(new Vector3(150f, 50f, 6f), new Vector3(-50f, altura+25f, 75f));
+            CreatePlatform(new Vector3(150f, 50f, 6f), new Vector3(150f, altura+25f, 175f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(325f, altura+25f, -325f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(-125f, altura+25f, -275f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(-25f, altura+25f, -225f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(-125f, altura+25f, -125f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(325f, altura+25f, -125f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(125f, altura+25f, -75f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(375f, altura+25f, 25f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(-225f, altura+25f, 175f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(325f, altura+25f, 175f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(25f, altura+25f, 225f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(225f, altura+25f, 225f));
+            CreatePlatform(new Vector3(100f, 50f, 6f), new Vector3(-25f, altura+25f, 275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-100f, altura+25f, -325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(450f, altura+25f, -325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-250f, altura+25f, -275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(50f, altura+25f, -275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(200f, altura+25f, -275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-200f, altura+25f, -225f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(350f, altura+25f, -225f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(450f, altura+25f, -225f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-200f, altura+25f, -175f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(100f, altura+25f, -175f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(200f, altura+25f, -175f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(400f, altura+25f, -175f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-150f, altura+25f, -75f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(0f, altura+25f, -75f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(400f, altura+25f, -75f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-100f, altura+25f, -25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(100f, altura+25f, -25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(350f, altura+25f, -25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(450f, altura+25f, -25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-200f, altura+25f, 25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(0f, altura+25f, 25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(150f, altura+25f, 25f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(100f, altura+25f, 75f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(200f, altura+25f, 75f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(350f, altura+25f, 75f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(50f, altura+25f, 125f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-50f, altura+25f, 175f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-200f, altura+25f, 225f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(400f, altura+25f, 225f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(100f, altura+25f, 275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(250f, altura+25f, 275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(350f, altura+25f, 275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(450f, altura+25f, 275f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(-150f, altura+25f, 325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(50f, altura+25f, 325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(150f, altura+25f, 325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(250f, altura+25f, 325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(350f, altura+25f, 325f));
+            CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(450f, altura+25f, 325f));
             
             base.Initialize();
         }
@@ -267,6 +432,7 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            PlatformEffect = Content.Load<Effect>(ContentFolderEffects + "PlatformShader");
             loadEffectOnMesh(StarModel, Effect);
 
             // Asigno el efecto que cargue a cada parte del mesh.
@@ -321,12 +487,11 @@ namespace TGC.MonoGame.TP
             foreach (var platformWorld in _platformMatrices)
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
-                Effect.Parameters["World"].SetValue(platformWorld);
-                Effect.Parameters["View"].SetValue(Camera.View);
-                Effect.Parameters["Projection"].SetValue(Camera.Projection);
-                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
-                
-                BoxPrimitive.Draw(Effect);
+                PlatformEffect.Parameters["World"].SetValue(platformWorld);
+                PlatformEffect.Parameters["View"].SetValue(Camera.View);
+                PlatformEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture);
+                BoxPrimitive.Draw(PlatformEffect);
             }  
             
 
