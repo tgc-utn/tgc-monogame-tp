@@ -73,6 +73,8 @@ namespace TGC.MonoGame.TP
         // Textures
         private Texture2D StonesTexture { get; set; }
         private Texture2D MarbleTexture { get; set; }
+        private Texture2D RubberTexture { get; set; }
+        private Texture2D MetalTexture { get; set; }
 
         // Models
         private Model StarModel { get; set; }
@@ -177,6 +179,8 @@ namespace TGC.MonoGame.TP
             
             StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
             MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble_black_01_c");
+            RubberTexture = Content.Load<Texture2D>(ContentFolderTextures + "goma_diffuse");
+            MetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal_diffuse");
             
             // Create our Quad (to draw the Floor)
             Quad = new QuadPrimitive(GraphicsDevice);
@@ -290,7 +294,7 @@ namespace TGC.MonoGame.TP
             
             //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
 
-            DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, MarbleTexture);
+            DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, RubberTexture);
 
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
@@ -319,6 +323,8 @@ namespace TGC.MonoGame.TP
             effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
             effect.Parameters["DiffuseColor"]?.SetValue(Color.IndianRed.ToVector3());
             effect.Parameters["Texture"]?.SetValue(texture);
+
+            chequearPropiedadesTextura(texture);
 
             foreach (var mesh in model.Meshes)
             {   
@@ -355,6 +361,20 @@ namespace TGC.MonoGame.TP
                 {
                     meshPart.Effect = efecto;
                 }
+            }
+        }
+
+        public void chequearPropiedadesTextura(Texture2D texture){
+            //La bola de marmol acelera mas lento
+            //La bola de goma salta mas alto
+            //La bola de metal acelera mas rápido
+            if(texture == MarbleTexture){
+                _player.Acceleration = 30f;
+            }else if(texture == RubberTexture){
+                _player.MaxJumpHeight = 70f;
+            }else if(texture == MetalTexture){
+                _player.Acceleration = 100f;
+                _player.MaxSpeed = 230f;
             }
         }
     }

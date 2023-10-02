@@ -23,14 +23,14 @@ public class Player
         SpherePosition = spherePosition;
     }
 
-    private const float MaxSpeed = 180f;
+    public float MaxSpeed = 180f;
     private const float PitchMaxSpeed = 15f;
     private const float YawMaxSpeed = 5.8f;
-    private const float Acceleration = 60f;
+    public float Acceleration = 60f;
     private const float PitchAcceleration = 5f;
     private const float YawAcceleration = 5f;
     private const float Gravity = 175f;
-    private const float MaxJumpHeight = 35f;
+    public float MaxJumpHeight = 35f;
 
     public Matrix Update(float time, KeyboardState keyboardState)
     {
