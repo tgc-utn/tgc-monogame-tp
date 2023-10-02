@@ -391,8 +391,8 @@ namespace TGC.MonoGame.TP
             
             // TODO cada 3 circuitos y un maze "subir de nivel" (alcanzar una altura mayor y cambiar texturas)
 
-            altura = 900f;
-            CreatePlatformLevel2(new Vector3(50f, 6f, 50f), new Vector3(150f, altura, 0f));
+            //altura = 900f;
+            //CreatePlatformLevel2(new Vector3(50f, 6f, 50f), new Vector3(150f, altura, 0f));
             
             base.Initialize();
         }
