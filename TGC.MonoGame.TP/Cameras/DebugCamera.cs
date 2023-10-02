@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Types.Tanks;
 
 namespace TGC.MonoGame.TP.Cameras;
 
@@ -31,7 +32,7 @@ public class DebugCamera : Camera
         View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
     }
     
-    public override void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime, Tank Player)
     {
         var keyboardState = Keyboard.GetState();
         var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);

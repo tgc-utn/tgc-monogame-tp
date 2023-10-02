@@ -10,39 +10,47 @@ namespace TGC.MonoGame.TP.Types.Tanks;
 
 public class Tank : Resource
 {
+    // Configs
+    private float Acceleration = 0.0055f;
+    private float MaxSpeed = 0.01f;
+    private float RotationSpeed = 0.01f;
+    private float Friction = 0.004f;
+
     public TankReference TankRef;
-    
-    private Vector3 Position;
+
+    public Vector3 Position;
+    private Vector3 LastPosition;
+
     private float _velocidad;
-    private Matrix _rotacion;
+    public Matrix Rotation;
 
     //private Turret Turret;
-    
+
     private ModelBone turretBone;
     private ModelBone cannonBone;
-    
+
     private Matrix[] boneTransforms;
     private Matrix turretTransform;
     private Matrix cannonTransform;
 
     private Matrix cannonTest;
-    
+
     public Matrix TurretRotation { get; set; }
     public Matrix CannonRotation { get; set; }
-    
+
     private Vector2 pastMousePosition;
-    public float MouseSensitivity { get; set; } = 0.008f;
-    
+    public float MouseSensitivity { get; } = 0.008f;
+
     private float pitch;
     private float yaw = -90f;
-    
+
     public Tank(TankReference model, Vector3 position)
     {
         Reference = model.Tank;
         TankRef = model;
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
         _velocidad = 0;
-        _rotacion = Matrix.Identity;
+        Rotation = Matrix.Identity;
         Position = position;
         TurretRotation = Matrix.Identity;
         CannonRotation = Matrix.Identity;
@@ -62,8 +70,9 @@ public class Tank : Resource
     {
         Model.Root.Transform = World;
         turretBone.Transform = TurretRotation * turretTransform;
-        cannonBone.Transform = turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
-        
+        cannonBone.Transform =
+            turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+
         Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
 
         Effect.Parameters["View"].SetValue(view);
@@ -75,25 +84,31 @@ public class Tank : Resource
             Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
             mesh.Draw();
         }
+
+        /*Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min + Position, Box.Max + Position);*/
     }
-    
+
     public void Update(GameTime gameTime)
     {
-        var elapsedTime = (float) gameTime.ElapsedGameTime.Milliseconds;
-        
+        var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+
         KeySense();
         ProcessMouse(elapsedTime);
-        
-        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad * elapsedTime;
-        Move(Position,_rotacion);
-        _velocidad = Math.Max(0, _velocidad-0.008f);
-        
+
+
+        LastPosition = Position;
+        Position += Vector3.Transform(Vector3.Forward, Rotation) * _velocidad * elapsedTime;
+        Move(Position);
+        _velocidad = Math.Max(0, _velocidad - Friction);
+        var desplazamiento = (Position - LastPosition) * Reference.Scale;
+        /*Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);*/
     }
 
     public void ProcessMouse(float elapsedTime)
     {
         var currentMouseState = Mouse.GetState();
-        
+
         var mouseDelta = currentMouseState.Position.ToVector2() - pastMousePosition;
         mouseDelta *= MouseSensitivity * elapsedTime;
 
@@ -104,7 +119,7 @@ public class Tank : Resource
         yaw = Math.Clamp(yaw - mouseDelta.X, -90.0f, 90.0f);
 
         UpdateRotations();
-        
+
         pastMousePosition = Mouse.GetState().Position.ToVector2();
     }
 
@@ -112,10 +127,10 @@ public class Tank : Resource
     {
         var yawRadians = MathHelper.ToRadians(yaw);
         var pitchRadians = MathHelper.ToRadians(pitch);
-        
+
         Matrix turretRotation = Matrix.CreateRotationZ(yawRadians);
         Matrix cannonRotation = Matrix.CreateRotationX(pitchRadians) * Matrix.CreateRotationZ(yawRadians);
-        
+
         TurretRotation = turretRotation;
         CannonRotation = cannonRotation;
     }
@@ -125,39 +140,49 @@ public class Tank : Resource
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
             // Avanzo
-            _velocidad += 0.01f;
+            _velocidad += Acceleration;
         }
+
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
             // Retrocedo
-            _velocidad -= 0.01f;
+            _velocidad -= Acceleration;
         }
+
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
             // Giro izq
-            _rotacion *= Matrix.CreateRotationY(0.02f);
+            Rotation *= Matrix.CreateRotationY(RotationSpeed);
         }
+
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
             // Giro der
-            _rotacion *= Matrix.CreateRotationY(-0.02f);
+            Rotation *= Matrix.CreateRotationY(-RotationSpeed);
         }
     }
 
-    public void Move(Vector3 position, Matrix rotation)
+    public void Move(Vector3 position)
     {
-        World = Reference.Rotation * rotation * Matrix.CreateTranslation(position) * Matrix.CreateScale(Reference.Scale);
+        World = Reference.Rotation * Rotation * Matrix.CreateTranslation(position) *
+                Matrix.CreateScale(Reference.Scale);
     }
-    
+
     public void CollidedWithSmallProp()
     {
         Console.WriteLine("Chocaste con prop chico");
-        // TODO frenar un poco el tanque
+        _velocidad = 0.5f;
     }
 
     public void CollidedWithLargeProp()
     {
         Console.WriteLine("Chocaste con prop grande");
-        // TODO frenar el tanque del todo
+        _velocidad = 0f;
+        // Corrigiendo la posicion del tanque y de la box
+        var desplazamiento = (LastPosition - Position) * Reference.Scale;
+        Position = LastPosition;
+        // Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
     }
+
+    // public BoundingBox GetBoundingBox() { return Box; }
 }

@@ -9,7 +9,7 @@ namespace TGC.MonoGame.TP.Types;
 public abstract class Map
 {
     protected Scenary Scenary { get; set; }
-    protected Tank Player { get; set; }
+    public Tank Player { get; set; }
     protected List<Tank> Enemies { get; set; }
     protected List<Tank> Alies { get; set; }
 

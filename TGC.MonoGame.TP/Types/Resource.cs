@@ -11,7 +11,7 @@ public abstract class Resource
 {
     protected Model Model;
     protected Effect Effect;
-    protected Matrix World;
+    public Matrix World;
     protected ModelReference Reference;
     
     public virtual void Load(ContentManager content)

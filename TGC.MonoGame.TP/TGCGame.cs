@@ -20,6 +20,9 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         
+        /* Debuggin */
+        private const bool FreeCamera = true;
+
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
         private Camera Camera { get; set; }
@@ -52,10 +55,15 @@ namespace TGC.MonoGame.TP
 
 
             Gizmos = new Gizmos();
-            Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
-
+            
+            if (FreeCamera)
+                Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
+            else 
+                Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
+            
             Map = new PlaneMap(15, Tanks.T90, Tanks.T90V2);
-
+            
+            Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2,  Graphics.PreferredBackBufferHeight / 2);
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
         }
@@ -74,9 +82,7 @@ namespace TGC.MonoGame.TP
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             
             Map.Load(Content);
-
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
-            
             base.LoadContent();
         }
 
@@ -97,8 +103,8 @@ namespace TGC.MonoGame.TP
             }
 
             Map.Update(gameTime);
+            Camera.Update(gameTime, Map.Player);
             Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
-            Camera.Update(gameTime);
             base.Update(gameTime);
         }
 
