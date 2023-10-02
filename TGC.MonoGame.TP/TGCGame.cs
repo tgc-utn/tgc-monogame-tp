@@ -63,6 +63,7 @@ namespace TGC.MonoGame.TP
         
         // World matrices
         private List<Matrix> _platformMatrices;
+        private List<Matrix> _platformMatricesLevel2;
         
         // Effects
         // Effect for the Platforms
@@ -112,6 +113,7 @@ namespace TGC.MonoGame.TP
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
+            _platformMatricesLevel2 = new List<Matrix>();
             
             /*
              ===================================================================================================
@@ -228,7 +230,7 @@ namespace TGC.MonoGame.TP
             
             /*
              ===================================================================================================
-             Bridge between Circuit 3 and Circuit 4
+             Bridge between Circuit 3 and Maze
              ===================================================================================================
             */
             
@@ -253,7 +255,7 @@ namespace TGC.MonoGame.TP
             // Maze platform
             CreatePlatform(new Vector3(750f, 6f, 750f), new Vector3(100f, altura, 0f));
             
-            // Center platform to go next level, tendria que moverse
+            // Center platform to go next level, tendria que moverse hacia arriba hasta 900f
             CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(100f, altura, 0f));
             
             // Border Walls
@@ -381,6 +383,17 @@ namespace TGC.MonoGame.TP
             CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(350f, altura+25f, 325f));
             CreatePlatform(new Vector3(50f, 50f, 6f), new Vector3(450f, altura+25f, 325f));
             
+            /*
+             ===================================================================================================
+             Circuit 4
+             ===================================================================================================
+            */
+            
+            // TODO cada 3 circuitos y un maze "subir de nivel" (alcanzar una altura mayor y cambiar texturas)
+
+            altura = 900f;
+            CreatePlatformLevel2(new Vector3(50f, 6f, 50f), new Vector3(150f, altura, 0f));
+            
             base.Initialize();
         }
 
@@ -405,6 +418,29 @@ namespace TGC.MonoGame.TP
         {
             var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
             _platformMatrices.Add(platformWorld);
+        }
+        
+        /// <summary>
+        ///     Creates a platform with the specified scale, position and rotation.
+        /// </summary>
+        /// <param name="scale">The scale of the platform</param>
+        /// <param name="position">The position of the platform</param>
+        /// <param name="rotation">The rotation of the platform</param>
+        private void CreatePlatformLevel2(Vector3 scale, Vector3 position, Matrix rotation)
+        {
+            var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
+            _platformMatricesLevel2.Add(platformWorld);
+        }
+        
+        /// <summary>
+        ///     Creates a platform with the specified scale and position.
+        /// </summary>
+        /// <param name="scale">The scale of the platform</param>
+        /// <param name="position">The position of the platform</param>
+        private void CreatePlatformLevel2(Vector3 scale, Vector3 position)
+        {
+            var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+            _platformMatricesLevel2.Add(platformWorld);
         }
 
         /// <summary>
@@ -493,6 +529,16 @@ namespace TGC.MonoGame.TP
                 PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture);
                 BoxPrimitive.Draw(PlatformEffect);
             }  
+            
+            foreach (var platformWorld in _platformMatricesLevel2)
+            {
+                // Configura la matriz de mundo del efecto con la matriz del Floor actual
+                PlatformEffect.Parameters["World"].SetValue(platformWorld);
+                PlatformEffect.Parameters["View"].SetValue(Camera.View);
+                PlatformEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture); // TODO agregar otra textura
+                BoxPrimitive.Draw(PlatformEffect);
+            } 
             
 
             DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
