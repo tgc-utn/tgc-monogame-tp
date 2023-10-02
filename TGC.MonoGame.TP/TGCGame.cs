@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Geometries;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP
 {
@@ -42,11 +42,15 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         
+        // Skybox
+        private SkyBox SkyBox { get; set; }
+        
         // Camera
         private Camera Camera { get; set; }
+        private TargetCamera TargetCamera { get; set; }
         
         // Scene
-        private Matrix World { get; set; }
+        private Matrix SphereWorld { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
         
@@ -57,13 +61,11 @@ namespace TGC.MonoGame.TP
         
         // Sphere position & rotation
         private Vector3 SpherePosition { get; set; }
-        private float Yaw { get; set; }
-        private float Pitch { get; set; }
-        private float Roll { get; set; }
+        private Matrix SphereScale { get; set; }
         
         // World matrices
         private List<Matrix> _platformMatrices;
-        //private List<Matrix> _platformMatricesLevel2;
+        private List<Matrix> _platformMatricesLevel2;
         
         // Effects
         // Effect for the Platforms
@@ -71,13 +73,20 @@ namespace TGC.MonoGame.TP
 
         // Effect for the ball
         private Effect Effect { get; set; }
+        private Effect TextureEffect { get; set; }
         
         // Textures
         private Texture2D StonesTexture { get; set; }
+        private Texture2D MarbleTexture { get; set; }
+        private Texture2D RubberTexture { get; set; }
+        private Texture2D MetalTexture { get; set; }
 
         // Models
         private Model StarModel { get; set; }
+        private Model SphereModel { get; set; }
         private Matrix StarWorld { get; set; }
+
+        private Player _player;
         
         
         /// <summary>
@@ -97,101 +106,32 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0, 40, 200), size);
+            TargetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
             
             // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
+            SphereWorld = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             
             // Sphere
             SpherePosition = new Vector3(0f, 10f, 0f);
-            Sphere = new SpherePrimitive(GraphicsDevice, 10);
-
+            SphereScale = Matrix.CreateScale(5f);
+            
+            // Player
+            _player = new Player(SphereScale, SpherePosition);
+            
+            // Star
             StarWorld = Matrix.Identity;
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
-            //_platformMatricesLevel2 = new List<Matrix>();
+            _platformMatricesLevel2 = new List<Matrix>();
             
-            /*
-             ===================================================================================================
-             Circuit 1
-             ===================================================================================================    
-            */
-            
-            // Platform
-            // Side platforms
-            CreatePlatform(new Vector3(50f, 6f, 200f), Vector3.Zero);
-            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(300f, 0f, 0f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, -200f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(150f, 0f, 200f));
-            
-            // Corner platforms
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(0f, 9.5f, 185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(300f, 9.5f, 185f));
-            
-            // Center platform
-            // La idea sería que se vaya moviendo 
-            CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f));
-            
-            // Ramp
-            // Side ramps
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            
-            // Corner ramps
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
-            
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
-            
-            /*
-             ===================================================================================================
-             Circuit 2
-             ===================================================================================================
-            */
-            
-            // Platform
-            // Side platforms
-            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(-600f, 0f, 0f));
-            CreatePlatform(new Vector3(50f, 6f, 200f), new Vector3(-300f, 0f, 0f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-450f, 0f, -200f));
-            CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-450f, 0f, 200f));
-            
-            // Corner platforms
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-600f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-600f, 9.5f, 185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-300f, 9.5f, -185f));
-            CreatePlatform(new Vector3(50f, 6f, 80f), new Vector3(-300f, 9.5f, 185f));
-            
-            // Center platform
-            // La idea sería que se vaya moviendo 
-            CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-450f, 0f, 0f));
-            
-            // Ramp
-            // Side ramps
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-600f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, 5f, -125f), Matrix.CreateRotationX(0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-600f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(-300f, 5f, 125f), Matrix.CreateRotationX(-0.2f));
-            
-            // Corner ramps
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-560f, 5f, -200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-560f, 5f, 200f), Matrix.CreateRotationZ(-0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-340f, 5f, -200f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(-340f, 5f, 200f), Matrix.CreateRotationZ(0.3f));
-            
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-555f, 5f, 0f), Matrix.CreateRotationZ(0.3f));
-            CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(-345f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            Prefab.CreateSquareCircuit(Vector3.Zero);
+            Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
+            _platformMatrices = Prefab.PlatformMatrices;
             
             /*
              ===================================================================================================
@@ -388,12 +328,12 @@ namespace TGC.MonoGame.TP
              Circuit 4
              ===================================================================================================
             */
-            /*
-             TODO cada 3 circuitos y un maze "subir de nivel" (alcanzar una altura mayor y cambiar texturas)
+            
+            //TODO cada 3 circuitos y un maze "subir de nivel" (alcanzar una altura mayor y cambiar texturas)
 
             altura = 900f;
             CreatePlatformLevel2(new Vector3(50f, 6f, 50f), new Vector3(150f, altura, 0f));
-            */
+            
             base.Initialize();
         }
 
@@ -426,26 +366,24 @@ namespace TGC.MonoGame.TP
         /// <param name="scale">The scale of the platform</param>
         /// <param name="position">The position of the platform</param>
         /// <param name="rotation">The rotation of the platform</param>
-        /*
+        
          private void CreatePlatformLevel2(Vector3 scale, Vector3 position, Matrix rotation)
         {
             var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
             _platformMatricesLevel2.Add(platformWorld);
         }
-        */
         
         /// <summary>
         ///     Creates a platform with the specified scale and position.
         /// </summary>
         /// <param name="scale">The scale of the platform</param>
         /// <param name="position">The position of the platform</param>
-        /*
+        
         private void CreatePlatformLevel2(Vector3 scale, Vector3 position)
         {
             var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
             _platformMatricesLevel2.Add(platformWorld);
         }
-        */
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
@@ -458,6 +396,9 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
             StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+            MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble_black_01_c");
+            RubberTexture = Content.Load<Texture2D>(ContentFolderTextures + "goma_diffuse");
+            MetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal_diffuse");
             
             // Create our Quad (to draw the Floor)
             Quad = new QuadPrimitive(GraphicsDevice);
@@ -469,11 +410,23 @@ namespace TGC.MonoGame.TP
             //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
             StarModel = Content.Load<Model>(ContentFolder3D + "star/Gold_Star");
 
+            SphereModel = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
+
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             PlatformEffect = Content.Load<Effect>(ContentFolderEffects + "PlatformShader");
             loadEffectOnMesh(StarModel, Effect);
+
+            TextureEffect = Content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
+            loadEffectOnMesh(SphereModel, TextureEffect);
+
+            SphereWorld = SphereScale * Matrix.CreateTranslation(SpherePosition);
+
+            var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/skybox");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
@@ -498,21 +451,44 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             
-            Camera.Update(gameTime);
+            var keyboardState = Keyboard.GetState();
+            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
+            SphereWorld = _player.Update(time, keyboardState);
+            
             // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
-            
-            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            Yaw += time * 0.4f;
-            Pitch += time * 0.8f;
-            Roll += time * 0.9f;
+
+            UpdateCamera(_player.SpherePosition, _player.Yaw);
 
             base.Update(gameTime);
+        }
+        
+        private void UpdateCamera(Vector3 position, float yaw)
+        {
+            // Create a position that orbits the Robot by its direction (Rotation)
+
+            // Create a normalized vector that points to the back of the Robot
+            var sphereBackDirection = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(yaw));
+            // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
+            var orbitalPosition = sphereBackDirection * 60f;
+
+            // We will move the Camera in the Y axis by a given distance, relative to the Robot
+            var upDistance = Vector3.Up * 15f;
+
+            // Calculate the new Camera Position by using the Robot Position, then adding the vector orbitalPosition that sends 
+            // the camera further in the back of the Robot, and then we move it up by a given distance
+            TargetCamera.Position = position + orbitalPosition + upDistance;
+
+            // Set the Target as the Robot, the Camera needs to be always pointing to it
+            TargetCamera.TargetPosition = position;
+
+            // Build the View matrix from the Position and TargetPosition
+            TargetCamera.BuildView();
         }
 
         /// <summary>
@@ -534,7 +510,7 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             }  
             
-            /*
+            
             foreach (var platformWorld in _platformMatricesLevel2)
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
@@ -544,20 +520,21 @@ namespace TGC.MonoGame.TP
                 PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture); // TODO agregar otra textura
                 BoxPrimitive.Draw(PlatformEffect);
             } 
-            */
             
 
-            DrawGeometry(Sphere, SpherePosition, -Yaw, Pitch, Roll, Effect);
+            DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, RubberTexture);
 
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(150f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
+            
+            //SkyBox.Draw(TargetCamera.View, TargetCamera.Projection, new Vector3(0f, 0f, 0f));
         }
 
         private void DrawModel(Matrix world, Model model, Effect effect){
-            effect.Parameters["View"].SetValue(Camera.View);
-            effect.Parameters["Projection"].SetValue(Camera.Projection);
+            effect.Parameters["View"].SetValue(TargetCamera.View);
+            effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
             effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
 
             foreach (var mesh in model.Meshes)
@@ -567,22 +544,29 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
+        
+        private void DrawTexturedModel(Matrix worldMatrix, Model model, Effect effect, Texture2D texture){
+            effect.Parameters["World"].SetValue(worldMatrix);
+            effect.Parameters["View"].SetValue(TargetCamera.View);
+            effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+            effect.Parameters["DiffuseColor"]?.SetValue(Color.IndianRed.ToVector3());
+            effect.Parameters["Texture"]?.SetValue(texture);
 
-        /// <summary>
-        ///     Draw the geometry applying a rotation and translation.
-        /// </summary>
-        /// <param name="geometry">The geometry to draw.</param>
-        /// <param name="position">The position of the geometry.</param>
-        /// <param name="yaw">Vertical axis (yaw).</param>
-        /// <param name="pitch">Transverse axis (pitch).</param>
-        /// <param name="roll">Longitudinal axis (roll).</param>
-        /// <param name="effect">Used to set and query effects.</param>;
-        private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll, Effect effect)
+            chequearPropiedadesTextura(texture);
+
+            foreach (var mesh in model.Meshes)
+            {   
+                mesh.Draw();
+            }
+        }
+        
+        private void DrawGeometry(GeometricPrimitive geometry, Matrix worldMatrix, Effect effect)
         {
-            Effect.Parameters["World"].SetValue(Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position));
-            Effect.Parameters["View"].SetValue(Camera.View);
-            Effect.Parameters["Projection"].SetValue(Camera.Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.IndianRed.ToVector3());
+            effect.Parameters["World"].SetValue(worldMatrix);
+            effect.Parameters["View"].SetValue(TargetCamera.View);
+            effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+            effect.Parameters["DiffuseColor"]?.SetValue(Color.IndianRed.ToVector3());
+            effect.Parameters["Texture"]?.SetValue(StonesTexture);
             geometry.Draw(effect);
         }
 
@@ -605,6 +589,20 @@ namespace TGC.MonoGame.TP
                 {
                     meshPart.Effect = efecto;
                 }
+            }
+        }
+
+        public void chequearPropiedadesTextura(Texture2D texture){
+            //La bola de marmol acelera mas lento
+            //La bola de goma salta mas alto
+            //La bola de metal acelera mas rápido
+            if(texture == MarbleTexture){
+                _player.Acceleration = 30f;
+            }else if(texture == RubberTexture){
+                _player.MaxJumpHeight = 70f;
+            }else if(texture == MetalTexture){
+                _player.Acceleration = 100f;
+                _player.MaxSpeed = 230f;
             }
         }
     }
