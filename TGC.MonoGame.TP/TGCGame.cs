@@ -19,9 +19,10 @@ namespace TGC.MonoGame.TP
     {
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        
+
         /* Debuggin */
         private const bool FreeCamera = true;
+        private const bool DrawBoundingBoxes = true;
 
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
@@ -55,15 +56,15 @@ namespace TGC.MonoGame.TP
 
 
             Gizmos = new Gizmos();
-            
+
             if (FreeCamera)
                 Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
-            else 
+            else
                 Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
-            
+
             Map = new PlaneMap(15, Tanks.T90, Tanks.T90V2);
-            
-            Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2,  Graphics.PreferredBackBufferHeight / 2);
+
+            Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2, Graphics.PreferredBackBufferHeight / 2);
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
         }
@@ -80,7 +81,7 @@ namespace TGC.MonoGame.TP
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            
+
             Map.Load(Content);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
             base.LoadContent();
@@ -117,7 +118,18 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.CornflowerBlue);
             Map.Draw(Camera.View, Camera.Projection);
+
+            if (DrawBoundingBoxes)
+                DrawBoundingBoxesDebug();
+
             Gizmos.Draw();
+        }
+
+        private void DrawBoundingBoxesDebug()
+        {
+            foreach (var prop in Map.Props)
+                Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
+            Gizmos.DrawCube((Map.Player.Box.Max + Map.Player.Box.Min) / 2f, Map.Player.Box.Max - Map.Player.Box.Min, Color.Aqua);
         }
 
         /// <summary>

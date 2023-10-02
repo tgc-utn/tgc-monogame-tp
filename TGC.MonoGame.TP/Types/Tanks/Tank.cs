@@ -3,12 +3,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public class Tank : Resource
+public class Tank : Resource, ICollidable
 {
     // Configs
     private float Acceleration = 0.0055f;
@@ -43,6 +44,8 @@ public class Tank : Resource
 
     private float pitch;
     private float yaw = -90f;
+    
+    public BoundingBox Box { get; set; }
 
     public Tank(TankReference model, Vector3 position)
     {
@@ -59,11 +62,15 @@ public class Tank : Resource
     public override void Load(ContentManager content)
     {
         base.Load(content);
+        Model.Root.Transform = World;
         turretBone = Model.Bones[TankRef.TurretBoneName];
         cannonBone = Model.Bones[TankRef.CannonBoneName];
         turretTransform = turretBone.Transform;
         cannonTransform = cannonBone.Transform;
         boneTransforms = new Matrix[Model.Bones.Count];
+       
+        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min * Reference.Scale + Position, Box.Max * Reference.Scale + Position);
     }
 
     public override void Draw(Matrix view, Matrix projection)
@@ -84,9 +91,6 @@ public class Tank : Resource
             Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
             mesh.Draw();
         }
-
-        /*Box = BoundingVolumesExtension.CreateAABBFrom(Model);
-        Box = new BoundingBox(Box.Min + Position, Box.Max + Position);*/
     }
 
     public void Update(GameTime gameTime)
@@ -102,7 +106,7 @@ public class Tank : Resource
         Move(Position);
         _velocidad = Math.Max(0, _velocidad - Friction);
         var desplazamiento = (Position - LastPosition) * Reference.Scale;
-        /*Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);*/
+        Box = new BoundingBox(Box.Min * Reference.Scale + desplazamiento, Box.Max * Reference.Scale + desplazamiento);
     }
 
     public void ProcessMouse(float elapsedTime)
@@ -181,8 +185,8 @@ public class Tank : Resource
         // Corrigiendo la posicion del tanque y de la box
         var desplazamiento = (LastPosition - Position) * Reference.Scale;
         Position = LastPosition;
-        // Box = new BoundingBox(Box.Min + desplazamiento, Box.Max + desplazamiento);
+        Box = new BoundingBox(Box.Min * Reference.Scale + desplazamiento, Box.Max * Reference.Scale + desplazamiento);
     }
 
-    // public BoundingBox GetBoundingBox() { return Box; }
+    public BoundingBox GetBoundingBox() { return Box; }
 }

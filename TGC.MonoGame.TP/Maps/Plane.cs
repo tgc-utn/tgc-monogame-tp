@@ -15,16 +15,14 @@ namespace TGC.MonoGame.TP.Maps;
 
 public class PlaneMap : Map
 {
-    protected Scenary Scenary { get; }
-    protected List<Tank> Enemies { get; } = new List<Tank>();
-    protected List<Tank> Alies { get; } = new List<Tank>();
-    protected List<StaticProp> Props { get; } = new List<StaticProp>();
-
     public PlaneMap(int numberOfTanks, TankReference AliesTank, TankReference EnemiesTank)
     {
         Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, 0f, -16f));
+        Alies = new List<Tank>();
+        Enemies = new List<Tank>();
+        Props = new List<StaticProp>();
         Scenary.GetSpawnPoints(numberOfTanks, false)
-            .ForEach(spawnPoint => Alies.Add(new Tank(EnemiesTank, spawnPoint)));
+            .ForEach(spawnPoint => Enemies.Add(new Tank(EnemiesTank, spawnPoint)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
             .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint)));
         Scenary.Scene.PropsReference
@@ -34,18 +32,18 @@ public class PlaneMap : Map
                 {
                     case FunctionType.Linear:
                         MathFunctions.GetLinearPoints(prop.Repetitions)
-                            .ForEach(position => Props.Add(new StaticProp(prop, position)));
+                            .ForEach(position => Props.Add(PropsRepository.InitializeProp(prop, position)));
                         break;
                     case FunctionType.Sinusoidal:
                         MathFunctions.GetSinusoidalPoints(prop.Repetitions)
-                            .ForEach(position => Props.Add(new StaticProp(prop, position)));
+                            .ForEach(position => Props.Add(PropsRepository.InitializeProp(prop, position)));
                         break;
                     case FunctionType.Circular:
                         MathFunctions.GetCircularPoints(prop.Repetitions)
-                            .ForEach(position => Props.Add(new StaticProp(prop, position)));
+                            .ForEach(position => Props.Add(PropsRepository.InitializeProp(prop, position)));
                         break;
                     case FunctionType.Unique:
-                        Props.Add(new StaticProp(prop));
+                        Props.Add(PropsRepository.InitializeProp(prop, prop.Position));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
