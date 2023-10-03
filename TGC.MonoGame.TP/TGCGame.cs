@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.Geometries;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
@@ -65,6 +66,9 @@ namespace TGC.MonoGame.TP
         
         // World matrices
         private List<Matrix> _platformMatrices;
+
+        private List<Matrix> _rampMatrices;
+
         private List<Matrix> _platformMatricesLevel2;
         
         // Effects
@@ -91,6 +95,12 @@ namespace TGC.MonoGame.TP
         private Matrix StarWorld { get; set; }
 
         private Player _player;
+        
+        
+        // Colliders
+        public BoundingBox[] Colliders { get; set; }
+        public static OrientedBoundingBox[] OrientedColliders { get; set; }
+        private BoundingSphere _boundingSphere { get; set; }
         
         
         /// <summary>
@@ -124,18 +134,23 @@ namespace TGC.MonoGame.TP
             SphereScale = Matrix.CreateScale(5f);
             
             // Player
-            _player = new Player(SphereScale, SpherePosition);
+            _player = new Player(SphereScale, SpherePosition, new BoundingSphere(SpherePosition, 5f));
+            
             
             // Star
             StarWorld = Matrix.Identity;
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
+            _rampMatrices = new List<Matrix>();
+
             _platformMatricesLevel2 = new List<Matrix>();
+
             
             Prefab.CreateSquareCircuit(Vector3.Zero);
             Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
             _platformMatrices = Prefab.PlatformMatrices;
+            _rampMatrices = Prefab.RampMatrices;
             
             /*
              ===================================================================================================
@@ -149,6 +164,46 @@ namespace TGC.MonoGame.TP
             CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-160f, 0f, 0f));
             
             // Ramp
+
+            CreateRamp(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            
+            /*
+             ===================================================================================================
+             COLLIDERS
+             ===================================================================================================
+            */
+            // Create bounding boxes for static geometries
+            // Circuit 1 floor + Bridge's platforms
+            Colliders = new BoundingBox[_platformMatrices.Count + 4];
+            OrientedColliders = new OrientedBoundingBox[_rampMatrices.Count];
+            
+            // Instantiate the circuits' platforms bounding boxes.
+            int index = 0;
+            for (; index < _platformMatrices.Count; index++)
+            {
+                Colliders[index] = BoundingVolumesExtensions.FromMatrix(_platformMatrices[index]);
+            }
+            
+            // Instantiate the bridges boxes
+            // platforms
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(90f, 6f, 30f)) *
+                                                                    Matrix.CreateTranslation(new Vector3(-50f, 0f,
+                                                                        0f)));
+            index++;
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) *
+                                                                    Matrix.CreateTranslation(new Vector3(-120f, 0f, 0f)));
+            index++;
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) *
+                                                                    Matrix.CreateTranslation(new Vector3(-160f, 0f, 0f)));
+
+            OrientedColliders = Prefab.RampOBB.ToArray();
+            
+            // ramp
+            /*index++;
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) * 
+                                                                    Matrix.CreateRotationZ(-0.3f) * 
+                                                                    Matrix.CreateTranslation(new Vector3(-190f, 5f, 0f)));*/
+
             CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
             
             /*
@@ -337,6 +392,7 @@ namespace TGC.MonoGame.TP
 
             altura = 900f;
             CreatePlatformLevel2(new Vector3(50f, 6f, 50f), new Vector3(150f, altura, 0f));
+
             
             base.Initialize();
         }
@@ -347,10 +403,10 @@ namespace TGC.MonoGame.TP
         /// <param name="scale">The scale of the platform</param>
         /// <param name="position">The position of the platform</param>
         /// <param name="rotation">The rotation of the platform</param>
-        private void CreatePlatform(Vector3 scale, Vector3 position, Matrix rotation)
+        private void CreateRamp(Vector3 scale, Vector3 position, Matrix rotation)
         {
             var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
-            _platformMatrices.Add(platformWorld);
+            _rampMatrices.Add(platformWorld);
         }
         
         /// <summary>
@@ -460,7 +516,8 @@ namespace TGC.MonoGame.TP
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            SphereWorld = _player.Update(time, keyboardState);
+            // SphereWorld = _player.Update(time, keyboardState);
+            SphereWorld = _player.Update(time, keyboardState, Colliders);
             
             // Capturar Input teclado
             if (keyboardState.IsKeyDown(Keys.Escape))
@@ -516,6 +573,19 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             }  
             
+
+            foreach (var rampWorld in _rampMatrices)
+            {
+                // Configura la matriz de mundo del efecto con la matriz del Floor actual
+                Effect.Parameters["World"].SetValue(rampWorld);
+                Effect.Parameters["View"].SetValue(TargetCamera.View);
+                Effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
+                
+                BoxPrimitive.Draw(Effect);
+            } 
+            
+            //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
             
             foreach (var platformWorld in _platformMatricesLevel2)
             {

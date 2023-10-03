@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP;
 
 public static class Prefab
 {
     public static readonly List<Matrix> PlatformMatrices =  new List<Matrix>();
+    public static readonly List<Matrix> RampMatrices =  new List<Matrix>();
+    public static readonly List<OrientedBoundingBox> RampOBB =  new List<OrientedBoundingBox>();
     
     public static void CreateSquareCircuit(Vector3 offset)
     {
@@ -26,27 +29,42 @@ public static class Prefab
         // La idea sería que se vaya moviendo 
         CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f) + offset);
             
+        CreateRamps(offset);
+    }
+
+    public static void CreateRamps(Vector3 offset)
+    {
         // Ramp
         // Side ramps
-        CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f) + offset, Matrix.CreateRotationX(0.2f));
-        CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f) + offset, Matrix.CreateRotationX(0.2f));
-        CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f) + offset, Matrix.CreateRotationX(-0.2f));
-        CreatePlatform(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f) + offset, Matrix.CreateRotationX(-0.2f));
-            
+        CreateRamp(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, -125f) + offset, 0.2f, 0f);
+        CreateRamp(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, -125f) + offset, 0.2f, 0f);
+        CreateRamp(new Vector3(50f, 6f, 50f), new Vector3(0f, 5f, 125f) + offset, -0.2f, 0f);
+        CreateRamp(new Vector3(50f, 6f, 50f), new Vector3(300f, 5f, 125f) + offset, -0.2f, 0f);
+
         // Corner ramps
-        CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, -200f) + offset, Matrix.CreateRotationZ(-0.3f));
-        CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, 200f) + offset, Matrix.CreateRotationZ(-0.3f));
-        CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, -200f) + offset, Matrix.CreateRotationZ(0.3f));
-        CreatePlatform(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, 200f) + offset, Matrix.CreateRotationZ(0.3f));
-            
-        CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f) + offset, Matrix.CreateRotationZ(0.3f));
-        CreatePlatform(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f) + offset, Matrix.CreateRotationZ(-0.3f));
+        CreateRamp(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, -200f) + offset, 0f, -0.3f);
+        CreateRamp(new Vector3(35f, 6f, 50f), new Vector3(40f, 5f, 200f) + offset, 0f, -0.3f);
+        CreateRamp(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, -200f) + offset, 0f, 0.3f);
+        CreateRamp(new Vector3(35f, 6f, 50f), new Vector3(260f, 5f, 200f) + offset, 0f, 0.3f);
+
+        CreateRamp(new Vector3(40f, 6f, 50f), new Vector3(45f, 5f, 0f) + offset, 0f, 0.3f);
+        CreateRamp(new Vector3(40f, 6f, 50f), new Vector3(255f, 5f, 0f) + offset, 0f, -0.3f);
     }
-    
-    private static void CreatePlatform(Vector3 scale, Vector3 position, Matrix rotation)
+
+    private static void CreateRamp(Vector3 scale, Vector3 position, float angleX, float angleZ)
     {
-        var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
-        PlatformMatrices.Add(platformWorld);
+        var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateRotationX(angleX) 
+                                                      * Matrix.CreateRotationZ(angleZ) * Matrix.CreateTranslation(position);
+        var temporaryCubeAABB = BoundingVolumesExtensions.FromMatrix(platformWorld);
+        temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, scale);
+
+        var OBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+        OBB.Center = position;
+        OBB.Orientation = Matrix.CreateRotationX(angleX) * Matrix.CreateRotationZ(angleZ);
+        
+        RampOBB.Add(OBB);
+        
+        RampMatrices.Add(platformWorld);
     }
     
     private static void CreatePlatform(Vector3 scale, Vector3 position)

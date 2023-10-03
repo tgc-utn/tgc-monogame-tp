@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP;
 
@@ -16,11 +19,15 @@ public class Player
     private float _yawSpeed;
     private float _jumpSpeed;
     private bool _isJumping;
+    private bool _onGround = true;
+    private bool _colliding = false;
+    private BoundingSphere _boundingSphere;
 
-    public Player(Matrix sphereScale, Vector3 spherePosition)
+    public Player(Matrix sphereScale, Vector3 spherePosition, BoundingSphere boundingSphere)
     {
         _sphereScale = sphereScale;
         SpherePosition = spherePosition;
+        _boundingSphere = boundingSphere;
     }
 
     public float MaxSpeed = 180f;
@@ -32,29 +39,68 @@ public class Player
     private const float Gravity = 175f;
     public float MaxJumpHeight = 35f;
 
-    public Matrix Update(float time, KeyboardState keyboardState)
+    public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
+    {
+        HandleJumping(time, keyboardState, colliders);
+        HandleYaw(time, keyboardState);
+        var rotationY = Matrix.CreateRotationY(Yaw);
+        var forward = rotationY.Forward;
+        HandleMovement(time, keyboardState, colliders, forward);
+        var rotationX = Matrix.CreateRotationX(_pitch);
+        var translation = Matrix.CreateTranslation(SpherePosition);
+        return _sphereScale * rotationX * rotationY * translation;
+    }
+
+    private void HandleJumping(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
         if (keyboardState.IsKeyDown(Keys.Space) && !_isJumping)
         {
-            _isJumping = true; 
-            _jumpSpeed = (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity)); 
+            StartJump();
         }
-        if (_isJumping)
-        {
-            _jumpSpeed -= Gravity * time;
-            var newYPosition = SpherePosition.Y + _jumpSpeed * time;
 
-            if (newYPosition <= 0)
+        if (_isJumping || !_onGround)
+        {
+            var newYPosition = CalculateFallPosition(time);
+            if (!_onGround)
             {
-                newYPosition = 0;
-                _isJumping = false;
-                _jumpSpeed = 0;
+                SpherePosition = newYPosition;
+            }
+            else
+            {
+                EndJump();
             }
 
-            var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
-            SpherePosition = newPosition;
+            Console.WriteLine(SpherePosition);
         }
-            
+
+    }
+    
+    private void EndJump()
+    {
+        _isJumping = false;
+        _jumpSpeed = 0;
+    }
+    
+    private Vector3 CalculateFallPosition(float time)
+    {
+        _jumpSpeed -= Gravity * time;
+        var newYPosition = SpherePosition.Y + _jumpSpeed * time;
+        return new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+    }
+
+    private void StartJump()
+    {
+        _isJumping = true;
+        _jumpSpeed += CalculateJumpSpeed();
+    }
+
+    private float CalculateJumpSpeed()
+    {
+        return (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity));
+    }
+
+    private void HandleYaw(float time, KeyboardState keyboardState)
+    {
         if (keyboardState.IsKeyDown(Keys.A))
         {
             _yawSpeed += YawAcceleration * time;
@@ -65,16 +111,21 @@ public class Player
         }
         else
         {
-            var yawDecelerationDirection = Math.Sign(_yawSpeed) * -1;
-            _yawSpeed += YawAcceleration * time * yawDecelerationDirection;
+            DecelerateYaw(time);
         }
-            
+
         _yawSpeed = MathHelper.Clamp(_yawSpeed, -YawMaxSpeed, YawMaxSpeed);
         Yaw += _yawSpeed * time;
+    }
 
-        var rotationY = Matrix.CreateRotationY(Yaw);
-        var forward = rotationY.Forward;
+    private void DecelerateYaw(float time)
+    {
+        var yawDecelerationDirection = Math.Sign(_yawSpeed) * -1;
+        _yawSpeed += YawAcceleration * time * yawDecelerationDirection;
+    }
 
+    private void HandleMovement(float time, KeyboardState keyboardState, BoundingBox[] colliders, Vector3 forward)
+    {
         if (keyboardState.IsKeyDown(Keys.W))
         {
             _speed += Acceleration * time;
@@ -92,15 +143,40 @@ public class Player
             _speed += Acceleration * time * decelerationDirection;
             _pitchSpeed += PitchAcceleration * time * pitchDecelerationDirection;
         }
-            
+
         _pitchSpeed = MathHelper.Clamp(_pitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
         _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
         SpherePosition += forward * time * _speed;
+
+        SolveYCollisions(SpherePosition, colliders);
+        
+        _boundingSphere.Center = SpherePosition;
+
         _pitch += _pitchSpeed * time;
-            
-        var rotationX = Matrix.CreateRotationX(_pitch);
-        var translation = Matrix.CreateTranslation(SpherePosition);
-            
-        return _sphereScale * rotationX * rotationY * translation;
+    }
+
+    private void SolveYCollisions(Vector3 position, BoundingBox[] colliders)
+    {
+        _onGround = false;
+        
+        int index = 0;
+        for (; index < colliders.Length; index++)
+        {
+            if (_boundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
+            {
+                SpherePosition = new Vector3(position.X, colliders[index].Max.Y + _boundingSphere.Radius, position.Z);
+                _onGround = true;
+            }
+        }
+
+        for (int i = 0; i < TGCGame.OrientedColliders.Length; i++)
+        {
+            if (TGCGame.OrientedColliders[i].Intersects(_boundingSphere, out var intersection, out var normal))
+            {
+                //var newPosition = position + normal * _boundingSphere.Radius;
+                //SpherePosition = newPosition;
+                //_onGround = true;
+            }
+        }
     }
 }
