@@ -75,11 +75,15 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private Effect TextureEffect { get; set; }
         
+        // private Effect SkyboxEffect { get; set; }
+        
         // Textures
         private Texture2D StonesTexture { get; set; }
         private Texture2D MarbleTexture { get; set; }
         private Texture2D RubberTexture { get; set; }
         private Texture2D MetalTexture { get; set; }
+        
+        // private Texture2D Sk
 
         // Models
         private Model StarModel { get; set; }
@@ -423,10 +427,12 @@ namespace TGC.MonoGame.TP
 
             SphereWorld = SphereScale * Matrix.CreateTranslation(SpherePosition);
 
+            // SkyboxEffect = Content.Load<Effect>()
+            
             var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/skybox");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 1000f);
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
@@ -523,13 +529,20 @@ namespace TGC.MonoGame.TP
             
 
             DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, RubberTexture);
-
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(150f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
             
-            //SkyBox.Draw(TargetCamera.View, TargetCamera.Projection, new Vector3(0f, 0f, 0f));
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
+
+            
+            SkyBox.Draw(TargetCamera.View, TargetCamera.Projection, new Vector3(0f,0f,0f));
+            GraphicsDevice.RasterizerState = originalRasterizerState;
         }
 
         private void DrawModel(Matrix world, Model model, Effect effect){
