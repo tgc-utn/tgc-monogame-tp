@@ -181,14 +181,7 @@ namespace TGC.MonoGame.TP
             Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) *
                                                                     Matrix.CreateTranslation(new Vector3(-160f, 0f, 0f)));
 
-            for (int i = 0; i < _rampMatrices.Count; i++)
-            {
-                Vector3 center = _rampMatrices[i].Translation;
-                Vector3 extent = new Vector3(_rampMatrices[i].M11, _rampMatrices[i].M22, _rampMatrices[i].M33);
-                Matrix orientation = Matrix.CreateWorld(Vector3.Zero, _rampMatrices[i].Forward, _rampMatrices[i].Up);
-                OrientedColliders[i] = new OrientedBoundingBox(_rampMatrices[i].Translation, extent);
-                OrientedColliders[i].Orientation = orientation;
-            }
+            OrientedColliders = Prefab.RampOBB.ToArray();
             
             // ramp
             /*index++;
