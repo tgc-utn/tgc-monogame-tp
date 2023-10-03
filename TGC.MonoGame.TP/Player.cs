@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -35,20 +36,23 @@ public class Player
     private const float YawAcceleration = 5f;
     private const float Gravity = 175f;
     public float MaxJumpHeight = 35f;
+    private bool colliding = false;
 
     public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
+        colliding = colliders.Any( b => BoundingSphere.Intersects(b));
+        
         SpherePosition = CalculateFallPosition(time);
         
         HandleJumping(time, keyboardState, colliders);
-
+        
         HandleYaw(time, keyboardState);
-
+        
         var rotationY = Matrix.CreateRotationY(Yaw);
         var forward = rotationY.Forward;
-
+        
         HandleMovement(time, keyboardState, colliders, forward);
-
+        
         var rotationX = Matrix.CreateRotationX(_pitch);
         var translation = Matrix.CreateTranslation(SpherePosition);
       
@@ -71,9 +75,11 @@ public class Player
                 EndJump();
             }
 
-            //var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+            var newPosition = new Vector3(SpherePosition.X, SpherePosition.Y, SpherePosition.Z);
 
-            //SpherePosition = SolveYCollisions(newPosition, colliders);
+            // SpherePosition = SolveYCollisions(newPosition, colliders);
+            SpherePosition = newPosition;
+            Console.WriteLine(SpherePosition);
         }
     }
     
@@ -87,7 +93,10 @@ public class Player
     {
         _jumpSpeed -= Gravity * time;
         var newYPosition = SpherePosition.Y + _jumpSpeed * time;
+        
         var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+        Console.WriteLine(_jumpSpeed);
+        
         return newPosition;
     }
 
@@ -152,6 +161,7 @@ public class Player
         SpherePosition += forward * time * _speed;
 
         SpherePosition = SolveYCollisions(SpherePosition, colliders);
+        
         BoundingSphere.Center = SpherePosition;
 
         _pitch += _pitchSpeed * time;
@@ -162,7 +172,7 @@ public class Player
         int index = 0;
         for (; index < colliders.Length; index++)
         {
-            if (BoundingSphere.Intersects(colliders[index]))
+            if (BoundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
             {
                 speedVector = new Vector3(speedVector.X, colliders[index].Max.Y + BoundingSphere.Radius, speedVector.Z);
             }
