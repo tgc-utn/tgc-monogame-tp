@@ -11,13 +11,6 @@ public class SmallStaticProp : StaticProp
     
     public SmallStaticProp(PropReference modelReference, Vector3 position) : base(modelReference, position) {}
 
-    public override void Update(ICollidable collidable)
-    {
-        var intersects = Box.Intersects(collidable.GetBoundingBox()); 
-        if(intersects)
-            CollidedWith(collidable);
-    }
-
     public override void CollidedWith(ICollidable other)
     {
         other.CollidedWithSmallProp();

@@ -9,10 +9,10 @@ namespace TGC.MonoGame.TP.Types;
 
 public abstract class Resource
 {
-    protected Model Model;
-    protected Effect Effect;
+    public Model Model;
+    public Effect Effect;
     public Matrix World;
-    protected ModelReference Reference;
+    public ModelReference Reference;
     
     public virtual void Load(ContentManager content)
     {

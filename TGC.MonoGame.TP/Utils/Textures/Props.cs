@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Mime;
 using TGC.MonoGame.TP.Types.References;
 
 namespace TGC.MonoGame.TP.Utils.Textures;
@@ -25,4 +26,7 @@ public static class Props
     
     public static TextureReference Wall2 = new TextureReference(
         $"{ContentFolder.Textures}/props/walls/Wall_Angled_03_Albedo");
+
+    public static TextureReference Bullet = new TextureReference(
+            $"{ContentFolder.Textures}/props/bullet/bullet_BaseColor");
 }

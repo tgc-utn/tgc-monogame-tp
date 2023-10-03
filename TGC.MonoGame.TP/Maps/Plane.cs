@@ -50,6 +50,7 @@ public class PlaneMap : Map
                 }
             });
         Player = Alies[0];
+        Player.isPlayer = true;
         Alies.RemoveAt(0);
     }
 
@@ -68,6 +69,14 @@ public class PlaneMap : Map
     public override void Update(GameTime gameTime)
     {
         Player.Update(gameTime);
+        foreach (var prop in Props)
+            prop.Update(Player);
+        // Player.VerifyCollisions(Enemies, Alies, Props);
+        
+        // foreach (var enemy in Enemies)
+        //     enemy.Update(gameTime);
+        // foreach (var alie in Alies)
+        //     alie.Update(gameTime);
     }
 
     public override void Draw(Matrix view, Matrix projection)

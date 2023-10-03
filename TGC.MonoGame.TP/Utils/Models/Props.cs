@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Types.References;
 
 namespace TGC.MonoGame.TP.Utils.Models;
@@ -149,6 +150,7 @@ public class Props
     public static readonly ModelReference Farm = new ModelReference(
         $"{ContentFolder.Models}/props/farm/farm",
         0.01f,
+        new Vector2(1f, 0.01f),
         Matrix.CreateRotationY((float)Math.PI / 2),
         Textures.Props.Farm
     );
@@ -156,6 +158,7 @@ public class Props
     public static readonly ModelReference Farm2 = new ModelReference(
         $"{ContentFolder.Models}/props/farm/farm",
         0.01f,
+        new Vector2(1f, 0.01f),
         Matrix.CreateRotationY((float)Math.PI * 3/ 2),
         Textures.Props.Farm
     );
@@ -163,6 +166,7 @@ public class Props
     public static readonly ModelReference Rock0 = new ModelReference(
         $"{ContentFolder.Models}/props/stones/Rock_11",
         2f,
+        new Vector2(2f, 1f),
         Matrix.Identity,
         Textures.Props.Rock0
     );
@@ -170,6 +174,7 @@ public class Props
     public static readonly ModelReference Rock1 = new ModelReference(
         $"{ContentFolder.Models}/props/stones/Rock_14",
         2f,
+        new Vector2(2f, 1f),
         Matrix.Identity,
         Textures.Props.Rock1
     );
@@ -177,6 +182,7 @@ public class Props
     public static readonly ModelReference Rock2 = new ModelReference(
         $"{ContentFolder.Models}/props/stones/Rock_15",
         2f,
+        new Vector2(2f, 1f),
         Matrix.Identity,
         Textures.Props.Rock2
     );
@@ -219,6 +225,7 @@ public class Props
     public static readonly ModelReference T90 = new ModelReference(
         $"{ContentFolder.Models}/tanks/T90/T90",
         1f,
+        new Vector2(0.01f, 1f),
         Matrix.CreateRotationX((float)Math.PI * 3 / 2),
         Textures.Tanks.T90
     );
@@ -226,7 +233,16 @@ public class Props
     public static readonly ModelReference T90V2 = new ModelReference(
         $"{ContentFolder.Models}/tanks/T90/T90",
         1f,
+        new Vector2(0.01f, 1f),
         Matrix.CreateRotationX((float)Math.PI * 3 / 2),
         Textures.Tanks.T90V2
     );
+
+    public static readonly ModelReference Bullet = new ModelReference(
+        $"{ContentFolder.Models}/props/bullet/bullet",
+        0.1f,
+        new Vector2(1f, 1f),
+        Matrix.Identity,
+        Textures.Props.Bullet
+        );
 }

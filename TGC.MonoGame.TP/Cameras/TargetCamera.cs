@@ -51,7 +51,7 @@ namespace TGC.MonoGame.TP.Cameras
             // Create a position that orbits the Robot by its direction (Rotation)
 
             // Create a normalized vector that points to the back of the Robot
-            var robotBackDirection = Vector3.Transform(Vector3.Backward, Player.Rotation);
+            var robotBackDirection = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(Player.Angle));
             // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
             var orbitalPosition = robotBackDirection * CameraFollowRadius;
 

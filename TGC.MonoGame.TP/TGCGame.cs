@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         /* Debuggin */
-        private const bool FreeCamera = false;
+        private const bool FreeCamera = true;
         private const bool DrawBoundingBoxes = true;
 
         /* ESTO DEBERIA IR A LOS MAPAS */
@@ -63,9 +63,9 @@ namespace TGC.MonoGame.TP
             else
                 Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
 
-            Map = new PlaneMap(15, Tanks.T90, Tanks.T90V2);
+            Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2);
 
-            Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2, Graphics.PreferredBackBufferHeight / 2);
+            // Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2, Graphics.PreferredBackBufferHeight / 2);
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
         }
@@ -128,9 +128,13 @@ namespace TGC.MonoGame.TP
 
         private void DrawBoundingBoxesDebug()
         {
-            foreach (var prop in Map.Props)
-                Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
-            Gizmos.DrawCube((Map.Player.Box.Max + Map.Player.Box.Min) / 2f, Map.Player.Box.Max - Map.Player.Box.Min, Color.Aqua);
+            // foreach (var prop in Map.Props)
+            //     Gizmos.DrawCube(prop.OBBWorld, Color.Red);
+            // foreach (var enemy in Map.Enemies)
+            //     Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
+            // foreach (var ally in Map.Alies)
+            //     Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
+            Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
         }
 
         /// <summary>

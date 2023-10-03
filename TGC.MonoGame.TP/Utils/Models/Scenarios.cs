@@ -949,8 +949,6 @@ public class Scenarios
             )),
 
             #endregion
-            
-            new PropReference(Props.T90, new Vector3(0,0,0), PropType.Large),
         }
     );
 }

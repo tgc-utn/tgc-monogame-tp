@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Types.References;
+using TGC.MonoGame.TP.Types.Tanks;
 
 namespace TGC.MonoGame.TP.Types.Props;
 
@@ -9,38 +10,61 @@ public abstract class StaticProp : Resource
 {
     private PropReference Prop;
     
-    public BoundingBox Box;
     public bool Destroyed = false;
+    
+    // Box Parameters
+    public Vector3 Position;
+    
+    public Matrix OBBWorld { get; set; }
+    public float Angle { get; set; } = 0f;
+    public Matrix Translation { get; set; }
+    public OrientedBoundingBox Box { get; set; }
 
     public StaticProp(PropReference modelReference)
     {
         Reference = modelReference.Prop;
         Prop = modelReference;
-        World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation *
-                Matrix.CreateTranslation(Prop.Position);
+        Position = Prop.Position;
+        /*World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation *
+                Matrix.CreateTranslation(Prop.Position);*/
     }
     
     public StaticProp(PropReference modelReference, Vector3 position)
     {
         Reference = modelReference.Prop;
         Prop = modelReference;
-        World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation *
-                Matrix.CreateTranslation(position);
+        Position = position;
+        /*World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation *
+                Matrix.CreateTranslation(position);*/
     }
 
     public override void Load(ContentManager content)
     {
         base.Load(content);
+        // Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        // Box = BoundingVolumesExtension.Scale(Box, 0.001f);
+        // Box = new BoundingBox(Box.Min * Reference.BBScale.X + World.Translation * Reference.BBScale.Y,
+        //     Box.Max * Reference.BBScale.X + World.Translation * Reference.BBScale.Y);
+        Translation = Matrix.CreateTranslation(Position);
+        World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         Model.Root.Transform = World;
-        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
-        if (Prop.Prop == Utils.Models.Props.Farm || Prop.Prop == Utils.Models.Props.Farm2)
-            Box = new BoundingBox(Box.Min + World.Translation * Reference.Scale, Box.Max + World.Translation * Reference.Scale);
-        else if (Prop.Prop == Utils.Models.Props.T90)
-            Box = new BoundingBox(Box.Min * 0.01f + World.Translation, Box.Max * 0.01f + World.Translation);
-        else
-            Box = new BoundingBox(Box.Min * Reference.Scale + World.Translation, Box.Max * Reference.Scale + World.Translation);
+        var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
+        temporaryCubeAABB = new BoundingBox(temporaryCubeAABB.Min + Position,
+            temporaryCubeAABB.Max + Position);
+        // temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.025f);
+        Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+        Box.Center = Position;
+        Box.Orientation = Matrix.CreateRotationY(Angle);
+        OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Translation;
+        
     }
-    
-    public abstract void Update(ICollidable collidable);
+
+    public void Update(ICollidable collidable)
+    {
+        if (Destroyed) return;
+        if (collidable.VerifyCollision(Box))
+            CollidedWith(collidable);
+        return;
+    }
     public abstract void CollidedWith(ICollidable other);
 }
