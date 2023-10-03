@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Types.Tanks;
 
 namespace TGC.MonoGame.TP.Cameras;
 
@@ -31,7 +32,7 @@ public class DebugCamera : Camera
         View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);
     }
     
-    public override void Update(GameTime gameTime, Matrix followedWorld) // no se usa el followed world
+    public override void Update(GameTime gameTime, Tank Player)
     {
         var keyboardState = Keyboard.GetState();
         var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -64,16 +65,16 @@ public class DebugCamera : Camera
         if (Vector3.Dot(tiltedFront, flatFront) > 0.001f) FrontDirection = Vector3.Normalize(tiltedFront);
 
         // Check for input to move the camera around.
-        if (keyboardState.IsKeyDown(Keys.W))
+        if (keyboardState.IsKeyDown(Keys.I))
             Position += FrontDirection * time * Speed;
 
-        if (keyboardState.IsKeyDown(Keys.S))
+        if (keyboardState.IsKeyDown(Keys.K))
             Position -= FrontDirection * time * Speed;
 
-        if (keyboardState.IsKeyDown(Keys.A))
+        if (keyboardState.IsKeyDown(Keys.J))
             Position += RightDirection * time * Speed;
 
-        if (keyboardState.IsKeyDown(Keys.D))
+        if (keyboardState.IsKeyDown(Keys.L))
             Position -= RightDirection * time * Speed;
 
         View = Matrix.CreateLookAt(Position, Position + FrontDirection, DefaultWorldUpVector);

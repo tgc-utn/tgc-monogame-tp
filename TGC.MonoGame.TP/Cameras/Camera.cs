@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using TGC.MonoGame.TP.Types.Tanks;
 
 namespace TGC.MonoGame.TP.Cameras;
 
@@ -89,5 +90,5 @@ public abstract class Camera
     ///     By default it does not perform any action.
     /// </summary>
     /// <param name="gameTime">Holds the time state of a <see cref="Game" />.</param>
-    public abstract void Update(GameTime gameTime, Matrix followedWorld);
+    public abstract void Update(GameTime gameTime, Tank Player);
 }
