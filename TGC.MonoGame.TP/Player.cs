@@ -62,10 +62,28 @@ public class Player
 
     private void HandleJumping(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
-        if (keyboardState.IsKeyDown(Keys.Space) && _onGround)
+        if (keyboardState.IsKeyDown(Keys.Space) && !_isJumping)
         {
             StartJump();
         }
+
+        if (_isJumping)
+        {
+            SpherePosition = CalculateFallPosition(time);
+            if (SpherePosition.Y <= 0)
+            {
+                EndJump();
+            }
+
+            //var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+            var newPosition = new Vector3(SpherePosition.X, SpherePosition.Y, SpherePosition.Z);
+
+            //SpherePosition = SolveYCollisions(newPosition, colliders);
+            // SpherePosition = SolveYCollisions(newPosition, colliders);
+            SpherePosition = newPosition;
+            Console.WriteLine(SpherePosition);
+        }
+
     }
     
     private void EndJump()
@@ -87,6 +105,7 @@ public class Player
 
     private void StartJump()
     {
+        _isJumping = true;
         _jumpSpeed = CalculateJumpSpeed();
     }
 
@@ -167,7 +186,7 @@ public class Player
         {
             if (TGCGame.OrientedColliders[i].Intersects(_boundingSphere))
             {
-                
+                //TGCGame.OrientedColliders[i].
             }
         }
         
