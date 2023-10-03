@@ -131,6 +131,7 @@ namespace TGC.MonoGame.TP
             
             // Box/platforms
             _platformMatrices = new List<Matrix>();
+            _rampMatrices = new List<Matrix>();
             
             Prefab.CreateSquareCircuit(Vector3.Zero);
             Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
@@ -159,7 +160,7 @@ namespace TGC.MonoGame.TP
             // Create bounding boxes for static geometries
             // Circuit 1 floor + Bridge's platforms
             Colliders = new BoundingBox[_platformMatrices.Count + 4];
-            //OrientedColliders = new OrientedBoundingBox[];
+            OrientedColliders = new OrientedBoundingBox[_rampMatrices.Count];
             
             // Instantiate the circuits' platforms bounding boxes.
             int index = 0;
@@ -179,12 +180,21 @@ namespace TGC.MonoGame.TP
             index++;
             Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) *
                                                                     Matrix.CreateTranslation(new Vector3(-160f, 0f, 0f)));
+
+            for (int i = 0; i < _rampMatrices.Count; i++)
+            {
+                Vector3 center = _rampMatrices[i].Translation;
+                Vector3 extent = new Vector3(_rampMatrices[i].M11, _rampMatrices[i].M22, _rampMatrices[i].M33);
+                Matrix orientation = Matrix.CreateWorld(Vector3.Zero, _rampMatrices[i].Forward, _rampMatrices[i].Up);
+                OrientedColliders[i] = new OrientedBoundingBox(_rampMatrices[i].Translation, extent);
+                OrientedColliders[i].Orientation = orientation;
+            }
             
             // ramp
-            index++;
+            /*index++;
             Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) * 
                                                                     Matrix.CreateRotationZ(-0.3f) * 
-                                                                    Matrix.CreateTranslation(new Vector3(-190f, 5f, 0f)));
+                                                                    Matrix.CreateTranslation(new Vector3(-190f, 5f, 0f)));*/
             
             base.Initialize();
         }
