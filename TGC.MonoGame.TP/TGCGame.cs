@@ -504,8 +504,8 @@ namespace TGC.MonoGame.TP
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
                 PlatformEffect.Parameters["World"].SetValue(platformWorld);
-                PlatformEffect.Parameters["View"].SetValue(Camera.View);
-                PlatformEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
+                PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
                 PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture);
                 BoxPrimitive.Draw(PlatformEffect);
             }  
@@ -515,8 +515,8 @@ namespace TGC.MonoGame.TP
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
                 PlatformEffect.Parameters["World"].SetValue(platformWorld);
-                PlatformEffect.Parameters["View"].SetValue(Camera.View);
-                PlatformEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
+                PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
                 PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture); // TODO agregar otra textura
                 BoxPrimitive.Draw(PlatformEffect);
             } 
