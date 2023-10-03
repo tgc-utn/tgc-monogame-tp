@@ -18,7 +18,7 @@ public abstract class StaticProp : Resource
     public Matrix OBBWorld { get; set; }
     public float Angle { get; set; } = 0f;
     public Matrix Translation { get; set; }
-    public OrientedBoundingBox Box { get; set; }
+    public BoundingBox Box { get; set; }
 
     public StaticProp(PropReference modelReference)
     {
@@ -41,21 +41,26 @@ public abstract class StaticProp : Resource
     public override void Load(ContentManager content)
     {
         base.Load(content);
-        // Box = BoundingVolumesExtension.CreateAABBFrom(Model);
-        // Box = BoundingVolumesExtension.Scale(Box, 0.001f);
-        // Box = new BoundingBox(Box.Min * Reference.BBScale.X + World.Translation * Reference.BBScale.Y,
-        //     Box.Max * Reference.BBScale.X + World.Translation * Reference.BBScale.Y);
+        
         Translation = Matrix.CreateTranslation(Position);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         Model.Root.Transform = World;
-        var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
-        temporaryCubeAABB = new BoundingBox(temporaryCubeAABB.Min + Position,
-            temporaryCubeAABB.Max + Position);
+        Box = BoundingVolumesExtension.CreateAABBFrom(Model);
+        Box = new BoundingBox(Box.Min * Reference.BBScale.X + World.Translation * Reference.BBScale.Y,
+            Box.Max * Reference.BBScale.X + World.Translation * Reference.BBScale.Y);
+        
+        // Box = BoundingVolumesExtension.Scale(Box, 0.001f);
+        
+        // OBB
+        
+        // var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
+        // temporaryCubeAABB = new BoundingBox(temporaryCubeAABB.Min + Position,
+        //     temporaryCubeAABB.Max + Position);
         // temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.025f);
-        Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
-        Box.Center = Position;
-        Box.Orientation = Matrix.CreateRotationY(Angle);
-        OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Translation;
+        // Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+        // Box.Center = Position;
+        // Box.Orientation = Matrix.CreateRotationY(Angle);
+        // OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Translation;
         
     }
 
