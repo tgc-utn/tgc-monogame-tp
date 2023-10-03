@@ -19,7 +19,7 @@ public class Player
     private float _yawSpeed;
     private float _jumpSpeed;
     private bool _isJumping;
-    private bool _onGround;
+    private bool _onGround = true;
     private bool _colliding = false;
     private BoundingSphere _boundingSphere;
 
@@ -41,22 +41,13 @@ public class Player
 
     public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
-        _colliding = colliders.Any( b => _boundingSphere.Intersects(b));
-        
-        SpherePosition = CalculateFallPosition(time);
-        
         HandleJumping(time, keyboardState, colliders);
-        
         HandleYaw(time, keyboardState);
-        
         var rotationY = Matrix.CreateRotationY(Yaw);
         var forward = rotationY.Forward;
-        
         HandleMovement(time, keyboardState, colliders, forward);
-        
         var rotationX = Matrix.CreateRotationX(_pitch);
         var translation = Matrix.CreateTranslation(SpherePosition);
-      
         return _sphereScale * rotationX * rotationY * translation;
     }
 
@@ -67,20 +58,18 @@ public class Player
             StartJump();
         }
 
-        if (_isJumping)
+        if (_isJumping || !_onGround)
         {
-            SpherePosition = CalculateFallPosition(time);
-            if (SpherePosition.Y <= 0)
+            var newYPosition = CalculateFallPosition(time);
+            if (!_onGround)
+            {
+                SpherePosition = newYPosition;
+            }
+            else
             {
                 EndJump();
             }
 
-            //var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
-            var newPosition = new Vector3(SpherePosition.X, SpherePosition.Y, SpherePosition.Z);
-
-            //SpherePosition = SolveYCollisions(newPosition, colliders);
-            // SpherePosition = SolveYCollisions(newPosition, colliders);
-            SpherePosition = newPosition;
             Console.WriteLine(SpherePosition);
         }
 
@@ -96,17 +85,13 @@ public class Player
     {
         _jumpSpeed -= Gravity * time;
         var newYPosition = SpherePosition.Y + _jumpSpeed * time;
-        
-        var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
-        Console.WriteLine(_jumpSpeed);
-        
-        return newPosition;
+        return new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
     }
 
     private void StartJump()
     {
         _isJumping = true;
-        _jumpSpeed = CalculateJumpSpeed();
+        _jumpSpeed += CalculateJumpSpeed();
     }
 
     private float CalculateJumpSpeed()
@@ -163,33 +148,35 @@ public class Player
         _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
         SpherePosition += forward * time * _speed;
 
-        SpherePosition = SolveYCollisions(SpherePosition, colliders);
+        SolveYCollisions(SpherePosition, colliders);
         
         _boundingSphere.Center = SpherePosition;
 
         _pitch += _pitchSpeed * time;
     }
 
-    private Vector3 SolveYCollisions(Vector3 speedVector, BoundingBox[] colliders)
+    private void SolveYCollisions(Vector3 position, BoundingBox[] colliders)
     {
+        _onGround = false;
+        
         int index = 0;
         for (; index < colliders.Length; index++)
         {
             if (_boundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
             {
-                speedVector = new Vector3(speedVector.X, colliders[index].Max.Y + _boundingSphere.Radius, speedVector.Z);
+                SpherePosition = new Vector3(position.X, colliders[index].Max.Y + _boundingSphere.Radius, position.Z);
                 _onGround = true;
             }
         }
 
         for (int i = 0; i < TGCGame.OrientedColliders.Length; i++)
         {
-            if (TGCGame.OrientedColliders[i].Intersects(_boundingSphere))
+            if (TGCGame.OrientedColliders[i].Intersects(_boundingSphere, out var intersection, out var normal))
             {
-                //TGCGame.OrientedColliders[i].
+                //var newPosition = position + normal * _boundingSphere.Radius;
+                //SpherePosition = newPosition;
+                //_onGround = true;
             }
         }
-        
-        return speedVector;
     }
 }

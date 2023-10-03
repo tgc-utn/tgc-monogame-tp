@@ -423,6 +423,65 @@ namespace TGC.MonoGame.TP.Collisions
         {
             return Center + Vector3.Transform(point, Orientation);
         }
+        
+        public Vector3 ClosestPoint(Vector3 point)
+        {
+            Vector3 result = Center;
+            Vector3 dir = point - result;
+
+            Span<Vector3> rows = stackalloc Vector3[3];
+            rows[0] = Orientation.Right;
+            rows[1] = Orientation.Up;
+            rows[2] = Orientation.Backward;
+
+            Span<float> sizes = stackalloc float[3];
+            sizes[0] = Extents.X;
+            sizes[1] = Extents.Y;
+            sizes[2] = Extents.Z;
+    
+            for (int i = 0; i < 3; ++i) 
+            {
+                Vector3 axis = rows[i];
+
+                float distance = Vector3.Dot(dir, axis);
+        
+                if (distance > sizes[i]) 
+                {
+                    distance = sizes[i];
+                }
+        
+                if (distance < -sizes[i]) 
+                {
+                    distance = -sizes[i];
+                }
+
+                result += axis * distance;
+            }
+
+            return result;
+        }
+
+        public bool Intersects(in BoundingSphere sphere, out Vector3 intersection, out Vector3 normal)
+        {
+            var closestPoint = ClosestPoint(sphere.Center);
+
+            var difference = sphere.Center - closestPoint;
+    
+            float distanceSquared = difference.LengthSquared();
+
+            float radiusSquared = sphere.Radius * sphere.Radius;
+
+            if (distanceSquared <= radiusSquared)
+            {
+                intersection = closestPoint;
+                normal = difference / MathF.Sqrt(distanceSquared);
+                return true;
+            }
+
+            intersection = Vector3.Zero;
+            normal = Vector3.Zero;
+            return false;
+        }
 
     }
     
