@@ -87,6 +87,7 @@ namespace TGC.MonoGame.TP
         
         // Colliders
         public BoundingBox[] Colliders { get; set; }
+        public static OrientedBoundingBox[] OrientedColliders { get; set; }
         private BoundingSphere _boundingSphere { get; set; }
         
         
@@ -157,6 +158,7 @@ namespace TGC.MonoGame.TP
             // Create bounding boxes for static geometries
             // Circuit 1 floor + Bridge's platforms
             Colliders = new BoundingBox[_platformMatrices.Count + 4];
+            //OrientedColliders = new OrientedBoundingBox[];
             
             // Instantiate the circuits' platforms bounding boxes.
             int index = 0;
