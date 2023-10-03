@@ -38,6 +38,8 @@ public class Player
 
     public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
+        SpherePosition = CalculateFallPosition(time);
+        
         HandleJumping(time, keyboardState, colliders);
 
         HandleYaw(time, keyboardState);
@@ -149,7 +151,7 @@ public class Player
         _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
         SpherePosition += forward * time * _speed;
 
-        //SpherePosition = SolveYCollisions(SpherePosition, colliders);
+        SpherePosition = SolveYCollisions(SpherePosition, colliders);
         BoundingSphere.Center = SpherePosition;
 
         _pitch += _pitchSpeed * time;
