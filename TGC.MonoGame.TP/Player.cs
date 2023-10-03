@@ -169,7 +169,38 @@ public class Player
                 speedVector = new Vector3(speedVector.X, colliders[index].Max.Y + _boundingSphere.Radius, speedVector.Z);
                 _onGround = true;
             }
-        } 
+        }
+
+        for (int i = 0; i < TGCGame.OrientedColliders.Length; i++)
+        {
+            if (TGCGame.OrientedColliders[i].Intersects(_boundingSphere))
+            {
+                // Obtiene la matriz de transformación del OrientedCollider
+                Matrix transformMatrix = TGCGame.OrientedColliders[i].Orientation;
+
+                // Calcula la dirección de la inclinación (invierte el sentido)
+                Vector3 inclinedDirection = -transformMatrix.Forward;
+
+                // Calcula el ángulo de inclinación en radianes
+                float inclinationAngleRadians = (float)Math.Acos(Vector3.Dot(Vector3.Up, inclinedDirection));
+
+                // Calcula la posición corregida en función de la inclinación
+                float newY = TGCGame.OrientedColliders[i].Extents.Y * (float)Math.Sin(inclinationAngleRadians) + _boundingSphere.Radius;
+
+                // Ajusta la posición en Y para seguir la inclinación de la rampa
+                _boundingSphere.Center = new Vector3(_boundingSphere.Center.X, newY, _boundingSphere.Center.Z);
+
+                // Ajusta la velocidad en X para seguir la inclinación
+                float adjustedSpeedX = _jumpSpeed * (float)Math.Cos(inclinationAngleRadians);
+
+                // Aplica el ajuste a la velocidad en X
+                // Esto depende de cómo se maneje el movimiento en tu juego
+                _jumpSpeed = adjustedSpeedX;
+
+                // Marca que el objeto está en el suelo
+                _onGround = true;
+            }
+        }
         
         return speedVector;
     }
