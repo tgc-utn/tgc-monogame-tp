@@ -131,10 +131,10 @@ namespace TGC.MonoGame.TP
             foreach (var prop in Map.Props)
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
                 // Gizmos.DrawCube(prop.World, Color.Red);
-            // foreach (var enemy in Map.Enemies)
-            //     Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
-            // foreach (var ally in Map.Alies)
-            //     Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
+            foreach (var enemy in Map.Enemies)
+                Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
+            foreach (var ally in Map.Alies)
+                Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
             Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
         }
 
