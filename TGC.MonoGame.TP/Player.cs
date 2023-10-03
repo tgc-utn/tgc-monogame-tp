@@ -18,14 +18,15 @@ public class Player
     private float _yawSpeed;
     private float _jumpSpeed;
     private bool _isJumping;
-
-    private BoundingSphere BoundingSphere;
+    private bool _onGround;
+    private bool _colliding = false;
+    private BoundingSphere _boundingSphere;
 
     public Player(Matrix sphereScale, Vector3 spherePosition, BoundingSphere boundingSphere)
     {
         _sphereScale = sphereScale;
         SpherePosition = spherePosition;
-        BoundingSphere = boundingSphere;
+        _boundingSphere = boundingSphere;
     }
 
     public float MaxSpeed = 180f;
@@ -36,11 +37,10 @@ public class Player
     private const float YawAcceleration = 5f;
     private const float Gravity = 175f;
     public float MaxJumpHeight = 35f;
-    private bool colliding = false;
 
     public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
-        colliding = colliders.Any( b => BoundingSphere.Intersects(b));
+        _colliding = colliders.Any( b => _boundingSphere.Intersects(b));
         
         SpherePosition = CalculateFallPosition(time);
         
@@ -61,24 +61,15 @@ public class Player
 
     private void HandleJumping(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
-        if (keyboardState.IsKeyDown(Keys.Space) && !_isJumping)
+        if (keyboardState.IsKeyDown(Keys.Space) && _onGround)
         {
             StartJump();
         }
 
-        if (_isJumping)
+        if (!_onGround)
         {
             SpherePosition = CalculateFallPosition(time);
-
-            if (SpherePosition.Y <= 0)
-            {
-                EndJump();
-            }
-
-            var newPosition = new Vector3(SpherePosition.X, SpherePosition.Y, SpherePosition.Z);
-
-            // SpherePosition = SolveYCollisions(newPosition, colliders);
-            SpherePosition = newPosition;
+            
             Console.WriteLine(SpherePosition);
         }
     }
@@ -162,19 +153,20 @@ public class Player
 
         SpherePosition = SolveYCollisions(SpherePosition, colliders);
         
-        BoundingSphere.Center = SpherePosition;
+        _boundingSphere.Center = SpherePosition;
 
         _pitch += _pitchSpeed * time;
     }
 
-    public Vector3 SolveYCollisions(Vector3 speedVector, BoundingBox[] colliders)
+    private Vector3 SolveYCollisions(Vector3 speedVector, BoundingBox[] colliders)
     {
         int index = 0;
         for (; index < colliders.Length; index++)
         {
-            if (BoundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
+            if (_boundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
             {
-                speedVector = new Vector3(speedVector.X, colliders[index].Max.Y + BoundingSphere.Radius, speedVector.Z);
+                speedVector = new Vector3(speedVector.X, colliders[index].Max.Y + _boundingSphere.Radius, speedVector.Z);
+                _onGround = true;
             }
         } 
         

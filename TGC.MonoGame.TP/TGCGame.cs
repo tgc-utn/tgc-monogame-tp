@@ -133,8 +133,6 @@ namespace TGC.MonoGame.TP
             Prefab.CreateSquareCircuit(Vector3.Zero);
             Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
             _platformMatrices = Prefab.PlatformMatrices;
-
-            
             
             /*
              ===================================================================================================
