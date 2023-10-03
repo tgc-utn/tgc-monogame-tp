@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Content.Colissions;
 using TGC.MonoGame.TP.Geometries;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
@@ -84,6 +85,11 @@ namespace TGC.MonoGame.TP
         private Player _player;
         
         
+        // Colliders
+        public BoundingBox[] Colliders { get; set; }
+        private BoundingSphere _boundingSphere { get; set; }
+        
+        
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -115,7 +121,8 @@ namespace TGC.MonoGame.TP
             SphereScale = Matrix.CreateScale(5f);
             
             // Player
-            _player = new Player(SphereScale, SpherePosition);
+            _player = new Player(SphereScale, SpherePosition, new BoundingSphere(SpherePosition, 5f));
+            
             
             // Star
             StarWorld = Matrix.Identity;
@@ -126,6 +133,8 @@ namespace TGC.MonoGame.TP
             Prefab.CreateSquareCircuit(Vector3.Zero);
             Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
             _platformMatrices = Prefab.PlatformMatrices;
+
+            
             
             /*
              ===================================================================================================
@@ -141,6 +150,41 @@ namespace TGC.MonoGame.TP
             // Ramp
             CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
 
+            
+            /*
+             ===================================================================================================
+             COLLIDERS
+             ===================================================================================================
+            */
+            // Create bounding boxes for static geometries
+            // Circuit 1 floor + Bridge's platforms
+            Colliders = new BoundingBox[_platformMatrices.Count + 4];
+            
+            // Instantiate the circuits' platforms bounding boxes.
+            int index = 0;
+            for (; index < _platformMatrices.Count; index++)
+            {
+                Colliders[index] = BoundingVolumesExtensions.FromMatrix(_platformMatrices[index]);
+            }
+            
+            // Instantiate the bridges boxes
+            // platforms
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(90f, 6f, 30f)) *
+                                                                    Matrix.CreateTranslation(new Vector3(-50f, 0f,
+                                                                        0f)));
+            index++;
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) *
+                                                                    Matrix.CreateTranslation(new Vector3(-120f, 0f, 0f)));
+            index++;
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) *
+                                                                    Matrix.CreateTranslation(new Vector3(-160f, 0f, 0f)));
+            
+            // ramp
+            index++;
+            Colliders[index] = BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(new Vector3(30f, 6f, 30f)) * 
+                                                                    Matrix.CreateRotationZ(-0.3f) * 
+                                                                    Matrix.CreateTranslation(new Vector3(-190f, 5f, 0f)));
+            
             base.Initialize();
         }
 
@@ -235,7 +279,8 @@ namespace TGC.MonoGame.TP
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            SphereWorld = _player.Update(time, keyboardState);
+            // SphereWorld = _player.Update(time, keyboardState);
+            SphereWorld = _player.Update(time, keyboardState, Colliders);
             
             // Capturar Input teclado
             if (keyboardState.IsKeyDown(Keys.Escape))

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -17,10 +18,13 @@ public class Player
     private float _jumpSpeed;
     private bool _isJumping;
 
-    public Player(Matrix sphereScale, Vector3 spherePosition)
+    private BoundingSphere BoundingSphere;
+
+    public Player(Matrix sphereScale, Vector3 spherePosition, BoundingSphere boundingSphere)
     {
         _sphereScale = sphereScale;
         SpherePosition = spherePosition;
+        BoundingSphere = boundingSphere;
     }
 
     public float MaxSpeed = 180f;
@@ -32,13 +36,14 @@ public class Player
     private const float Gravity = 175f;
     public float MaxJumpHeight = 35f;
 
-    public Matrix Update(float time, KeyboardState keyboardState)
+    public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
         if (keyboardState.IsKeyDown(Keys.Space) && !_isJumping)
         {
             _isJumping = true; 
             _jumpSpeed = (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity)); 
         }
+        
         if (_isJumping)
         {
             _jumpSpeed -= Gravity * time;
@@ -52,7 +57,8 @@ public class Player
             }
 
             var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
-            SpherePosition = newPosition;
+            
+            SpherePosition = SolveYCollisions(newPosition, colliders);
         }
             
         if (keyboardState.IsKeyDown(Keys.A))
@@ -96,11 +102,31 @@ public class Player
         _pitchSpeed = MathHelper.Clamp(_pitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
         _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
         SpherePosition += forward * time * _speed;
+        
+        SpherePosition = SolveYCollisions(SpherePosition, colliders);
+        BoundingSphere.Center = SpherePosition;
+        
         _pitch += _pitchSpeed * time;
             
         var rotationX = Matrix.CreateRotationX(_pitch);
         var translation = Matrix.CreateTranslation(SpherePosition);
+        
+        
             
         return _sphereScale * rotationX * rotationY * translation;
+    }
+
+    public Vector3 SolveYCollisions(Vector3 speedVector, BoundingBox[] colliders)
+    {
+        int index = 0;
+        for (; index < colliders.Length; index++)
+        {
+            if (BoundingSphere.Intersects(colliders[index]))
+            {
+                speedVector = new Vector3(speedVector.X, colliders[index].Max.Y + BoundingSphere.Radius, speedVector.Z);
+            }
+        } 
+        
+        return speedVector;
     }
 }
