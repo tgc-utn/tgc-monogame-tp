@@ -66,6 +66,7 @@ namespace TGC.MonoGame.TP
         
         // World matrices
         private List<Matrix> _platformMatrices;
+        private List<Matrix> _rampMatrices;
         
         // Effects
         private Effect Effect { get; set; }
@@ -134,6 +135,7 @@ namespace TGC.MonoGame.TP
             Prefab.CreateSquareCircuit(Vector3.Zero);
             Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
             _platformMatrices = Prefab.PlatformMatrices;
+            _rampMatrices = Prefab.RampMatrices;
             
             /*
              ===================================================================================================
@@ -147,8 +149,7 @@ namespace TGC.MonoGame.TP
             CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-160f, 0f, 0f));
             
             // Ramp
-            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
-
+            CreateRamp(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
             
             /*
              ===================================================================================================
@@ -194,10 +195,10 @@ namespace TGC.MonoGame.TP
         /// <param name="scale">The scale of the platform</param>
         /// <param name="position">The position of the platform</param>
         /// <param name="rotation">The rotation of the platform</param>
-        private void CreatePlatform(Vector3 scale, Vector3 position, Matrix rotation)
+        private void CreateRamp(Vector3 scale, Vector3 position, Matrix rotation)
         {
             var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
-            _platformMatrices.Add(platformWorld);
+            _rampMatrices.Add(platformWorld);
         }
         
         /// <summary>
@@ -336,6 +337,17 @@ namespace TGC.MonoGame.TP
                 
                 BoxPrimitive.Draw(Effect);
             }  
+            
+            foreach (var rampWorld in _rampMatrices)
+            {
+                // Configura la matriz de mundo del efecto con la matriz del Floor actual
+                Effect.Parameters["World"].SetValue(rampWorld);
+                Effect.Parameters["View"].SetValue(TargetCamera.View);
+                Effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
+                
+                BoxPrimitive.Draw(Effect);
+            } 
             
             //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
 
