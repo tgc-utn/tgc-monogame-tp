@@ -204,7 +204,7 @@ namespace TGC.MonoGame.TP
                                                                     Matrix.CreateRotationZ(-0.3f) * 
                                                                     Matrix.CreateTranslation(new Vector3(-190f, 5f, 0f)));*/
 
-            CreatePlatform(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
+            CreateRamp(new Vector3(30f, 6f, 30f), new Vector3(-190f, 5f, 0f), Matrix.CreateRotationZ(-0.3f));
             
             /*
              ===================================================================================================
@@ -215,13 +215,13 @@ namespace TGC.MonoGame.TP
             for (int pisos = 0; pisos < 6; pisos++) {
                 altura += 29;
                 // Ramp
-                CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-800f, altura, 0f), Matrix.CreateRotationZ(-0.3f));
+                CreateRamp(new Vector3(200f, 6f, 50f), new Vector3(-800f, altura, 0f), Matrix.CreateRotationZ(-0.3f));
                 altura += 29;
                 // Platform
                 CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-920f, altura, 25f));
                 altura += 29;
                 // Ramp
-                CreatePlatform(new Vector3(200f, 6f, 50f), new Vector3(-800f, altura, 50f), Matrix.CreateRotationZ(0.3f));
+                CreateRamp(new Vector3(200f, 6f, 50f), new Vector3(-800f, altura, 50f), Matrix.CreateRotationZ(0.3f));
                 altura += 29;
                 // Platform
                 CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(-680f, altura, 25f));
@@ -240,7 +240,7 @@ namespace TGC.MonoGame.TP
             CreatePlatform(new Vector3(50f, 6f, 15f), new Vector3(-440f, altura, 0f));
             
             // Ramp
-            CreatePlatform(new Vector3(30f, 6f, 15f), new Vector3(-390f, altura, 0f), Matrix.CreateRotationZ(0.3f));
+            CreateRamp(new Vector3(30f, 6f, 15f), new Vector3(-390f, altura, 0f), Matrix.CreateRotationZ(0.3f));
             
             /*
              ===================================================================================================
