@@ -24,12 +24,16 @@ public class Pista1
         private BoundingBox[] Colliders { get; set; }    
     
     // _____ Geometries _______
-        private BoxPrimitive BoxPrimitiveCobble { get; set;}
-        private BoxPrimitive BoxPrimitiveWooden { get; set;}
-    
-    // ____ Textures ____
+        private BoxPrimitive BoxPrimitive { get; set;}
+
+        // ____ Textures ____
         private Texture2D CobbleTexture { get; set; }
         private Texture2D WoodenTexture { get; set; }
+        
+    // Effects
+
+        // Tiling Effect
+        private Effect TilingEffect { get; set; }
         
     
     // ____ World matrices ____
@@ -291,15 +295,16 @@ public class Pista1
 // ======== Cargar Contenidos ========
     private void LoadContent(ContentManager Content)
     {
+        // Load our Tiling Effect
+            TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
+            
         // Cargar Texturas
             CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
             WoodenTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "wood/caja-madera-1");
-        
-        // Cargar Primitiva de caja con textura
-            BoxPrimitiveCobble = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
-            BoxPrimitiveWooden = new BoxPrimitive(GraphicsDevice, Vector3.One, WoodenTexture);
+            // Cargar Primitiva de caja con textura
+            BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
     }
 
 
@@ -338,30 +343,45 @@ public class Pista1
 // ======== Dibujar Modelos ========  
     public void Draw(Matrix view, Matrix projection)
     {
+        var viewProjection = view * projection;
+        // Set the Technique inside the TilingEffect to "BaseTiling"
+        TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
+        TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
+        TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);    
+        
+        
         // Draw Platform1
-            BoxPrimitiveCobble.Draw(Platform1World, view, projection);
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform1World * viewProjection);
+            BoxPrimitive.Draw(TilingEffect);
         
         // Draw Floating Platforms
+            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
             for (int index = 0; index < FloatingPlatformsWorld.Length; index++)
             {
                 var matrix = FloatingPlatformsWorld[index];
-                BoxPrimitiveCobble.Draw(matrix, view, projection);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
 
             }
         
         // Draw FloatingMovingPlatformWorld
             var pose = Simulation.Bodies.GetBodyReference(FloatingMovingPlatformBodyHandle).Pose;
             FloatingMovingPlatformWorld = Matrix.CreateScale(FloatingMovingPlatformScale) * Matrix.CreateTranslation(pose.Position.X, pose.Position.Y, pose.Position.Z);
-            BoxPrimitiveCobble.Draw(FloatingMovingPlatformWorld, view, projection);
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(FloatingMovingPlatformWorld * viewProjection);
+            BoxPrimitive.Draw(TilingEffect);
             
         // Draw Platform2
-            BoxPrimitiveCobble.Draw(Platform2World, view, projection);    
+            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform2World * viewProjection);
+            BoxPrimitive.Draw(TilingEffect);   
         
         // Draw AnnoyingWallsWorld
+        TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
             for (int index = 0; index < AnnoyingWallsWorld.Length; index++)
             {
                 var matrix = AnnoyingWallsWorld[index];
-                BoxPrimitiveCobble.Draw(matrix, view, projection);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
 
             }
             
@@ -372,7 +392,8 @@ public class Pista1
 
                 var poseMw = Simulation.Bodies.GetBodyReference(AnnoyingMovingWallsBodyHandle[index]).Pose;
                 AnnoyingMovingWallsWorld[index] = Matrix.CreateScale(AnnoyingMovingWallsScale) * Matrix.CreateTranslation(poseMw.Position.X, poseMw.Position.Y, poseMw.Position.Z);
-                BoxPrimitiveCobble.Draw(AnnoyingMovingWallsWorld[index], view, projection);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(AnnoyingMovingWallsWorld[index] * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
 
             }
             
@@ -380,18 +401,24 @@ public class Pista1
             for (int index = 0; index < FloatingPlatforms2World.Length; index++)
             {
                 var matrix = FloatingPlatforms2World[index];
-                BoxPrimitiveCobble.Draw(matrix, view, projection);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
 
             }    
             
         // Draw Platform3
-            BoxPrimitiveCobble.Draw(Platform3World, view, projection);    
+            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform3World * viewProjection);
+            BoxPrimitive.Draw(TilingEffect);     
 
         // Draw BoxesWorld
+            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
+            TilingEffect.Parameters["Texture"].SetValue(WoodenTexture); 
             for (int index = 0; index < BoxesWorld.Length; index++)
             {
                 var matrix = BoxesWorld[index];
-                BoxPrimitiveWooden.Draw(matrix, view, projection);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
 
             }   
         

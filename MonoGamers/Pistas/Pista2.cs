@@ -59,6 +59,12 @@ namespace MonoGamers.Pistas
 
         private Effect Effect { get; set; }
 
+        // Tiling Effect
+        private Effect TilingEffect { get; set; }
+
+        private Texture2D CobbleTexture { get; set; }
+        
+        
         public Pista2(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation)
         {
             GraphicsDevice = graphicsDevice;
@@ -178,11 +184,13 @@ namespace MonoGamers.Pistas
         private void LoadContent(ContentManager Content)
         {
             // Cargar Texturas
-            Texture2D CobbleTexture = Content.Load<Texture2D>(
+            CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
 
             Effect = Content.Load<Effect>(
                 ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
+            // Load our Tiling Effect
+            TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
 
             //Carga modelo Rush
             RushModel = Content.Load<Model>(
@@ -201,6 +209,7 @@ namespace MonoGamers.Pistas
 
         public void Update()
         {
+            
             // AnnoyingMovingWalls
             for (int index = 0; index < MovingBoxesBodyHandle.Length; index++)
             {
@@ -224,13 +233,22 @@ namespace MonoGamers.Pistas
 
         public void Draw(Matrix view, Matrix projection)
         {
+ 
+            
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
 
 
+            var viewProjection = view * projection;
+            // Set the Technique inside the TilingEffect to "BaseTiling"
+            TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
+            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
+            TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);  
             Array.ForEach(Platforms, Platform => {
-                BoxPrimitive.Draw(Platform, view, projection);   
-                });
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
+            });
+            
             Array.ForEach(RushPowerups, PowerUp =>
             {
                 Effect.Parameters["World"].SetValue(PowerUp);
@@ -266,7 +284,8 @@ namespace MonoGamers.Pistas
             {
                 var poseMw = Simulation.Bodies.GetBodyReference(MovingBoxesBodyHandle[index]).Pose;
                 MovingBoxes[index] = Matrix.CreateScale(MovingBoxesScale) * Matrix.CreateTranslation(poseMw.Position.X, poseMw.Position.Y, poseMw.Position.Z);
-                BoxPrimitive.Draw(MovingBoxes[index], view, projection);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(MovingBoxes[index] * viewProjection);
+                BoxPrimitive.Draw(TilingEffect);
 
             }
 

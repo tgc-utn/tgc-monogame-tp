@@ -45,6 +45,9 @@ public class Pista3
         // Simulation           
             private Simulation Simulation { get; set; }
 
+        // Tiling Effect
+            private Effect TilingEffect { get; set; }  
+            
 // ======== Constructor de Pista 3 ========            
     public Pista3(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation )
     {
@@ -115,6 +118,8 @@ public class Pista3
 // ======== Cargar Contenidos ========
     private void LoadContent(ContentManager Content)
     {
+        // Load our Tiling Effect
+            TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
         // Cargar Texturas
             CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
@@ -127,14 +132,23 @@ public class Pista3
 // ======== Dibujar Modelos ========  
     public void Draw(Matrix view, Matrix projection)
     {
+        var viewProjection = view * projection;
+        // Set the Technique inside the TilingEffect to "BaseTiling"
+        TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
+        TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
+        TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);    
+
         // Draw Platform1
-            BoxPrimitive.Draw(Platform1World, view, projection);
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform1World * viewProjection);
+            BoxPrimitive.Draw(TilingEffect);
         
         // Draw Floating Platforms
         for (int index = 0; index < FloatingPlatformsWorld.Length; index++)
         {
             var matrix = FloatingPlatformsWorld[index];
-            BoxPrimitive.Draw(matrix, view, projection);
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+            BoxPrimitive.Draw(TilingEffect);
+
 
         }
         

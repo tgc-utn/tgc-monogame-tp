@@ -189,9 +189,8 @@ namespace MonoGamers
 
             // Load our Tiling Effect
                 TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
-                TilingEffect.Parameters["Tiling"].SetValue(new Vector2(10f, 10f));
-                
-            // Load Textures
+
+                // Load Textures
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
                 MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
                 MonoSphere.SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
