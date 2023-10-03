@@ -577,12 +577,12 @@ namespace TGC.MonoGame.TP
             foreach (var rampWorld in _rampMatrices)
             {
                 // Configura la matriz de mundo del efecto con la matriz del Floor actual
-                Effect.Parameters["World"].SetValue(rampWorld);
-                Effect.Parameters["View"].SetValue(TargetCamera.View);
-                Effect.Parameters["Projection"].SetValue(TargetCamera.Projection);
-                Effect.Parameters["DiffuseColor"].SetValue(Color.ForestGreen.ToVector3());
+                PlatformEffect.Parameters["World"].SetValue(rampWorld);
+                PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
+                PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+                PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture);
                 
-                BoxPrimitive.Draw(Effect);
+                BoxPrimitive.Draw(PlatformEffect);
             } 
             
             //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
