@@ -38,29 +38,70 @@ public class Player
 
     public Matrix Update(float time, KeyboardState keyboardState, BoundingBox[] colliders)
     {
+        HandleJumping(time, keyboardState, colliders);
+
+        HandleYaw(time, keyboardState);
+
+        var rotationY = Matrix.CreateRotationY(Yaw);
+        var forward = rotationY.Forward;
+
+        HandleMovement(time, keyboardState, colliders, forward);
+
+        var rotationX = Matrix.CreateRotationX(_pitch);
+        var translation = Matrix.CreateTranslation(SpherePosition);
+      
+        return _sphereScale * rotationX * rotationY * translation;
+    }
+
+    private void HandleJumping(float time, KeyboardState keyboardState, BoundingBox[] colliders)
+    {
         if (keyboardState.IsKeyDown(Keys.Space) && !_isJumping)
         {
-            _isJumping = true; 
-            _jumpSpeed = (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity)); 
+            StartJump();
         }
-        
+
         if (_isJumping)
         {
-            _jumpSpeed -= Gravity * time;
-            var newYPosition = SpherePosition.Y + _jumpSpeed * time;
+            SpherePosition = CalculateFallPosition(time);
 
-            if (newYPosition <= 0)
+            if (SpherePosition.Y <= 0)
             {
-                newYPosition = 0;
-                _isJumping = false;
-                _jumpSpeed = 0;
+                EndJump();
             }
 
-            var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
-            
-            SpherePosition = SolveYCollisions(newPosition, colliders);
+            //var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+
+            //SpherePosition = SolveYCollisions(newPosition, colliders);
         }
-            
+    }
+    
+    private void EndJump()
+    {
+        _isJumping = false;
+        _jumpSpeed = 0;
+    }
+    
+    private Vector3 CalculateFallPosition(float time)
+    {
+        _jumpSpeed -= Gravity * time;
+        var newYPosition = SpherePosition.Y + _jumpSpeed * time;
+        var newPosition = new Vector3(SpherePosition.X, newYPosition, SpherePosition.Z);
+        return newPosition;
+    }
+
+    private void StartJump()
+    {
+        _isJumping = true;
+        _jumpSpeed = CalculateJumpSpeed();
+    }
+
+    private float CalculateJumpSpeed()
+    {
+        return (float)Math.Sqrt(2 * MaxJumpHeight * Math.Abs(Gravity));
+    }
+
+    private void HandleYaw(float time, KeyboardState keyboardState)
+    {
         if (keyboardState.IsKeyDown(Keys.A))
         {
             _yawSpeed += YawAcceleration * time;
@@ -71,16 +112,21 @@ public class Player
         }
         else
         {
-            var yawDecelerationDirection = Math.Sign(_yawSpeed) * -1;
-            _yawSpeed += YawAcceleration * time * yawDecelerationDirection;
+            DecelerateYaw(time);
         }
-            
+
         _yawSpeed = MathHelper.Clamp(_yawSpeed, -YawMaxSpeed, YawMaxSpeed);
         Yaw += _yawSpeed * time;
+    }
 
-        var rotationY = Matrix.CreateRotationY(Yaw);
-        var forward = rotationY.Forward;
+    private void DecelerateYaw(float time)
+    {
+        var yawDecelerationDirection = Math.Sign(_yawSpeed) * -1;
+        _yawSpeed += YawAcceleration * time * yawDecelerationDirection;
+    }
 
+    private void HandleMovement(float time, KeyboardState keyboardState, BoundingBox[] colliders, Vector3 forward)
+    {
         if (keyboardState.IsKeyDown(Keys.W))
         {
             _speed += Acceleration * time;
@@ -98,22 +144,15 @@ public class Player
             _speed += Acceleration * time * decelerationDirection;
             _pitchSpeed += PitchAcceleration * time * pitchDecelerationDirection;
         }
-            
+
         _pitchSpeed = MathHelper.Clamp(_pitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
         _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
         SpherePosition += forward * time * _speed;
-        
-        SpherePosition = SolveYCollisions(SpherePosition, colliders);
+
+        //SpherePosition = SolveYCollisions(SpherePosition, colliders);
         BoundingSphere.Center = SpherePosition;
-        
+
         _pitch += _pitchSpeed * time;
-            
-        var rotationX = Matrix.CreateRotationX(_pitch);
-        var translation = Matrix.CreateTranslation(SpherePosition);
-        
-        
-            
-        return _sphereScale * rotationX * rotationY * translation;
     }
 
     public Vector3 SolveYCollisions(Vector3 speedVector, BoundingBox[] colliders)
