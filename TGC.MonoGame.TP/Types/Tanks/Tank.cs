@@ -222,7 +222,7 @@ public class Tank : Resource, ICollidable
         Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
     }
 
-    public bool VerifyCollision(OrientedBoundingBox box)
+    public bool VerifyCollision(BoundingBox box)
     {
         return Box.Intersects(box);
     }

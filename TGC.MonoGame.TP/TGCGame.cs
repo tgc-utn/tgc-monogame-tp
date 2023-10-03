@@ -128,8 +128,9 @@ namespace TGC.MonoGame.TP
 
         private void DrawBoundingBoxesDebug()
         {
-            // foreach (var prop in Map.Props)
-            //     Gizmos.DrawCube(prop.OBBWorld, Color.Red);
+            foreach (var prop in Map.Props)
+                Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
+                // Gizmos.DrawCube(prop.World, Color.Red);
             // foreach (var enemy in Map.Enemies)
             //     Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
             // foreach (var ally in Map.Alies)
