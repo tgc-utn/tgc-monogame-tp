@@ -319,16 +319,16 @@ public class Pista1
                 var annoyingMovingWallsBodyHandleBodyRef = Simulation.Bodies.GetBodyReference(AnnoyingMovingWallsBodyHandle[index]);
                 if (index%2 == 0){
                     if (annoyingMovingWallsBodyHandleBodyRef.Pose.Position.X >= InitialLeftXPositionAnnoyingMovingWalls)
-                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 100f ));
+                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 50f));
                     if (annoyingMovingWallsBodyHandleBodyRef.Pose.Position.X <= InitialLeftXPositionAnnoyingMovingWalls - LengthDistanceDifference)
-                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 100f ));
+                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 50f));
                 }
                 else
                 {
                     if (annoyingMovingWallsBodyHandleBodyRef.Pose.Position.X <= InitialRigthXPositionAnnoyingMovingWalls)
-                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 100f ));
+                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 50f ));
                     if (annoyingMovingWallsBodyHandleBodyRef.Pose.Position.X >= InitialRigthXPositionAnnoyingMovingWalls + LengthDistanceDifference)
-                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 100f ));
+                        annoyingMovingWallsBodyHandleBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 50f));
                 }
 
             }

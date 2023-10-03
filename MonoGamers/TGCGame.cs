@@ -57,8 +57,6 @@ namespace MonoGamers
         // Geometries
         private BoxPrimitive BoxPrimitive { get; set; }
         private QuadPrimitive Floor { get; set; }
-        
-        private Sphere sphereShape { get; set; }
 
         // Handlers
         private BodyHandle FloorHandle { get; set; }
@@ -155,8 +153,8 @@ namespace MonoGamers
             // PowerUps
             PowerUps = new PowerUp[]
             {
-                new JumpPowerUp(new Vector3(100f, 10f, 160f)),
-                new FastPowerUp(new Vector3(100f, 10f, 160f)),
+                new JumpPowerUp(new Vector3(100f, 10f, 500f)),
+                new FastPowerUp(new Vector3(100f, 10f, 2150f)),
                 //new RushPowerUp(new Vector3(100f, 10f, 160f)),
             };
 
@@ -182,7 +180,7 @@ namespace MonoGamers
         {
             MonoSphere.SpherePrimitive = new SpherePrimitive(GraphicsDevice);
 
-
+            Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
             /*
             // Enable default lighting for the Sphere
             foreach (var mesh in Sphere.Meshes)
@@ -237,7 +235,7 @@ namespace MonoGamers
 
             MonoSphere.Update(Simulation, Camera, keyboardState);
 
-            
+            Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
 
             
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
@@ -287,8 +285,9 @@ namespace MonoGamers
         {
             // Limpio la pantalla.
                 GraphicsDevice.Clear(Color.CornflowerBlue);
-            
- 
+
+            //powerups Drawing
+                Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(Camera, gameTime));
             
             // Sphere drawinga
                 MonoSphere.Draw(Camera);
