@@ -61,7 +61,7 @@ namespace TGC.MonoGame.TP
         private BoxPrimitive BoxPrimitive { get; set; }
         
         // Sphere position & rotation
-        private Vector3 SpherePosition { get; set; }
+        private Vector3 InitialSpherePosition { get; set; }
         private Matrix SphereScale { get; set; }
         
         // World matrices
@@ -130,11 +130,11 @@ namespace TGC.MonoGame.TP
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             
             // Sphere
-            SpherePosition = new Vector3(0f, 10f, 0f);
+            InitialSpherePosition = new Vector3(0f, 10f, 0f);
             SphereScale = Matrix.CreateScale(5f);
             
             // Player
-            _player = new Player(SphereScale, SpherePosition, new BoundingSphere(SpherePosition, 5f));
+            _player = new Player(SphereScale, InitialSpherePosition, new BoundingSphere(InitialSpherePosition, 5f));
             
             // Gizmos
             Gizmos = new Gizmos.Gizmos();
@@ -483,7 +483,7 @@ namespace TGC.MonoGame.TP
             TextureEffect = Content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
             loadEffectOnMesh(SphereModel, TextureEffect);
 
-            SphereWorld = SphereScale * Matrix.CreateTranslation(SpherePosition);
+            SphereWorld = SphereScale * Matrix.CreateTranslation(InitialSpherePosition);
 
             // SkyboxEffect = Content.Load<Effect>()
             
@@ -517,6 +517,12 @@ namespace TGC.MonoGame.TP
             {
                 //Salgo del juego.
                 Exit();
+            }
+            
+            // Simple restart when falling off
+            if (_player.SpherePosition.Y <= -150f)
+            {
+                _player.SpherePosition = InitialSpherePosition;
             }
 
             UpdateCamera(_player.SpherePosition, _player.Yaw);
@@ -560,11 +566,18 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             }
 
-            foreach (var box in Colliders)
+            foreach (var boundingBox in Colliders)
             {
-                var center = BoundingVolumesExtensions.GetCenter(box);
-                var extents = BoundingVolumesExtensions.GetExtents(box);
+                var center = BoundingVolumesExtensions.GetCenter(boundingBox);
+                var extents = BoundingVolumesExtensions.GetExtents(boundingBox);
                 Gizmos.DrawCube(center, extents * 2f, Color.Red);
+            }
+            
+            foreach (var orientedBoundingBox in OrientedColliders)
+            {
+                var center = orientedBoundingBox.Center;
+                var extents = orientedBoundingBox.Extents;
+                Gizmos.DrawCube(center, extents * 2f, Color.Green);
             }
 
             foreach (var rampWorld in _rampMatrices)
