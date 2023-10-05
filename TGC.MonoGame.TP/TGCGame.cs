@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -93,7 +94,6 @@ namespace TGC.MonoGame.TP
         private Model StarModel { get; set; }
         private Model SphereModel { get; set; }
         private Matrix StarWorld { get; set; }
-
         private Player _player;
         
         
@@ -573,11 +573,9 @@ namespace TGC.MonoGame.TP
                 Gizmos.DrawCube(center, extents * 2f, Color.Red);
             }
             
-            foreach (var orientedBoundingBox in OrientedColliders)
+            foreach (var orientedBoundingBox in Prefab.RampMatrices)
             {
-                var center = orientedBoundingBox.Center;
-                var extents = orientedBoundingBox.Extents;
-                Gizmos.DrawCube(center, extents * 2f, Color.Green);
+                Gizmos.DrawCube(orientedBoundingBox,  Color.Green);
             }
 
             foreach (var rampWorld in _rampMatrices)

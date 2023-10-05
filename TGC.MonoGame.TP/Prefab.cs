@@ -53,18 +53,15 @@ public static class Prefab
 
     private static void CreateRamp(Vector3 scale, Vector3 position, float angleX, float angleZ)
     {
-        var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateRotationX(angleX) 
+        var rampWorld = Matrix.CreateScale(scale) * Matrix.CreateRotationX(angleX) 
                                                       * Matrix.CreateRotationZ(angleZ) * Matrix.CreateTranslation(position);
-        var temporaryCubeAABB = BoundingVolumesExtensions.FromMatrix(platformWorld);
-        temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, scale);
-
-        var OBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
-        OBB.Center = position;
-        OBB.Orientation = Matrix.CreateRotationX(angleX) * Matrix.CreateRotationZ(angleZ);
         
-        RampOBB.Add(OBB);
+        var temporaryCubeAABB = BoundingVolumesExtensions.FromMatrix(rampWorld);
+        var rampOBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         
-        RampMatrices.Add(platformWorld);
+        RampOBB.Add(rampOBB);
+        
+        RampMatrices.Add(rampWorld);
     }
     
     private static void CreatePlatform(Vector3 scale, Vector3 position)
