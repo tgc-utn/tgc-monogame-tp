@@ -558,8 +558,14 @@ namespace TGC.MonoGame.TP
                 PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
                 PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture);
                 BoxPrimitive.Draw(PlatformEffect);
-            }  
-            
+            }
+
+            foreach (var box in Colliders)
+            {
+                var center = BoundingVolumesExtensions.GetCenter(box);
+                var extents = BoundingVolumesExtensions.GetExtents(box);
+                Gizmos.DrawCube(center, extents * 2f, Color.Red);
+            }
 
             foreach (var rampWorld in _rampMatrices)
             {
