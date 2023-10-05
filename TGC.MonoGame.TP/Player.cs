@@ -21,13 +21,13 @@ public class Player
     private bool _isJumping;
     private bool _onGround = true;
     private bool _colliding = false;
-    private BoundingSphere _boundingSphere;
+    public BoundingSphere BoundingSphere;
 
     public Player(Matrix sphereScale, Vector3 spherePosition, BoundingSphere boundingSphere)
     {
         _sphereScale = sphereScale;
         SpherePosition = spherePosition;
-        _boundingSphere = boundingSphere;
+        BoundingSphere = boundingSphere;
     }
 
     public float MaxSpeed = 180f;
@@ -150,7 +150,7 @@ public class Player
 
         SolveYCollisions(SpherePosition, colliders);
         
-        _boundingSphere.Center = SpherePosition;
+        BoundingSphere.Center = SpherePosition;
 
         _pitch += _pitchSpeed * time;
     }
@@ -162,16 +162,16 @@ public class Player
         int index = 0;
         for (; index < colliders.Length; index++)
         {
-            if (_boundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
+            if (BoundingSphere.Intersects(colliders[index]) && _jumpSpeed < 0)
             {
-                SpherePosition = new Vector3(position.X, colliders[index].Max.Y + _boundingSphere.Radius, position.Z);
+                SpherePosition = new Vector3(position.X, colliders[index].Max.Y + BoundingSphere.Radius, position.Z);
                 _onGround = true;
             }
         }
 
         for (int i = 0; i < TGCGame.OrientedColliders.Length; i++)
         {
-            if (TGCGame.OrientedColliders[i].Intersects(_boundingSphere, out var intersection, out var normal))
+            if (TGCGame.OrientedColliders[i].Intersects(BoundingSphere, out var intersection, out var normal))
             {
                 //var newPosition = position + normal * _boundingSphere.Radius;
                 //SpherePosition = newPosition;

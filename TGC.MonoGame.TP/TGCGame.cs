@@ -100,9 +100,9 @@ namespace TGC.MonoGame.TP
         // Colliders
         public BoundingBox[] Colliders { get; set; }
         public static OrientedBoundingBox[] OrientedColliders { get; set; }
-        private BoundingSphere _boundingSphere { get; set; }
-        
-        
+        public Gizmos.Gizmos Gizmos { get; set; }
+
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -136,6 +136,9 @@ namespace TGC.MonoGame.TP
             // Player
             _player = new Player(SphereScale, SpherePosition, new BoundingSphere(SpherePosition, 5f));
             
+            // Gizmos
+            Gizmos = new Gizmos.Gizmos();
+            Gizmos.Enabled = true;
             
             // Star
             StarWorld = Matrix.Identity;
@@ -392,7 +395,6 @@ namespace TGC.MonoGame.TP
 
             altura = 900f;
             CreatePlatformLevel2(new Vector3(50f, 6f, 50f), new Vector3(150f, altura, 0f));
-
             
             base.Initialize();
         }
@@ -490,16 +492,7 @@ namespace TGC.MonoGame.TP
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 1000f);
 
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            /*foreach (var mesh in Model.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }*/
+            Gizmos.LoadContent(GraphicsDevice, Content);
 
             base.LoadContent();
         }
@@ -527,30 +520,24 @@ namespace TGC.MonoGame.TP
             }
 
             UpdateCamera(_player.SpherePosition, _player.Yaw);
+            
+            Gizmos.UpdateViewProjection(TargetCamera.View, TargetCamera.Projection);
 
             base.Update(gameTime);
         }
         
         private void UpdateCamera(Vector3 position, float yaw)
         {
-            // Create a position that orbits the Robot by its direction (Rotation)
-
-            // Create a normalized vector that points to the back of the Robot
             var sphereBackDirection = Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(yaw));
-            // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Robot
+            
             var orbitalPosition = sphereBackDirection * 60f;
-
-            // We will move the Camera in the Y axis by a given distance, relative to the Robot
+            
             var upDistance = Vector3.Up * 15f;
-
-            // Calculate the new Camera Position by using the Robot Position, then adding the vector orbitalPosition that sends 
-            // the camera further in the back of the Robot, and then we move it up by a given distance
+            
             TargetCamera.Position = position + orbitalPosition + upDistance;
 
-            // Set the Target as the Robot, the Camera needs to be always pointing to it
             TargetCamera.TargetPosition = position;
-
-            // Build the View matrix from the Position and TargetPosition
+            
             TargetCamera.BuildView();
         }
 
@@ -596,7 +583,6 @@ namespace TGC.MonoGame.TP
                 PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture); // TODO agregar otra textura
                 BoxPrimitive.Draw(PlatformEffect);
             } 
-            
 
             DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, RubberTexture);
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);
@@ -604,12 +590,13 @@ namespace TGC.MonoGame.TP
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(150f, 5f, 0f);
             DrawModel(StarWorld, StarModel, Effect);
             
+            Gizmos.DrawSphere(_player.BoundingSphere.Center, _player.BoundingSphere.Radius * Vector3.One, Color.Yellow);
+            Gizmos.Draw();
+            
             var originalRasterizerState = GraphicsDevice.RasterizerState;
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             Graphics.GraphicsDevice.RasterizerState = rasterizerState;
-
-
             
             SkyBox.Draw(TargetCamera.View, TargetCamera.Projection, new Vector3(0f,0f,0f));
             GraphicsDevice.RasterizerState = originalRasterizerState;
