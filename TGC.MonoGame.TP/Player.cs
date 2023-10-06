@@ -173,8 +173,11 @@ public class Player
         {
             if (TGCGame.OrientedColliders[i].Intersects(BoundingSphere, out var intersection, out var normal) && _jumpSpeed < 0)
             {
-                var newPosition = position + normal * BoundingSphere.Radius;
-                SpherePosition = new Vector3(position.X, TGCGame.OrientedColliders[i].Extents.Y + BoundingSphere.Radius, position.Z);
+                var rotationMatrix = TGCGame.OrientedColliders[i].Orientation;
+                var movementDirection = normal;
+                movementDirection = Vector3.TransformNormal(movementDirection, Matrix.Invert(rotationMatrix));
+                var newPosition = SpherePosition + movementDirection;
+                SpherePosition = newPosition;
                 _onGround = true;
             }
         }
