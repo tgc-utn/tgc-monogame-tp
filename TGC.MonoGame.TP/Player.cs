@@ -171,11 +171,11 @@ public class Player
 
         for (int i = 0; i < TGCGame.OrientedColliders.Length; i++)
         {
-            if (TGCGame.OrientedColliders[i].Intersects(BoundingSphere, out var intersection, out var normal))
+            if (TGCGame.OrientedColliders[i].Intersects(BoundingSphere, out var intersection, out var normal) && _jumpSpeed < 0)
             {
-                //var newPosition = position + normal * _boundingSphere.Radius;
-                //SpherePosition = newPosition;
-                //_onGround = true;
+                var newPosition = position + normal * BoundingSphere.Radius;
+                SpherePosition = new Vector3(position.X, TGCGame.OrientedColliders[i].Extents.Y + BoundingSphere.Radius, position.Z);
+                _onGround = true;
             }
         }
     }

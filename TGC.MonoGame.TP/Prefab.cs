@@ -58,6 +58,7 @@ public static class Prefab
         
         var temporaryCubeAABB = BoundingVolumesExtensions.FromMatrix(rampWorld);
         var rampOBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+        rampOBB.Rotate(Matrix.CreateRotationX(angleX) * Matrix.CreateRotationZ(angleZ));
         
         RampOBB.Add(rampOBB);
         

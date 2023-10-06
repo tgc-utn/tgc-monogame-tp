@@ -462,20 +462,14 @@ namespace TGC.MonoGame.TP
             RubberTexture = Content.Load<Texture2D>(ContentFolderTextures + "goma_diffuse");
             MetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal_diffuse");
             
-            // Create our Quad (to draw the Floor)
             Quad = new QuadPrimitive(GraphicsDevice);
             
-            // Create our box
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, StonesTexture);
-
-            // Cargo el modelo del logo.
-            //Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            
             StarModel = Content.Load<Model>(ContentFolder3D + "star/Gold_Star");
 
             SphereModel = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
-
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
+            
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             PlatformEffect = Content.Load<Effect>(ContentFolderEffects + "PlatformShader");
             loadEffectOnMesh(StarModel, Effect);
@@ -484,8 +478,6 @@ namespace TGC.MonoGame.TP
             loadEffectOnMesh(SphereModel, TextureEffect);
 
             SphereWorld = SphereScale * Matrix.CreateTranslation(InitialSpherePosition);
-
-            // SkyboxEffect = Content.Load<Effect>()
             
             var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/skybox");
@@ -566,21 +558,22 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             }
 
-            foreach (var boundingBox in Colliders)
+            /*foreach (var boundingBox in Colliders)
             {
                 var center = BoundingVolumesExtensions.GetCenter(boundingBox);
                 var extents = BoundingVolumesExtensions.GetExtents(boundingBox);
                 Gizmos.DrawCube(center, extents * 2f, Color.Red);
-            }
+            }*/
             
-            foreach (var orientedBoundingBox in Prefab.RampMatrices)
+            foreach (var orientedBoundingBox in Prefab.RampOBB)
             {
-                Gizmos.DrawCube(orientedBoundingBox,  Color.Green);
+                var orientedBoundingBoxWorld = Matrix.CreateScale(orientedBoundingBox.Extents * 2f) 
+                                               * orientedBoundingBox.Orientation * Matrix.CreateTranslation(orientedBoundingBox.Center);
+                Gizmos.DrawCube(orientedBoundingBoxWorld, Color.Red);
             }
 
             foreach (var rampWorld in _rampMatrices)
             {
-                // Configura la matriz de mundo del efecto con la matriz del Floor actual
                 PlatformEffect.Parameters["World"].SetValue(rampWorld);
                 PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
                 PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
@@ -589,11 +582,8 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             } 
             
-            //Sphere.Draw(World, TargetCamera.View, TargetCamera.Projection); // TODO: no usar
-            
             foreach (var platformWorld in _platformMatricesLevel2)
             {
-                // Configura la matriz de mundo del efecto con la matriz del Floor actual
                 PlatformEffect.Parameters["World"].SetValue(platformWorld);
                 PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
                 PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
