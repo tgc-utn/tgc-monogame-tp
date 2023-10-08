@@ -54,6 +54,7 @@ public class Player
         {
             _isJumping = true;
             _jumpSpeed += CalculateJumpSpeed();
+            Console.WriteLine("salto!");
         }
     }
 
@@ -143,7 +144,7 @@ public class Player
         
         foreach(var collider in TGCGame.Colliders)
         {
-            if (BoundingSphere.Intersects(collider) && _jumpSpeed < 0)
+            if (BoundingSphere.Intersects(collider) && _jumpSpeed <= 0)
             {
                 SpherePosition.Y = collider.Max.Y + BoundingSphere.Radius;
                 _onGround = true;
@@ -154,8 +155,9 @@ public class Player
 
         foreach (var orientedBoundingBox in TGCGame.OrientedColliders)
         {
-            if (orientedBoundingBox.Intersects(BoundingSphere, out _, out var normal) && _jumpSpeed < 0)
+            if (orientedBoundingBox.Intersects(BoundingSphere, out _, out var normal) && _jumpSpeed <= 0)
             {
+                Console.WriteLine("colision rampa!");
                 var rotationMatrix = orientedBoundingBox.Orientation;
                 var movementDirection = Vector3.TransformNormal(normal, Matrix.Invert(rotationMatrix));
                 var newPosition = SpherePosition + movementDirection;

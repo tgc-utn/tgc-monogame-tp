@@ -552,12 +552,12 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             }
 
-            /*foreach (var boundingBox in Colliders)
+            foreach (var boundingBox in Colliders)
             {
                 var center = BoundingVolumesExtensions.GetCenter(boundingBox);
                 var extents = BoundingVolumesExtensions.GetExtents(boundingBox);
                 Gizmos.DrawCube(center, extents * 2f, Color.Red);
-            }*/
+            }
             
             foreach (var orientedBoundingBox in Prefab.RampOBB)
             {
