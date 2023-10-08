@@ -98,7 +98,7 @@ namespace TGC.MonoGame.TP
         
         
         // Colliders
-        public BoundingBox[] Colliders { get; set; }
+        public static BoundingBox[] Colliders { get; set; }
         public static OrientedBoundingBox[] OrientedColliders { get; set; }
         public Gizmos.Gizmos Gizmos { get; set; }
 
@@ -496,23 +496,17 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
-            
             var keyboardState = Keyboard.GetState();
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            // SphereWorld = _player.Update(time, keyboardState);
-            SphereWorld = _player.Update(time, keyboardState, Colliders);
             
-            // Capturar Input teclado
+            SphereWorld = _player.Update(time, keyboardState);
+            
             if (keyboardState.IsKeyDown(Keys.Escape))
             {
-                //Salgo del juego.
                 Exit();
             }
             
-            // Simple restart when falling off
-            if (_player.SpherePosition.Y <= -150f)
+            if (_player.SpherePosition.Y <= -150f || keyboardState.IsKeyDown(Keys.R))
             {
                 _player.SpherePosition = InitialSpherePosition;
             }
