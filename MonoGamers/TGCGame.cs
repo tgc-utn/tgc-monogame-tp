@@ -22,6 +22,7 @@ using MonoGamers.Utilities;
 using NumericVector3 = System.Numerics.Vector3;
 using MonoGamers.PowerUps;
 using MonoGamers.SkyBoxes;
+using Microsoft.Xna.Framework.Media;
 
 namespace MonoGamers
 {
@@ -102,7 +103,11 @@ namespace MonoGamers
         private PowerUp[] PowerUps { get; set; }
         private int CurrentCheckpoint { get; set; }
         
+        //SpriteBatch
 
+        private SpriteBatch SpriteBatch { get; set; }
+
+        private SpriteFont SpriteFont { get; set; }
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -173,12 +178,16 @@ namespace MonoGamers
 
             base.Initialize();
         }
-        
+
 
         /// <inheritdoc />
         protected override void LoadContent()
         {
             MonoSphere.SpherePrimitive = new SpherePrimitive(GraphicsDevice);
+
+            //Contenido de HUD
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCode/CascadiaCodePL");
 
             Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
             /*
@@ -313,10 +322,10 @@ namespace MonoGamers
                 
             // Dibujamos el skybox
                 DrawSkybox(Camera);
-            
 
 
 
+            DrawUI(gameTime);
             base.Draw(gameTime);
         }
         
@@ -328,6 +337,48 @@ namespace MonoGamers
             Graphics.GraphicsDevice.RasterizerState = rasterizerState;
             SkyBox.Draw(camera.View, camera.Projection, MonoSphere.SpherePosition);
             GraphicsDevice.RasterizerState = originalRasterizerState;
+        }
+
+        private void DrawUI(GameTime gameTime)
+        {
+            var color = new Color();
+            //Hud 
+            switch (MonoSphere.Material)
+            {
+                case "Common":
+                    color = Color.Green;
+                    break;
+                case "Metal":
+                    color = Color.LightGray;
+                    break;
+                case "Gum":
+                    color = Color.Pink;
+                    break;
+                case "Stone":
+                    color = Color.DarkGray;
+                    break;
+                    
+            }
+            var gm = MonoSphere.godMode;
+            var Height = GraphicsDevice.Viewport.Height;
+            var Width = GraphicsDevice.Viewport.Width;
+            var fps = MathF.Round(1/Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds), 1);
+            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
+            var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
+            SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
+            if (gm) SpriteBatch.DrawString(SpriteFont, "<-PRESS THE 1,2,3,4 KEYS TO MOVE TO THE NEXT CHECKPOINT->", new Vector2(Width/3, Height*0.9F), color);
+            if (gm) SpriteBatch.DrawString(SpriteFont, "<-USE THE T,Y,U,I KEYS TO MOVE TO CHANGE MATERIALS->", new Vector2(Width/3, Height*0.85F), color);
+            SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 400, 0), color);
+            SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 250, Height*0.05f), color);
+            SpriteBatch.DrawString(SpriteFont, "FPS: " + fps.ToString(), new Vector2(Width*0.01f, 0), color);
+            SpriteBatch.DrawString(SpriteFont, "Side Speed: " + (MonoSphere.SphereSideSpeed * MonoSphere.SphereSideTypeSpeed).ToString(),
+                                    new Vector2(Width*0.01f, Height*0.05F), color);
+            SpriteBatch.DrawString(SpriteFont, "Jump Speed: " + (MonoSphere.SphereJumpSpeed * MonoSphere.SphereJumpTypeSpeed).ToString(), 
+                                    new Vector2(Width*0.01f, Height*0.1F), color);
+            //Menu
+            //draw the start menu
+
+            SpriteBatch.End();
         }
     }
 }

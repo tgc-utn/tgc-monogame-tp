@@ -32,6 +32,9 @@ namespace MonoGamers.Geometries
         }
 
         Type SphereType;
+        //Referencia de material afuera:
+        public string Material { get; set; }
+
         private const float StandardSideSpeed = 500f;
         private const float standardJumpSpeed = 55000f;
         private const float Friction = 0.5f;
@@ -76,18 +79,22 @@ namespace MonoGamers.Geometries
         public float velocidadAngularYAnt;
         public float velocidadLinearYAnt;
 
-        private float SphereSideTypeSpeed;
-        private float SphereJumpTypeSpeed;
+        public float SphereSideTypeSpeed;
+        public float SphereJumpTypeSpeed;
         
-        private bool godMode = false;
+        public bool godMode;
 
         public MonoSphere(Vector3 InitialPosition, float Gravity, Simulation Simulation)
         {
             OnGround = true;
+            godMode = false;
 
             SphereWorld = new Matrix();
             SphereSideSpeed = StandardSideSpeed;
             SphereJumpSpeed = standardJumpSpeed;
+
+            SphereType = Type.Common;
+            Material = "Common";
 
             SpherePosition = InitialPosition;
             SphereRotation = Matrix.Identity;
@@ -117,9 +124,6 @@ namespace MonoGamers.Geometries
             SphereFrontDirection = Vector3.Transform(Vector3.Backward, SphereRotation);
             SphereLateralDirection = Vector3.Transform(Vector3.Right, SphereRotation);
             
-            
-            
-            
             if(SphereType == Type.Common){
                 SphereSideTypeSpeed = 1f;
                 SphereJumpTypeSpeed = 1f;
@@ -142,21 +146,25 @@ namespace MonoGamers.Geometries
 
             //Cambio de tipo de esfera manualmente
             
-            if (KeyboardState.IsKeyUp(Keys.G)) {
+            if (KeyboardState.IsKeyDown(Keys.G)) {
                 if (!godMode) godMode = true;
                 else godMode = false;
             }
             
             if (KeyboardState.IsKeyDown(Keys.T) && godMode){
+                Material = "Common";
                 SphereType = Type.Common;
             }
             if (KeyboardState.IsKeyDown(Keys.Y) && godMode){
+                Material = "Metal";
                 SphereType = Type.Metal;
             }
             if (KeyboardState.IsKeyDown(Keys.U) && godMode){
+                Material = "Gum";
                 SphereType = Type.Gum;
             }
             if (KeyboardState.IsKeyDown(Keys.I) && godMode){
+                Material = "Stone";
                 SphereType = Type.Stone;
             }
             

@@ -478,17 +478,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/tgcito-classic/tgcito-classic.obj
 
-#begin Textures/common.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=True
+#begin SpriteFonts/CascadiaCode/CascadiaCodePL.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/common.jpg
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/CascadiaCode/CascadiaCodePL.spritefont
+
+#begin SpriteFonts/CascadiaCode/CascadiaCodePL.ttf
+/copy:SpriteFonts/CascadiaCode/CascadiaCodePL.ttf
+
+#begin SpriteFonts/CascadiaCode/CascadiaMonoPL.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/CascadiaCode/CascadiaMonoPL.spritefont
+
+#begin SpriteFonts/CascadiaCode/CascadiaMonoPL.ttf
+/copy:SpriteFonts/CascadiaCode/CascadiaMonoPL.ttf
 
 #begin Textures/common.jpg
 /importer:TextureImporter
@@ -1125,18 +1133,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/skyboxes/sunset/sunset.dds
-
-#begin Textures/stone.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=True
-/processorParam:PremultiplyAlpha=False
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/stone.jpg
 
 #begin Textures/stone.jpg
 /importer:TextureImporter
