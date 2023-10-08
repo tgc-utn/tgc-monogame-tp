@@ -52,19 +52,21 @@ public class Player
     {
         if(keyboardState.IsKeyDown(Keys.Space) && !_isJumping)
         {
-            _isJumping = true;
-            _jumpSpeed += CalculateJumpSpeed();
-            Console.WriteLine("salto!");
+            StartJump();
         }
     }
 
     private void HandleFalling(float time)
     {
-        if (!_onGround)
-        {
-            var newYPosition = CalculateFallPosition(time);
-            SpherePosition = newYPosition;
-        }
+        if (_onGround) return;
+        var newYPosition = CalculateFallPosition(time);
+        SpherePosition = newYPosition;
+    }
+    
+    private void StartJump()
+    {
+        _isJumping = true;
+        _jumpSpeed += CalculateJumpSpeed();
     }
 
     private void EndJump()
@@ -89,19 +91,29 @@ public class Player
     {
         if (keyboardState.IsKeyDown(Keys.A))
         {
-            _yawSpeed += YawAcceleration * time;
+            AccelerateYaw(YawAcceleration, time);
         }
         else if (keyboardState.IsKeyDown(Keys.D))
         {
-            _yawSpeed -= YawAcceleration * time;
+            AccelerateYaw(-YawAcceleration, time);
         }
         else
         {
             DecelerateYaw(time);
         }
 
+        AdjustYawSpeed(time);
+    }
+
+    private void AdjustYawSpeed(float time)
+    {
         _yawSpeed = MathHelper.Clamp(_yawSpeed, -YawMaxSpeed, YawMaxSpeed);
         Yaw += _yawSpeed * time;
+    }
+
+    private void AccelerateYaw(float yawAcceleration, float time)
+    {
+        _yawSpeed += yawAcceleration * time;
     }
 
     private void DecelerateYaw(float time)
@@ -114,28 +126,63 @@ public class Player
     {
         if (keyboardState.IsKeyDown(Keys.W))
         {
-            _speed += Acceleration * time;
-            _pitchSpeed -= PitchAcceleration * time;
+            Accelerate(Acceleration, time);
+            AcceleratePitch(PitchAcceleration, time);
         }
         else if (keyboardState.IsKeyDown(Keys.S))
         {
-            _speed -= Acceleration * time;
-            _pitchSpeed += PitchAcceleration * time;
+            Accelerate(-Acceleration, time);
+            AcceleratePitch(-PitchAcceleration, time);
         }
         else
         {
-            var decelerationDirection = Math.Sign(_speed) * -1;
-            var pitchDecelerationDirection = Math.Sign(_pitchSpeed) * -1;
-            _speed += Acceleration * time * decelerationDirection;
-            _pitchSpeed += PitchAcceleration * time * pitchDecelerationDirection;
+            Decelerate(time);
+            DeceleratePitch(time);
         }
 
+        AdjustPitchSpeed(time);
+        AdjustSpeed(time, forward);
+        SolveYCollisions();
+        UpdateBoundingSphere();
+    }
+
+    private void UpdateBoundingSphere()
+    {
+        BoundingSphere.Center = SpherePosition;
+    }
+
+    private void AdjustSpeed(float time, Vector3 forward)
+    {
+        _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
+        SpherePosition += forward * time * _speed;
+    }
+
+    private void AdjustPitchSpeed(float time)
+    {
         _pitchSpeed = MathHelper.Clamp(_pitchSpeed, -PitchMaxSpeed, PitchMaxSpeed);
         _pitch += _pitchSpeed * time;
-        _speed = MathHelper.Clamp(_speed, -MaxSpeed, MaxSpeed);
-        SolveYCollisions();
-        SpherePosition += forward * time * _speed;
-        BoundingSphere.Center = SpherePosition;
+    }
+
+    private void AcceleratePitch(float pitchAcceleration,float time)
+    {
+        _pitchSpeed -= pitchAcceleration * time;
+    }
+    
+    private void DeceleratePitch(float time)
+    {
+        var pitchDecelerationDirection = Math.Sign(_pitchSpeed) * -1;
+        _pitchSpeed += PitchAcceleration * time * pitchDecelerationDirection;
+    }
+
+    private void Accelerate(float acceleration, float time)
+    {
+        _speed += acceleration * time;
+    }
+
+    private void Decelerate(float time)
+    {
+        var decelerationDirection = Math.Sign(_speed) * -1;
+        _speed += Acceleration * time * decelerationDirection;
     }
 
     private void SolveYCollisions()
@@ -144,28 +191,23 @@ public class Player
         
         foreach(var collider in TGCGame.Colliders)
         {
-            if (BoundingSphere.Intersects(collider) && _jumpSpeed <= 0)
-            {
-                SpherePosition.Y = collider.Max.Y + BoundingSphere.Radius;
-                _onGround = true;
-                EndJump();
-                break;
-            }
+            if (!BoundingSphere.Intersects(collider) || !(_jumpSpeed <= 0f)) continue;
+            SpherePosition.Y = collider.Max.Y + BoundingSphere.Radius;
+            _onGround = true;
+            EndJump();
+            break;
         }
 
         foreach (var orientedBoundingBox in TGCGame.OrientedColliders)
         {
-            if (orientedBoundingBox.Intersects(BoundingSphere, out _, out var normal) && _jumpSpeed <= 0)
-            {
-                Console.WriteLine("colision rampa!");
-                var rotationMatrix = orientedBoundingBox.Orientation;
-                var movementDirection = Vector3.TransformNormal(normal, Matrix.Invert(rotationMatrix));
-                var newPosition = SpherePosition + movementDirection;
-                SpherePosition = newPosition;
-                _onGround = true;
-                EndJump();
-                break;
-            }
+            if (!orientedBoundingBox.Intersects(BoundingSphere, out _, out var normal) || !(_jumpSpeed <= 0f)) continue;
+            var rotationMatrix = orientedBoundingBox.Orientation;
+            var movementDirection = Vector3.TransformNormal(normal, rotationMatrix);
+            var newPosition = SpherePosition + movementDirection;
+            SpherePosition = newPosition;
+            _onGround = true;
+            EndJump();
+            break;
         }
     }
 }
