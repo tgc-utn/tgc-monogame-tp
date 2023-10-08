@@ -189,7 +189,7 @@ public class Player
     {
         _onGround = false;
         
-        foreach(var collider in TGCGame.Colliders)
+        foreach(var collider in Prefab.PlatformAbb)
         {
             if (!BoundingSphere.Intersects(collider) || !(_jumpSpeed <= 0f)) continue;
             SpherePosition.Y = collider.Max.Y + BoundingSphere.Radius;
@@ -198,7 +198,7 @@ public class Player
             break;
         }
 
-        foreach (var orientedBoundingBox in TGCGame.OrientedColliders)
+        foreach (var orientedBoundingBox in Prefab.RampObb)
         {
             if (!orientedBoundingBox.Intersects(BoundingSphere, out _, out var normal) || !(_jumpSpeed <= 0f)) continue;
             var rotationMatrix = orientedBoundingBox.Orientation;
