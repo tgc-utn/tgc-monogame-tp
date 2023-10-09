@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Transactions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -57,21 +55,13 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
         
         // Geometries
-        private SpherePrimitive Sphere { get; set; }
         private QuadPrimitive Quad { get; set; }
         private BoxPrimitive BoxPrimitive { get; set; }
         
         // Sphere position & rotation
         private Vector3 InitialSpherePosition { get; set; }
         private Matrix SphereScale { get; set; }
-        
-        // World matrices
-        private List<Matrix> _platformMatrices;
 
-        private List<Matrix> _rampMatrices;
-
-        private List<Matrix> _platformMatricesLevel2;
-        
         // Effects
         // Effect for the Platforms
         private Effect PlatformEffect { get; set; }
@@ -80,22 +70,17 @@ namespace TGC.MonoGame.TP
         private Effect Effect { get; set; }
         private Effect TextureEffect { get; set; }
         
-        // private Effect SkyboxEffect { get; set; }
-        
         // Textures
         private Texture2D StonesTexture { get; set; }
         private Texture2D MarbleTexture { get; set; }
         private Texture2D RubberTexture { get; set; }
         private Texture2D MetalTexture { get; set; }
-        
-        // private Texture2D Sk
 
         // Models
         private Model StarModel { get; set; }
         private Model SphereModel { get; set; }
         private Matrix StarWorld { get; set; }
         private Player _player;
-        
         
         // Colliders
         private Gizmos.Gizmos Gizmos { get; set; }
@@ -143,67 +128,12 @@ namespace TGC.MonoGame.TP
             // Star
             StarWorld = Matrix.Identity;
             
-            // Box/platforms
-            _platformMatrices = new List<Matrix>();
-            _rampMatrices = new List<Matrix>();
-
-            _platformMatricesLevel2 = new List<Matrix>();
-            
             Prefab.CreateSquareCircuit(Vector3.Zero);
             Prefab.CreateSquareCircuit(new Vector3(-600, 0f, 0f));
             Prefab.CreateBridge();
             Prefab.CreateSwitchbackRamp();
             
             base.Initialize();
-        }
-        
-
-        /// <summary>
-        ///     Creates a platform with the specified scale, position and rotation.
-        /// </summary>
-        /// <param name="scale">The scale of the platform</param>
-        /// <param name="position">The position of the platform</param>
-        /// <param name="rotation">The rotation of the platform</param>
-        private void CreateRamp(Vector3 scale, Vector3 position, Matrix rotation)
-        {
-            var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
-            _rampMatrices.Add(platformWorld);
-        }
-        
-        /// <summary>
-        ///     Creates a platform with the specified scale and position.
-        /// </summary>
-        /// <param name="scale">The scale of the platform</param>
-        /// <param name="position">The position of the platform</param>
-        private void CreatePlatform(Vector3 scale, Vector3 position)
-        {
-            var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
-            _platformMatrices.Add(platformWorld);
-        }
-        
-        /// <summary>
-        ///     Creates a platform with the specified scale, position and rotation.
-        /// </summary>
-        /// <param name="scale">The scale of the platform</param>
-        /// <param name="position">The position of the platform</param>
-        /// <param name="rotation">The rotation of the platform</param>
-        
-         private void CreatePlatformLevel2(Vector3 scale, Vector3 position, Matrix rotation)
-        {
-            var platformWorld = Matrix.CreateScale(scale) * rotation * Matrix.CreateTranslation(position);
-            _platformMatricesLevel2.Add(platformWorld);
-        }
-        
-        /// <summary>
-        ///     Creates a platform with the specified scale and position.
-        /// </summary>
-        /// <param name="scale">The scale of the platform</param>
-        /// <param name="position">The position of the platform</param>
-        
-        private void CreatePlatformLevel2(Vector3 scale, Vector3 position)
-        {
-            var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
-            _platformMatricesLevel2.Add(platformWorld);
         }
 
         /// <summary>
@@ -213,7 +143,6 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
             StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
@@ -271,6 +200,8 @@ namespace TGC.MonoGame.TP
             }
 
             UpdateCamera(_player.SpherePosition, _player.Yaw);
+
+            Prefab.UpdateMovingPlatforms();
             
             Gizmos.UpdateViewProjection(TargetCamera.View, TargetCamera.Projection);
 
@@ -298,7 +229,6 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.CornflowerBlue);
             
             foreach (var platformWorld in Prefab.PlatformMatrices)
@@ -326,22 +256,28 @@ namespace TGC.MonoGame.TP
                 var extents = BoundingVolumesExtensions.GetExtents(boundingBox);
                 Gizmos.DrawCube(center, extents * 2f, Color.Red);
             }
-            
+
+            foreach (var movingPlatform in Prefab.MovingPlatforms)
+            {
+                PlatformEffect.Parameters["World"].SetValue(movingPlatform.World);
+                PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
+                PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
+                PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture);
+                
+                BoxPrimitive.Draw(PlatformEffect);
+                
+                var movingBoundingBox = movingPlatform.MovingBoundingBox;
+                var center = BoundingVolumesExtensions.GetCenter(movingBoundingBox);
+                var extents = BoundingVolumesExtensions.GetExtents(movingBoundingBox);
+                Gizmos.DrawCube(center, extents * 2f, Color.GreenYellow);
+            }
+
             foreach (var orientedBoundingBox in Prefab.RampObb)
             {
                 var orientedBoundingBoxWorld = Matrix.CreateScale(orientedBoundingBox.Extents * 2f) 
                                                * orientedBoundingBox.Orientation * Matrix.CreateTranslation(orientedBoundingBox.Center);
                 Gizmos.DrawCube(orientedBoundingBoxWorld, Color.Red);
             }
-            
-            /*foreach (var platformWorld in _platformMatricesLevel2)
-            {
-                PlatformEffect.Parameters["World"].SetValue(platformWorld);
-                PlatformEffect.Parameters["View"].SetValue(TargetCamera.View);
-                PlatformEffect.Parameters["Projection"].SetValue(TargetCamera.Projection);
-                PlatformEffect.Parameters["Textura_Plataformas"].SetValue(StonesTexture); // TODO agregar otra textura
-                BoxPrimitive.Draw(PlatformEffect);
-            } */
 
             DrawTexturedModel(SphereWorld, SphereModel, TextureEffect, RubberTexture);
             StarWorld = Matrix.CreateScale(0.5f) * Matrix.CreateTranslation(-450f, 5f, 0f);

@@ -197,6 +197,15 @@ public class Player
             EndJump();
             break;
         }
+        
+        foreach(var collider in Prefab.MovingPlatforms)
+        {
+            if (!BoundingSphere.Intersects(collider.MovingBoundingBox) || !(_jumpSpeed <= 0f)) continue;
+            SpherePosition.Y = collider.MovingBoundingBox.Max.Y + BoundingSphere.Radius;
+            _onGround = true;
+            EndJump();
+            break;
+        }
 
         foreach (var orientedBoundingBox in Prefab.RampObb)
         {

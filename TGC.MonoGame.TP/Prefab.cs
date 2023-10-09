@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using BepuPhysics;
 using Microsoft.Xna.Framework;
 using TGC.MonoGame.TP.Collisions;
 
@@ -10,6 +9,7 @@ public static class Prefab
     public static readonly List<Matrix> PlatformMatrices =  new();
     public static readonly List<Matrix> RampMatrices =  new();
     public static readonly List<BoundingBox> PlatformAbb =  new();
+    public static readonly List<MovingPlatform> MovingPlatforms =  new();
     public static readonly List<OrientedBoundingBox> RampObb =  new();
     
     public static void CreateSquareCircuit(Vector3 offset)
@@ -29,9 +29,25 @@ public static class Prefab
             
         // Center platform
         // La idea sería que se vaya moviendo 
-        CreatePlatform(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f) + offset);
+        CreateMovingPlatform(new Vector3(50f, 6f, 100f), new Vector3(150f, 0f, 0f) + offset);
             
         CreateRamps(offset);
+    }
+
+    private static void CreateMovingPlatform(Vector3 scale, Vector3 position)
+    {
+        var platformWorld = Matrix.CreateScale(scale) * Matrix.CreateTranslation(position);
+        var platformBoundingBox = BoundingVolumesExtensions.FromMatrix(platformWorld);
+        var movingPlatform = new MovingPlatform(platformWorld, scale, position, platformBoundingBox);
+        MovingPlatforms.Add(movingPlatform);
+    }
+
+    public static void UpdateMovingPlatforms()
+    {
+        foreach (var movingPlatform in MovingPlatforms)
+        {
+            movingPlatform.Update();
+        }
     }
     
     public static void CreateBridge()
