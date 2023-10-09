@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using NumericVector3 = System.Numerics.Vector3;
 using static MonoGamers.Utilities.Utils;
 using BepuPhysics.Constraints.Contact;
+using MonoGamers.Audio;
 using MonoGamers.Utilities;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
@@ -83,6 +84,7 @@ namespace MonoGamers.Geometries
         public float SphereJumpTypeSpeed;
         
         public bool godMode;
+        
 
         public MonoSphere(Vector3 InitialPosition, float Gravity, Simulation Simulation)
         {
@@ -114,6 +116,8 @@ namespace MonoGamers.Geometries
 
             // Initialize the Velocity as zero
             SphereVelocity = Vector3.Zero;
+
+
         }
 
         public void Update(Simulation Simulation, TargetCamera Camera, KeyboardState KeyboardState)
@@ -254,6 +258,7 @@ namespace MonoGamers.Geometries
         public void Jump()
         {
             SphereVelocity += Vector3.Up * SphereJumpSpeed * SphereJumpTypeSpeed;
+            AudioController.PlayJump();
             OnGround = false;
         }
 

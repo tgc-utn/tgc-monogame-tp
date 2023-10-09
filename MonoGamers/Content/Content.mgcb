@@ -478,6 +478,60 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/tgcito-classic/tgcito-classic.obj
 
+#begin Music/Seriously.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Seriously.mp3
+
+#begin Music/Silly.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/Silly.mp3
+
+#begin Sounds/a1-8bit.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/a1-8bit.mp3
+
+#begin Sounds/a2-8bit.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/a2-8bit.mp3
+
+#begin Sounds/bounce1.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bounce1.mp3
+
+#begin Sounds/bounce2.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bounce2.mp3
+
+#begin Sounds/bounce3.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bounce3.mp3
+
+#begin Sounds/bounce4.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/bounce4.mp3
+
+#begin Sounds/rise.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/rise.mp3
+
 #begin SpriteFonts/CascadiaCode/CascadiaCodePL.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

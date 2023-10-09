@@ -23,6 +23,7 @@ using NumericVector3 = System.Numerics.Vector3;
 using MonoGamers.PowerUps;
 using MonoGamers.SkyBoxes;
 using Microsoft.Xna.Framework.Media;
+using MonoGamers.Audio;
 
 namespace MonoGamers
 {
@@ -104,10 +105,15 @@ namespace MonoGamers
         private int CurrentCheckpoint { get; set; }
         
         //SpriteBatch
-
         private SpriteBatch SpriteBatch { get; set; }
-
         private SpriteFont SpriteFont { get; set; }
+        
+        // AudioController 
+        private AudioController AudioController { get; set; }
+        
+        
+        
+        
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -173,8 +179,12 @@ namespace MonoGamers
             Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
             Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f, Simulation);
             Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f, Simulation);
+            
+            AudioController = new AudioController(Content);
 
             MonoSphere = new MonoSphere(Checkpoints[CurrentCheckpoint].Position, Gravity, Simulation);
+
+            
 
             base.Initialize();
         }
@@ -222,6 +232,8 @@ namespace MonoGamers
                 var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/sunset/sunset");
                 var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
                 SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
+                
+                
             
             base.LoadContent();
         }
@@ -273,9 +285,11 @@ namespace MonoGamers
 
             if(MonoSphere.SphereFalling(yMinimo))
             {
+                AudioController.PlayRise();
                 bodyRef.Pose.Position = MonoGamers.Utilities.Utils.ToNumericVector3(Checkpoints[CurrentCheckpoint].Position);
                 bodyRef.Velocity.Linear = NumericVector3.Zero;
                 bodyRef.Velocity.Angular = NumericVector3.Zero;
+                
                 return;
             }
             for(int i = CurrentCheckpoint+1; i < Checkpoints.Length; i++)

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MonoGamers.Audio;
 
 namespace MonoGamers.PowerUps
 {
@@ -37,6 +38,7 @@ namespace MonoGamers.PowerUps
         {
             if (!Activated)
             {
+                AudioController.PlayPowerUp();
                 Sphere.SphereJumpSpeed *= 1.01f;
                 Activated = true;
                 await Task.Delay(4000);
