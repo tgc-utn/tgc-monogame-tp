@@ -199,13 +199,17 @@ public class Player
             break;
         }
         
-        foreach(var collider in Prefab.MovingPlatforms)
+        foreach (var movingPlatform in Prefab.MovingPlatforms)
         {
-            if (!BoundingSphere.Intersects(collider.MovingBoundingBox) || !(_jumpSpeed <= 0f)) continue;
-            SpherePosition.Y = collider.MovingBoundingBox.Max.Y + BoundingSphere.Radius;
+            var collider = movingPlatform.MovingBoundingBox; 
+    
+            if (!BoundingSphere.Intersects(collider) || !(_jumpSpeed <= 0f)) continue;
+            var platformMovement = movingPlatform.Position - movingPlatform.PreviousPosition;
+            SpherePosition.X += platformMovement.X;
+            SpherePosition.Y = collider.Max.Y + BoundingSphere.Radius;
+            SpherePosition.Z += platformMovement.Z;
             _onGround = true;
             EndJump();
-            break;
         }
 
         foreach (var orientedBoundingBox in Prefab.RampObb)

@@ -6,16 +6,17 @@ public class MovingPlatform
 {
     public Matrix World;
     private readonly Vector3 _scale;
-    private Vector3 _position;
+    public Vector3 Position;
     private Vector3 _direction = Vector3.Forward;
     public BoundingBox MovingBoundingBox;
-    
+    public Vector3 PreviousPosition;
+
     private const float MaxHorizontalSpeed = 1.3f;
 
     public MovingPlatform(Matrix world, Vector3 scale, Vector3 position, BoundingBox movingBoundingBox)
     {
         World = world;
-        _position = position;
+        Position = position;
         MovingBoundingBox = movingBoundingBox;
         _scale = scale;
     }
@@ -23,10 +24,11 @@ public class MovingPlatform
     public void Update()
     {
         SolveXCollisions();
-        var increment = _direction * MaxHorizontalSpeed; 
-        _position += increment;
+        var increment = _direction * MaxHorizontalSpeed;
+        PreviousPosition = Position;
+        Position += increment;
         MovingBoundingBox = new BoundingBox(MovingBoundingBox.Min + increment, MovingBoundingBox.Max + increment);
-        World = Matrix.CreateScale(_scale) * Matrix.CreateTranslation(_position);
+        World = Matrix.CreateScale(_scale) * Matrix.CreateTranslation(Position);
     }
 
     private void SolveXCollisions()
