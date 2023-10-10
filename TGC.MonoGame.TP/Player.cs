@@ -19,11 +19,12 @@ public class Player
     private bool _onGround;
     public BoundingSphere BoundingSphere;
 
-    public Player(Matrix sphereScale, Vector3 spherePosition, BoundingSphere boundingSphere)
+    public Player(Matrix sphereScale, Vector3 spherePosition, BoundingSphere boundingSphere, float yaw)
     {
         _sphereScale = sphereScale;
         SpherePosition = spherePosition;
         BoundingSphere = boundingSphere;
+        Yaw = yaw;
     }
 
     public float MaxSpeed = 180f;
