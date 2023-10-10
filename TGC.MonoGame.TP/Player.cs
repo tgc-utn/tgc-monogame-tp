@@ -46,7 +46,23 @@ public class Player
         HandleMovement(time, keyboardState, forward);
         var rotationX = Matrix.CreateRotationX(_pitch);
         var translation = Matrix.CreateTranslation(SpherePosition);
+        RestartPosition(keyboardState);
         return _sphereScale * rotationX * rotationY * translation;
+    }
+
+    private void RestartPosition(KeyboardState keyboardState)
+    {
+        if (!(SpherePosition.Y <= -150f) && !keyboardState.IsKeyDown(Keys.R)) return;
+        SpherePosition = TGCGame.InitialSpherePosition; // TODO: checkpoint
+        Yaw = TGCGame.InitialSphereYaw;
+        SetSpeedToZero();
+    }
+
+    private void SetSpeedToZero()
+    {
+        _pitchSpeed = 0;
+        _speed = 0;
+        _jumpSpeed = 0;
     }
 
     private void HandleJumping(KeyboardState keyboardState)
@@ -210,6 +226,7 @@ public class Player
             SpherePosition.Z += platformMovement.Z;
             _onGround = true;
             EndJump();
+            break;
         }
 
         foreach (var orientedBoundingBox in Prefab.RampObb)

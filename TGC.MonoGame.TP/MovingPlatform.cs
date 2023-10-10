@@ -5,11 +5,11 @@ namespace TGC.MonoGame.TP;
 public class MovingPlatform
 {
     public Matrix World;
-    private readonly Vector3 _scale;
     public Vector3 Position;
-    private Vector3 _direction = Vector3.Forward;
-    public BoundingBox MovingBoundingBox;
     public Vector3 PreviousPosition;
+    public BoundingBox MovingBoundingBox;
+    private Vector3 _direction = Vector3.Forward;
+    private readonly Vector3 _scale;
 
     private const float MaxHorizontalSpeed = 1.3f;
 

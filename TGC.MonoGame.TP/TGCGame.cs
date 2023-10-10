@@ -59,10 +59,10 @@ namespace TGC.MonoGame.TP
         private BoxPrimitive BoxPrimitive { get; set; }
         
         // Sphere position & rotation
-        private readonly Vector3 _initialSpherePosition = new(300f, 10f, 0f);
+        public static readonly Vector3 InitialSpherePosition = new(300f, 10f, 0f);
+        public const float InitialSphereYaw = 1.57f;
         private readonly Matrix _sphereScale = Matrix.CreateScale(5f);
         private const float SphereRadius = 5f;
-        private const float InitialSphereYaw = 1.57f;
 
         // Effects
         // Effect for the Platforms
@@ -115,7 +115,7 @@ namespace TGC.MonoGame.TP
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
             
             // Player
-            _player = new Player(_sphereScale, _initialSpherePosition, new BoundingSphere(_initialSpherePosition, SphereRadius), InitialSphereYaw);
+            _player = new Player(_sphereScale, InitialSpherePosition, new BoundingSphere(InitialSpherePosition, SphereRadius), InitialSphereYaw);
             
             // Gizmos
             Gizmos = new Gizmos.Gizmos
@@ -163,7 +163,7 @@ namespace TGC.MonoGame.TP
             TextureEffect = Content.Load<Effect>(ContentFolderEffects + "BasicTextureShader");
             loadEffectOnMesh(SphereModel, TextureEffect);
 
-            SphereWorld = _sphereScale * Matrix.CreateTranslation(_initialSpherePosition);
+            SphereWorld = _sphereScale * Matrix.CreateTranslation(InitialSpherePosition);
             
             var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/skybox");
@@ -190,11 +190,6 @@ namespace TGC.MonoGame.TP
             if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 Exit();
-            }
-            
-            if (_player.SpherePosition.Y <= -150f || keyboardState.IsKeyDown(Keys.R))
-            {
-                _player.SpherePosition = _initialSpherePosition;
             }
 
             UpdateCamera(_player.SpherePosition, _player.Yaw);
