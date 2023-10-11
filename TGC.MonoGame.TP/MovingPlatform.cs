@@ -37,8 +37,6 @@ public class MovingPlatform
         {
             if (!MovingBoundingBox.Intersects(boundingBox)) continue;
             _direction *= -1;
-            break;
-
         }
     }
 }

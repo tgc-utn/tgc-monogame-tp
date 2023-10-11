@@ -212,7 +212,6 @@ public class Player
             SpherePosition.Y = collider.Max.Y + BoundingSphere.Radius;
             _onGround = true;
             EndJump();
-            break;
         }
         
         foreach (var movingPlatform in Prefab.MovingPlatforms)
@@ -226,7 +225,6 @@ public class Player
             SpherePosition.Z += platformMovement.Z;
             _onGround = true;
             EndJump();
-            break;
         }
 
         foreach (var orientedBoundingBox in Prefab.RampObb)
@@ -238,7 +236,6 @@ public class Player
             SpherePosition = newPosition;
             _onGround = true;
             EndJump();
-            break;
         }
     }
 }
