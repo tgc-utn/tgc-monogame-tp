@@ -207,22 +207,23 @@ public class Player
 
     private void SolveYCollisions()
     {
+        var sphereCenter = BoundingSphere.Center;
+        var radius = BoundingSphere.Radius;
+        
         _onGround = false;
         
         foreach(var collider in Prefab.PlatformAabb)
         {
             if (!collider.Intersects(BoundingSphere) || !(_jumpSpeed <= 0f)) continue;
+            
             var closestPoint = BoundingVolumesExtensions.ClosestPoint(collider, BoundingSphere.Center);
             var distance = Vector3.Distance(closestPoint, BoundingSphere.Center);
 
-            if (distance <= BoundingSphere.Radius)
-            {
-                var newPosition = Vector3.Normalize(BoundingSphere.Center - closestPoint) * (BoundingSphere.Radius - distance) 
-                                  + BoundingSphere.Center;
-                BoundingSphere.Center = newPosition;
-                _onGround = true;
-                EndJump();
-            }
+            if (!(distance <= BoundingSphere.Radius)) continue;
+            var newPosition = SolveCollisionPosition(sphereCenter, closestPoint, radius, distance);
+            BoundingSphere.Center = newPosition;
+            _onGround = true;
+            EndJump();
         }
 
         foreach (var movingPlatform in Prefab.MovingPlatforms)
@@ -230,37 +231,39 @@ public class Player
             var collider = movingPlatform.MovingBoundingBox; 
             
             if (!collider.Intersects(BoundingSphere) || !(_jumpSpeed <= 0f)) continue;
+            
             var closestPoint = BoundingVolumesExtensions.ClosestPoint(collider, BoundingSphere.Center);
             var distance = Vector3.Distance(closestPoint, BoundingSphere.Center);
 
-            if (distance <= BoundingSphere.Radius)
-            {
-                var platformMovement = movingPlatform.Position - movingPlatform.PreviousPosition;
-                var newPosition = Vector3.Normalize(BoundingSphere.Center - closestPoint) * (BoundingSphere.Radius - distance) 
-                                  + BoundingSphere.Center;
-                BoundingSphere.Center = newPosition;
-                BoundingSphere.Center += platformMovement;
-                _onGround = true;
-                EndJump();
-            }
-            
+            if (!(distance <= BoundingSphere.Radius)) continue;
+            var platformMovement = movingPlatform.Position - movingPlatform.PreviousPosition;
+            var newPosition = SolveCollisionPosition(sphereCenter, closestPoint, radius, distance);
+            BoundingSphere.Center = newPosition;
+            BoundingSphere.Center += platformMovement;
+            _onGround = true;
+            EndJump();
+
         }
 
         foreach (var orientedBoundingBox in Prefab.RampObb)
         {
             if (!orientedBoundingBox.Intersects(BoundingSphere, out _, out _) || !(_jumpSpeed <= 0f)) continue;
-
+            
             var closestPoint = orientedBoundingBox.ClosestPoint(BoundingSphere.Center);
             var distance = Vector3.Distance(closestPoint, BoundingSphere.Center);
 
-            if (distance <= BoundingSphere.Radius)
-            {
-                var newPosition = Vector3.Normalize(BoundingSphere.Center - closestPoint) * (BoundingSphere.Radius - distance) 
-                                  + BoundingSphere.Center;
-                BoundingSphere.Center = newPosition;
-                _onGround = true;
-                EndJump();
-            }
+            if (!(distance <= BoundingSphere.Radius)) continue;
+            var newPosition = SolveCollisionPosition(sphereCenter, closestPoint, radius, distance);
+            BoundingSphere.Center = newPosition;
+            _onGround = true;
+            EndJump();
         }
+    }
+
+    private static Vector3 SolveCollisionPosition(Vector3 currentPosition, Vector3 closestPoint, float radius, float distance)
+    {
+        var penetration = radius - distance;
+        var direction = Vector3.Normalize(currentPosition - closestPoint);
+        return currentPosition + direction * penetration;
     }
 }
