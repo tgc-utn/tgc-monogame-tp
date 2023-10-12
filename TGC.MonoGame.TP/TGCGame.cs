@@ -243,7 +243,7 @@ namespace TGC.MonoGame.TP
                 BoxPrimitive.Draw(PlatformEffect);
             } 
 
-            foreach (var boundingBox in Prefab.PlatformAbb)
+            foreach (var boundingBox in Prefab.PlatformAabb)
             {
                 var center = BoundingVolumesExtensions.GetCenter(boundingBox);
                 var extents = BoundingVolumesExtensions.GetExtents(boundingBox);
