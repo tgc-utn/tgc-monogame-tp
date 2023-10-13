@@ -24,6 +24,7 @@ using MonoGamers.PowerUps;
 using MonoGamers.SkyBoxes;
 using Microsoft.Xna.Framework.Media;
 using MonoGamers.Audio;
+using System.Diagnostics;
 
 namespace MonoGamers
 {
@@ -103,6 +104,16 @@ namespace MonoGamers
 
         private PowerUp[] PowerUps { get; set; }
         private int CurrentCheckpoint { get; set; }
+
+        //Stopwatch
+        Stopwatch stopwatchInitialize = new Stopwatch();
+        Stopwatch stopwatchLoad = new Stopwatch();
+        Stopwatch stopwatchUpdate = new Stopwatch();
+        Stopwatch stopwatchDraw= new Stopwatch();
+
+        bool hasMeasuredLoadContent = false;
+        bool hasMeasuredUpdate = false;
+        bool hasMeasuredDraw = false;
         
         //SpriteBatch
         private SpriteBatch SpriteBatch { get; set; }
@@ -132,6 +143,8 @@ namespace MonoGamers
         /// <inheritdoc />
         protected override void Initialize()
         {
+            stopwatchInitialize.Start();
+
             // Enciendo Back-Face culling.
             // Configuro Blend State a Opaco.
             var rasterizerState = new RasterizerState();
@@ -187,12 +200,18 @@ namespace MonoGamers
             
 
             base.Initialize();
+            stopwatchInitialize.Stop();
         }
-
+        
 
         /// <inheritdoc />
         protected override void LoadContent()
         {
+            if (!hasMeasuredLoadContent)
+        {
+            stopwatchLoad.Start();
+            hasMeasuredLoadContent = true;
+        }
             MonoSphere.SpherePrimitive = new SpherePrimitive(GraphicsDevice);
 
             //Contenido de HUD
@@ -236,13 +255,22 @@ namespace MonoGamers
                 
             
             base.LoadContent();
+            if (stopwatchLoad.IsRunning)
+            {
+            stopwatchLoad.Stop();
+            }       
         }
-
+        
         
 
         /// <inheritdoc />
         protected override void Update(GameTime gameTime)
         {
+            if (!hasMeasuredUpdate)
+        {
+            stopwatchUpdate.Start();
+            hasMeasuredUpdate = true;
+        }
             // The time that passed between the last loop
                 var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -277,6 +305,10 @@ namespace MonoGamers
 
 
             base.Update(gameTime);
+            if (stopwatchUpdate.IsRunning)
+            {
+            stopwatchUpdate.Stop();
+            }  
         }
 
         private void CheckpointManager()
@@ -305,6 +337,11 @@ namespace MonoGamers
         /// <inheritdoc />
         protected override void Draw(GameTime gameTime)
         {
+            if (!hasMeasuredDraw)
+        {
+            stopwatchDraw.Start();
+            hasMeasuredDraw = true;
+        }
             // Limpio la pantalla.
                 GraphicsDevice.Clear(Color.CornflowerBlue);
 
@@ -341,6 +378,10 @@ namespace MonoGamers
 
             DrawUI(gameTime);
             base.Draw(gameTime);
+            if (stopwatchDraw.IsRunning)
+            {
+            stopwatchDraw.Stop();
+            } 
         }
         
         private void DrawSkybox(Camera.Camera camera)
@@ -377,12 +418,18 @@ namespace MonoGamers
             var Height = GraphicsDevice.Viewport.Height;
             var Width = GraphicsDevice.Viewport.Width;
             var fps = MathF.Round(1/Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds), 1);
+            var tiempoTotal = stopwatchInitialize.Elapsed + stopwatchLoad.Elapsed + stopwatchUpdate.Elapsed + stopwatchDraw.Elapsed;
             SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
             SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
             if (gm) SpriteBatch.DrawString(SpriteFont, "<-PRESS THE 1,2,3,4 KEYS TO MOVE TO THE NEXT CHECKPOINT->", new Vector2(Width/3, Height*0.9F), color);
             if (gm) SpriteBatch.DrawString(SpriteFont, "<-USE THE T,Y,U,I KEYS TO MOVE TO CHANGE MATERIALS->", new Vector2(Width/3, Height*0.85F), color);
             SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 400, 0), color);
+            SpriteBatch.DrawString(SpriteFont, "Tiempo Initialize:" + stopwatchInitialize.Elapsed, new Vector2(Width*0.01f, Height*0.15F), color);
+            SpriteBatch.DrawString(SpriteFont, "Tiempo Load:" + stopwatchLoad.Elapsed, new Vector2(Width*0.01f, Height*0.20F), color);
+            SpriteBatch.DrawString(SpriteFont, "Tiempo Update:" + stopwatchUpdate.Elapsed, new Vector2(Width*0.01f, Height*0.25F), color);
+            SpriteBatch.DrawString(SpriteFont, "Tiempo Draw:" + stopwatchDraw.Elapsed, new Vector2(Width*0.01f, Height*0.30F), color);
+            SpriteBatch.DrawString(SpriteFont, "Tiempo total:" + tiempoTotal, new Vector2(Width*0.01f, Height*0.35F), color);
             SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 250, Height*0.05f), color);
             SpriteBatch.DrawString(SpriteFont, "FPS: " + fps.ToString(), new Vector2(Width*0.01f, 0), color);
             SpriteBatch.DrawString(SpriteFont, "Side Speed: " + (MonoSphere.SphereSideSpeed * MonoSphere.SphereSideTypeSpeed).ToString(),
