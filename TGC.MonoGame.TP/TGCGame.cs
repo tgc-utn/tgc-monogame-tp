@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.Geometries;
+using TGC.MonoGame.TP.Platform;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP
@@ -55,7 +56,6 @@ namespace TGC.MonoGame.TP
         private Matrix Projection { get; set; }
         
         // Geometries
-        private QuadPrimitive Quad { get; set; }
         private BoxPrimitive BoxPrimitive { get; set; }
         
         // Sphere position & rotation
@@ -147,8 +147,6 @@ namespace TGC.MonoGame.TP
             MarbleTexture = Content.Load<Texture2D>(ContentFolderTextures + "marble_black_01_c");
             RubberTexture = Content.Load<Texture2D>(ContentFolderTextures + "goma_diffuse");
             MetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal_diffuse");
-            
-            Quad = new QuadPrimitive(GraphicsDevice);
             
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, StonesTexture);
             

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Collisions;
+using TGC.MonoGame.TP.Platform;
 
 namespace TGC.MonoGame.TP;
 

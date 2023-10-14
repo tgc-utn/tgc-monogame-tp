@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace TGC.MonoGame.TP;
+namespace TGC.MonoGame.TP.Platform;
 
 public class MovingPlatform
 {
