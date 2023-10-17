@@ -310,7 +310,7 @@ namespace MonoGamers
             // Check for key presses and rotate accordingly
             // We can stack rotations in a given axis by multiplying our past matrix
             // By a new matrix containing a new rotation to apply
-            // Also, recalculate the Front Directoin
+            // Also, recalculate the Front Direction
 
              if (onMenu)
             {
@@ -326,24 +326,25 @@ namespace MonoGamers
             }
 
             PreviousMouseState = MouseState;
-
-            MonoSphere.Update(Simulation, Camera, keyboardState);
-
-            Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
-
             
-            if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
-
-
-            // Update Simulation
             MonoSimulation.Update();
 
-            CheckpointManager();
-            Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
-
+            if (!onMenu){
+                
+                Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
+                
+                MonoSphere.Update(Simulation, Camera, keyboardState);
+                
+                
+                CheckpointManager();
+                Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
+                
+                Pista1.Update();
+                Pista2.Update();
+            }
             
-            Pista1.Update();
-            Pista2.Update();
+            if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
+            
 
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
