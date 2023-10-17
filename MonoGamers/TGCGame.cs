@@ -25,6 +25,8 @@ using MonoGamers.SkyBoxes;
 using Microsoft.Xna.Framework.Media;
 using MonoGamers.Audio;
 using System.Diagnostics;
+using MonoGamers.Menu;
+using System.Reflection.Metadata;
 
 namespace MonoGamers
 {
@@ -121,8 +123,21 @@ namespace MonoGamers
         
         // AudioController 
         private AudioController AudioController { get; set; }
-        
-        
+
+        //Menu
+
+        private Button PlayButton { get; set; }
+        private Button ExitButton { get; set; }
+        private Button MusicEnabledButton { get; set; }
+        private Button MusicDisabledButton { get; set; }
+        private Button SoundEnabledButton { get; set; }
+        private Button SoundDisabledButton { get; set;}
+
+        private Texture2D Title { get; set; }
+
+        private MouseState PreviousMouseState { get; set; }
+        private bool onMenu { get; set; }
+
         
         
         /// <summary>
@@ -136,7 +151,7 @@ namespace MonoGamers
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
-            IsMouseVisible = false;
+            IsMouseVisible = true;
         }
 
 
@@ -156,7 +171,9 @@ namespace MonoGamers
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
-            
+
+            onMenu = true;
+            PreviousMouseState = Mouse.GetState();
 
             // Creo una camara para seguir a la esfera.
             //FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -251,9 +268,22 @@ namespace MonoGamers
                 var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/sunset/sunset");
                 var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
                 SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
-                
-                
-            
+
+            //Menu
+            var width = GraphicsDevice.Viewport.Width;
+            var height = GraphicsDevice.Viewport.Height;
+
+            Title = Content.Load<Texture2D>(ContentFolderTextures + "menu/title");
+
+            PlayButton = new Button(Content.Load<Texture2D>(ContentFolderTextures + "menu/play"), new Vector2(width * 0.33f, height * 0.25f), 1f);
+            ExitButton = new Button(Content.Load<Texture2D>(ContentFolderTextures + "menu/exit"), new Vector2(width * 0.385f, height * 0.55f), 1f);
+            MusicEnabledButton = new Button(Content.Load<Texture2D>(ContentFolderTextures + "menu/musicOn"), new Vector2(width*0.95f, height*0.01f), 0.8f);
+            MusicDisabledButton = new Button(Content.Load<Texture2D>(ContentFolderTextures + "menu/musicOff"), new Vector2(width*0.95f, height*0.01f), 0.8f);
+            SoundEnabledButton = new Button(Content.Load<Texture2D>(ContentFolderTextures + "menu/audioOn"), new Vector2(width*0.9f, height*0.01f), 0.8f);
+            SoundDisabledButton = new Button(Content.Load<Texture2D>(ContentFolderTextures + "menu/audioOff"), new Vector2(width*0.9f, height*0.01f), 0.8f);
+
+
+
             base.LoadContent();
             if (stopwatchLoad.IsRunning)
             {
@@ -276,10 +306,26 @@ namespace MonoGamers
 
             
             var keyboardState = Keyboard.GetState();
+            var MouseState = Mouse.GetState();
             // Check for key presses and rotate accordingly
             // We can stack rotations in a given axis by multiplying our past matrix
             // By a new matrix containing a new rotation to apply
             // Also, recalculate the Front Directoin
+
+             if (onMenu)
+            {
+                if (PlayButton.IsPressed(PreviousMouseState, MouseState)) { 
+                    onMenu = false;
+                    IsMouseVisible = false;
+                }
+                else if (ExitButton.IsPressed(PreviousMouseState, MouseState)) Exit();
+                else if (MusicEnabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.PlayMusic();
+                else if (MusicDisabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.StopMusic();
+                else if (SoundEnabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.RestoreSoundEffects();
+                else if (SoundDisabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.StopSoundEffects();
+            }
+
+            PreviousMouseState = MouseState;
 
             MonoSphere.Update(Simulation, Camera, keyboardState);
 
@@ -301,7 +347,7 @@ namespace MonoGamers
 
             // Actualizo la camara, enviandole la matriz de mundo de la esfera.
             //FollowCamera.Update(gameTime, SphereWorld);
-            Camera.UpdateCamera(gameTime, MonoSphere.SpherePosition);
+            Camera.UpdateCamera(gameTime, MonoSphere.SpherePosition, onMenu);
 
 
             base.Update(gameTime);
@@ -396,6 +442,7 @@ namespace MonoGamers
 
         private void DrawUI(GameTime gameTime)
         {
+            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
             var color = new Color();
             //Hud 
             switch (MonoSphere.Material)
@@ -414,31 +461,44 @@ namespace MonoGamers
                     break;
                     
             }
-            var gm = MonoSphere.godMode;
-            var Height = GraphicsDevice.Viewport.Height;
-            var Width = GraphicsDevice.Viewport.Width;
-            var fps = MathF.Round(1/Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds), 1);
-            var tiempoTotal = stopwatchInitialize.Elapsed + stopwatchLoad.Elapsed + stopwatchUpdate.Elapsed + stopwatchDraw.Elapsed;
-            SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullCounterClockwise);
-            var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
-            SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
-            if (gm) SpriteBatch.DrawString(SpriteFont, "<-PRESS THE 1,2,3,4 KEYS TO MOVE TO THE NEXT CHECKPOINT->", new Vector2(Width/3, Height*0.9F), color);
-            if (gm) SpriteBatch.DrawString(SpriteFont, "<-USE THE T,Y,U,I KEYS TO MOVE TO CHANGE MATERIALS->", new Vector2(Width/3, Height*0.85F), color);
-            SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 400, 0), color);
-            SpriteBatch.DrawString(SpriteFont, "Tiempo Initialize:" + stopwatchInitialize.Elapsed, new Vector2(Width*0.01f, Height*0.15F), color);
-            SpriteBatch.DrawString(SpriteFont, "Tiempo Load:" + stopwatchLoad.Elapsed, new Vector2(Width*0.01f, Height*0.20F), color);
-            SpriteBatch.DrawString(SpriteFont, "Tiempo Update:" + stopwatchUpdate.Elapsed, new Vector2(Width*0.01f, Height*0.25F), color);
-            SpriteBatch.DrawString(SpriteFont, "Tiempo Draw:" + stopwatchDraw.Elapsed, new Vector2(Width*0.01f, Height*0.30F), color);
-            SpriteBatch.DrawString(SpriteFont, "Tiempo total:" + tiempoTotal, new Vector2(Width*0.01f, Height*0.35F), color);
-            SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 250, Height*0.05f), color);
-            SpriteBatch.DrawString(SpriteFont, "FPS: " + fps.ToString(), new Vector2(Width*0.01f, 0), color);
-            SpriteBatch.DrawString(SpriteFont, "Side Speed: " + (MonoSphere.SphereSideSpeed * MonoSphere.SphereSideTypeSpeed).ToString(),
-                                    new Vector2(Width*0.01f, Height*0.05F), color);
-            SpriteBatch.DrawString(SpriteFont, "Jump Speed: " + (MonoSphere.SphereJumpSpeed * MonoSphere.SphereJumpTypeSpeed).ToString(), 
-                                    new Vector2(Width*0.01f, Height*0.1F), color);
+            if (!onMenu)
+            {
+                var gm = MonoSphere.godMode;
+                var Height = GraphicsDevice.Viewport.Height;
+                var Width = GraphicsDevice.Viewport.Width;
+                var fps = MathF.Round(1/Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds), 1);
+                var tiempoTotal = stopwatchInitialize.Elapsed + stopwatchLoad.Elapsed + stopwatchUpdate.Elapsed + stopwatchDraw.Elapsed;
+                var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
+                SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
+                if (gm) SpriteBatch.DrawString(SpriteFont, "<-PRESS THE 1,2,3,4 KEYS TO MOVE TO THE NEXT CHECKPOINT->", new Vector2(Width/3, Height*0.9F), color);
+                if (gm) SpriteBatch.DrawString(SpriteFont, "<-USE THE T,Y,U,I KEYS TO MOVE TO CHANGE MATERIALS->", new Vector2(Width/3, Height*0.85F), color);
+                SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 420, 0), color);
+                SpriteBatch.DrawString(SpriteFont, "Tiempo Initialize:" + stopwatchInitialize.Elapsed, new Vector2(Width*0.01f, Height*0.15F), color);
+                SpriteBatch.DrawString(SpriteFont, "Tiempo Load:" + stopwatchLoad.Elapsed, new Vector2(Width*0.01f, Height*0.20F), color);
+                SpriteBatch.DrawString(SpriteFont, "Tiempo Update:" + stopwatchUpdate.Elapsed, new Vector2(Width*0.01f, Height*0.25F), color);
+                SpriteBatch.DrawString(SpriteFont, "Tiempo Draw:" + stopwatchDraw.Elapsed, new Vector2(Width*0.01f, Height*0.30F), color);
+                SpriteBatch.DrawString(SpriteFont, "Tiempo total:" + tiempoTotal, new Vector2(Width*0.01f, Height*0.35F), color);
+                SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 250, Height*0.05f), color);
+                SpriteBatch.DrawString(SpriteFont, "FPS: " + fps.ToString(), new Vector2(Width*0.01f, 0), color);
+                SpriteBatch.DrawString(SpriteFont, "Side Speed: " + (MonoSphere.SphereSideSpeed * MonoSphere.SphereSideTypeSpeed).ToString(),
+                                        new Vector2(Width*0.01f, Height*0.05F), color);
+                SpriteBatch.DrawString(SpriteFont, "Jump Speed: " + (MonoSphere.SphereJumpSpeed * MonoSphere.SphereJumpTypeSpeed).ToString(),
+                                        new Vector2(Width*0.01f, Height*0.1F), color);
+            }
             //Menu
             //draw the start menu
+            if (onMenu)
+            {
+                SpriteBatch.Draw(Title, new Rectangle(550, 100, Title.Width, Title.Height), Color.White);
+                PlayButton.Render(SpriteBatch);
+                ExitButton.Render(SpriteBatch);
+                SoundEnabledButton.Render(SpriteBatch);
+                SoundDisabledButton.Render(SpriteBatch);
+                MusicEnabledButton.Render(SpriteBatch);
+                MusicDisabledButton.Render(SpriteBatch);
+            }
 
+            
             SpriteBatch.End();
         }
     }

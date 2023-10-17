@@ -12,6 +12,8 @@ public class AudioController
     static SoundEffect JumpSound { get; set; }
     static SoundEffect RiseSound { get; set; }
     static SoundEffect PowerUpSound { get; set; }
+
+    static bool StopPlaying { get; set; }
     
     public AudioController(ContentManager Content)
     {
@@ -19,7 +21,7 @@ public class AudioController
         JumpSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "bounce1");
         RiseSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "rise");
         PowerUpSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "a1-8bit");
-
+        StopPlaying = false;
 
         MediaPlayer.IsRepeating = true;
         PlayMusic();
@@ -30,18 +32,33 @@ public class AudioController
         MediaPlayer.Play(BackgroundSong);
     }
 
+    public static void StopMusic()
+    {
+        MediaPlayer.Stop();
+    }
+
+    public static void StopSoundEffects()
+    {
+        StopPlaying = true;
+    }
+
+    public static void RestoreSoundEffects()
+    {
+        StopPlaying = false;
+    }
+
     public static void PlayJump()
     {
-        JumpSound.Play();
+        if(!StopPlaying) JumpSound.Play();
     }
 
     public static void PlayRise()
     {
-        RiseSound.Play();
+        if(!StopPlaying) RiseSound.Play();
     }
     
     public static void PlayPowerUp()
     {
-        PowerUpSound.Play();
+        if (!StopPlaying) PowerUpSound.Play();
     }
 }

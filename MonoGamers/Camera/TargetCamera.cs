@@ -87,11 +87,11 @@ namespace MonoGamers.Camera;
         throw new System.NotImplementedException();
     }
     /// <inheritdoc />
-    public  void UpdateCamera(GameTime gameTime, Vector3 SpherePosition)
+    public  void UpdateCamera(GameTime gameTime, Vector3 SpherePosition, bool onMenu)
         {
         // Create a position that orbits the Sphere by its direction (Rotation)
 
-        ProcessMouseMovement((float) gameTime.ElapsedGameTime.TotalSeconds);
+        if(!onMenu) ProcessMouseMovement((float) gameTime.ElapsedGameTime.TotalSeconds);
         // Create a normalized vector that points to the back of the Sphere
         if (Rotated) CameraRotation *= Matrix.CreateRotationY(Rotation);
          var sphereBack = Vector3.Transform(Vector3.Forward, CameraRotation);
