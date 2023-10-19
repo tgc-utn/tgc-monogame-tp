@@ -287,7 +287,7 @@ namespace MonoGamers
             base.LoadContent();
             if (stopwatchLoad.IsRunning)
             {
-            stopwatchLoad.Stop();
+                stopwatchLoad.Stop();
             }       
         }
         
@@ -354,7 +354,7 @@ namespace MonoGamers
             base.Update(gameTime);
             if (stopwatchUpdate.IsRunning)
             {
-            stopwatchUpdate.Stop();
+                stopwatchUpdate.Stop();
             }  
         }
 
