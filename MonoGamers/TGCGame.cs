@@ -116,6 +116,8 @@ namespace MonoGamers
         bool hasMeasuredLoadContent = false;
         bool hasMeasuredUpdate = false;
         bool hasMeasuredDraw = false;
+        bool musicButtonPressed = false;
+        bool soundButtonPressed = false;
         
         //SpriteBatch
         private SpriteBatch SpriteBatch { get; set; }
@@ -137,7 +139,6 @@ namespace MonoGamers
 
         private MouseState PreviousMouseState { get; set; }
         private bool onMenu { get; set; }
-
         
         
         /// <summary>
@@ -302,7 +303,7 @@ namespace MonoGamers
             hasMeasuredUpdate = true;
         }
             // The time that passed between the last loop
-                var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             
             var keyboardState = Keyboard.GetState();
@@ -314,42 +315,58 @@ namespace MonoGamers
 
              if (onMenu)
             {
+                Camera.UpdateCamera(gameTime, new Vector3(100f, 450f, 500f), onMenu);
                 if (PlayButton.IsPressed(PreviousMouseState, MouseState)) { 
                     onMenu = false;
                     IsMouseVisible = false;
                 }
-                else if (ExitButton.IsPressed(PreviousMouseState, MouseState)) Exit();
-                else if (MusicEnabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.PlayMusic();
-                else if (MusicDisabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.StopMusic();
-                else if (SoundEnabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.RestoreSoundEffects();
-                else if (SoundDisabledButton.IsPressed(PreviousMouseState, MouseState)) AudioController.StopSoundEffects();
-            }
+                if (ExitButton.IsPressed(PreviousMouseState, MouseState)) Exit();
+                if (MusicEnabledButton.IsPressed(PreviousMouseState, MouseState)) 
+                {
+                   musicButtonPressed = true;
+                   soundButtonPressed = false;
+                }
+                if (SoundEnabledButton.IsPressed(PreviousMouseState, MouseState)) 
+                {
+                 soundButtonPressed = true;
+                 musicButtonPressed = false;
+                }
+                if (musicButtonPressed)
+                {
+                    AudioController.PlayMusic();
+                }
+                else if (MusicDisabledButton.IsPressed(PreviousMouseState, MouseState))
+                {
+                    AudioController.StopMusic();
+                }
+                if (soundButtonPressed)
+                {
+                    AudioController.RestoreSoundEffects();
+                }
+                else if (SoundDisabledButton.IsPressed(PreviousMouseState, MouseState))
+                {
+                    AudioController.StopSoundEffects();
+                }
+            } else {
 
-            PreviousMouseState = MouseState;
-            
-            MonoSimulation.Update();
-
-            if (!onMenu){
-                
                 Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
                 
                 MonoSphere.Update(Simulation, Camera, keyboardState);
-                
                 
                 CheckpointManager();
                 Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
                 
                 Pista1.Update();
                 Pista2.Update();
+
+                Camera.UpdateCamera(gameTime, MonoSphere.SpherePosition, onMenu);
             }
-            
+    
+            PreviousMouseState = MouseState;
+
+            MonoSimulation.Update();
+
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
-            
-
-            // Actualizo la camara, enviandole la matriz de mundo de la esfera.
-            //FollowCamera.Update(gameTime, SphereWorld);
-            Camera.UpdateCamera(gameTime, MonoSphere.SpherePosition, onMenu);
-
 
             base.Update(gameTime);
             if (stopwatchUpdate.IsRunning)
