@@ -69,9 +69,9 @@ public class PlaneMap : Map
     public override void Update(GameTime gameTime)
     {
         Player.Update(gameTime);
+        Props = Props.Where(prop => !prop.Destroyed).ToList();
         foreach (var prop in Props)
-            prop.Update(Player);
-        // Player.VerifyCollisions(Enemies, Alies, Props);
+                prop.Update(Player);
         
         // foreach (var enemy in Enemies)
         //     enemy.Update(gameTime);
