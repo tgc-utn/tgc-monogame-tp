@@ -31,7 +31,7 @@ public class MonoSimulation
         ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
         
         Simulation = Simulation.Create(BufferPool,
-            new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
+            new NarrowPhaseCallbacks(new SpringSettings(80, 1)),
             new PoseIntegratorCallbacks(new NumericVector3(0, -100, 0)),
             new SolveDescription(8, 1));
 
