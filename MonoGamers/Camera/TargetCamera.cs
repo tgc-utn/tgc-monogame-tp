@@ -15,8 +15,8 @@ namespace MonoGamers.Camera;
         ///     The direction that is "up" from the camera's point of view.
         /// </summary>
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
-        private const float CameraFollowRadius = 140f;
-        private const float CameraUpDistance = 90f;
+        private const float CameraFollowRadius = 130f;
+        private const float CameraUpDistance = 70f;
         private const float CameraRotatingVelocity = 0.1f;
 
         private Viewport Viewport;
