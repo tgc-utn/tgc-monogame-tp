@@ -130,8 +130,8 @@ namespace MonoGamers.Camera;
         }
         else
         {
-            if (Rotation > 0) Rotation -= CameraRotatingVelocity * elapsedTime;
-            else if (Rotation < 0) Rotation += CameraRotatingVelocity * elapsedTime;
+            if (Rotation > 0) Rotation -= CameraRotatingVelocity * elapsedTime * 2;
+            else if (Rotation < 0) Rotation += CameraRotatingVelocity * elapsedTime * 2 ;
             if (Math.Abs(Rotation) < 0.001f) Rotation = 0;
         }
 
