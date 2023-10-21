@@ -84,6 +84,8 @@ namespace MonoGamers.Geometries
         public float SphereJumpTypeSpeed;
         
         public bool godMode;
+
+        private bool GwasDown = false;
         
 
         public MonoSphere(Vector3 InitialPosition, float Gravity, Simulation Simulation)
@@ -150,24 +152,25 @@ namespace MonoGamers.Geometries
 
             //Cambio de tipo de esfera manualmente
             
-            if (KeyboardState.IsKeyDown(Keys.G)) {
+            if (KeyboardState.IsKeyUp(Keys.G)&& GwasDown) {
                 if (!godMode) godMode = true;
                 else godMode = false;
             }
-            
-            if (KeyboardState.IsKeyDown(Keys.T) && godMode){
+
+            GwasDown = KeyboardState.IsKeyDown(Keys.G);
+            if (KeyboardState.IsKeyDown(Keys.T)){
                 Material = "Common";
                 SphereType = Type.Common;
             }
-            if (KeyboardState.IsKeyDown(Keys.Y) && godMode){
+            if (KeyboardState.IsKeyDown(Keys.Y)){
                 Material = "Metal";
                 SphereType = Type.Metal;
             }
-            if (KeyboardState.IsKeyDown(Keys.U) && godMode){
+            if (KeyboardState.IsKeyDown(Keys.U)){
                 Material = "Gum";
                 SphereType = Type.Gum;
             }
-            if (KeyboardState.IsKeyDown(Keys.I) && godMode){
+            if (KeyboardState.IsKeyDown(Keys.I)){
                 Material = "Stone";
                 SphereType = Type.Stone;
             }

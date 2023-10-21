@@ -444,7 +444,7 @@ namespace MonoGamers
                 var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
                 SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "PRESS THE 1,2,3,4 KEYS TO MOVE TO THE NEXT CHECKPOINT", new Vector2(Width/3, Height*0.9F), color);
-                if (gm) SpriteBatch.DrawString(SpriteFont, "USE THE T,Y,U,I KEYS TO MOVE TO CHANGE MATERIALS", new Vector2(Width/3, Height*0.85F), color);
+                SpriteBatch.DrawString(SpriteFont, "USE THE T,Y,U,I KEYS TO MOVE TO CHANGE MATERIALS", new Vector2(Width/3, Height*0.85F), color);
                 SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 500, 0), color);
                 SpriteBatch.DrawString(SpriteFont, "Tiempo Initialize:" + stopwatchInitialize.Elapsed, new Vector2(Width*0.01f, Height*0.15F), color);
                 SpriteBatch.DrawString(SpriteFont, "Tiempo Load:" + stopwatchLoad.Elapsed, new Vector2(Width*0.01f, Height*0.20F), color);
