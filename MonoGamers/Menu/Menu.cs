@@ -20,9 +20,11 @@ public class Menu
     private Button SoundEnabledButton { get; set; }
     private Button SoundDisabledButton { get; set;}
     private Texture2D Title { get; set; }
-    
-    bool musicButtonPressed = false;
-    bool soundButtonPressed = false;
+
+    private bool RenderPlayButton = true;
+    private bool RenderExitButton = true;
+    private bool RenderMusicEnableButton = false;
+    private bool RenderSoundEnableButton = false;
 
     private ContentManager _contentManager;
     private GraphicsDevice _graphicsDevice;
@@ -49,6 +51,7 @@ public class Menu
         MusicDisabledButton = new Button(_contentManager.Load<Texture2D>(ConfigurationManager.AppSettings["ContentFolderTextures"] + "menu/musicOff"), new Vector2(width*0.95f, height*0.01f), 0.8f);
         SoundEnabledButton = new Button(_contentManager.Load<Texture2D>(ConfigurationManager.AppSettings["ContentFolderTextures"] + "menu/audioOn"), new Vector2(width*0.9f, height*0.01f), 0.8f);
         SoundDisabledButton = new Button(_contentManager.Load<Texture2D>(ConfigurationManager.AppSettings["ContentFolderTextures"] + "menu/audioOff"), new Vector2(width*0.9f, height*0.01f), 0.8f);
+        
     }
 
     public void Update(MouseState PreviousMouseState, MouseState MouseState)
@@ -62,40 +65,34 @@ public class Menu
         
         if (MusicEnabledButton.IsPressed(PreviousMouseState, MouseState)) 
         {
-            musicButtonPressed = true;
-            soundButtonPressed = false;
+           AudioController.PlayMusic();
+           RenderMusicEnableButton = false;
+        }
+        if (MusicDisabledButton.IsPressed(PreviousMouseState, MouseState))
+        {
+            AudioController.StopMusic();
+            RenderMusicEnableButton = true;
         }
         if (SoundEnabledButton.IsPressed(PreviousMouseState, MouseState)) 
         {
-            soundButtonPressed = true;
-            musicButtonPressed = false;
-        }
-        if (musicButtonPressed)
-        {
-            AudioController.PlayMusic();
-        }
-        else if (MusicDisabledButton.IsPressed(PreviousMouseState, MouseState))
-        {
-            AudioController.StopMusic();
-        }
-        if (soundButtonPressed)
-        {
             AudioController.RestoreSoundEffects();
+            RenderSoundEnableButton = false;
         }
-        else if (SoundDisabledButton.IsPressed(PreviousMouseState, MouseState))
+        if (SoundDisabledButton.IsPressed(PreviousMouseState, MouseState))
         {
             AudioController.StopSoundEffects();
+            RenderSoundEnableButton = true;
         }
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Draw(Title, new Rectangle(550, 100, Title.Width, Title.Height), Color.White);
-        PlayButton.Render(spriteBatch);
-        ExitButton.Render(spriteBatch);
-        SoundEnabledButton.Render(spriteBatch);
-        SoundDisabledButton.Render(spriteBatch);
-        MusicEnabledButton.Render(spriteBatch);
-        MusicDisabledButton.Render(spriteBatch);
+        PlayButton.Render(spriteBatch,RenderPlayButton);
+        ExitButton.Render(spriteBatch, RenderExitButton);
+        SoundEnabledButton.Render(spriteBatch, RenderSoundEnableButton);
+        SoundDisabledButton.Render(spriteBatch, !RenderSoundEnableButton);
+        MusicEnabledButton.Render(spriteBatch, RenderMusicEnableButton);
+        MusicDisabledButton.Render(spriteBatch, !RenderMusicEnableButton);
     }
 }

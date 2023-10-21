@@ -18,6 +18,7 @@ namespace MonoGamers.Menu
         private bool Pressed;
         private float Scale;
         public Vector2 Position;
+        private bool _render = false;
 
         public Button(Texture2D texture, Vector2 position, float scale)
         {
@@ -29,16 +30,24 @@ namespace MonoGamers.Menu
 
         public bool IsPressed(MouseState prev, MouseState cur)
         {
-            var mouseClickRect = new Rectangle(cur.X, cur.Y, 10, 10);
-            Pressed = cur.LeftButton == ButtonState.Pressed && mouseClickRect.Intersects(NormalSize);
-            var state = prev.LeftButton == ButtonState.Pressed && cur.LeftButton == ButtonState.Released && mouseClickRect.Intersects(NormalSize);
+            if (_render)
+            {
+                var mouseClickRect = new Rectangle(cur.X, cur.Y, 10, 10);
+                Pressed = cur.LeftButton == ButtonState.Pressed && mouseClickRect.Intersects(NormalSize);
+                var state = prev.LeftButton == ButtonState.Pressed && cur.LeftButton == ButtonState.Released &&
+                            mouseClickRect.Intersects(NormalSize);
 
-            return state;
+                return state;
+            }
+            else
+                return false;
         }
 
-        public void Render(SpriteBatch spriteBatch)
+        public void Render(SpriteBatch spriteBatch, bool render)
         {
-            spriteBatch.Draw(Texture, Pressed ? PressedSize : NormalSize, Color.White);
+            _render = render;
+            if (_render)
+                spriteBatch.Draw(Texture, Pressed ? PressedSize : NormalSize, Color.White);
         }
 
         public void ChangePosition(Vector2 position)
