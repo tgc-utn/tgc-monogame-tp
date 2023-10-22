@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Helpers.Gizmos;
+using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Utils.Models;
@@ -22,7 +23,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         /* Debuggin */
-        private const bool FreeCamera = true;
+        private const bool FreeCamera = false;
         private const bool DrawBoundingBoxes = true;
 
         /* ESTO DEBERIA IR A LOS MAPAS */
@@ -63,7 +64,7 @@ namespace TGC.MonoGame.TP
             else
                 Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
 
-            Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2);
+            Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2, Graphics);
 
             // Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2, Graphics.PreferredBackBufferHeight / 2);
             // Configuramos nuestras matrices de la escena.

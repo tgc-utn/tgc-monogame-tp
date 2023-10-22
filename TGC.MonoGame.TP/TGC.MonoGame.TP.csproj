@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Content\Effects\Gizmos.fx" />
+    <ClCompile Include="Content\Effects\HealthHud.fx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Content\obj\**" />

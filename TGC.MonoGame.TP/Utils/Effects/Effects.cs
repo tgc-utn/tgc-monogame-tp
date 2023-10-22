@@ -11,4 +11,8 @@ public static class Effects
     public static readonly EffectReference TextureShader = new EffectReference(
         $"{ContentFolder.Effects}/TextureShader"
     );
+
+    public static readonly EffectReference HealthHud = new EffectReference(
+        $"{ContentFolder.Effects}/HealthHud"
+    );
 }

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Helpers.Collisions;
+using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
@@ -59,7 +60,12 @@ public class Tank : Resource, ICollidable
     public ModelReference BulletReference;
     public List<Bullet> Bullets { get; set; } = new();
     
-    public Tank(TankReference model, Vector3 position)
+    //HUD
+    public CarHUD CarHud { get; set; }
+    public float health { get; set; } = 1f;
+    public bool curandose { get; set; } = true;
+    
+    public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
     {
         Reference = model.Tank;
         TankRef = model;
@@ -68,6 +74,8 @@ public class Tank : Resource, ICollidable
         Position = position;
         TurretRotation = Matrix.Identity;
         CannonRotation = Matrix.Identity;
+        
+        CarHud = new CarHUD(graphicsDeviceManager);
     }
 
     public override void Load(ContentManager content)
@@ -99,6 +107,9 @@ public class Tank : Resource, ICollidable
         {
             modelMeshPart.Effect = BulletEffect;
         }
+        
+        //HUD
+        CarHud.Load(content);
     }
 
     public void Update(GameTime gameTime)
@@ -126,6 +137,26 @@ public class Tank : Resource, ICollidable
         {
             bullet.Update(gameTime);
         }
+
+        if (curandose)
+        {
+            health -= 0.01f;
+            if (health <= 0f)
+            {
+                health = 0f;
+                curandose = false;
+            }
+        }
+        else
+        {
+            health += 0.01f;
+            if (health >= 1f)
+            {
+                health = 1f;
+                curandose = true;
+            }
+        }
+        CarHud.Update(World, health);
     }
 
     public override void Draw(Matrix view, Matrix projection)
@@ -141,6 +172,7 @@ public class Tank : Resource, ICollidable
         }
         
         base.Draw(view, projection);
+        CarHud.Draw(projection);
     }
     
     public void KeySense()
