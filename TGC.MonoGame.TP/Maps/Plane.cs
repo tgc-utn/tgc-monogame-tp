@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
@@ -17,7 +18,7 @@ public class PlaneMap : Map
 {
     public PlaneMap(int numberOfTanks, TankReference AliesTank, TankReference EnemiesTank)
     {
-        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, 0f, -16f));
+        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -1.8f, 0f));
         Alies = new List<Tank>();
         Enemies = new List<Tank>();
         Props = new List<StaticProp>();
@@ -79,15 +80,15 @@ public class PlaneMap : Map
         //     alie.Update(gameTime);
     }
 
-    public override void Draw(Matrix view, Matrix projection)
+    public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
     {
-        Scenary.Draw(view, projection);
-        Player.Draw(view, projection);
+        Scenary.Draw(view, projection, lightPosition, lightViewProjection);
+        Player.Draw(view, projection, lightPosition, lightViewProjection);
         foreach (var enemy in Enemies)
-            enemy.Draw(view, projection);
+            enemy.Draw(view, projection, lightPosition, lightViewProjection);
         foreach (var alie in Alies)
-            alie.Draw(view, projection);
+            alie.Draw(view, projection,lightPosition, lightViewProjection);
         foreach (var prop in Props)
-            prop.Draw(view, projection);
+            prop.Draw(view, projection, lightPosition, lightViewProjection);
     }
 }

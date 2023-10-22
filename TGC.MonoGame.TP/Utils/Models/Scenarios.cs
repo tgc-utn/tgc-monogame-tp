@@ -14,6 +14,7 @@ public class Scenarios
         new Vector3(400f, 2f, 0f),
         new List<PropReference>
         {
+            new PropReference(Props.SkyDome, new Vector3(0, -20, 0), PropType.Large),
             // El mapa mide (si tomamos como escala 1f) 550f x 550f. Entonces -275f <= x <= 275f
 
             #region Rocas Externas

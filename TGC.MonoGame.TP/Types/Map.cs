@@ -16,6 +16,6 @@ public abstract class Map
     public List<StaticProp> Props { get; set; } 
 
     public abstract void Load(ContentManager content);
-    public abstract void Draw(Matrix view, Matrix projection);
+    public abstract void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection);
     public abstract void Update(GameTime gameTime);
 }
