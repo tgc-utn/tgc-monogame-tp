@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,6 +10,8 @@ using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
@@ -78,7 +81,7 @@ public class Tank : Resource, ICollidable
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         
         var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
-        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.025f);
+        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.015f);
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         Box.Center = Position;
         Box.Orientation = Matrix.CreateRotationY(Angle);
