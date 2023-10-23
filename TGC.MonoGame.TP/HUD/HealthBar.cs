@@ -12,6 +12,7 @@ namespace TGC.MonoGame.TP.HUD;
 public class HealthBar : BarHud
 {
     internal override (float X, float Y) Location() => (0f, -2f);
+    internal override (float Ancho, float Alto) QuadSize() => (Window.Width*0.0015f,Window.Heigth*0.00015f);
 
     public HealthBar(GraphicsDeviceManager graphicsDevice) : base(graphicsDevice) {}
 

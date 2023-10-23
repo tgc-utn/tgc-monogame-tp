@@ -61,9 +61,11 @@ public class Tank : Resource, ICollidable
     public List<Bullet> Bullets { get; set; } = new();
     
     //HUD
-    public CarHUD CarHud { get; set; }
+    public CarHUD TankHud { get; set; }
     public float health { get; set; } = 1f;
     public bool curandose { get; set; } = true;
+    public float shootTime { get; set; } = 0f;
+    private bool hasShot = false;
     
     public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
     {
@@ -75,7 +77,7 @@ public class Tank : Resource, ICollidable
         TurretRotation = Matrix.Identity;
         CannonRotation = Matrix.Identity;
         
-        CarHud = new CarHUD(graphicsDeviceManager);
+        TankHud = new CarHUD(graphicsDeviceManager);
     }
 
     public override void Load(ContentManager content)
@@ -109,7 +111,7 @@ public class Tank : Resource, ICollidable
         }
         
         //HUD
-        CarHud.Load(content);
+        TankHud.Load(content);
     }
 
     public void Update(GameTime gameTime)
@@ -137,26 +139,27 @@ public class Tank : Resource, ICollidable
         {
             bullet.Update(gameTime);
         }
+        
+        // Valor de incremento o decremento de la salud
+        var incremento = curandose ? -0.01f : 0.01f;
 
-        if (curandose)
+        health = Math.Clamp(health + incremento, 0.0f, 1.0f);
+
+        if (health <= 0.0f || health >= 1.0f)
         {
-            health -= 0.01f;
-            if (health <= 0f)
+            curandose = !curandose;
+        }
+        
+        if (hasShot)
+        {
+            shootTime -= elapsedTime * 0.0005f;
+            if (shootTime <= 0)
             {
-                health = 0f;
-                curandose = false;
+                hasShot = false;
             }
         }
-        else
-        {
-            health += 0.01f;
-            if (health >= 1f)
-            {
-                health = 1f;
-                curandose = true;
-            }
-        }
-        CarHud.Update(World, health);
+        
+        TankHud.Update(World, health, shootTime);
     }
 
     public override void Draw(Matrix view, Matrix projection)
@@ -172,7 +175,7 @@ public class Tank : Resource, ICollidable
         }
         
         base.Draw(view, projection);
-        CarHud.Draw(projection);
+        TankHud.Draw(projection);
     }
     
     public void KeySense()
@@ -220,7 +223,7 @@ public class Tank : Resource, ICollidable
         pastMousePosition = Mouse.GetState().Position.ToVector2();
         
         // Disparo
-        if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+        if (Mouse.GetState().LeftButton == ButtonState.Pressed && !hasShot)
         {
             var bulletPosition = Position;
             var bulletDirection = Vector3.Forward;
@@ -228,6 +231,8 @@ public class Tank : Resource, ICollidable
                 TurretRotation, Reference.Rotation,
                 bulletPosition, bulletDirection, 0.1f, 10000f);
             Bullets.Add(bullet);
+            hasShot = true;
+            shootTime = 1.0f;
         }
     }
     

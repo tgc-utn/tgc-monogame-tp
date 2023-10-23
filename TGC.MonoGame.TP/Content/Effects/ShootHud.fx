@@ -1,4 +1,4 @@
-﻿#if OPENGL
+#if OPENGL
 	#define SV_POSITION POSITION
 	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
@@ -44,12 +44,9 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
     if(input.TextureCoordinate.x > PorcentajeBarra){ 
-        if(PorcentajeBarra < 0.3 ) //estado crítico
-            return float4( 0.35, 0, 0 , 0.8); // daño
-        else
-            return float4( 0, 0, 0 , 0.5); // daño
+            return float4( 0.5f, 0.5f, 0.5f, 0.001f);
     }
-    return float4( 0, 0.6562, 0 , 0.5);
+    return float4( 1, 1, 0, 0.5);
 
 }
 

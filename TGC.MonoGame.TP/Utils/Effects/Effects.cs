@@ -15,4 +15,8 @@ public static class Effects
     public static readonly EffectReference HealthHud = new EffectReference(
         $"{ContentFolder.Effects}/HealthHud"
     );
+    
+    public static readonly EffectReference ShootHud = new EffectReference(
+        $"{ContentFolder.Effects}/ShootHud"
+    );
 }

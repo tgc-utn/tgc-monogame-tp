@@ -9,12 +9,12 @@ public abstract class BarHud
 {
     internal Effect Effect;
     private QuadPrimitive Quad;
-    private (float Width, float Heigth) Window;
+    internal (float Width, float Heigth) Window;
     internal static Matrix AjusteQuad() => Matrix.CreateTranslation(new Vector3(-0.5f,0f,-0.5f)) // centrar quad 
                                            * Matrix.CreateRotationX(MathHelper.PiOver2) ; // levantar quad
     internal static Matrix AjusteFinal() => Matrix.CreateTranslation(Vector3.UnitZ * -10f); // ubicación pantalla HUD
 
-    private (float Ancho, float Alto) QuadSize() => (Window.Width*0.0015f,Window.Heigth*0.00015f);
+    internal abstract (float Ancho, float Alto) QuadSize();
     internal abstract (float X, float Y) Location();
     
     public BarHud(GraphicsDeviceManager graphicsDevice){

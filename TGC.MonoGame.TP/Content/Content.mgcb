@@ -69,6 +69,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/HealthHud.fx
 
+#begin Effects/ShootHud.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ShootHud.fx
+
 #begin Effects/TextureShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
