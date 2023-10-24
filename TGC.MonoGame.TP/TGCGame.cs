@@ -7,6 +7,7 @@ using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Types.Tanks;
 using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
@@ -94,6 +95,7 @@ namespace TGC.MonoGame.TP
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
         ///     ante ellas.
         /// </summary>
+        
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
@@ -104,7 +106,6 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-
             Map.Update(gameTime);
             Camera.Update(gameTime, Map.Player);
             Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
@@ -138,9 +139,7 @@ namespace TGC.MonoGame.TP
                 Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
             Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
             foreach (var bullet in Map.Player.Bullets)
-            {
-                Gizmos.DrawCube(bullet.OBBWorld, Color.Aqua);
-            }
+                Gizmos.DrawSphere(bullet.Box.Center, bullet.Box.Radius * Vector3.One, Color.Aqua);
         }
 
         /// <summary>
