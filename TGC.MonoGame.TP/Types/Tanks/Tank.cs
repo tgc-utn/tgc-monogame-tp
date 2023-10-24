@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,6 +11,8 @@ using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
@@ -48,6 +51,7 @@ public class Tank : Resource, ICollidable
     
     // Box Parameters
     public Vector3 Position;
+    private Vector3 LastPosition;
     
     public Matrix OBBWorld { get; set; }
     public float Angle { get; set; } = 0f;
@@ -87,7 +91,7 @@ public class Tank : Resource, ICollidable
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         
         var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
-        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.025f);
+        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.015f);
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         Box.Center = Position;
         Box.Orientation = Matrix.CreateRotationY(Angle);
@@ -123,6 +127,7 @@ public class Tank : Resource, ICollidable
             ProcessMouse(elapsedTime);
         }
 
+        LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
         Translation = Matrix.CreateTranslation(Position);
@@ -131,6 +136,7 @@ public class Tank : Resource, ICollidable
         
         // Box
         Box.Orientation = rotation;
+        Box.Center = Position;
         OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Translation;
         
         
@@ -251,12 +257,14 @@ public class Tank : Resource, ICollidable
     public void CollidedWithSmallProp()
     {
         Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
-        Velocidad = 0.5f;
+        Velocidad *= 0.5f;
     }
 
     public void CollidedWithLargeProp()
     {
         Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
+        Velocidad = 0;
+        Position = LastPosition;
     }
 
     public bool VerifyCollision(BoundingBox box)

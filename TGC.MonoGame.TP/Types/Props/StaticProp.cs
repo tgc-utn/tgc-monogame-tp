@@ -69,7 +69,6 @@ public abstract class StaticProp : Resource
         if (Destroyed) return;
         if (collidable.VerifyCollision(Box))
             CollidedWith(collidable);
-        return;
     }
     public abstract void CollidedWith(ICollidable other);
 }
