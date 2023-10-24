@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
@@ -17,7 +18,7 @@ public class PlaneMap : Map
 {
     public PlaneMap(int numberOfTanks, TankReference AliesTank, TankReference EnemiesTank)
     {
-        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, 0f, -16f));
+        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -1.8f, 0f));
         Alies = new List<Tank>();
         Enemies = new List<Tank>();
         Props = new List<StaticProp>();
@@ -49,12 +50,13 @@ public class PlaneMap : Map
                         throw new ArgumentOutOfRangeException();
                 }
             });
+        SkyDome = new SkyDome(Scenary.Scene.SkyDome);
         Player = Alies[0];
         Player.isPlayer = true;
         Alies.RemoveAt(0);
     }
 
-    public override void Load(ContentManager content)
+    public override void Load(GraphicsDevice graphicsDevice, ContentManager content)
     {
         Scenary.Load(content);
         Player.Load(content);
@@ -64,6 +66,7 @@ public class PlaneMap : Map
             alie.Load(content);
         foreach (var prop in Props)
             prop.Load(content);
+        SkyDome.Load(graphicsDevice, content);
     }
 
     public override void Update(GameTime gameTime)
@@ -77,17 +80,19 @@ public class PlaneMap : Map
         //     enemy.Update(gameTime);
         // foreach (var alie in Alies)
         //     alie.Update(gameTime);
+        SkyDome.Update(gameTime);
     }
 
     public override void Draw(Matrix view, Matrix projection)
     {
-        Scenary.Draw(view, projection);
-        Player.Draw(view, projection);
+        Scenary.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
+        Player.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
         foreach (var enemy in Enemies)
-            enemy.Draw(view, projection);
+            enemy.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
         foreach (var alie in Alies)
-            alie.Draw(view, projection);
+            alie.Draw(view, projection,SkyDome.LightPosition, SkyDome.LightViewProjection);
         foreach (var prop in Props)
-            prop.Draw(view, projection);
+            prop.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
+        SkyDome.Draw(view, projection);
     }
 }

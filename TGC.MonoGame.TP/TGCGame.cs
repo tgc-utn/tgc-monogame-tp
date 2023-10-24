@@ -1,9 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
-using TGC.MonoGame.TP.Helpers.Collisions;
+using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types;
@@ -23,7 +24,7 @@ namespace TGC.MonoGame.TP
 
         /* Debuggin */
         private const bool FreeCamera = true;
-        private const bool DrawBoundingBoxes = true;
+        private const bool DrawBoundingBoxes = false;
 
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
@@ -83,7 +84,7 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
 
-            Map.Load(Content);
+            Map.Load(GraphicsDevice, Content);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
             base.LoadContent();
         }

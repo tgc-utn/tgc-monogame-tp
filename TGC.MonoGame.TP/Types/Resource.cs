@@ -25,18 +25,23 @@ public abstract class Resource
         }
     }
     
-    public virtual void Draw(Matrix view, Matrix projection)
+    public virtual void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
     {
         Model.Root.Transform = World;
 
-        Effect.Parameters["View"].SetValue(view);
-        Effect.Parameters["Projection"].SetValue(projection);
+        Effect.Parameters["View"]?.SetValue(view);
+        Effect.Parameters["Projection"]?.SetValue(projection);
 
         // Draw the model.
         foreach (var mesh in Model.Meshes)
         {
             EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, mesh.Name);
-            Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+            var worldMatrix = mesh.ParentBone.Transform * World;
+            Effect.Parameters["World"].SetValue(worldMatrix);
+            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+            Effect.Parameters["WorldViewProjection"]?.SetValue(worldMatrix * view * projection);
+            Effect.Parameters["lightPosition"]?.SetValue(lightPosition);
+            Effect.Parameters["eyePosition"]?.SetValue(lightViewProjection);
             mesh.Draw();
         }
     }

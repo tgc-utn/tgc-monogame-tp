@@ -1095,6 +1095,25 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/props/walls/wall_3.fbx
 
+#begin Models/scenary/dome.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=4.25
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/scenary/dome.fbx
+
 #begin Models/scenary/plane.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -1109,7 +1128,7 @@
 /processorParam:RotationX=0
 /processorParam:RotationY=0
 /processorParam:RotationZ=0
-/processorParam:Scale=1
+/processorParam:Scale=6
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
 /build:Models/scenary/plane.fbx
@@ -1615,7 +1634,7 @@
 /processorParam:TextureFormat=Color
 /build:Textures/props/walls/Wall_Angled_03_Roughess.png
 
-#begin Textures/scenary/Sand 002_COLOR.jpg
+#begin Textures/scenary/Desert_Sand_pwspovsum_4k_Albedo.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -1625,9 +1644,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/scenary/Sand 002_COLOR.jpg
+/build:Textures/scenary/Desert_Sand_pwspovsum_4k_Albedo.jpg
 
-#begin Textures/scenary/Sand_004_COLOR.png
+#begin Textures/scenary/kloofendal_48d_partly_cloudy_puresky.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -1637,5 +1656,17 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/scenary/Sand_004_COLOR.png
+/build:Textures/scenary/kloofendal_48d_partly_cloudy_puresky.jpg
+
+#begin Textures/scenary/OGZR8F0.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/scenary/OGZR8F0.jpg
 
