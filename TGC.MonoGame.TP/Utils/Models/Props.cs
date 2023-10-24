@@ -247,7 +247,7 @@ public class Props
 
     public static readonly ModelReference Bullet = new ModelReference(
         $"{ContentFolder.Models}/props/bullet/bullet",
-        0.1f,
+        0.15f,
         new Vector2(1f, 1f),
         Matrix.Identity,
         Textures.Props.Bullet

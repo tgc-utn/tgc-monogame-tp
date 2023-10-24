@@ -19,7 +19,7 @@ namespace TGC.MonoGame.TP.Types.Tanks;
 public class Tank : Resource, ICollidable
 {
     // Configs
-    private const float Acceleration = 0.0055f;
+    private const float Acceleration = 0.0045f;
     private const float MaxSpeed = 0.01f;
     private const float RotationSpeed = 0.01f;
     private const float Friction = 0.004f;
@@ -64,6 +64,10 @@ public class Tank : Resource, ICollidable
     public ModelReference BulletReference;
     public List<Bullet> Bullets { get; set; } = new();
     
+    private Point _center;
+    private float _sensitivityX = 0.0018f;
+    private float _sensitivityY = 0.002f;
+    
     //HUD
     public CarHUD TankHud { get; set; }
     public float health { get; set; } = 1f;
@@ -80,6 +84,9 @@ public class Tank : Resource, ICollidable
         Position = position;
         TurretRotation = Matrix.Identity;
         CannonRotation = Matrix.Identity;
+        var w = graphicsDeviceManager.GraphicsDevice.Viewport.Width / 2;
+        var h = graphicsDeviceManager.GraphicsDevice.Viewport.Height / 2;
+        _center = new Point(w, h);
         
         TankHud = new CarHUD(graphicsDeviceManager);
     }
@@ -218,12 +225,17 @@ public class Tank : Resource, ICollidable
 
         var mouseDelta = currentMouseState.Position.ToVector2() - pastMousePosition;
         mouseDelta *= MouseSensitivity * elapsedTime;
+            
+        var delta = Mouse.GetState().Position - _center;
+        Mouse.SetPosition(_center.X, _center.Y);
+        var rotationX = delta.X * _sensitivityX * elapsedTime;
+        var rotationY = delta.Y * _sensitivityY * elapsedTime;
 
         // canion
-        pitch = Math.Clamp(pitch - mouseDelta.Y, -8f, 10f);
+        pitch = Math.Clamp(pitch - rotationY, -8f, 10f);
 
         // Torreta
-        yaw = Math.Clamp(yaw - mouseDelta.X, -90.0f, 90.0f);
+        yaw = Math.Clamp(yaw - rotationX, -90.0f, 90.0f);
 
         UpdateRotations();
 
@@ -238,7 +250,7 @@ public class Tank : Resource, ICollidable
             var bulletDirection = Vector3.Transform(Vector3.Transform(cannonBone.Transform.Forward,Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f)), Matrix.CreateRotationY(Angle));
             var bullet = new Bullet(BulletModel, BulletEffect, BulletReference,
                 Matrix.CreateFromYawPitchRoll(yawRadians,-pitchRadians,0f), Matrix.CreateRotationY(Angle),
-                bulletPosition, bulletDirection, 0.1f, 10000f);
+                bulletPosition, bulletDirection, 0.06f, 10000f);
             Bullets.Add(bullet);
             hasShot = true;
             shootTime = 0.25f;

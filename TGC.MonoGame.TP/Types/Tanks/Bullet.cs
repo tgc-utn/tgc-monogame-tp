@@ -21,8 +21,7 @@ public class Bullet : ICollidable
     public float LifeTime { get; set; }
     public bool IsAlive { get; set; } = true;
     
-    public Matrix OBBWorld { get; set; }
-    public OrientedBoundingBox Box { get; set; }
+    public BoundingSphere Box;
 
     public Bullet(Model model, Effect bulletEffect, ModelReference bulletReference, Matrix rotation,
         Matrix tankFixRotation, Vector3 position, Vector3 direction, float speed, float lifeTime)
@@ -37,12 +36,9 @@ public class Bullet : ICollidable
         Speed = speed;
         LifeTime = lifeTime;
         
-        var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(model);
-        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 1f);
-        Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+        Box = BoundingVolumesExtension.CreateSphereFrom(model);
         Box.Center = Position;
-        Box.Orientation = rotation;
-        OBBWorld = Box.Orientation * Matrix.CreateTranslation(position);
+        Box.Radius *= bulletReference.Scale;
     }
 
     public void Update(GameTime gameTime)
@@ -55,8 +51,6 @@ public class Bullet : ICollidable
             
             // Box
             Box.Center = Position;
-            OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Matrix.CreateTranslation(Position);
-            
             LifeTime -= elapsedTime;
             if (LifeTime <= 0)
             {
@@ -69,7 +63,7 @@ public class Bullet : ICollidable
     {
         if (IsAlive)
         {
-            BulletModel.Root.Transform = Matrix.CreateScale(0.01f) * Rotation;
+            BulletModel.Root.Transform = Matrix.CreateScale(BulletReference.Scale) * Rotation;
             BulletEffect.Parameters["View"]?.SetValue(view);
             BulletEffect.Parameters["Projection"]?.SetValue(projection);
 
