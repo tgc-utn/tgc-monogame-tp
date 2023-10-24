@@ -50,12 +50,13 @@ public class PlaneMap : Map
                         throw new ArgumentOutOfRangeException();
                 }
             });
+        SkyDome = new SkyDome(Scenary.Scene.SkyDome);
         Player = Alies[0];
         Player.isPlayer = true;
         Alies.RemoveAt(0);
     }
 
-    public override void Load(ContentManager content)
+    public override void Load(GraphicsDevice graphicsDevice, ContentManager content)
     {
         Scenary.Load(content);
         Player.Load(content);
@@ -65,6 +66,7 @@ public class PlaneMap : Map
             alie.Load(content);
         foreach (var prop in Props)
             prop.Load(content);
+        SkyDome.Load(graphicsDevice, content);
     }
 
     public override void Update(GameTime gameTime)
@@ -78,17 +80,19 @@ public class PlaneMap : Map
         //     enemy.Update(gameTime);
         // foreach (var alie in Alies)
         //     alie.Update(gameTime);
+        SkyDome.Update(gameTime);
     }
 
-    public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
+    public override void Draw(Matrix view, Matrix projection)
     {
-        Scenary.Draw(view, projection, lightPosition, lightViewProjection);
-        Player.Draw(view, projection, lightPosition, lightViewProjection);
+        Scenary.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
+        Player.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
         foreach (var enemy in Enemies)
-            enemy.Draw(view, projection, lightPosition, lightViewProjection);
+            enemy.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
         foreach (var alie in Alies)
-            alie.Draw(view, projection,lightPosition, lightViewProjection);
+            alie.Draw(view, projection,SkyDome.LightPosition, SkyDome.LightViewProjection);
         foreach (var prop in Props)
-            prop.Draw(view, projection, lightPosition, lightViewProjection);
+            prop.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
+        SkyDome.Draw(view, projection);
     }
 }

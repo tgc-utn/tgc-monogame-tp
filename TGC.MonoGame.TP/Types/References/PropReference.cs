@@ -3,7 +3,7 @@ using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.Types.References;
 
-public enum PropType { Small, Large};
+public enum PropType { Small, Large, Dome};
 
 public class PropReference
 {

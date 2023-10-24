@@ -30,13 +30,6 @@ namespace TGC.MonoGame.TP
         private Map Map { get; set; }
         private Camera Camera { get; set; }
         private Gizmos Gizmos { get; set; }
-        
-        
-        private SpherePrimitive lightBox;
-        private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
-        private Vector3 lightPosition = Vector3.Zero;
-        private float Timer { get; set; }
-        
 
         /// <summary>
         ///     Constructor del juego.
@@ -90,10 +83,8 @@ namespace TGC.MonoGame.TP
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            // lightBox = new CubePrimitive(GraphicsDevice, 50, Color.Blue);
-            lightBox = new SpherePrimitive(GraphicsDevice, 50, 16, new Color(239f, 142f, 56f));
-            
-            Map.Load(Content);
+
+            Map.Load(GraphicsDevice, Content);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
             base.LoadContent();
         }
@@ -113,11 +104,6 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            
-            Timer += (float) gameTime.ElapsedGameTime.TotalSeconds;
-            
-            lightPosition = new Vector3((float) Math.Cos(Timer * 0.5f) * 650f, (float) Math.Sin(Timer * 0.5f) * 650f, 0);
-            LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
             Map.Update(gameTime);
             Camera.Update(gameTime, Map.Player);
@@ -133,12 +119,11 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            Map.Draw(Camera.View, Camera.Projection, lightPosition, Camera.Position);
+            Map.Draw(Camera.View, Camera.Projection);
 
             if (DrawBoundingBoxes)
                 DrawBoundingBoxesDebug();
 
-            lightBox.Draw(LightBoxWorld, Camera.View, Camera.Projection);
             Gizmos.Draw();
         }
 
