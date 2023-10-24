@@ -40,7 +40,7 @@ public class Bullet
         {
             var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
             Position += Direction * Speed * elapsedTime;
-            World = Matrix.CreateScale(0.1f) * Matrix.CreateRotationZ(MathHelper.PiOver2) * Rotation * Matrix.CreateTranslation(Position);
+            World = Matrix.CreateTranslation(Position);
             LifeTime -= elapsedTime;
             if (LifeTime <= 0)
             {
@@ -53,7 +53,7 @@ public class Bullet
     {
         if (IsAlive)
         {
-            BulletModel.Root.Transform = World;
+            BulletModel.Root.Transform = Matrix.CreateScale(0.01f) * Rotation;
             BulletEffect.Parameters["View"]?.SetValue(view);
             BulletEffect.Parameters["Projection"]?.SetValue(projection);
 
@@ -61,7 +61,7 @@ public class Bullet
             foreach (var mesh in BulletModel.Meshes)
             {
                 EffectsRepository.SetEffectParameters(BulletEffect, BulletReference.DrawReference, mesh.Name);
-                var worldMatrix = mesh.ParentBone.Transform * World;
+                var worldMatrix = mesh.ParentBone.Transform  * TankFixRotation * Matrix.CreateRotationY((float)Math.PI) * World;
                 BulletEffect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
                 BulletEffect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
                 BulletEffect.Parameters["WorldViewProjection"]?.SetValue(worldMatrix * view * projection);

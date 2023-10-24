@@ -232,9 +232,11 @@ public class Tank : Resource, ICollidable
         if (Mouse.GetState().LeftButton == ButtonState.Pressed && !hasShot)
         {
             var bulletPosition = Position;
-            var bulletDirection = Vector3.Forward;
+            var yawRadians = MathHelper.ToRadians(yaw);
+            var pitchRadians = MathHelper.ToRadians(pitch);
+            var bulletDirection = Vector3.Transform(cannonBone.Transform.Forward,Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f));
             var bullet = new Bullet(BulletModel, BulletEffect, BulletReference,
-                TurretRotation, Reference.Rotation,
+                Matrix.CreateFromYawPitchRoll(yawRadians,-pitchRadians,0f), Matrix.CreateRotationY(Angle),
                 bulletPosition, bulletDirection, 0.1f, 10000f);
             Bullets.Add(bullet);
             hasShot = true;
