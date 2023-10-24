@@ -75,7 +75,13 @@ public class PlaneMap : Map
         Player.Update(gameTime);
         Props = Props.Where(prop => !prop.Destroyed).ToList();
         foreach (var prop in Props)
-                prop.Update(Player);
+        {
+            prop.Update(Player);
+            foreach (var bullet in Player.Bullets)
+            {
+                prop.Update(bullet);
+            }
+        }
         
         // foreach (var enemy in Enemies)
         //     enemy.Update(gameTime);

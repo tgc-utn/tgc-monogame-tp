@@ -4,9 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
-using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Helpers.Gizmos;
-using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Utils.Models;
@@ -24,8 +22,8 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         /* Debuggin */
-        private const bool FreeCamera = true;
-        private const bool DrawBoundingBoxes = false;
+        private const bool FreeCamera = false;
+        private const bool DrawBoundingBoxes = true;
 
 
         /* ESTO DEBERIA IR A LOS MAPAS */
@@ -139,6 +137,10 @@ namespace TGC.MonoGame.TP
             foreach (var ally in Map.Alies)
                 Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
             Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
+            foreach (var bullet in Map.Player.Bullets)
+            {
+                Gizmos.DrawCube(bullet.OBBWorld, Color.Aqua);
+            }
         }
 
         /// <summary>
