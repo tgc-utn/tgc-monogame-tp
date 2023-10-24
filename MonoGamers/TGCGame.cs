@@ -187,7 +187,7 @@ namespace MonoGamers
             PowerUps = new PowerUp[]
             {
                 new JumpPowerUp(new Vector3(100f, 10f, 500f)),
-                new FastPowerUp(new Vector3(100f, 10f, 2150f)),
+                new FastPowerUp(new Vector3(100f, 5f, 5250f)),
                 //new RushPowerUp(new Vector3(100f, 10f, 160f)),
             };
 
@@ -303,11 +303,11 @@ namespace MonoGamers
             } else {
                  
                  IsMouseVisible = false;
-
-                Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
                 
                 MonoSphere.Update(Simulation, Camera, keyboardState);
-                
+
+                Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
+
                 CheckpointManager();
                 Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
                 
@@ -366,7 +366,7 @@ namespace MonoGamers
                 GraphicsDevice.Clear(Color.CornflowerBlue);
 
             //powerups Drawing
-                Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(Camera, gameTime));
+                foreach(var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
             
             // Sphere drawinga
                 MonoSphere.Draw(Camera);

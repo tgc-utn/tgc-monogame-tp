@@ -19,13 +19,13 @@ namespace MonoGamers.PowerUps
 
         public FastPowerUp(Vector3 position) : base(position)
         {
-            var quaternion = Quaternion.CreateFromAxisAngle(Vector3.Backward, 0) *
+            var quaternion = Quaternion.CreateFromAxisAngle(Vector3.Backward, (float)Math.PI/2) *
                          Quaternion.CreateFromAxisAngle(Vector3.Up, (float)Math.PI/2) *
-                         Quaternion.CreateFromAxisAngle(Vector3.Right, 0);
+                         Quaternion.CreateFromAxisAngle(Vector3.Right, (float)Math.PI/2);
 
-            PowerUpWorld = Matrix.CreateTranslation(position)
-                * Matrix.CreateScale(4f, 4f, 4f)
-                * Matrix.CreateFromQuaternion(quaternion);
+            PowerUpWorld =  Matrix.CreateScale(4f, 4f, 4f)
+                            * Matrix.CreateFromYawPitchRoll(0, 1.5f, 0)
+                            * Matrix.CreateTranslation(position);
             var worldBounding = Matrix.CreateScale(20f, 20f, 20f) * Matrix.CreateTranslation(position);
             BoundingBox = BoundingVolumesExtensions.FromMatrix(worldBounding);
         }
@@ -35,7 +35,8 @@ namespace MonoGamers.PowerUps
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "agiltyup/Agility_Up_FBX");
             PowerUpEffect = Content.Load<Effect>(
                 ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
-            PowerUpTexture = ((BasicEffect)PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+            PowerUpTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/AU_Display_MAT_Base_Color");
         }
 
         public override async void Activate(MonoSphere Sphere)
