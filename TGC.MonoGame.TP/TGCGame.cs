@@ -24,7 +24,7 @@ namespace TGC.MonoGame.TP
 
         /* Debuggin */
         private const bool FreeCamera = true;
-        private const bool DrawBoundingBoxes = true;
+        private const bool DrawBoundingBoxes = false;
 
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }

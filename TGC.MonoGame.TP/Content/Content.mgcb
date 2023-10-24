@@ -1658,3 +1658,15 @@
 /processorParam:TextureFormat=Color
 /build:Textures/scenary/kloofendal_48d_partly_cloudy_puresky.jpg
 
+#begin Textures/scenary/OGZR8F0.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/scenary/OGZR8F0.jpg
+
