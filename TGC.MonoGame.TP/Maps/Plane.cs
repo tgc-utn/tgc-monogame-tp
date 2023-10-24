@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Types.Props;
@@ -16,16 +17,16 @@ namespace TGC.MonoGame.TP.Maps;
 
 public class PlaneMap : Map
 {
-    public PlaneMap(int numberOfTanks, TankReference AliesTank, TankReference EnemiesTank)
+    public PlaneMap(int numberOfTanks, TankReference AliesTank, TankReference EnemiesTank, GraphicsDeviceManager graphicsDevice)
     {
         Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -1.8f, 0f));
         Alies = new List<Tank>();
         Enemies = new List<Tank>();
         Props = new List<StaticProp>();
         Scenary.GetSpawnPoints(numberOfTanks, false)
-            .ForEach(spawnPoint => Enemies.Add(new Tank(EnemiesTank, spawnPoint)));
+            .ForEach(spawnPoint => Enemies.Add(new Tank(EnemiesTank, spawnPoint, graphicsDevice)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
-            .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint)));
+            .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint, graphicsDevice)));
         Scenary.Scene.PropsReference
             .ForEach(prop =>
             {

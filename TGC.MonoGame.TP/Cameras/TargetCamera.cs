@@ -45,7 +45,7 @@ namespace TGC.MonoGame.TP.Cameras
         public Vector3 TargetPosition { get; set; }
 
         private const float CameraFollowRadius = 20f;
-        private const float CameraUpDistance = 7.5f;
+        private const float CameraUpDistance = 5f;
         public override void Update(GameTime gameTime, Tank Player)
         {
             // Create a position that orbits the Robot by its direction (Rotation)
