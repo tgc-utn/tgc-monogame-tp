@@ -49,19 +49,24 @@ public class Bullet
         }
     }
 
-    public void Draw(Matrix view, Matrix projection)
+    public void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
     {
         if (IsAlive)
         {
             BulletModel.Root.Transform = World;
-            BulletEffect.Parameters["View"].SetValue(view);
-            BulletEffect.Parameters["Projection"].SetValue(projection);
+            BulletEffect.Parameters["View"]?.SetValue(view);
+            BulletEffect.Parameters["Projection"]?.SetValue(projection);
 
             // Draw the model.
             foreach (var mesh in BulletModel.Meshes)
             {
                 EffectsRepository.SetEffectParameters(BulletEffect, BulletReference.DrawReference, mesh.Name);
+                var worldMatrix = mesh.ParentBone.Transform * World;
                 BulletEffect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+                BulletEffect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                BulletEffect.Parameters["WorldViewProjection"]?.SetValue(worldMatrix * view * projection);
+                BulletEffect.Parameters["lightPosition"]?.SetValue(lightPosition);
+                BulletEffect.Parameters["eyePosition"]?.SetValue(lightViewProjection);
                 mesh.Draw();
             }
         }

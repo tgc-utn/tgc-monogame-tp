@@ -17,7 +17,7 @@ public class Scenary : Resource
     {
         Scene = model;
         Reference = model.Scenary;
-        World = Matrix.CreateScale(Reference.Scale,1,Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
+        World = Matrix.CreateScale(Reference.Scale,Reference.Scale, Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
     }
     
     public List<Vector3> GetSpawnPoints(int numberOfTanks, bool isAlies)

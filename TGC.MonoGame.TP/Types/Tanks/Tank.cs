@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -162,7 +162,7 @@ public class Tank : Resource, ICollidable
         TankHud.Update(World, health, shootTime);
     }
 
-    public override void Draw(Matrix view, Matrix projection)
+    public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
     {
         turretBone.Transform = TurretRotation * turretTransform;
         cannonBone.Transform =
@@ -171,10 +171,10 @@ public class Tank : Resource, ICollidable
         
         foreach (var bullet in Bullets)
         {
-            bullet.Draw(view, projection);
+            bullet.Draw(view, projection, lightPosition, lightViewProjection);
         }
         
-        base.Draw(view, projection);
+        base.Draw(view, projection, lightPosition, lightViewProjection);
         TankHud.Draw(projection);
     }
     

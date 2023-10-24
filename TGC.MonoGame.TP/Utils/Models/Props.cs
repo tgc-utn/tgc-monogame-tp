@@ -210,9 +210,16 @@ public class Props
 
     public static readonly ModelReference PlaneScene = new ModelReference(
         $"{ContentFolder.Models}/scenary/plane",
-        34f,
+            1f,
         Matrix.Identity,
         Textures.Scenarios.Plane
+    );
+    
+    public static readonly ModelReference SkyDome = new ModelReference(
+        $"{ContentFolder.Models}/scenary/dome",
+        1f,
+        Matrix.CreateRotationY((float)Math.PI / 2),
+        Textures.Scenarios.SkyDome
     );
     
     public static readonly ModelReference KF51 = new ModelReference(

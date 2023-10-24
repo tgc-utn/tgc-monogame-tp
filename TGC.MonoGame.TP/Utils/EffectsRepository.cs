@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Types.References;
@@ -37,11 +38,25 @@ public static class EffectsRepository
                 effect.Parameters["DiffuseColor"].SetValue(colorReference.Color.ToVector3());
                 break;
             case TextureReference textureReference:
-                effect.Parameters["BaseTexture"].SetValue(textureReference.Texture);
+                effect.Parameters["baseTexture"].SetValue(textureReference.Texture);
+                effect.Parameters["ambientColor"].SetValue(new Vector3(219f, 244f, 76f));
+                effect.Parameters["diffuseColor"].SetValue(new Vector3(124f, 125f, 121f));
+                effect.Parameters["specularColor"].SetValue(new Vector3(71f, 71f, 65f));
+                effect.Parameters["KAmbient"].SetValue(0.480f);
+                effect.Parameters["KDiffuse"].SetValue(0.400f);
+                effect.Parameters["KSpecular"].SetValue(0.2f);
+                effect.Parameters["shininess"].SetValue(500f);
                 break;
             case MultiTextureReference multiTextureReference:
                 var meshTextureRelation = multiTextureReference.Relations.Find(relation => relation.Mesh == meshName);
-                effect.Parameters["BaseTexture"].SetValue(meshTextureRelation.Texture.Texture);
+                effect.Parameters["baseTexture"].SetValue(meshTextureRelation.Texture.Texture);
+                effect.Parameters["ambientColor"].SetValue(new Vector3(219f, 244f, 76f));
+                effect.Parameters["diffuseColor"].SetValue(new Vector3(124f, 125f, 121f));
+                effect.Parameters["specularColor"].SetValue(new Vector3(71f, 71f, 65f));
+                effect.Parameters["KAmbient"].SetValue(0.480f);
+                effect.Parameters["KDiffuse"].SetValue(0.400f);
+                effect.Parameters["KSpecular"].SetValue(0.2f);
+                effect.Parameters["shininess"].SetValue(500f);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referenceDrawReference));
