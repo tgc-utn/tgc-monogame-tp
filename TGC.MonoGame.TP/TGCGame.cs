@@ -24,8 +24,8 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
 
         /* Debuggin */
-        private const bool FreeCamera = false;
-        private const bool DrawBoundingBoxes = true;
+        private const bool FreeCamera = true;
+        private const bool DrawBoundingBoxes = false;
 
 
         /* ESTO DEBERIA IR A LOS MAPAS */
