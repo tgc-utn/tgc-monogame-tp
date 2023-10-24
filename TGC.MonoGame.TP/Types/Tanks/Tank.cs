@@ -91,7 +91,7 @@ public class Tank : Resource, ICollidable
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         
         var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
-        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.015f);
+        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.005f);
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         Box.Center = Position;
         Box.Orientation = Matrix.CreateRotationY(Angle);
@@ -141,6 +141,7 @@ public class Tank : Resource, ICollidable
         
         
         // Bullet
+        Bullets = Bullets.Where(bullet => bullet.IsAlive).ToList();
         foreach (var bullet in Bullets)
         {
             bullet.Update(gameTime);
@@ -234,13 +235,13 @@ public class Tank : Resource, ICollidable
             var bulletPosition = Position;
             var yawRadians = MathHelper.ToRadians(yaw);
             var pitchRadians = MathHelper.ToRadians(pitch);
-            var bulletDirection = Vector3.Transform(cannonBone.Transform.Forward,Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f));
+            var bulletDirection = Vector3.Transform(Vector3.Transform(cannonBone.Transform.Forward,Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f)), Matrix.CreateRotationY(Angle));
             var bullet = new Bullet(BulletModel, BulletEffect, BulletReference,
                 Matrix.CreateFromYawPitchRoll(yawRadians,-pitchRadians,0f), Matrix.CreateRotationY(Angle),
                 bulletPosition, bulletDirection, 0.1f, 10000f);
             Bullets.Add(bullet);
             hasShot = true;
-            shootTime = 1.0f;
+            shootTime = 0.25f;
         }
     }
     

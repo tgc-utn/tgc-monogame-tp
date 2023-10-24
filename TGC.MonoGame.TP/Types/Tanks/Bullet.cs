@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public class Bullet
+public class Bullet : ICollidable
 {
     public Model BulletModel { get; set; }
     public readonly Effect BulletEffect;
@@ -19,6 +20,9 @@ public class Bullet
     public float Speed { get; set; }
     public float LifeTime { get; set; }
     public bool IsAlive { get; set; } = true;
+    
+    public Matrix OBBWorld { get; set; }
+    public OrientedBoundingBox Box { get; set; }
 
     public Bullet(Model model, Effect bulletEffect, ModelReference bulletReference, Matrix rotation,
         Matrix tankFixRotation, Vector3 position, Vector3 direction, float speed, float lifeTime)
@@ -32,6 +36,13 @@ public class Bullet
         Direction = direction;
         Speed = speed;
         LifeTime = lifeTime;
+        
+        var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(model);
+        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 1f);
+        Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
+        Box.Center = Position;
+        Box.Orientation = rotation;
+        OBBWorld = Box.Orientation * Matrix.CreateTranslation(position);
     }
 
     public void Update(GameTime gameTime)
@@ -41,6 +52,11 @@ public class Bullet
             var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
             Position += Direction * Speed * elapsedTime;
             World = Matrix.CreateTranslation(Position);
+            
+            // Box
+            Box.Center = Position;
+            OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Matrix.CreateTranslation(Position);
+            
             LifeTime -= elapsedTime;
             if (LifeTime <= 0)
             {
@@ -70,5 +86,20 @@ public class Bullet
                 mesh.Draw();
             }
         }
+    }
+
+    public void CollidedWithSmallProp()
+    {
+        IsAlive = false;
+    }
+
+    public void CollidedWithLargeProp()
+    {
+        IsAlive = false;
+    }
+
+    public bool VerifyCollision(BoundingBox box)
+    {
+        return Box.Intersects(box);
     }
 }
