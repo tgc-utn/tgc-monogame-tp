@@ -11,9 +11,9 @@ public enum GameStatus
 
 public class GameState
 {
-    public GameStatus CurrentStatus { get; private set; } = GameStatus.NormalGame;
+    public GameStatus CurrentStatus { get; private set; } = GameStatus.MainMenu;
     public GameStatus PreviousStatus { get; set; } = GameStatus.MainMenu;
-    public bool FirstUpdate { get; set; } = true;
+    public bool FirstUpdate { get; set; } = false;
     
     public void Set(GameStatus status)
     {
