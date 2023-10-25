@@ -63,19 +63,12 @@ public class MainMenu
                 SpriteBatch = new SpriteBatch(GraphicsDevice);
             Buttons.Update(Mouse.GetState());
         }
-
-        private void DrawEnvironment(Camera camera)
-        {
-            GraphicsDevice.Clear(Color.Black);
-            // GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SetRenderTarget(null);
-        }
         
         public void Draw(GameStatus gameStatus)
         {
             if (loaded)
             {
-                DrawEnvironment(_environmentCamera);
+                GraphicsDevice.Clear(Color.Black);
                 var destRectangle = new Rectangle(0, 0, Logo.Width, Logo.Height);
                 SpriteBatch.Begin();
                 SpriteBatch.Draw(Logo, Vector2.Zero, Color.White);
@@ -87,6 +80,7 @@ public class MainMenu
                 }
                 SpriteBatch.End();
                 Buttons.Draw(SpriteBatch);
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             }
         }
 
