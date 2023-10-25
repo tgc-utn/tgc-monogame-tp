@@ -6,8 +6,8 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
+using TGC.MonoGame.TP.Menu;
 using TGC.MonoGame.TP.Types;
-using TGC.MonoGame.TP.Types.Tanks;
 using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
@@ -20,17 +20,13 @@ namespace TGC.MonoGame.TP
     public class TGCGame : Game
     {
         private GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
-
-        /* Debuggin */
-        private const bool FreeCamera = false;
-        private const bool DrawBoundingBoxes = true;
-
 
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
-        private Camera Camera { get; set; }
+        private Camera Camera { get; set; } = null;
         private Gizmos Gizmos { get; set; }
+        private GameState GameState { get; set; }
+        private MainMenu Menu { get; set; }
 
         /// <summary>
         ///     Constructor del juego.
@@ -55,20 +51,13 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
-
             Gizmos = new Gizmos();
 
-            if (FreeCamera)
-                Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
-            else
-                Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
-
+            GameState = new GameState();
             Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2, Graphics);
 
-            // Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2, Graphics.PreferredBackBufferHeight / 2);
-            // Configuramos nuestras matrices de la escena.
+            Menu = new MainMenu(GraphicsDevice, GameState);
+
             base.Initialize();
         }
 
@@ -80,11 +69,11 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
 
+            Menu.LoadContent(Content);
             Map.Load(GraphicsDevice, Content);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
             base.LoadContent();
@@ -95,20 +84,70 @@ namespace TGC.MonoGame.TP
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
         ///     ante ellas.
         /// </summary>
-        
         protected override void Update(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
             var keyboardState = Keyboard.GetState();
-            // Capturar Input teclado
+            //Salgo del juego.
             if (keyboardState.IsKeyDown(Keys.Escape))
-            {
-                //Salgo del juego.
                 Exit();
+            
+            if (keyboardState.IsKeyDown(Keys.F1))
+                GameState.Set(GameStatus.MainMenu);
+            if (keyboardState.IsKeyDown(Keys.F2))
+                GameState.Set(GameStatus.NormalGame);
+            if (keyboardState.IsKeyDown(Keys.F3))
+                GameState.Set(GameStatus.GodModeGame);
+
+            switch (GameState.CurrentStatus)
+            {
+                case GameStatus.MainMenu:
+                    Menu.Update();
+                    break;
+                case GameStatus.NormalGame:
+                    if (GameState.FirstUpdate)
+                    {
+                        Menu.Dispose();
+                        Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
+                            Vector3.Zero);
+                        GameState.FirstUpdate = false;
+                    }
+
+                    Map.Update(gameTime);
+                    try
+                    {
+                        Camera.Update(gameTime, Map.Player);
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                    break;
+                case GameStatus.GodModeGame:
+                    if (GameState.FirstUpdate)
+                    {
+                        Menu.Dispose();
+                        Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
+                        GameState.FirstUpdate = false;
+                    }
+                    Map.Update(gameTime);
+                    try
+                    {
+                        Camera.Update(gameTime, Map.Player);
+                        Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                    break;
+                case GameStatus.DeathMenu:
+                    Menu.Update();
+                    break;
+                case GameStatus.Exit:
+                    Exit();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            Map.Update(gameTime);
-            Camera.Update(gameTime, Map.Player);
-            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+
             base.Update(gameTime);
         }
 
@@ -119,20 +158,51 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            Map.Draw(Camera.View, Camera.Projection);
+            switch (GameState.CurrentStatus)
+            {
+                case GameStatus.MainMenu:
+                    Menu.Draw(GameState.CurrentStatus);
+                    break;
+                case GameStatus.NormalGame:
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+                    try
+                    {
+                        Map.Draw(Camera.View, Camera.Projection);
+                    }
+                    catch (Exception e)
+                    {
+                    }
 
-            if (DrawBoundingBoxes)
-                DrawBoundingBoxesDebug();
+                    break;
+                case GameStatus.GodModeGame:
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+                    try
+                    {
+                        Map.Draw(Camera.View, Camera.Projection);
+                        DrawBoundingBoxesDebug();
+                        Gizmos.Draw();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("ERRORRRR");
+                    }
 
-            Gizmos.Draw();
+                    break;
+                case GameStatus.DeathMenu:
+                    Menu.Draw(GameState.CurrentStatus);
+                    break;
+                case GameStatus.Exit:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void DrawBoundingBoxesDebug()
         {
             foreach (var prop in Map.Props)
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
-                // Gizmos.DrawCube(prop.World, Color.Red);
+            // Gizmos.DrawCube(prop.World, Color.Red);
             foreach (var enemy in Map.Enemies)
                 Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
             foreach (var ally in Map.Alies)

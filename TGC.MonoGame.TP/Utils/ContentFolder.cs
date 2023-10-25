@@ -9,4 +9,6 @@ public class ContentFolder
     public const string Sounds = "Sounds";
     public const string SpriteFonts = "SpriteFonts";
     public const string Textures = "Textures";
+    public const string Fonts = "Fonts";
+    public const string Images = "Images";
 }

@@ -8,7 +8,8 @@ public enum DrawType
 {
     Color,
     Texture,
-    MultiTexture
+    MultiTexture,
+    Font
 }
 
 public abstract class DrawReference
@@ -65,5 +66,18 @@ public class MultiTextureReference : DrawReference
     {
         Type = DrawType.MultiTexture;
         Relations = relations;
+    }
+}
+
+public class FontReference : DrawReference
+{
+    public string Path { get; }
+    
+    public SpriteFont Font { get; set; }
+    
+    public FontReference(string path)
+    {
+        Type = DrawType.Font;
+        Path = path;
     }
 }
