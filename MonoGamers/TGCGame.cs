@@ -177,8 +177,8 @@ namespace MonoGamers
             {
                 new Checkpoint(new Vector3(100f, 10f, 160f)),
                 new Checkpoint(new Vector3(100f, 10f, 4594f)),
-                new Checkpoint(new Vector3(2100f, 150f, 6744f)),
-                new Checkpoint(new Vector3(3500f, 343f, 6800f)),
+                new Checkpoint(new Vector3(2100f, 150f, 7144f)),
+                new Checkpoint(new Vector3(3500f, 343f, 7200f)),
 
             };
             CurrentCheckpoint = 0;
@@ -187,7 +187,7 @@ namespace MonoGamers
             PowerUps = new PowerUp[]
             {
                 new JumpPowerUp(new Vector3(100f, 10f, 500f)),
-                new FastPowerUp(new Vector3(100f, 5f, 5250f)),
+                new FastPowerUp(new Vector3(100f, 5f, 4550f)),
                 //new RushPowerUp(new Vector3(100f, 10f, 160f)),
             };
 
@@ -199,8 +199,8 @@ namespace MonoGamers
             // Inicializar pistas
             Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
             Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
-            Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 6744f, Simulation);
-            Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 6800f, Simulation);
+            Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 7144f, Simulation);
+            Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 7200f, Simulation);
             
             AudioController = new AudioController(Content);
 
