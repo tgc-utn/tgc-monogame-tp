@@ -12,6 +12,7 @@ using BepuPhysics.Collidables;
 using BepuPhysics.Constraints;
 using BepuUtilities.Memory;
 using MonoGamers.Utilities;
+using MonoGamers.Camera;
 
 
 namespace MonoGamers.Pistas;
@@ -30,10 +31,13 @@ public class Pista1
         private Texture2D CobbleTexture { get; set; }
         private Texture2D WoodenTexture { get; set; }
         
+        private Texture2D FloorTexture { get; set; }
+        private Texture2D FloorNormalTexture { get; set; }
+        
     // Effects
 
         // Tiling Effect
-        private Effect TilingEffect { get; set; }
+        private Effect Effect { get; set; }
         
     
     // ____ World matrices ____
@@ -77,12 +81,16 @@ public class Pista1
          // Simulation           
             private Simulation Simulation { get; set; }
             
+        //Sun
+            private Vector3 SunPosition { get; set; }
+            
 
 // ======== Constructor de Pista 1 ========            
-    public Pista1(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation )
+    public Pista1(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation, Vector3 _sunPosition )
     {
         GraphicsDevice = graphicsDevice;
         Simulation = simulation;
+        SunPosition = _sunPosition;
 
         Initialize(x, y, z);
         
@@ -296,15 +304,34 @@ public class Pista1
     private void LoadContent(ContentManager Content)
     {
         // Load our Tiling Effect
-            TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
+            Effect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "BlinnPhongTypes");
+            Effect.CurrentTechnique = Effect.Techniques["NormalMapping"];
+            Effect.Parameters["lightPosition"].SetValue(SunPosition);
             
-        // Cargar Texturas
+            Effect.Parameters["ambientColor"].SetValue((Color.DarkOrange).ToVector3());
+            Effect.Parameters["diffuseColor"].SetValue((Color.DarkGray).ToVector3());
+            Effect.Parameters["specularColor"].SetValue((Color.White).ToVector3());
+            
+            Effect.Parameters["KAmbient"].SetValue(0.3f);
+            Effect.Parameters["KDiffuse"].SetValue(0.7f);
+            Effect.Parameters["KSpecular"].SetValue(0.4f);
+            Effect.Parameters["shininess"].SetValue(0.1f);
+            
+
+            
+
+                // Cargar Texturas
             CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
             WoodenTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "wood/caja-madera-1");
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
+            
+            FloorTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/tiling-base");
+            FloorNormalTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/tiling-normal");
     }
 
 
@@ -341,47 +368,59 @@ public class Pista1
     }
     
 // ======== Dibujar Modelos ========  
-    public void Draw(Matrix view, Matrix projection)
+    public void Draw(Camera.Camera camera)
     {
-        var viewProjection = view * projection;
-        // Set the Technique inside the TilingEffect to "BaseTiling"
-        TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
-        TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
-        TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);    
+        var viewProjection = camera.View * camera.Projection;
         
-        
-        // Draw Platform1
-            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform1World * viewProjection);
-            BoxPrimitive.Draw(TilingEffect);
+        Effect.Parameters["eyePosition"].SetValue(camera.Position);
+       Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
+       Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
+       Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+
+
+
+       // Draw Platform1
+            Effect.Parameters["World"].SetValue(Platform1World);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(Platform1World)));
+            Effect.Parameters["WorldViewProjection"].SetValue(Platform1World * viewProjection);
+            BoxPrimitive.Draw(Effect);
         
         // Draw Floating Platforms
-            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
+            Effect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
             for (int index = 0; index < FloatingPlatformsWorld.Length; index++)
             {
                 var matrix = FloatingPlatformsWorld[index];
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
+                Effect.Parameters["World"].SetValue(matrix);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(matrix)));
+                Effect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(Effect);
 
             }
         
         // Draw FloatingMovingPlatformWorld
             var pose = Simulation.Bodies.GetBodyReference(FloatingMovingPlatformBodyHandle).Pose;
             FloatingMovingPlatformWorld = Matrix.CreateScale(FloatingMovingPlatformScale) * Matrix.CreateTranslation(pose.Position.X, pose.Position.Y, pose.Position.Z);
-            TilingEffect.Parameters["WorldViewProjection"].SetValue(FloatingMovingPlatformWorld * viewProjection);
-            BoxPrimitive.Draw(TilingEffect);
+            Effect.Parameters["World"].SetValue(FloatingMovingPlatformWorld);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(FloatingMovingPlatformWorld)));
+            Effect.Parameters["WorldViewProjection"].SetValue(FloatingMovingPlatformWorld * viewProjection);
+            BoxPrimitive.Draw(Effect);
             
         // Draw Platform2
-            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
-            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform2World * viewProjection);
-            BoxPrimitive.Draw(TilingEffect);   
+            Effect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
+            Effect.Parameters["World"].SetValue(Platform2World);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(Platform2World)));
+            Effect.Parameters["WorldViewProjection"].SetValue(Platform2World * viewProjection);
+            BoxPrimitive.Draw(Effect);   
         
         // Draw AnnoyingWallsWorld
-        TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
+        Effect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
             for (int index = 0; index < AnnoyingWallsWorld.Length; index++)
             {
                 var matrix = AnnoyingWallsWorld[index];
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
+                Effect.Parameters["World"].SetValue(matrix);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(matrix)));
+                Effect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(Effect);
 
             }
             
@@ -392,8 +431,10 @@ public class Pista1
 
                 var poseMw = Simulation.Bodies.GetBodyReference(AnnoyingMovingWallsBodyHandle[index]).Pose;
                 AnnoyingMovingWallsWorld[index] = Matrix.CreateScale(AnnoyingMovingWallsScale) * Matrix.CreateTranslation(poseMw.Position.X, poseMw.Position.Y, poseMw.Position.Z);
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(AnnoyingMovingWallsWorld[index] * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
+                Effect.Parameters["World"].SetValue(AnnoyingMovingWallsWorld[index]);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(AnnoyingMovingWallsWorld[index])));
+                Effect.Parameters["WorldViewProjection"].SetValue(AnnoyingMovingWallsWorld[index] * viewProjection);
+                BoxPrimitive.Draw(Effect);
 
             }
             
@@ -401,24 +442,30 @@ public class Pista1
             for (int index = 0; index < FloatingPlatforms2World.Length; index++)
             {
                 var matrix = FloatingPlatforms2World[index];
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
+                Effect.Parameters["World"].SetValue(matrix);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(matrix)));
+                Effect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(Effect);
 
             }    
             
         // Draw Platform3
-            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
-            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform3World * viewProjection);
-            BoxPrimitive.Draw(TilingEffect);     
+            Effect.Parameters["Tiling"].SetValue(new Vector2(3f, 1f));
+            Effect.Parameters["World"].SetValue(Platform3World);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(Platform3World)));
+            Effect.Parameters["WorldViewProjection"].SetValue(Platform3World * viewProjection);
+            BoxPrimitive.Draw(Effect);     
 
         // Draw BoxesWorld
-            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
-            TilingEffect.Parameters["Texture"].SetValue(WoodenTexture); 
+            Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
+            Effect.Parameters["ModelTexture"].SetValue(WoodenTexture); 
             for (int index = 0; index < BoxesWorld.Length; index++)
             {
                 var matrix = BoxesWorld[index];
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
+                Effect.Parameters["World"].SetValue(matrix);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(matrix)));
+                Effect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(Effect);
 
             }   
         

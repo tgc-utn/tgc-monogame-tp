@@ -78,10 +78,10 @@ struct Light
 	float3 Color;
 } ;
 
-#define LIGHT_COUNT 4
+#define LIGHT_COUNT 1
 
-float3 lightPositions[4];
-float3 lightColors[4];
+float3 lightPositions[2];
+float3 lightColors[2];
 
 float3 eyePosition; //Posicion de la camara
 
@@ -201,7 +201,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	// Reflectance equation
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
-	for (int index = 0; index < 4; index++)
+	for (int index = 0; index < 1; index++)
 	{
 		float3 light = lightPositions[index] - input.WorldPosition.xyz;
 		float distance = length(light);

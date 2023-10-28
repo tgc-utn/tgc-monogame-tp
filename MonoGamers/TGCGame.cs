@@ -69,11 +69,15 @@ namespace MonoGamers
         // Simulation
         private MonoSimulation MonoSimulation { get; set; }
         private Simulation Simulation { get; set; }
-
+        
 
         /// <summary>
-        ///     Gets the thread dispatcher available for use by the simulation.
+        /// The position of the Sun
         /// </summary>
+        ///
+        /// We don´t draw the sun as it can never been seen inside the game
+        private Vector3 SunPosition { get; set; }
+        
 
 
         // World matrices
@@ -197,7 +201,7 @@ namespace MonoGamers
             Simulation = MonoSimulation.Init();
             
             // Inicializar pistas
-            Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
+            Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation, SunPosition);
             Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
             Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 7144f, Simulation);
             Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 7200f, Simulation);
@@ -208,7 +212,9 @@ namespace MonoGamers
 
             //Menu
             Menu = new Menu.Menu(Content, GraphicsDevice, this);
-            
+
+            SunPosition = new NumericVector3(-1000f, 5000f, -1000f);
+
 
             base.Initialize();
             stopwatchInitialize.Stop();
@@ -225,6 +231,7 @@ namespace MonoGamers
             }
             
             MonoSphere.SpherePrimitive = new SpherePrimitive(GraphicsDevice);
+            
 
             //Contenido de HUD
             SpriteBatch = new SpriteBatch(GraphicsDevice);
@@ -241,14 +248,41 @@ namespace MonoGamers
                 TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
 
                 // Load Textures
+                
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
-                MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
+                
+                MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/color");
+                MonoSphere.SphereCommonNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/normal");
+                
+                MonoSphere.SphereModel = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
+                
+
+                
+                // MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
+                
                 MonoSphere.SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
                 MonoSphere.SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
                 MonoSphere.SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
 
             // Load our SphereEffect
-                MonoSphere.SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+                //MonoSphere.SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+                MonoSphere.SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhongTypes");
+                MonoSphere.SphereEffect.CurrentTechnique = MonoSphere.SphereEffect.Techniques["NormalMapping"];
+                MonoSphere.SphereEffect.Parameters["lightPosition"].SetValue(SunPosition);
+                MonoSphere.SphereEffect.Parameters["ambientColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
+
+                MonoSphere.SphereEffect.Parameters["KAmbient"].SetValue(3.5f);
+                MonoSphere.SphereEffect.Parameters["KDiffuse"].SetValue(1.7f);
+                MonoSphere.SphereEffect.Parameters["shininess"].SetValue(5.0f);
+                
+                
+                foreach (var modelMesh in MonoSphere.SphereModel.Meshes)
+                {
+                    foreach (var meshPart in modelMesh.MeshParts)
+                    { 
+                        meshPart.Effect = MonoSphere.SphereEffect; 
+                    }
+                }
 
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
@@ -386,7 +420,7 @@ namespace MonoGamers
             
 
             // Dibujamos las pistas
-                Pista1.Draw(Camera.View,Camera.Projection);
+                Pista1.Draw(Camera);
                 Pista2.Draw(Camera.View, Camera.Projection);
                 Pista3.Draw(Camera.View, Camera.Projection);
                 Pista4.Draw(Camera.View, Camera.Projection);
@@ -394,6 +428,8 @@ namespace MonoGamers
             // Dibujamos el skybox
                 DrawSkybox(Camera);
 
+                
+                
 
 
                 DrawUI(gameTime);

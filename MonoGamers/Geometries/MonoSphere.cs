@@ -4,19 +4,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGamers.Camera;
-using MonoGamers.PowerUps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using NumericVector3 = System.Numerics.Vector3;
-using static MonoGamers.Utilities.Utils;
-using BepuPhysics.Constraints.Contact;
 using MonoGamers.Audio;
 using MonoGamers.Utilities;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace MonoGamers.Geometries
@@ -49,6 +39,8 @@ namespace MonoGamers.Geometries
 
         public SpherePrimitive SpherePrimitive { get; set; }
 
+        public Model SphereModel { get; set; }
+        
         // Sphere internal matrices and vectors
         public Matrix SphereRotation { get; set; }
         public Vector3 SpherePosition { get; set; }
@@ -64,6 +56,8 @@ namespace MonoGamers.Geometries
 
         // Textures
         public Texture2D SphereCommonTexture { get; set; }
+        
+        public Texture2D SphereCommonNormalTexture { get; set; }
         public Texture2D SphereStoneTexture { get; set; }
         public Texture2D SphereMetalTexture { get; set; }
         public Texture2D SphereGumTexture { get; set; }
@@ -210,7 +204,7 @@ namespace MonoGamers.Geometries
 
             var pose = Simulation.Bodies.GetBodyReference(SphereHandle).Pose;
             SpherePosition = pose.Position;
-            SphereWorld = Matrix.CreateScale(SphereShape.Radius*2) *
+            SphereWorld = Matrix.CreateScale(SphereShape.Radius) *
                 Matrix.CreateFromQuaternion(pose.Orientation) * Matrix.CreateTranslation(SpherePosition);
 
             SphereVelocity = Vector3.Zero;
@@ -243,17 +237,7 @@ namespace MonoGamers.Geometries
             {
                 SphereVelocity = Sense * SphereFrontDirection * SphereSideSpeed * SphereSideTypeSpeed * 0.2f; 
             }
-                
-            /*if ( MathHelper.ToDegrees((float)Math.Acos(Vector2.Dot(ActualSpeedV2, SphereFrontDirectionV2) / (ActualSpeedV2.Length() * SphereFrontDirectionV2.Length() ))) < 180f){
-                
-                ApplyImpulse(ref sphereBody, 2f);
-            }
-            else if(MathHelper.ToDegrees((float)Math.Acos(Vector2.Dot(ActualSpeedV2, SphereFrontDirectionV2) / (ActualSpeedV2.Length() * SphereFrontDirectionV2.Length() ))) >= 180f)
-            {
-                ApplyImpulse(ref sphereBody, 100f);
-            }
-                
-            }*/
+            
 
             
         }
@@ -290,14 +274,30 @@ namespace MonoGamers.Geometries
         }
 
         public void Draw(Camera.Camera camera){
-            
+            /*
             SphereEffect.CurrentTechnique = SphereEffect.Techniques["BasicColorDrawing"];
             SphereEffect.Parameters["View"].SetValue(camera.View);
             SphereEffect.Parameters["Projection"].SetValue(camera.Projection);
             SphereEffect.Parameters["World"].SetValue(SphereWorld);
+            */
+            var viewProjection = camera.View * camera.Projection;
+            SphereEffect.Parameters["eyePosition"].SetValue(camera.Position);
+            SphereEffect.Parameters["World"].SetValue(SphereWorld);
+            SphereEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(SphereWorld)));
+            SphereEffect.Parameters["WorldViewProjection"].SetValue(SphereWorld * viewProjection);
+            SphereEffect.Parameters["Tiling"].SetValue(Vector2.One);
+
+
             
             if(SphereType == Type.Common) {
+                //SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);
+                
+                SphereEffect.Parameters["diffuseColor"].SetValue((Color.LightGray).ToVector3());
+                SphereEffect.Parameters["specularColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
+                SphereEffect.Parameters["KSpecular"].SetValue(1.0f);
+                
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);
+                SphereEffect.Parameters["NormalTexture"].SetValue(SphereCommonNormalTexture);
             }
             if(SphereType == Type.Gum) {
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereGumTexture);
@@ -309,7 +309,12 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
             }
             
-            SpherePrimitive.Draw(SphereEffect);
+            //SpherePrimitive.Draw(SphereEffect);
+
+            foreach (var modelMesh in SphereModel.Meshes)
+            { 
+                modelMesh.Draw(); 
+            }
         }
     }
 
