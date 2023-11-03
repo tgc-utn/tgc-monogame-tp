@@ -29,7 +29,6 @@ namespace MonoGamers.Geometries
         private const float StandardSideSpeed = 500f;
         private const float standardJumpSpeed = 55000f;
         private const float Friction = 0.5f;
-        //private const float maxSpeed = 150f;
 
 
         public float SphereSideSpeed;
@@ -290,10 +289,10 @@ namespace MonoGamers.Geometries
 
             
             if(SphereType == Type.Common) {
-                //SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);
-                
-                SphereEffect.Parameters["diffuseColor"].SetValue((Color.LightGray).ToVector3());
-                SphereEffect.Parameters["specularColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
+
+                SphereEffect.Parameters["KAmbient"].SetValue(0.5f);
+                SphereEffect.Parameters["KDiffuse"].SetValue(0.7f);
+                SphereEffect.Parameters["shininess"].SetValue(5.0f);
                 SphereEffect.Parameters["KSpecular"].SetValue(1.0f);
                 
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);

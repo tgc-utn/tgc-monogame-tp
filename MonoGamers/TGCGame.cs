@@ -89,11 +89,8 @@ namespace MonoGamers
 
         // Effects
 
-        // Tiling Effect for the floor
-        private Effect TilingEffect { get; set; }
-
         // Basic Shader Effect
-        private Effect SphereEffect { get; set; }
+        private Effect LightEffect { get; set; }
         
         
         // Pistas
@@ -201,7 +198,7 @@ namespace MonoGamers
             Simulation = MonoSimulation.Init();
             
             // Inicializar pistas
-            Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation, SunPosition);
+            Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
             Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
             Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 7144f, Simulation);
             Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 7200f, Simulation);
@@ -244,10 +241,7 @@ namespace MonoGamers
                 ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
             */
 
-            // Load our Tiling Effect
-                TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
-
-                // Load Textures
+            // Load Textures
                 
                 StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
                 
@@ -264,16 +258,22 @@ namespace MonoGamers
                 MonoSphere.SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
                 MonoSphere.SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
 
-            // Load our SphereEffect
-                //MonoSphere.SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-                MonoSphere.SphereEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhongTypes");
-                MonoSphere.SphereEffect.CurrentTechnique = MonoSphere.SphereEffect.Techniques["NormalMapping"];
-                MonoSphere.SphereEffect.Parameters["lightPosition"].SetValue(SunPosition);
-                MonoSphere.SphereEffect.Parameters["ambientColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
+            // Load our LightEffect
+                LightEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhongTypes");
+                LightEffect.CurrentTechnique = LightEffect.Techniques["NormalMapping"];
+                LightEffect.Parameters["lightPosition"].SetValue(SunPosition);
+                LightEffect.Parameters["ambientColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
+                LightEffect.Parameters["diffuseColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
+                LightEffect.Parameters["specularColor"].SetValue((Color.White).ToVector3());
+                
+                
+                
+                MonoSphere.SphereEffect = LightEffect;
+                Pista1.Effect = LightEffect;
+                
+                
 
-                MonoSphere.SphereEffect.Parameters["KAmbient"].SetValue(3.5f);
-                MonoSphere.SphereEffect.Parameters["KDiffuse"].SetValue(1.7f);
-                MonoSphere.SphereEffect.Parameters["shininess"].SetValue(5.0f);
+                
                 
                 
                 foreach (var modelMesh in MonoSphere.SphereModel.Meshes)
@@ -410,12 +410,23 @@ namespace MonoGamers
             var viewProjection = Camera.View * Camera.Projection;
 
             // Floor drawing
-                // Set the Technique inside the TilingEffect to "BaseTiling", we want to control the tiling on the floor
-                TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
-                TilingEffect.Parameters["Tiling"].SetValue(new Vector2(10f, 10f));
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(FloorWorld * viewProjection);
-                TilingEffect.Parameters["Texture"].SetValue(StonesTexture);  // Set the Texture that the Floor will use
-                Floor.Draw(TilingEffect);
+            
+                
+                LightEffect.Parameters["eyePosition"].SetValue(Camera.Position);
+                LightEffect.Parameters["Tiling"].SetValue(new Vector2(10f, 10f));
+                LightEffect.Parameters["ModelTexture"].SetValue(StonesTexture);
+                // LightEffect.Parameters["NormalTexture"].SetValue(FloorNormalTexture); AGREGAR NORMALLLLLLLLLL
+                
+                LightEffect.Parameters["KAmbient"].SetValue(0.4f);
+                LightEffect.Parameters["KDiffuse"].SetValue(0.5f);
+                LightEffect.Parameters["shininess"].SetValue(20.0f);
+                LightEffect.Parameters["KSpecular"].SetValue(0.5f);
+
+                LightEffect.Parameters["World"].SetValue(FloorWorld);
+                LightEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(FloorWorld)));
+                LightEffect.Parameters["WorldViewProjection"].SetValue(FloorWorld * viewProjection);
+                
+                Floor.Draw(LightEffect);
             
             
 

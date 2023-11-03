@@ -36,8 +36,8 @@ public class Pista1
         
     // Effects
 
-        // Tiling Effect
-        private Effect Effect { get; set; }
+        //  Effect
+        public Effect Effect { get; set; }
         
     
     // ____ World matrices ____
@@ -81,17 +81,13 @@ public class Pista1
          // Simulation           
             private Simulation Simulation { get; set; }
             
-        //Sun
-            private Vector3 SunPosition { get; set; }
             
 
 // ======== Constructor de Pista 1 ========            
-    public Pista1(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation, Vector3 _sunPosition )
+    public Pista1(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation )
     {
         GraphicsDevice = graphicsDevice;
         Simulation = simulation;
-        SunPosition = _sunPosition;
-
         Initialize(x, y, z);
         
         
@@ -303,24 +299,9 @@ public class Pista1
 // ======== Cargar Contenidos ========
     private void LoadContent(ContentManager Content)
     {
-        // Load our Tiling Effect
-            Effect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "BlinnPhongTypes");
-            Effect.CurrentTechnique = Effect.Techniques["NormalMapping"];
-            Effect.Parameters["lightPosition"].SetValue(SunPosition);
-            
-            Effect.Parameters["ambientColor"].SetValue((Color.DarkOrange).ToVector3());
-            Effect.Parameters["diffuseColor"].SetValue((Color.DarkGray).ToVector3());
-            Effect.Parameters["specularColor"].SetValue((Color.White).ToVector3());
-            
-            Effect.Parameters["KAmbient"].SetValue(0.3f);
-            Effect.Parameters["KDiffuse"].SetValue(0.7f);
-            Effect.Parameters["KSpecular"].SetValue(0.4f);
-            Effect.Parameters["shininess"].SetValue(0.1f);
-            
+        
 
-            
-
-                // Cargar Texturas
+        // Cargar Texturas
             CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
             WoodenTexture = Content.Load<Texture2D>(
@@ -372,10 +353,16 @@ public class Pista1
     {
         var viewProjection = camera.View * camera.Projection;
         
-        Effect.Parameters["eyePosition"].SetValue(camera.Position);
+       Effect.Parameters["eyePosition"].SetValue(camera.Position);
        Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
        Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
        Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+       
+       
+       Effect.Parameters["KAmbient"].SetValue(0.4f);
+       Effect.Parameters["KDiffuse"].SetValue(0.5f);
+       Effect.Parameters["shininess"].SetValue(16.0f);
+       Effect.Parameters["KSpecular"].SetValue(1.0f);
 
 
 

@@ -44,6 +44,7 @@
     <ClCompile Include="Content\Effects\EnvironmentMap.fx" />
     <ClCompile Include="Content\Effects\GaussianBlur.fx" />
     <ClCompile Include="Content\Effects\Gizmos.fx" />
+    <ClCompile Include="Content\Effects\LightEffect.fx" />
     <ClCompile Include="Content\Effects\MipMapping.fx" />
     <ClCompile Include="Content\Effects\MRT.fx" />
     <ClCompile Include="Content\Effects\PBR.fx" />
