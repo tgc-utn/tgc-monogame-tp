@@ -30,6 +30,7 @@ public class Pista1
     // ____ Textures ____
     private Texture2D CobbleTexture { get; set; }
     private Texture2D WoodenTexture { get; set; }
+    private Texture2D WoodenNormalTexture { get; set; }
 
     private Texture2D FloorTexture { get; set; }
     private Texture2D FloorNormalTexture { get; set; }
@@ -307,7 +308,9 @@ public class Pista1
         CobbleTexture = Content.Load<Texture2D>(
             ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
         WoodenTexture = Content.Load<Texture2D>(
-            ConfigurationManager.AppSettings["ContentFolderTextures"] + "wood/caja-madera-1");
+            ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/wood");
+        WoodenNormalTexture = Content.Load<Texture2D>(
+            ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/wood-normal");
         // Cargar Primitiva de caja con textura
         BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
 
@@ -457,6 +460,11 @@ public class Pista1
         // Draw BoxesWorld
         Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
         Effect.Parameters["ModelTexture"].SetValue(WoodenTexture);
+        Effect.Parameters["NormalTexture"].SetValue(WoodenNormalTexture);
+        Effect.Parameters["KAmbient"].SetValue(0.5f);
+        Effect.Parameters["KDiffuse"].SetValue(0.5f);
+        Effect.Parameters["shininess"].SetValue(16.0f);
+        Effect.Parameters["KSpecular"].SetValue(0.5f);
         for (int index = 0; index < BoxesWorld.Length; index++)
         {
             var matrix = BoxesWorld[index];
