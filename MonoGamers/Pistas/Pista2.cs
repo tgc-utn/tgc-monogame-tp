@@ -46,25 +46,25 @@ namespace MonoGamers.Pistas
 
         //Sonic
 
-        private Model SonicModel { get; set; }  
+        private Model SonicModel { get; set; }
         private Matrix Sonic { get; set; }
 
         // GraphicsDevice
         private GraphicsDevice GraphicsDevice { get; set; }
-        
+
         // Simulation           
         private Simulation Simulation { get; set; }
 
         //efects
 
-        private Effect Effect { get; set; }
-
-        // Tiling Effect
-        private Effect TilingEffect { get; set; }
+        public Effect Effect { get; set; }
+        public Effect EffectB { get; set; }
 
         private Texture2D CobbleTexture { get; set; }
-        
-        
+        private Texture2D FloorTexture { get; set; }
+        private Texture2D FloorNormalTexture { get; set; }
+
+
         public Pista2(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation)
         {
             GraphicsDevice = graphicsDevice;
@@ -109,13 +109,13 @@ namespace MonoGamers.Pistas
                 Matrix.CreateScale(100f, 5f, 100f) * Matrix.CreateTranslation(x + 1900f, y + 140f, z + 2550f),
 
             };
-            
+
             for (int index = 0; index < Platforms.Length; index++)
             {
                 var matrix = Platforms[index];
                 matrix.Decompose(out scale, out rot, out translation);
                 Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
-                    Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+                    Simulation.Shapes.Add(new Box(scale.X, scale.Y, scale.Z))));
 
             }
 
@@ -125,24 +125,24 @@ namespace MonoGamers.Pistas
                Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x + 150f, y + 50f, z + 1230f),
                Matrix.CreateScale(100f, 100f, 20f) * Matrix.CreateTranslation(x - 150f, y + 50f, z + 1270f)
             };
-            
+
             MovingBoxesBodyHandle = new BodyHandle[MovingBoxes.Length];
             MovingBoxesScale = new Vector3(100f, 100f, 20f);
             InitialLeftXPositionMovingBoxes = x + 150f;
             InitialRigthXPositionMovingBoxes = x - 150f;
 
 
-            
+
             for (int index = 0; index < MovingBoxes.Length; index++)
             {
                 var matrix = MovingBoxes[index];
-                
+
                 matrix.Decompose(out scale, out rot, out translation);
-                
+
                 System.Numerics.Quaternion rotationMB = new System.Numerics.Quaternion(rot.X, rot.Y, rot.Z, rot.W);
-                
+
                 var initialPosMw = new RigidPose(Utils.ToNumericVector3(translation), rotationMB);
-                
+
                 var annoyingMovingWallsShape = new Box(MovingBoxesScale.X, MovingBoxesScale.Y, MovingBoxesScale.Z);
                 MovingBoxesBodyHandle[index] = (
                     Simulation.Bodies.Add(BodyDescription.CreateKinematic(initialPosMw,
@@ -151,7 +151,7 @@ namespace MonoGamers.Pistas
                         new BodyActivityDescription(-0.1f))));
 
             }
-            
+
 
             //Signs 
 
@@ -169,13 +169,13 @@ namespace MonoGamers.Pistas
                 var matrix = Signs[index];
                 matrix.Decompose(out scale, out rot, out translation);
                 Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
-                    Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+                    Simulation.Shapes.Add(new Box(scale.X, scale.Y, scale.Z))));
 
             }
             //Sonic
             Sonic = Matrix.CreateScale(2f, 2f, 2f) *
-                Matrix.CreateRotationY((float)(Math.PI/2)) *
-                Matrix.CreateTranslation(x + 20f, y, z+100f);
+                Matrix.CreateRotationY((float)(Math.PI / 2)) *
+                Matrix.CreateTranslation(x + 20f, y, z + 100f);
         }
 
         private void LoadContent(ContentManager Content)
@@ -184,14 +184,17 @@ namespace MonoGamers.Pistas
             CobbleTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
 
-            Effect = Content.Load<Effect>(
-                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
-            // Load our Tiling Effect
-            TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
+            FloorTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/grass");
+            FloorNormalTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/grass-normal");
+
+             EffectB = Content.Load<Effect>(
+                 ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
 
             //Carga modelo Rush
             RushModel = Content.Load<Model>(
-                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "arrowpush/tinker") ;
+                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "arrowpush/tinker");
 
             //Carga modelo sign
             SignModel = Content.Load<Model>("Models/signs/warningSign/untitled");
@@ -206,94 +209,108 @@ namespace MonoGamers.Pistas
 
         public void Update()
         {
-            
+
             // AnnoyingMovingWalls
             for (int index = 0; index < MovingBoxesBodyHandle.Length; index++)
             {
                 var MovingBoxesBodyRef = Simulation.Bodies.GetBodyReference(MovingBoxesBodyHandle[index]);
-                if (index%2 == 0){
+                if (index % 2 == 0)
+                {
                     if (MovingBoxesBodyRef.Pose.Position.X >= InitialLeftXPositionMovingBoxes)
-                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 70f ));
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 70f));
                     if (MovingBoxesBodyRef.Pose.Position.X <= InitialLeftXPositionMovingBoxes - LengthDistanceDifference)
-                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 70f ));
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 70f));
                 }
                 else
                 {
                     if (MovingBoxesBodyRef.Pose.Position.X <= InitialRigthXPositionMovingBoxes)
-                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 70f ));
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Right * 70f));
                     if (MovingBoxesBodyRef.Pose.Position.X >= InitialRigthXPositionMovingBoxes + LengthDistanceDifference)
-                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 70f ));
+                        MovingBoxesBodyRef.Velocity = new BodyVelocity(Utils.ToNumericVector3(Vector3.Left * 70f));
                 }
 
             }
         }
 
-        public void Draw(Matrix view, Matrix projection)
+        public void Draw(Camera.Camera camera)
         {
- 
-            
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
 
 
-            var viewProjection = view * projection;
-            // Set the Technique inside the TilingEffect to "BaseTiling"
-            TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
-            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
-            TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);  
-            Array.ForEach(Platforms, Platform => {
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
-            });
-            
+            var viewProjection = camera.View * camera.Projection;
+
+            Effect.Parameters["eyePosition"].SetValue(camera.Position);
+            Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
+            Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
+            Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+
+
+            Effect.Parameters["KAmbient"].SetValue(0.5f);
+            Effect.Parameters["KDiffuse"].SetValue(0.3f);
+            Effect.Parameters["shininess"].SetValue(16.0f);
+            Effect.Parameters["KSpecular"].SetValue(0.2f);
+
+            // Draw Platforms
+            for (int index = 0; index < Platforms.Length; index++)
+            {
+                var matrix = Platforms[index];
+                Effect.Parameters["World"].SetValue(matrix);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(matrix)));
+                Effect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+                BoxPrimitive.Draw(Effect);
+
+            }
+
             Array.ForEach(RushPowerups, PowerUp =>
             {
-                Effect.Parameters["World"].SetValue(PowerUp);
+                EffectB.Parameters["World"].SetValue(PowerUp);
                 var meshes = RushModel.Meshes;
                 foreach (var mesh in meshes)
                 {
                     foreach (var part in mesh.MeshParts)
                     {
-                        part.Effect = Effect;
+                        part.Effect = EffectB;
                     }
 
                     mesh.Draw();
                 }
-                
+
             });
 
-            Array.ForEach(Signs, Sign => {
-                Effect.Parameters["World"].SetValue(Sign);
+            Array.ForEach(Signs, Sign =>
+            {
+                EffectB.Parameters["World"].SetValue(Sign);
                 var meshes = SignModel.Meshes;
                 foreach (var mesh in meshes)
                 {
                     foreach (var part in mesh.MeshParts)
                     {
-                        part.Effect = Effect;
+                        part.Effect = EffectB;
                     }
 
                     mesh.Draw();
                 }
             });
-            
-            // Draw AnnoyingMovingWallsWorld
+
+            // Draw MovingBoxes
             for (int index = 0; index < MovingBoxes.Length; index++)
             {
                 var poseMw = Simulation.Bodies.GetBodyReference(MovingBoxesBodyHandle[index]).Pose;
                 MovingBoxes[index] = Matrix.CreateScale(MovingBoxesScale) * Matrix.CreateTranslation(poseMw.Position.X, poseMw.Position.Y, poseMw.Position.Z);
-                TilingEffect.Parameters["WorldViewProjection"].SetValue(MovingBoxes[index] * viewProjection);
-                BoxPrimitive.Draw(TilingEffect);
+                Effect.Parameters["World"].SetValue(MovingBoxes[index]);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(MovingBoxes[index])));
+                Effect.Parameters["WorldViewProjection"].SetValue(MovingBoxes[index] * viewProjection);
+                BoxPrimitive.Draw(Effect);
 
             }
 
 
-            Effect.Parameters["World"].SetValue(Sonic);
+            EffectB.Parameters["World"].SetValue(Sonic);
             var sonicmesh = SonicModel.Meshes;
             foreach (var mesh in sonicmesh)
             {
                 foreach (var part in mesh.MeshParts)
                 {
-                    part.Effect = Effect;
+                    part.Effect = EffectB;
                 }
 
                 mesh.Draw();

@@ -13,53 +13,56 @@ using System.Configuration;
 
 namespace MonoGamers.Pistas;
 public class Pista3
-{ 
-    
-// ======== DECALRACION DE VARIABES ========
-    
+{
+
+    // ======== DECALRACION DE VARIABES ========
+
     // ____ Colliders ____
 
     // Bounding Boxes (for all our models)
-        private BoundingBox[] Colliders { get; set; }    
-    
+    private BoundingBox[] Colliders { get; set; }
+
     // _____ Geometries _______
-        private BoxPrimitive BoxPrimitive { get; set;}
-    
+    private BoxPrimitive BoxPrimitive { get; set; }
+
     // ____ Textures ____
-        private Texture2D CobbleTexture { get; set; }
-    
+    private Texture2D CobbleTexture { get; set; }
+    private Texture2D FloorTexture { get; set; }
+    private Texture2D FloorNormalTexture { get; set; }
+
     // ____ World matrices ____
-        // Plataformas principales
-            private Matrix Platform1World { get; set;}
+    // Plataformas principales
+    private Matrix Platform1World { get; set; }
 
-            // Floating Platforms
-            private Matrix[] FloatingPlatformsWorld { get; set; }
-            
-        // FloatingMovingPlatform (Vertical Movement)
-            private Matrix FloatingMovingPlatformWorld { get; set;}
-            
+    // Floating Platforms
+    private Matrix[] FloatingPlatformsWorld { get; set; }
 
-        // GraphicsDevice
-            private GraphicsDevice GraphicsDevice { get; set; }
-    
-        // Simulation           
-            private Simulation Simulation { get; set; }
+    // FloatingMovingPlatform (Vertical Movement)
+    private Matrix FloatingMovingPlatformWorld { get; set; }
 
-        // Tiling Effect
-            private Effect TilingEffect { get; set; }  
-            
-// ======== Constructor de Pista 3 ========            
-    public Pista3(ContentManager Content,GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation )
+
+    // GraphicsDevice
+    private GraphicsDevice GraphicsDevice { get; set; }
+
+    // Simulation           
+    private Simulation Simulation { get; set; }
+
+    // Tiling Effect
+    private Effect TilingEffect { get; set; }
+    public Effect Effect { get; set; }
+
+    // ======== Constructor de Pista 3 ========            
+    public Pista3(ContentManager Content, GraphicsDevice graphicsDevice, float x, float y, float z, Simulation simulation)
     {
         GraphicsDevice = graphicsDevice;
         Simulation = simulation;
         Initialize(x, y, z);
-        
+
         LoadContent(Content);
 
     }
-    
-// ======== Inicializar matrices ========       
+
+    // ======== Inicializar matrices ========       
     private void Initialize(float x, float y, float z)
     {
 
@@ -69,13 +72,13 @@ public class Pista3
         Vector3 scale;
         Quaternion rot;
         Vector3 translation;
-        
+
         Platform1World = Matrix.CreateScale(75f, 5f, 75f) * Matrix.CreateTranslation(lastX, lastY, lastZ);
         Platform1World.Decompose(out scale, out rot, out translation);
         Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
-            Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+            Simulation.Shapes.Add(new Box(scale.X, scale.Y, scale.Z))));
         lastZ += 200f;
-        
+
         // Create World matrices for FloatingPlatformsWorld
         FloatingPlatformsWorld = new Matrix[]
         {
@@ -110,49 +113,64 @@ public class Pista3
             var matrix = FloatingPlatformsWorld[index];
             matrix.Decompose(out scale, out rot, out translation);
             Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
-                Simulation.Shapes.Add( new Box(scale.X,scale.Y, scale.Z))));
+                Simulation.Shapes.Add(new Box(scale.X, scale.Y, scale.Z))));
 
         }
     }
-    
-// ======== Cargar Contenidos ========
+
+    // ======== Cargar Contenidos ========
     private void LoadContent(ContentManager Content)
     {
         // Load our Tiling Effect
-            TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
+        TilingEffect = Content.Load<Effect>(ConfigurationManager.AppSettings["ContentFolderEffects"] + "TextureTiling");
         // Cargar Texturas
-            CobbleTexture = Content.Load<Texture2D>(
-                ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
-        
+        CobbleTexture = Content.Load<Texture2D>(
+            ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/adoquin");
+
+        FloorTexture = Content.Load<Texture2D>(
+            ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/asphalt");
+        FloorNormalTexture = Content.Load<Texture2D>(
+            ConfigurationManager.AppSettings["ContentFolderTextures"] + "floor/asphalt-normal");
+
         // Cargar Primitiva de caja con textura
-            BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
+        BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
     }
-    
-    
-// ======== Dibujar Modelos ========  
-    public void Draw(Matrix view, Matrix projection)
+
+
+    // ======== Dibujar Modelos ========  
+    public void Draw(Camera.Camera camera)
     {
-        var viewProjection = view * projection;
-        // Set the Technique inside the TilingEffect to "BaseTiling"
-        TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"]; // Using its original Texture Coordinates
-        TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
-        TilingEffect.Parameters["Texture"].SetValue(CobbleTexture);    
+        var viewProjection = camera.View * camera.Projection;
+
+        Effect.Parameters["eyePosition"].SetValue(camera.Position);
+        Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
+        Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
+        Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+
+
+        Effect.Parameters["KAmbient"].SetValue(0.3f);
+        Effect.Parameters["KDiffuse"].SetValue(0.2f);
+        Effect.Parameters["shininess"].SetValue(16.0f);
+        Effect.Parameters["KSpecular"].SetValue(0.2f);
 
         // Draw Platform1
-            TilingEffect.Parameters["WorldViewProjection"].SetValue(Platform1World * viewProjection);
-            BoxPrimitive.Draw(TilingEffect);
-        
+        Effect.Parameters["World"].SetValue(Platform1World);
+        Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(Platform1World)));
+        Effect.Parameters["WorldViewProjection"].SetValue(Platform1World * viewProjection);
+        BoxPrimitive.Draw(Effect);
+
         // Draw Floating Platforms
+        Effect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
         for (int index = 0; index < FloatingPlatformsWorld.Length; index++)
         {
             var matrix = FloatingPlatformsWorld[index];
-            TilingEffect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
-            BoxPrimitive.Draw(TilingEffect);
-
-
+            Effect.Parameters["World"].SetValue(matrix);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(matrix)));
+            Effect.Parameters["WorldViewProjection"].SetValue(matrix * viewProjection);
+            BoxPrimitive.Draw(Effect);
         }
-        
-        // Draw Platform1
-            BoxPrimitive.Draw(FloatingMovingPlatformWorld, view, projection);
+
+        /* // Draw Platform1
+        BoxPrimitive.Draw(FloatingMovingPlatformWorld, view, projection); */
     }
 }

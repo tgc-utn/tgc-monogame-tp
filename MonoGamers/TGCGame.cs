@@ -84,7 +84,8 @@ namespace MonoGamers
         private Matrix FloorWorld { get; set; }
 
         //Texturas
-        private Texture2D StonesTexture { get; set; }
+        private Texture2D FloorTexture { get; set; }
+        private Texture2D FloorNormalTexture { get; set; }
         
 
         // Effects
@@ -243,7 +244,8 @@ namespace MonoGamers
 
             // Load Textures
                 
-                StonesTexture = Content.Load<Texture2D>(ContentFolderTextures + "stones");
+                FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/concrete");
+                FloorNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/concrete-normal");
                 
                 MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/color");
                 MonoSphere.SphereCommonNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/normal");
@@ -270,6 +272,9 @@ namespace MonoGamers
                 
                 MonoSphere.SphereEffect = LightEffect;
                 Pista1.Effect = LightEffect;
+                Pista2.Effect = LightEffect;
+                Pista3.Effect = LightEffect;
+                Pista4.Effect = LightEffect;
                 
                 
 
@@ -414,8 +419,8 @@ namespace MonoGamers
                 
                 LightEffect.Parameters["eyePosition"].SetValue(Camera.Position);
                 LightEffect.Parameters["Tiling"].SetValue(new Vector2(10f, 10f));
-                LightEffect.Parameters["ModelTexture"].SetValue(StonesTexture);
-                // LightEffect.Parameters["NormalTexture"].SetValue(FloorNormalTexture); AGREGAR NORMALLLLLLLLLL
+                LightEffect.Parameters["ModelTexture"].SetValue(FloorTexture);
+                LightEffect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
                 
                 LightEffect.Parameters["KAmbient"].SetValue(0.4f);
                 LightEffect.Parameters["KDiffuse"].SetValue(0.5f);
@@ -432,9 +437,9 @@ namespace MonoGamers
 
             // Dibujamos las pistas
                 Pista1.Draw(Camera);
-                Pista2.Draw(Camera.View, Camera.Projection);
-                Pista3.Draw(Camera.View, Camera.Projection);
-                Pista4.Draw(Camera.View, Camera.Projection);
+                Pista2.Draw(Camera);
+                Pista3.Draw(Camera);
+                Pista4.Draw(Camera);
                 
             // Dibujamos el skybox
                 DrawSkybox(Camera);
