@@ -256,9 +256,13 @@ namespace MonoGamers
                 
                 // MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
                 
-                MonoSphere.SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "stone");
-                MonoSphere.SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "metal");
+                MonoSphere.SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "rock/color");
+                MonoSphere.SphereStoneNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "rock/normal");
+                MonoSphere.SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/metal/color");
+                MonoSphere.SphereMetalNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/metal/normal");
                 MonoSphere.SphereGumTexture = Content.Load<Texture2D>(ContentFolderTextures + "gum");
+                MonoSphere.SphereGumNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/normal");
+
 
             // Load our LightEffect
                 LightEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhongTypes");

@@ -58,8 +58,11 @@ namespace MonoGamers.Geometries
         
         public Texture2D SphereCommonNormalTexture { get; set; }
         public Texture2D SphereStoneTexture { get; set; }
+        public Texture2D SphereStoneNormalTexture { get; set; }
         public Texture2D SphereMetalTexture { get; set; }
+        public Texture2D SphereMetalNormalTexture { get; set; }
         public Texture2D SphereGumTexture { get; set; }
+        public Texture2D SphereGumNormalTexture { get; set; }
 
         // Effect
         public Effect SphereEffect { get; set; }
@@ -300,12 +303,15 @@ namespace MonoGamers.Geometries
             }
             if(SphereType == Type.Gum) {
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereGumTexture);
+                SphereEffect.Parameters["NormalTexture"].SetValue(SphereGumNormalTexture);
             }
             if(SphereType == Type.Metal) {
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereMetalTexture);
+                SphereEffect.Parameters["NormalTexture"].SetValue(SphereMetalNormalTexture);
             }
             if(SphereType == Type.Stone) {
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
+                SphereEffect.Parameters["NormalTexture"].SetValue(SphereStoneNormalTexture);
             }
             
             //SpherePrimitive.Draw(SphereEffect);
