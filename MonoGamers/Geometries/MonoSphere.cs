@@ -302,14 +302,29 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["NormalTexture"].SetValue(SphereCommonNormalTexture);
             }
             if(SphereType == Type.Gum) {
+                SphereEffect.Parameters["KAmbient"].SetValue(0.4f);
+                SphereEffect.Parameters["KDiffuse"].SetValue(0.4f);
+                SphereEffect.Parameters["shininess"].SetValue(2.0f);
+                SphereEffect.Parameters["KSpecular"].SetValue(0.5f);
+                
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereGumTexture);
                 SphereEffect.Parameters["NormalTexture"].SetValue(SphereGumNormalTexture);
             }
             if(SphereType == Type.Metal) {
+                SphereEffect.Parameters["KAmbient"].SetValue(0.9f);
+                SphereEffect.Parameters["KDiffuse"].SetValue(0.7f);
+                SphereEffect.Parameters["shininess"].SetValue(16.0f);
+                SphereEffect.Parameters["KSpecular"].SetValue(1.0f);
+                
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereMetalTexture);
                 SphereEffect.Parameters["NormalTexture"].SetValue(SphereMetalNormalTexture);
             }
             if(SphereType == Type.Stone) {
+                SphereEffect.Parameters["KAmbient"].SetValue(0.2f);
+                SphereEffect.Parameters["KDiffuse"].SetValue(0.4f);
+                SphereEffect.Parameters["shininess"].SetValue(2.0f);
+                SphereEffect.Parameters["KSpecular"].SetValue(0.3f);
+                
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
                 SphereEffect.Parameters["NormalTexture"].SetValue(SphereStoneNormalTexture);
             }
