@@ -145,10 +145,10 @@ public class Pista3
         Effect.Parameters["eyePosition"].SetValue(camera.Position);
         Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
         Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
-        Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+        Effect.Parameters["NormalTexture"]?.SetValue(FloorNormalTexture);
 
 
-        Effect.Parameters["KAmbient"].SetValue(0.3f);
+        Effect.Parameters["KAmbient"]?.SetValue(0.3f);
         Effect.Parameters["KDiffuse"].SetValue(0.2f);
         Effect.Parameters["shininess"].SetValue(16.0f);
         Effect.Parameters["KSpecular"].SetValue(0.2f);

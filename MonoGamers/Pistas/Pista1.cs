@@ -367,10 +367,10 @@ public class Pista1
         Effect.Parameters["eyePosition"].SetValue(camera.Position);
         Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
         Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
-        Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+        Effect.Parameters["NormalTexture"]?.SetValue(FloorNormalTexture);
 
 
-        Effect.Parameters["KAmbient"].SetValue(0.4f);
+        Effect.Parameters["KAmbient"]?.SetValue(0.4f);
         Effect.Parameters["KDiffuse"].SetValue(0.5f);
         Effect.Parameters["shininess"].SetValue(16.0f);
         Effect.Parameters["KSpecular"].SetValue(1.0f);
@@ -413,7 +413,7 @@ public class Pista1
         // Draw AnnoyingWallsWorld
         Effect.Parameters["Tiling"].SetValue(new Vector2(3f, 3f));
         Effect.Parameters["ModelTexture"].SetValue(WallTexture);
-        Effect.Parameters["NormalTexture"].SetValue(WallNormalTexture);
+        Effect.Parameters["NormalTexture"]?.SetValue(WallNormalTexture);
         for (int index = 0; index < AnnoyingWallsWorld.Length; index++)
         {
             var matrix = AnnoyingWallsWorld[index];
@@ -438,7 +438,7 @@ public class Pista1
         }
 
         Effect.Parameters["ModelTexture"].SetValue(FloorTexture);
-        Effect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
+        Effect.Parameters["NormalTexture"]?.SetValue(FloorNormalTexture);
         // Draw Floating Platforms 2
         for (int index = 0; index < FloatingPlatforms2World.Length; index++)
         {
@@ -460,8 +460,8 @@ public class Pista1
         // Draw BoxesWorld
         Effect.Parameters["Tiling"].SetValue(new Vector2(1f, 1f));
         Effect.Parameters["ModelTexture"].SetValue(WoodenTexture);
-        Effect.Parameters["NormalTexture"].SetValue(WoodenNormalTexture);
-        Effect.Parameters["KAmbient"].SetValue(0.5f);
+        Effect.Parameters["NormalTexture"]?.SetValue(WoodenNormalTexture);
+        Effect.Parameters["KAmbient"]?.SetValue(0.5f);
         Effect.Parameters["KDiffuse"].SetValue(0.5f);
         Effect.Parameters["shininess"].SetValue(16.0f);
         Effect.Parameters["KSpecular"].SetValue(0.5f);

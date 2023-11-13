@@ -56,27 +56,22 @@ namespace MonoGamers
 
         // Camera to draw the scene
         private TargetCamera Camera { get; set; }
+        private TargetLightCamera TargetLightCamera { get; set; }
+        
+        private readonly float LightCameraFarPlaneDistance = 3000f;
+        private readonly float LightCameraNearPlaneDistance = 5f;
+        private Vector3 SunPosition  = new Vector3(-500f, 1400f, -300f);
         
         private GraphicsDeviceManager Graphics { get; }
 
         // Geometries
-        private BoxPrimitive BoxPrimitive { get; set; }
         private QuadPrimitive Floor { get; set; }
-
-        // Handlers
-        private BodyHandle FloorHandle { get; set; }
+        
         
         // Simulation
         private MonoSimulation MonoSimulation { get; set; }
         private Simulation Simulation { get; set; }
         
-
-        /// <summary>
-        /// The position of the Sun
-        /// </summary>
-        ///
-        /// We don´t draw the sun as it can never been seen inside the game
-        private Vector3 SunPosition { get; set; }
         
 
 
@@ -133,6 +128,10 @@ namespace MonoGamers
 
 
         private MouseState PreviousMouseState { get; set; }
+        
+        // Shadow map
+        private RenderTarget2D ShadowMapRenderTarget { get; set; }
+        private const int ShadowmapSize = 4096;
 
 
         /// <summary>
@@ -170,9 +169,9 @@ namespace MonoGamers
             PreviousMouseState = Mouse.GetState();
 
             // Creo una camara para seguir a la esfera.
-            //FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero, GraphicsDevice.Viewport);
-            //Camera.BuildProjection(GraphicsDevice.Viewport.AspectRatio, 0.1f, 100000f, MathF.PI / 3f);
+
+
 
             // Creo los checkpoints
             Checkpoints = new Checkpoint[]
@@ -190,7 +189,6 @@ namespace MonoGamers
             {
                 new JumpPowerUp(new Vector3(100f, 10f, 500f)),
                 new FastPowerUp(new Vector3(100f, 5f, 4550f)),
-                //new RushPowerUp(new Vector3(100f, 10f, 160f)),
             };
 
             
@@ -211,8 +209,15 @@ namespace MonoGamers
             //Menu
             Menu = new Menu.Menu(Content, GraphicsDevice, this);
 
-            SunPosition = new NumericVector3(-1000f, 5000f, -1000f);
+            
+            TargetLightCamera = new TargetLightCamera(1f, 
+                new Vector3(MonoSphere.SpherePosition.X + SunPosition.X ,MonoSphere.SpherePosition.Y + SunPosition.Y, MonoSphere.SpherePosition.Z + SunPosition.Z),
+                MonoSphere.SpherePosition ,LightCameraNearPlaneDistance,LightCameraFarPlaneDistance);
 
+            TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
+                MathHelper.PiOver2);
+            
+            TargetLightCamera.BuildView();
 
             base.Initialize();
             stopwatchInitialize.Stop();
@@ -232,30 +237,21 @@ namespace MonoGamers
             
 
             //Contenido de HUD
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCode/CascadiaCodePL");
+                SpriteBatch = new SpriteBatch(GraphicsDevice);
+                SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCode/CascadiaCodePL");
 
-            Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
-            /*
-            // Enable default lighting for the Sphere
-            foreach (var mesh in Sphere.Meshes)
-                ((BasicEffect)mesh.Effects.FirstOrDefault())?.EnableDefaultLighting();
-            */
+                Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
 
             // Load Textures
                 
                 FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/concrete");
                 FloorNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/concrete-normal");
                 
-                MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/color");
-                MonoSphere.SphereCommonNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/normal");
                 
                 MonoSphere.SphereModel = Content.Load<Model>(ContentFolder3D + "geometries/sphere");
-                
 
-                
-                // MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "common");
-                
+                MonoSphere.SphereCommonTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/color");
+                MonoSphere.SphereCommonNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/marble/normal");                
                 MonoSphere.SphereStoneTexture = Content.Load<Texture2D>(ContentFolderTextures + "rock/color");
                 MonoSphere.SphereStoneNormalTexture = Content.Load<Texture2D>(ContentFolderTextures + "rock/normal");
                 MonoSphere.SphereMetalTexture = Content.Load<Texture2D>(ContentFolderTextures + "pbr/metal/color");
@@ -265,9 +261,8 @@ namespace MonoGamers
 
 
             // Load our LightEffect
-                LightEffect = Content.Load<Effect>(ContentFolderEffects + "BlinnPhongTypes");
-                LightEffect.CurrentTechnique = LightEffect.Techniques["NormalMapping"];
-                LightEffect.Parameters["lightPosition"].SetValue(SunPosition);
+                LightEffect = Content.Load<Effect>(ContentFolderEffects + "LightEffect");
+                LightEffect.Parameters["lightPosition"].SetValue(TargetLightCamera.Position);
                 LightEffect.Parameters["ambientColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
                 LightEffect.Parameters["diffuseColor"].SetValue((Color.LightGoldenrodYellow).ToVector3());
                 LightEffect.Parameters["specularColor"].SetValue((Color.White).ToVector3());
@@ -282,17 +277,6 @@ namespace MonoGamers
                 
                 
 
-                
-                
-                
-                foreach (var modelMesh in MonoSphere.SphereModel.Meshes)
-                {
-                    foreach (var meshPart in modelMesh.MeshParts)
-                    { 
-                        meshPart.Effect = MonoSphere.SphereEffect; 
-                    }
-                }
-
             // Create our Quad (to draw the Floor) and add it to Simulation
                 Floor = new QuadPrimitive(GraphicsDevice);
                 FloorWorld = Matrix.CreateScale(200f, 0.001f, 200f);
@@ -300,15 +284,18 @@ namespace MonoGamers
                     Simulation.Shapes.Add(new Box(400f, 0.002f, 400f))));
 
                 var skyBox = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-                //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/islands/islands");
-                //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
-                //var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/sun-in-space/sun-in-space");
                 var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/sunset/sunset");
                 var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
                 SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect);
                 
                 //Menu
                 Menu.LoadContent();
+                
+                
+                // Create a shadow map. It stores depth from the light position
+                ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
+                    SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+                
 
             base.LoadContent();
             if (stopwatchLoad.IsRunning)
@@ -322,17 +309,19 @@ namespace MonoGamers
         /// <inheritdoc />
         protected override void Update(GameTime gameTime)
         {
-            if (!hasMeasuredUpdate)
-        {
-            stopwatchUpdate.Start();
-            hasMeasuredUpdate = true;
-        }
+            if (!hasMeasuredUpdate) {
+                stopwatchUpdate.Start();
+                hasMeasuredUpdate = true;
+                
+            }
+            
             // The time that passed between the last loop
             var deltaTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
             
             var keyboardState = Keyboard.GetState();
             var MouseState = Mouse.GetState();
+            
             // Check for key presses and rotate accordingly
             // We can stack rotations in a given axis by multiplying our past matrix
             // By a new matrix containing a new rotation to apply
@@ -364,6 +353,12 @@ namespace MonoGamers
 
             MonoSimulation.Update();
 
+            TargetLightCamera.Position = new Vector3(MonoSphere.SpherePosition.X + SunPosition.X,
+                MonoSphere.SpherePosition.Y + SunPosition.Y, MonoSphere.SpherePosition.Z + SunPosition.Z);
+            TargetLightCamera.TargetPosition =  MonoSphere.SpherePosition;
+
+            TargetLightCamera.BuildView();
+            
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
 
             base.Update(gameTime);
@@ -405,28 +400,73 @@ namespace MonoGamers
                 hasMeasuredDraw = true;
             }
             
+                        
             // Limpio la pantalla.
-                GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            //powerups Drawing
-                foreach(var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
+            GraphicsDevice.Clear(Color.CornflowerBlue);
             
-            // Sphere drawinga
-                MonoSphere.Draw(Camera);
-
-           // Calculate the ViewProjection matrix
+            // Calculate the ViewProjection matrix
             //var viewProjection = FollowCamera.View * FollowCamera.Projection;
             var viewProjection = Camera.View * Camera.Projection;
-
-            // Floor drawing
             
+            #region Pass 1
+
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                // Set the render target as our shadow map, we are drawing the depth into this texture
+                GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+
+                LightEffect.CurrentTechnique = LightEffect.Techniques["DepthPass"];
                 
+                //powerups Drawing
+                foreach(var powerup in PowerUps) { powerup.Draw(TargetLightCamera, gameTime); }
+                
+                // Sphere drawinga
+                MonoSphere.Draw(TargetLightCamera);
+                
+                // Floor drawing
+                
+                LightEffect.Parameters["WorldViewProjection"].SetValue(FloorWorld * TargetLightCamera.View * TargetLightCamera.Projection);
+                Floor.Draw(LightEffect);
+                
+                // Dibujamos las pistas
+                Pista1.Draw(TargetLightCamera);
+                Pista2.Draw(TargetLightCamera);
+                Pista3.Draw(TargetLightCamera);
+                Pista4.Draw(TargetLightCamera);
+                
+                
+
+
+
+            #endregion
+
+            #region Pass 2
+
+                // Set the render target as null, we are drawing on the screen!
+                GraphicsDevice.SetRenderTarget(null);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+
+                LightEffect.CurrentTechnique = LightEffect.Techniques["Draw_NM_SM"];
+                LightEffect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
+                LightEffect.Parameters["lightPosition"].SetValue(TargetLightCamera.Position);
+                LightEffect.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowmapSize);
+                LightEffect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+                
+                //powerups Drawing
+                foreach(var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
+                    
+                // Sphere drawinga
+                MonoSphere.Draw(Camera);      
+                
+                // Floor drawing
+                
+                    
                 LightEffect.Parameters["eyePosition"].SetValue(Camera.Position);
                 LightEffect.Parameters["Tiling"].SetValue(new Vector2(10f, 10f));
                 LightEffect.Parameters["ModelTexture"].SetValue(FloorTexture);
                 LightEffect.Parameters["NormalTexture"].SetValue(FloorNormalTexture);
-                
-                LightEffect.Parameters["KAmbient"].SetValue(0.4f);
+                    
+                LightEffect.Parameters["KAmbient"]?.SetValue(0.4f);
                 LightEffect.Parameters["KDiffuse"].SetValue(0.5f);
                 LightEffect.Parameters["shininess"].SetValue(20.0f);
                 LightEffect.Parameters["KSpecular"].SetValue(0.5f);
@@ -434,29 +474,28 @@ namespace MonoGamers
                 LightEffect.Parameters["World"].SetValue(FloorWorld);
                 LightEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(FloorWorld)));
                 LightEffect.Parameters["WorldViewProjection"].SetValue(FloorWorld * viewProjection);
-                
+                    
                 Floor.Draw(LightEffect);
-            
-            
-
-            // Dibujamos las pistas
+                
+                // Dibujamos las pistas
                 Pista1.Draw(Camera);
                 Pista2.Draw(Camera);
                 Pista3.Draw(Camera);
                 Pista4.Draw(Camera);
-                
+
+
+
+            #endregion            
+            
+
             // Dibujamos el skybox
-                DrawSkybox(Camera);
+            DrawSkybox(Camera);
 
-                
-                
-
-
-                DrawUI(gameTime);
-                base.Draw(gameTime);
-                
-                if (stopwatchDraw.IsRunning)
-                    stopwatchDraw.Stop();
+            DrawUI(gameTime);
+            base.Draw(gameTime);
+            
+            if (stopwatchDraw.IsRunning)
+                stopwatchDraw.Stop();
         }
         
         private void DrawSkybox(Camera.Camera camera)

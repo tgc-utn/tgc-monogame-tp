@@ -286,20 +286,20 @@ namespace MonoGamers.Geometries
             SphereEffect.Parameters["eyePosition"].SetValue(camera.Position);
             SphereEffect.Parameters["World"].SetValue(SphereWorld);
             SphereEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(SphereWorld)));
-            SphereEffect.Parameters["WorldViewProjection"].SetValue(SphereWorld * viewProjection);
+            //SphereEffect.Parameters["WorldViewProjection"].SetValue(SphereWorld * viewProjection);
             SphereEffect.Parameters["Tiling"].SetValue(Vector2.One);
 
 
             
             if(SphereType == Type.Common) {
 
-                SphereEffect.Parameters["KAmbient"].SetValue(0.5f);
+                SphereEffect.Parameters["KAmbient"]?.SetValue(0.5f);
                 SphereEffect.Parameters["KDiffuse"].SetValue(0.7f);
                 SphereEffect.Parameters["shininess"].SetValue(5.0f);
                 SphereEffect.Parameters["KSpecular"].SetValue(1.0f);
                 
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereCommonTexture);
-                SphereEffect.Parameters["NormalTexture"].SetValue(SphereCommonNormalTexture);
+                SphereEffect.Parameters["NormalTexture"]?.SetValue(SphereCommonNormalTexture);
             }
             if(SphereType == Type.Gum) {
                 SphereEffect.Parameters["KAmbient"].SetValue(0.4f);
@@ -308,7 +308,7 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["KSpecular"].SetValue(0.5f);
                 
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereGumTexture);
-                SphereEffect.Parameters["NormalTexture"].SetValue(SphereGumNormalTexture);
+                SphereEffect.Parameters["NormalTexture"]?.SetValue(SphereGumNormalTexture);
             }
             if(SphereType == Type.Metal) {
                 SphereEffect.Parameters["KAmbient"].SetValue(0.9f);
@@ -317,7 +317,7 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["KSpecular"].SetValue(1.0f);
                 
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereMetalTexture);
-                SphereEffect.Parameters["NormalTexture"].SetValue(SphereMetalNormalTexture);
+                SphereEffect.Parameters["NormalTexture"]?.SetValue(SphereMetalNormalTexture);
             }
             if(SphereType == Type.Stone) {
                 SphereEffect.Parameters["KAmbient"].SetValue(0.2f);
@@ -326,15 +326,33 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["KSpecular"].SetValue(0.3f);
                 
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
-                SphereEffect.Parameters["NormalTexture"].SetValue(SphereStoneNormalTexture);
+                SphereEffect.Parameters["NormalTexture"]?.SetValue(SphereStoneNormalTexture);
             }
             
             //SpherePrimitive.Draw(SphereEffect);
-
+            var modelMeshesBaseTransforms = new Matrix[SphereModel.Bones.Count];
+            SphereModel.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            
             foreach (var modelMesh in SphereModel.Meshes)
+            {
+                foreach (var part in modelMesh.MeshParts)
+                    part.Effect = SphereEffect;
+
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
+
+                // WorldViewProjection is used to transform from model space to clip space
+                SphereEffect.Parameters["WorldViewProjection"]
+                    .SetValue(SphereWorld * viewProjection);
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
+
+            /*foreach (var modelMesh in SphereModel.Meshes)
             { 
                 modelMesh.Draw(); 
-            }
+            }*/
         }
     }
 
