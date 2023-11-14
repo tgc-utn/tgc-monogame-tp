@@ -15,14 +15,14 @@ namespace MonoGamers.Geometries
     {
 
         //Tipo de esfera
-        enum Type {
+        public enum Type {
             Common,
             Stone,
             Metal,
             Gum
         }
 
-        Type SphereType;
+        public Type SphereType;
         //Referencia de material afuera:
         public string Material { get; set; }
 

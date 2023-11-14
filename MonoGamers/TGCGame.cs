@@ -132,6 +132,11 @@ namespace MonoGamers
         // Shadow map
         private RenderTarget2D ShadowMapRenderTarget { get; set; }
         private const int ShadowmapSize = 4096;
+        
+        // Environment Map
+        private RenderTargetCube EnvironmentMapRenderTarget { get; set; }
+        private const int EnvironmentmapSize = 100;
+        private StaticCamera CubeMapCamera { get; set; }
 
 
         /// <summary>
@@ -212,14 +217,17 @@ namespace MonoGamers
             Menu = new Menu.Menu(Content, GraphicsDevice, this);
 
             
+            // raget Light Camera
             TargetLightCamera = new TargetLightCamera(1f, 
                 new Vector3(MonoSphere.SpherePosition.X + SunPosition.X ,MonoSphere.SpherePosition.Y + SunPosition.Y, MonoSphere.SpherePosition.Z + SunPosition.Z),
                 MonoSphere.SpherePosition ,LightCameraNearPlaneDistance,LightCameraFarPlaneDistance);
-
             TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
                 MathHelper.PiOver2);
-            
             TargetLightCamera.BuildView();
+            
+            // Environment map Camera
+            CubeMapCamera = new StaticCamera(1f, MonoSphere.SpherePosition, Vector3.UnitX, Vector3.Up);
+            CubeMapCamera.BuildProjection(1f, 1f, 3000f, MathHelper.PiOver2);
 
             base.Initialize();
             stopwatchInitialize.Stop();
@@ -299,6 +307,9 @@ namespace MonoGamers
                     SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
                 
 
+                EnvironmentMapRenderTarget = new RenderTargetCube(GraphicsDevice, EnvironmentmapSize, false,
+                    SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
+                
             base.LoadContent();
             if (stopwatchLoad.IsRunning)
             {
@@ -361,6 +372,9 @@ namespace MonoGamers
 
             TargetLightCamera.BuildView();
             
+            
+            CubeMapCamera.Position = MonoSphere.SpherePosition;
+            
             if (keyboardState.IsKeyDown(Keys.Escape)) Exit();
 
             base.Update(gameTime);
@@ -409,6 +423,37 @@ namespace MonoGamers
             // Calculate the ViewProjection matrix
             //var viewProjection = FollowCamera.View * FollowCamera.Projection;
             var viewProjection = Camera.View * Camera.Projection;
+
+            // Environment Map if metal
+            if (MonoSphere.SphereType == MonoSphere.Type.Metal)
+            {
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                // Draw to our cubemap from the robot position
+                for (var face = CubeMapFace.PositiveX; face <= CubeMapFace.NegativeZ; face++)
+                {
+                    // Set the render target as our cubemap face, we are drawing the scene in this texture
+                    GraphicsDevice.SetRenderTarget(EnvironmentMapRenderTarget, face);
+                    GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+
+                    SetCubemapCameraForOrientation(face);
+                    CubeMapCamera.BuildView();
+
+                    // Draw our scene. Do not draw our tank as it would be occluded by itself 
+                    // (if it has backface culling on)
+                    
+                    // Dibujamos el skybox
+                    DrawSkybox(CubeMapCamera);
+                    
+                    LightEffect.Parameters["WorldViewProjection"].SetValue(FloorWorld * CubeMapCamera.View * CubeMapCamera.Projection);
+                    Floor.Draw(LightEffect);
+                
+                    // Dibujamos las pistas
+                    Pista1.Draw(CubeMapCamera);
+                    Pista2.Draw(CubeMapCamera);
+                    Pista3.Draw(CubeMapCamera);
+                    Pista4.Draw(CubeMapCamera);
+                }
+            }
             
             #region Pass 1
 
@@ -457,8 +502,7 @@ namespace MonoGamers
                 //powerups Drawing
                 foreach(var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
                     
-                // Sphere drawinga
-                MonoSphere.Draw(Camera);      
+      
                 
                 // Floor drawing
                 
@@ -486,6 +530,32 @@ namespace MonoGamers
                 Pista4.Draw(Camera);
 
 
+                
+                // Sphere drawing
+                if (MonoSphere.SphereType != MonoSphere.Type.Metal)
+                {
+                    MonoSphere.Draw(Camera);    
+                }
+                else
+                {
+                    LightEffect.CurrentTechnique = LightEffect.Techniques["EnvironmentMapSphere"];
+                    LightEffect.Parameters["environmentMap"].SetValue(EnvironmentMapRenderTarget);
+                    LightEffect.Parameters["eyePosition"].SetValue(Camera.Position);
+
+                    var sphereWorld = Matrix.CreateTranslation(MonoSphere.SpherePosition);
+
+                    // World is used to transform from model space to world space
+                    LightEffect.Parameters["World"].SetValue(sphereWorld);
+                    // InverseTransposeWorld is used to rotate normals
+                    LightEffect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(sphereWorld)));
+                    // WorldViewProjection is used to transform from model space to clip space
+                    LightEffect.Parameters["WorldViewProjection"].SetValue(sphereWorld * Camera.View * Camera.Projection);
+
+                    MonoSphere.Draw(Camera);
+                }
+                
+                
+                
 
             #endregion            
             
@@ -566,5 +636,47 @@ namespace MonoGamers
             
             SpriteBatch.End();
         }
+        
+        /// <summary>
+        ///     Sets the camera orientation based on the cubemap face.
+        /// </summary>
+        private void SetCubemapCameraForOrientation(CubeMapFace face)
+        {
+            switch (face)
+            {
+                default:
+                case CubeMapFace.PositiveX:
+                    CubeMapCamera.FrontDirection = -Vector3.UnitX;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+
+                case CubeMapFace.NegativeX:
+                    CubeMapCamera.FrontDirection = Vector3.UnitX;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+
+                case CubeMapFace.PositiveY:
+                    CubeMapCamera.FrontDirection = Vector3.Down;
+                    CubeMapCamera.UpDirection = Vector3.UnitZ;
+                    break;
+
+                case CubeMapFace.NegativeY:
+                    CubeMapCamera.FrontDirection = Vector3.Up;
+                    CubeMapCamera.UpDirection = -Vector3.UnitZ;
+                    break;
+
+                case CubeMapFace.PositiveZ:
+                    CubeMapCamera.FrontDirection = -Vector3.UnitZ;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+
+                case CubeMapFace.NegativeZ:
+                    CubeMapCamera.FrontDirection = Vector3.UnitZ;
+                    CubeMapCamera.UpDirection = Vector3.Down;
+                    break;
+            }
+        }
     }
+    
+
 }
