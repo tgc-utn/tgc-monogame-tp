@@ -37,6 +37,8 @@ namespace MonoGamers.PowerUps
         private bool GoingDown { get; set; }
 
         public bool Activated;
+
+        public bool drawOnlyFloatingSphere = false;
         protected PowerUp(Vector3 position)
         {
             Activated = false;
@@ -68,25 +70,34 @@ namespace MonoGamers.PowerUps
                 FloatingSphereEffect.Parameters["Projection"].SetValue(Camera.Projection);
                 FloatingSphereEffect.Parameters["Time"]?.SetValue(time);
 
-                var mesh = PowerUpModel.Meshes.FirstOrDefault();
-                if (mesh != null)
+                if (drawOnlyFloatingSphere)
                 {
-                    foreach (var part in mesh.MeshParts)
+                    if(SphereModel != null)
                     {
-                        part.Effect = PowerUpEffect;
+                        var sphereMesh = SphereModel.Meshes.FirstOrDefault();
+                        foreach (var part in sphereMesh.MeshParts)
+                        {
+                            part.Effect = FloatingSphereEffect;
+                        }
+                        sphereMesh.Draw();
                     }
+                }
+                else
+                {
+                    var mesh = PowerUpModel.Meshes.FirstOrDefault();
+                    if (mesh != null)
+                    {
+                        foreach (var part in mesh.MeshParts)
+                        {
+                            part.Effect = PowerUpEffect;
+                        }
 
-                    mesh.Draw();
-                }
-                if(SphereModel != null)
-                {
-                    var sphereMesh = SphereModel.Meshes.FirstOrDefault();
-                    foreach (var part in sphereMesh.MeshParts)
-                    {
-                        part.Effect = FloatingSphereEffect;
+                        mesh.Draw();
                     }
-                    sphereMesh.Draw();
                 }
+
+                
+
             }
         }
 

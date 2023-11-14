@@ -483,7 +483,12 @@ namespace MonoGamers
 
 
                 //powerups Drawing
-                foreach (var powerup in PowerUps) { powerup.Draw(TargetLightCamera, gameTime); }
+                foreach (var powerup in PowerUps)
+                {
+                    powerup.drawOnlyFloatingSphere = false;
+                    
+                    powerup.Draw(Camera, gameTime); 
+                }
 
 
 
@@ -554,14 +559,27 @@ namespace MonoGamers
                 }
 
                 //powerups Drawing
-                foreach (var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
+                foreach (var powerup in PowerUps)
+                {
+                    powerup.drawOnlyFloatingSphere = false;
+                    
+                    powerup.Draw(Camera, gameTime); 
+                }
 
 
             #endregion
 
-
+            
             // Dibujamos el skybox
             DrawSkybox(Camera);
+            
+            //powerups Drawing -- Se dibuja despues del skybox para que aparezca en la esfera
+            foreach (var powerup in PowerUps)
+            {
+                powerup.drawOnlyFloatingSphere = true;
+                    
+                powerup.Draw(Camera, gameTime); 
+            }
 
             DrawUI(gameTime);
             base.Draw(gameTime);
