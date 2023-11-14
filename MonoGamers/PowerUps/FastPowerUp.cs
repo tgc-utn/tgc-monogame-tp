@@ -23,8 +23,8 @@ namespace MonoGamers.PowerUps
                          Quaternion.CreateFromAxisAngle(Vector3.Up, (float)Math.PI/2) *
                          Quaternion.CreateFromAxisAngle(Vector3.Right, (float)Math.PI/2);
 
-            PowerUpWorld =  Matrix.CreateScale(4f, 4f, 4f)
-                            * Matrix.CreateFromYawPitchRoll(0, 1.5f, 0)
+            PowerUpWorld =  Matrix.CreateScale(2f, 2f, 2f)
+                            * Matrix.CreateFromYawPitchRoll(0.5f, 0, 0)
                             * Matrix.CreateTranslation(position);
             var worldBounding = Matrix.CreateScale(20f, 20f, 20f) * Matrix.CreateTranslation(position);
             BoundingBox = BoundingVolumesExtensions.FromMatrix(worldBounding);
@@ -32,11 +32,11 @@ namespace MonoGamers.PowerUps
     public override void LoadContent(ContentManager Content)
         {
             PowerUpModel = Content.Load<Model>(
-                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "agiltyup/Agility_Up_FBX");
+                ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "agiltyup/Shoe");
             PowerUpEffect = Content.Load<Effect>(
-                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "PowerUpShader");
             PowerUpTexture = Content.Load<Texture2D>(
-                ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/AU_Display_MAT_Base_Color");
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/Diff");
         }
 
         public override async void Activate(MonoSphere Sphere)

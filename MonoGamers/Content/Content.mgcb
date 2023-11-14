@@ -103,6 +103,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/PBR.fx
 
+#begin Effects/PowerUpShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/PowerUpShader.fx
+
 #begin Effects/ShaderVisualizer.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -164,7 +170,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/geometries/sphere.fbx
 
-#begin Models/powerups/agiltyup/Agility_Up_FBX.fbx
+#begin Models/powerups/agiltyup/Shoe.obj
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -181,7 +187,19 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/powerups/agiltyup/Agility_Up_FBX.fbx
+/build:Models/powerups/agiltyup/Shoe.obj
+
+#begin Models/powerups/agiltyup/texture.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/texture.jpg
 
 #begin Models/powerups/agiltyup/textures/AU_Base_MAT_Base_Color.png
 /importer:TextureImporter
@@ -256,7 +274,16 @@
 /build:Models/powerups/agiltyup/textures/AU_Display_MAT_Base_Color.png
 
 #begin Models/powerups/agiltyup/textures/AU_Display_MAT_Emissive.png
-/copy:Models/powerups/agiltyup/textures/AU_Display_MAT_Emissive.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/AU_Display_MAT_Emissive.png
 
 #begin Models/powerups/agiltyup/textures/AU_Display_MAT_Metallic.png
 /importer:TextureImporter
@@ -305,6 +332,114 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/powerups/agiltyup/textures/AU_Display_MAT_Roughness.png
+
+#begin Models/powerups/agiltyup/textures/Diff.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/Diff.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_BUMP_2K_METALNESS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_BUMP_2K_METALNESS.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_COL_2K_METALNESS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_COL_2K_METALNESS.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_DISP_2K_METALNESS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_DISP_2K_METALNESS.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_METALNESS_2K_METALNESS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_METALNESS_2K_METALNESS.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_NRM_2K_METALNESS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_NRM_2K_METALNESS.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_ROUGHNESS_2K_METALNESS.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_ROUGHNESS_2K_METALNESS.png
+
+#begin Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_Sphere.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/gold/MetalGoldPaint002_Sphere.png
+
+#begin Models/powerups/agiltyup/textures/rough.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/powerups/agiltyup/textures/rough.png
 
 #begin Models/powerups/arrowpush/tinker.obj
 /importer:FbxImporter
@@ -680,6 +815,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/agilityup/AU_Display_MAT_Roughness.png
+
+#begin Textures/agilityup/Diff.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/agilityup/Diff.png
 
 #begin Textures/common.jpg
 /importer:TextureImporter
