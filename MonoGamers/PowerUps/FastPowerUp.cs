@@ -34,7 +34,7 @@ namespace MonoGamers.PowerUps
             PowerUpModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "agiltyup/Agility_Up_FBX");
             PowerUpEffect = Content.Load<Effect>(
-                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "PowerUpShader");
             PowerUpTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/AU_Display_MAT_Base_Color");
         }

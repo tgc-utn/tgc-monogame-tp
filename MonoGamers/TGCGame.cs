@@ -188,7 +188,7 @@ namespace MonoGamers
             PowerUps = new PowerUp[]
             {
                 new JumpPowerUp(new Vector3(100f, 10f, 500f)),
-                new FastPowerUp(new Vector3(100f, 5f, 4550f)),
+                new FastPowerUp(new Vector3(100f, 10f, 4550f)),
             };
 
             

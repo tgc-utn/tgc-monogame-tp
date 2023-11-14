@@ -259,7 +259,8 @@ namespace MonoGamers.Pistas
                 BoxPrimitive.Draw(Effect);
 
             }
-
+            EffectB.Parameters["View"].SetValue(camera.View);
+            EffectB.Parameters["Projection"].SetValue(camera.Projection);
             Array.ForEach(RushPowerups, PowerUp =>
             {
                 EffectB.Parameters["World"].SetValue(PowerUp);

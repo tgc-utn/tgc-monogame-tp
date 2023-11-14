@@ -30,8 +30,9 @@ namespace MonoGamers.PowerUps
             PowerUpModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "pluma/feather");
             PowerUpEffect = Content.Load<Effect>(
-                ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
-            PowerUpTexture = ((BasicEffect)PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "PowerUpShader");
+            PowerUpTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/AU_Base_MAT_Base_Color");
         }
 
         public override async void Activate(MonoSphere Sphere)

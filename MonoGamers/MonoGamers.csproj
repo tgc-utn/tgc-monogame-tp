@@ -48,6 +48,7 @@
     <ClCompile Include="Content\Effects\MipMapping.fx" />
     <ClCompile Include="Content\Effects\MRT.fx" />
     <ClCompile Include="Content\Effects\PBR.fx" />
+    <ClCompile Include="Content\Effects\PowerUpShader.fx" />
     <ClCompile Include="Content\Effects\ShaderVisualizer.fx" />
     <ClCompile Include="Content\Effects\ShadowMap.fx" />
     <ClCompile Include="Content\Effects\SkyBox.fx" />

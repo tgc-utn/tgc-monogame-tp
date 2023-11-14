@@ -194,9 +194,7 @@ namespace MonoGamers.Geometries
                 OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
 
             if (KeyboardState.IsKeyDown(Keys.Space) && OnGround) Jump();
-
-            /*if (KeyboardState.GetPressedKeys().Length > 0) ApplyImpulse(ref sphereBody, 2f);
-            ApplyStop(ref sphereBody);*/
+            
             ApplyImpulse(ref sphereBody, 2f);
 
             if (rushed) ApplyRush(ref sphereBody);
@@ -215,7 +213,6 @@ namespace MonoGamers.Geometries
 
         private void LateralMove( float Sense)
         {
-            //var speedOntoDirectionSense = (ActualSpeed * Sense * SphereLateralDirection * SphereLateralDirection / SphereLateralDirection.Length()).Length();
 
             if (OnGround)
             {
@@ -229,7 +226,6 @@ namespace MonoGamers.Geometries
 
         private void FrontalMove(float Sense)
         {
-            /*var speedOntoDirection = (sphereBody.Velocity.Linear * Sense * SphereFrontDirection * SphereFrontDirection / (SphereFrontDirection.Length() * SphereFrontDirection.Length())).Length();*/
 
             if (OnGround)
             {
@@ -276,17 +272,11 @@ namespace MonoGamers.Geometries
         }
 
         public void Draw(Camera.Camera camera){
-            /*
-            SphereEffect.CurrentTechnique = SphereEffect.Techniques["BasicColorDrawing"];
-            SphereEffect.Parameters["View"].SetValue(camera.View);
-            SphereEffect.Parameters["Projection"].SetValue(camera.Projection);
-            SphereEffect.Parameters["World"].SetValue(SphereWorld);
-            */
+
             var viewProjection = camera.View * camera.Projection;
             SphereEffect.Parameters["eyePosition"].SetValue(camera.Position);
             SphereEffect.Parameters["World"].SetValue(SphereWorld);
             SphereEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(SphereWorld)));
-            //SphereEffect.Parameters["WorldViewProjection"].SetValue(SphereWorld * viewProjection);
             SphereEffect.Parameters["Tiling"].SetValue(Vector2.One);
 
 
@@ -328,8 +318,7 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
                 SphereEffect.Parameters["NormalTexture"]?.SetValue(SphereStoneNormalTexture);
             }
-            
-            //SpherePrimitive.Draw(SphereEffect);
+
             var modelMeshesBaseTransforms = new Matrix[SphereModel.Bones.Count];
             SphereModel.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
             
@@ -349,10 +338,7 @@ namespace MonoGamers.Geometries
                 modelMesh.Draw();
             }
 
-            /*foreach (var modelMesh in SphereModel.Meshes)
-            { 
-                modelMesh.Draw(); 
-            }*/
+
         }
     }
 
