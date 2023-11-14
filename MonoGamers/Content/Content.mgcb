@@ -67,6 +67,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/EnvironmentMap.fx
 
+#begin Effects/FloatingSphereShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/FloatingSphereShader.fx
+
 #begin Effects/GaussianBlur.fx
 /importer:EffectImporter
 /processor:EffectProcessor

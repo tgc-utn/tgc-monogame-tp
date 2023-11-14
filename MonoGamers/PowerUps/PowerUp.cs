@@ -24,8 +24,12 @@ namespace MonoGamers.PowerUps
         public Model PowerUpModel { get; set; }
 
         public Effect PowerUpEffect { get; set; }
+        public Effect FloatingSphereEffect { get; set; }
 
-        public Texture PowerUpTexture { get; set; }
+        public Texture PowerUpTexture { get; set; } 
+
+        public Model SphereModel { get; set; }
+        public Matrix SphereWorld { get; set; }
 
         private float time { get; set;}
 
@@ -58,8 +62,12 @@ namespace MonoGamers.PowerUps
                 PowerUpEffect.Parameters["Projection"].SetValue(Camera.Projection);
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"]?.SetValue(time);
-                
-                
+
+                FloatingSphereEffect.Parameters["World"].SetValue(SphereWorld);
+                FloatingSphereEffect.Parameters["View"].SetValue(Camera.View);
+                FloatingSphereEffect.Parameters["Projection"].SetValue(Camera.Projection);
+                FloatingSphereEffect.Parameters["Time"]?.SetValue(time);
+
                 var mesh = PowerUpModel.Meshes.FirstOrDefault();
                 if (mesh != null)
                 {
@@ -69,6 +77,15 @@ namespace MonoGamers.PowerUps
                     }
 
                     mesh.Draw();
+                }
+                if(SphereModel != null)
+                {
+                    var sphereMesh = SphereModel.Meshes.FirstOrDefault();
+                    foreach (var part in sphereMesh.MeshParts)
+                    {
+                        part.Effect = FloatingSphereEffect;
+                    }
+                    sphereMesh.Draw();
                 }
             }
         }

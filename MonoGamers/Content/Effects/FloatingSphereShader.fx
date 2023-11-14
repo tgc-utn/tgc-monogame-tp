@@ -13,30 +13,17 @@ float4x4 Projection;
 
 struct VertexShaderInput
 {
-    float4 Position : POSITION0;
+	float4 Position : POSITION0;
     float2 TextureCoordinate : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position : SV_POSITION;
-    float4 WorldPosition : TEXCOORD0;
+	float4 Position : SV_POSITION;
     float2 TextureCoordinate : TEXCOORD1;
 };
 
-texture ModelTexture;
-sampler2D textureSampler = sampler_state
-{
-    Texture = (ModelTexture);
-    MagFilter = Linear;
-    MinFilter = Linear;
-    AddressU = Clamp;
-    AddressV = Clamp;
-};
-
 float Time = 0;
-float4 sphereCenter = float4(0.0, 0.0, 0.0, 0.0);
-float sphereRadius = 2.0;
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
@@ -65,18 +52,17 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-	// Get the texture texel textureSampler is the sampler, Texcoord is the interpolated coordinates
-    float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
-    textureColor.a = 1;
-	// Color and texture are combined in this example, 80% the color of the texture and 20% that of the vertex
+
+    float4 textureColor = float4(1, 1, 1, 1) * 0.5;
+
     return textureColor;
 }
 
 technique BasicColorDrawing
 {
-    pass P0
-    {
-        VertexShader = compile VS_SHADERMODEL MainVS();
-        PixelShader = compile PS_SHADERMODEL MainPS();
-    }
+	pass P0
+	{
+		VertexShader = compile VS_SHADERMODEL MainVS();
+		PixelShader = compile PS_SHADERMODEL MainPS();
+	}
 };

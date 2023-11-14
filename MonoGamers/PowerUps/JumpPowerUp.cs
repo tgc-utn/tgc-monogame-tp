@@ -20,7 +20,8 @@ namespace MonoGamers.PowerUps
     {
         public JumpPowerUp(Vector3 position) : base(position)
         {
-           PowerUpWorld = Matrix.CreateScale(0.4f, 0.4f, 0.4f) * Matrix.CreateTranslation(position);
+           PowerUpWorld = Matrix.CreateScale(0.3f, 0.3f, 0.3f) * Matrix.CreateTranslation(position);
+            SphereWorld = Matrix.CreateScale(12f, 12f, 12f) * Matrix.CreateTranslation(position + new Vector3(0, 10f, 0));
            var wordBounding = Matrix.CreateScale(10f, 10f, 10f) * Matrix.CreateTranslation(position);
            BoundingBox = BoundingVolumesExtensions.FromMatrix(wordBounding);
         }
@@ -31,8 +32,12 @@ namespace MonoGamers.PowerUps
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "pluma/feather");
             PowerUpEffect = Content.Load<Effect>(
                 ConfigurationManager.AppSettings["ContentFolderEffects"] + "PowerUpShader");
+            FloatingSphereEffect = Content.Load<Effect>(
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "FloatingSphereShader");
             PowerUpTexture = Content.Load<Texture2D>(
-                ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/AU_Base_MAT_Base_Color");
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "white");
+            SphereModel = Content.Load<Model>(
+                ConfigurationManager.AppSettings["ContentFolder3D"] + "geometries/sphere");
         }
 
         public override async void Activate(MonoSphere Sphere)

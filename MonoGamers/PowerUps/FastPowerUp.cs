@@ -19,24 +19,26 @@ namespace MonoGamers.PowerUps
 
         public FastPowerUp(Vector3 position) : base(position)
         {
-            var quaternion = Quaternion.CreateFromAxisAngle(Vector3.Backward, (float)Math.PI/2) *
-                         Quaternion.CreateFromAxisAngle(Vector3.Up, (float)Math.PI/2) *
-                         Quaternion.CreateFromAxisAngle(Vector3.Right, (float)Math.PI/2);
 
             PowerUpWorld =  Matrix.CreateScale(2f, 2f, 2f)
                             * Matrix.CreateFromYawPitchRoll(0.5f, 0, 0)
-                            * Matrix.CreateTranslation(position);
+                            * Matrix.CreateTranslation(position + new Vector3(0,10f,0));
+            SphereWorld = Matrix.CreateScale(10f,10f,10f) * Matrix.CreateTranslation(position + new Vector3(0, 10f, 0));
             var worldBounding = Matrix.CreateScale(20f, 20f, 20f) * Matrix.CreateTranslation(position);
             BoundingBox = BoundingVolumesExtensions.FromMatrix(worldBounding);
         }
-    public override void LoadContent(ContentManager Content)
+        public override void LoadContent(ContentManager Content)
         {
             PowerUpModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "agiltyup/Shoe");
             PowerUpEffect = Content.Load<Effect>(
                 ConfigurationManager.AppSettings["ContentFolderEffects"] + "PowerUpShader");
+            FloatingSphereEffect = Content.Load<Effect>(
+                ConfigurationManager.AppSettings["ContentFolderEffects"] + "FloatingSphereShader");
             PowerUpTexture = Content.Load<Texture2D>(
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/Diff");
+            SphereModel = Content.Load<Model>(
+                ConfigurationManager.AppSettings["ContentFolder3D"] + "geometries/sphere");
         }
 
         public override async void Activate(MonoSphere Sphere)

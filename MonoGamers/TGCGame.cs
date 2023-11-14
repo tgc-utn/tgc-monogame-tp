@@ -250,7 +250,10 @@ namespace MonoGamers
                 SpriteBatch = new SpriteBatch(GraphicsDevice);
                 SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCode/CascadiaCodePL");
 
-                Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
+                foreach(var powerUp in PowerUps)
+                {
+                    powerUp.LoadContent(Content);
+                }
 
             // Load Textures
                 
@@ -464,9 +467,6 @@ namespace MonoGamers
 
                 LightEffect.CurrentTechnique = LightEffect.Techniques["DepthPass"];
                 
-                //powerups Drawing
-                foreach(var powerup in PowerUps) { powerup.Draw(TargetLightCamera, gameTime); }
-                
                 // Sphere drawinga
                 MonoSphere.Draw(TargetLightCamera);
                 
@@ -480,8 +480,10 @@ namespace MonoGamers
                 Pista2.Draw(TargetLightCamera);
                 Pista3.Draw(TargetLightCamera);
                 Pista4.Draw(TargetLightCamera);
-                
-                
+
+
+                //powerups Drawing
+                foreach (var powerup in PowerUps) { powerup.Draw(TargetLightCamera, gameTime); }
 
 
 
@@ -489,8 +491,8 @@ namespace MonoGamers
 
             #region Pass 2
 
-                // Set the render target as null, we are drawing on the screen!
-                GraphicsDevice.SetRenderTarget(null);
+            // Set the render target as null, we are drawing on the screen!
+            GraphicsDevice.SetRenderTarget(null);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
 
                 LightEffect.CurrentTechnique = LightEffect.Techniques["Draw_NM_SM"];
@@ -498,9 +500,6 @@ namespace MonoGamers
                 LightEffect.Parameters["lightPosition"].SetValue(TargetLightCamera.Position);
                 LightEffect.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowmapSize);
                 LightEffect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
-                
-                //powerups Drawing
-                foreach(var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
                     
       
                 
@@ -553,12 +552,13 @@ namespace MonoGamers
 
                     MonoSphere.Draw(Camera);
                 }
-                
-                
-                
 
-            #endregion            
-            
+                //powerups Drawing
+                foreach (var powerup in PowerUps) { powerup.Draw(Camera, gameTime); }
+
+
+            #endregion
+
 
             // Dibujamos el skybox
             DrawSkybox(Camera);
