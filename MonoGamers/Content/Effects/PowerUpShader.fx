@@ -14,14 +14,13 @@ float4x4 Projection;
 struct VertexShaderInput
 {
 	float4 Position : POSITION0;
-    float2 TextureCoordinate : TEXCOORD1;
+    float2 TextureCoordinate : TEXCOORD0;
 };
 
 struct VertexShaderOutput
 {
 	float4 Position : SV_POSITION;
-    float4 MyPosition : TEXCOORD1;
-    float2 TextureCoordinate : TEXCOORD0;
+    float2 TextureCoordinate : TEXCOORD1;
 };
 
 texture ModelTexture;
@@ -41,12 +40,20 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 	VertexShaderOutput output = (VertexShaderOutput)0;
 
 	// Animate position
+	float atenuacion = 0.8;
+    float x = input.Position.x;
+    float z = input.Position.z;    
+    input.Position.x = x * cos(Time * atenuacion) - z * sin(Time * atenuacion);
+    input.Position.z = z * cos(Time * atenuacion) + x * sin(Time * atenuacion);
+    	
     float4 worldPosition = mul(input.Position, World);
+    worldPosition.y = worldPosition.y + 5 * cos(Time);
     float4 viewPosition = mul(worldPosition, View);
+    
 	
 	// Project position
     output.Position = mul(viewPosition, Projection);
-    output.MyPosition = mul(viewPosition, Projection);
+
 	// Propagate texture coordinates
     output.TextureCoordinate = input.TextureCoordinate;
 

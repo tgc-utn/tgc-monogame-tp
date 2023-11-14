@@ -15,14 +15,14 @@ namespace MonoGamers.Geometries
     {
 
         //Tipo de esfera
-        enum Type {
+        public enum Type {
             Common,
             Stone,
             Metal,
             Gum
         }
 
-        Type SphereType;
+        public Type SphereType;
         //Referencia de material afuera:
         public string Material { get; set; }
 
@@ -175,13 +175,16 @@ namespace MonoGamers.Geometries
                 sphereBody.Pose = new NumericVector3(100f, 10f, 160f);
             }            
             if (KeyboardState.IsKeyDown(Keys.D2) && godMode) {
-                sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
+                sphereBody.Pose = new NumericVector3(100f, 20f, 4394f);
             }
             if (KeyboardState.IsKeyDown(Keys.D3) && godMode) {
-                sphereBody.Pose = new NumericVector3(2090f, 150f, 7144f);
+                sphereBody.Pose = new NumericVector3(2500f, 150f, 7144f);
             }
             if (KeyboardState.IsKeyDown(Keys.D4) && godMode) {
-                sphereBody.Pose = new NumericVector3(3400f, 343f, 7200f);
+                sphereBody.Pose = new NumericVector3(4100f, 343f, 7200f);
+            } 
+            if (KeyboardState.IsKeyDown(Keys.D5) && godMode) {
+                sphereBody.Pose = new NumericVector3(3775f, 560f, 9330f);
             } 
 
             if (KeyboardState.IsKeyDown(Keys.D)) LateralMove( -1f);
@@ -194,9 +197,7 @@ namespace MonoGamers.Geometries
                 OnGround = true; // Se revisa que la velocidad lineal como la angular de la esfera en Y, su distancia se menor a 0,1 con respecto a la velocidad anterior
 
             if (KeyboardState.IsKeyDown(Keys.Space) && OnGround) Jump();
-
-            /*if (KeyboardState.GetPressedKeys().Length > 0) ApplyImpulse(ref sphereBody, 2f);
-            ApplyStop(ref sphereBody);*/
+            
             ApplyImpulse(ref sphereBody, 2f);
 
             if (rushed) ApplyRush(ref sphereBody);
@@ -215,7 +216,6 @@ namespace MonoGamers.Geometries
 
         private void LateralMove( float Sense)
         {
-            //var speedOntoDirectionSense = (ActualSpeed * Sense * SphereLateralDirection * SphereLateralDirection / SphereLateralDirection.Length()).Length();
 
             if (OnGround)
             {
@@ -229,7 +229,6 @@ namespace MonoGamers.Geometries
 
         private void FrontalMove(float Sense)
         {
-            /*var speedOntoDirection = (sphereBody.Velocity.Linear * Sense * SphereFrontDirection * SphereFrontDirection / (SphereFrontDirection.Length() * SphereFrontDirection.Length())).Length();*/
 
             if (OnGround)
             {
@@ -276,17 +275,11 @@ namespace MonoGamers.Geometries
         }
 
         public void Draw(Camera.Camera camera){
-            /*
-            SphereEffect.CurrentTechnique = SphereEffect.Techniques["BasicColorDrawing"];
-            SphereEffect.Parameters["View"].SetValue(camera.View);
-            SphereEffect.Parameters["Projection"].SetValue(camera.Projection);
-            SphereEffect.Parameters["World"].SetValue(SphereWorld);
-            */
+
             var viewProjection = camera.View * camera.Projection;
             SphereEffect.Parameters["eyePosition"].SetValue(camera.Position);
             SphereEffect.Parameters["World"].SetValue(SphereWorld);
             SphereEffect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Invert(Matrix.Transpose(SphereWorld)));
-            //SphereEffect.Parameters["WorldViewProjection"].SetValue(SphereWorld * viewProjection);
             SphereEffect.Parameters["Tiling"].SetValue(Vector2.One);
 
 
@@ -328,8 +321,7 @@ namespace MonoGamers.Geometries
                 SphereEffect.Parameters["ModelTexture"].SetValue(SphereStoneTexture);
                 SphereEffect.Parameters["NormalTexture"]?.SetValue(SphereStoneNormalTexture);
             }
-            
-            //SpherePrimitive.Draw(SphereEffect);
+
             var modelMeshesBaseTransforms = new Matrix[SphereModel.Bones.Count];
             SphereModel.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
             
@@ -349,10 +341,7 @@ namespace MonoGamers.Geometries
                 modelMesh.Draw();
             }
 
-            /*foreach (var modelMesh in SphereModel.Meshes)
-            { 
-                modelMesh.Draw(); 
-            }*/
+
         }
     }
 

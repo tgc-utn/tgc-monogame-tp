@@ -45,24 +45,7 @@ namespace MonoGamers.PowerUps
 
         public void Update()
         { 
-            if (GoingUp) { 
-                PowerUpWorld *= Matrix.CreateTranslation(0, 0.2f, 0);
-                if (PowerUpWorld.Translation.Y >= Position.Y+10f)
-                {
-                    GoingUp = false;  
-                    GoingDown = true;
-                }
-            }
-            if (GoingDown)
-            {
-                PowerUpWorld *= Matrix.CreateTranslation(0, -0.2f, 0);
-                if (PowerUpWorld.Translation.Y <= Position.Y)
-                {
-                    GoingUp = true;
-                    GoingDown = false;
-                }
-            }
-
+            
         }
         public void Draw(Camera.Camera Camera, GameTime gameTime)
         {
@@ -74,6 +57,9 @@ namespace MonoGamers.PowerUps
                 PowerUpEffect.Parameters["View"].SetValue(Camera.View);
                 PowerUpEffect.Parameters["Projection"].SetValue(Camera.Projection);
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
+                PowerUpEffect.Parameters["Time"]?.SetValue(time);
+                
+                
                 var mesh = PowerUpModel.Meshes.FirstOrDefault();
                 if (mesh != null)
                 {
