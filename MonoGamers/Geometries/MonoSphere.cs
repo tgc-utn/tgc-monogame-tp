@@ -175,7 +175,7 @@ namespace MonoGamers.Geometries
                 sphereBody.Pose = new NumericVector3(100f, 10f, 160f);
             }            
             if (KeyboardState.IsKeyDown(Keys.D2) && godMode) {
-                sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
+                sphereBody.Pose = new NumericVector3(100f, 20f, 4394f);
             }
             if (KeyboardState.IsKeyDown(Keys.D3) && godMode) {
                 sphereBody.Pose = new NumericVector3(2500f, 150f, 7144f);

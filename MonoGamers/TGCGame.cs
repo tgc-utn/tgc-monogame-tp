@@ -177,7 +177,7 @@ namespace MonoGamers
             Checkpoints = new Checkpoint[]
             {
                 new Checkpoint(new Vector3(100f, 10f, 160f)),
-                new Checkpoint(new Vector3(100f, 10f, 4594f)),
+                new Checkpoint(new Vector3(100f, 10f, 4394f)),
                 new Checkpoint(new Vector3(2500f, 150f, 7144f)),
                 new Checkpoint(new Vector3(4100f, 343f, 7200f)),
                 new Checkpoint(new Vector3(3775f, 560f, 9330f)),
