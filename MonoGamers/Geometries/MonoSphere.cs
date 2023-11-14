@@ -178,10 +178,13 @@ namespace MonoGamers.Geometries
                 sphereBody.Pose = new NumericVector3(100f, 20f, 4580f);
             }
             if (KeyboardState.IsKeyDown(Keys.D3) && godMode) {
-                sphereBody.Pose = new NumericVector3(2090f, 150f, 7144f);
+                sphereBody.Pose = new NumericVector3(2500f, 150f, 7144f);
             }
             if (KeyboardState.IsKeyDown(Keys.D4) && godMode) {
-                sphereBody.Pose = new NumericVector3(3400f, 343f, 7200f);
+                sphereBody.Pose = new NumericVector3(4100f, 343f, 7200f);
+            } 
+            if (KeyboardState.IsKeyDown(Keys.D5) && godMode) {
+                sphereBody.Pose = new NumericVector3(3775f, 560f, 9330f);
             } 
 
             if (KeyboardState.IsKeyDown(Keys.D)) LateralMove( -1f);

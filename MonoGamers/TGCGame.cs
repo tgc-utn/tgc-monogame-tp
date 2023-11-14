@@ -178,8 +178,9 @@ namespace MonoGamers
             {
                 new Checkpoint(new Vector3(100f, 10f, 160f)),
                 new Checkpoint(new Vector3(100f, 10f, 4594f)),
-                new Checkpoint(new Vector3(2100f, 150f, 7144f)),
-                new Checkpoint(new Vector3(3500f, 343f, 7200f)),
+                new Checkpoint(new Vector3(2500f, 150f, 7144f)),
+                new Checkpoint(new Vector3(4100f, 343f, 7200f)),
+                new Checkpoint(new Vector3(3775f, 560f, 9330f)),
 
             };
             CurrentCheckpoint = 0;
@@ -189,6 +190,7 @@ namespace MonoGamers
             {
                 new JumpPowerUp(new Vector3(100f, 10f, 500f)),
                 new FastPowerUp(new Vector3(100f, 10f, 4550f)),
+                new JumpPowerUp(new Vector3(2000f, 150f, 7144f)),
             };
 
             
@@ -199,8 +201,8 @@ namespace MonoGamers
             // Inicializar pistas
             Pista1 = new Pista1(Content, GraphicsDevice, 100f, -3f, 450f, Simulation);
             Pista2 = new Pista2(Content, GraphicsDevice, 100f, -3f, 4594f, Simulation);
-            Pista3 = new Pista3(Content, GraphicsDevice, 2100f, 137f, 7144f, Simulation);
-            Pista4 = new Pista4(Content, GraphicsDevice, 3300f, 330f, 7200f, Simulation);
+            Pista3 = new Pista3(Content, GraphicsDevice, 2500f, 137f, 7144f, Simulation);
+            Pista4 = new Pista4(Content, GraphicsDevice, 4000f, 330f, 7200f, Simulation);
             
             AudioController = new AudioController(Content);
 
@@ -538,7 +540,7 @@ namespace MonoGamers
                 var tiempoTotal = stopwatchInitialize.Elapsed + stopwatchLoad.Elapsed + stopwatchUpdate.Elapsed + stopwatchDraw.Elapsed;
                 var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
                 SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
-                if (gm) SpriteBatch.DrawString(SpriteFont, "PRESS THE 1,2,3,4 KEYS TO MOVE TO THE NEXT CHECKPOINT", new Vector2(Width/3, Height*0.9F), color);
+                if (gm) SpriteBatch.DrawString(SpriteFont, "PRESS THE 1,2,3,4,5 KEYS TO MOVE TO THE NEXT CHECKPOINT", new Vector2(Width/3, Height*0.9F), color);
                 SpriteBatch.DrawString(SpriteFont, "USE THE T,Y,U,I KEYS TO CHANGE MATERIALS", new Vector2(Width/3, Height*0.85F), color);
                 SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 500, 0), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Tiempo Initialize:" + stopwatchInitialize.Elapsed, new Vector2(Width*0.01f, Height*0.15F), color);
