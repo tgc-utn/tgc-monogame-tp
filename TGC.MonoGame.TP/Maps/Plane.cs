@@ -23,10 +23,15 @@ public class PlaneMap : Map
         Alies = new List<Tank>();
         Enemies = new List<Tank>();
         Props = new List<StaticProp>();
-        Scenary.GetSpawnPoints(numberOfTanks, false)
-            .ForEach(spawnPoint => Enemies.Add(new Tank(EnemiesTank, spawnPoint, graphicsDevice)));
+        
+        List<Vector3> spawnAllies = Scenary.GetSpawnPoints(numberOfTanks, true);
+        Player = new TankPlayer(AliesTank, spawnAllies[0], graphicsDevice);
+        Alies.Add(Player);
+        spawnAllies.RemoveAt(0);
+        
+        spawnAllies.ForEach(spawnPoint => Enemies.Add(new TankAI(EnemiesTank, spawnPoint, graphicsDevice)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
-            .ForEach(spawnPoint => Alies.Add(new Tank(AliesTank, spawnPoint, graphicsDevice)));
+            .ForEach(spawnPoint => Alies.Add(new TankAI(AliesTank, spawnPoint, graphicsDevice)));
         Scenary.Scene.PropsReference
             .ForEach(prop =>
             {
@@ -52,9 +57,6 @@ public class PlaneMap : Map
                 }
             });
         SkyDome = new SkyDome(Scenary.Scene.SkyDome);
-        Player = Alies[0];
-        Player.isPlayer = true;
-        Alies.RemoveAt(0);
     }
 
     public override void Load(GraphicsDevice graphicsDevice, ContentManager content)

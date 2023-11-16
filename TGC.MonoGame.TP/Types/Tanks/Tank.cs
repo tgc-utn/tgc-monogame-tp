@@ -17,17 +17,15 @@ using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public class Tank : Resource, ICollidable
+public abstract class Tank : Resource, ICollidable
 {
     // Configs
-    private const float Acceleration = 0.0045f;
-    private const float MaxSpeed = 0.01f;
-    private const float RotationSpeed = 0.01f;
-    private const float Friction = 0.004f;
+    public const float Acceleration = 0.0045f;
+    public const float MaxSpeed = 0.01f;
+    public const float RotationSpeed = 0.01f;
+    public const float Friction = 0.004f;
     
     public TankReference TankRef;
-    
-    public bool isPlayer = false;
     
     public float Velocidad;
 
@@ -35,27 +33,27 @@ public class Tank : Resource, ICollidable
     public List<Vector3> ImpactDirections { get; set; } = new();
     
     // Torret
-    private ModelBone turretBone;
-    private ModelBone cannonBone;
+    public ModelBone turretBone;
+    public ModelBone cannonBone;
 
-    private Matrix[] boneTransforms;
-    private Matrix turretTransform;
-    private Matrix cannonTransform;
+    public Matrix[] boneTransforms;
+    public Matrix turretTransform;
+    public Matrix cannonTransform;
 
-    private Matrix cannonTest;
+    public Matrix cannonTest;
 
     public Matrix TurretRotation { get; set; }
     public Matrix CannonRotation { get; set; }
 
-    private Vector2 pastMousePosition;
+    public Vector2 pastMousePosition;
     public float MouseSensitivity { get; } = 0.008f;
 
-    private float pitch;
-    private float yaw = -90f;
+    public float pitch;
+    public float yaw = -90f;
     
     // Box Parameters
     public Vector3 Position;
-    private Vector3 LastPosition;
+    public Vector3 LastPosition;
     
     public Matrix OBBWorld { get; set; }
     public float Angle { get; set; } = 0f;
@@ -69,16 +67,16 @@ public class Tank : Resource, ICollidable
     public ModelReference BulletReference;
     public List<Bullet> Bullets { get; set; } = new();
     
-    private Point _center;
-    private float _sensitivityX = 0.0018f;
-    private float _sensitivityY = 0.002f;
+    public Point _center;
+    public float _sensitivityX = 0.0018f;
+    public float _sensitivityY = 0.002f;
     
     //HUD
     public CarHUD TankHud { get; set; }
     public float health { get; set; } = 1f;
     public bool curandose { get; set; } = true;
     public float shootTime { get; set; } = 5f;
-    private bool hasShot = true;
+    public bool hasShot = true;
     
     public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
     {
@@ -142,12 +140,7 @@ public class Tank : Resource, ICollidable
     public void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        if (isPlayer)
-        {
-            KeySense();
-            ProcessMouse(elapsedTime);
-        }
-
+        
         LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
@@ -186,8 +179,6 @@ public class Tank : Resource, ICollidable
                 hasShot = false;
             }
         }
-        
-        TankHud.Update(World, health, shootTime);
     }
 
     public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
@@ -223,71 +214,6 @@ public class Tank : Resource, ICollidable
         TankHud.Draw(projection);
     }
     
-    public void KeySense()
-    {
-        if (Keyboard.GetState().IsKeyDown(Keys.W))
-        {
-            // Avanzo
-            Velocidad += Acceleration;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.S))
-        {
-            // Retrocedo
-            Velocidad -= Acceleration;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.A))
-        {
-            // Giro izq
-            Angle += RotationSpeed;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.D))
-        {
-            // Giro der
-            Angle -= RotationSpeed;
-        }
-    }
-
-    public void ProcessMouse(float elapsedTime)
-    {
-        var currentMouseState = Mouse.GetState();
-
-        var mouseDelta = currentMouseState.Position.ToVector2() - pastMousePosition;
-        mouseDelta *= MouseSensitivity * elapsedTime;
-            
-        var delta = Mouse.GetState().Position - _center;
-        Mouse.SetPosition(_center.X, _center.Y);
-        var rotationX = delta.X * _sensitivityX * elapsedTime;
-        var rotationY = delta.Y * _sensitivityY * elapsedTime;
-
-        // canion
-        pitch = Math.Clamp(pitch - rotationY, -8f, 10f);
-
-        // Torreta
-        yaw = Math.Clamp(yaw - rotationX, -90.0f, 90.0f);
-
-        UpdateRotations();
-
-        pastMousePosition = Mouse.GetState().Position.ToVector2();
-        
-        // Disparo
-        if (Mouse.GetState().LeftButton == ButtonState.Pressed && !hasShot)
-        {
-            var bulletPosition = Position; //TODO por ahi es la position del cannon
-            var yawRadians = MathHelper.ToRadians(yaw);
-            var pitchRadians = MathHelper.ToRadians(pitch);
-            var bulletDirection = Vector3.Transform(Vector3.Transform(cannonBone.Transform.Forward,Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f)), Matrix.CreateRotationY(Angle));
-            var bullet = new Bullet(BulletModel, BulletEffect, BulletReference,
-                Matrix.CreateFromYawPitchRoll(yawRadians,-pitchRadians,0f), Matrix.CreateRotationY(Angle),
-                bulletPosition, bulletDirection, 0.06f, 10000f);
-            Bullets.Add(bullet);
-            hasShot = true;
-            shootTime = 0.25f;
-        }
-    }
-    
     public void UpdateRotations()
     {
         var yawRadians = MathHelper.ToRadians(yaw);
@@ -321,17 +247,8 @@ public class Tank : Resource, ICollidable
                 return;
             ImpactPositions.Add(bullet.Position);
             ImpactDirections.Add(bullet.Direction);
-            Console.WriteLine("bullet choca con aliado? " + !isPlayer + " - Cant impactos en lista = " + ImpactPositions.Count);
-            Console.WriteLine("Posicion Tanque: " + Position);
-            foreach (var pos in ImpactPositions)
-            {
-                float a = Position.X - pos.X;
-                float b = Position.Y - pos.Y;
-                float c = Position.Z - pos.Z;
-                Console.WriteLine("Posicion Bala: (" + pos.X + pos.Y + pos.Z + ") - Distancia: " + Math.Sqrt(a*a + b*b + c*c));
-            }
+            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count);
             bullet.IsAlive = false;
-            Console.WriteLine("");
         }
     }
 
