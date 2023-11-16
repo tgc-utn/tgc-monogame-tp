@@ -11,47 +11,49 @@ using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
+using TGC.MonoGame.TP.Utils.Effects;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public class Tank : Resource, ICollidable
+public abstract class Tank : Resource, ICollidable
 {
     // Configs
-    private const float Acceleration = 0.0045f;
-    private const float MaxSpeed = 0.01f;
-    private const float RotationSpeed = 0.01f;
-    private const float Friction = 0.004f;
+    public const float Acceleration = 0.0045f;
+    public const float MaxSpeed = 0.01f;
+    public const float RotationSpeed = 0.01f;
+    public const float Friction = 0.004f;
     
     public TankReference TankRef;
     
-    public bool isPlayer = false;
-    
     public float Velocidad;
+
+    public List<Vector3> ImpactPositions { get; set; } = new();
+    public List<Vector3> ImpactDirections { get; set; } = new();
     
     // Torret
-    private ModelBone turretBone;
-    private ModelBone cannonBone;
+    public ModelBone turretBone;
+    public ModelBone cannonBone;
 
-    private Matrix[] boneTransforms;
-    private Matrix turretTransform;
-    private Matrix cannonTransform;
+    public Matrix[] boneTransforms;
+    public Matrix turretTransform;
+    public Matrix cannonTransform;
 
-    private Matrix cannonTest;
+    public Matrix cannonTest;
 
     public Matrix TurretRotation { get; set; }
     public Matrix CannonRotation { get; set; }
 
-    private Vector2 pastMousePosition;
+    public Vector2 pastMousePosition;
     public float MouseSensitivity { get; } = 0.008f;
 
-    private float pitch;
-    private float yaw = -90f;
+    public float pitch;
+    public float yaw = -90f;
     
     // Box Parameters
     public Vector3 Position;
-    private Vector3 LastPosition;
+    public Vector3 LastPosition;
     
     public Matrix OBBWorld { get; set; }
     public float Angle { get; set; } = 0f;
@@ -61,19 +63,20 @@ public class Tank : Resource, ICollidable
     // Bullet
     public Model BulletModel { get; set; }
     public Effect BulletEffect;
+    public Effect Effect;
     public ModelReference BulletReference;
     public List<Bullet> Bullets { get; set; } = new();
     
-    private Point _center;
-    private float _sensitivityX = 0.0018f;
-    private float _sensitivityY = 0.002f;
+    public Point _center;
+    public float _sensitivityX = 0.0018f;
+    public float _sensitivityY = 0.002f;
     
     //HUD
     public CarHUD TankHud { get; set; }
     public float health { get; set; } = 1f;
     public bool curandose { get; set; } = true;
-    public float shootTime { get; set; } = 0f;
-    private bool hasShot = false;
+    public float shootTime { get; set; } = 5f;
+    public bool hasShot = true;
     
     public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
     {
@@ -93,7 +96,16 @@ public class Tank : Resource, ICollidable
 
     public override void Load(ContentManager content)
     {
-        base.Load(content);
+        // Deformation effect
+        Effect = content.Load<Effect>(ContentFolder.Effects + "/DeformationShader");
+        
+        Model = content.Load<Model>(Reference.Path);
+        TexturesRepository.InitializeTextures(Reference.DrawReference, content);
+        foreach (var modelMeshPart in Model.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
+        {
+            modelMeshPart.Effect = Effect;
+        }
+        
         Translation = Matrix.CreateTranslation(Position);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         
@@ -102,7 +114,7 @@ public class Tank : Resource, ICollidable
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         Box.Center = Position;
         Box.Orientation = Matrix.CreateRotationY(Angle);
-        OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Translation;
+        OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
         
         // Torret
         turretBone = Model.Bones[TankRef.TurretBoneName];
@@ -125,15 +137,10 @@ public class Tank : Resource, ICollidable
         TankHud.Load(content);
     }
 
-    public void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        if (isPlayer)
-        {
-            KeySense();
-            ProcessMouse(elapsedTime);
-        }
-
+        
         LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
@@ -144,10 +151,10 @@ public class Tank : Resource, ICollidable
         // Box
         Box.Orientation = rotation;
         Box.Center = Position;
-        OBBWorld = Matrix.CreateScale(Box.Extents) * Box.Orientation * Translation;
+        OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
         
         
-        // Bullet
+        // Bullets
         Bullets = Bullets.Where(bullet => bullet.IsAlive).ToList();
         foreach (var bullet in Bullets)
         {
@@ -172,8 +179,6 @@ public class Tank : Resource, ICollidable
                 hasShot = false;
             }
         }
-        
-        TankHud.Update(World, health, shootTime);
     }
 
     public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
@@ -188,73 +193,25 @@ public class Tank : Resource, ICollidable
             bullet.Draw(view, projection, lightPosition, lightViewProjection);
         }
         
-        base.Draw(view, projection, lightPosition, lightViewProjection);
-        TankHud.Draw(projection);
-    }
-    
-    public void KeySense()
-    {
-        if (Keyboard.GetState().IsKeyDown(Keys.W))
+        Model.Root.Transform = World;
+
+        // Draw the model.
+        foreach (var mesh in Model.Meshes)
         {
-            // Avanzo
-            Velocidad += Acceleration;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.S))
-        {
-            // Retrocedo
-            Velocidad -= Acceleration;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.A))
-        {
-            // Giro izq
-            Angle += RotationSpeed;
-        }
-
-        if (Keyboard.GetState().IsKeyDown(Keys.D))
-        {
-            // Giro der
-            Angle -= RotationSpeed;
-        }
-    }
-
-    public void ProcessMouse(float elapsedTime)
-    {
-        var currentMouseState = Mouse.GetState();
-
-        var mouseDelta = currentMouseState.Position.ToVector2() - pastMousePosition;
-        mouseDelta *= MouseSensitivity * elapsedTime;
+            EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, mesh.Name);
+            var worldMatrix = mesh.ParentBone.Transform * World;
+            Effect.Parameters["World"].SetValue(worldMatrix);
+            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+            Effect.Parameters["View"]?.SetValue(view);
+            Effect.Parameters["Projection"]?.SetValue(projection);
             
-        var delta = Mouse.GetState().Position - _center;
-        Mouse.SetPosition(_center.X, _center.Y);
-        var rotationX = delta.X * _sensitivityX * elapsedTime;
-        var rotationY = delta.Y * _sensitivityY * elapsedTime;
-
-        // canion
-        pitch = Math.Clamp(pitch - rotationY, -8f, 10f);
-
-        // Torreta
-        yaw = Math.Clamp(yaw - rotationX, -90.0f, 90.0f);
-
-        UpdateRotations();
-
-        pastMousePosition = Mouse.GetState().Position.ToVector2();
-        
-        // Disparo
-        if (Mouse.GetState().LeftButton == ButtonState.Pressed && !hasShot)
-        {
-            var bulletPosition = Position;
-            var yawRadians = MathHelper.ToRadians(yaw);
-            var pitchRadians = MathHelper.ToRadians(pitch);
-            var bulletDirection = Vector3.Transform(Vector3.Transform(cannonBone.Transform.Forward,Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f)), Matrix.CreateRotationY(Angle));
-            var bullet = new Bullet(BulletModel, BulletEffect, BulletReference,
-                Matrix.CreateFromYawPitchRoll(yawRadians,-pitchRadians,0f), Matrix.CreateRotationY(Angle),
-                bulletPosition, bulletDirection, 0.06f, 10000f);
-            Bullets.Add(bullet);
-            hasShot = true;
-            shootTime = 0.25f;
+            Effect.Parameters["ImpactPositions"]?.SetValue(ImpactPositions.ToArray());
+            Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
+            Effect.Parameters["Impacts"]?.SetValue(ImpactPositions.Count);
+            mesh.Draw();
         }
+        
+        TankHud.Draw(projection);
     }
     
     public void UpdateRotations()
@@ -280,6 +237,19 @@ public class Tank : Resource, ICollidable
         Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
         Velocidad = 0;
         Position = LastPosition;
+    }
+
+    public void CheckCollisionWithBullet(Bullet bullet)
+    {
+        if (Box.Intersects(bullet.Box))
+        {
+            if (ImpactPositions.Count == 5 || Bullets.Contains(bullet))
+                return;
+            ImpactPositions.Add(bullet.Position);
+            ImpactDirections.Add(bullet.Direction);
+            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count);
+            bullet.IsAlive = false;
+        }
     }
 
     public bool VerifyCollision(BoundingBox box)
