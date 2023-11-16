@@ -28,10 +28,10 @@ public class PlaneMap : Map
         Player = new TankPlayer(AliesTank, spawnAllies[0], graphicsDevice);
         Alies.Add(Player);
         spawnAllies.RemoveAt(0);
+        spawnAllies.ForEach(spawnPoint => Alies.Add(new TankAI(AliesTank, spawnPoint, graphicsDevice)));
         
-        spawnAllies.ForEach(spawnPoint => Enemies.Add(new TankAI(EnemiesTank, spawnPoint, graphicsDevice)));
-        Scenary.GetSpawnPoints(numberOfTanks, true)
-            .ForEach(spawnPoint => Alies.Add(new TankAI(AliesTank, spawnPoint, graphicsDevice)));
+        Scenary.GetSpawnPoints(numberOfTanks, false)
+            .ForEach(spawnPoint => Enemies.Add(new TankAI(EnemiesTank, spawnPoint, graphicsDevice)));
         Scenary.Scene.PropsReference
             .ForEach(prop =>
             {
@@ -74,29 +74,26 @@ public class PlaneMap : Map
 
     public override void Update(GameTime gameTime)
     {
-        Player.Update(gameTime);
+        Alies.ForEach(ally => ally.Update(gameTime));
+        Enemies.ForEach(enemy => enemy.Update(gameTime));
+        
+        List<Bullet> AllyBullets = new List<Bullet>();
+        Alies.ForEach(ally => AllyBullets.AddRange(ally.Bullets));
+        List<Bullet> EnemyBullets = new List<Bullet>();
+        Enemies.ForEach(enemy => EnemyBullets.AddRange(enemy.Bullets));
+
+        AllyBullets.ForEach(bullet => Enemies.ForEach(enemy => enemy.CheckCollisionWithBullet(bullet))); // chequea colision entre balas aliadas y tanques enemigos
+        EnemyBullets.ForEach(bullet => Alies.ForEach(ally => ally.CheckCollisionWithBullet(bullet))); // chequea colision entre balas enemigas y tanques aliados
+
         Props = Props.Where(prop => !prop.Destroyed).ToList();
         foreach (var prop in Props)
         {
-            prop.Update(Player);
-            foreach (var bullet in Player.Bullets)
-            {
-                prop.Update(bullet);
-            }
-        }
-
-        foreach (var ally in Alies)
-        {
-            foreach (var bullet in Player.Bullets)
-            {
-                ally.CheckCollisionWithBullet(bullet);
-            }
+            Alies.ForEach(ally => prop.Update(ally));
+            Enemies.ForEach(enemy => prop.Update(enemy));
+            AllyBullets.ForEach(bullet => prop.Update(bullet));
+            EnemyBullets.ForEach(bullet => prop.Update(bullet));
         }
         
-        // foreach (var enemy in Enemies)
-        //     enemy.Update(gameTime);
-        // foreach (var alie in Alies)
-        //     alie.Update(gameTime);
         SkyDome.Update(gameTime);
     }
 

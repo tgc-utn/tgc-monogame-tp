@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using TGC.MonoGame.TP.Types.References;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
@@ -9,10 +10,9 @@ public class TankAI : Tank
     {
     }
 
-    public void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        
         //TODO aca implementar todo lo de la IA
     }
 }

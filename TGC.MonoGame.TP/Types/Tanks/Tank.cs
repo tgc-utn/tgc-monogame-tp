@@ -137,7 +137,7 @@ public abstract class Tank : Resource, ICollidable
         TankHud.Load(content);
     }
 
-    public void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
         
@@ -243,7 +243,7 @@ public abstract class Tank : Resource, ICollidable
     {
         if (Box.Intersects(bullet.Box))
         {
-            if (ImpactPositions.Count == 5)
+            if (ImpactPositions.Count == 5 || Bullets.Contains(bullet))
                 return;
             ImpactPositions.Add(bullet.Position);
             ImpactDirections.Add(bullet.Direction);

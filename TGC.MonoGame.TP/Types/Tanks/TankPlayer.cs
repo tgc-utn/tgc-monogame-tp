@@ -12,7 +12,7 @@ public class TankPlayer : Tank
     {
     }
     
-    public void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
         KeySense();
