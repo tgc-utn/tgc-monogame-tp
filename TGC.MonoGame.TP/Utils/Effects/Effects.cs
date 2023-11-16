@@ -19,4 +19,8 @@ public static class Effects
     public static readonly EffectReference ShootHud = new EffectReference(
         $"{ContentFolder.Effects}/ShootHud"
     );
+    
+    public static readonly EffectReference DeformationShader = new EffectReference(
+        $"{ContentFolder.Effects}/DeformationShader"
+    );
 }

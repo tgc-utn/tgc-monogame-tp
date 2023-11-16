@@ -82,6 +82,14 @@ public class PlaneMap : Map
                 prop.Update(bullet);
             }
         }
+
+        foreach (var ally in Alies)
+        {
+            foreach (var bullet in Player.Bullets)
+            {
+                ally.CheckCollisionWithBullet(bullet);
+            }
+        }
         
         // foreach (var enemy in Enemies)
         //     enemy.Update(gameTime);
