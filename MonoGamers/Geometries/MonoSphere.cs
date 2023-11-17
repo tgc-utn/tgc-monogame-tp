@@ -96,7 +96,7 @@ namespace MonoGamers.Geometries
             SphereType = Type.Common;
             Material = "Common";
 
-            SpherePosition = InitialPosition;
+            SpherePosition = InitialPosition - new Vector3(0,0,100f);
             SphereRotation = Matrix.Identity;
             SphereFrontDirection = Vector3.Backward;
             SphereLateralDirection = Vector3.Right;

@@ -181,11 +181,11 @@ namespace MonoGamers
             // Creo los checkpoints
             Checkpoints = new Checkpoint[]
             {
-                new Checkpoint(new Vector3(100f, 10f, 160f)),
-                new Checkpoint(new Vector3(100f, 10f, 4394f)),
-                new Checkpoint(new Vector3(2500f, 150f, 7144f)),
-                new Checkpoint(new Vector3(4100f, 343f, 7200f)),
-                new Checkpoint(new Vector3(3775f, 560f, 9330f)),
+                new Checkpoint(new Vector3(100f, 25f, 160f), new Vector3(100f, 50f, 25f),Content, GraphicsDevice),
+                new Checkpoint(new Vector3(100f, 37.5f, 4394f), new Vector3(300f, 75f, 25f),Content, GraphicsDevice),
+                new Checkpoint(new Vector3(2500f, 150f, 7144f), new Vector3(70f, 25f, 70f),Content, GraphicsDevice),
+                new Checkpoint(new Vector3(4100f, 360f, 7200f), new Vector3(25f, 50f, 148f),Content, GraphicsDevice),
+                new Checkpoint(new Vector3(3775f, 565f, 9315f), new Vector3(100f, 50f, 25f),Content, GraphicsDevice),
 
             };
             CurrentCheckpoint = 0;
@@ -400,7 +400,7 @@ namespace MonoGamers
                 
                 return;
             }
-            for(int i = CurrentCheckpoint+1; i < Checkpoints.Length; i++)
+            for(int i = CurrentCheckpoint; i < Checkpoints.Length; i++)
             {
                 if(Checkpoints[i].IsWithinBounds(bodyRef.Pose.Position))
                 {
@@ -580,6 +580,12 @@ namespace MonoGamers
                     
                 powerup.Draw(Camera, gameTime); 
             }
+            
+            foreach (var checkpoint in Checkpoints)
+            {
+
+                checkpoint.Draw(Camera); 
+            }
 
             DrawUI(gameTime);
             base.Draw(gameTime);
@@ -627,21 +633,22 @@ namespace MonoGamers
                 var fps = MathF.Round(1/Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds), 1);
                 var tiempoTotal = stopwatchInitialize.Elapsed + stopwatchLoad.Elapsed + stopwatchUpdate.Elapsed + stopwatchDraw.Elapsed;
                 var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
-                SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, 0), color);
-                if (gm) SpriteBatch.DrawString(SpriteFont, "PRESS THE 1,2,3,4,5 KEYS TO MOVE TO THE NEXT CHECKPOINT", new Vector2(Width/3, Height*0.9F), color);
+                SpriteBatch.DrawString(SpriteFont, "Checkpoints: " + (CurrentCheckpoint+1).ToString() +"/5 ", new Vector2(Width*0.02f, Height*0.01F), color);
+                SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, Height*0.01F), color);
+                SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 500, Height*0.01F), color);
+                SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 400, Height*0.06f), color);
                 SpriteBatch.DrawString(SpriteFont, "USE THE T,Y,U,I KEYS TO CHANGE MATERIALS", new Vector2(Width/3, Height*0.85F), color);
-                SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 500, 0), color);
+                if (gm) SpriteBatch.DrawString(SpriteFont, "PRESS THE 1,2,3,4,5 KEYS TO MOVE TO THE NEXT CHECKPOINT", new Vector2(Width/3, Height*0.9F), color);
+                if (gm) SpriteBatch.DrawString(SpriteFont, "FPS: " + fps.ToString(), new Vector2(Width*0.01f, Height*0.05F), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Tiempo Initialize:" + stopwatchInitialize.Elapsed, new Vector2(Width*0.01f, Height*0.15F), color);
                 if (gm)SpriteBatch.DrawString(SpriteFont, "Tiempo Load:" + stopwatchLoad.Elapsed, new Vector2(Width*0.01f, Height*0.20F), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Tiempo Update:" + stopwatchUpdate.Elapsed, new Vector2(Width*0.01f, Height*0.25F), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Tiempo Draw:" + stopwatchDraw.Elapsed, new Vector2(Width*0.01f, Height*0.30F), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Tiempo total:" + tiempoTotal, new Vector2(Width*0.01f, Height*0.35F), color);
-                SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 400, Height*0.05f), color);
-                if (gm) SpriteBatch.DrawString(SpriteFont, "FPS: " + fps.ToString(), new Vector2(Width*0.01f, 0), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Side Speed: " + (MonoSphere.SphereSideSpeed * MonoSphere.SphereSideTypeSpeed).ToString(),
-                                        new Vector2(Width*0.01f, Height*0.05F), color);
+                                        new Vector2(Width*0.01f, Height*0.45F), color);
                 if (gm) SpriteBatch.DrawString(SpriteFont, "Jump Speed: " + (MonoSphere.SphereJumpSpeed * MonoSphere.SphereJumpTypeSpeed).ToString(),
-                                        new Vector2(Width*0.01f, Height*0.1F), color);
+                                        new Vector2(Width*0.01f, Height*0.50F), color);
             }
 
             //Menu
