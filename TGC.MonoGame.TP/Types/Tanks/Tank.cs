@@ -54,6 +54,7 @@ public abstract class Tank : Resource, ICollidable
     // Box Parameters
     public Vector3 Position;
     public Vector3 LastPosition;
+    public Vector3 RespawnPosition;
     
     public Matrix OBBWorld { get; set; }
     public float Angle { get; set; } = 0f;
@@ -73,9 +74,9 @@ public abstract class Tank : Resource, ICollidable
     
     //HUD
     public CarHUD TankHud { get; set; }
-    public float health { get; set; } = 1f;
+    public int health { get; set; } = 5;
     public bool curandose { get; set; } = true;
-    public float shootTime { get; set; } = 5f;
+    public float shootTime { get; set; } = 2.5f;
     public bool hasShot = true;
     
     public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
@@ -85,6 +86,7 @@ public abstract class Tank : Resource, ICollidable
         // _velocidad = 0;
         // Rotation = Matrix.Identity;
         Position = position;
+        RespawnPosition = position;
         TurretRotation = Matrix.Identity;
         CannonRotation = Matrix.Identity;
         var w = graphicsDeviceManager.GraphicsDevice.Viewport.Width / 2;
@@ -161,14 +163,9 @@ public abstract class Tank : Resource, ICollidable
             bullet.Update(gameTime);
         }
         
-        // Valor de incremento o decremento de la salud
-        var incremento = curandose ? -0.01f : 0.01f;
-
-        health = Math.Clamp(health + incremento, 0.0f, 1.0f);
-
-        if (health <= 0.0f || health >= 1.0f)
+        if (health <= 0)
         {
-            curandose = !curandose;
+            Respawn();
         }
         
         if (hasShot)
@@ -179,6 +176,19 @@ public abstract class Tank : Resource, ICollidable
                 hasShot = false;
             }
         }
+    }
+
+    private void Respawn()
+    {
+        Position = RespawnPosition;
+        health = 5;
+        Angle = 0f;
+        Velocidad = 0f;
+        shootTime = 2.5f;
+        hasShot = true;
+        
+        ImpactDirections.Clear();
+        ImpactPositions.Clear();
     }
 
     public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
@@ -231,7 +241,7 @@ public abstract class Tank : Resource, ICollidable
         Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
         Velocidad *= 0.5f;
     }
-
+    
     public void CollidedWithLargeProp()
     {
         Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
@@ -243,12 +253,13 @@ public abstract class Tank : Resource, ICollidable
     {
         if (Box.Intersects(bullet.Box))
         {
-            if (ImpactPositions.Count == 5 || Bullets.Contains(bullet))
+            if (Bullets.Contains(bullet))
                 return;
             ImpactPositions.Add(bullet.Position);
             ImpactDirections.Add(bullet.Direction);
-            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count);
             bullet.IsAlive = false;
+            health -= 1;
+            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
         }
     }
 

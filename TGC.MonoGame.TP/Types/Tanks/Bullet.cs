@@ -18,6 +18,7 @@ public class Bullet : ICollidable
     public Vector3 Position { get; set; }
     public Vector3 Direction { get; set; }
     public float Speed { get; set; }
+    private float _gravity = 0.001f;
     public float LifeTime { get; set; }
     public bool IsAlive { get; set; } = true;
     
@@ -46,8 +47,12 @@ public class Bullet : ICollidable
         if (IsAlive)
         {
             var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+            Direction -= Vector3.Up * _gravity; 
             Position += Direction * Speed * elapsedTime;
             World = Matrix.CreateTranslation(Position);
+
+            if (Position.Y < 0)
+                IsAlive = false;
             
             // Box
             Box.Center = Position;
