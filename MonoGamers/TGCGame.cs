@@ -181,6 +181,7 @@ namespace MonoGamers
             // Creo los checkpoints
             Checkpoints = new Checkpoint[]
             {
+                new Checkpoint(new Vector3(100f, 25f, 60f)),
                 new Checkpoint(new Vector3(100f, 25f, 160f), new Vector3(100f, 50f, 25f),Content, GraphicsDevice),
                 new Checkpoint(new Vector3(100f, 37.5f, 4394f), new Vector3(300f, 75f, 25f),Content, GraphicsDevice),
                 new Checkpoint(new Vector3(2500f, 150f, 7144f), new Vector3(70f, 25f, 70f),Content, GraphicsDevice),
@@ -463,7 +464,7 @@ namespace MonoGamers
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
                 // Set the render target as our shadow map, we are drawing the depth into this texture
                 GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
-                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.White, 1f, 0);
 
                 LightEffect.CurrentTechnique = LightEffect.Techniques["DepthPass"];
                 
@@ -633,7 +634,7 @@ namespace MonoGamers
                 var fps = MathF.Round(1/Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds), 1);
                 var tiempoTotal = stopwatchInitialize.Elapsed + stopwatchLoad.Elapsed + stopwatchUpdate.Elapsed + stopwatchDraw.Elapsed;
                 var position = new Vector3(MathF.Round(MonoSphere.SpherePosition.X, 1), MathF.Round(MonoSphere.SpherePosition.Y, 1), MathF.Round(MonoSphere.SpherePosition.Z, 1));
-                SpriteBatch.DrawString(SpriteFont, "Checkpoints: " + (CurrentCheckpoint+1).ToString() +"/5 ", new Vector2(Width*0.02f, Height*0.01F), color);
+                SpriteBatch.DrawString(SpriteFont, "Checkpoints: " + CurrentCheckpoint.ToString() +"/5 ", new Vector2(Width*0.02f, Height*0.01F), color);
                 SpriteBatch.DrawString(SpriteFont, "GODMODE (G) :" + (gm ? "ON" : "OFF"), new Vector2(GraphicsDevice.Viewport.Width/4, Height*0.01F), color);
                 SpriteBatch.DrawString(SpriteFont, "Position:" + position.ToString(), new Vector2(Width - 500, Height*0.01F), color);
                 SpriteBatch.DrawString(SpriteFont, "Material:" + MonoSphere.Material, new Vector2(Width - 400, Height*0.06f), color);

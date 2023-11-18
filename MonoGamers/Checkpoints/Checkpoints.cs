@@ -25,6 +25,8 @@ namespace MonoGamers.Checkpoints
 
         private Boolean alreadyPassed = false; 
         
+        private Boolean IntialCheckpoint; 
+        
         public Checkpoint (Vector3 position,Vector3 scale, ContentManager Content, GraphicsDevice graphicsDevice )
         {
 
@@ -41,11 +43,19 @@ namespace MonoGamers.Checkpoints
             
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(graphicsDevice, Vector3.One, CheckTexture);
+            this.IntialCheckpoint = false;
+        }
+        public Checkpoint (Vector3 position )
+        {
+
+            this.Position = position;
+            this.IntialCheckpoint = true;
+
         }
         public bool IsWithinBounds(Vector3 position)
         {
             var BoundingSphere = new BoundingSphere(position, 10f);
-            if (BoundingBox.Intersects(BoundingSphere))
+            if (BoundingBox.Intersects(BoundingSphere) && !IntialCheckpoint)
             {
                 alreadyPassed = true;
                 return true;
@@ -58,11 +68,15 @@ namespace MonoGamers.Checkpoints
 
         public void Draw(Camera.Camera camera)
         {
-            Effect.Parameters["Texture"].SetValue(CheckTexture);
-            Effect.Parameters["AlphaFactor"].SetValue(0.4f);
-            Effect.Parameters["Tint"].SetValue(alreadyPassed ? Color.Snow.ToVector3() : Color.Red.ToVector3());
-            Effect.Parameters["WorldViewProjection"].SetValue(World * camera.View * camera.Projection);
-            BoxPrimitive.Draw(Effect); 
+            if (!IntialCheckpoint)
+            {
+                Effect.Parameters["Texture"].SetValue(CheckTexture);
+                Effect.Parameters["AlphaFactor"].SetValue(0.4f);
+                Effect.Parameters["Tint"].SetValue(alreadyPassed ? Color.Snow.ToVector3() : Color.Red.ToVector3());
+                Effect.Parameters["WorldViewProjection"].SetValue(World * camera.View * camera.Projection);
+                BoxPrimitive.Draw(Effect); 
+            }
+            
         }
     }
 }
