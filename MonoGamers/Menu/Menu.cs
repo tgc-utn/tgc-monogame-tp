@@ -58,6 +58,7 @@ public class Menu
     {
         if (PlayButton.IsPressed(PreviousMouseState, MouseState)) { 
             OnMenu = false;
+            Mouse.SetPosition(_graphicsDevice.Viewport.Width / 2, _graphicsDevice.Viewport.Height / 2);
         }
         
         if (ExitButton.IsPressed(PreviousMouseState, MouseState)) 

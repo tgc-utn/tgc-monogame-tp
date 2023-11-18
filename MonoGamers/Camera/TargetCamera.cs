@@ -17,7 +17,7 @@ namespace MonoGamers.Camera;
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
         private const float CameraFollowRadius = 130f;
         private const float CameraUpDistance = 70f;
-        private const float CameraRotatingVelocity = 0.1f;
+        private const float CameraRotatingVelocity = 0.06f;
 
         private Viewport Viewport;
 
@@ -92,8 +92,7 @@ namespace MonoGamers.Camera;
         // Create a position that orbits the Sphere by its direction (Rotation)
 
         if(!onMenu) ProcessMouseMovement((float) gameTime.ElapsedGameTime.TotalSeconds);
-        // Create a normalized vector that points to the back of the Sphere
-        if (Rotated) CameraRotation *= Matrix.CreateRotationY(Rotation);
+
          var sphereBack = Vector3.Transform(Vector3.Forward, CameraRotation);
          // Then scale the vector by a radius, to set an horizontal distance between the Camera and the Sphere
          var orbitalPosition = sphereBack * CameraFollowRadius;
@@ -113,33 +112,15 @@ namespace MonoGamers.Camera;
         // Build our View matrix from the Position and TargetPosition
         BuildView();
     }
+
     private void ProcessMouseMovement(float elapsedTime)
     {
+
         var mouseState = Mouse.GetState();
-        float deltaX = mouseState.X - PastMousePosition.X; 
-
-        if (deltaX > 0)
+        float deltaX = mouseState.X - PastMousePosition.X;
+        if (deltaX > 0.001f || deltaX < 0.001f)
         {
-            Rotation += -CameraRotatingVelocity * elapsedTime;
-            Rotated = true;
-        }
-        else if (deltaX < 0)
-        {
-            Rotation += CameraRotatingVelocity * elapsedTime;
-            Rotated = true;
-        }
-        else
-        {
-            if (Rotation > 0) Rotation -= CameraRotatingVelocity * elapsedTime * 2;
-            else if (Rotation < 0) Rotation += CameraRotatingVelocity * elapsedTime * 2 ;
-            if (Math.Abs(Rotation) < 0.001f) Rotation = 0;
-        }
-
-        if (mouseState.X < 0 || mouseState.X > Viewport.Width ||
-            mouseState.Y < 0 || mouseState.Y > Viewport.Height)
-        {
-            // Si está fuera de los límites, reajusta la posición del mouse al centro de la ventana
-            Mouse.SetPosition(Viewport.Width / 2, Viewport.Height / 2);
+            CameraRotation *= Matrix.CreateRotationY(deltaX*-0.2f*elapsedTime);
         }
 
         PastMousePosition = mouseState.Position.ToVector2();
