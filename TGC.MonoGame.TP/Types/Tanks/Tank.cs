@@ -32,6 +32,20 @@ public abstract class Tank : Resource, ICollidable
     public List<Vector3> ImpactPositions { get; set; } = new();
     public List<Vector3> ImpactDirections { get; set; } = new();
     
+    // Wheels
+    public ModelBone leftTreadBone;
+    public ModelBone rightTreadBone;
+    public ModelBone[] leftWheelsBones;
+    public ModelBone[] rightWheelsBones;
+
+    public Matrix leftTreadTransform;
+    public Matrix rightTreadTransform;
+    public Matrix[] leftWheelsTransforms;
+    public Matrix[] rightWheelsTransforms;
+
+    public float LeftWheelRotation { get; set; } = 0;
+    public float RightWheelRotation { get; set; } = 0;
+    
     // Torret
     public ModelBone turretBone;
     public ModelBone cannonBone;
@@ -72,8 +86,8 @@ public abstract class Tank : Resource, ICollidable
     public float _sensitivityX = 0.0018f;
     public float _sensitivityY = 0.002f;
     
-    //HUD
-    public CarHUD TankHud { get; set; }
+    // HUD
+    public TankHUD TankHud { get; set; }
     public int health { get; set; } = 5;
     public bool curandose { get; set; } = true;
     public float shootTime { get; set; } = 2.5f;
@@ -93,7 +107,7 @@ public abstract class Tank : Resource, ICollidable
         var h = graphicsDeviceManager.GraphicsDevice.Viewport.Height / 2;
         _center = new Point(w, h);
         
-        TankHud = new CarHUD(graphicsDeviceManager);
+        TankHud = new TankHUD(graphicsDeviceManager);
     }
 
     public override void Load(ContentManager content)
@@ -123,6 +137,27 @@ public abstract class Tank : Resource, ICollidable
         cannonBone = Model.Bones[TankRef.CannonBoneName];
         turretTransform = turretBone.Transform;
         cannonTransform = cannonBone.Transform;
+        
+        // Wheels
+        leftTreadBone = Model.Bones[TankRef.LeftTreadBoneName];
+        rightTreadBone = Model.Bones[TankRef.RightTreadBoneName];
+        leftTreadTransform = leftTreadBone.Transform;
+        rightTreadTransform = rightTreadBone.Transform;
+
+        var wheelsCount = TankRef.LeftWheelsBoneNames.Count;
+        leftWheelsBones = new ModelBone[wheelsCount];
+        rightWheelsBones = new ModelBone[wheelsCount];
+        leftWheelsTransforms = new Matrix[wheelsCount];
+        rightWheelsTransforms = new Matrix[wheelsCount];
+        
+        for (var i = 0; i < wheelsCount; i++)
+        {
+            leftWheelsBones[i] = Model.Bones[TankRef.LeftWheelsBoneNames[i]];
+            rightWheelsBones[i] = Model.Bones[TankRef.RightWheelsBoneNames[i]];
+            leftWheelsTransforms[i] = leftWheelsBones[i].Transform * leftTreadTransform;
+            rightWheelsTransforms[i] = rightWheelsBones[i].Transform * rightTreadTransform;
+        }
+        
         boneTransforms = new Matrix[Model.Bones.Count];
         
         // Bullet
@@ -154,7 +189,6 @@ public abstract class Tank : Resource, ICollidable
         Box.Orientation = rotation;
         Box.Center = Position;
         OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
-        
         
         // Bullets
         Bullets = Bullets.Where(bullet => bullet.IsAlive).ToList();
@@ -194,8 +228,17 @@ public abstract class Tank : Resource, ICollidable
     public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
     {
         turretBone.Transform = TurretRotation * turretTransform;
-        cannonBone.Transform =
-            turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+        cannonBone.Transform = turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+
+        var leftWheelRotation = Matrix.CreateRotationX(LeftWheelRotation);
+        var rightWheelRotation = Matrix.CreateRotationX(RightWheelRotation);
+        
+        for (var i = 0; i < leftWheelsBones.Length; i++)
+        {
+            leftWheelsBones[i].Transform = leftWheelRotation * leftWheelsTransforms[i];
+            rightWheelsBones[i].Transform = rightWheelRotation * rightWheelsTransforms[i];
+        }
+        
         Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
         
         foreach (var bullet in Bullets)
@@ -210,6 +253,21 @@ public abstract class Tank : Resource, ICollidable
         {
             EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, mesh.Name);
             var worldMatrix = mesh.ParentBone.Transform * World;
+            
+            if (mesh.ParentBone.Name == leftTreadBone.Name)
+            {
+                // Configuración cadena izquierda
+                Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(LeftWheelRotation*0.125f);
+            }
+            
+            if (mesh.ParentBone.Name == rightTreadBone.Name)
+            {
+                // Configuración cadena derecha
+                Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(RightWheelRotation*0.125f);
+            }
+            
             Effect.Parameters["World"].SetValue(worldMatrix);
             Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
             Effect.Parameters["View"]?.SetValue(view);
@@ -219,6 +277,7 @@ public abstract class Tank : Resource, ICollidable
             Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
             Effect.Parameters["Impacts"]?.SetValue(ImpactPositions.Count);
             mesh.Draw();
+            Effect.Parameters["applyTextureScrolling"]?.SetValue(false);
         }
         
         TankHud.Draw(projection);

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP.HUD;
 
-public class CarHUD 
+public class TankHUD 
 {
     internal Vector3 FollowedPosition;
     internal HealthBar HealthBar;
@@ -12,7 +12,7 @@ public class CarHUD
     protected Matrix HUDView;
     private bool canShoot = true;
 
-    public CarHUD(GraphicsDeviceManager graphicsDeviceManager)
+    public TankHUD(GraphicsDeviceManager graphicsDeviceManager)
     {
         HealthBar = new HealthBar(graphicsDeviceManager);
         ShootBar = new ShootBar(graphicsDeviceManager);

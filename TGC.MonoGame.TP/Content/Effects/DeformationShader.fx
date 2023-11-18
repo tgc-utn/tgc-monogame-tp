@@ -29,14 +29,17 @@ int Impacts = 0;
 
 float BulletRadius = 0.5;
 
+bool applyTextureScrolling = false;
+float ScrollSpeed;
+
 texture baseTexture;
 sampler2D textureSampler = sampler_state
 {
     Texture = (baseTexture);
     MagFilter = Linear;
     MinFilter = Linear;
-    AddressU = Clamp;
-    AddressV = Clamp;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 struct VertexShaderInput
@@ -74,6 +77,11 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     output.Position = mul(input.Position, Projection);
     output.Normal = mul(input.Normal, InverseTransposeWorld);
     output.TextureCoordinates = input.TextureCoordinates;
+    
+    if (applyTextureScrolling)
+    {
+            output.TextureCoordinates += input.TextureCoordinates * ScrollSpeed;
+    }
 	
 	return output;
 }

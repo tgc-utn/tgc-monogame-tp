@@ -15,7 +15,7 @@ public class TankPlayer : Tank
     public override void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        KeySense();
+        KeySense(elapsedTime);
         ProcessMouse(elapsedTime);
         
         base.Update(gameTime);
@@ -23,30 +23,39 @@ public class TankPlayer : Tank
         TankHud.Update(World, health, shootTime);
     }
     
-    public void KeySense()
+    public void KeySense(float elapsedTime)
     {
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
             // Avanzo
             Velocidad += Acceleration;
+            LeftWheelRotation += elapsedTime * Acceleration;
+            RightWheelRotation += elapsedTime * Acceleration;
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
             // Retrocedo
             Velocidad -= Acceleration;
+            
+            LeftWheelRotation += elapsedTime * (-Acceleration);
+            RightWheelRotation += elapsedTime * (-Acceleration);
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
             // Giro izq
             Angle += RotationSpeed;
+            LeftWheelRotation += elapsedTime * (-Acceleration);
+            RightWheelRotation += elapsedTime * Acceleration;
         }
 
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
             // Giro der
             Angle -= RotationSpeed;
+            LeftWheelRotation += elapsedTime * Acceleration;
+            RightWheelRotation += elapsedTime * (-Acceleration);
         }
     }
     
