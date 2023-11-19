@@ -20,6 +20,9 @@ public static class TexturesRepository
                 break;
             case ColorReference _:
                 break;
+            case BasicTextureReference textureReference:
+                textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referenceDrawReference));
         }

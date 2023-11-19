@@ -16,6 +16,7 @@ public static class EffectsRepository
             ColorReference _ => BasicShader(content),
             TextureReference _ => TextureShader(content),
             MultiTextureReference _ => TextureShader(content),
+            BasicTextureReference _ => BasicTextureShader(content),
             _ => throw new ArgumentOutOfRangeException(nameof(drawReference))
         };
     }
@@ -23,6 +24,11 @@ public static class EffectsRepository
     public static Effect BasicShader(ContentManager content)
     {
         return content.Load<Effect>(Effects.Effects.BasicShader.Path);
+    }
+
+    public static Effect BasicTextureShader(ContentManager content)
+    {
+        return content.Load<Effect>(Effects.Effects.BasicTextureShader.Path);
     }
     
     public static Effect TextureShader(ContentManager content)
@@ -36,6 +42,9 @@ public static class EffectsRepository
         {
             case ColorReference colorReference:
                 effect.Parameters["DiffuseColor"].SetValue(colorReference.Color.ToVector3());
+                break;
+            case BasicTextureReference textureReference:
+                effect.Parameters["baseTexture"].SetValue(textureReference.Texture);
                 break;
             case TextureReference textureReference:
                 effect.Parameters["baseTexture"].SetValue(textureReference.Texture);

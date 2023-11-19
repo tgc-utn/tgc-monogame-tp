@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Types.References;
+using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.Types;
 

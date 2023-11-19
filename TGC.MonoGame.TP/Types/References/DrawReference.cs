@@ -8,6 +8,7 @@ public enum DrawType
 {
     Color,
     Texture,
+    BasicTexture,
     MultiTexture,
     Font
 }
@@ -35,6 +36,24 @@ public class TextureReference : DrawReference
     public Texture2D Texture { get; set; }
 
     public TextureReference(string path)
+    {
+        Type = DrawType.Texture;
+        Path = path;
+    }
+    
+    public void SetTexture(Texture2D texture)
+    {
+        Texture = texture;
+    }
+}
+
+public class BasicTextureReference : DrawReference
+{
+    public string Path { get; }
+    
+    public Texture2D Texture { get; set; }
+
+    public BasicTextureReference(string path)
     {
         Type = DrawType.Texture;
         Path = path;
