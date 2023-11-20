@@ -4,13 +4,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Helpers.Gizmos;
+using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Menu;
 using TGC.MonoGame.TP.Types;
 using TGC.MonoGame.TP.Types.Tanks;
+using TGC.MonoGame.TP.Utils;
 using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
@@ -21,17 +24,21 @@ namespace TGC.MonoGame.TP
 
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
+        private Map MenuMap { get; set; }
         private Camera Camera { get; set; } = null;
         private Gizmos Gizmos { get; set; }
         private GameState GameState { get; set; }
         private MainMenu Menu { get; set; }
+        private float TimeSinceLastChange { get; set; }
+        private Song Song { get; set; }
+        private ScreenTime ScreenTime { get; set; }
+        private Score Score { get; set; }
 
         /* SOMBRAS */
         private const int ShadowmapSize = 2048;
         private readonly float LightCameraFarPlaneDistance = 3000f;
         private readonly float LightCameraNearPlaneDistance = 5f;
         private RenderTarget2D ShadowMapRenderTarget;
-        private FullScreenQuad FullScreenQuad;
         private TargetCamera TargetLightCamera { get; set; }
 
         public TGCGame()
@@ -50,23 +57,28 @@ namespace TGC.MonoGame.TP
 
             GameState = new GameState();
             Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2, Graphics);
-
-            Menu = new MainMenu(GraphicsDevice, GameState);
+            MenuMap = new MenuMap(Tanks.T90, Graphics);
+            Menu = new MainMenu(GraphicsDevice, GameState, MenuMap);
 
             TargetLightCamera = new TargetCamera(1f, Map.SkyDome.LightPosition, Vector3.Zero);
             TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
                 MathHelper.PiOver2);
+            
+            TimeSinceLastChange = 0f;
+            ScreenTime = new ScreenTime(GraphicsDevice, 180f);
+            Score = new Score(GraphicsDevice);
 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            Menu.LoadContent(Content);
+            Menu.LoadContent(GraphicsDevice, Content);
             Map.Load(GraphicsDevice, Content);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
-
-            FullScreenQuad = new FullScreenQuad(GraphicsDevice);
+            ScreenTime.LoadContent(Content);
+            Score.LoadContent(Content);
+            Song = Content.Load<Song>($"{ContentFolder.Music}/world-of-tanks");
             ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -78,8 +90,17 @@ namespace TGC.MonoGame.TP
         {
             var keyboardState = Keyboard.GetState();
             //Salgo del juego.
-            if (keyboardState.IsKeyDown(Keys.Escape))
-                Exit();
+            if (keyboardState.IsKeyDown(Keys.Escape) && GameState.CurrentStatus != GameStatus.MainMenu && GameState.CurrentStatus != GameStatus.Exit)
+            {
+                GameState.Set(GameStatus.MainMenu);
+                TimeSinceLastChange = 0f;
+            }
+            // Musica
+            if (MediaPlayer.State != MediaState.Playing)
+            {
+                MediaPlayer.Volume = 0.05f;
+                MediaPlayer.Play(Song); 
+            }
             
             if (keyboardState.IsKeyDown(Keys.F1))
                 GameState.Set(GameStatus.MainMenu);
@@ -91,7 +112,9 @@ namespace TGC.MonoGame.TP
             switch (GameState.CurrentStatus)
             {
                 case GameStatus.MainMenu:
-                    Menu.Update();
+                    Menu.Update(gameTime);
+                    if (keyboardState.IsKeyDown(Keys.Escape) && TimeSinceLastChange > 0.5f)
+                        GameState.Set(GameStatus.Exit);
                     break;
                 case GameStatus.NormalGame:
                     if (GameState.FirstUpdate)
@@ -101,6 +124,8 @@ namespace TGC.MonoGame.TP
                             Vector3.Zero);
                         GameState.FirstUpdate = false;
                     }
+                    ScreenTime.Update(gameTime);
+                    Score.Update(100000f + (float)gameTime.ElapsedGameTime.TotalSeconds);
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;
                     TargetLightCamera.BuildView();
@@ -132,7 +157,7 @@ namespace TGC.MonoGame.TP
                     }
                     break;
                 case GameStatus.DeathMenu:
-                    Menu.Update();
+                    Menu.Update(gameTime);
                     break;
                 case GameStatus.Exit:
                     Exit();
@@ -140,7 +165,7 @@ namespace TGC.MonoGame.TP
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
+            TimeSinceLastChange += (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
         }
 
@@ -149,7 +174,7 @@ namespace TGC.MonoGame.TP
             switch (GameState.CurrentStatus)
             {
                 case GameStatus.MainMenu:
-                    Menu.Draw(GameState.CurrentStatus);
+                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera);
                     break;
                 case GameStatus.NormalGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -160,6 +185,8 @@ namespace TGC.MonoGame.TP
                     catch (Exception e)
                     {
                     }
+                    ScreenTime.Draw();
+                    Score.Draw();
                     break;
                 case GameStatus.GodModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -174,7 +201,7 @@ namespace TGC.MonoGame.TP
                     }
                     break;
                 case GameStatus.DeathMenu:
-                    Menu.Draw(GameState.CurrentStatus);
+                    Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
                     break;
                 case GameStatus.Exit:
                     break;

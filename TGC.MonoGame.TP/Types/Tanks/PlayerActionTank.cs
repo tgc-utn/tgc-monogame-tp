@@ -79,6 +79,11 @@ public class PlayerActionTank : ActionTank
             tank.Bullets.Add(bullet);
             tank.hasShot = true;
             tank.shootTime = 0.25f;
+            // Music
+            var instance = tank.BulletSoundEffect.CreateInstance();
+            //Quizas podriamos hacer que el sonido sea mas fuerte si el tanque esta mas cerca
+            instance.Volume = 0.05f;
+            instance.Play();
         }
     }
 }

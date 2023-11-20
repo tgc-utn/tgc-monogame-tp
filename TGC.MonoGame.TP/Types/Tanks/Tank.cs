@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Cameras;
@@ -57,6 +58,7 @@ public class Tank : Resource, ICollidable
     // Shot
     public bool hasShot = true;
     public ModelReference BulletReference;
+    public SoundEffect BulletSoundEffect;
     public Model BulletModel { get; set; }
     public Effect BulletEffect;
     public List<Bullet> Bullets { get; set; } = new();
@@ -117,6 +119,9 @@ public class Tank : Resource, ICollidable
         
         //HUD
         TankHud.Load(contentManager);
+        
+        // Music
+        BulletSoundEffect = contentManager.Load<SoundEffect>($"{ContentFolder.Sounds}/fireshot");
     }
     
     // UPDATE

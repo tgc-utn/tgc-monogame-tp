@@ -6,88 +6,87 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Types;
-using TGC.MonoGame.TP.Types.References;
-using TGC.MonoGame.TP.Utils;
+using TGC.MonoGame.TP.Utils.Fonts;
 
 namespace TGC.MonoGame.TP.Menu;
 
 public class MainMenu
 {
     private ButtonsGrid Buttons;
-    private Texture2D Logo;
+    private Texture2D _logo;
     private int _screenWidth;
     private int _screenHeight;
 
     // Background
+    private Map _menuMap;
     private Camera _camera;
-    private Camera _environmentCamera;
+    
     private SpriteFont Font;
     public SpriteBatch SpriteBatch { get; set; }
-    public GraphicsDevice GraphicsDevice { get; set; }
-    
-    public bool loaded = false;
+    public GraphicsDevice GraphicsDevice { get; }
 
-    public MainMenu (GraphicsDevice graphicsDevice, GameState gameState)
+    public MainMenu (GraphicsDevice graphicsDevice, GameState gameState, Map menuMap)
         {
             GraphicsDevice = graphicsDevice;
             SpriteBatch = new SpriteBatch(graphicsDevice);
-            loaded = true;
             
             _screenWidth = graphicsDevice.Viewport.Width;
             _screenHeight = graphicsDevice.Viewport.Height;
-
+            
+            _menuMap = menuMap;
+            _camera = new AngularCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f,50f,10f), _menuMap.Player.Position, (float)Math.PI/4);
+            
             var buttons = new List<Button>
             {
-                new ("Comenzar", GameStatus.NormalGame),
+                new ("Nuevo Juego", GameStatus.NormalGame),
                 new ("Modo Dios", GameStatus.GodModeGame),
                 new ("Salir", GameStatus.Exit),
             };
             Buttons = new ButtonsGrid(gameState, _screenWidth/2, _screenHeight/2, buttons);
         }
-
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
-        ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
-        ///     que podemos pre calcular para nuestro juego.
-        /// </summary>
-        public void LoadContent(ContentManager content)
+    
+        public void LoadContent(GraphicsDevice graphicsDevice,ContentManager content)
         {
-            Logo = content.Load<Texture2D>(Utils.Textures.Menu.MenuImage.Path);
-            Font = content.Load<SpriteFont>(Utils.Fonts.Fonts.Arial.Path);
+            _logo = content.Load<Texture2D>(Utils.Textures.Menu.MenuImage.Path);
+            Font = content.Load<SpriteFont>(Fonts.Arial.Path);
+            _menuMap.Load(graphicsDevice, content);
             Buttons.LoadContent(content);
         }
 
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            if (!loaded) 
-                SpriteBatch = new SpriteBatch(GraphicsDevice);
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            _menuMap.Update(gameTime);
             Buttons.Update(Mouse.GetState());
         }
         
-        public void Draw(GameStatus gameStatus)
+        public void Draw(GameStatus gameStatus, RenderTarget2D ShadowMapRenderTarget, Camera TargetLightCamera)
         {
-            if (loaded)
+            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            try
             {
-                GraphicsDevice.Clear(Color.Black);
-                var destRectangle = new Rectangle(0, 0, Logo.Width, Logo.Height);
-                SpriteBatch.Begin();
-                SpriteBatch.Draw(Logo, Vector2.Zero, Color.White);
-                if (gameStatus == GameStatus.DeathMenu)
-                {
-                    var text = "Perdiste!";
-                    var size = Font.MeasureString(text);
-                    SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth - size.Y)/2, 20), Color.Red);
-                }
-                SpriteBatch.End();
-                Buttons.Draw(SpriteBatch);
-                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                _menuMap.Draw(_camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
             }
+            catch (Exception e) { }
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default; 
+            SpriteBatch.Begin();
+            var destRectangle = new Rectangle((_screenWidth - _logo.Width*2/3)/2,
+                _screenHeight/50, _logo.Width*2/3, _logo.Height*2/3);
+            SpriteBatch.Draw(_logo, destRectangle, Color.White);
+            if (gameStatus == GameStatus.DeathMenu)
+            {
+                var text = "Perdiste!";
+                var size = Font.MeasureString(text);
+                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth - size.Y)/2, 20), Color.Red);
+            }
+            SpriteBatch.End();
+            Buttons.Draw(SpriteBatch);
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         }
 
         public void Dispose()
         {
-            loaded = false;
-            
-            // SpriteBatch.Dispose();
+            SpriteBatch.Dispose();
         }
 }
