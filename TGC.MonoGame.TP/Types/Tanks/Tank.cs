@@ -233,8 +233,19 @@ public class Tank : Resource, ICollidable
     public override void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
         GraphicsDevice GraphicsDevice, Camera TargetLightCamera, bool modifyRootTransform = true)
     {
-        return;
-        base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        // base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+        Effect.CurrentTechnique = Effect.Techniques["DepthPass"];
+        Model.Root.Transform = World;
+        foreach (var modelMesh in Model.Meshes)
+        {
+            foreach (var part in modelMesh.MeshParts)
+                part.Effect = Effect;
+            var worldMatrix = modelMesh.ParentBone.Transform * World;
+            Effect.Parameters["WorldViewProjection"]
+                .SetValue(worldMatrix * TargetLightCamera.View * TargetLightCamera.Projection);
+            modelMesh.Draw();
+        }
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
     }
 
@@ -255,25 +266,52 @@ public class Tank : Resource, ICollidable
         }
         
         Model.Root.Transform = World;
+        
+        Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
+        Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowBlingPhongReference)?.Texture);
+        Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
+        Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
+        Effect.Parameters["shadowMapSize"].SetValue(Vector2.One * 2048);
+        Effect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
         foreach (var modelMesh in Model.Meshes)
         {
-            //Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowBlingPhongReference)?.Texture);
             EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, modelMesh.Name);
+            foreach (var part in modelMesh.MeshParts)
+                part.Effect = Effect;
             var worldMatrix = modelMesh.ParentBone.Transform * World;
+            
+            if (modelMesh.ParentBone.Name == leftTreadBone.Name)
+            {
+                // Configuración cadena izquierda
+                Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(LeftWheelRotation*0.125f);
+            }
+            
+            if (modelMesh.ParentBone.Name == rightTreadBone.Name)
+            {
+                // Configuración cadena derecha
+                Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(RightWheelRotation*0.125f);
+            }
+            
+            Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
             Effect.Parameters["World"].SetValue(worldMatrix);
-            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+            Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
+            Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
+            Effect.Parameters["eyePosition"].SetValue(skyDome.LightViewProjection);
             Effect.Parameters["View"]?.SetValue(camera.View);
-            Effect.Parameters["Projection"]?.SetValue(camera.Projection);
 
+            Effect.Parameters["Projection"].SetValue(camera.Projection);
             Effect.Parameters["ImpactPositions"]?.SetValue(this.ImpactPositions.ToArray());
             Effect.Parameters["ImpactDirections"]?.SetValue(this.ImpactDirections.ToArray());
             Effect.Parameters["Impacts"]?.SetValue(this.ImpactPositions.Count);
+                
+            // Once we set these matrices we draw
             modelMesh.Draw();
+            Effect.Parameters["applyTextureScrolling"]?.SetValue(false);
         }
-
-
-
-
+        
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
         TankHud.Draw(camera.Projection);
     }
