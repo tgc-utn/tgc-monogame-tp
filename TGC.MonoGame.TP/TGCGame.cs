@@ -1,7 +1,14 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Helpers.Gizmos;
+using TGC.MonoGame.TP.Maps;
+using TGC.MonoGame.TP.Menu;
+using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
 {
@@ -12,12 +19,14 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class TGCGame : Game
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
-        public const string ContentFolderTextures = "Textures/";
+        private GraphicsDeviceManager Graphics { get; }
+
+        /* ESTO DEBERIA IR A LOS MAPAS */
+        private Map Map { get; set; }
+        private Camera Camera { get; set; } = null;
+        private Gizmos Gizmos { get; set; }
+        private GameState GameState { get; set; }
+        private MainMenu Menu { get; set; }
 
         /// <summary>
         ///     Constructor del juego.
@@ -27,20 +36,14 @@ namespace TGC.MonoGame.TP
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.ApplyChanges();
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
         }
-
-        private GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private Effect Effect { get; set; }
-        private float Rotation { get; set; }
-        private Matrix World { get; set; }
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -48,21 +51,12 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Initialize()
         {
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
+            Gizmos = new Gizmos();
 
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
+            GameState = new GameState();
+            Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2, Graphics);
 
-            // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Menu = new MainMenu(GraphicsDevice, GameState);
 
             base.Initialize();
         }
@@ -75,26 +69,13 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
-
+            Menu.LoadContent(Content);
+            Map.Load(GraphicsDevice, Content);
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
             base.LoadContent();
         }
 
@@ -105,17 +86,67 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
-
-            // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                //Salgo del juego.
+            var keyboardState = Keyboard.GetState();
+            //Salgo del juego.
+            if (keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
-            }
+            
+            if (keyboardState.IsKeyDown(Keys.F1))
+                GameState.Set(GameStatus.MainMenu);
+            if (keyboardState.IsKeyDown(Keys.F2))
+                GameState.Set(GameStatus.NormalGame);
+            if (keyboardState.IsKeyDown(Keys.F3))
+                GameState.Set(GameStatus.GodModeGame);
 
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            switch (GameState.CurrentStatus)
+            {
+                case GameStatus.MainMenu:
+                    Menu.Update();
+                    break;
+                case GameStatus.NormalGame:
+                    if (GameState.FirstUpdate)
+                    {
+                        Menu.Dispose();
+                        Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
+                            Vector3.Zero);
+                        GameState.FirstUpdate = false;
+                    }
+
+                    Map.Update(gameTime);
+                    try
+                    {
+                        Camera.Update(gameTime, Map.Player);
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                    break;
+                case GameStatus.GodModeGame:
+                    if (GameState.FirstUpdate)
+                    {
+                        Menu.Dispose();
+                        Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
+                        GameState.FirstUpdate = false;
+                    }
+                    Map.Update(gameTime);
+                    try
+                    {
+                        Camera.Update(gameTime, Map.Player);
+                        Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                    break;
+                case GameStatus.DeathMenu:
+                    Menu.Update();
+                    break;
+                case GameStatus.Exit:
+                    Exit();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             base.Update(gameTime);
         }
@@ -127,20 +158,58 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
-
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-            var rotationMatrix = Matrix.CreateRotationY(Rotation);
-
-            foreach (var mesh in Model.Meshes)
+            switch (GameState.CurrentStatus)
             {
-                World = mesh.ParentBone.Transform * rotationMatrix;
-                Effect.Parameters["World"].SetValue(World);
-                mesh.Draw();
+                case GameStatus.MainMenu:
+                    Menu.Draw(GameState.CurrentStatus);
+                    break;
+                case GameStatus.NormalGame:
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+                    try
+                    {
+                        Map.Draw(Camera.View, Camera.Projection);
+                    }
+                    catch (Exception e)
+                    {
+                    }
+
+                    break;
+                case GameStatus.GodModeGame:
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+                    try
+                    {
+                        Map.Draw(Camera.View, Camera.Projection);
+                        DrawBoundingBoxesDebug();
+                        Gizmos.Draw();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("ERRORRRR");
+                    }
+
+                    break;
+                case GameStatus.DeathMenu:
+                    Menu.Draw(GameState.CurrentStatus);
+                    break;
+                case GameStatus.Exit:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void DrawBoundingBoxesDebug()
+        {
+            foreach (var prop in Map.Props)
+                Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
+            // Gizmos.DrawCube(prop.World, Color.Red);
+            foreach (var enemy in Map.Enemies)
+                Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
+            foreach (var ally in Map.Alies)
+                Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
+            Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
+            foreach (var bullet in Map.Player.Bullets)
+                Gizmos.DrawSphere(bullet.Box.Center, bullet.Box.Radius * Vector3.One, Color.Aqua);
         }
 
         /// <summary>
@@ -150,7 +219,7 @@ namespace TGC.MonoGame.TP
         {
             // Libero los recursos.
             Content.Unload();
-
+            Gizmos.Dispose();
             base.UnloadContent();
         }
     }
