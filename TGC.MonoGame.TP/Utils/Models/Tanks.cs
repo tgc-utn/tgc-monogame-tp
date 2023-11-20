@@ -23,13 +23,4 @@ public class Tanks
         "Turret",
         "Cannon"
     );
-
-    /*
-     public static readonly ModelReference Panzer = new ModelReference(
-        $"{ContentFolder.Models}/tanks/Panzer/Panzer",
-        0.1f,
-        Matrix.CreateRotationX((float)Math.PI / 2),
-        new ColorReference(Color.DarkSeaGreen)
-    );
-    */
 }

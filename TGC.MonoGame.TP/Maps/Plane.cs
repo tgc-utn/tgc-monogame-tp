@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Types;
@@ -97,16 +98,30 @@ public class PlaneMap : Map
         SkyDome.Update(gameTime);
     }
 
-    public override void Draw(Matrix view, Matrix projection)
+    public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
     {
-        Scenary.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
-        Player.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
-        foreach (var enemy in Enemies)
-            enemy.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
-        foreach (var alie in Alies)
-            alie.Draw(view, projection,SkyDome.LightPosition, SkyDome.LightViewProjection);
-        foreach (var prop in Props)
-            prop.Draw(view, projection, SkyDome.LightPosition, SkyDome.LightViewProjection);
-        SkyDome.Draw(view, projection);
+        // Player.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        // foreach (var enemy in Enemies)
+        //     enemy.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        // foreach (var alie in Alies)
+        //     alie.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        // GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+        // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+        // GraphicsDevice.SetRenderTarget(null);
+        // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+    
+        GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
+        GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+        foreach (var staticProp in Props)
+        {
+            staticProp.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        }
+        GraphicsDevice.SetRenderTarget(null);
+        foreach (var staticProp in Props)
+        {
+            staticProp.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        }
+        SkyDome.Draw(camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        Scenary.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
     }
 }

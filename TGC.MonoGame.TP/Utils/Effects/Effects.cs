@@ -27,4 +27,8 @@ public static class Effects
     public static readonly EffectReference DeformationShader = new EffectReference(
         $"{ContentFolder.Effects}/DeformationShader"
     );
+    
+    public static readonly EffectReference ShadowTextureShader = new EffectReference(
+        $"{ContentFolder.Effects}/ShadowTextureShader"
+    );
 }

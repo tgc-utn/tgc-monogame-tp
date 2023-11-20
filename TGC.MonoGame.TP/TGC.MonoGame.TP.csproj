@@ -32,6 +32,7 @@
   <ItemGroup>
     <ClCompile Include="Content\Effects\Gizmos.fx" />
     <ClCompile Include="Content\Effects\HealthHud.fx" />
+    <ClCompile Include="Content\Effects\ShadowTextureShader.fx" />
     <ClCompile Include="Content\Effects\ShootHud.fx" />
   </ItemGroup>
   <ItemGroup>

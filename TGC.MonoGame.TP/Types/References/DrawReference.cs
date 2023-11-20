@@ -9,7 +9,7 @@ public enum DrawType
     Color,
     Texture,
     BasicTexture,
-    MultiTexture,
+    ShadowTexture,
     Font
 }
 
@@ -26,6 +26,24 @@ public class ColorReference : DrawReference
     {
         Type = DrawType.Color;
         Color = color;
+    }
+}
+
+public class ShadowTextureReference : DrawReference
+{
+    public string Path { get; }
+    
+    public Texture2D Texture { get; set; }
+
+    public ShadowTextureReference(string path)
+    {
+        Type = DrawType.ShadowTexture;
+        Path = path;
+    }
+    
+    public void SetTexture(Texture2D texture)
+    {
+        Texture = texture;
     }
 }
 
@@ -55,36 +73,13 @@ public class BasicTextureReference : DrawReference
 
     public BasicTextureReference(string path)
     {
-        Type = DrawType.Texture;
+        Type = DrawType.BasicTexture;
         Path = path;
     }
     
     public void SetTexture(Texture2D texture)
     {
         Texture = texture;
-    }
-}
-
-public class MeshTextureRelation
-{
-    public string Mesh { get; }
-    public TextureReference Texture { get; }
-
-    public MeshTextureRelation(string mesh, string texturePath)
-    {
-        Mesh = mesh;
-        Texture = new TextureReference(texturePath);
-    }
-}
-
-public class MultiTextureReference : DrawReference
-{
-    public List<MeshTextureRelation> Relations { get; }
-
-    public MultiTextureReference(List<MeshTextureRelation> relations)
-    {
-        Type = DrawType.MultiTexture;
-        Relations = relations;
     }
 }
 

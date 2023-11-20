@@ -11,16 +11,15 @@ public static class TexturesRepository
     {
         switch (referenceDrawReference)
         {
+            case ColorReference _:
+                break;
             case TextureReference textureReference:
                 textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
                 break;
-            case MultiTextureReference multiTextureReference:
-                foreach (var meshTextureRelation in multiTextureReference.Relations)
-                    meshTextureRelation.Texture.SetTexture(content.Load<Texture2D>(meshTextureRelation.Texture.Path));
-                break;
-            case ColorReference _:
-                break;
             case BasicTextureReference textureReference:
+                textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
+                break;
+            case ShadowTextureReference textureReference:
                 textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
                 break;
             default:

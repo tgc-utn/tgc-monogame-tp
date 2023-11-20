@@ -81,6 +81,18 @@
 /processorParam:DebugMode=Auto
 /build:Effects/HealthHud.fx
 
+#begin Effects/ShadowBlingPhongShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ShadowBlingPhongShader.fx
+
+#begin Effects/ShadowTextureShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/ShadowTextureShader.fx
+
 #begin Effects/ShootHud.fx
 /importer:EffectImporter
 /processor:EffectProcessor

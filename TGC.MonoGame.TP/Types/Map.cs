@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.Tanks;
 using TGC.MonoGame.TP.Utils.Models;
@@ -18,6 +19,8 @@ public abstract class Map
     public List<StaticProp> Props { get; set; } 
 
     public abstract void Load(GraphicsDevice graphicsDevice,ContentManager content);
-    public abstract void Draw(Matrix view, Matrix projection);
+
+    public abstract void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
+        Camera TargetLightCamera);
     public abstract void Update(GameTime gameTime);
 }

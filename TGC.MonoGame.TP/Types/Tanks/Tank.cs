@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Types.Props;
@@ -191,7 +192,7 @@ public abstract class Tank : Resource, ICollidable
         ImpactPositions.Clear();
     }
 
-    public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
+    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
     {
         turretBone.Transform = TurretRotation * turretTransform;
         cannonBone.Transform =
@@ -200,7 +201,7 @@ public abstract class Tank : Resource, ICollidable
         
         foreach (var bullet in Bullets)
         {
-            bullet.Draw(view, projection, lightPosition, lightViewProjection);
+            bullet.Draw(camera.View, camera.Projection, skyDome.LightPosition, skyDome.LightViewProjection);
         }
         
         Model.Root.Transform = World;
@@ -212,8 +213,8 @@ public abstract class Tank : Resource, ICollidable
             var worldMatrix = mesh.ParentBone.Transform * World;
             Effect.Parameters["World"].SetValue(worldMatrix);
             Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-            Effect.Parameters["View"]?.SetValue(view);
-            Effect.Parameters["Projection"]?.SetValue(projection);
+            Effect.Parameters["View"]?.SetValue(camera.View);
+            Effect.Parameters["Projection"]?.SetValue(camera.Projection);
             
             Effect.Parameters["ImpactPositions"]?.SetValue(ImpactPositions.ToArray());
             Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
@@ -221,7 +222,7 @@ public abstract class Tank : Resource, ICollidable
             mesh.Draw();
         }
         
-        TankHud.Draw(projection);
+        TankHud.Draw(camera.Projection);
     }
     
     public void UpdateRotations()
