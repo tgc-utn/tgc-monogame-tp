@@ -4,6 +4,7 @@ public enum GameStatus
 {
     MainMenu,
     DeathMenu,
+    WinMenu,
     NormalGame,
     GodModeGame,
     Exit,

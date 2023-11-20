@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Utils;
 using TGC.MonoGame.TP.Utils.Fonts;
 
 namespace TGC.MonoGame.TP.Menu;
@@ -14,6 +15,9 @@ public class MainMenu
 {
     private ButtonsGrid Buttons;
     private Texture2D _logo;
+    private Texture2D _winBackground;
+    private Texture2D _gameOverBackground;
+        
     private int _screenWidth;
     private int _screenHeight;
 
@@ -48,7 +52,9 @@ public class MainMenu
         public void LoadContent(GraphicsDevice graphicsDevice,ContentManager content)
         {
             _logo = content.Load<Texture2D>(Utils.Textures.Menu.MenuImage.Path);
-            Font = content.Load<SpriteFont>(Fonts.Arial.Path);
+            _winBackground = content.Load<Texture2D>(Utils.Textures.Menu.Win.Path);
+            _gameOverBackground = content.Load<Texture2D>(Utils.Textures.Menu.GameOver.Path);
+            Font = content.Load<SpriteFont>($"{ContentFolder.Fonts}/Stencil16");
             _menuMap.Load(graphicsDevice, content);
             Buttons.LoadContent(content);
         }
@@ -76,9 +82,21 @@ public class MainMenu
             SpriteBatch.Draw(_logo, destRectangle, Color.White);
             if (gameStatus == GameStatus.DeathMenu)
             {
+                var destRectangle2 = new Rectangle(0,
+                    0, _screenWidth, _screenHeight);
+                SpriteBatch.Draw(_gameOverBackground, destRectangle2, Color.White);
                 var text = "Perdiste!";
                 var size = Font.MeasureString(text);
-                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth - size.Y)/2, 20), Color.Red);
+                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20), Color.Red);
+            }
+            if (gameStatus == GameStatus.WinMenu)
+            {
+                var destRectangle2 = new Rectangle(0,
+                    0, _screenWidth, _screenHeight);
+                SpriteBatch.Draw(_winBackground, destRectangle2, Color.White);
+                var text = "Ganaste!";
+                var size = Font.MeasureString(text);
+                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20), Color.Red);
             }
             SpriteBatch.End();
             Buttons.Draw(SpriteBatch);

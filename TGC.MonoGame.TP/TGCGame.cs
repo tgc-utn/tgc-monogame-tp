@@ -95,6 +95,18 @@ namespace TGC.MonoGame.TP
                 GameState.Set(GameStatus.MainMenu);
                 TimeSinceLastChange = 0f;
             }
+
+            if (keyboardState.IsKeyDown(Keys.F9))
+            {
+                GameState.Set(GameStatus.WinMenu);
+                TimeSinceLastChange = 0f;
+            }
+            
+            if (keyboardState.IsKeyDown(Keys.F10))
+            {
+                GameState.Set(GameStatus.DeathMenu);
+                TimeSinceLastChange = 0f;
+            }
             // Musica
             if (MediaPlayer.State != MediaState.Playing)
             {
@@ -156,6 +168,7 @@ namespace TGC.MonoGame.TP
                     {
                     }
                     break;
+                case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
                     Menu.Update(gameTime);
                     break;
@@ -200,8 +213,9 @@ namespace TGC.MonoGame.TP
                     {
                     }
                     break;
+                case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
-                    Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera);
                     break;
                 case GameStatus.Exit:
                     break;
