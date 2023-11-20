@@ -27,19 +27,19 @@ public class SkyDome : Resource
         Reference = modelReference.Prop;
         Prop = modelReference;
         Position = Prop.Position;
+        LightPosition = new Vector3(517.4206f, 393.4157f, 500f);
     }
     
     public SkyDome(PropReference modelReference, Vector3 position)
     {
         Reference = modelReference.Prop;
         Prop = modelReference;
-        Position = position;
+        LightPosition = position;
     }
     public void Load(GraphicsDevice graphicsDevice, ContentManager content)
     {
         base.Load(content);
         LightBox = new SpherePrimitive(graphicsDevice, 50, 16, new Color(239f, 142f, 56f));
-        LightPosition = new Vector3(517.4206f, 393.4157f, 500f);
         LightBoxWorld = Matrix.CreateTranslation(LightPosition);
         Translation = Matrix.CreateTranslation(Position);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;

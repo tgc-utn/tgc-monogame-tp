@@ -18,7 +18,7 @@ public class MenuMap : Map
 {
     public MenuMap(TankReference AliesTank, GraphicsDeviceManager graphicsDevice)
     {
-        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -0.53f, 0f));
+        Scenary = new Scenary(Scenarios.Menu, new Vector3(0f, -2f, 0f));
         Props = new List<StaticProp>();
         Tanks = new List<Tank>();
         Scenary.GetSpawnPoints(1, true)
@@ -49,7 +49,7 @@ public class MenuMap : Map
                         throw new ArgumentOutOfRangeException();
                 }
             });
-        SkyDome = new SkyDome(Scenary.Scene.SkyDome);
+        SkyDome = new SkyDome(Scenary.Scene.SkyDome, new Vector3(200,150,200));
     }
     public override void Load(GraphicsDevice graphicsDevice, ContentManager content)
     {
