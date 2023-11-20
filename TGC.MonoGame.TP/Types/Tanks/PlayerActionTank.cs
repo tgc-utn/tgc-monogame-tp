@@ -9,7 +9,7 @@ public class PlayerActionTank : ActionTank
     public Point _center;
     public float _sensitivityX = 0.0018f;
     public float _sensitivityY = 0.002f;
-    public PlayerActionTank(int team, GraphicsDeviceManager graphicsDevice) : base(team)
+    public PlayerActionTank(bool isEnemy, GraphicsDeviceManager graphicsDevice)
     {
         _center = new Point(graphicsDevice.PreferredBackBufferWidth / 2, graphicsDevice.PreferredBackBufferHeight / 2);
     }
@@ -102,5 +102,8 @@ public class PlayerActionTank : ActionTank
             instance.Volume = 0.05f;
             instance.Play();
         }
+    }
+    public override void Respawn(Tank tank)
+    {
     }
 }

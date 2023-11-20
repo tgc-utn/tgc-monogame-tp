@@ -22,9 +22,9 @@ public class MenuMap : Map
         Props = new List<StaticProp>();
         Tanks = new List<Tank>();
         Scenary.GetSpawnPoints(1, true)
-            .ForEach(spawnPoint => Tanks.Add(new Tank(AliesTank, spawnPoint, graphicsDevice, 1)));
+            .ForEach(spawnPoint => Tanks.Add(new Tank(AliesTank, spawnPoint, graphicsDevice, false, 0, this)));
         Player = Tanks[0];
-        Player.Action = new PlayerActionTank(1, graphicsDevice);
+        Player.Action = new PlayerActionTank(false, graphicsDevice);
         Scenary.Scene.PropsReference
             .ForEach(prop =>
             {

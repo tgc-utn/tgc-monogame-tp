@@ -23,12 +23,23 @@ public class PlaneMap : Map
         Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -0.53f, 0f));
         Props = new List<StaticProp>();
         Tanks = new List<Tank>();
+
+        int count = 0;
         Scenary.GetSpawnPoints(numberOfTanks, true)
-            .ForEach(spawnPoint => Tanks.Add(new Tank(AliesTank, spawnPoint, graphicsDevice, 1)));
+            .ForEach(spawnPoint =>
+            {
+                Tanks.Add(new Tank(AliesTank, spawnPoint, graphicsDevice, false, count, this));
+                count++;
+            });
         Player = Tanks[0];
-        Player.Action = new PlayerActionTank(1, graphicsDevice);
+        Player.Action = new PlayerActionTank(false, graphicsDevice);
+        count = 0;
         Scenary.GetSpawnPoints(numberOfTanks, false)
-            .ForEach(spawnPoint => Tanks.Add(new Tank(EnemiesTank, spawnPoint, graphicsDevice, 2)));
+            .ForEach(spawnPoint =>
+            {
+                Tanks.Add(new Tank(EnemiesTank, spawnPoint, graphicsDevice, true, count, this));
+                count++;
+            });
 
         Scenary.Scene.PropsReference
             .ForEach(prop =>
@@ -69,8 +80,8 @@ public class PlaneMap : Map
 
     public override void Update(GameTime gameTime)
     {
-        List<Tank> AllyTanks = Tanks.Where(tank => tank.Action.Team == 1).ToList();
-        List<Tank> EnemiesTanks = Tanks.Where(tank => tank.Action.Team == 2).ToList();
+        List<Tank> AllyTanks = Tanks.Where(tank => tank.Action.isEnemy == false).ToList();
+        List<Tank> EnemiesTanks = Tanks.Where(tank => tank.Action.isEnemy).ToList();
         List<Bullet> AllyBullets = AllyTanks.SelectMany(tank => tank.Bullets)
             .Where(bullet => bullet.IsAlive)
             .ToList();

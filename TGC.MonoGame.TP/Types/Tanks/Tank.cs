@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.HUD;
+using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
 using TGC.MonoGame.TP.Utils.Effects;
@@ -90,13 +91,13 @@ public class Tank : Resource, ICollidable
 
     #endregion
 
-    public Tank(TankReference modelReference, Vector3 position, GraphicsDeviceManager graphicsDevice, int team,
-        bool player = false)
+    public Tank(TankReference modelReference, Vector3 position, GraphicsDeviceManager graphicsDevice, bool isAEnemy,
+        int index, Map map, bool player = false)
     {
         if (player)
-            Action = new PlayerActionTank(team, graphicsDevice);
+            Action = new PlayerActionTank(isAEnemy, graphicsDevice);
         else
-            Action = new AIActionTank(team);
+            Action = new AIActionTank(isAEnemy, index, map);
         Reference = modelReference.Tank;
         TankRef = modelReference;
         Position = position;
@@ -215,9 +216,9 @@ public class Tank : Resource, ICollidable
         CannonRotation = cannonRotation;
     }
     
-    private void Respawn()
+    public void Respawn()
     {
-        Console.WriteLine("RESPAWN");
+        Action.Respawn(this);
         Position = RespawnPosition;
         health = 5;
         Angle = 0f;
@@ -319,13 +320,13 @@ public class Tank : Resource, ICollidable
     // ICollidable
     public void CollidedWithSmallProp()
     {
-        Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
+        Console.WriteLine($"Chocaste con prop chico {DateTime.Now}");
         Velocidad *= 0.5f;
     }
     
     public void CollidedWithLargeProp()
     {
-        Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
+        Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
         Velocidad = 0;
         Position = LastPosition;
     }

@@ -216,7 +216,7 @@ namespace TGC.MonoGame.TP
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
             // Gizmos.DrawCube(prop.World, Color.Red);
             foreach (var tank in Map.Tanks)
-                Gizmos.DrawCube(tank.OBBWorld, tank.Action is PlayerActionTank ? Color.Aqua : 1 == tank.Action.Team ? Color.HotPink : Color.DeepPink);
+                Gizmos.DrawCube(tank.OBBWorld, tank.Action is PlayerActionTank ? Color.Aqua : tank.Action.isEnemy ? Color.HotPink : Color.DeepPink);
             foreach (var bullet in Map.Player.Bullets)
                 Gizmos.DrawSphere(bullet.Box.Center, bullet.Box.Radius * Vector3.One, Color.Aqua);
         }
