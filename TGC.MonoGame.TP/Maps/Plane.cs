@@ -71,8 +71,12 @@ public class PlaneMap : Map
     {
         List<Tank> AllyTanks = Tanks.Where(tank => tank.Action.Team == 1).ToList();
         List<Tank> EnemiesTanks = Tanks.Where(tank => tank.Action.Team == 2).ToList();
-        List<Bullet> AllyBullets = AllyTanks.SelectMany(tank => tank.Bullets).ToList();
-        List<Bullet> EnemiesBullets = EnemiesTanks.SelectMany(tank => tank.Bullets).ToList();
+        List<Bullet> AllyBullets = AllyTanks.SelectMany(tank => tank.Bullets)
+            .Where(bullet => bullet.IsAlive)
+            .ToList();
+        List<Bullet> EnemiesBullets = EnemiesTanks.SelectMany(tank => tank.Bullets)
+            .Where(bullet => bullet.IsAlive)
+            .ToList();
 
         foreach (var tank in Tanks)
             tank.Update(gameTime);

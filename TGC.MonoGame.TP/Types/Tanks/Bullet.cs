@@ -11,7 +11,7 @@ namespace TGC.MonoGame.TP.Types.Tanks;
 public class Bullet : Resource, ICollidable
 {
     // SETTINGS
-    public float Speed = 0.06f;
+    public float Speed = 0.2f;
     public float LifeTime = 10000f;
     public float Gravity = 0.001f;      
     
@@ -49,7 +49,7 @@ public class Bullet : Resource, ICollidable
     public void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        Direction -= Vector3.Up * Gravity; 
+        Direction -= Vector3.Up * Gravity;
         Position += Direction * Speed * elapsedTime;
         World = Matrix.CreateTranslation(Position);
 
@@ -75,7 +75,8 @@ public class Bullet : Resource, ICollidable
         Camera TargetLightCamera, List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
     {
         Model.Root.Transform = Matrix.CreateScale(Reference.Scale) * Rotation;
-        base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, ImpactPositions, ImpactDirections, modifyRootTransform: false);
+        base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera,
+            modifyRootTransform: false);
     }
     
     // ICollidable

@@ -17,28 +17,44 @@ public class PlayerActionTank : ActionTank
     public override void Update(GameTime gameTime, Tank tank)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        KeySense(tank);
+        KeySense(elapsedTime, tank);
         ProcessMouse(elapsedTime, tank);
         tank.TankHud.Update(tank.World, tank.health, tank.shootTime);
     }
     
-    public void KeySense(Tank tank)
+    public void KeySense(float elapsedTime, Tank tank)
     {
-        // Avanzo
         if (Keyboard.GetState().IsKeyDown(Keys.W))
+        {
+            // Avanzo
             tank.Velocidad += tank.Acceleration;
+            tank.LeftWheelRotation += elapsedTime * tank.Acceleration;
+            tank.RightWheelRotation += elapsedTime * tank.Acceleration;
+        }
 
-        // Retrocedo
         if (Keyboard.GetState().IsKeyDown(Keys.S))
+        {
+            // Retrocedo
             tank.Velocidad -= tank.Acceleration;
+            tank.LeftWheelRotation += elapsedTime * (-tank.Acceleration);
+            tank.RightWheelRotation += elapsedTime * (-tank.Acceleration);
+        }
 
-        // Giro izq
         if (Keyboard.GetState().IsKeyDown(Keys.A))
+        {
+            // Giro izq
             tank.Angle += tank.RotationSpeed;
+            tank.LeftWheelRotation += elapsedTime * (-tank.Acceleration);
+            tank.RightWheelRotation += elapsedTime * tank.Acceleration;
+        }
 
-        // Giro der
         if (Keyboard.GetState().IsKeyDown(Keys.D))
+        {
+            // Giro der
             tank.Angle -= tank.RotationSpeed;
+            tank.LeftWheelRotation += elapsedTime * tank.Acceleration;
+            tank.RightWheelRotation += elapsedTime * (-tank.Acceleration);
+        }
     }
     
     public void ProcessMouse(float elapsedTime, Tank tank)
@@ -76,6 +92,7 @@ public class PlayerActionTank : ActionTank
                 Matrix.CreateRotationY(tank.Angle),
                 bulletPosition,
                 bulletDirection);
+            bullet.Speed += tank.Velocidad;
             tank.Bullets.Add(bullet);
             tank.hasShot = true;
             tank.shootTime = 0.25f;

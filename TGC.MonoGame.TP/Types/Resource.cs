@@ -98,10 +98,12 @@ public abstract class Resource
                 Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
                 Effect.Parameters["eyePosition"].SetValue(skyDome.LightViewProjection);
                 Effect.Parameters["View"]?.SetValue(camera.View);
-                Effect.Parameters["Projection"]?.SetValue(camera.Projection);
+
+                Effect.Parameters["Projection"].SetValue(camera.Projection);
                 Effect.Parameters["ImpactPositions"]?.SetValue(ImpactPositions.ToArray());
                 Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
                 Effect.Parameters["Impacts"]?.SetValue(ImpactPositions.Count);
+                
                 // Once we set these matrices we draw
                 modelMesh.Draw();
             }

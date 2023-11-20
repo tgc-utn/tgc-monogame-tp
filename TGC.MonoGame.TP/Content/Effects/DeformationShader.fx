@@ -66,7 +66,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
         if(i >= Impacts)
             break;
         Distance = distance(input.Position.xyz, ImpactPositions[i]);
-        mask = step(Distance, 1.25);
+        mask = step(Distance, 1);
         input.Position.xyz = lerp(input.Position.xyz, input.Position.xyz + ImpactDirections[i], mask);
     }
 
