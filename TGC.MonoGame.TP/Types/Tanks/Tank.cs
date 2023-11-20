@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
+using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
 
@@ -65,6 +66,10 @@ public class Tank : Resource, ICollidable
     
     // Health
     public int health { get; set; } = 5;
+    public bool curandose { get; set; } = true;
+    
+    // HUD
+    public CarHUD TankHud { get; set; }
     
     #endregion
     
@@ -78,6 +83,7 @@ public class Tank : Resource, ICollidable
         TankRef = modelReference;
         Position = position;
         RespawnPosition = position;
+        TankHud = new CarHUD(graphicsDevice);
     }
     
     public override void Load(ContentManager contentManager)
@@ -108,6 +114,9 @@ public class Tank : Resource, ICollidable
         TexturesRepository.InitializeTextures(BulletReference.DrawReference, contentManager);
         foreach (var modelMeshPart in BulletModel.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
             modelMeshPart.Effect = BulletEffect;
+        
+        //HUD
+        TankHud.Load(contentManager);
     }
     
     // UPDATE
@@ -186,6 +195,7 @@ public class Tank : Resource, ICollidable
         Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
         base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, ImpactPositions, ImpactDirections);
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+        TankHud.Draw(camera.Projection);
     }
 
     // ICollidable

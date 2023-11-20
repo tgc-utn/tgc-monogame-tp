@@ -53,8 +53,8 @@ public class Bullet : Resource, ICollidable
         Position += Direction * Speed * elapsedTime;
         World = Matrix.CreateTranslation(Position);
 
-        // if (Position.Y < 0)
-        //     IsAlive = false;
+        if (Position.Y < 0)
+            IsAlive = false;
             
         // Box
         Box.Center = Position;

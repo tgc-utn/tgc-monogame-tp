@@ -19,6 +19,7 @@ public class PlayerActionTank : ActionTank
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
         KeySense(tank);
         ProcessMouse(elapsedTime, tank);
+        tank.TankHud.Update(tank.World, tank.health, tank.shootTime);
     }
     
     public void KeySense(Tank tank)
