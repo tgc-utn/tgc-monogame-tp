@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -48,10 +49,6 @@ public abstract class Resource
     public virtual void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera,
         List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
     {
-        if (ImpactPositions == null)
-            ImpactPositions = new List<Vector3>();
-        if (ImpactDirections == null)
-            ImpactDirections = new List<Vector3>();
         if (Reference.DrawReference is ShadowTextureReference)
         {
             if (modifyRootTransform)
@@ -76,6 +73,10 @@ public abstract class Resource
         }
         else if (Reference.DrawReference is ShadowBlingPhongReference)
         {
+            if (ImpactPositions == null)
+                ImpactPositions = new List<Vector3>();
+            if (ImpactDirections == null)
+                ImpactDirections = new List<Vector3>();
             if (modifyRootTransform)
                 Model.Root.Transform = World;
             Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
@@ -96,10 +97,11 @@ public abstract class Resource
                 Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
                 Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
                 Effect.Parameters["eyePosition"].SetValue(skyDome.LightViewProjection);
-                Effect.Parameters["ImpactPositions"].SetValue(ImpactPositions.ToArray());
-                Effect.Parameters["ImpactDirections"].SetValue(ImpactDirections.ToArray());
-                Effect.Parameters["Impacts"].SetValue(ImpactPositions.Count);
-
+                Effect.Parameters["View"]?.SetValue(camera.View);
+                Effect.Parameters["Projection"]?.SetValue(camera.Projection);
+                Effect.Parameters["ImpactPositions"]?.SetValue(ImpactPositions.ToArray());
+                Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
+                Effect.Parameters["Impacts"]?.SetValue(ImpactPositions.Count);
                 // Once we set these matrices we draw
                 modelMesh.Draw();
             }

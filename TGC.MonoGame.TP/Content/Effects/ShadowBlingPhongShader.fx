@@ -7,12 +7,17 @@
 #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
+#define MAX_COUNT 5
+
 float4x4 WorldViewProjection;
 float4x4 InverseTransposeWorld;
 float4x4 World;
 float4x4 LightViewProjection;
 
 float3 lightPosition;
+
+float2 shadowMapSize;
+
 float3 ambientColor; // Light's Ambient Color
 float3 diffuseColor; // Light's Diffuse Color
 float3 specularColor; // Light's Specular Color
@@ -22,13 +27,11 @@ float KSpecular;
 float shininess; 
 float3 eyePosition; // Camera position
 
-float2 shadowMapSize;
-
-#define MAX_COUNT 5
+float4x4 View;
+float4x4 Projection;
 float3 ImpactPositions[MAX_COUNT];
 float3 ImpactDirections[MAX_COUNT];
 int Impacts = 0;
-
 float BulletRadius = 0.5;
 
 static const float modulatedEpsilon = 0.000041200182749889791011810302734375;
@@ -84,9 +87,6 @@ struct ShadowedVertexShaderOutput
     float4 Normal : TEXCOORD3;
 };
 
-
-
-
 DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
 {
 	DepthPassVertexShaderOutput output;
@@ -101,29 +101,27 @@ float4 DepthPS(in DepthPassVertexShaderOutput input) : COLOR
     return float4(depth, depth, depth, 1.0);
 }
 
-
-
 ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
 {
-	ShadowedVertexShaderOutput output;
-	output.WorldSpacePosition = mul(input.Position, World);
-    // input.Position = mul(input.Position, World);
+	ShadowedVertexShaderOutput output = (ShadowedVertexShaderOutput)0;
+    output.WorldSpacePosition = mul(input.Position, World);
+    input.Position = mul(input.Position, World);
 
-    // float Distance = 0;
-    // float mask = 0;
-    // for(int i=0; i < MAX_COUNT; i++) {
-    //     if(i >= Impacts)
-    //         break;
-    //     Distance = distance(input.Position.xyz, ImpactPositions[i]);
-    //     mask = step(Distance, 1.25);
-    //     input.Position.xyz = lerp(input.Position.xyz, input.Position.xyz + ImpactDirections[i], mask);
-    // }
+    float Distance = 0;
+    float mask = 0;
+    for(int i=0; i < MAX_COUNT; i++) {
+        if(i >= Impacts)
+            break;
+        Distance = distance(input.Position.xyz, ImpactPositions[i]);
+        mask = step(Distance, 1.25);
+        input.Position.xyz = lerp(input.Position.xyz, input.Position.xyz + ImpactDirections[i], mask);
+    }
 
-	output.Position = mul(input.Position, WorldViewProjection);
-	output.TextureCoordinates = input.TextureCoordinates;
+    input.Position = mul(input.Position, View);
+    output.Position = mul(input.Position, Projection);
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
-    
-	output.LightSpacePosition = mul(output.WorldSpacePosition, LightViewProjection);
+    output.TextureCoordinates = input.TextureCoordinates;
+    output.LightSpacePosition = mul(output.WorldSpacePosition, LightViewProjection);
 	return output;
 }
 
@@ -170,17 +168,23 @@ float4 ShadowedPCFPS(in ShadowedVertexShaderOutput input) : COLOR
             notInShadow += step(lightSpacePosition.z, pcfDepth) / 9.0;
         }
 	
-    float4 texelColor = tex2D(textureSampler, input.TextureCoordinates);
-    texelColor.rgb *= 0.5 + 0.5 * notInShadow;
+    float4 baseColor = tex2D(textureSampler, input.TextureCoordinates);
+    baseColor.rgb *= 0.5 + 0.5 * notInShadow;
 
-	// float4 texelColor = tex2D(textureSampler, input.TextureCoordinates);
+    // Base vectors
     float3 viewDirection = normalize(eyePosition - input.WorldSpacePosition.xyz);
     float3 halfVector = normalize(lightDirection + viewDirection);
-	float NdotL = saturate(dot(input.Normal.xyz, lightDirection));
+    
+	// Calculate the diffuse light
+    float NdotL = saturate(dot(input.Normal.xyz, lightDirection));
     float3 diffuseLight = KDiffuse * diffuseColor * NdotL;
-	float NdotH = dot(input.Normal.xyz, halfVector);
+
+	// Calculate the specular light
+    float NdotH = dot(input.Normal.xyz, halfVector);
     float3 specularLight = sign(NdotL) * KSpecular * specularColor * pow(saturate(NdotH), shininess);
-    float4 finalColor = float4(saturate(ambientColor * KAmbient + diffuseLight) * texelColor.rgb + specularLight, texelColor.a);
+    
+    // Final calculation
+    float4 finalColor = float4(saturate(ambientColor * KAmbient + diffuseLight) * baseColor.rgb + specularLight, baseColor.a);
     return finalColor;
 }
 
