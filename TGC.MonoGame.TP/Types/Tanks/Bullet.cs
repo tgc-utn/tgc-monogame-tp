@@ -1,88 +1,85 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.Types.References;
-using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public class Bullet : ICollidable
+public class Bullet : Resource, ICollidable
 {
-    public Model BulletModel { get; set; }
-    public readonly Effect BulletEffect;
-    public readonly ModelReference BulletReference;
-    public Matrix World { get; set; }
+    // SETTINGS
+    public float Speed = 0.06f;
+    public float LifeTime = 10000f;
+    public float Gravity = 0.001f;      
+    
+    // Status
+    public bool IsAlive { get; set; } = true;
+    
+    // COORDS
     public Matrix Rotation { get; set; }
     public Matrix TankFixRotation { get; set; }
     public Vector3 Position { get; set; }
     public Vector3 Direction { get; set; }
-    public float Speed { get; set; }
-    private float _gravity = 0.001f;
-    public float LifeTime { get; set; }
-    public bool IsAlive { get; set; } = true;
     
+    
+    // Box Parameters
     public BoundingSphere Box;
-
+    
     public Bullet(Model model, Effect bulletEffect, ModelReference bulletReference, Matrix rotation,
-        Matrix tankFixRotation, Vector3 position, Vector3 direction, float speed, float lifeTime)
+        Matrix tankFixRotation, Vector3 position, Vector3 direction)
     {
-        BulletModel = model;
-        BulletReference = bulletReference;
-        BulletEffect = bulletEffect;
+        Model = model;
+        Reference = bulletReference;
+        Effect = bulletEffect;
         Rotation = rotation;
         TankFixRotation = tankFixRotation;
         Position = position;
         Direction = direction;
-        Speed = speed;
-        LifeTime = lifeTime;
         
+        // BOX
         Box = BoundingVolumesExtension.CreateSphereFrom(model);
         Box.Center = Position;
         Box.Radius *= bulletReference.Scale;
     }
-
+    
+    // Update
+    
     public void Update(GameTime gameTime)
     {
-        if (IsAlive)
-        {
-            var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-            Direction -= Vector3.Up * _gravity; 
-            Position += Direction * Speed * elapsedTime;
-            World = Matrix.CreateTranslation(Position);
+        var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+        // Direction -= Vector3.Up * Gravity; 
+        Position += Direction * Speed * elapsedTime;
+        World = Matrix.CreateTranslation(Position);
 
-            if (Position.Y < 0)
-                IsAlive = false;
+        if (Position.Y < 0)
+            IsAlive = false;
             
-            // Box
-            Box.Center = Position;
-            LifeTime -= elapsedTime;
-            if (LifeTime <= 0)
-            {
-                IsAlive = false;
-            }
-        }
+        // Box
+        Box.Center = Position;
+        LifeTime -= elapsedTime;
+        if (LifeTime <= 0)
+            IsAlive = false;
     }
-
-    public void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
+    
+    // Draw
+    
+    public override void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
+        GraphicsDevice GraphicsDevice, Camera TargetLightCamera, bool modifyRootTransform = true)
     {
-        if (IsAlive)
-        {
-            BulletModel.Root.Transform = Matrix.CreateScale(BulletReference.Scale) * Rotation;
-            BulletEffect.Parameters["View"].SetValue(view);
-            BulletEffect.Parameters["Projection"].SetValue(projection);
-
-            // Draw the model.
-            foreach (var mesh in BulletModel.Meshes)
-            {
-                EffectsRepository.SetEffectParameters(BulletEffect, BulletReference.DrawReference, mesh.Name);
-                var worldMatrix = mesh.ParentBone.Transform  * TankFixRotation * Matrix.CreateRotationY((float)Math.PI) * World;
-                BulletEffect.Parameters["World"].SetValue(worldMatrix);
-                mesh.Draw();
-            }
-        }
+        base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, false);
     }
 
+    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
+        Camera TargetLightCamera, List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
+    {
+        Model.Root.Transform = Matrix.CreateScale(Reference.Scale) * Rotation;
+        base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, ImpactPositions, ImpactDirections, modifyRootTransform: false);
+    }
+    
+    // ICollidable
+    
     public void CollidedWithSmallProp()
     {
         IsAlive = false;

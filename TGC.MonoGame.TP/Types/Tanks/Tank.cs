@@ -1,117 +1,90 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
-using TGC.MonoGame.TP.HUD;
-using TGC.MonoGame.TP.Types.Props;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
-using TGC.MonoGame.TP.Utils.Effects;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public abstract class Tank : Resource, ICollidable
+public class Tank : Resource, ICollidable
 {
-    // Configs
-    public const float Acceleration = 0.0045f;
-    public const float MaxSpeed = 0.01f;
-    public const float RotationSpeed = 0.01f;
-    public const float Friction = 0.004f;
+    #region Vars
+
+    // SETTINGS
+    public float Acceleration = 0.0045f;
+    public float MaxSpeed = 0.01f;
+    public float RotationSpeed = 0.01f;
+    public float Friction = 0.004f;
     
+    // TANK MODEL
+    public ActionTank Action { get; set; }
     public TankReference TankRef;
     
+    // COORDS
+    public Vector3 Position;
+    public Vector3 RespawnPosition;
+    public float Angle { get; set; } = 0f;
+    public Matrix Translation { get; set; }
+    
+    // Box Parameters
+    public Matrix OBBWorld { get; set; }
+    public OrientedBoundingBox Box { get; set; }
+    
+    // Movement
     public float Velocidad;
-
-    public List<Vector3> ImpactPositions { get; set; } = new();
-    public List<Vector3> ImpactDirections { get; set; } = new();
+    public Vector3 LastPosition;
     
     // Torret
+    public float pitch;
+    public float yaw = -90f;
+    public Matrix TurretRotation { get; set; }
+    public Matrix CannonRotation { get; set; }
+    
+    // Torret Bones
     public ModelBone turretBone;
     public ModelBone cannonBone;
 
     public Matrix[] boneTransforms;
     public Matrix turretTransform;
     public Matrix cannonTransform;
-
-    public Matrix cannonTest;
-
-    public Matrix TurretRotation { get; set; }
-    public Matrix CannonRotation { get; set; }
-
-    public Vector2 pastMousePosition;
-    public float MouseSensitivity { get; } = 0.008f;
-
-    public float pitch;
-    public float yaw = -90f;
     
-    // Box Parameters
-    public Vector3 Position;
-    public Vector3 LastPosition;
-    public Vector3 RespawnPosition;
-    
-    public Matrix OBBWorld { get; set; }
-    public float Angle { get; set; } = 0f;
-    public Matrix Translation { get; set; }
-    public OrientedBoundingBox Box { get; set; }
-
-    // Bullet
+    // Shot
+    public bool hasShot = true;
+    public ModelReference BulletReference;
     public Model BulletModel { get; set; }
     public Effect BulletEffect;
-    public Effect Effect;
-    public ModelReference BulletReference;
     public List<Bullet> Bullets { get; set; } = new();
-    
-    public Point _center;
-    public float _sensitivityX = 0.0018f;
-    public float _sensitivityY = 0.002f;
-    
-    //HUD
-    public CarHUD TankHud { get; set; }
-    public int health { get; set; } = 5;
-    public bool curandose { get; set; } = true;
     public float shootTime { get; set; } = 2.5f;
-    public bool hasShot = true;
     
-    public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
+    // Health
+    public int health { get; set; } = 5;
+    
+    #endregion
+    
+    public Tank(TankReference modelReference, Vector3 position, GraphicsDeviceManager graphicsDevice, int team, bool player = false)
     {
-        Reference = model.Tank;
-        TankRef = model;
-        // _velocidad = 0;
-        // Rotation = Matrix.Identity;
+        if (player)
+            Action = new PlayerActionTank(team, graphicsDevice);
+        else
+            Action = new AIActionTank(team);
+        Reference = modelReference.Tank;
+        TankRef = modelReference;
         Position = position;
         RespawnPosition = position;
-        TurretRotation = Matrix.Identity;
-        CannonRotation = Matrix.Identity;
-        var w = graphicsDeviceManager.GraphicsDevice.Viewport.Width / 2;
-        var h = graphicsDeviceManager.GraphicsDevice.Viewport.Height / 2;
-        _center = new Point(w, h);
-        
-        //TankHud = new CarHUD(graphicsDeviceManager);
     }
-
-    public override void Load(ContentManager content)
+    
+    public override void Load(ContentManager contentManager)
     {
-        // Deformation effect
-        Effect = EffectsRepository.GetEffect(Reference.DrawReference, content);
-        
-        Model = content.Load<Model>(Reference.Path);
-        TexturesRepository.InitializeTextures(Reference.DrawReference, content);
-        foreach (var modelMeshPart in Model.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
-        {
-            modelMeshPart.Effect = Effect;
-        }
-        
+        base.Load(contentManager);
         Translation = Matrix.CreateTranslation(Position);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         
+        // OOBB
         var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
         temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.005f);
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
@@ -128,95 +101,46 @@ public abstract class Tank : Resource, ICollidable
         
         // Bullet
         BulletReference = Utils.Models.Props.Bullet;
-        BulletModel = content.Load<Model>(BulletReference.Path);
-        BulletEffect = EffectsRepository.GetEffect(BulletReference.DrawReference, content);
-        TexturesRepository.InitializeTextures(BulletReference.DrawReference, content);
+        BulletModel = contentManager.Load<Model>(BulletReference.Path);
+        BulletEffect = EffectsRepository.GetEffect(BulletReference.DrawReference, contentManager);
+        TexturesRepository.InitializeTextures(BulletReference.DrawReference, contentManager);
         foreach (var modelMeshPart in BulletModel.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
-        {
             modelMeshPart.Effect = BulletEffect;
-        }
-        
-        //HUD
-        //TankHud.Load(content);
     }
-
-    public virtual void Update(GameTime gameTime)
+    
+    // UPDATE
+    
+    public void Update(GameTime gameTime)
     {
+        // Position
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        
         LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
         Translation = Matrix.CreateTranslation(Position);
         Velocidad = Math.Max(0, Velocidad - Friction);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * rotation * Translation;
-        
-        // Box
+
+        // Update Box
         Box.Orientation = rotation;
         Box.Center = Position;
         OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
-        
+
+        Action.Update(gameTime, this);
         
         // Bullets
-        Bullets = Bullets.Where(bullet => bullet.IsAlive).ToList();
-        foreach (var bullet in Bullets)
-        {
-            bullet.Update(gameTime);
-        }
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Update(gameTime));
         
         if (health <= 0)
-        {
             Respawn();
-        }
         
         if (hasShot)
         {
             shootTime -= elapsedTime * 0.0005f;
             if (shootTime <= 0)
-            {
                 hasShot = false;
-            }
         }
     }
-
-    private void Respawn()
-    {
-        Position = RespawnPosition;
-        health = 5;
-        Angle = 0f;
-        Velocidad = 0f;
-        shootTime = 2.5f;
-        hasShot = true;
-        
-        ImpactDirections.Clear();
-        ImpactPositions.Clear();
-    }
-
-    /*public void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
-        GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
-    {
-        // turretBone.Transform = TurretRotation * turretTransform;
-        // cannonBone.Transform =
-        //     turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
-        // Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-        base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-    }*/
-
-    /*public void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
-    {
-        // turretBone.Transform = TurretRotation * turretTransform;
-        // cannonBone.Transform =
-        //     turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
-        // Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-        
-        // foreach (var bullet in Bullets)
-        //     bullet.Draw(camera.View, camera.Projection, skyDome.LightPosition, skyDome.LightViewProjection);
-
-        base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, ImpactPositions,
-            ImpactDirections);
-        
-        // TankHud.Draw(camera.Projection);
-    }*/
     
     public void UpdateRotations()
     {
@@ -230,31 +154,50 @@ public abstract class Tank : Resource, ICollidable
         CannonRotation = cannonRotation;
     }
     
+    private void Respawn()
+    {
+        Position = RespawnPosition;
+        health = 5;
+        Angle = 0f;
+        Velocidad = 0f;
+        shootTime = 2.5f;
+        hasShot = true;
+        
+        // ImpactDirections.Clear();
+        // ImpactPositions.Clear();
+    }
+    
+    // DRAW
+    public override void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
+        GraphicsDevice GraphicsDevice, Camera TargetLightCamera, bool modifyRootTransform = true)
+    {
+        base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+    }
+
+    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
+        Camera TargetLightCamera, List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
+    {
+        turretBone.Transform = TurretRotation * turretTransform;
+        cannonBone.Transform =
+            turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+        Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+        base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, ImpactPositions, ImpactDirections);
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+    }
+
+    // ICollidable
     public void CollidedWithSmallProp()
     {
-        Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
+        // Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
         Velocidad *= 0.5f;
     }
     
     public void CollidedWithLargeProp()
     {
-        Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
+        // Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
         Velocidad = 0;
         Position = LastPosition;
-    }
-
-    public void CheckCollisionWithBullet(Bullet bullet)
-    {
-        if (Box.Intersects(bullet.Box))
-        {
-            if (Bullets.Contains(bullet))
-                return;
-            ImpactPositions.Add(bullet.Position);
-            ImpactDirections.Add(bullet.Direction);
-            bullet.IsAlive = false;
-            health -= 1;
-            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
-        }
     }
 
     public bool VerifyCollision(BoundingBox box)

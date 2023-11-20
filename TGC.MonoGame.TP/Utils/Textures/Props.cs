@@ -27,6 +27,6 @@ public static class Props
     public static readonly ShadowTextureReference Wall2 = new (
         $"{ContentFolder.Textures}/props/walls/Wall_Angled_03_Albedo");
 
-    public static readonly BasicTextureReference Bullet = new (
+    public static readonly ShadowTextureReference Bullet = new (
         $"{ContentFolder.Textures}/props/bullet/bullet_BaseColor");
 }

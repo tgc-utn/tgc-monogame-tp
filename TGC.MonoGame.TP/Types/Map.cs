@@ -13,10 +13,9 @@ public abstract class Map
 {
     public Scenary Scenary { get; set; }
     public SkyDome SkyDome { get; set; }
-    public Tank Player { get; set; }
-    public List<Tank> Enemies { get; set; }
-    public List<Tank> Alies { get; set; }
     public List<StaticProp> Props { get; set; } 
+    public Tank Player { get; set; }
+    public List<Tank> Tanks { get; set; }
 
     public abstract void Load(GraphicsDevice graphicsDevice,ContentManager content);
 

@@ -91,11 +91,12 @@ float4 DepthPS(in DepthPassVertexShaderOutput input) : COLOR
 ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
 {
 	ShadowedVertexShaderOutput output;
+	output.WorldSpacePosition = mul(input.Position, World);
 	output.Position = mul(input.Position, WorldViewProjection);
 	output.TextureCoordinates = input.TextureCoordinates;
-	output.WorldSpacePosition = mul(input.Position, World);
-	output.LightSpacePosition = mul(output.WorldSpacePosition, LightViewProjection);
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
+	
+	output.LightSpacePosition = mul(output.WorldSpacePosition, LightViewProjection);
 	return output;
 }
 

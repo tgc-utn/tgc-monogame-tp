@@ -9,6 +9,7 @@ using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Menu;
 using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Types.Tanks;
 using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
@@ -158,7 +159,6 @@ namespace TGC.MonoGame.TP
                     catch (Exception e)
                     {
                     }
-
                     break;
                 case GameStatus.GodModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -170,9 +170,7 @@ namespace TGC.MonoGame.TP
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("ERRORRRR");
                     }
-
                     break;
                 case GameStatus.DeathMenu:
                     Menu.Draw(GameState.CurrentStatus);
@@ -189,11 +187,8 @@ namespace TGC.MonoGame.TP
             foreach (var prop in Map.Props)
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
             // Gizmos.DrawCube(prop.World, Color.Red);
-            foreach (var enemy in Map.Enemies)
-                Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
-            foreach (var ally in Map.Alies)
-                Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
-            Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
+            foreach (var tank in Map.Tanks)
+                Gizmos.DrawCube(tank.OBBWorld, tank.Action is PlayerActionTank ? Color.Aqua : 1 == tank.Action.Team ? Color.HotPink : Color.DeepPink);
             foreach (var bullet in Map.Player.Bullets)
                 Gizmos.DrawSphere(bullet.Box.Center, bullet.Box.Radius * Vector3.One, Color.Aqua);
         }

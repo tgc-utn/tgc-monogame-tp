@@ -28,11 +28,12 @@ public abstract class Resource
     }
 
     public virtual void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
-        GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
+        GraphicsDevice GraphicsDevice, Camera TargetLightCamera, bool modifyRootTransform = true)
     {
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         Effect.CurrentTechnique = Effect.Techniques["DepthPass"];
-        Model.Root.Transform = World;
+        if (modifyRootTransform)
+            Model.Root.Transform = World;
         foreach (var modelMesh in Model.Meshes)
         {
             foreach (var part in modelMesh.MeshParts)
@@ -45,7 +46,7 @@ public abstract class Resource
     }
     
     public virtual void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera,
-        List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null)
+        List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
     {
         if (ImpactPositions == null)
             ImpactPositions = new List<Vector3>();
@@ -53,7 +54,8 @@ public abstract class Resource
             ImpactDirections = new List<Vector3>();
         if (Reference.DrawReference is ShadowTextureReference)
         {
-            Model.Root.Transform = World;
+            if (modifyRootTransform)
+                Model.Root.Transform = World;
             Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
             Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowTextureReference)?.Texture);
             Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
@@ -74,7 +76,8 @@ public abstract class Resource
         }
         else if (Reference.DrawReference is ShadowBlingPhongReference)
         {
-            Model.Root.Transform = World;
+            if (modifyRootTransform)
+                Model.Root.Transform = World;
             Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
             Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowBlingPhongReference)?.Texture);
             Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
@@ -103,9 +106,8 @@ public abstract class Resource
         }
         else
         {
-            // GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
-            // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
-            Model.Root.Transform = World;
+            if (modifyRootTransform)
+                Model.Root.Transform = World;
 
             Effect.Parameters["View"]?.SetValue(camera.View);
             Effect.Parameters["Projection"]?.SetValue(camera.Projection);
