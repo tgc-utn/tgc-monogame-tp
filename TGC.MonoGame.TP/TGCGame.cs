@@ -1,95 +1,106 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Helpers.Gizmos;
+using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Menu;
 using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Types.Tanks;
+using TGC.MonoGame.TP.Utils;
 using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
 {
-    /// <summary>
-    ///     Esta es la clase principal del juego.
-    ///     Inicialmente puede ser renombrado o copiado para hacer mas ejemplos chicos, en el caso de copiar para que se
-    ///     ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
-    /// </summary>
     public class TGCGame : Game
     {
         private GraphicsDeviceManager Graphics { get; }
 
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
+        private Map MenuMap { get; set; }
         private Camera Camera { get; set; } = null;
         private Gizmos Gizmos { get; set; }
         private GameState GameState { get; set; }
         private MainMenu Menu { get; set; }
+        private float TimeSinceLastChange { get; set; }
+        private Song Song { get; set; }
+        private ScreenTime ScreenTime { get; set; }
+        private Score Score { get; set; }
 
-        /// <summary>
-        ///     Constructor del juego.
-        /// </summary>
+        /* SOMBRAS */
+        private const int ShadowmapSize = 2048;
+        private readonly float LightCameraFarPlaneDistance = 3000f;
+        private readonly float LightCameraNearPlaneDistance = 5f;
+        private RenderTarget2D ShadowMapRenderTarget;
+        private TargetCamera TargetLightCamera { get; set; }
+
         public TGCGame()
         {
-            // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.ApplyChanges();
-            // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
             IsMouseVisible = true;
         }
 
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
-        ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
-        /// </summary>
         protected override void Initialize()
         {
             Gizmos = new Gizmos();
 
             GameState = new GameState();
             Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2, Graphics);
+            MenuMap = new MenuMap(Tanks.T90, Graphics);
+            Menu = new MainMenu(GraphicsDevice, GameState, MenuMap);
 
-            Menu = new MainMenu(GraphicsDevice, GameState);
+            TargetLightCamera = new TargetCamera(1f, Map.SkyDome.LightPosition, Vector3.Zero);
+            TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
+                MathHelper.PiOver2);
+            
+            TimeSinceLastChange = 0f;
+            ScreenTime = new ScreenTime(GraphicsDevice, 180f);
+            Score = new Score(GraphicsDevice);
 
             base.Initialize();
         }
 
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
-        ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
-        ///     que podemos pre calcular para nuestro juego.
-        /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-
-            Menu.LoadContent(Content);
+            Menu.LoadContent(GraphicsDevice, Content);
             Map.Load(GraphicsDevice, Content);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
+            ScreenTime.LoadContent(Content);
+            Score.LoadContent(Content);
+            Song = Content.Load<Song>($"{ContentFolder.Music}/world-of-tanks");
+            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
+                SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+            GraphicsDevice.BlendState = BlendState.Opaque;
+
             base.LoadContent();
         }
 
-        /// <summary>
-        ///     Se llama en cada frame.
-        ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
-        ///     ante ellas.
-        /// </summary>
         protected override void Update(GameTime gameTime)
         {
             var keyboardState = Keyboard.GetState();
             //Salgo del juego.
-            if (keyboardState.IsKeyDown(Keys.Escape))
-                Exit();
+            if (keyboardState.IsKeyDown(Keys.Escape) && GameState.CurrentStatus != GameStatus.MainMenu && GameState.CurrentStatus != GameStatus.Exit)
+            {
+                GameState.Set(GameStatus.MainMenu);
+                TimeSinceLastChange = 0f;
+            }
+            // Musica
+            if (MediaPlayer.State != MediaState.Playing)
+            {
+                MediaPlayer.Volume = 0.05f;
+                MediaPlayer.Play(Song); 
+            }
             
             if (keyboardState.IsKeyDown(Keys.F1))
                 GameState.Set(GameStatus.MainMenu);
@@ -101,7 +112,9 @@ namespace TGC.MonoGame.TP
             switch (GameState.CurrentStatus)
             {
                 case GameStatus.MainMenu:
-                    Menu.Update();
+                    Menu.Update(gameTime);
+                    if (keyboardState.IsKeyDown(Keys.Escape) && TimeSinceLastChange > 0.5f)
+                        GameState.Set(GameStatus.Exit);
                     break;
                 case GameStatus.NormalGame:
                     if (GameState.FirstUpdate)
@@ -111,8 +124,11 @@ namespace TGC.MonoGame.TP
                             Vector3.Zero);
                         GameState.FirstUpdate = false;
                     }
-
+                    ScreenTime.Update(gameTime);
+                    Score.Update(100000f + (float)gameTime.ElapsedGameTime.TotalSeconds);
                     Map.Update(gameTime);
+                    TargetLightCamera.Position = Map.SkyDome.LightPosition;
+                    TargetLightCamera.BuildView();
                     try
                     {
                         Camera.Update(gameTime, Map.Player);
@@ -129,6 +145,8 @@ namespace TGC.MonoGame.TP
                         GameState.FirstUpdate = false;
                     }
                     Map.Update(gameTime);
+                    TargetLightCamera.Position = Map.SkyDome.LightPosition;
+                    TargetLightCamera.BuildView();
                     try
                     {
                         Camera.Update(gameTime, Map.Player);
@@ -139,7 +157,7 @@ namespace TGC.MonoGame.TP
                     }
                     break;
                 case GameStatus.DeathMenu:
-                    Menu.Update();
+                    Menu.Update(gameTime);
                     break;
                 case GameStatus.Exit:
                     Exit();
@@ -147,49 +165,43 @@ namespace TGC.MonoGame.TP
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
+            TimeSinceLastChange += (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
         }
 
-        /// <summary>
-        ///     Se llama cada vez que hay que refrescar la pantalla.
-        ///     Escribir aqui el codigo referido al renderizado.
-        /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
             switch (GameState.CurrentStatus)
             {
                 case GameStatus.MainMenu:
-                    Menu.Draw(GameState.CurrentStatus);
+                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera);
                     break;
                 case GameStatus.NormalGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
                     try
                     {
-                        Map.Draw(Camera.View, Camera.Projection);
+                        Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
                     }
                     catch (Exception e)
                     {
                     }
-
+                    ScreenTime.Draw();
+                    Score.Draw();
                     break;
                 case GameStatus.GodModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
                     try
                     {
-                        Map.Draw(Camera.View, Camera.Projection);
+                        Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
                         DrawBoundingBoxesDebug();
                         Gizmos.Draw();
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("ERRORRRR");
                     }
-
                     break;
                 case GameStatus.DeathMenu:
-                    Menu.Draw(GameState.CurrentStatus);
+                    Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
                     break;
                 case GameStatus.Exit:
                     break;
@@ -200,24 +212,17 @@ namespace TGC.MonoGame.TP
 
         private void DrawBoundingBoxesDebug()
         {
-            foreach (var prop in Map.Props)
+            foreach (var prop in Map.Props.Where(prop => !prop.Destroyed).ToList())
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
             // Gizmos.DrawCube(prop.World, Color.Red);
-            foreach (var enemy in Map.Enemies)
-                Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
-            foreach (var ally in Map.Alies)
-                Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
-            Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
+            foreach (var tank in Map.Tanks)
+                Gizmos.DrawCube(tank.OBBWorld, tank.Action is PlayerActionTank ? Color.Aqua : tank.Action.isEnemy ? Color.HotPink : Color.DeepPink);
             foreach (var bullet in Map.Player.Bullets)
                 Gizmos.DrawSphere(bullet.Box.Center, bullet.Box.Radius * Vector3.One, Color.Aqua);
         }
 
-        /// <summary>
-        ///     Libero los recursos que se cargaron en el juego.
-        /// </summary>
         protected override void UnloadContent()
         {
-            // Libero los recursos.
             Content.Unload();
             Gizmos.Dispose();
             base.UnloadContent();

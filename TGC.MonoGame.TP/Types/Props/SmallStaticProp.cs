@@ -14,7 +14,7 @@ public class SmallStaticProp : StaticProp
     public override void CollidedWith(ICollidable other)
     {
         other.CollidedWithSmallProp();
-        Console.WriteLine("Me choco un: " + other.GetType().Name + $"{DateTime.Now}");
+        Console.WriteLine("Me choco un: " + other.GetType().Name + $" {DateTime.Now}");
         Destroyed = true;
     }
 }

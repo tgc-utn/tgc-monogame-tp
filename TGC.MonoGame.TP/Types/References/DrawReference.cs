@@ -8,7 +8,9 @@ public enum DrawType
 {
     Color,
     Texture,
-    MultiTexture,
+    BasicTexture,
+    ShadowTexture,
+    ShadowBlingPhong,
     Font
 }
 
@@ -25,6 +27,41 @@ public class ColorReference : DrawReference
     {
         Type = DrawType.Color;
         Color = color;
+    }
+}
+
+public class ShadowBlingPhongReference : DrawReference
+{
+    public string Path { get; }
+    
+    public Texture2D Texture { get; set; }
+
+    public ShadowBlingPhongReference(string path)
+    {
+        Type = DrawType.ShadowBlingPhong;
+        Path = path;
+    }
+    
+    public void SetTexture(Texture2D texture)
+    {
+        Texture = texture;
+    }
+}
+public class ShadowTextureReference : DrawReference
+{
+    public string Path { get; }
+    
+    public Texture2D Texture { get; set; }
+
+    public ShadowTextureReference(string path)
+    {
+        Type = DrawType.ShadowTexture;
+        Path = path;
+    }
+    
+    public void SetTexture(Texture2D texture)
+    {
+        Texture = texture;
     }
 }
 
@@ -46,26 +83,21 @@ public class TextureReference : DrawReference
     }
 }
 
-public class MeshTextureRelation
+public class BasicTextureReference : DrawReference
 {
-    public string Mesh { get; }
-    public TextureReference Texture { get; }
+    public string Path { get; }
+    
+    public Texture2D Texture { get; set; }
 
-    public MeshTextureRelation(string mesh, string texturePath)
+    public BasicTextureReference(string path)
     {
-        Mesh = mesh;
-        Texture = new TextureReference(texturePath);
+        Type = DrawType.BasicTexture;
+        Path = path;
     }
-}
-
-public class MultiTextureReference : DrawReference
-{
-    public List<MeshTextureRelation> Relations { get; }
-
-    public MultiTextureReference(List<MeshTextureRelation> relations)
+    
+    public void SetTexture(Texture2D texture)
     {
-        Type = DrawType.MultiTexture;
-        Relations = relations;
+        Texture = texture;
     }
 }
 

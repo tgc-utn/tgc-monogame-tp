@@ -11,14 +11,19 @@ public static class TexturesRepository
     {
         switch (referenceDrawReference)
         {
+            case ColorReference _:
+                break;
             case TextureReference textureReference:
                 textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
                 break;
-            case MultiTextureReference multiTextureReference:
-                foreach (var meshTextureRelation in multiTextureReference.Relations)
-                    meshTextureRelation.Texture.SetTexture(content.Load<Texture2D>(meshTextureRelation.Texture.Path));
+            case BasicTextureReference textureReference:
+                textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
                 break;
-            case ColorReference _:
+            case ShadowTextureReference textureReference:
+                textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
+                break;
+            case ShadowBlingPhongReference textureReference:
+                textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referenceDrawReference));

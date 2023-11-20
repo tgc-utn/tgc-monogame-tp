@@ -13,6 +13,6 @@ public class LargeStaticProp : StaticProp
     public override void CollidedWith(ICollidable other)
     {
         other.CollidedWithLargeProp();
-        Console.WriteLine("Me choco un: " + other.GetType().Name);
+        Console.WriteLine($"Me choco un: {other.GetType().Name}");
     }
 }

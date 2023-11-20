@@ -162,6 +162,14 @@ public class Props
         Matrix.CreateRotationY((float)Math.PI * 3/ 2),
         Textures.Props.Farm
     );
+    
+    public static readonly ModelReference Farm3 = new ModelReference(
+        $"{ContentFolder.Models}/props/farm/farm",
+        0.005f,
+        new Vector2(1f, 0.01f),
+        Matrix.Identity,
+        Textures.Props.Farm
+    );
 
     public static readonly ModelReference Rock0 = new ModelReference(
         $"{ContentFolder.Models}/props/stones/Rock_11",

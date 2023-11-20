@@ -34,9 +34,6 @@ float3 ImpactDirections[MAX_COUNT];
 int Impacts = 0;
 float BulletRadius = 0.5;
 
-bool applyTextureScrolling = false;
-float ScrollSpeed;
-
 static const float modulatedEpsilon = 0.000041200182749889791011810302734375;
 static const float maxEpsilon = 0.000023200045689009130001068115234375;
 
@@ -46,8 +43,8 @@ sampler2D textureSampler = sampler_state
 	Texture = (baseTexture);
 	MagFilter = Linear;
 	MinFilter = Linear;
-	AddressU = wrap;
-	AddressV = wrap;
+	AddressU = Clamp;
+	AddressV = Clamp;
 };
     
 
@@ -92,10 +89,9 @@ struct ShadowedVertexShaderOutput
 
 DepthPassVertexShaderOutput DepthVS(in DepthPassVertexShaderInput input)
 {
-	DepthPassVertexShaderOutput output = (DepthPassVertexShaderOutput)0;
-    
+	DepthPassVertexShaderOutput output;
+	output.Position = mul(input.Position, WorldViewProjection);
 	output.ScreenSpacePosition = mul(input.Position, WorldViewProjection);
-    output.Position = mul(input.Position, WorldViewProjection);
 	return output;
 }
 
@@ -126,11 +122,29 @@ ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
     output.TextureCoordinates = input.TextureCoordinates;
     output.LightSpacePosition = mul(output.WorldSpacePosition, LightViewProjection);
-    if (applyTextureScrolling)
-    {
-        output.TextureCoordinates += input.TextureCoordinates * ScrollSpeed;
-    }
 	return output;
+}
+
+float4 ShadowedPS(in ShadowedVertexShaderOutput input) : COLOR
+{
+    float3 lightSpacePosition = input.LightSpacePosition.xyz / input.LightSpacePosition.w;
+    float2 shadowMapTextureCoordinates = 0.5 * lightSpacePosition.xy + float2(0.5, 0.5);
+    shadowMapTextureCoordinates.y = 1.0f - shadowMapTextureCoordinates.y;
+	
+	
+    float3 normal = normalize(input.Normal.rgb);
+    float3 lightDirection = normalize(lightPosition - input.WorldSpacePosition.xyz);
+    float inclinationBias = max(modulatedEpsilon * (1.0 - dot(normal, lightDirection)), maxEpsilon);
+	
+    float shadowMapDepth = tex2D(shadowMapSampler, shadowMapTextureCoordinates).r + inclinationBias;
+	
+	// Compare the shadowmap with the REAL depth of this fragment
+	// in light space
+    float notInShadow = step(lightSpacePosition.z, shadowMapDepth);
+	
+	float4 baseColor = tex2D(textureSampler, input.TextureCoordinates);
+    baseColor.rgb *= 0.5 + 0.5 * notInShadow;
+	return baseColor;
 }
 
 float4 ShadowedPCFPS(in ShadowedVertexShaderOutput input) : COLOR
@@ -174,12 +188,24 @@ float4 ShadowedPCFPS(in ShadowedVertexShaderOutput input) : COLOR
     return finalColor;
 }
 
+
+
+
 technique DepthPass
 {
 	pass Pass0
 	{
 		VertexShader = compile VS_SHADERMODEL DepthVS();
 		PixelShader = compile PS_SHADERMODEL DepthPS();
+	}
+};
+
+technique DrawShadowed
+{
+	pass Pass0
+	{
+		VertexShader = compile VS_SHADERMODEL MainVS();
+		PixelShader = compile PS_SHADERMODEL ShadowedPS();
 	}
 };
 

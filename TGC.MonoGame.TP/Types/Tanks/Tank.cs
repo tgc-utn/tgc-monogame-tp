@@ -1,38 +1,55 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Helpers.Collisions;
 using TGC.MonoGame.TP.HUD;
-using TGC.MonoGame.TP.Types.Props;
+using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.Types.References;
 using TGC.MonoGame.TP.Utils;
 using TGC.MonoGame.TP.Utils.Effects;
-using Vector2 = Microsoft.Xna.Framework.Vector2;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
-public abstract class Tank : Resource, ICollidable
+public class Tank : Resource, ICollidable
 {
-    // Configs
-    public const float Acceleration = 0.0045f;
-    public const float MaxSpeed = 0.01f;
-    public const float RotationSpeed = 0.01f;
-    public const float Friction = 0.004f;
-    
-    public TankReference TankRef;
-    
-    public float Velocidad;
+    #region Vars
 
-    public List<Vector3> ImpactPositions { get; set; } = new();
-    public List<Vector3> ImpactDirections { get; set; } = new();
-    
+    // SETTINGS
+    public float Acceleration = 0.0045f;
+    public float MaxSpeed = 0.01f;
+    public float RotationSpeed = 0.01f;
+    public float Friction = 0.004f;
+
+    // TANK MODEL
+    public ActionTank Action { get; set; }
+    public TankReference TankRef;
+
+    // COORDS
+    public Vector3 Position;
+    public Vector3 RespawnPosition;
+    public float Angle { get; set; } = 0f;
+    public Matrix Translation { get; set; }
+
+    // Box Parameters
+    public Matrix OBBWorld { get; set; }
+    public OrientedBoundingBox Box { get; set; }
+
+    // Movement
+    public float Velocidad;
+    public Vector3 LastPosition;
+
     // Torret
+    public float pitch;
+    public float yaw = -90f;
+    public Matrix TurretRotation { get; set; } = Matrix.Identity;
+    public Matrix CannonRotation { get; set; } = Matrix.Identity;
+
+    // Torret Bones
     public ModelBone turretBone;
     public ModelBone cannonBone;
 
@@ -40,188 +57,151 @@ public abstract class Tank : Resource, ICollidable
     public Matrix turretTransform;
     public Matrix cannonTransform;
 
-    public Matrix cannonTest;
-
-    public Matrix TurretRotation { get; set; }
-    public Matrix CannonRotation { get; set; }
-
-    public Vector2 pastMousePosition;
-    public float MouseSensitivity { get; } = 0.008f;
-
-    public float pitch;
-    public float yaw = -90f;
-    
-    // Box Parameters
-    public Vector3 Position;
-    public Vector3 LastPosition;
-    public Vector3 RespawnPosition;
-    
-    public Matrix OBBWorld { get; set; }
-    public float Angle { get; set; } = 0f;
-    public Matrix Translation { get; set; }
-    public OrientedBoundingBox Box { get; set; }
-
-    // Bullet
+    // Shot
+    public bool hasShot = true;
+    public ModelReference BulletReference;
+    public SoundEffect BulletSoundEffect;
     public Model BulletModel { get; set; }
     public Effect BulletEffect;
-    public Effect Effect;
-    public ModelReference BulletReference;
     public List<Bullet> Bullets { get; set; } = new();
-    
-    public Point _center;
-    public float _sensitivityX = 0.0018f;
-    public float _sensitivityY = 0.002f;
-    
-    //HUD
-    public CarHUD TankHud { get; set; }
+    public float shootTime { get; set; } = 2.5f;
+    public List<Vector3> ImpactPositions { get; set; } = new();
+    public List<Vector3> ImpactDirections { get; set; } = new();
+
+    // Health
     public int health { get; set; } = 5;
     public bool curandose { get; set; } = true;
-    public float shootTime { get; set; } = 2.5f;
-    public bool hasShot = true;
-    
-    public Tank(TankReference model, Vector3 position, GraphicsDeviceManager graphicsDeviceManager)
+
+    // HUD
+    public TankHUD TankHud { get; set; }
+
+    // Wheels
+    public ModelBone leftTreadBone;
+    public ModelBone rightTreadBone;
+    public ModelBone[] leftWheelsBones;
+    public ModelBone[] rightWheelsBones;
+
+    public Matrix leftTreadTransform;
+    public Matrix rightTreadTransform;
+    public Matrix[] leftWheelsTransforms;
+    public Matrix[] rightWheelsTransforms;
+
+    public float LeftWheelRotation { get; set; } = 0;
+    public float RightWheelRotation { get; set; } = 0;
+
+    #endregion
+
+    public Tank(TankReference modelReference, Vector3 position, GraphicsDeviceManager graphicsDevice, bool isAEnemy,
+        int index, Map map, bool player = false)
     {
-        Reference = model.Tank;
-        TankRef = model;
-        // _velocidad = 0;
-        // Rotation = Matrix.Identity;
+        if (player)
+            Action = new PlayerActionTank(isAEnemy, graphicsDevice);
+        else
+            Action = new AIActionTank(isAEnemy, index, map);
+        Reference = modelReference.Tank;
+        TankRef = modelReference;
         Position = position;
         RespawnPosition = position;
-        TurretRotation = Matrix.Identity;
-        CannonRotation = Matrix.Identity;
-        var w = graphicsDeviceManager.GraphicsDevice.Viewport.Width / 2;
-        var h = graphicsDeviceManager.GraphicsDevice.Viewport.Height / 2;
-        _center = new Point(w, h);
-        
-        TankHud = new CarHUD(graphicsDeviceManager);
+        TankHud = new TankHUD(graphicsDevice);
     }
 
-    public override void Load(ContentManager content)
+    public override void Load(ContentManager contentManager)
     {
-        // Deformation effect
-        Effect = content.Load<Effect>(ContentFolder.Effects + "/DeformationShader");
-        
-        Model = content.Load<Model>(Reference.Path);
-        TexturesRepository.InitializeTextures(Reference.DrawReference, content);
+        // base.Load(contentManager);
+
+        Model = contentManager.Load<Model>(Reference.Path);
+        Effect = contentManager.Load<Effect>(Effects.DeformationShader.Path);
+        TexturesRepository.InitializeTextures(Reference.DrawReference, contentManager);
         foreach (var modelMeshPart in Model.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
         {
             modelMeshPart.Effect = Effect;
         }
-        
+
         Translation = Matrix.CreateTranslation(Position);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
-        
+
+        // OOBB
         var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
         temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.005f);
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         Box.Center = Position;
         Box.Orientation = Matrix.CreateRotationY(Angle);
         OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
-        
+
         // Torret
         turretBone = Model.Bones[TankRef.TurretBoneName];
         cannonBone = Model.Bones[TankRef.CannonBoneName];
         turretTransform = turretBone.Transform;
         cannonTransform = cannonBone.Transform;
         boneTransforms = new Matrix[Model.Bones.Count];
-        
+
         // Bullet
         BulletReference = Utils.Models.Props.Bullet;
-        BulletModel = content.Load<Model>(BulletReference.Path);
-        BulletEffect = EffectsRepository.GetEffect(BulletReference.DrawReference, content);
-        TexturesRepository.InitializeTextures(BulletReference.DrawReference, content);
+        BulletModel = contentManager.Load<Model>(BulletReference.Path);
+        BulletEffect = EffectsRepository.GetEffect(BulletReference.DrawReference, contentManager);
+        TexturesRepository.InitializeTextures(BulletReference.DrawReference, contentManager);
         foreach (var modelMeshPart in BulletModel.Meshes.SelectMany(tankModelMesh => tankModelMesh.MeshParts))
-        {
             modelMeshPart.Effect = BulletEffect;
-        }
-        
+
         //HUD
-        TankHud.Load(content);
+        TankHud.Load(contentManager);
+
+        // Music
+        BulletSoundEffect = contentManager.Load<SoundEffect>($"{ContentFolder.Sounds}/fireshot");
+
+        // Wheels
+        leftTreadBone = Model.Bones[TankRef.LeftTreadBoneName];
+        rightTreadBone = Model.Bones[TankRef.RightTreadBoneName];
+        leftTreadTransform = leftTreadBone.Transform;
+        rightTreadTransform = rightTreadBone.Transform;
+
+        var wheelsCount = TankRef.LeftWheelsBoneNames.Count;
+        leftWheelsBones = new ModelBone[wheelsCount];
+        rightWheelsBones = new ModelBone[wheelsCount];
+        leftWheelsTransforms = new Matrix[wheelsCount];
+        rightWheelsTransforms = new Matrix[wheelsCount];
+
+        for (var i = 0; i < wheelsCount; i++)
+        {
+            leftWheelsBones[i] = Model.Bones[TankRef.LeftWheelsBoneNames[i]];
+            rightWheelsBones[i] = Model.Bones[TankRef.RightWheelsBoneNames[i]];
+            leftWheelsTransforms[i] = leftWheelsBones[i].Transform * leftTreadTransform;
+            rightWheelsTransforms[i] = rightWheelsBones[i].Transform * rightTreadTransform;
+        }
     }
 
-    public virtual void Update(GameTime gameTime)
+    // UPDATE
+    
+    public void Update(GameTime gameTime)
     {
+        // Position
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        
         LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
         Translation = Matrix.CreateTranslation(Position);
         Velocidad = Math.Max(0, Velocidad - Friction);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * rotation * Translation;
-        
-        // Box
+
+        // Update Box
         Box.Orientation = rotation;
         Box.Center = Position;
         OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
-        
+
+        Action.Update(gameTime, this);
         
         // Bullets
-        Bullets = Bullets.Where(bullet => bullet.IsAlive).ToList();
-        foreach (var bullet in Bullets)
-        {
-            bullet.Update(gameTime);
-        }
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Update(gameTime));
         
         if (health <= 0)
-        {
             Respawn();
-        }
         
         if (hasShot)
         {
             shootTime -= elapsedTime * 0.0005f;
             if (shootTime <= 0)
-            {
                 hasShot = false;
-            }
         }
-    }
-
-    private void Respawn()
-    {
-        Position = RespawnPosition;
-        health = 5;
-        Angle = 0f;
-        Velocidad = 0f;
-        shootTime = 2.5f;
-        hasShot = true;
-        
-        ImpactDirections.Clear();
-        ImpactPositions.Clear();
-    }
-
-    public override void Draw(Matrix view, Matrix projection, Vector3 lightPosition, Vector3 lightViewProjection)
-    {
-        turretBone.Transform = TurretRotation * turretTransform;
-        cannonBone.Transform =
-            turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
-        Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-        
-        foreach (var bullet in Bullets)
-        {
-            bullet.Draw(view, projection, lightPosition, lightViewProjection);
-        }
-        
-        Model.Root.Transform = World;
-
-        // Draw the model.
-        foreach (var mesh in Model.Meshes)
-        {
-            EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, mesh.Name);
-            var worldMatrix = mesh.ParentBone.Transform * World;
-            Effect.Parameters["World"].SetValue(worldMatrix);
-            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-            Effect.Parameters["View"]?.SetValue(view);
-            Effect.Parameters["Projection"]?.SetValue(projection);
-            
-            Effect.Parameters["ImpactPositions"]?.SetValue(ImpactPositions.ToArray());
-            Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
-            Effect.Parameters["Impacts"]?.SetValue(ImpactPositions.Count);
-            mesh.Draw();
-        }
-        
-        TankHud.Draw(projection);
     }
     
     public void UpdateRotations()
@@ -236,17 +216,124 @@ public abstract class Tank : Resource, ICollidable
         CannonRotation = cannonRotation;
     }
     
+    public void Respawn()
+    {
+        Action.Respawn(this);
+        Position = RespawnPosition;
+        health = 5;
+        Angle = 0f;
+        Velocidad = 0f;
+        shootTime = 2.5f;
+        hasShot = true;
+        
+        ImpactDirections.Clear();
+        ImpactPositions.Clear();
+    }
+    
+    // DRAW
+    public override void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
+        GraphicsDevice GraphicsDevice, Camera TargetLightCamera, bool modifyRootTransform = true)
+    {
+        // base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+        Effect.CurrentTechnique = Effect.Techniques["DepthPass"];
+        Model.Root.Transform = World;
+        foreach (var modelMesh in Model.Meshes)
+        {
+            foreach (var part in modelMesh.MeshParts)
+                part.Effect = Effect;
+            var worldMatrix = modelMesh.ParentBone.Transform * World;
+            Effect.Parameters["WorldViewProjection"]
+                .SetValue(worldMatrix * TargetLightCamera.View * TargetLightCamera.Projection);
+            modelMesh.Draw();
+        }
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+    }
+
+    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
+        Camera TargetLightCamera, List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
+    {
+        turretBone.Transform = TurretRotation * turretTransform;
+        cannonBone.Transform =
+            turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+        Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+        // Wheels
+        var leftWheelRotation = Matrix.CreateRotationX(LeftWheelRotation);
+        var rightWheelRotation = Matrix.CreateRotationX(RightWheelRotation);
+        for (var i = 0; i < leftWheelsBones.Length; i++)
+        {
+            leftWheelsBones[i].Transform = leftWheelRotation * leftWheelsTransforms[i];
+            rightWheelsBones[i].Transform = rightWheelRotation * rightWheelsTransforms[i];
+        }
+        
+        Model.Root.Transform = World;
+        
+        Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
+        Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowBlingPhongReference)?.Texture);
+        Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
+        Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
+        Effect.Parameters["shadowMapSize"].SetValue(Vector2.One * 2048);
+        Effect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+        foreach (var modelMesh in Model.Meshes)
+        {
+            EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, modelMesh.Name);
+            foreach (var part in modelMesh.MeshParts)
+                part.Effect = Effect;
+            var worldMatrix = modelMesh.ParentBone.Transform * World;
+            
+            if (modelMesh.ParentBone.Name == leftTreadBone.Name)
+            {
+                // Configuración cadena izquierda
+                Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(LeftWheelRotation*0.125f);
+            }
+            
+            if (modelMesh.ParentBone.Name == rightTreadBone.Name)
+            {
+                // Configuración cadena derecha
+                Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(RightWheelRotation*0.125f);
+            }
+            
+            Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
+            Effect.Parameters["World"].SetValue(worldMatrix);
+            Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+            Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
+            Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
+            Effect.Parameters["eyePosition"].SetValue(skyDome.LightViewProjection);
+            Effect.Parameters["View"]?.SetValue(camera.View);
+
+            Effect.Parameters["Projection"].SetValue(camera.Projection);
+            Effect.Parameters["ImpactPositions"]?.SetValue(this.ImpactPositions.ToArray());
+            Effect.Parameters["ImpactDirections"]?.SetValue(this.ImpactDirections.ToArray());
+            Effect.Parameters["Impacts"]?.SetValue(this.ImpactPositions.Count);
+                
+            // Once we set these matrices we draw
+            modelMesh.Draw();
+            Effect.Parameters["applyTextureScrolling"]?.SetValue(false);
+        }
+        
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+        TankHud.Draw(camera.Projection);
+    }
+
+    // ICollidable
     public void CollidedWithSmallProp()
     {
-        Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
+        Console.WriteLine($"Chocaste con prop chico {DateTime.Now}");
         Velocidad *= 0.5f;
     }
     
     public void CollidedWithLargeProp()
     {
-        Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
+        Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
         Velocidad = 0;
         Position = LastPosition;
+    }
+
+    public bool VerifyCollision(BoundingBox box)
+    {
+        return Box.Intersects(box);
     }
 
     public void CheckCollisionWithBullet(Bullet bullet)
@@ -261,10 +348,5 @@ public abstract class Tank : Resource, ICollidable
             health -= 1;
             Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
         }
-    }
-
-    public bool VerifyCollision(BoundingBox box)
-    {
-        return Box.Intersects(box);
     }
 }

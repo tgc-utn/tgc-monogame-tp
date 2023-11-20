@@ -16,7 +16,6 @@ public class Scenarios
         new List<PropReference>
         {
             // El mapa mide (si tomamos como escala 1f) 550f x 550f. Entonces -275f <= x <= 275f
-            
             #region Rocas Externas
 
             new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
@@ -951,6 +950,23 @@ public class Scenarios
 
             #endregion
             
+        }
+    );
+    
+    public static readonly ScenaryReference Menu = new ScenaryReference(
+        Props.PlaneScene,
+        new Vector3(-400f, 2f, 0f),
+        new Vector3(0f, 0f, 0f),
+        new PropReference(Props.SkyDome, new Vector3(0, -20f, 0), PropType.Dome),
+        new List<PropReference>
+        {
+            new PropReference(Props.Farm3, new Vector3(25.5f, -1.5f, 25f), PropType.Large),
+            new PropReference(Props.BuildingHouse11, new Vector3(90f, -1.5f, 65f), PropType.Large),
+            new PropReference(Props.BuildingHouse12, new Vector3(60f, -1.5f, 60f), PropType.Large),
+            new PropReference(Props.BuildingHouse16, new Vector3(60f, -1.5f, 40f), PropType.Large),
+            new PropReference(Props.BuildingHouse5, new Vector3(50f, -1.5f, 20f), PropType.Large),
+            new PropReference(Props.BuildingHouse3, new Vector3(50f, -1.5f, 10f), PropType.Large),
+            new PropReference(Props.BuildingHouse13, new Vector3(75f, -1.5f, 7.5f), PropType.Large)
         }
     );
 }
