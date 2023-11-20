@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Cameras;
@@ -37,7 +38,6 @@ public class Bullet : Resource, ICollidable
         TankFixRotation = tankFixRotation;
         Position = position;
         Direction = direction;
-        
         // BOX
         Box = BoundingVolumesExtension.CreateSphereFrom(model);
         Box.Center = Position;
@@ -49,12 +49,12 @@ public class Bullet : Resource, ICollidable
     public void Update(GameTime gameTime)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        // Direction -= Vector3.Up * Gravity; 
+        Direction -= Vector3.Up * Gravity; 
         Position += Direction * Speed * elapsedTime;
         World = Matrix.CreateTranslation(Position);
 
-        if (Position.Y < 0)
-            IsAlive = false;
+        // if (Position.Y < 0)
+        //     IsAlive = false;
             
         // Box
         Box.Center = Position;

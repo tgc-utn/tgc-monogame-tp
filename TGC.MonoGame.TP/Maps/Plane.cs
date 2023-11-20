@@ -69,11 +69,24 @@ public class PlaneMap : Map
 
     public override void Update(GameTime gameTime)
     {
-        Props = Props.Where(prop => !prop.Destroyed).ToList();
-        foreach (var prop in Props)
-            Tanks.ForEach(ally => prop.Update(ally));
+        List<Tank> AllyTanks = Tanks.Where(tank => tank.Action.Team == 1).ToList();
+        List<Tank> EnemiesTanks = Tanks.Where(tank => tank.Action.Team == 2).ToList();
+        List<Bullet> AllyBullets = AllyTanks.SelectMany(tank => tank.Bullets).ToList();
+        List<Bullet> EnemiesBullets = EnemiesTanks.SelectMany(tank => tank.Bullets).ToList();
+
         foreach (var tank in Tanks)
             tank.Update(gameTime);
+        
+        AllyBullets.ForEach(bullet => EnemiesTanks.ForEach(tank => tank.CheckCollisionWithBullet(bullet)));
+        EnemiesBullets.ForEach(bullet => AllyTanks.ForEach(tank => tank.CheckCollisionWithBullet(bullet)));
+
+        foreach (var prop in Props.Where(prop => !prop.Destroyed).ToList())
+        {
+            Tanks.ForEach(tank => prop.Update(tank));
+            AllyBullets.ForEach(bullet => prop.Update(bullet));
+            EnemiesBullets.ForEach(bullet => prop.Update(bullet));
+        }
+
         SkyDome.Update(gameTime);
     }
 
@@ -85,14 +98,14 @@ public class PlaneMap : Map
         foreach (var tank in Tanks)
             tank.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         
-        foreach (var prop in Props)
+        foreach (var prop in Props.Where(prop => !prop.Destroyed).ToList())
             prop.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         GraphicsDevice.SetRenderTarget(null);
         // Escena
         foreach (var tank in Tanks)
             tank.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        foreach (var prop in Props)
+        foreach (var prop in Props.Where(prop => !prop.Destroyed).ToList())
             prop.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         SkyDome.Draw(camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);

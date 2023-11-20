@@ -64,7 +64,7 @@ public class PlayerActionTank : ActionTank
             var bulletDirection = Vector3.Transform(
                 Vector3.Transform(
                             tank.cannonBone.Transform.Forward,
-                            Matrix.CreateFromYawPitchRoll(yawRadians,pitchRadians,0f)
+                            Matrix.CreateFromYawPitchRoll(yawRadians, pitchRadians,0f)
                         ),
                         Matrix.CreateRotationY(tank.Angle));
             var bullet = new Bullet(

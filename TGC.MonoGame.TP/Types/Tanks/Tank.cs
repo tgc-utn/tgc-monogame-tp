@@ -42,8 +42,8 @@ public class Tank : Resource, ICollidable
     // Torret
     public float pitch;
     public float yaw = -90f;
-    public Matrix TurretRotation { get; set; }
-    public Matrix CannonRotation { get; set; }
+    public Matrix TurretRotation { get; set; } = Matrix.Identity;
+    public Matrix CannonRotation { get; set; } = Matrix.Identity;
     
     // Torret Bones
     public ModelBone turretBone;
@@ -60,6 +60,8 @@ public class Tank : Resource, ICollidable
     public Effect BulletEffect;
     public List<Bullet> Bullets { get; set; } = new();
     public float shootTime { get; set; } = 2.5f;
+    public List<Vector3> ImpactPositions { get; set; } = new();
+    public List<Vector3> ImpactDirections { get; set; } = new();
     
     // Health
     public int health { get; set; } = 5;
@@ -163,8 +165,8 @@ public class Tank : Resource, ICollidable
         shootTime = 2.5f;
         hasShot = true;
         
-        // ImpactDirections.Clear();
-        // ImpactPositions.Clear();
+        ImpactDirections.Clear();
+        ImpactPositions.Clear();
     }
     
     // DRAW
@@ -189,13 +191,13 @@ public class Tank : Resource, ICollidable
     // ICollidable
     public void CollidedWithSmallProp()
     {
-        // Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
+        Console.WriteLine("Chocaste con prop chico" + $"{DateTime.Now}");
         Velocidad *= 0.5f;
     }
     
     public void CollidedWithLargeProp()
     {
-        // Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
+        Console.WriteLine("Chocaste con prop grande" + $"{DateTime.Now}");
         Velocidad = 0;
         Position = LastPosition;
     }
@@ -203,5 +205,19 @@ public class Tank : Resource, ICollidable
     public bool VerifyCollision(BoundingBox box)
     {
         return Box.Intersects(box);
+    }
+
+    public void CheckCollisionWithBullet(Bullet bullet)
+    {
+        if (Box.Intersects(bullet.Box))
+        {
+            if (Bullets.Contains(bullet))
+                return;
+            ImpactPositions.Add(bullet.Position);
+            ImpactDirections.Add(bullet.Direction);
+            bullet.IsAlive = false;
+            health -= 1;
+            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
+        }
     }
 }

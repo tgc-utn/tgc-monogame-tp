@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -184,7 +185,7 @@ namespace TGC.MonoGame.TP
 
         private void DrawBoundingBoxesDebug()
         {
-            foreach (var prop in Map.Props)
+            foreach (var prop in Map.Props.Where(prop => !prop.Destroyed).ToList())
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
             // Gizmos.DrawCube(prop.World, Color.Red);
             foreach (var tank in Map.Tanks)
