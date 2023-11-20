@@ -17,8 +17,14 @@ public static class EffectsRepository
             TextureReference _ => TextureShader(content),
             BasicTextureReference _ => BasicTextureShader(content),
             ShadowTextureReference _ => ShadowTextureShader(content),
+            ShadowBlingPhongReference _ => ShadowBlingPhongShader(content),
             _ => throw new ArgumentOutOfRangeException(nameof(drawReference))
         };
+    }
+    
+    public static Effect ShadowBlingPhongShader(ContentManager content)
+    {
+        return content.Load<Effect>(Effects.Effects.ShadowBlingPhongShader.Path);
     }
     
     public static Effect ShadowTextureShader(ContentManager content)
@@ -55,6 +61,16 @@ public static class EffectsRepository
                 effect.Parameters["baseTexture"].SetValue(textureReference.Texture);
                 break;
             case TextureReference textureReference:
+                effect.Parameters["baseTexture"].SetValue(textureReference.Texture);
+                effect.Parameters["ambientColor"].SetValue(new Vector3(219f, 244f, 76f));
+                effect.Parameters["diffuseColor"].SetValue(new Vector3(124f, 125f, 121f));
+                effect.Parameters["specularColor"].SetValue(new Vector3(71f, 71f, 65f));
+                effect.Parameters["KAmbient"].SetValue(0.480f);
+                effect.Parameters["KDiffuse"].SetValue(0.400f);
+                effect.Parameters["KSpecular"].SetValue(0.2f);
+                effect.Parameters["shininess"].SetValue(500f);
+                break;
+            case ShadowBlingPhongReference textureReference:
                 effect.Parameters["baseTexture"].SetValue(textureReference.Texture);
                 effect.Parameters["ambientColor"].SetValue(new Vector3(219f, 244f, 76f));
                 effect.Parameters["diffuseColor"].SetValue(new Vector3(124f, 125f, 121f));

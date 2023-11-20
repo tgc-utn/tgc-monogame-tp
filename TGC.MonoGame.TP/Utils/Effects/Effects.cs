@@ -31,4 +31,9 @@ public static class Effects
     public static readonly EffectReference ShadowTextureShader = new EffectReference(
         $"{ContentFolder.Effects}/ShadowTextureShader"
     );
+    
+    public static readonly EffectReference ShadowBlingPhongShader = new EffectReference(
+        $"{ContentFolder.Effects}/ShadowBlingPhongShader"
+    );
+    
 }

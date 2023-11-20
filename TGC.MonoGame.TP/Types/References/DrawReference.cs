@@ -10,6 +10,7 @@ public enum DrawType
     Texture,
     BasicTexture,
     ShadowTexture,
+    ShadowBlingPhong,
     Font
 }
 
@@ -29,6 +30,23 @@ public class ColorReference : DrawReference
     }
 }
 
+public class ShadowBlingPhongReference : DrawReference
+{
+    public string Path { get; }
+    
+    public Texture2D Texture { get; set; }
+
+    public ShadowBlingPhongReference(string path)
+    {
+        Type = DrawType.ShadowBlingPhong;
+        Path = path;
+    }
+    
+    public void SetTexture(Texture2D texture)
+    {
+        Texture = texture;
+    }
+}
 public class ShadowTextureReference : DrawReference
 {
     public string Path { get; }

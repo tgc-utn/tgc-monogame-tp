@@ -94,13 +94,13 @@ public abstract class Tank : Resource, ICollidable
         var h = graphicsDeviceManager.GraphicsDevice.Viewport.Height / 2;
         _center = new Point(w, h);
         
-        TankHud = new CarHUD(graphicsDeviceManager);
+        //TankHud = new CarHUD(graphicsDeviceManager);
     }
 
     public override void Load(ContentManager content)
     {
         // Deformation effect
-        Effect = content.Load<Effect>(ContentFolder.Effects + "/DeformationShader");
+        Effect = EffectsRepository.GetEffect(Reference.DrawReference, content);
         
         Model = content.Load<Model>(Reference.Path);
         TexturesRepository.InitializeTextures(Reference.DrawReference, content);
@@ -137,7 +137,7 @@ public abstract class Tank : Resource, ICollidable
         }
         
         //HUD
-        TankHud.Load(content);
+        //TankHud.Load(content);
     }
 
     public virtual void Update(GameTime gameTime)
@@ -192,38 +192,31 @@ public abstract class Tank : Resource, ICollidable
         ImpactPositions.Clear();
     }
 
-    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
+    /*public void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
+        GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
     {
-        turretBone.Transform = TurretRotation * turretTransform;
-        cannonBone.Transform =
-            turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
-        Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-        
-        foreach (var bullet in Bullets)
-        {
-            bullet.Draw(camera.View, camera.Projection, skyDome.LightPosition, skyDome.LightViewProjection);
-        }
-        
-        Model.Root.Transform = World;
+        // turretBone.Transform = TurretRotation * turretTransform;
+        // cannonBone.Transform =
+        //     turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+        // Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+        base.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+    }*/
 
-        // Draw the model.
-        foreach (var mesh in Model.Meshes)
-        {
-            EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, mesh.Name);
-            var worldMatrix = mesh.ParentBone.Transform * World;
-            Effect.Parameters["World"].SetValue(worldMatrix);
-            Effect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-            Effect.Parameters["View"]?.SetValue(camera.View);
-            Effect.Parameters["Projection"]?.SetValue(camera.Projection);
-            
-            Effect.Parameters["ImpactPositions"]?.SetValue(ImpactPositions.ToArray());
-            Effect.Parameters["ImpactDirections"]?.SetValue(ImpactDirections.ToArray());
-            Effect.Parameters["Impacts"]?.SetValue(ImpactPositions.Count);
-            mesh.Draw();
-        }
+    /*public void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
+    {
+        // turretBone.Transform = TurretRotation * turretTransform;
+        // cannonBone.Transform =
+        //     turretTransform * Matrix.CreateRotationZ((float)Math.PI) * cannonTransform * CannonRotation;
+        // Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
         
-        TankHud.Draw(camera.Projection);
-    }
+        // foreach (var bullet in Bullets)
+        //     bullet.Draw(camera.View, camera.Projection, skyDome.LightPosition, skyDome.LightViewProjection);
+
+        base.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, ImpactPositions,
+            ImpactDirections);
+        
+        // TankHud.Draw(camera.Projection);
+    }*/
     
     public void UpdateRotations()
     {

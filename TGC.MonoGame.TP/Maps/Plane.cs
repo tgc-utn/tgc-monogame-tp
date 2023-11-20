@@ -20,17 +20,16 @@ public class PlaneMap : Map
 {
     public PlaneMap(int numberOfTanks, TankReference AliesTank, TankReference EnemiesTank, GraphicsDeviceManager graphicsDevice)
     {
-        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -1.8f, 0f));
+        Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -0.43f, 0f));
         Alies = new List<Tank>();
         Enemies = new List<Tank>();
         Props = new List<StaticProp>();
         
         List<Vector3> spawnAllies = Scenary.GetSpawnPoints(numberOfTanks, true);
         Player = new TankPlayer(AliesTank, spawnAllies[0], graphicsDevice);
-        Alies.Add(Player);
         spawnAllies.RemoveAt(0);
-        spawnAllies.ForEach(spawnPoint => Alies.Add(new TankAI(AliesTank, spawnPoint, graphicsDevice)));
-        
+        Scenary.GetSpawnPoints(numberOfTanks - 1, true)
+            .ForEach(spawnPoint => Alies.Add(new TankAI(AliesTank, spawnPoint, graphicsDevice)));
         Scenary.GetSpawnPoints(numberOfTanks, false)
             .ForEach(spawnPoint => Enemies.Add(new TankAI(EnemiesTank, spawnPoint, graphicsDevice)));
         Scenary.Scene.PropsReference
@@ -77,14 +76,27 @@ public class PlaneMap : Map
     {
         Alies.ForEach(ally => ally.Update(gameTime));
         Enemies.ForEach(enemy => enemy.Update(gameTime));
+        Player.Update(gameTime);
         
         List<Bullet> AllyBullets = new List<Bullet>();
         Alies.ForEach(ally => AllyBullets.AddRange(ally.Bullets));
+        Player.Bullets.ForEach(bullet => AllyBullets.Add(bullet));
         List<Bullet> EnemyBullets = new List<Bullet>();
         Enemies.ForEach(enemy => EnemyBullets.AddRange(enemy.Bullets));
 
-        AllyBullets.ForEach(bullet => Enemies.ForEach(enemy => enemy.CheckCollisionWithBullet(bullet))); // chequea colision entre balas aliadas y tanques enemigos
-        EnemyBullets.ForEach(bullet => Alies.ForEach(ally => ally.CheckCollisionWithBullet(bullet))); // chequea colision entre balas enemigas y tanques aliados
+        AllyBullets.ForEach(bullet => Enemies.ForEach(enemy =>
+        {
+            enemy.CheckCollisionWithBullet(bullet);
+            if (enemy is TankPlayer)
+                (enemy as TankPlayer).CheckCollisionWithBullet(bullet);
+        })); // chequea colision entre balas aliadas y tanques enemigos
+        EnemyBullets.ForEach(bullet => Alies.ForEach(ally =>
+        {
+            ally.CheckCollisionWithBullet(bullet);
+            if (ally is TankPlayer)
+                (ally as TankPlayer).CheckCollisionWithBullet(bullet);
+        })); // chequea colision entre balas enemigas y tanques aliados
+        
 
         Props = Props.Where(prop => !prop.Destroyed).ToList();
         foreach (var prop in Props)
@@ -100,28 +112,28 @@ public class PlaneMap : Map
 
     public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
     {
-        // Player.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        // foreach (var enemy in Enemies)
-        //     enemy.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        // foreach (var alie in Alies)
-        //     alie.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        // GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
-        // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-        // GraphicsDevice.SetRenderTarget(null);
-        // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
-    
+        // Sombras
         GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
         GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-        foreach (var staticProp in Props)
-        {
-            staticProp.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        }
+        //foreach (var enemy in Enemies)
+        //    enemy.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        // foreach (var alie in Alies)
+        //     alie.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        foreach (var prop in Props)
+            prop.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        Scenary.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        //Player.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         GraphicsDevice.SetRenderTarget(null);
-        foreach (var staticProp in Props)
-        {
-            staticProp.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        }
-        SkyDome.Draw(camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        // Escena
+        //Player.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        //foreach (var enemy in Enemies)
+        //    enemy.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        //foreach (var alie in Alies)
+        //    alie.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        foreach (var prop in Props)
+            prop.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        SkyDome.Draw(camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        SkyDome.LightBox.Draw(Matrix.CreateTranslation(SkyDome.LightPosition), camera.View, camera.Projection);
     }
 }

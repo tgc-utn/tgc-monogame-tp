@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -30,50 +31,30 @@ public abstract class Resource
         GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
     {
         GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-        // Set the render target as our shadow map, we are drawing the depth into this texture
-        // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
-
         Effect.CurrentTechnique = Effect.Techniques["DepthPass"];
-
-        // We get the base transform for each mesh
         Model.Root.Transform = World;
-        // var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
-        // Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
         foreach (var modelMesh in Model.Meshes)
         {
             foreach (var part in modelMesh.MeshParts)
                 part.Effect = Effect;
-
-            // We set the main matrices for each mesh to draw
-            // var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
             var worldMatrix = modelMesh.ParentBone.Transform * World;
-
-            // WorldViewProjection is used to transform from model space to clip space
             Effect.Parameters["WorldViewProjection"]
                 .SetValue(worldMatrix * TargetLightCamera.View * TargetLightCamera.Projection);
-
-            // Once we set these matrices we draw
             modelMesh.Draw();
         }
     }
     
-    public virtual void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
+    public virtual void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera,
+        List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null)
     {
-        // skyDome.LightBox.Draw(Matrix.CreateTranslation(skyDome.LightPosition), camera.View, camera.Projection);
-
+        if (ImpactPositions == null)
+            ImpactPositions = new List<Vector3>();
+        if (ImpactDirections == null)
+            ImpactDirections = new List<Vector3>();
         if (Reference.DrawReference is ShadowTextureReference)
         {
-            #region Pass 2
-
-            // Set the render target as null, we are drawing on the screen!
-            // GraphicsDevice.SetRenderTarget(null);
-            // GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
             Model.Root.Transform = World;
-            // var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
-            // Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-            
             Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
-            // Effect.Parameters["baseTexture"].SetValue(BasicEffect.Texture);
             Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowTextureReference)?.Texture);
             Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
             Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
@@ -84,20 +65,41 @@ public abstract class Resource
                 EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, modelMesh.Name);
                 foreach (var part in modelMesh.MeshParts)
                     part.Effect = Effect;
-
-                // We set the main matrices for each mesh to draw
-                // var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
                 var worldMatrix = modelMesh.ParentBone.Transform * World;
-
-                // WorldViewProjection is used to transform from model space to clip space
                 Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
                 Effect.Parameters["World"].SetValue(worldMatrix);
                 Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                modelMesh.Draw();
+            }
+        }
+        else if (Reference.DrawReference is ShadowBlingPhongReference)
+        {
+            Model.Root.Transform = World;
+            Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
+            Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowBlingPhongReference)?.Texture);
+            Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
+            Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
+            Effect.Parameters["shadowMapSize"].SetValue(Vector2.One * 2048);
+            Effect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+            foreach (var modelMesh in Model.Meshes)
+            {
+                EffectsRepository.SetEffectParameters(Effect, Reference.DrawReference, modelMesh.Name);
+                foreach (var part in modelMesh.MeshParts)
+                    part.Effect = Effect;
+                var worldMatrix = modelMesh.ParentBone.Transform * World;
+                Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
+                Effect.Parameters["World"].SetValue(worldMatrix);
+                Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
+                Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
+                Effect.Parameters["eyePosition"].SetValue(skyDome.LightViewProjection);
+                Effect.Parameters["ImpactPositions"].SetValue(ImpactPositions.ToArray());
+                Effect.Parameters["ImpactDirections"].SetValue(ImpactDirections.ToArray());
+                Effect.Parameters["Impacts"].SetValue(ImpactPositions.Count);
 
                 // Once we set these matrices we draw
                 modelMesh.Draw();
             }
-            #endregion
         }
         else
         {

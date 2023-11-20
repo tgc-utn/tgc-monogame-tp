@@ -69,19 +69,15 @@ public class Bullet : ICollidable
         if (IsAlive)
         {
             BulletModel.Root.Transform = Matrix.CreateScale(BulletReference.Scale) * Rotation;
-            BulletEffect.Parameters["View"]?.SetValue(view);
-            BulletEffect.Parameters["Projection"]?.SetValue(projection);
+            BulletEffect.Parameters["View"].SetValue(view);
+            BulletEffect.Parameters["Projection"].SetValue(projection);
 
             // Draw the model.
             foreach (var mesh in BulletModel.Meshes)
             {
                 EffectsRepository.SetEffectParameters(BulletEffect, BulletReference.DrawReference, mesh.Name);
                 var worldMatrix = mesh.ParentBone.Transform  * TankFixRotation * Matrix.CreateRotationY((float)Math.PI) * World;
-                BulletEffect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                BulletEffect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-                BulletEffect.Parameters["WorldViewProjection"]?.SetValue(worldMatrix * view * projection);
-                BulletEffect.Parameters["lightPosition"]?.SetValue(lightPosition);
-                BulletEffect.Parameters["eyePosition"]?.SetValue(lightViewProjection);
+                BulletEffect.Parameters["World"].SetValue(worldMatrix);
                 mesh.Draw();
             }
         }

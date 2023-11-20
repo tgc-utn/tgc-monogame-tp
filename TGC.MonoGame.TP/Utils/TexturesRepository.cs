@@ -22,6 +22,9 @@ public static class TexturesRepository
             case ShadowTextureReference textureReference:
                 textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
                 break;
+            case ShadowBlingPhongReference textureReference:
+                textureReference.SetTexture(content.Load<Texture2D>(textureReference.Path));
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(referenceDrawReference));
         }

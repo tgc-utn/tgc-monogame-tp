@@ -16,7 +16,6 @@ public class Scenarios
         new List<PropReference>
         {
             // El mapa mide (si tomamos como escala 1f) 550f x 550f. Entonces -275f <= x <= 275f
-            
             #region Rocas Externas
 
             new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(

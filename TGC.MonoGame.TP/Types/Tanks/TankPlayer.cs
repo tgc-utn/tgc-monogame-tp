@@ -14,13 +14,13 @@ public class TankPlayer : Tank
     
     public override void Update(GameTime gameTime)
     {
-        var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        KeySense();
-        ProcessMouse(elapsedTime);
+        // var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+        // KeySense();
+        // ProcessMouse(elapsedTime);
         
         base.Update(gameTime);
 
-        TankHud.Update(World, health, shootTime);
+        // TankHud.Update(World, health, shootTime);
     }
     
     public void KeySense()

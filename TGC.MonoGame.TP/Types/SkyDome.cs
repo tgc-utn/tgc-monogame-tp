@@ -39,6 +39,8 @@ public class SkyDome : Resource
     {
         base.Load(content);
         LightBox = new SpherePrimitive(graphicsDevice, 50, 16, new Color(239f, 142f, 56f));
+        LightPosition = new Vector3(517.4206f, 393.4157f, 500f);
+        LightBoxWorld = Matrix.CreateTranslation(LightPosition);
         Translation = Matrix.CreateTranslation(Position);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateRotationY(Angle) * Translation;
         Model.Root.Transform = World;
@@ -46,8 +48,8 @@ public class SkyDome : Resource
 
     public void Update(GameTime gameTime)
     {
-        // Timer += (float) gameTime.ElapsedGameTime.TotalSeconds;
-        // LightPosition = new Vector3((float) Math.Cos(Timer * 0.5f) * 650f, (float) Math.Sin(Timer * 0.5f) * 650f, 0);
+        // Timer += (float) gameTime.ElapsedGameTime.TotalSeconds * 0.25f;
+        // LightPosition = new Vector3((float) Math.Cos(Timer) * 650f, (float) Math.Sin(Timer) * 650f, 0);
         // LightBoxWorld = Matrix.CreateTranslation(LightPosition);
     }
     

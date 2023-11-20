@@ -24,6 +24,13 @@ float3 eyePosition; // Camera position
 
 float2 shadowMapSize;
 
+#define MAX_COUNT 5
+float3 ImpactPositions[MAX_COUNT];
+float3 ImpactDirections[MAX_COUNT];
+int Impacts = 0;
+
+float BulletRadius = 0.5;
+
 static const float modulatedEpsilon = 0.000041200182749889791011810302734375;
 static const float maxEpsilon = 0.000023200045689009130001068115234375;
 
@@ -99,9 +106,21 @@ float4 DepthPS(in DepthPassVertexShaderOutput input) : COLOR
 ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
 {
 	ShadowedVertexShaderOutput output;
+	output.WorldSpacePosition = mul(input.Position, World);
+    input.Position = mul(input.Position, World);
+
+    float Distance = 0;
+    float mask = 0;
+    for(int i=0; i < MAX_COUNT; i++) {
+        if(i >= Impacts)
+            break;
+        Distance = distance(input.Position.xyz, ImpactPositions[i]);
+        mask = step(Distance, 1.25);
+        input.Position.xyz = lerp(input.Position.xyz, input.Position.xyz + ImpactDirections[i], mask);
+    }
+
 	output.Position = mul(input.Position, WorldViewProjection);
 	output.TextureCoordinates = input.TextureCoordinates;
-	output.WorldSpacePosition = mul(input.Position, World);
 	output.LightSpacePosition = mul(output.WorldSpacePosition, LightViewProjection);
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
 	return output;
