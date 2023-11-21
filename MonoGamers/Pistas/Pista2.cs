@@ -39,15 +39,7 @@ namespace MonoGamers.Pistas
         private Model RushModel { get; set; }
         private Matrix[] RushPowerups { get; set; }
 
-        //Signs
-
-        private Model SignModel { get; set; }
-        private Matrix[] Signs { get; set; }
-
-        //Sonic
-
-        private Model SonicModel { get; set; }
-        private Matrix Sonic { get; set; }
+        private Texture2D RushTexture { get; set; }
 
         // GraphicsDevice
         private GraphicsDevice GraphicsDevice { get; set; }
@@ -151,31 +143,6 @@ namespace MonoGamers.Pistas
                         new BodyActivityDescription(-0.1f))));
 
             }
-
-
-            //Signs 
-
-            Signs = new Matrix[]
-            {
-                Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateRotationY((float)(Math.PI/2)) *
-                Matrix.CreateTranslation(x + 45f, y - 130f, z+210f),
-                Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateTranslation(x + 1080f, y + 45f, z+1380f),
-                Matrix.CreateScale(25f, 25f, 25f) * Matrix.CreateRotationY((float)(Math.PI/2)) *
-                Matrix.CreateTranslation(x + 1430, y - 10f, z+2010f)
-            };
-
-            for (int index = 0; index < Signs.Length; index++)
-            {
-                var matrix = Signs[index];
-                matrix.Decompose(out scale, out rot, out translation);
-                Simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(translation),
-                    Simulation.Shapes.Add(new Box(scale.X, scale.Y, scale.Z))));
-
-            }
-            //Sonic
-            Sonic = Matrix.CreateScale(2f, 2f, 2f) *
-                Matrix.CreateRotationY((float)(Math.PI / 2)) *
-                Matrix.CreateTranslation(x + 20f, y, z + 100f);
         }
 
         private void LoadContent(ContentManager Content)
@@ -192,16 +159,12 @@ namespace MonoGamers.Pistas
              EffectB = Content.Load<Effect>(
                  ConfigurationManager.AppSettings["ContentFolderEffects"] + "BasicShader");
 
+            RushTexture = Content.Load<Texture2D>(
+                ConfigurationManager.AppSettings["ContentFolderTextures"] + "plastic/color");
+
             //Carga modelo Rush
             RushModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3DPowerUps"] + "arrowpush/tinker");
-
-            //Carga modelo sign
-            SignModel = Content.Load<Model>("Models/signs/warningSign/untitled");
-
-            //Carga modelo Sonic
-            SonicModel = Content.Load<Model>(
-                ConfigurationManager.AppSettings["ContentFolder3D"] + "/sonic/source/sonic");
 
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, CobbleTexture);
@@ -264,6 +227,7 @@ namespace MonoGamers.Pistas
             Array.ForEach(RushPowerups, PowerUp =>
             {
                 EffectB.Parameters["World"].SetValue(PowerUp);
+                EffectB.Parameters["ModelTexture"].SetValue(RushTexture);
                 var meshes = RushModel.Meshes;
                 foreach (var mesh in meshes)
                 {
@@ -277,21 +241,6 @@ namespace MonoGamers.Pistas
 
             });
 
-            Array.ForEach(Signs, Sign =>
-            {
-                EffectB.Parameters["World"].SetValue(Sign);
-                var meshes = SignModel.Meshes;
-                foreach (var mesh in meshes)
-                {
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        part.Effect = EffectB;
-                    }
-
-                    mesh.Draw();
-                }
-            });
-
             // Draw MovingBoxes
             for (int index = 0; index < MovingBoxes.Length; index++)
             {
@@ -302,19 +251,6 @@ namespace MonoGamers.Pistas
                 Effect.Parameters["WorldViewProjection"].SetValue(MovingBoxes[index] * viewProjection);
                 BoxPrimitive.Draw(Effect);
 
-            }
-
-
-            EffectB.Parameters["World"].SetValue(Sonic);
-            var sonicmesh = SonicModel.Meshes;
-            foreach (var mesh in sonicmesh)
-            {
-                foreach (var part in mesh.MeshParts)
-                {
-                    part.Effect = EffectB;
-                }
-
-                mesh.Draw();
             }
         }
 

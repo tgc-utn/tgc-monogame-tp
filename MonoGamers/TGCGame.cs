@@ -137,8 +137,7 @@ namespace MonoGamers
         private RenderTargetCube EnvironmentMapRenderTarget { get; set; }
         private const int EnvironmentmapSize = 100;
         private StaticCamera CubeMapCamera { get; set; }
-
-
+        
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -175,7 +174,6 @@ namespace MonoGamers
 
             // Creo una camara para seguir a la esfera.
             Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero, GraphicsDevice.Viewport);
-
 
 
             // Creo los checkpoints
@@ -313,7 +311,7 @@ namespace MonoGamers
 
                 EnvironmentMapRenderTarget = new RenderTargetCube(GraphicsDevice, EnvironmentmapSize, false,
                     SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
-                
+
             base.LoadContent();
             if (stopwatchLoad.IsRunning)
             {
@@ -445,6 +443,7 @@ namespace MonoGamers
                     // Draw our scene. Do not draw our tank as it would be occluded by itself 
                     // (if it has backface culling on)
                     
+                    
                     // Dibujamos el skybox
                     DrawSkybox(CubeMapCamera);
                     
@@ -467,7 +466,7 @@ namespace MonoGamers
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.White, 1f, 0);
 
                 LightEffect.CurrentTechnique = LightEffect.Techniques["DepthPass"];
-                
+
                 // Sphere drawinga
                 MonoSphere.Draw(TargetLightCamera);
                 
@@ -539,7 +538,7 @@ namespace MonoGamers
                 // Sphere drawing
                 if (MonoSphere.SphereType != MonoSphere.Type.Metal)
                 {
-                    MonoSphere.Draw(Camera);    
+                    MonoSphere.Draw(Camera);
                 }
                 else
                 {

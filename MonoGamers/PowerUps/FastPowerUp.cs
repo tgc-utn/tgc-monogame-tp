@@ -14,6 +14,7 @@ using MonoGamers.Audio;
 
 namespace MonoGamers.PowerUps
 {
+        
     internal class FastPowerUp : PowerUp 
     {
 
@@ -39,6 +40,7 @@ namespace MonoGamers.PowerUps
                 ConfigurationManager.AppSettings["ContentFolderTextures"] + "agilityup/Diff");
             SphereModel = Content.Load<Model>(
                 ConfigurationManager.AppSettings["ContentFolder3D"] + "geometries/sphere");
+
         }
 
         public override async void Activate(MonoSphere Sphere)

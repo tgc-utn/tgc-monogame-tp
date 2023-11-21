@@ -134,7 +134,7 @@ namespace MonoGamers.Geometries
             if(SphereType == Type.Metal){
                 SphereSideTypeSpeed = 2f;
                 SphereJumpTypeSpeed = 1f;
-            }
+            } 
 
             if(SphereType == Type.Gum){
                 SphereSideTypeSpeed = 1f;
