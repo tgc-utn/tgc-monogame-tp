@@ -35,7 +35,7 @@ namespace MonoGamers.Camera;
     public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition, Viewport viewport) : base(aspectRatio)
         {
             BuildView(position, targetPosition);
-            PastMousePosition = Mouse.GetState().Position.ToVector2();
+            PastMousePosition = new Vector2(viewport.Width / 2, viewport.Height / 2);
             CameraRotation = Matrix.Identity;
             Viewport = viewport;
     }
