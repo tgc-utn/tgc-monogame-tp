@@ -57,7 +57,7 @@ public abstract class Resource
             Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowTextureReference)?.Texture);
             Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
             Effect.Parameters["lightPosition"].SetValue(skyDome.LightPosition);
-            Effect.Parameters["shadowMapSize"].SetValue(Vector2.One * 2048);
+            Effect.Parameters["shadowMapSize"].SetValue(Vector2.One * TexturesRepository.ShadowmapSize);
             Effect.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
             foreach (var modelMesh in Model.Meshes)
             {

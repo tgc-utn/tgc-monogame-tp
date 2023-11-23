@@ -25,7 +25,7 @@ public class MainMenu
     private Map _menuMap;
     private Camera _camera;
     
-    private SpriteFont Font;
+    public SpriteFont Font { get; set; }
     public SpriteBatch SpriteBatch { get; set; }
     public GraphicsDevice GraphicsDevice { get; }
 

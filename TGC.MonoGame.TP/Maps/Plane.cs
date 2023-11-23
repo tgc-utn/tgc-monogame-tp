@@ -108,7 +108,7 @@ public class PlaneMap : Map
     public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera, BoundingFrustum BoundingFrustum)
     {
         // var visibleTanks = Tanks.Where(tank => BoundingFrustum.Intersects(tank.Box)).ToList();
-        var visibleProps = Props.Where(prop => BoundingFrustum.Intersects(prop.Box)).ToList();
+        var visibleProps = Props.Where(prop => BoundingFrustum.Intersects(prop.Box) && !prop.Destroyed).ToList();
 
         // Sombras 
         GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
