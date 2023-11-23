@@ -14,14 +14,19 @@ namespace TGC.MonoGame.TP.Cameras
         /// </summary>
         public readonly Vector3 DefaultWorldUpVector = Vector3.Up;
 
+        private float CameraFollowRadius = 20f;
+        private float CameraUpDistance = 5f;
+
         /// <summary>
         ///     Camera looking at a particular direction, which has the up vector (0,1,0).
         /// </summary>
         /// <param name="aspectRatio">Aspect ratio, defined as view space width divided by height.</param>
         /// <param name="position">The position of the camera.</param>
         /// <param name="targetPosition">The target towards which the camera is pointing.</param>
-        public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition) : base(aspectRatio)
+        public TargetCamera(float aspectRatio, Vector3 position, Vector3 targetPosition, Vector2 cameraSettings ) : base(aspectRatio)
         {
+            CameraFollowRadius = cameraSettings.X;
+            CameraUpDistance = cameraSettings.Y;
             BuildView(position, targetPosition);
         }
 
@@ -43,9 +48,6 @@ namespace TGC.MonoGame.TP.Cameras
         ///     The target towards which the camera is pointing.
         /// </summary>
         public Vector3 TargetPosition { get; set; }
-
-        private const float CameraFollowRadius = 20f;
-        private const float CameraUpDistance = 5f;
         public override void Update(GameTime gameTime, Tank Player)
         {
             // Create a position that orbits the Robot by its direction (Rotation)

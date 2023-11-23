@@ -25,7 +25,7 @@ namespace TGC.MonoGame.TP
         /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
         private Map MenuMap { get; set; }
-        private Camera Camera { get; set; } = null;
+        private Camera PlayerCamera { get; set; } = null;
         private Gizmos Gizmos { get; set; }
         private GameState GameState { get; set; }
         private MainMenu Menu { get; set; }
@@ -35,11 +35,20 @@ namespace TGC.MonoGame.TP
         private Score Score { get; set; }
 
         /* SOMBRAS */
-        private const int ShadowmapSize = 2048;
         private readonly float LightCameraFarPlaneDistance = 3000f;
         private readonly float LightCameraNearPlaneDistance = 5f;
         private RenderTarget2D ShadowMapRenderTarget;
         private TargetCamera TargetLightCamera { get; set; }
+
+        /* OPTIMIZACION */
+        private BoundingFrustum BoundingFrustum { get; set; }
+        private TargetCamera OptimizationCamera { get; set; }
+        
+        /* DEBUG */
+        private SpriteFont Font;
+        private SpriteBatch SpriteBatch;
+        private Camera DebugCamera { get; set; } = null;
+        private bool showFPS = false;
 
         public TGCGame()
         {
@@ -60,14 +69,27 @@ namespace TGC.MonoGame.TP
             MenuMap = new MenuMap(Tanks.T90, Graphics);
             Menu = new MainMenu(GraphicsDevice, GameState, MenuMap);
 
-            TargetLightCamera = new TargetCamera(1f, Map.SkyDome.LightPosition, Vector3.Zero);
+            TargetLightCamera = new TargetCamera(1f, Map.SkyDome.LightPosition, Vector3.Zero, new Vector2(20f, 5f));
             TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
                 MathHelper.PiOver2);
             
+            PlayerCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
+                Vector3.Zero, new Vector2(20f, 5f));
+            
+            DebugCamera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f,
+                1f);
+            
+            OptimizationCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
+                Vector3.Zero, new Vector2(100f, 25f));
+            
+            BoundingFrustum = new BoundingFrustum(PlayerCamera.View * PlayerCamera.Projection);
+
             TimeSinceLastChange = 0f;
             ScreenTime = new ScreenTime(GraphicsDevice, 180f);
             Score = new Score(GraphicsDevice);
-
+            
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            
             base.Initialize();
         }
 
@@ -79,10 +101,11 @@ namespace TGC.MonoGame.TP
             ScreenTime.LoadContent(Content);
             Score.LoadContent(Content);
             Song = Content.Load<Song>($"{ContentFolder.Music}/world-of-tanks");
-            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowmapSize, ShadowmapSize, false,
+            Font = Content.Load<SpriteFont>($"{ContentFolder.Fonts}/Verdana16");
+            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, TexturesRepository.ShadowmapSize, TexturesRepository.ShadowmapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             GraphicsDevice.BlendState = BlendState.Opaque;
-
+        
             base.LoadContent();
         }
 
@@ -90,7 +113,8 @@ namespace TGC.MonoGame.TP
         {
             var keyboardState = Keyboard.GetState();
             //Salgo del juego.
-            if (keyboardState.IsKeyDown(Keys.Escape) && GameState.CurrentStatus != GameStatus.MainMenu && GameState.CurrentStatus != GameStatus.Exit)
+            if (keyboardState.IsKeyDown(Keys.Escape) && GameState.CurrentStatus != GameStatus.MainMenu &&
+                GameState.CurrentStatus != GameStatus.Exit)
             {
                 GameState.Set(GameStatus.MainMenu);
                 TimeSinceLastChange = 0f;
@@ -101,19 +125,25 @@ namespace TGC.MonoGame.TP
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
             }
-            
+
             if (keyboardState.IsKeyDown(Keys.F10))
             {
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
             }
+            
+            if (keyboardState.IsKeyDown(Keys.F12))
+            {
+                showFPS = !showFPS;
+            }
+
             // Musica
             if (MediaPlayer.State != MediaState.Playing)
             {
                 MediaPlayer.Volume = 0.05f;
-                MediaPlayer.Play(Song); 
+                MediaPlayer.Play(Song);
             }
-            
+
             if (keyboardState.IsKeyDown(Keys.F1))
                 GameState.Set(GameStatus.MainMenu);
             if (keyboardState.IsKeyDown(Keys.F2))
@@ -132,8 +162,6 @@ namespace TGC.MonoGame.TP
                     if (GameState.FirstUpdate)
                     {
                         Menu.Dispose();
-                        Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
-                            Vector3.Zero);
                         GameState.FirstUpdate = false;
                     }
                     ScreenTime.Update(gameTime);
@@ -141,32 +169,25 @@ namespace TGC.MonoGame.TP
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;
                     TargetLightCamera.BuildView();
-                    try
-                    {
-                        Camera.Update(gameTime, Map.Player);
-                    }
-                    catch (Exception e)
-                    {
-                    }
+                    PlayerCamera.Update(gameTime, Map.Player);
+                    OptimizationCamera.Update(gameTime, Map.Player);
+                    BoundingFrustum.Matrix = OptimizationCamera.View * OptimizationCamera.Projection;
                     break;
                 case GameStatus.GodModeGame:
                     if (GameState.FirstUpdate)
                     {
                         Menu.Dispose();
-                        Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
                         GameState.FirstUpdate = false;
+                        showFPS = true;
                     }
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;
                     TargetLightCamera.BuildView();
-                    try
-                    {
-                        Camera.Update(gameTime, Map.Player);
-                        Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
-                    }
-                    catch (Exception e)
-                    {
-                    }
+                    DebugCamera.Update(gameTime, Map.Player);
+                    PlayerCamera.Update(gameTime, Map.Player);
+                    OptimizationCamera.Update(gameTime, Map.Player);
+                    BoundingFrustum.Matrix = OptimizationCamera.View * OptimizationCamera.Projection;
+                    Gizmos.UpdateViewProjection(DebugCamera.View, DebugCamera.Projection);
                     break;
                 case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
@@ -178,6 +199,7 @@ namespace TGC.MonoGame.TP
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             TimeSinceLastChange += (float)gameTime.ElapsedGameTime.TotalSeconds;
             base.Update(gameTime);
         }
@@ -187,41 +209,31 @@ namespace TGC.MonoGame.TP
             switch (GameState.CurrentStatus)
             {
                 case GameStatus.MainMenu:
-                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera);
+                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera, BoundingFrustum);
                     break;
                 case GameStatus.NormalGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
-                    try
-                    {
-                        Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-                    }
-                    catch (Exception e)
-                    {
-                    }
+                    Map.Draw(PlayerCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
                     ScreenTime.Draw();
                     Score.Draw();
                     break;
                 case GameStatus.GodModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
-                    try
-                    {
-                        Map.Draw(Camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-                        DrawBoundingBoxesDebug();
-                        Gizmos.Draw();
-                    }
-                    catch (Exception e)
-                    {
-                    }
+                    Map.Draw(DebugCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
+                    DrawBoundingBoxesDebug();
+                    Gizmos.Draw();
                     break;
                 case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
-                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera);
+                    Menu.Draw(GameState.CurrentStatus, ShadowMapRenderTarget, TargetLightCamera, BoundingFrustum);
                     break;
                 case GameStatus.Exit:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            if (showFPS)
+                DrawFPS(gameTime);
         }
 
         private void DrawBoundingBoxesDebug()
@@ -230,9 +242,24 @@ namespace TGC.MonoGame.TP
                 Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
             // Gizmos.DrawCube(prop.World, Color.Red);
             foreach (var tank in Map.Tanks)
-                Gizmos.DrawCube(tank.OBBWorld, tank.Action is PlayerActionTank ? Color.Aqua : tank.Action.isEnemy ? Color.HotPink : Color.DeepPink);
+                Gizmos.DrawCube(tank.OBBWorld,
+                    tank.Action is PlayerActionTank ? Color.Aqua :
+                    tank.Action.isEnemy ? Color.HotPink : Color.DeepPink);
             foreach (var bullet in Map.Player.Bullets)
                 Gizmos.DrawSphere(bullet.Box.Center, bullet.Box.Radius * Vector3.One, Color.Aqua);
+            Gizmos.DrawFrustum(PlayerCamera.View * PlayerCamera.Projection, Color.Yellow);
+            Gizmos.DrawFrustum(TargetLightCamera.View * TargetLightCamera.Projection, Color.White);
+            Gizmos.DrawFrustum(OptimizationCamera.View * OptimizationCamera.Projection, Color.Green);
+        }
+        
+        private void DrawFPS(GameTime gameTime)
+        {
+            var fps = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var fpsString = $"FPS: {fps:0}";
+            SpriteBatch.Begin();
+            SpriteBatch.DrawString(Font, fpsString, new Vector2( 10, 10), Color.Black, 0f, Vector2.Zero, 1f,
+                SpriteEffects.None, 0);
+            SpriteBatch.End();
         }
 
         protected override void UnloadContent()

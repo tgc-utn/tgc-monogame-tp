@@ -66,7 +66,7 @@ public class MenuMap : Map
         SkyDome.Update(gameTime);
     }
 
-    public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
+    public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera, BoundingFrustum BoundingFrustum)
     {
         // Sombras
         GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);

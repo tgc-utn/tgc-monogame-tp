@@ -105,21 +105,24 @@ public class PlaneMap : Map
         SkyDome.Update(gameTime);
     }
 
-    public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera)
+    public override void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice, Camera TargetLightCamera, BoundingFrustum BoundingFrustum)
     {
-        // Sombras
+        // var visibleTanks = Tanks.Where(tank => BoundingFrustum.Intersects(tank.Box)).ToList();
+        var visibleProps = Props.Where(prop => BoundingFrustum.Intersects(prop.Box) && !prop.Destroyed).ToList();
+
+        // Sombras 
         GraphicsDevice.SetRenderTarget(ShadowMapRenderTarget);
         GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
         foreach (var tank in Tanks)
             tank.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        foreach (var prop in Props.Where(prop => !prop.Destroyed).ToList())
+        foreach (var prop in visibleProps)
             prop.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         GraphicsDevice.SetRenderTarget(null);
         // Escena
         foreach (var tank in Tanks)
            tank.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
-        foreach (var prop in Props.Where(prop => !prop.Destroyed).ToList())
+        foreach (var prop in visibleProps)
             prop.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         SkyDome.Draw(camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
