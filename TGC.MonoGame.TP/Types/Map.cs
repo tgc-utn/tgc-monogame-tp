@@ -20,6 +20,6 @@ public abstract class Map
     public abstract void Load(GraphicsDevice graphicsDevice,ContentManager content);
 
     public abstract void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
-        Camera TargetLightCamera);
+        Camera TargetLightCamera, BoundingFrustum BoundingFrustum);
     public abstract void Update(GameTime gameTime);
 }

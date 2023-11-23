@@ -66,13 +66,13 @@ public class MainMenu
             Buttons.Update(Mouse.GetState());
         }
         
-        public void Draw(GameStatus gameStatus, RenderTarget2D ShadowMapRenderTarget, Camera TargetLightCamera)
+        public void Draw(GameStatus gameStatus, RenderTarget2D ShadowMapRenderTarget, Camera TargetLightCamera, BoundingFrustum BoundingFrustum)
         {
             GraphicsDevice.Clear(Color.Black);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             try
             {
-                _menuMap.Draw(_camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+                _menuMap.Draw(_camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
             }
             catch (Exception e) { }
             GraphicsDevice.DepthStencilState = DepthStencilState.Default; 
