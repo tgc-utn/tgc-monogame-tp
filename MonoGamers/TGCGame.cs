@@ -27,6 +27,7 @@ using MonoGamers.Audio;
 using System.Diagnostics;
 using MonoGamers.Menu;
 using System.Reflection.Metadata;
+using TGC.MonoGame.Samples.Geometries;
 
 namespace MonoGamers
 {
@@ -137,6 +138,15 @@ namespace MonoGamers
         private RenderTargetCube EnvironmentMapRenderTarget { get; set; }
         private const int EnvironmentmapSize = 100;
         private StaticCamera CubeMapCamera { get; set; }
+
+        //Blur
+
+        private FullScreenQuad FullScreenQuad;
+
+        private RenderTarget2D MainRenderTarget;
+
+        private Effect BlurEffect;
+
         
         /// <summary>
         ///     Constructor del juego.
@@ -227,6 +237,9 @@ namespace MonoGamers
             // Environment map Camera
             CubeMapCamera = new StaticCamera(1f, MonoSphere.SpherePosition, Vector3.UnitX, Vector3.Up);
             CubeMapCamera.BuildProjection(1f, 1f, 3000f, MathHelper.PiOver2);
+
+            //Blur
+            loadBlur();
 
             base.Initialize();
             stopwatchInitialize.Stop();
@@ -496,6 +509,8 @@ namespace MonoGamers
 
             #region Pass 2
 
+            
+
             // Set the render target as null, we are drawing on the screen!
             GraphicsDevice.SetRenderTarget(null);
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
@@ -554,7 +569,7 @@ namespace MonoGamers
                     LightEffect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(sphereWorld)));
                     // WorldViewProjection is used to transform from model space to clip space
                     LightEffect.Parameters["WorldViewProjection"].SetValue(sphereWorld * Camera.View * Camera.Projection);
-
+                                drawBlur();
                     MonoSphere.Draw(Camera);
                 }
 
@@ -586,8 +601,9 @@ namespace MonoGamers
 
                 checkpoint.Draw(Camera); 
             }
-
+            
             DrawUI(gameTime);
+
             base.Draw(gameTime);
             
             if (stopwatchDraw.IsRunning)
@@ -700,6 +716,54 @@ namespace MonoGamers
                     CubeMapCamera.UpDirection = Vector3.Down;
                     break;
             }
+        }
+
+        private void loadBlur(){
+            // Load the post-processing effect
+            BlurEffect = Content.Load<Effect>(ContentFolderEffects + "GaussianBlur");
+
+            // Create a full screen quad to post-process
+            FullScreenQuad = new FullScreenQuad(GraphicsDevice);
+
+            // Create render targets. One can be used for simple gaussian blur
+            // mainRenderTarget is also used as a render target in the separated filter
+            // horizontalRenderTarget is used as the horizontal render target in the separated filter
+            MainRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
+                RenderTargetUsage.DiscardContents);
+
+            BlurEffect.Parameters["screenSize"]
+                .SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
+
+        }
+        
+        private void drawBlur(){
+            // Use the default blend and depth configuration
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+
+            // Set the main render target as our render target
+            GraphicsDevice.SetRenderTarget(MainRenderTarget);
+            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+            
+            MonoSphere.Draw(Camera);
+
+            // Set the depth configuration as none, as we don't use depth in this pass
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+            // Set the render target as null, we are drawing into the screen now!
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+            // Set the technique to our blur technique
+            // Then draw a texture into a full-screen quad
+            // using our rendertarget as texture
+
+            BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
+            FullScreenQuad.Draw(BlurEffect);
+
+        
         }
     }
     
