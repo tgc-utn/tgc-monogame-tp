@@ -144,8 +144,11 @@ namespace MonoGamers
         private FullScreenQuad FullScreenQuad;
 
         private RenderTarget2D MainRenderTarget;
+        private RenderTarget2D HorizontalRenderTarget;
 
         private Effect BlurEffect;
+
+        public bool BlurON = true;
 
         
         /// <summary>
@@ -509,10 +512,17 @@ namespace MonoGamers
 
             #region Pass 2
 
-            
 
-            // Set the render target as null, we are drawing on the screen!
-            GraphicsDevice.SetRenderTarget(null);
+                if (BlurON)
+                {
+                    GraphicsDevice.SetRenderTarget(MainRenderTarget);
+                }
+                else
+                {
+                    // Set the render target as null, we are drawing on the screen!
+                    GraphicsDevice.SetRenderTarget(null);
+                }
+                
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
 
                 LightEffect.CurrentTechnique = LightEffect.Techniques["Draw_NM_SM"];
@@ -580,27 +590,27 @@ namespace MonoGamers
                     powerup.Draw(Camera, gameTime); 
                 }
 
+                // Dibujamos el skybox
+                DrawSkybox(Camera);
+            
+                //powerups Drawing -- Se dibuja despues del skybox para que aparezca en la esfera
+                foreach (var powerup in PowerUps)
+                {
+                    powerup.drawOnlyFloatingSphere = true;
+                    
+                    powerup.Draw(Camera, gameTime); 
+                }
+            
+                foreach (var checkpoint in Checkpoints)
+                {
+
+                    checkpoint.Draw(Camera); 
+                }
 
             #endregion
 
             
-            // Dibujamos el skybox
-            DrawSkybox(Camera);
-            
-            //powerups Drawing -- Se dibuja despues del skybox para que aparezca en la esfera
-            foreach (var powerup in PowerUps)
-            {
-                powerup.drawOnlyFloatingSphere = true;
-                    
-                powerup.Draw(Camera, gameTime); 
-            }
-            
-            foreach (var checkpoint in Checkpoints)
-            {
-
-                checkpoint.Draw(Camera); 
-            }
-            drawBlur();
+            if(BlurON) drawBlur();
 
             DrawUI(gameTime);
 
@@ -731,6 +741,10 @@ namespace MonoGamers
             MainRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
                 GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0,
                 RenderTargetUsage.DiscardContents);
+            
+            HorizontalRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.None, 0,
+                RenderTargetUsage.DiscardContents);
 
             BlurEffect.Parameters["screenSize"]
                 .SetValue(new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height));
@@ -738,6 +752,7 @@ namespace MonoGamers
         }
         
         private void drawBlur(){
+            /*
             // Use the default blend and depth configuration
             GraphicsDevice.Clear(Color.CornflowerBlue);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -762,6 +777,62 @@ namespace MonoGamers
 
             BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
             FullScreenQuad.Draw(BlurEffect);
+            
+            
+            */
+            
+            /*
+            // Set the depth configuration as none, as we don't use depth in this pass
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+            // Set the render target as null, we are drawing into the screen now!
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+            // Set the technique to our blur technique
+            // Then draw a texture into a full-screen quad
+            // using our rendertarget as texture
+
+            BlurEffect.CurrentTechnique = BlurEffect.Techniques["Blur"];
+            BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
+            FullScreenQuad.Draw(BlurEffect);
+            */
+            
+            #region Pass 1
+
+            // Set the depth configuration as none, as we don't use depth in this pass
+            GraphicsDevice.DepthStencilState = DepthStencilState.None;
+
+            // Set the render target as horizontalRenderTarget, 
+            // we are drawing a horizontal blur into this texture
+            GraphicsDevice.SetRenderTarget(HorizontalRenderTarget);
+            GraphicsDevice.Clear(Color.Black);
+
+            // Set the technique to our blur technique
+            // Then draw a texture into a full-screen quad
+            // using our rendertarget as texture
+
+            BlurEffect.CurrentTechnique = BlurEffect.Techniques["BlurHorizontalTechnique"];
+            BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
+            FullScreenQuad.Draw(BlurEffect);
+
+            #endregion
+
+            #region Pass 2
+
+            // Now we are drawing into the screen
+            GraphicsDevice.SetRenderTarget(null);
+            GraphicsDevice.Clear(Color.Black);
+
+            // Set the technique to our blur technique
+            // Then draw a texture into a full-screen quad
+            // using our rendertarget as texture
+
+            BlurEffect.CurrentTechnique = BlurEffect.Techniques["BlurVerticalTechnique"];
+            BlurEffect.Parameters["baseTexture"].SetValue(HorizontalRenderTarget);
+            FullScreenQuad.Draw(BlurEffect);
+
+            #endregion
 
         
         }

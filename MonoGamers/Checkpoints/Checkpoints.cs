@@ -25,9 +25,10 @@ namespace MonoGamers.Checkpoints
 
         private Boolean alreadyPassed = false; 
         
-        private Boolean IntialCheckpoint; 
+        private Boolean IntialCheckpoint;
+        private Boolean FinalCheckpoint;
         
-        public Checkpoint (Vector3 position,Vector3 scale, ContentManager Content, GraphicsDevice graphicsDevice )
+        public Checkpoint (Vector3 position,Vector3 scale, ContentManager Content, GraphicsDevice graphicsDevice, bool finalCheckpoint = false)
         {
 
             this.Position = position;
@@ -44,6 +45,8 @@ namespace MonoGamers.Checkpoints
             // Cargar Primitiva de caja con textura
             BoxPrimitive = new BoxPrimitive(graphicsDevice, Vector3.One, CheckTexture);
             this.IntialCheckpoint = false;
+
+            FinalCheckpoint = finalCheckpoint;
         }
         public Checkpoint (Vector3 position )
         {
@@ -58,6 +61,7 @@ namespace MonoGamers.Checkpoints
             if (BoundingBox.Intersects(BoundingSphere) && !IntialCheckpoint)
             {
                 alreadyPassed = true;
+                //if (FinalCheckpoint) 
                 return true;
             }
             else

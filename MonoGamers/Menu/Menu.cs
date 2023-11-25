@@ -88,7 +88,9 @@ public class Menu
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(Title, new Rectangle(550, 100, Title.Width, Title.Height), Color.White);
+        var width = _graphicsDevice.Viewport.Width;
+        var height = _graphicsDevice.Viewport.Height;
+        spriteBatch.Draw(Title, new Rectangle((int)(width * 0.305f), (int)(height * 0.10f), Title.Width, Title.Height), Color.White);
         PlayButton.Render(spriteBatch,RenderPlayButton);
         ExitButton.Render(spriteBatch, RenderExitButton);
         SoundEnabledButton.Render(spriteBatch, RenderSoundEnableButton);
