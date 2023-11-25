@@ -569,7 +569,6 @@ namespace MonoGamers
                     LightEffect.Parameters["InverseTransposeWorld"]?.SetValue(Matrix.Transpose(Matrix.Invert(sphereWorld)));
                     // WorldViewProjection is used to transform from model space to clip space
                     LightEffect.Parameters["WorldViewProjection"].SetValue(sphereWorld * Camera.View * Camera.Projection);
-                                drawBlur();
                     MonoSphere.Draw(Camera);
                 }
 
@@ -601,7 +600,8 @@ namespace MonoGamers
 
                 checkpoint.Draw(Camera); 
             }
-            
+            drawBlur();
+
             DrawUI(gameTime);
 
             base.Draw(gameTime);
