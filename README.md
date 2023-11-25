@@ -14,15 +14,15 @@ Proyecto plantilla para los trabajos prácticos de la asignatura electiva [Técn
 
 
 ## Integrantes
--Gonzalo Duarte
--Fidel Ibire
--Gabriel Rodriguez
--Tobias Ducrot
+1. Gonzalo Duarte
+2. Fidel Ibire
+3. Gabriel Rodriguez
+4. Tobias Ducrot
+
 
 ## Capturas
 
-![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot2](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot3](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot4](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot5](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
+![screenshot1](MonoGamers/mono1.png)
+![screenshot2](MonoGamers/mono2.png)
+![screenshot3](MonoGamers/mono3.png)
+![screenshot4](MonoGamers/mono4.png)
