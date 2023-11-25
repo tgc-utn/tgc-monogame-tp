@@ -12,6 +12,7 @@ public class AudioController
     static SoundEffect JumpSound { get; set; }
     static SoundEffect RiseSound { get; set; }
     static SoundEffect PowerUpSound { get; set; }
+    static SoundEffect CheerSound { get; set; }
 
     static bool StopPlaying { get; set; }
     
@@ -21,6 +22,7 @@ public class AudioController
         JumpSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "bounce1");
         RiseSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "rise");
         PowerUpSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "a1-8bit");
+        CheerSound = Content.Load<SoundEffect>(ConfigurationManager.AppSettings["ContentFolderSounds"] + "Cheering");
         StopPlaying = false;
 
         MediaPlayer.IsRepeating = true;
@@ -60,5 +62,10 @@ public class AudioController
     public static void PlayPowerUp()
     {
         if (!StopPlaying) PowerUpSound.Play();
+    }
+    
+    public static void PlayCheer()
+    {
+        if(!StopPlaying) CheerSound.Play();
     }
 }

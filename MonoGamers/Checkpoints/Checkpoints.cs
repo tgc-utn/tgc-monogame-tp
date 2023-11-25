@@ -23,10 +23,10 @@ namespace MonoGamers.Checkpoints
         
         public Effect Effect { get; set; }
 
-        private Boolean alreadyPassed = false; 
+        public Boolean alreadyPassed = false; 
         
         private Boolean IntialCheckpoint;
-        private Boolean FinalCheckpoint;
+        public Boolean FinalCheckpoint;
         
         public Checkpoint (Vector3 position,Vector3 scale, ContentManager Content, GraphicsDevice graphicsDevice, bool finalCheckpoint = false)
         {
@@ -61,7 +61,6 @@ namespace MonoGamers.Checkpoints
             if (BoundingBox.Intersects(BoundingSphere) && !IntialCheckpoint)
             {
                 alreadyPassed = true;
-                //if (FinalCheckpoint) 
                 return true;
             }
             else

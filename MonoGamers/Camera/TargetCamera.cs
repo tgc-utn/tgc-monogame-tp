@@ -24,6 +24,7 @@ namespace MonoGamers.Camera;
         public Matrix CameraRotation { get; set; }
         private float Rotation { get; set; }
         private Vector2 PastMousePosition { get; set; }
+        private Vector2 CenterMousePosition { get; set; }
 
         private bool Rotated { get; set; }
     /// <summary>
@@ -36,6 +37,7 @@ namespace MonoGamers.Camera;
         {
             BuildView(position, targetPosition);
             PastMousePosition = new Vector2(viewport.Width / 2, viewport.Height / 2);
+            CenterMousePosition = new Vector2(viewport.Width / 2, viewport.Height / 2);
             CameraRotation = Matrix.Identity;
             Viewport = viewport;
     }
@@ -117,12 +119,24 @@ namespace MonoGamers.Camera;
     {
 
         var mouseState = Mouse.GetState();
+        
         float deltaX = mouseState.X - PastMousePosition.X;
         if (deltaX > 0.001f || deltaX < 0.001f)
         {
             CameraRotation *= Matrix.CreateRotationY(deltaX*-0.2f*elapsedTime);
         }
 
-        PastMousePosition = mouseState.Position.ToVector2();
+        if (mouseState.X < 0 || mouseState.X > Viewport.Width ||
+            mouseState.Y < 0 || mouseState.Y > Viewport.Height)
+        {
+            Mouse.SetPosition((int)CenterMousePosition.X, (int)CenterMousePosition.Y);
+            PastMousePosition = CenterMousePosition;
+        }
+        else
+        {
+            PastMousePosition = mouseState.Position.ToVector2();
+        }
+
+        
     }
 }

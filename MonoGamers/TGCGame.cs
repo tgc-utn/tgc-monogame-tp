@@ -28,6 +28,7 @@ using System.Diagnostics;
 using MonoGamers.Menu;
 using System.Reflection.Metadata;
 using TGC.MonoGame.Samples.Geometries;
+using System.Threading.Tasks;
 
 namespace MonoGamers
 {
@@ -148,7 +149,7 @@ namespace MonoGamers
 
         private Effect BlurEffect;
 
-        public bool BlurON = true;
+        public bool BlurON = false;
 
         
         /// <summary>
@@ -197,7 +198,7 @@ namespace MonoGamers
                 new Checkpoint(new Vector3(100f, 37.5f, 4394f), new Vector3(300f, 75f, 25f),Content, GraphicsDevice),
                 new Checkpoint(new Vector3(2500f, 150f, 7144f), new Vector3(70f, 25f, 70f),Content, GraphicsDevice),
                 new Checkpoint(new Vector3(4100f, 360f, 7200f), new Vector3(25f, 50f, 148f),Content, GraphicsDevice),
-                new Checkpoint(new Vector3(3775f, 565f, 9315f), new Vector3(100f, 50f, 25f),Content, GraphicsDevice),
+                new Checkpoint(new Vector3(3775f, 565f, 9315f), new Vector3(100f, 50f, 25f),Content, GraphicsDevice, true),
 
             };
             CurrentCheckpoint = 0;
@@ -374,6 +375,8 @@ namespace MonoGamers
                 CheckpointManager();
                 Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MonoSphere));
                 
+                
+                
                 Pista1.Update();
                 Pista2.Update();
 
@@ -417,9 +420,11 @@ namespace MonoGamers
             }
             for(int i = CurrentCheckpoint; i < Checkpoints.Length; i++)
             {
+                bool alreadyPassed = Checkpoints[i].alreadyPassed; 
                 if(Checkpoints[i].IsWithinBounds(bodyRef.Pose.Position))
                 {
                     CurrentCheckpoint = i;
+                    if (Checkpoints[i].FinalCheckpoint && !alreadyPassed) ActivateBlur();
                     return;
                 }
             }
@@ -752,52 +757,7 @@ namespace MonoGamers
         }
         
         private void drawBlur(){
-            /*
-            // Use the default blend and depth configuration
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
 
-            // Set the main render target as our render target
-            GraphicsDevice.SetRenderTarget(MainRenderTarget);
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
-            
-            MonoSphere.Draw(Camera);
-
-            // Set the depth configuration as none, as we don't use depth in this pass
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
-            // Set the render target as null, we are drawing into the screen now!
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
-
-            // Set the technique to our blur technique
-            // Then draw a texture into a full-screen quad
-            // using our rendertarget as texture
-
-            BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
-            FullScreenQuad.Draw(BlurEffect);
-            
-            
-            */
-            
-            /*
-            // Set the depth configuration as none, as we don't use depth in this pass
-            GraphicsDevice.DepthStencilState = DepthStencilState.None;
-
-            // Set the render target as null, we are drawing into the screen now!
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
-
-            // Set the technique to our blur technique
-            // Then draw a texture into a full-screen quad
-            // using our rendertarget as texture
-
-            BlurEffect.CurrentTechnique = BlurEffect.Techniques["Blur"];
-            BlurEffect.Parameters["baseTexture"].SetValue(MainRenderTarget);
-            FullScreenQuad.Draw(BlurEffect);
-            */
-            
             #region Pass 1
 
             // Set the depth configuration as none, as we don't use depth in this pass
@@ -833,9 +793,18 @@ namespace MonoGamers
             FullScreenQuad.Draw(BlurEffect);
 
             #endregion
-
-        
         }
+        
+        private async void ActivateBlur()
+        {
+            AudioController.PlayCheer();
+            BlurON = true;
+            await Task.Delay(2000);
+            BlurON = false;
+        }
+        
+        
+        
     }
     
 
