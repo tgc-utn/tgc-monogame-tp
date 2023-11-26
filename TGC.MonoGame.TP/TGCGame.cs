@@ -250,6 +250,10 @@ namespace TGC.MonoGame.TP
             Gizmos.DrawFrustum(PlayerCamera.View * PlayerCamera.Projection, Color.Yellow);
             Gizmos.DrawFrustum(TargetLightCamera.View * TargetLightCamera.Projection, Color.White);
             Gizmos.DrawFrustum(OptimizationCamera.View * OptimizationCamera.Projection, Color.Green);
+            
+            /* LIMITES DEL MAPA */
+            foreach (var limit in Map.Limits)
+                Gizmos.DrawCube((limit.Max + limit.Min) / 2f, limit.Max - limit.Min, Color.Blue);
         }
         
         private void DrawFPS(GameTime gameTime)

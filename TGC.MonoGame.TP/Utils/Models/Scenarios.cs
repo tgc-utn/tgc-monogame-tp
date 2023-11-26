@@ -12,10 +12,15 @@ public class Scenarios
         Props.PlaneScene,
         new Vector3(-400f, 2f, 0f),
         new Vector3(400f, 2f, 0f),
-        new PropReference(Props.SkyDome, new Vector3(0, -20, 0), PropType.Dome),
+        new List<Tuple<Vector3, Vector3>>
+        {
+            new(new Vector3(-525f, 0f, -525f), new Vector3(525f, 200f, -525f)),
+            new(new Vector3(-525f, 0f, 525f), new Vector3(525f, 200f, 525f)),
+            new(new Vector3(-525f, 0f, -525f), new Vector3(-525f, 200f, 525f)),
+            new(new Vector3(525f, 0f, -525f), new Vector3(525f, 200f, 525f)),
+        },
         new List<PropReference>
         {
-            // El mapa mide (si tomamos como escala 1f) 550f x 550f. Entonces -275f <= x <= 275f
             #region Rocas Externas
 
             new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
@@ -28,7 +33,6 @@ public class Scenarios
                     EndZ = -182f
                 }
             )),
-
             new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 10,
                 new FunctionLinear
@@ -39,7 +43,6 @@ public class Scenarios
                     EndZ = -182f
                 }
             )),
-
             new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 100,
                 new FunctionLinear
@@ -50,7 +53,6 @@ public class Scenarios
                     EndZ = -182f
                 }
             )),
-
             new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 10,
                 new FunctionLinear
@@ -61,7 +63,6 @@ public class Scenarios
                     EndZ = -182f
                 }
             )),
-
             new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 100,
                 new FunctionLinear
@@ -72,7 +73,6 @@ public class Scenarios
                     EndZ = 182f
                 }
             )),
-
             new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 10,
                 new FunctionLinear
@@ -83,7 +83,6 @@ public class Scenarios
                     EndZ = 182f
                 }
             )),
-
             new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 100,
                 new FunctionLinear
@@ -94,7 +93,6 @@ public class Scenarios
                     EndZ = -182f
                 }
             )),
-
             new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
                 10,
                 new FunctionLinear
@@ -104,9 +102,14 @@ public class Scenarios
                     EndX = -182f,
                     EndZ = -182f
                 }
-            )),
+            ))
 
             # endregion
+        },
+        new PropReference(Props.SkyDome, new Vector3(0, -20, 0), PropType.Dome),
+        new List<PropReference>
+        {
+            // El mapa mide (si tomamos como escala 1f) 550f x 550f. Entonces -275f <= x <= 275f
 
             #region Zona Aliada
 
@@ -949,14 +952,21 @@ public class Scenarios
             )),
 
             #endregion
-            
         }
     );
-    
+
     public static readonly ScenaryReference Menu = new ScenaryReference(
         Props.PlaneScene,
         new Vector3(-400f, 2f, 0f),
         new Vector3(0f, 0f, 0f),
+        new List<Tuple<Vector3, Vector3>>
+        {
+            new(new Vector3(-400f, 0f, -400f), new Vector3(400f, 0f, -400f)),
+            new(new Vector3(-400f, 0f, 400f), new Vector3(400f, 0f, 400f)),
+            new(new Vector3(-400f, 0f, -400f), new Vector3(-400f, 0f, 400f)),
+            new(new Vector3(400f, 0f, -400f), new Vector3(400f, 0f, 400f)),
+        },
+        new List<PropReference>(),
         new PropReference(Props.SkyDome, new Vector3(0, -20f, 0), PropType.Dome),
         new List<PropReference>
         {

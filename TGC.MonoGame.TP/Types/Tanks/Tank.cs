@@ -349,4 +349,13 @@ public class Tank : Resource, ICollidable
             Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
         }
     }
+    
+    public void CheckCollisionWithLimit(BoundingBox limit)
+    {
+        if (Box.Intersects(limit))
+        {
+            Position = LastPosition;
+            Velocidad = 0;
+        }
+    }
 }
