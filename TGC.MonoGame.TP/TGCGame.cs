@@ -120,21 +120,22 @@ namespace TGC.MonoGame.TP
                 TimeSinceLastChange = 0f;
             }
 
-            if (keyboardState.IsKeyDown(Keys.F9))
+            if (keyboardState.IsKeyDown(Keys.F9) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
             }
 
-            if (keyboardState.IsKeyDown(Keys.F10))
+            if (keyboardState.IsKeyDown(Keys.F10) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
             }
             
-            if (keyboardState.IsKeyDown(Keys.F12))
+            if (keyboardState.IsKeyDown(Keys.F12) && TimeSinceLastChange > 0.5f)
             {
                 showFPS = !showFPS;
+                TimeSinceLastChange = 0f;
             }
 
             // Musica
