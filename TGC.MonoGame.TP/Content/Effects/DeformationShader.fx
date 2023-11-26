@@ -109,7 +109,6 @@ ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
 {
 	ShadowedVertexShaderOutput output = (ShadowedVertexShaderOutput)0;
     output.WorldSpacePosition = mul(input.Position, World);
-    input.Position = mul(input.Position, World);
 
     float Distance = 0;
     float mask = 0;
@@ -120,7 +119,8 @@ ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
         mask = step(Distance, 1.25);
         input.Position.xyz = lerp(input.Position.xyz, input.Position.xyz + ImpactDirections[i], mask);
     }
-
+    
+    input.Position = mul(input.Position, World);
     input.Position = mul(input.Position, View);
     output.Position = mul(input.Position, Projection);
     output.Normal = mul(float4(input.Normal, 1), InverseTransposeWorld);
