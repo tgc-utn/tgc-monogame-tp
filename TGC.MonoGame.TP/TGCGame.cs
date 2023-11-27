@@ -120,21 +120,22 @@ namespace TGC.MonoGame.TP
                 TimeSinceLastChange = 0f;
             }
 
-            if (keyboardState.IsKeyDown(Keys.F9))
+            if (keyboardState.IsKeyDown(Keys.F9) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
             }
 
-            if (keyboardState.IsKeyDown(Keys.F10))
+            if (keyboardState.IsKeyDown(Keys.F10) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
             }
             
-            if (keyboardState.IsKeyDown(Keys.F12))
+            if (keyboardState.IsKeyDown(Keys.F12) && TimeSinceLastChange > 0.5f)
             {
                 showFPS = !showFPS;
+                TimeSinceLastChange = 0f;
             }
 
             // Musica
@@ -222,6 +223,7 @@ namespace TGC.MonoGame.TP
                     Map.Draw(DebugCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
                     DrawBoundingBoxesDebug();
                     Gizmos.Draw();
+                    DrawCoords();
                     break;
                 case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
@@ -250,6 +252,10 @@ namespace TGC.MonoGame.TP
             Gizmos.DrawFrustum(PlayerCamera.View * PlayerCamera.Projection, Color.Yellow);
             Gizmos.DrawFrustum(TargetLightCamera.View * TargetLightCamera.Projection, Color.White);
             Gizmos.DrawFrustum(OptimizationCamera.View * OptimizationCamera.Projection, Color.Green);
+            
+            /* LIMITES DEL MAPA */
+            foreach (var limit in Map.Limits)
+                Gizmos.DrawCube((limit.Max + limit.Min) / 2f, limit.Max - limit.Min, Color.Blue);
         }
         
         private void DrawFPS(GameTime gameTime)
@@ -258,6 +264,16 @@ namespace TGC.MonoGame.TP
             var fpsString = $"FPS: {fps:0}";
             SpriteBatch.Begin();
             SpriteBatch.DrawString(Font, fpsString, new Vector2( 10, 10), Color.Black, 0f, Vector2.Zero, 1f,
+                SpriteEffects.None, 0);
+            SpriteBatch.End();
+        }
+        
+        private void DrawCoords()
+        {
+            var coords = $"X: {DebugCamera.Position.X:0.00} Y: {DebugCamera.Position.Y:0.00} Z: {DebugCamera.Position.Z:0.00}";
+            var size = Font.MeasureString(coords);
+            SpriteBatch.Begin();
+            SpriteBatch.DrawString(Font, coords, new Vector2( 10, 10 + size.Y), Color.LimeGreen, 0f, Vector2.Zero, 1f,
                 SpriteEffects.None, 0);
             SpriteBatch.End();
         }
