@@ -223,6 +223,7 @@ namespace TGC.MonoGame.TP
                     Map.Draw(DebugCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
                     DrawBoundingBoxesDebug();
                     Gizmos.Draw();
+                    DrawCoords();
                     break;
                 case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
@@ -263,6 +264,16 @@ namespace TGC.MonoGame.TP
             var fpsString = $"FPS: {fps:0}";
             SpriteBatch.Begin();
             SpriteBatch.DrawString(Font, fpsString, new Vector2( 10, 10), Color.Black, 0f, Vector2.Zero, 1f,
+                SpriteEffects.None, 0);
+            SpriteBatch.End();
+        }
+        
+        private void DrawCoords()
+        {
+            var coords = $"X: {DebugCamera.Position.X:0.00} Y: {DebugCamera.Position.Y:0.00} Z: {DebugCamera.Position.Z:0.00}";
+            var size = Font.MeasureString(coords);
+            SpriteBatch.Begin();
+            SpriteBatch.DrawString(Font, coords, new Vector2( 10, 10 + size.Y), Color.LimeGreen, 0f, Vector2.Zero, 1f,
                 SpriteEffects.None, 0);
             SpriteBatch.End();
         }

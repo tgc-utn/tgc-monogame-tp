@@ -23,86 +23,46 @@ public class Scenarios
         {
             #region Rocas Externas
 
-            new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                100,
+            new (Props.Rock2x5, new Vector3(0, 0, 0), PropType.Large, new Repetition(
+                19,
                 new FunctionLinear
                 {
-                    StartX = 182f,
-                    StartZ = 182f,
-                    EndX = 182f,
-                    EndZ = -182f
+                    StartX = 93.5f,
+                    StartZ = 80f,
+                    EndX = 93.5f,
+                    EndZ = -100f
                 }
             )),
-            new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                10,
+            new (Props.Rock2x5, new Vector3(0, 0, 0), PropType.Large, new Repetition(
+                19,
                 new FunctionLinear
                 {
-                    StartX = 182f,
-                    StartZ = 182f,
-                    EndX = 182f,
-                    EndZ = -182f
+                    StartX = -93.5f,
+                    StartZ = 80f,
+                    EndX = -93.5f,
+                    EndZ = -100f
                 }
             )),
-            new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                100,
+            new (Props.Rock2x5, new Vector3(0, 0, 0), PropType.Large, new Repetition(
+                19,
                 new FunctionLinear
                 {
-                    StartX = -182f,
-                    StartZ = 182f,
-                    EndX = -182f,
-                    EndZ = -182f
+                    StartX = 85f,
+                    StartZ = 87.5f,
+                    EndX = -85f,
+                    EndZ = 87.5f
                 }
             )),
-            new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                10,
+            new (Props.Rock2x5, new Vector3(0, 0, 0), PropType.Large, new Repetition(
+                19,
                 new FunctionLinear
                 {
-                    StartX = -182f,
-                    StartZ = 182f,
-                    EndX = -182f,
-                    EndZ = -182f
+                    StartX = 85f,
+                    StartZ = -102.5f,
+                    EndX = -85f,
+                    EndZ = -102.5f
                 }
             )),
-            new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                100,
-                new FunctionLinear
-                {
-                    StartX = 182f,
-                    StartZ = 182f,
-                    EndX = -182f,
-                    EndZ = 182f
-                }
-            )),
-            new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                10,
-                new FunctionLinear
-                {
-                    StartX = 182f,
-                    StartZ = 182f,
-                    EndX = -182f,
-                    EndZ = 182f
-                }
-            )),
-            new PropReference(Props.Rock2, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                100,
-                new FunctionLinear
-                {
-                    StartX = 182f,
-                    StartZ = -182f,
-                    EndX = -182f,
-                    EndZ = -182f
-                }
-            )),
-            new PropReference(Props.Rock1, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                10,
-                new FunctionLinear
-                {
-                    StartX = 182f,
-                    StartZ = -182f,
-                    EndX = -182f,
-                    EndZ = -182f
-                }
-            ))
 
             # endregion
         },
