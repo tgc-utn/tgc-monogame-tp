@@ -22,6 +22,7 @@ public class PlaneMap : Map
     {
         Scenary = new Scenary(Scenarios.Plane, new Vector3(0f, -0.53f, 0f));
         Props = new List<StaticProp>();
+        LimitsProps = new List<LimitProp>();
         Tanks = new List<Tank>();
 
         int count = 0;
@@ -65,6 +66,32 @@ public class PlaneMap : Map
                         throw new ArgumentOutOfRangeException();
                 }
             });
+        
+        Scenary.Scene.LimitPropsReference
+            .ForEach(prop =>
+            {
+                switch (prop.Repetitions.FunctionRef.GetType())
+                {
+                    case FunctionType.Linear:
+                        MathFunctions.GetLinearPoints(prop.Repetitions)
+                            .ForEach(position => LimitsProps.Add(PropsRepository.InitializeLimitProp(prop, position)));
+                        break;
+                    case FunctionType.Sinusoidal:
+                        MathFunctions.GetSinusoidalPoints(prop.Repetitions)
+                            .ForEach(position => LimitsProps.Add(PropsRepository.InitializeLimitProp(prop, position)));
+                        break;
+                    case FunctionType.Circular:
+                        MathFunctions.GetCircularPoints(prop.Repetitions)
+                            .ForEach(position => LimitsProps.Add(PropsRepository.InitializeLimitProp(prop, position)));
+                        break;
+                    case FunctionType.Unique:
+                        LimitsProps.Add(PropsRepository.InitializeLimitProp(prop, prop.Position));
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
+        
         SkyDome = new SkyDome(Scenary.Scene.SkyDome);
     }
 
@@ -73,9 +100,12 @@ public class PlaneMap : Map
         Scenary.Load(content);
         foreach (var prop in Props)
             prop.Load(content);
+        foreach (var prop in LimitsProps)
+            prop.Load(content);
         foreach (var tank in Tanks)
             tank.Load(content);
         SkyDome.Load(graphicsDevice, content);
+        LoadLimits();
     }
 
     public override void Update(GameTime gameTime)
@@ -95,6 +125,12 @@ public class PlaneMap : Map
         AllyBullets.ForEach(bullet => EnemiesTanks.ForEach(tank => tank.CheckCollisionWithBullet(bullet)));
         EnemiesBullets.ForEach(bullet => AllyTanks.ForEach(tank => tank.CheckCollisionWithBullet(bullet)));
 
+        foreach (var limit in Limits)
+        {
+            AllyTanks.ForEach(tank => tank.CheckCollisionWithLimit(limit));
+            EnemiesTanks.ForEach(tank => tank.CheckCollisionWithLimit(limit));
+        }
+        
         foreach (var prop in Props.Where(prop => !prop.Destroyed).ToList())
         {
             Tanks.ForEach(tank => prop.Update(tank));
@@ -125,12 +161,16 @@ public class PlaneMap : Map
             tank.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         foreach (var prop in visibleProps)
             prop.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        foreach (var prop in LimitsProps)
+            prop.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.DrawOnShadowMap(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         GraphicsDevice.SetRenderTarget(null);
         // Escena
         foreach (var tank in Tanks)
            tank.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         foreach (var prop in visibleProps)
+            prop.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
+        foreach (var prop in LimitsProps)
             prop.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         Scenary.Draw(camera, SkyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);
         SkyDome.Draw(camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera);

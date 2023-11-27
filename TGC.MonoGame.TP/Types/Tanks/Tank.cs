@@ -122,7 +122,7 @@ public class Tank : Resource, ICollidable
 
         // OOBB
         var temporaryCubeAABB = BoundingVolumesExtension.CreateAABBFrom(Model);
-        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.005f);
+        temporaryCubeAABB = BoundingVolumesExtension.Scale(temporaryCubeAABB, 0.0075f);
         Box = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
         Box.Center = Position;
         Box.Orientation = Matrix.CreateRotationY(Angle);
@@ -267,7 +267,7 @@ public class Tank : Resource, ICollidable
             leftWheelsBones[i].Transform = leftWheelRotation * leftWheelsTransforms[i];
             rightWheelsBones[i].Transform = rightWheelRotation * rightWheelsTransforms[i];
         }
-        
+
         Model.Root.Transform = World;
         
         Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
@@ -306,10 +306,13 @@ public class Tank : Resource, ICollidable
             Effect.Parameters["View"]?.SetValue(camera.View);
 
             Effect.Parameters["Projection"].SetValue(camera.Projection);
-            Effect.Parameters["ImpactPositions"]?.SetValue(this.ImpactPositions.ToArray());
-            Effect.Parameters["ImpactDirections"]?.SetValue(this.ImpactDirections.ToArray());
-            Effect.Parameters["Impacts"]?.SetValue(this.ImpactPositions.Count);
-                
+            if (!modelMesh.ParentBone.Name.Contains("Wheel"))
+            {
+                Effect.Parameters["ImpactPositions"]?.SetValue(this.ImpactPositions.ToArray());
+                Effect.Parameters["ImpactDirections"]?.SetValue(this.ImpactDirections.ToArray());
+                Effect.Parameters["Impacts"]?.SetValue(this.ImpactPositions.Count);
+            }
+
             // Once we set these matrices we draw
             modelMesh.Draw();
             Effect.Parameters["applyTextureScrolling"]?.SetValue(false);
@@ -346,8 +349,10 @@ public class Tank : Resource, ICollidable
         {
             if (Bullets.Contains(bullet))
                 return;
-            ImpactPositions.Add(bullet.Position);
-            ImpactDirections.Add(bullet.Direction);
+            var hullTransform = Model.Meshes.First(m => m.Name == "Hull").ParentBone.Transform;
+            ImpactPositions.Add(Vector3.Transform(bullet.Position, Matrix.Invert(hullTransform * World)));
+            var impactDir = Vector3.Transform(bullet.Direction, Matrix.CreateRotationY(Angle));
+            ImpactDirections.Add(new Vector3(impactDir.X * -1, impactDir.Y, impactDir.Z * -1));
             bullet.IsAlive = false;
             health -= 1;
             Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
@@ -412,6 +417,15 @@ public class Tank : Resource, ICollidable
                 CollidedWithTank(0);
                 tank.CollidedWithTank(0);
             }
+        }
+    }
+    
+    public void CheckCollisionWithLimit(BoundingBox limit)
+    {
+        if (Box.Intersects(limit))
+        {
+            Position = LastPosition;
+            Velocidad = 0;
         }
     }
 }

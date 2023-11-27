@@ -194,6 +194,38 @@ public class Props
         Matrix.Identity,
         Textures.Props.Rock2
     );
+    
+    public static readonly ModelReference Rock0x3 = new ModelReference(
+        $"{ContentFolder.Models}/props/stones/Rock_11",
+        3f,
+        new Vector2(3f, 1f),
+        Matrix.Identity,
+        Textures.Props.Rock0
+    );
+    
+    public static readonly ModelReference Rock0x5 = new ModelReference(
+        $"{ContentFolder.Models}/props/stones/Rock_11",
+        5f,
+        new Vector2(5f, 1f),
+        Matrix.Identity,
+        Textures.Props.Rock0
+    );
+
+    public static readonly ModelReference Rock1x5 = new ModelReference(
+        $"{ContentFolder.Models}/props/stones/Rock_14",
+        5f,
+        new Vector2(5f, 1f),
+        Matrix.Identity,
+        Textures.Props.Rock1
+    );
+
+    public static readonly ModelReference Rock2x5 = new ModelReference(
+        $"{ContentFolder.Models}/props/stones/Rock_15",
+        5f,
+        new Vector2(5f, 1f),
+        Matrix.Identity,
+        Textures.Props.Rock2
+    );
 
     public static readonly ModelReference Wall1 = new ModelReference(
         $"{ContentFolder.Models}/props/walls/wall_2",

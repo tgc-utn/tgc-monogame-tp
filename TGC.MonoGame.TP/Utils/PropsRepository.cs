@@ -16,4 +16,9 @@ public static class PropsRepository
             _ => throw new ArgumentOutOfRangeException()
         };
     }
+    
+    public static LimitProp InitializeLimitProp(PropReference modelReference, Vector3 position)
+    {
+        return new LimitProp(modelReference, position);
+    }
 }

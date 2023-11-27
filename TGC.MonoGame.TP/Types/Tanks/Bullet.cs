@@ -13,8 +13,8 @@ public class Bullet : Resource, ICollidable
     // SETTINGS
     public float Speed = 0.2f;
     public float LifeTime = 10000f;
-    public float Gravity = 0.001f;      
-    
+    public float Gravity = 0.001f;
+
     // Status
     public bool IsAlive { get; set; } = true;
     
