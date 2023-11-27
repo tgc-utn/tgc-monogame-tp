@@ -345,7 +345,8 @@ public class Tank : Resource, ICollidable
         {
             if (Bullets.Contains(bullet))
                 return;
-            ImpactPositions.Add(Vector3.Transform(bullet.Position, Matrix.Invert(World)));
+            var hullTransform = Model.Meshes.First(m => m.Name == "Hull").ParentBone.Transform;
+            ImpactPositions.Add(Vector3.Transform(bullet.Position, Matrix.Invert(hullTransform * World)));
             var impactDir = Vector3.Transform(bullet.Direction, Matrix.CreateRotationY(Angle));
             ImpactDirections.Add(new Vector3(impactDir.X * -1, impactDir.Y, impactDir.Z * -1));
             bullet.IsAlive = false;

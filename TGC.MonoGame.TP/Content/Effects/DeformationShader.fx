@@ -109,7 +109,6 @@ ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
 {
 	ShadowedVertexShaderOutput output = (ShadowedVertexShaderOutput)0;
     output.WorldSpacePosition = mul(input.Position, World);
-
     float Distance = 0;
     float mask = 0;
     for(int i=0; i < MAX_COUNT; i++) {
