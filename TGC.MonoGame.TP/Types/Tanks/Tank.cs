@@ -329,7 +329,10 @@ public class Tank : Resource, ICollidable
     public void CollidedWithLargeProp()
     {
         Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
-        Velocidad = -0.05f;
+        if (Velocidad > 0)
+            Velocidad = -0.05f;
+        else
+            Velocidad = 0.05f;
     }
 
     public bool VerifyCollision(BoundingBox box)
