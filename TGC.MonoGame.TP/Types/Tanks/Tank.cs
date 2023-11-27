@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -23,7 +24,7 @@ public class Tank : Resource, ICollidable
     public float Acceleration = 0.0045f;
     public float MaxSpeed = 0.01f;
     public float RotationSpeed = 0.01f;
-    public float Friction = 0.004f;
+    public float Friction = 0.0035f;
 
     // TANK MODEL
     public ActionTank Action { get; set; }
@@ -41,7 +42,6 @@ public class Tank : Resource, ICollidable
 
     // Movement
     public float Velocidad;
-    public Vector3 LastPosition;
 
     // Torret
     public float pitch;
@@ -176,11 +176,13 @@ public class Tank : Resource, ICollidable
     {
         // Position
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
         Translation = Matrix.CreateTranslation(Position);
-        Velocidad = Math.Max(0, Velocidad - Friction);
+        if(Velocidad > 0)
+            Velocidad = Math.Max(0, Velocidad - Friction);
+        else
+            Velocidad = Math.Min(0, Velocidad + Friction);
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * rotation * Translation;
 
         // Update Box
@@ -327,8 +329,7 @@ public class Tank : Resource, ICollidable
     public void CollidedWithLargeProp()
     {
         Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
-        Velocidad = 0;
-        Position = LastPosition;
+        Velocidad = -0.05f;
     }
 
     public bool VerifyCollision(BoundingBox box)
@@ -347,6 +348,67 @@ public class Tank : Resource, ICollidable
             bullet.IsAlive = false;
             health -= 1;
             Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
+        }
+    }
+
+    public void CollidedWithTank(float velocidad)
+    {
+        if (velocidad > 0)
+        {
+            if (Velocidad < 0)
+                Velocidad = velocidad;
+            else
+                Velocidad += velocidad;
+        }
+        else if(velocidad < 0)
+        {
+            if (Velocidad > 0)
+                Velocidad = velocidad;
+            else
+                Velocidad += velocidad;
+        }
+        else
+        {
+            Velocidad = -0.0001f;
+        }
+    }
+    
+    public void CheckCollisionWithTank(Tank tank)
+    {
+        if (Box.Intersects(tank.Box))
+        {
+            var v = new Vector2(tank.World.Forward.X, tank.World.Forward.Z);
+            var vTank = new Vector2(World.Forward.X, World.Forward.Z);
+            var dot = (tank.World.Forward.X * World.Forward.X + tank.World.Forward.Z * World.Forward.Z);
+            var angleOfCollision = Math.Acos(dot / (v.Length() * vTank.Length()));
+            Console.WriteLine(tank.World.Forward + " - " + World.Forward);
+            Console.WriteLine(angleOfCollision);
+            if (angleOfCollision < MathHelper.PiOver4)
+            {
+                var vectorDistance = tank.Position - Position;
+                // el tanque que evalua esta atras del que llega por parametro
+                Boolean estaAtras = Vector3.Dot(vectorDistance, World.Forward) > 0;
+                if (estaAtras)
+                {
+                    CollidedWithTank(-(tank.Velocidad * 0.5f + 0.01f));
+                    tank.CollidedWithTank(Velocidad * 0.5f + 0.01f);
+                }
+                else
+                {
+                    CollidedWithTank(tank.Velocidad * 0.5f + 0.01f);
+                    tank.CollidedWithTank(-(Velocidad * 0.5f + 0.01f));
+                }
+            }
+            else if(angleOfCollision > MathHelper.PiOver4 + MathHelper.PiOver2)
+            {
+                CollidedWithTank(-(tank.Velocidad * 0.5f + 0.01f));
+                tank.CollidedWithTank(-(Velocidad * 0.5f + 0.01f));
+            }
+            else
+            {
+                CollidedWithTank(0);
+                tank.CollidedWithTank(0);
+            }
         }
     }
 }

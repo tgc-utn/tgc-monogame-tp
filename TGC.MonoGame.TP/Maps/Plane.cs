@@ -101,6 +101,14 @@ public class PlaneMap : Map
             AllyBullets.ForEach(bullet => prop.Update(bullet));
             EnemiesBullets.ForEach(bullet => prop.Update(bullet));
         }
+        
+        for(int i=0; i<Tanks.Count; i++)
+        {
+            for(int j=i+1; j<Tanks.Count; j++)
+            {
+                Tanks[i].CheckCollisionWithTank(Tanks[j]);
+            }
+        }
 
         SkyDome.Update(gameTime);
     }
