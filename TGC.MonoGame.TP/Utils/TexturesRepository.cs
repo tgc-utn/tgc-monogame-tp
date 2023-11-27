@@ -7,7 +7,7 @@ namespace TGC.MonoGame.TP.Utils;
 
 public static class TexturesRepository
 {
-    public static int ShadowmapSize = 8192; // 8192 - 16384
+    public static int ShadowmapSize = 3072; // 8192 - 16384
     public static void InitializeTextures(DrawReference referenceDrawReference, ContentManager content)
     {
         switch (referenceDrawReference)
