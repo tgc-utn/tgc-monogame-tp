@@ -34,12 +34,16 @@ namespace TGC.MonoGame.TP {
             return _INSTANCE;
         }
 
-        public Effect GetEffect(String effect){
+        public Effect GetEffect(string effect){
             return _manager.Load<Effect>(ContentFolderEffects + effect);
         }
 
-        public Model GetModel(String model){
+        public Model GetModel(string model){
             return _manager.Load<Model>(ContentFolder3D + model);
+        }
+
+        public Texture2D GetTexture(string texture){
+            return _manager.Load<Texture2D>(ContentFolder3D + texture);
         }
 
     }

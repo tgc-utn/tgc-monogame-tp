@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -41,19 +41,10 @@ namespace TGC.MonoGame.TP
                 Quaternion.Identity,
                 Vector3.Zero,
                 new Renderable(
-                    new ColorShader(Color.Aqua),
-                    ContentRepository.GetInstance().GetModel("TankWars/Panzer/panzer")
-                    )
+                    new TextureShader(ContentRepository.GetInstance().GetTexture("TankWars/T90/textures_mod/hullA")),
+                    ContentRepository.GetInstance().GetModel("TankWars/Panzer/panzer"))
                     );
 
-            entity2 = new Entity(
-       Quaternion.Identity,
-       new Vector3(400,0,0),
-       new Renderable(
-           new ColorShader(Color.Aqua),
-           ContentRepository.GetInstance().GetModel("TankWars/Panzer/panzer")
-           )
-           );
 
 
             base.LoadContent();
@@ -62,7 +53,6 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             entity.Update();
-            entity2.Update();
             camera.Follow(entity);
 
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -74,12 +64,8 @@ namespace TGC.MonoGame.TP
 
         protected override void Draw(GameTime gameTime)
         {
-
             GraphicsDevice.Clear(Color.Black);
             entity.Draw(camera);
-            entity2.Draw(camera);
-
-
         }
 
         protected override void UnloadContent()
