@@ -35,4 +35,9 @@ public class ContentRepoManager
     {
         return _manager.Load<Model>(ContentFolder3D + model);
     }
+
+    public Texture2D GetTexture(string texture)
+    {
+        return _manager.Load<Texture2D>(ContentFolder3D + texture);
+    }
 }
