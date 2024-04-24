@@ -5,10 +5,10 @@ namespace WarSteel.Common;
 
 public class Transform
 {
-    public Vector3 Dim { get; private set; }
-    public Vector3 Pos { get; private set; }
-    public Quaternion Rotation { get; private set; }
-    public Matrix World { get; private set; }
+    public Vector3 Dim { get; set; }
+    public Vector3 Pos { get; set; }
+    public Quaternion Rotation { get; set; }
+    public Matrix World { get; set; }
 
     public Transform()
     {

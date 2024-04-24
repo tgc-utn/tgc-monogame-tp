@@ -1,7 +1,6 @@
 using System;
+using Microsoft.Xna.Framework;
 using WarSteel.Common;
-
-
 
 namespace WarSteel.Entities;
 
@@ -13,7 +12,7 @@ public class Entity
     public string[] Tags { get; }
 
     public Transform Transform { get; }
-    private Renderable _renderable { get; }
+    protected Renderable _renderable { get; set; }
 
     public Entity(string name, string[] tags, Transform transform)
     {
@@ -25,21 +24,16 @@ public class Entity
         _renderable = null;
     }
 
-    public Entity(string name, string[] tags, Transform transform, Renderable renderable)
+    public virtual void Initialize() { }
+    public virtual void LoadContent() { }
+    public virtual void Draw(Camera camera)
     {
-        // creates a random unique identifier
-        Id = Guid.NewGuid().ToString();
-        Name = name;
-        Tags = tags;
-        Transform = transform;
-        _renderable = renderable;
+        if (_renderable != null)
+            _renderable.Draw(Transform.World, camera);
     }
-
-    public void Initialize() { }
-    public void Draw(Camera camera)
+    public virtual void Update(GameTime gameTime)
     {
-        _renderable.Draw(Transform.World, camera);
+        Transform.UpdateWorldMatrix();
     }
-    public void Update() { }
-    public void OnDestroy() { }
+    public virtual void OnDestroy() { }
 }
