@@ -26,9 +26,9 @@ public class Scene
     {
         entities.DrawAll(camera);
     }
-    public virtual void Update()
+    public virtual void Update(GameTime gameTime)
     {
-        entities.UpdateAll();
+        entities.UpdateAll(gameTime);
     }
     public virtual void Unload()
     {
