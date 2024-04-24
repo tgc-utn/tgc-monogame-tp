@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Managers;
 
@@ -7,6 +9,7 @@ namespace WarSteel;
 public class Game : Microsoft.Xna.Framework.Game
 {
     private GraphicsDeviceManager Graphics { get; }
+    private SpriteBatch spriteBatch;
 
     public Game()
     {
@@ -17,6 +20,7 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
+        spriteBatch = new SpriteBatch(GraphicsDevice);
         EntitiesManager.SetUpInstance();
         ContentRepoManager.SetUpInstance(Content);
         SceneManager.SetUpInstance(ScenesNames.MAIN, Graphics);
@@ -33,9 +37,7 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
         SceneManager.Instance().CurrentScene().Draw();
-
         base.Draw(gameTime);
     }
 
@@ -45,7 +47,7 @@ public class Game : Microsoft.Xna.Framework.Game
         {
             Exit();
         }
-        SceneManager.Instance().CurrentScene().Update();
+        SceneManager.Instance().CurrentScene().Update(gameTime);
 
         base.Update(gameTime);
     }
