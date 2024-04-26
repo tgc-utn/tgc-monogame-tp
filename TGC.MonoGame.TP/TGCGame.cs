@@ -18,6 +18,9 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        public const float ViewDistance = 20f;
+        public const float Offset = 10f;
+        public  Vector3 LookAtVector = new Vector3(0, 0, Offset);
 
         /// <summary>
         ///     Constructor del juego.
@@ -64,7 +67,7 @@ namespace TGC.MonoGame.TP
 
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+            View = Matrix.CreateLookAt(new Vector3(-ViewDistance , ViewDistance, -ViewDistance + Offset), LookAtVector, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
@@ -82,7 +85,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            Model = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -117,11 +120,7 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            World = Matrix.CreateRotationY(Rotation);
+        
 
             base.Update(gameTime);
         }
@@ -133,16 +132,21 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Beige);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(View);
             Effect.Parameters["Projection"].SetValue(Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+                Matrix[] transforms = new Matrix[Model.Bones.Count];
+                for(int i = 0; i < Model.Bones.Count; i++)
+                {
+                    transforms[i] = Model.Bones[i].ModelTransform;
+                }
 
             foreach (var mesh in Model.Meshes)
             {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+                Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(0, 0, 0)));
                 mesh.Draw();
             }
         }
