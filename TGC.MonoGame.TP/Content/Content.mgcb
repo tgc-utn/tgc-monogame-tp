@@ -48,7 +48,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/sign/textures/Sign.png
+/build:Models/sign/Sign.png
 
 #begin Models/tgc-logo/tgc-logo.fbx
 /importer:FbxImporter
