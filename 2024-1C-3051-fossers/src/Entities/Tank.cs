@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Managers;
+using WarSteel.Utils;
 
 namespace WarSteel.Entities;
 
@@ -14,33 +15,13 @@ public class Tank : Entity
 
     }
 
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
-
-    public override void LoadContent()
+    public override void LoadContent(Camera camera)
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
         Shader texture = new TextureShader(ContentRepoManager.Instance().GetTexture("Tanks/T90/textures_mod/hullA"));
-        _renderable = new Renderable(model, texture);
+        _renderable = new Renderable(model);
+        _renderable.AddShader("texture", texture);
 
-        base.LoadContent();
+        base.LoadContent(camera);
     }
-
-    public override void Draw(Camera camera)
-    {
-        base.Draw(camera);
-    }
-
-    public override void Update(GameTime gameTime)
-    {
-        base.Update(gameTime);
-    }
-
-    public override void OnDestroy()
-    {
-        base.Initialize();
-    }
-
 }

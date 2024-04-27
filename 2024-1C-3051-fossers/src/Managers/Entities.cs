@@ -106,19 +106,19 @@ namespace WarSteel.Managers
             }
         }
 
-        public void InitializeAll()
+        public void InitializeAll(Camera camera)
         {
             foreach (var entity in entities.Values)
             {
-                entity.Initialize();
+                entity.Initialize(camera);
             }
         }
 
-        public void LoadContentAll()
+        public void LoadContentAll(Camera camera)
         {
             foreach (var entity in entities.Values)
             {
-                entity.LoadContent();
+                entity.LoadContent(camera);
             }
         }
 
@@ -130,11 +130,11 @@ namespace WarSteel.Managers
             }
         }
 
-        public void UpdateAll(GameTime gameTime)
+        public void UpdateAll(GameTime gameTime, Camera camera)
         {
             foreach (var entity in entities.Values)
             {
-                entity.Update(gameTime);
+                entity.Update(gameTime, camera);
             }
         }
 

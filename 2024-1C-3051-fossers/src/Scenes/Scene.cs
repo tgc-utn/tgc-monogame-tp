@@ -6,9 +6,10 @@ namespace WarSteel.Scenes;
 
 public class Scene
 {
-    protected Camera camera;
+    protected Camera camera { get; set; }
     protected EntitiesManager entities = EntitiesManager.Instance();
     protected GraphicsDeviceManager Graphics;
+
     public Scene(GraphicsDeviceManager Graphics)
     {
         this.Graphics = Graphics;
@@ -16,11 +17,11 @@ public class Scene
 
     public virtual void Initialize()
     {
-        entities.InitializeAll();
+        entities.InitializeAll(camera);
     }
     public virtual void LoadContent()
     {
-        entities.LoadContentAll();
+        entities.LoadContentAll(camera);
     }
     public virtual void Draw()
     {
@@ -28,7 +29,7 @@ public class Scene
     }
     public virtual void Update(GameTime gameTime)
     {
-        entities.UpdateAll(gameTime);
+        entities.UpdateAll(gameTime, camera);
     }
     public virtual void Unload()
     {

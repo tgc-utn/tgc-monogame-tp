@@ -24,14 +24,24 @@ public class Entity
         _renderable = null;
     }
 
-    public virtual void Initialize() { }
-    public virtual void LoadContent() { }
+    public Entity(string name, string[] tags, Transform transform, Renderable renderable)
+    {
+        // creates a random unique identifier
+        Id = Guid.NewGuid().ToString();
+        Name = name;
+        Tags = tags;
+        Transform = transform;
+        _renderable = renderable;
+    }
+
+    public virtual void Initialize(Camera camera) { }
+    public virtual void LoadContent(Camera camera) { }
     public virtual void Draw(Camera camera)
     {
         if (_renderable != null)
             _renderable.Draw(Transform.World, camera);
     }
-    public virtual void Update(GameTime gameTime)
+    public virtual void Update(GameTime gameTime, Camera camera)
     {
         Transform.UpdateWorldMatrix();
     }

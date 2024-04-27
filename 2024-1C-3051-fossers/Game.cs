@@ -37,6 +37,7 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Draw(GameTime gameTime)
     {
+        Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
         SceneManager.Instance().CurrentScene().Draw();
         base.Draw(gameTime);
     }

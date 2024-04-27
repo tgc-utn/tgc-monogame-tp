@@ -2,9 +2,6 @@
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 using WarSteel.Common;
-using System;
-using WarSteel.Managers;
-using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Entities.Map;
 
 namespace WarSteel.Scenes.Main;
@@ -19,7 +16,7 @@ public class MainScene : Scene
     {
         entities.Add(new Tank("player"));
         entities.Add(new Ground());
-        camera = new Camera(new Vector3(1000, 1000, 1000), Graphics.GraphicsDevice.Viewport.AspectRatio);
+        camera = new Camera(new Vector3(0, 2500, 1), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 3000f);
 
         base.Initialize();
     }
@@ -27,11 +24,6 @@ public class MainScene : Scene
     public override void LoadContent()
     {
         base.LoadContent();
-    }
-
-    public override void Draw()
-    {
-        base.Draw();
     }
 
     public override void Update(GameTime gameTime)
