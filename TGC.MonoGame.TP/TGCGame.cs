@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,7 +21,9 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderTextures = "Textures/";
         public const float ViewDistance = 20f;
         public const float Offset = 10f;
-        public  Vector3 LookAtVector = new Vector3(0, 0, Offset);
+
+        public const float CameraSpeed = 50f;
+        public Vector3 LookAtVector = new Vector3(0, 0, Offset);
 
         /// <summary>
         ///     Constructor del juego.
@@ -48,6 +51,9 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
+        private float XMovementPosition { get; set; }
+        private float ZMovementPosition { get; set; }
+
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -66,8 +72,10 @@ namespace TGC.MonoGame.TP
             // Seria hasta aca.
 
             // Configuramos nuestras matrices de la escena.
+            XMovementPosition = 0f;
+            ZMovementPosition = 0f;
             World = Matrix.Identity;
-            View = Matrix.CreateLookAt(new Vector3(-ViewDistance , ViewDistance, -ViewDistance + Offset), LookAtVector, Vector3.Up);
+            View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
@@ -120,9 +128,41 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-        
-
+            Move(gameTime);
+            View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
             base.Update(gameTime);
+        }
+
+        private void Move(GameTime gameTime)
+        {
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                ZMovementPosition += View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                XMovementPosition += View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.Z += View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.X += View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                ZMovementPosition -= View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                XMovementPosition -= View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.Z -= View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.X -= View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+            {
+                ZMovementPosition -= View.Forward.X * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                XMovementPosition -= View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.Z -= View.Forward.X * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.X -= View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            {
+                ZMovementPosition += View.Forward.X * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                XMovementPosition += View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.Z += View.Forward.X * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+                LookAtVector.X += View.Forward.Z * (float)gameTime.ElapsedGameTime.TotalSeconds * CameraSpeed;
+            }
         }
 
         /// <summary>
