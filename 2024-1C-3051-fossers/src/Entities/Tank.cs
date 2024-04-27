@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
@@ -10,7 +11,9 @@ namespace WarSteel.Entities;
 
 public class Tank : Entity
 {
-    public Tank(string name) : base(name, Array.Empty<string>(), new Transform())
+    public Tank(string name) : base(name, Array.Empty<string>(), new Transform(),new Component[]{new RigidBody(
+        Vector3.Zero,Vector3.Zero,1,Matrix.Identity
+    )})
     {
 
     }

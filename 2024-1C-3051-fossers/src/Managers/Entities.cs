@@ -134,7 +134,7 @@ namespace WarSteel.Managers
         {
             foreach (var entity in entities.Values)
             {
-                entity.Update(gameTime, camera);
+                entity.Update(gameTime,entities);
             }
         }
 
