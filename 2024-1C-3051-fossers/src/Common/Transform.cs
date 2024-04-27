@@ -17,9 +17,11 @@ public class Transform
         Rotation = Quaternion.Identity;
     }
 
-    public void Scale(Vector3 scale) => this.Dim += scale;
+    public void Scale(Vector3 scale) => Dim += scale;
+    public void Scale(float x, float y, float z) => Dim += new Vector3(x, y, z);
 
-    public void Translate(Vector3 position) => this.Pos += position;
+    public void Translate(Vector3 position) => Pos += position;
+    public void Translate(float x, float y, float z) => Dim += new Vector3(x, y, z);
 
     // x,y,z angles in degrees
     public void Rotate(Vector3 eulerAngles) => Rotation += Quaternion.CreateFromYawPitchRoll(
@@ -27,6 +29,7 @@ public class Transform
         MathHelper.ToRadians(eulerAngles.X),
         MathHelper.ToRadians(eulerAngles.Z)
     );
+    public void Rotate(float angleX, float angleY, float angleZ) => Dim += new Vector3(angleX, angleY, angleZ);
 
     public void Rotate(Quaternion quaternion) => Rotation += quaternion;
 
