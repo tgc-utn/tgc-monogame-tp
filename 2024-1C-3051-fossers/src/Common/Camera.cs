@@ -7,17 +7,17 @@ public class Camera
 {
     public Matrix Projection { get; private set; }
     public Matrix View { get; private set; }
-    public Vector3 UpVector { get; private set; } = new Vector3(0, 1, 0);
+    public Vector3 UpVector { get; private set; } = Vector3.Up;
     public Vector3 RelativePosition { get; }
 
     private const float defaultNearPlaneDistance = 0.1f;
-    private const float defaultFarPlaneDistance = 2000f;
-    private const float defaultFOV = MathHelper.PiOver4;
+    private const float defaultFarPlaneDistance = 1000f;
+    private const float defaultFOV = MathHelper.PiOver2;
 
     public Camera(Vector3 initialPosition, float aspectRatio, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance)
     {
         RelativePosition = initialPosition;
-        Projection = Matrix.CreatePerspectiveFieldOfView(aspectRatio, fov, nearPlaneDistance, farPlaneDistance);
+        Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
     }
 
     public void Follow(Entity entity)
