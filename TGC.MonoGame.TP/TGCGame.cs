@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Geometries;
+using TGC.MonoGame.TP.Camera;
 
 namespace TGC.MonoGame.TP
 {
@@ -46,12 +48,39 @@ namespace TGC.MonoGame.TP
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
+
+
+        
+        private CubePrimitive Box { get; set; }
+        
+        private Vector3 BoxPosition { get; set; }
+        private float Yaw { get; set; }
+        private float Pitch { get; set; }
+        private float Roll { get; set; }
+
+
+        // Camera to draw the scene
+        private FreeCamera Camera { get; set; }
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
         protected override void Initialize()
         {
+
+            var size = GraphicsDevice.Viewport.Bounds.Size;
+            size.X /= 2;
+            size.Y /= 2;
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, size);
+
+            Box = new CubePrimitive(GraphicsDevice, 10, Color.DarkCyan, Color.DarkMagenta, Color.DarkGreen,
+                Color.MonoGameOrange, Color.Black, Color.DarkGray);
+            BoxPosition = Vector3.Zero;
+
+
+
+
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
             // Apago el backface culling.
@@ -110,6 +139,7 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            Camera.Update(gameTime);
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -117,6 +147,11 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
+
+            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            Yaw += time * 0.4f;
+            Pitch += time * 0.8f;
+            Roll += time * 0.9f;
             
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -136,15 +171,21 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
+            Effect.Parameters["View"].SetValue(Camera.View);
+            Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
-            foreach (var mesh in Model.Meshes)
+           foreach (var mesh in Model.Meshes)
             {
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
                 mesh.Draw();
             }
+
+            
+            DrawGeometry(Box, BoxPosition, Yaw, Pitch, Roll);
+
+
+
         }
 
         /// <summary>
@@ -156,6 +197,17 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
+        }
+
+         private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll)
+        {
+            var effect = geometry.Effect;
+
+            effect.World = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position);
+            effect.View = Camera.View;
+            effect.Projection = Camera.Projection;
+
+            geometry.Draw(effect);
         }
     }
 }
