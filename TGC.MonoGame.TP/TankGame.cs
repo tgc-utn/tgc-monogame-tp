@@ -11,9 +11,15 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager graphics;
         private GameObject ground;
         private Camera gameCamera;
+        private Effect Effect { get; set; }
+
 
         private Tanque tanque;
+        private Model casa { get; set; }
         //private Barrier[] barriers;
+
+        private Vector3 startPosition = new Vector3(10, GameConstants.HeightOffset -8, 0);
+
 
 
 
@@ -51,7 +57,9 @@ namespace TGC.MonoGame.TP
 
     protected override void LoadContent()
     {
-        ground.Model = Content.Load<Model>("Models/Grid/ground");
+            ground.Model = Content.Load<Model>("Models/Grid/ground");
+
+            casa = Content.Load<Model>("Models/Casa/house");
 
             
             // Initialize and place barriers
@@ -77,6 +85,11 @@ namespace TGC.MonoGame.TP
 
             //Casa = Content.Load<Model>("Models/house");
 
+          // Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
+            // Asigno el efecto que cargue a cada parte del mesh.
+            // Un modelo puede tener mas de 1 mesh internamente.
+        
 
 
 
@@ -91,13 +104,16 @@ namespace TGC.MonoGame.TP
         lastGamePadState = currentGamePadState;
         currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
-        tanque.Update(currentGamePadState, currentKeyboardState);
+
+
+            tanque.Update(currentGamePadState, currentKeyboardState);
         gameCamera.Update(tanque.ForwardDirection, tanque.Position, graphics.GraphicsDevice.Viewport.AspectRatio);
             // Allows the game to exit
             if (currentKeyboardState.IsKeyDown(Keys.Escape) || currentGamePadState.Buttons.Back == ButtonState.Pressed)
             {
                 this.Exit();
             }
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -111,10 +127,23 @@ namespace TGC.MonoGame.TP
             {
                 barrier.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             }*/
+            Matrix worldMatrix = Matrix.Identity;
+
+            Matrix translateMatrix = Matrix.CreateTranslation(startPosition);
+
+            Matrix scaleMatrix = Matrix.CreateScale(5f, 5f, 5f);
+
+            worldMatrix = scaleMatrix * translateMatrix;
+
+            casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             
             tanque.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
 
             //Casa.Draw(World, View, Projection);
+
+             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+         
+       
 
 
 

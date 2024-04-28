@@ -36,7 +36,7 @@ namespace TGC.MonoGame.TP
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
-        }
+        } 
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
@@ -49,13 +49,13 @@ namespace TGC.MonoGame.TP
 
        //private Camera camera { get; set; }
 
-        private Model tanque { get; set; }
+        private Model tanque { get; set; } 
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
-        protected override void Initialize()
+        protected override void Initialize() 
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
@@ -69,9 +69,9 @@ namespace TGC.MonoGame.TP
 
             base.Initialize();
 
-            //camera = new Camera();
+            //camera = new Camera();       
         }
-
+                 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
@@ -149,7 +149,7 @@ namespace TGC.MonoGame.TP
             {
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
                 mesh.Draw();
-            }*/
+            }*/  
         }
 
         /// <summary>
