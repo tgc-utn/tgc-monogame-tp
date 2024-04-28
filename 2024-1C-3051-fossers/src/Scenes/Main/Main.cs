@@ -14,10 +14,11 @@ public class MainScene : Scene
 
     public override void Initialize()
     {
+        Map.Init();
         entities.Add(new Tank("player"));
-        entities.Add(new Ground());
-        camera = new Camera(new Vector3(0, 2500, 1), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 3000f);
 
+        camera = new Camera(new Vector3(0, 2500, 1), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
+        camera.Follow(entities.GetByName("player"));
         base.Initialize();
     }
 
@@ -28,8 +29,7 @@ public class MainScene : Scene
 
     public override void Update(GameTime gameTime)
     {
-        camera.Follow(entities.GetByName("player"));
-
+        camera.Update(gameTime);
         base.Update(gameTime);
     }
 }

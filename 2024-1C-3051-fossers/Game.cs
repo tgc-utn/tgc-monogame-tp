@@ -9,7 +9,6 @@ namespace WarSteel;
 public class Game : Microsoft.Xna.Framework.Game
 {
     private GraphicsDeviceManager Graphics { get; }
-    private SpriteBatch spriteBatch;
 
     public Game()
     {
@@ -20,7 +19,6 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
-        spriteBatch = new SpriteBatch(GraphicsDevice);
         EntitiesManager.SetUpInstance();
         ContentRepoManager.SetUpInstance(Content);
         SceneManager.SetUpInstance(ScenesNames.MAIN, Graphics);

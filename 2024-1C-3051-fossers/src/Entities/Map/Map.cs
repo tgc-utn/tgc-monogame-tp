@@ -1,33 +1,34 @@
-using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 
 
 namespace WarSteel.Entities.Map;
 
-public class Ground : Entity
+public class Map
 {
+    public Map() { }
 
-
-    public Ground() : base("ground", Array.Empty<string>(), new Transform()) { }
-
-    public override void Initialize(Camera camera)
+    public static void Init()
     {
-        Transform.Dim = new Vector3(1, 1, 1);
-        Transform.Pos = new Vector3(0, -1, 0);
-        base.Initialize(camera);
+        EntitiesManager entities = EntitiesManager.Instance();
+        entities.Add(new Ground());
+
+        // Forest
+        List<Entity> trees = ModelsGenerator.Generate(new Vector3(0, -10, 0), 100, typeof(SimpleTree));
+        trees.ForEach(tree => entities.Add(tree));
+
+        // Rocks
+        List<Entity> bigRocks = ModelsGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.LARGE);
+        List<Entity> mediumRocks = ModelsGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.MEDIUM);
+        List<Entity> smallRocks = ModelsGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.SMALL);
+        bigRocks.ForEach(rock => entities.Add(rock));
+        mediumRocks.ForEach(rock => entities.Add(rock));
+        smallRocks.ForEach(rock => entities.Add(rock));
+
+        // Vegetation
+        List<Entity> bush = ModelsGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Bush));
+        bush.ForEach(bush => entities.Add(bush));
     }
 
-    public override void LoadContent(Camera camera)
-    {
-        Model model = ContentRepoManager.Instance().GetModel("Map/Ground/Grass");
-        Texture2D texture = ContentRepoManager.Instance().GetTexture("Map/Ground/t_grass");
-        _renderable = new Renderable(model);
-        _renderable.AddShader("texture", new TextureShader(texture));
-
-        base.LoadContent(camera);
-    }
 }
