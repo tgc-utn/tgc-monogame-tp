@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -46,6 +47,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
+        private CubePrimitive Box { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -70,6 +72,8 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
+
+            Box = new CubePrimitive(GraphicsDevice, 1, Color.DarkSeaGreen);
 
             // Configuramos nuestras matrices de la escena.
             XMovementPosition = 0f;
@@ -184,11 +188,21 @@ namespace TGC.MonoGame.TP
                     transforms[i] = Model.Bones[i].ModelTransform;
                 }
 
+            DrawFloor(Box);
+
             foreach (var mesh in Model.Meshes)
             {
+                Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(0, 0, 0)));
                 mesh.Draw();
             }
+        }
+
+        private void DrawFloor(GeometricPrimitive geometry)
+        {
+            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
+            Effect.Parameters["World"].SetValue(Matrix.CreateTranslation(new Vector3(0, -1, 0)) * Matrix.CreateScale(new Vector3(1000, 2, 1000)));
+            geometry.Draw(Effect);
         }
 
         /// <summary>
