@@ -7,7 +7,7 @@ namespace TGC.MonoGame.TP
         [STAThread]
         static void Main()
         {
-            using (var game = new TGCGame())
+            using (var game = new TankGame())
                 game.Run();
         }
     }
