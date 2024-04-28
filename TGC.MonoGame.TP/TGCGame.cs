@@ -22,7 +22,7 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderTextures = "Textures/";
         public const float ViewDistance = 20f;
         public const float Offset = 10f;
-
+        private const int SEED = 0;
         public const float CameraSpeed = 50f;
         public Vector3 LookAtVector = new Vector3(0, 0, Offset);
 
@@ -33,10 +33,10 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            
+
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            
+
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
@@ -44,9 +44,11 @@ namespace TGC.MonoGame.TP
             IsMouseVisible = true;
         }
 
-        private GraphicsDeviceManager Graphics { get; }
+        private GraphicsDeviceManager Graphics { get; set; }
+        private Random _random;
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
+        private Model Tree1 { get; set; }
         private CubePrimitive Box { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
@@ -64,6 +66,8 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
+
+
 
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
@@ -98,6 +102,7 @@ namespace TGC.MonoGame.TP
 
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
+            Tree1 = Content.Load<Model>(ContentFolder3D + "trees/Tree2");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -105,7 +110,15 @@ namespace TGC.MonoGame.TP
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
+            LoadEffect(Model);
+            LoadEffect(Tree1);
+
+            base.LoadContent();
+        }
+
+        private void LoadEffect(Model model)
+        {
+            foreach (var mesh in model.Meshes)
             {
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
                 foreach (var meshPart in mesh.MeshParts)
@@ -113,8 +126,6 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
                 }
             }
-
-            base.LoadContent();
         }
 
         /// <summary>
@@ -181,15 +192,16 @@ namespace TGC.MonoGame.TP
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(View);
             Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-                Matrix[] transforms = new Matrix[Model.Bones.Count];
-                for(int i = 0; i < Model.Bones.Count; i++)
-                {
-                    transforms[i] = Model.Bones[i].ModelTransform;
-                }
+
+            _random = new Random(SEED);
 
             DrawFloor(Box);
+            DrawCar();
+            DrawTrees();
+        }
 
+        private void DrawCar()
+        {
             foreach (var mesh in Model.Meshes)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
@@ -198,10 +210,24 @@ namespace TGC.MonoGame.TP
             }
         }
 
+        private void DrawTrees()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Vector3 treeTranslation = new Vector3(_random.Next(-499, 499), 0, _random.Next(-499, 499));
+                foreach (var mesh in Tree1.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+                    Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(60, 60, 60)) * mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(treeTranslation));
+                    mesh.Draw();
+                }
+            }
+        }
+
         private void DrawFloor(GeometricPrimitive geometry)
         {
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
-            Effect.Parameters["World"].SetValue(Matrix.CreateTranslation(new Vector3(0, -1, 0)) * Matrix.CreateScale(new Vector3(1000, 2, 1000)));
+            Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1000, 2, 1000)) * Matrix.CreateTranslation(new Vector3(0, -1, 0)));
             geometry.Draw(Effect);
         }
 
