@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,10 +13,11 @@ namespace TGC.MonoGame.TP
         private GameObject ground;
         private Camera gameCamera;
         private Effect Effect { get; set; }
-
+        public const string ContentFolderEffects = "Effects/";
 
         private Tanque tanque;
-        private Model casa { get; set; }
+        private Model Casa { get; set; }
+        private List<Texture2D> Textures {get; set; }
         //private Barrier[] barriers;
 
         private Vector3 startPosition = new Vector3(10, GameConstants.HeightOffset -8, 0);
@@ -59,7 +61,7 @@ namespace TGC.MonoGame.TP
     {
             ground.Model = Content.Load<Model>("Models/Grid/ground");
 
-            casa = Content.Load<Model>("Models/Casa/house");
+            Casa = Content.Load<Model>("Models/Casa/house");
 
             
             // Initialize and place barriers
@@ -85,12 +87,24 @@ namespace TGC.MonoGame.TP
 
             //Casa = Content.Load<Model>("Models/house");
 
-          // Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-        
-
+            // Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Textures = new List<Texture2D>();
+            // Sacado del video de la clase de texturas
+            /*
+            foreach (var mesh in Casa.Meshes)
+            {
+                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    var basicEffect = ((BasicEffect)meshPart.Effect);
+                    if(basicEffect.Texture != null)
+                        Textures.Add(basicEffect.Texture);
+                    meshPart.Effect = Effect;
+                }
+            }
+            */
 
 
 
@@ -135,7 +149,7 @@ namespace TGC.MonoGame.TP
 
             worldMatrix = scaleMatrix * translateMatrix;
 
-            casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+            Casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             
             tanque.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
 
