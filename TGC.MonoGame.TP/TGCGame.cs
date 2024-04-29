@@ -49,10 +49,8 @@ namespace TGC.MonoGame.TP
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
-        private SquarePrimitive Square { get; set; }
         private Terrain Terrain { get; set; }
-
-        private List<Matrix> SquareMatrices;
+        private Terrain Terrain2 { get; set; }
 
         private float SquareSize = 50f;
 
@@ -72,7 +70,8 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
         
-            Terrain = new Terrain(GraphicsDevice, SquareSize, Color.Brown, 4, 4);
+            Terrain = new Terrain(GraphicsDevice, SquareSize, Color.BlueViolet, 4, 4);
+            Terrain2 = new Terrain(GraphicsDevice, SquareSize, Color.Coral, 2, 2, new Vector3(50, 20, 3));
             
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -154,6 +153,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
             Terrain.Draw(View, Projection);
+            Terrain2.Draw(View, Projection);
 
            /* foreach (var mesh in Model.Meshes)
             {
