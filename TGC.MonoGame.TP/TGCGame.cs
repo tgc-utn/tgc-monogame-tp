@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Environment;
+using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
 {
@@ -46,6 +49,13 @@ namespace TGC.MonoGame.TP
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
+        private SquarePrimitive Square { get; set; }
+        private Terrain Terrain { get; set; }
+
+        private List<Matrix> SquareMatrices;
+
+        private float SquareSize = 50f;
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -61,7 +71,9 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
-
+        
+            Terrain = new Terrain(GraphicsDevice, SquareSize, Color.Brown, 4, 4);
+            
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
@@ -82,7 +94,8 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            //Model = Content.Load<Model>(ContentFolder3D + "wooden-floor/Floor");
+            
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -90,14 +103,14 @@ namespace TGC.MonoGame.TP
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
-            {
+            //foreach (var mesh in Model.Meshes)
+            //{
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
+              //  foreach (var meshPart in mesh.MeshParts)
+                //{
+                  //  meshPart.Effect = Effect;
+                //}
+            //}
 
             base.LoadContent();
         }
@@ -119,9 +132,9 @@ namespace TGC.MonoGame.TP
             }
             
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            //Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            World = Matrix.CreateRotationY(Rotation);
+            //World = Matrix.CreateRotationY(Rotation);
 
             base.Update(gameTime);
         }
@@ -140,11 +153,13 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
-            foreach (var mesh in Model.Meshes)
+            Terrain.Draw(View, Projection);
+
+           /* foreach (var mesh in Model.Meshes)
             {
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
                 mesh.Draw();
-            }
+            }*/
         }
 
         /// <summary>
