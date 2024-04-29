@@ -24,7 +24,8 @@ namespace TGC.MonoGame.TP
         public const float Offset = 10f;
         private const int SEED = 0;
         public const float CameraSpeed = 50f;
-        public Vector3 LookAtVector = new Vector3(0, 0, Offset);
+        // public Vector3 LookAtVector = new Vector3(0, 0, Offset);
+        public Vector3 LookAtVector = new Vector3(0, 0, 0);
 
         /// <summary>
         ///     Constructor del juego.
@@ -49,6 +50,9 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Model Tree1 { get; set; }
+        private Edificio Cottage { get; set; }
+        private Edificio School { get; set; }
+        private Edificio CasaGrande {get; set; }
         private CubePrimitive Box { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
@@ -85,7 +89,7 @@ namespace TGC.MonoGame.TP
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
             Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
 
             base.Initialize();
         }
@@ -100,13 +104,21 @@ namespace TGC.MonoGame.TP
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // Cargo un efecto basico propio declarado en el Content pipeline.
+            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
+            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             Tree1 = Content.Load<Model>(ContentFolder3D + "trees/Tree2");
 
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Cottage = new Edificio(new Vector3(-20, 0, -20));
+            var cottageModel = Content.Load<Model>(ContentFolder3D + "Street/model/House"); 
+            Cottage.Load(cottageModel, Effect);
+
+            School = new Edificio(new Vector3(20, 0, 20));
+            var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/School"); 
+            School.Load(schoolModel, Effect);
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
@@ -198,6 +210,8 @@ namespace TGC.MonoGame.TP
             DrawFloor(Box);
             DrawCar();
             DrawTrees();
+            Cottage.Draw();
+            School.Draw();
         }
 
         private void DrawCar()
@@ -214,7 +228,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 100; i++)
             {
-                Vector3 treeTranslation = new Vector3(_random.Next(-499, 499), 0, _random.Next(-499, 499));
+                Vector3 treeTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
                 foreach (var mesh in Tree1.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
