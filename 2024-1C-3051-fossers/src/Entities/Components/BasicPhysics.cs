@@ -63,11 +63,11 @@ class RigidBody : Component
         Vector3 totalForce = new Vector3(0, 0, 0);
         foreach (Force f in _instForces)
         {
-            totalForce += f.OriginVector.Length() < float.Epsilon ? f.ForceVector : f.OriginVector / f.OriginVector.Length() * Vector3.Dot(f.OriginVector, f.ForceVector);
+            totalForce += f.ForceVector;
         }
         foreach (Force f in _constForces)
         {
-            totalForce += f.OriginVector.Length() < float.Epsilon ? f.ForceVector : f.OriginVector / f.OriginVector.Length() * Vector3.Dot(f.OriginVector, f.ForceVector);
+            totalForce += f.ForceVector;
         }
         return totalForce;
     }
