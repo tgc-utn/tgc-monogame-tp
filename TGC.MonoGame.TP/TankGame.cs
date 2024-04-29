@@ -33,13 +33,7 @@ namespace TGC.MonoGame.TP
         private List<int> NumerosZ { get; set; }
 
         //private Barrier[] barriers;
-
         private Vector3 startPosition = new Vector3(10, GameConstants.HeightOffset - 8, 0);
-
-
-
-
-
 
         // States to store input values
         private KeyboardState lastKeyboardState = new KeyboardState();
@@ -68,6 +62,9 @@ namespace TGC.MonoGame.TP
             NumerosX = new List<int>();
             NumerosZ = new List<int>();
 
+            tanque = new Tanque();
+            Textures = new List<Texture2D>();
+
             var Random = new Random();
 
             for(int i = 0; i < 50; i++)
@@ -84,63 +81,15 @@ namespace TGC.MonoGame.TP
     {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            ground.Model = Content.Load<Model>("Models/Grid/ground");
+            ground.Model = Content.Load<Model>(ContentFolder3D + "Grid/ground");
 
-            Casa = Content.Load<Model>("Models/Casa/house");
+            Casa = Content.Load<Model>(ContentFolder3D + "Casa/house");
 
-            Antitanque = Content.Load<Model>("Models/assets militares/rsg_military_antitank_hedgehog_01");
+            Antitanque = Content.Load<Model>(ContentFolder3D + "assets militares/rsg_military_antitank_hedgehog_01");
 
+            tanque.LoadContent(Content, ContentFolder3D + "Panzer/Panzer");
 
-            // Initialize and place barriers
-            /* barriers = new Barrier[3];
-
-             barriers[0] = new Barrier();
-             barriers[0].LoadContent(Content, "Models/house");
-             barriers[0].Position = new Vector3(0, 0, 30);*/
-            /*barriers[1] = new Barrier();
-            barriers[1].LoadContent(Content, "Models/house");
-            barriers[1].Position = new Vector3(15, 0, 30);
-            barriers[2] = new Barrier();
-            barriers[2].LoadContent(Content, "Models/house");
-            barriers[2].Position = new Vector3(-15, 0, 30);
-            */
-
-            // Initialize and place fuel carrier
-            tanque = new Tanque();
-            //tanque.LoadContent(Content, "Models/Panzer/Panzer");
-
-            tanque.LoadContent(Content, "Models/Panzer/Panzer");
-            //tanque = Content.Load<Model>("Models/Panzer/Panzer");
-
-            //Casa = Content.Load<Model>("Models/house");
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            // Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            Textures = new List<Texture2D>();
-            // Sacado del video de la clase de texturas
-            Effect = Content.Load<Effect>("Effects/BasicShader");
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Casa.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
-            /*
-            foreach (var mesh in Antitanque.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
-            */
+            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             base.LoadContent();
 
@@ -148,7 +97,6 @@ namespace TGC.MonoGame.TP
 
         protected override void Update(GameTime gameTime)
         {
-            // Update input from sources, Keyboard and GamePad
 
             lastKeyboardState = currentKeyboardState;
             currentKeyboardState = Keyboard.GetState();
@@ -174,41 +122,50 @@ namespace TGC.MonoGame.TP
 
             DrawTerrain(ground.Model);
 
-            /*// Draw the barriers
-            foreach (Barrier barrier in barriers)
-            {
-                barrier.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
-            }*/
-
-            Matrix worldMatrix = Matrix.Identity;
-
-            Matrix worldMatrixAntitanque = Matrix.Identity;
-
-            Matrix translateMatrixCasa = Matrix.CreateTranslation(startPosition);
-
+            Matrix worldMatrix;
+            Matrix worldMatrixAntitanque;
             Matrix scaleMatrix = Matrix.CreateScale(5f, 5f, 5f);
 
-            worldMatrix = scaleMatrix * translateMatrixCasa;
-            /*
+            worldMatrix = scaleMatrix * Matrix.CreateTranslation(startPosition);
+            
             foreach (ModelMesh mesh in Casa.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
                 {
-                    effect.World = worldMatrix; // Define la matriz de transformación para la casa
+                    effect.World = worldMatrix;
                     effect.View = gameCamera.ViewMatrix;
                     effect.Projection = gameCamera.ProjectionMatrix;
+
+                    effect.EnableDefaultLighting();
+                    effect.PreferPerPixelLighting = true;
                     // Aquí podrías asignar una textura al efecto si la casa usa texturas
                     // Por ejemplo: effect.Texture = tuTextura;
                 }
-                mesh.Draw();
             }
-            */
-            //Casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
-
+            
             tanque.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
 
             Effect.Parameters["View"].SetValue(gameCamera.ViewMatrix);
             Effect.Parameters["Projection"].SetValue(gameCamera.ProjectionMatrix);
+
+            /*
+                        foreach (var mesh in Casa.Meshes)
+                        {
+                            foreach (var meshPart in mesh.MeshParts)
+                            {
+                                meshPart.Effect = Effect;
+                            }
+                        }
+
+
+                        foreach (var mesh in Antitanque.Meshes)
+                        {
+                            foreach (var meshPart in mesh.MeshParts)
+                            {
+                                meshPart.Effect = Effect;
+                            }
+                        }
+            */
 
             for (int i = 0; i < 50; i++)
             {
@@ -218,27 +175,10 @@ namespace TGC.MonoGame.TP
                 Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
                 worldMatrixAntitanque = scaleMatrix * translateMatrixAntitanque;
 
-                /*
-                foreach (var mesh in Casa.Meshes)
-                {
-                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrixAntitanque);
-                    mesh.Draw();
-                }
-                */
-
-                Antitanque.Draw(worldMatrixAntitanque, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+ //             Antitanque.Draw(worldMatrixAntitanque, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             }
 
-            //Casa.Draw(World, View, Projection);
-
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            
-            foreach (var mesh in Casa.Meshes)
-            {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
-                mesh.Draw();
-            }
-
+            Casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
 
             base.Draw(gameTime);
         }
