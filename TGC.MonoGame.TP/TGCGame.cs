@@ -51,6 +51,12 @@ namespace TGC.MonoGame.TP
         private Model Model { get; set; }
         private Model Tree1 { get; set; }
         public Model Box1 { get; private set; }
+        private Model Weapon1 { get; set; }
+        private Model Vehicle { get; set; }
+        private Model Gasoline { get; set; }
+        private Model Ramp { get; set; }
+        private Model CarDBZ { get; set; }
+        private Model Car2 { get; set; }
         private Edificio Cottage { get; set; }
         private Edificio School { get; set; }
         private Edificio CasaGrande {get; set; }
@@ -113,6 +119,12 @@ namespace TGC.MonoGame.TP
             Model = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             Tree1 = Content.Load<Model>(ContentFolder3D + "trees/Tree2");
             Box1 = Content.Load<Model>(ContentFolder3D + "Street/model/towers");
+            Weapon1 = Content.Load<Model>(ContentFolder3D + "weapons/Weapons");
+            Vehicle = Content.Load<Model>(ContentFolder3D + "weapons/Vehicle");
+            Ramp = Content.Load<Model>(ContentFolder3D + "ramp/ramp");
+            Gasoline = Content.Load<Model>(ContentFolder3D + "gasoline/gasoline");
+            CarDBZ = Content.Load<Model>(ContentFolder3D + "carDBZ/carDBZ");
+            Car2 = Content.Load<Model>(ContentFolder3D + "car2/car2");
 
             Cottage = new Edificio(new Vector3(-20, 0, -20));
             var cottageModel = Content.Load<Model>(ContentFolder3D + "Street/model/House"); 
@@ -127,6 +139,12 @@ namespace TGC.MonoGame.TP
             LoadEffect(Model);
             LoadEffect(Tree1);
             LoadEffect(Box1);
+            LoadEffect(Weapon1);
+            LoadEffect(Vehicle);
+            LoadEffect(Ramp);
+            LoadEffect(Gasoline);
+            LoadEffect(CarDBZ);
+            LoadEffect(Car2);
 
             base.LoadContent();
         }
@@ -214,8 +232,14 @@ namespace TGC.MonoGame.TP
             DrawCar();
             DrawTrees();
             DrawBox();
+            DrawWeapon1();
+            DrawVehicle();
             Cottage.Draw();
             School.Draw();
+            DrawRamp();
+            DrawGasoline();
+            DrawCarDBZ();
+            DrawCar2();
         }
 
         private void DrawCar()
@@ -224,6 +248,24 @@ namespace TGC.MonoGame.TP
             {
                 Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(0, 0, 0)));
+                mesh.Draw();
+            }
+        }
+        private void DrawCarDBZ()
+        {
+            foreach (var mesh in CarDBZ.Meshes)
+            {
+                Effect.Parameters["DiffuseColor"].SetValue(Color.BlueViolet.ToVector3());
+                Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(40, 0, 40)));
+                mesh.Draw();
+            }
+        }
+        private void DrawCar2()
+        {
+            foreach (var mesh in Car2.Meshes)
+            {
+                Effect.Parameters["DiffuseColor"].SetValue(Color.BlueViolet.ToVector3());
+                Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(-50, 0, 40)));
                 mesh.Draw();
             }
         }
@@ -250,6 +292,55 @@ namespace TGC.MonoGame.TP
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
                     Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(60, 60, 60)) * mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(treeTranslation));
+                    mesh.Draw();
+                }
+            }
+        }
+
+        private void DrawWeapon1(){
+            for (int i = 0; i < 20; i++)
+            {
+                Vector3 armaTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                foreach (var mesh in Weapon1.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
+                    Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(0.1f, 0.1f, 0.1f)) * mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(armaTranslation));
+                    mesh.Draw();
+                }
+            }
+        }
+
+        private void DrawVehicle(){
+
+            Vector3 vehicleTranslation = new Vector3(_random.Next(-100, 100), 0, _random.Next(-100, 100));
+
+                foreach (var mesh in Vehicle.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.DarkCyan.ToVector3());
+                    Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(0.03f, 0.03f, 0.03f)) * mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(vehicleTranslation));
+                    mesh.Draw();
+                }
+        }
+        private void DrawRamp(){
+            for (int i = 0; i < 25; i++)
+            {
+                Vector3 rampTranslation = new Vector3(_random.Next(-300, 300), 0, _random.Next(-300, 300));
+                foreach (var mesh in Ramp.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
+                    Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(2f, 2f, 2f)) *mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(rampTranslation));
+                    mesh.Draw();
+                }
+            }
+        }
+        private void DrawGasoline(){
+            for (int i = 0; i < 15; i++)
+            {
+                Vector3 gasolineTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                foreach (var mesh in Gasoline.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Brown.ToVector3());
+                    Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1.5f, 1.5f, 1.5f)) *mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(gasolineTranslation));
                     mesh.Draw();
                 }
             }
