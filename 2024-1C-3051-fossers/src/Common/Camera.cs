@@ -1,28 +1,36 @@
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using WarSteel.Entities;
+using WarSteel.Scenes;
 
 namespace WarSteel.Common;
 
-public class Camera
+public class Camera : Entity
 {
     public Matrix Projection { get; private set; }
     public Matrix View { get; private set; }
-    public Vector3 UpVector { get; private set; } = new Vector3(0, 1, 0);
-    public Vector3 RelativePosition { get; }
+    private Entity FollowedEntity;
 
     private const float defaultNearPlaneDistance = 0.1f;
-    private const float defaultFarPlaneDistance = 2000f;
-    private const float defaultFOV = MathHelper.PiOver4;
+    private const float defaultFarPlaneDistance = 1000f;
+    private const float defaultFOV = MathHelper.PiOver2;
 
-    public Camera(Vector3 initialPosition, float aspectRatio, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance)
+    public Camera(Vector3 initialPosition, float aspectRatio, float fov = defaultFOV, float nearPlaneDistance = defaultNearPlaneDistance, float farPlaneDistance = defaultFarPlaneDistance) : base("camera", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
     {
-        RelativePosition = initialPosition;
-        Projection = Matrix.CreatePerspectiveFieldOfView(aspectRatio, fov, nearPlaneDistance, farPlaneDistance);
+        Transform.Pos = initialPosition;
+        Projection = Matrix.CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlaneDistance, farPlaneDistance);
     }
 
     public void Follow(Entity entity)
     {
-        Vector3 realPosition = Vector3.Transform(RelativePosition, entity.Transform.World);
-        View = Matrix.CreateLookAt(realPosition, entity.Transform.Pos, UpVector);
+        FollowedEntity = entity;
+    }
+
+    public override void Update(GameTime time, Scene scene)
+    {
+        Transform.Pos = Vector3.Transform(Transform.Pos, FollowedEntity.Transform.GetWorld());
+        base.Update(time, scene);
+        View = Matrix.CreateLookAt(Transform.Pos, FollowedEntity.Transform.Pos, Transform.GetWorld().Up);
     }
 }

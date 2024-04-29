@@ -3,13 +3,16 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Managers;
+using WarSteel.Scenes;
+using WarSteel.Scenes.Main;
 
 namespace WarSteel;
 
 public class Game : Microsoft.Xna.Framework.Game
 {
     private GraphicsDeviceManager Graphics { get; }
-    private SpriteBatch spriteBatch;
+
+    private SceneManager SceneManager;
 
     public Game()
     {
@@ -20,24 +23,28 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
-        spriteBatch = new SpriteBatch(GraphicsDevice);
-        EntitiesManager.SetUpInstance();
         ContentRepoManager.SetUpInstance(Content);
-        SceneManager.SetUpInstance(ScenesNames.MAIN, Graphics);
-        SceneManager.Instance().CurrentScene().Initialize();
+        SceneManager = new SceneManager();
+
+        SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics));
+        SceneManager.SetCurrentScene(ScenesNames.MAIN);
+        
+        
+        SceneManager.CurrentScene().Initialize();
+
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        SceneManager.Instance().CurrentScene().LoadContent();
-
+        SceneManager.CurrentScene().LoadContent();
         base.LoadContent();
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        SceneManager.Instance().CurrentScene().Draw();
+        Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+        SceneManager.CurrentScene().Draw();
         base.Draw(gameTime);
     }
 
@@ -47,14 +54,14 @@ public class Game : Microsoft.Xna.Framework.Game
         {
             Exit();
         }
-        SceneManager.Instance().CurrentScene().Update(gameTime);
+        SceneManager.CurrentScene().Update(gameTime);
 
         base.Update(gameTime);
     }
 
     protected override void UnloadContent()
     {
-        SceneManager.Instance().CurrentScene().Unload();
+        SceneManager.CurrentScene().Unload();
         Content.Unload();
         base.UnloadContent();
     }
