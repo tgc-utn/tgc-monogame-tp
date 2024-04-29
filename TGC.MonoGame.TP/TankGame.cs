@@ -10,11 +10,18 @@ namespace TGC.MonoGame.TP
 {
     public class TankGame : Game
     {
-        private GraphicsDeviceManager graphics;
+        private GraphicsDeviceManager Graphics;
         private GameObject ground;
         private Camera gameCamera;
+        private SpriteBatch SpriteBatch { get; set; }
         private Effect Effect { get; set; }
+
+        public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderMusic = "Music/";
+        public const string ContentFolderSounds = "Sounds/";
+        public const string ContentFolderSpriteFonts = "SpriteFonts/";
+        public const string ContentFolderTextures = "Textures/";
 
         private Tanque tanque;
 
@@ -24,6 +31,7 @@ namespace TGC.MonoGame.TP
 
         private List<int> NumerosX { get; set; }
         private List<int> NumerosZ { get; set; }
+
         //private Barrier[] barriers;
 
         private Vector3 startPosition = new Vector3(10, GameConstants.HeightOffset -8, 0);
@@ -42,7 +50,11 @@ namespace TGC.MonoGame.TP
 
         public TankGame()
         {
-            graphics = new GraphicsDeviceManager(this);
+            Graphics = new GraphicsDeviceManager(this);
+
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
@@ -53,29 +65,25 @@ namespace TGC.MonoGame.TP
             ground = new GameObject();
             gameCamera = new Camera();
 
-
-            base.Initialize();
-
             NumerosX = new List<int>();
             NumerosZ = new List<int>();
 
             var Random = new Random();
-            //int Numero[] = Random.Next(1, 20);
+
             for(int i = 0; i < 50; i++)
             {
                 NumerosX.Add(Random.Next(-100, 100));
                 NumerosZ.Add(Random.Next(-100, 100));
             }
 
+            base.Initialize();
+
         }
-
-
-
-
-
 
     protected override void LoadContent()
     {
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+
             ground.Model = Content.Load<Model>("Models/Grid/ground");
 
             Casa = Content.Load<Model>("Models/Casa/house");
@@ -125,28 +133,29 @@ namespace TGC.MonoGame.TP
             }
             */
 
-
+            base.LoadContent();
 
         }
 
-        protected override void Update(GameTime gametime)
+        protected override void Update(GameTime gameTime)
         {
-        // Update input from sources, Keyboard and GamePad
-        lastKeyboardState = currentKeyboardState;
-        currentKeyboardState = Keyboard.GetState();
-        lastGamePadState = currentGamePadState;
-        currentGamePadState = GamePad.GetState(PlayerIndex.One);
+            // Update input from sources, Keyboard and GamePad
 
+            lastKeyboardState = currentKeyboardState;
+            currentKeyboardState = Keyboard.GetState();
 
+            lastGamePadState = currentGamePadState;
+            currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
             tanque.Update(currentGamePadState, currentKeyboardState);
-        gameCamera.Update(tanque.ForwardDirection, tanque.Position, graphics.GraphicsDevice.Viewport.AspectRatio);
-            // Allows the game to exit
-            if (currentKeyboardState.IsKeyDown(Keys.Escape) || currentGamePadState.Buttons.Back == ButtonState.Pressed)
-            {
-                this.Exit();
-            }
+            gameCamera.Update(tanque.ForwardDirection, tanque.Position, Graphics.GraphicsDevice.Viewport.AspectRatio);
 
+            if (currentKeyboardState.IsKeyDown(Keys.Escape) || currentGamePadState.Buttons.Back == ButtonState.Pressed)
+                {
+                    this.Exit();
+                }
+
+            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -160,17 +169,12 @@ namespace TGC.MonoGame.TP
             {
                 barrier.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             }*/
+
             Matrix worldMatrix = Matrix.Identity;
 
             Matrix worldMatrixAntitanque = Matrix.Identity;
 
-
-
             Matrix translateMatrixCasa = Matrix.CreateTranslation(startPosition);
-
-
-
-            
 
             Matrix scaleMatrix = Matrix.CreateScale(5f, 5f, 5f);
 
@@ -182,15 +186,11 @@ namespace TGC.MonoGame.TP
 
             for (int i = 0;  i < 50; i++)
             {
-
-               
-
                 Vector3 vector = new Vector3(NumerosX[i], 2, NumerosZ[i]);
-
-
-
+                
                 Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
                 worldMatrixAntitanque = scaleMatrix * translateMatrixAntitanque;
+
                 Antitanque.Draw(worldMatrixAntitanque, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             }
 
@@ -198,10 +198,6 @@ namespace TGC.MonoGame.TP
 
              // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
          
-       
-
-
-
             base.Draw(gameTime);
         }
 
