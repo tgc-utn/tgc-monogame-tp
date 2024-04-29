@@ -81,9 +81,6 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
-        
-            Terrain = new Terrain(GraphicsDevice, SquareSize, Color.BlueViolet, 4, 4);
-            Terrain2 = new Terrain(GraphicsDevice, SquareSize, Color.Coral, 2, 2, new Vector3(50, 20, 3));
             
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
@@ -122,6 +119,11 @@ namespace TGC.MonoGame.TP
                   //  meshPart.Effect = Effect;
                 //}
             //}
+
+            //var floorTexture = Content.Load<Texture2D>(ContentFolderTextures + "floor/tiling-base");
+            
+            Terrain = new Terrain(GraphicsDevice, SquareSize, Color.BlueViolet, 4, 4);
+            Terrain2 = new Terrain(GraphicsDevice, SquareSize, Color.Coral, 2, 2, new Vector3(50, 20, 3));
 
             base.LoadContent();
         }

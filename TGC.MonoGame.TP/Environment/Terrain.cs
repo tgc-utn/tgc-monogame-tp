@@ -37,6 +37,9 @@ namespace TGC.MonoGame.TP.Environment {
         public Terrain(GraphicsDevice graphicsDevice, float squareSize, Color color, int width, int length) : 
             this (graphicsDevice, squareSize, color, width, length, Vector3.Zero) {}
 
+        public Terrain(GraphicsDevice graphicsDevice, float squareSize, Texture2D texture, int width, int length) : 
+            this (graphicsDevice, squareSize, Color.White, width, length, Vector3.Zero) {}
+
         public Terrain(GraphicsDevice graphicsDevice, float squareSize, Color color, int width, int length, Vector3 position) {
 
             GraphicsDevice = graphicsDevice;
