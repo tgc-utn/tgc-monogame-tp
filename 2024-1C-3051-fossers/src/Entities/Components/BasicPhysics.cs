@@ -37,9 +37,10 @@ class RigidBody : Component
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector3 torques = calculateTorques();
         Vector3 forces = calculateForces();
-        _instForces = Array.Empty<Force>();
+        
         _angularVelocity += Vector3.Transform(torques, Matrix.Invert(_inertiaTensor)) * dt;
         _velocity += forces / _mass * dt;
+
         self.Transform.Translate(_velocity * dt);
         self.Transform.Orientation += new Quaternion(_angularVelocity * 0.5f * dt, 0) * self.Transform.Orientation;
         self.Transform.Orientation = Quaternion.Multiply(self.Transform.Orientation,1/self.Transform.Orientation.Length());
