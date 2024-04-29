@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Camera;
 
 namespace TGC.MonoGame.TP
@@ -47,13 +46,7 @@ namespace TGC.MonoGame.TP
         private Matrix World { get; set; }
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
-
-
-
         
-        private CubePrimitive Box { get; set; }
-        
-        private Vector3 BoxPosition { get; set; }
         private float Yaw { get; set; }
         private float Pitch { get; set; }
         private float Roll { get; set; }
@@ -72,14 +65,7 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, size);
-
-            Box = new CubePrimitive(GraphicsDevice, 10, Color.DarkCyan, Color.DarkMagenta, Color.DarkGreen,
-                Color.MonoGameOrange, Color.Black, Color.DarkGray);
-            BoxPosition = Vector3.Zero;
-
-
-
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitZ * 150f, size);
 
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
@@ -181,11 +167,6 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
 
-            
-            DrawGeometry(Box, BoxPosition, Yaw, Pitch, Roll);
-
-
-
         }
 
         /// <summary>
@@ -197,17 +178,6 @@ namespace TGC.MonoGame.TP
             Content.Unload();
 
             base.UnloadContent();
-        }
-
-         private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll)
-        {
-            var effect = geometry.Effect;
-
-            effect.World = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position);
-            effect.View = Camera.View;
-            effect.Projection = Camera.Projection;
-
-            geometry.Draw(effect);
         }
     }
 }
