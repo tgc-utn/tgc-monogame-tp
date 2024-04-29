@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 
-public class ModelsGenerator
+public class EntityGenerator
 {
     public static List<Entity> Generate(Vector3 center, int maxElems, Type Entity, params object[] constructorParams)
     {

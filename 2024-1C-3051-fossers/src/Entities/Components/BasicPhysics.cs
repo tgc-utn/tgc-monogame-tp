@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Xml;
 using Microsoft.Xna.Framework;
+using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
@@ -31,7 +32,7 @@ class RigidBody : Component
         _inertiaTensor = inertiaTensor;
     }
 
-    public void UpdateEntity(Entity self, GameTime gameTime, Dictionary<string, Entity> others)
+    public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
         float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector3 torques = calculateTorques();
@@ -87,6 +88,7 @@ class RigidBody : Component
     {
         return "rigidbody";
     }
+
 
 }
 

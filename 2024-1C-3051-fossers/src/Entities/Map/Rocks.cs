@@ -22,7 +22,7 @@ public enum RockSize
 public class Rock : Entity
 {
     private RockSize rockSize;
-    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform())
+    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
     {
         rockSize = size;
     }
@@ -42,12 +42,12 @@ public class Rock : Entity
         }
     }
 
-    public override void LoadContent(Camera camera)
+    public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
         _renderable = new Renderable(model);
         _renderable.AddShader("color", new ColorShader(Color.Gray));
 
-        base.LoadContent(camera);
+        base.LoadContent();
     }
 }

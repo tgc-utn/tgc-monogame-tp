@@ -10,7 +10,6 @@ public class Transform
     public Vector3 Dim { get; set; }
     public Vector3 Pos { get; set; }
     public Quaternion Orientation { get; set; }
-    public Matrix World { get; set; }
 
     public Transform()
     {
@@ -35,8 +34,7 @@ public class Transform
 
     public void Rotate(Quaternion quaternion) => Orientation += quaternion;
 
-    public void UpdateWorldMatrix()
-    {
-        World = Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
+    public Matrix GetWorld(){
+        return Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
     }
 }

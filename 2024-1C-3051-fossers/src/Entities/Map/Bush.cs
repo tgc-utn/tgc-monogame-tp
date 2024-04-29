@@ -10,16 +10,16 @@ namespace WarSteel.Entities;
 
 class Bush : Entity
 {
-    public Bush() : base("bush", Array.Empty<string>(), new Transform())
+    public Bush() : base("bush", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
     {
     }
 
-    public override void LoadContent(Camera camera)
+    public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
         _renderable = new Renderable(model);
         _renderable.AddShader("color", new ColorShader(Color.Green));
 
-        base.LoadContent(camera);
+        base.LoadContent();
     }
 }

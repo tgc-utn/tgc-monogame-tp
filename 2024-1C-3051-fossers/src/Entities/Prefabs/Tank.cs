@@ -18,13 +18,13 @@ public class Tank : Entity
 
     }
 
-    public override void LoadContent(Camera camera)
+    public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
         Shader texture = new TextureShader(ContentRepoManager.Instance().GetTexture("Tanks/T90/textures_mod/hullA"));
         _renderable = new Renderable(model);
         _renderable.AddShader("texture", texture);
 
-        base.LoadContent(camera);
+        base.LoadContent();
     }
 }
