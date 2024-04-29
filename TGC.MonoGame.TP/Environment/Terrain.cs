@@ -34,10 +34,9 @@ namespace TGC.MonoGame.TP.Environment {
         ///     Constructs a new terrain as a matrix of squares, with the specified square size, color, terrain width & length
         /// </summary>
         
-        public Terrain(GraphicsDevice graphicsDevice, float squareSize, Color color, int width, int length) {
-            new Terrain(graphicsDevice, squareSize, color, width, length, Vector3.Zero);
-        }
-        
+        public Terrain(GraphicsDevice graphicsDevice, float squareSize, Color color, int width, int length) : 
+            this (graphicsDevice, squareSize, color, width, length, Vector3.Zero) {}
+
         public Terrain(GraphicsDevice graphicsDevice, float squareSize, Color color, int width, int length, Vector3 position) {
 
             GraphicsDevice = graphicsDevice;
