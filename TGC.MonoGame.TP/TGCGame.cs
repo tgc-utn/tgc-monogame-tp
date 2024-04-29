@@ -47,9 +47,6 @@ namespace TGC.MonoGame.TP
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
         
-        private float Yaw { get; set; }
-        private float Pitch { get; set; }
-        private float Roll { get; set; }
 
 
         // Camera to draw the scene
@@ -134,10 +131,6 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            Yaw += time * 0.4f;
-            Pitch += time * 0.8f;
-            Roll += time * 0.9f;
             
             // Basado en el tiempo que paso se va generando una rotacion.
             Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -161,7 +154,7 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
-           foreach (var mesh in Model.Meshes)
+            foreach (var mesh in Model.Meshes)
             {
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
                 mesh.Draw();
