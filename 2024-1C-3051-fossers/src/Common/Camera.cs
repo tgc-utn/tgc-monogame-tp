@@ -29,8 +29,8 @@ public class Camera : Entity
 
     public override void Update(GameTime time, Scene scene)
     {
-        Transform.Pos = Vector3.Transform(Transform.Pos, FollowedEntity.Transform.GetWorld());
         base.Update(time, scene);
+        Transform.Pos = Vector3.Transform(Transform.Pos, FollowedEntity.Transform.GetWorld());
         View = Matrix.CreateLookAt(Transform.Pos, FollowedEntity.Transform.Pos, Transform.GetWorld().Up);
     }
 }

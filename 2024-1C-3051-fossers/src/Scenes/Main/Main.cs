@@ -39,7 +39,7 @@ public class MainScene : Scene
         
         
         Camera camera = new(new Vector3(2000, 2000, 0), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
-        
+        camera.AddComponent(new MouseController(0.01f));
         SetCamera(camera);
       
         AddEntity(new Tank("player"));
