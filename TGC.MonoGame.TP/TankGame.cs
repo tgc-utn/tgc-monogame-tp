@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -16,8 +17,13 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderEffects = "Effects/";
 
         private Tanque tanque;
+
+        private Model Antitanque { get; set; }
         private Model Casa { get; set; }
         private List<Texture2D> Textures {get; set; }
+
+        private List<int> NumerosX { get; set; }
+        private List<int> NumerosZ { get; set; }
         //private Barrier[] barriers;
 
         private Vector3 startPosition = new Vector3(10, GameConstants.HeightOffset -8, 0);
@@ -50,6 +56,17 @@ namespace TGC.MonoGame.TP
 
             base.Initialize();
 
+            NumerosX = new List<int>();
+            NumerosZ = new List<int>();
+
+            var Random = new Random();
+            //int Numero[] = Random.Next(1, 20);
+            for(int i = 0; i < 50; i++)
+            {
+                NumerosX.Add(Random.Next(-100, 100));
+                NumerosZ.Add(Random.Next(-100, 100));
+            }
+
         }
 
 
@@ -63,13 +80,15 @@ namespace TGC.MonoGame.TP
 
             Casa = Content.Load<Model>("Models/Casa/house");
 
-            
-            // Initialize and place barriers
-           /* barriers = new Barrier[3];
+            Antitanque = Content.Load<Model>("Models/assets militares/rsg_military_antitank_hedgehog_01");
 
-            barriers[0] = new Barrier();
-            barriers[0].LoadContent(Content, "Models/house");
-            barriers[0].Position = new Vector3(0, 0, 30);*/
+
+            // Initialize and place barriers
+            /* barriers = new Barrier[3];
+
+             barriers[0] = new Barrier();
+             barriers[0].LoadContent(Content, "Models/house");
+             barriers[0].Position = new Vector3(0, 0, 30);*/
             /*barriers[1] = new Barrier();
             barriers[1].LoadContent(Content, "Models/house");
             barriers[1].Position = new Vector3(15, 0, 30);
@@ -143,15 +162,37 @@ namespace TGC.MonoGame.TP
             }*/
             Matrix worldMatrix = Matrix.Identity;
 
-            Matrix translateMatrix = Matrix.CreateTranslation(startPosition);
+            Matrix worldMatrixAntitanque = Matrix.Identity;
+
+
+
+            Matrix translateMatrixCasa = Matrix.CreateTranslation(startPosition);
+
+
+
+            
 
             Matrix scaleMatrix = Matrix.CreateScale(5f, 5f, 5f);
 
-            worldMatrix = scaleMatrix * translateMatrix;
+            worldMatrix = scaleMatrix * translateMatrixCasa;
 
             Casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             
             tanque.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+
+            for (int i = 0;  i < 50; i++)
+            {
+
+               
+
+                Vector3 vector = new Vector3(NumerosX[i], 2, NumerosZ[i]);
+
+
+
+                Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
+                worldMatrixAntitanque = scaleMatrix * translateMatrixAntitanque;
+                Antitanque.Draw(worldMatrixAntitanque, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+            }
 
             //Casa.Draw(World, View, Projection);
 
