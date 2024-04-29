@@ -51,9 +51,11 @@ namespace TGC.MonoGame.TP
         private Model Model { get; set; }
         private Model Tree1 { get; set; }
         public Model Box1 { get; private set; }
+        private Model Tower { get; set; }
+        private Model Ramp { get; set; }
+        private Model Bush1 {get; set; }
         private Edificio Cottage { get; set; }
         private Edificio School { get; set; }
-        private Edificio CasaGrande {get; set; }
         private CubePrimitive Box { get; set; }
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
@@ -112,14 +114,17 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             Tree1 = Content.Load<Model>(ContentFolder3D + "trees/Tree2");
-            Box1 = Content.Load<Model>(ContentFolder3D + "Street/model/towers");
+            Box1 = Content.Load<Model>(ContentFolder3D + "Street/model/Electronic box");
+            Tower = Content.Load<Model>(ContentFolder3D + "Street/model/towers");
+            Ramp = Content.Load<Model>(ContentFolder3D + "Street/model/ramp");
+            Bush1 = Content.Load<Model>(ContentFolder3D + "Bushes/source/bush1");
 
             Cottage = new Edificio(new Vector3(-20, 0, -20));
             var cottageModel = Content.Load<Model>(ContentFolder3D + "Street/model/House"); 
             Cottage.Load(cottageModel, Effect);
 
             School = new Edificio(new Vector3(20, 0, 20));
-            var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/House"); 
+            var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/School"); 
             School.Load(schoolModel, Effect);
 
             // Asigno el efecto que cargue a cada parte del mesh.
@@ -127,6 +132,9 @@ namespace TGC.MonoGame.TP
             LoadEffect(Model);
             LoadEffect(Tree1);
             LoadEffect(Box1);
+            LoadEffect(Tower);
+            LoadEffect(Ramp);
+            LoadEffect(Bush1);
 
             base.LoadContent();
         }
@@ -214,6 +222,9 @@ namespace TGC.MonoGame.TP
             DrawCar();
             DrawTrees();
             DrawBox();
+            DrawTowers();
+            DrawRamps();
+            DrawBushes();
             Cottage.Draw();
             School.Draw();
         }
@@ -236,6 +247,47 @@ namespace TGC.MonoGame.TP
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.DarkGreen.ToVector3());
                     Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1, 1, 1)) * mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(boxTraslation));
+                    mesh.Draw();
+                }
+            }
+        }
+
+        private void DrawTowers()
+        {
+            for (int i = 0; i < 15; i++)
+            {
+                Vector3 towerTraslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                foreach (var mesh in Tower.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(towerTraslation));
+                    mesh.Draw();
+                }
+            }
+        }
+        private void DrawRamps()
+        {
+            for (int i = 0; i < 15; i++)
+            {
+                Vector3 rampTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                var randomRotation = Convert.ToSingle(_random.NextDouble() * 2.0 * Math.PI);
+                foreach (var mesh in Ramp.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Pink.ToVector3());
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateScale(4f) * Matrix.CreateRotationY(randomRotation) * Matrix.CreateTranslation(rampTranslation));
+                    mesh.Draw();
+                }
+            }
+        }
+        private void DrawBushes()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Vector3 rampTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                foreach (var mesh in Bush1.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.Pink.ToVector3());
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(rampTranslation));
                     mesh.Draw();
                 }
             }
