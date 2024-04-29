@@ -10,7 +10,6 @@ public class Scene
 {
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
     protected GraphicsDeviceManager Graphics;
-
     protected Camera camera;
 
     public Scene(GraphicsDeviceManager Graphics)
@@ -27,6 +26,10 @@ public class Scene
     public Camera GetCamera()
     {
         return camera;
+    }
+
+    public GraphicsDeviceManager GetGraphicsDevice(){
+        return Graphics;
     }
 
     public void AddEntity(Entity entity)

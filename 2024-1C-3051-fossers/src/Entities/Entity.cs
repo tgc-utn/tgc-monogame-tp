@@ -15,18 +15,18 @@ public class Entity
     public string Name { get; }
     public string[] Tags { get; }
 
-    public Component[] Modifiers {get;}
+    public Component[] Components {get; private set;}
 
     public Transform Transform { get; }
     protected Renderable _renderable { get; set; }
 
-    public Entity(string name, string[] tags, Transform transform, Component[] modifiers)
+    public Entity(string name, string[] tags, Transform transform, Component[] Components)
     {
         Id = Guid.NewGuid().ToString();
         Name = name;
         Tags = tags;
         Transform = transform;
-        Modifiers = modifiers;
+        this.Components = Components;
         _renderable = null;
     }
 
@@ -39,6 +39,10 @@ public class Entity
         _renderable = renderable;
     }
 
+    public void AddComponent(Component c){
+        Components = Components.Append(c).ToArray();
+    }
+
     public virtual void Initialize() { }
     public virtual void LoadContent() { }
     public virtual void Draw(Scene scene)
@@ -48,7 +52,7 @@ public class Entity
     }
     public virtual void Update(GameTime gameTime,Scene scene)
     {
-        foreach(var m in Modifiers){
+        foreach(var m in Components){
             m.UpdateEntity(this,gameTime,scene);
         }
     }

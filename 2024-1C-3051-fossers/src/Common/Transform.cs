@@ -25,14 +25,13 @@ public class Transform
     public void Translate(float x, float y, float z) => Dim += new Vector3(x, y, z);
 
     // x,y,z angles in degrees
-    public void Rotate(Vector3 eulerAngles) => Orientation += Quaternion.CreateFromYawPitchRoll(
+    public void Rotate(Vector3 eulerAngles) => Orientation = Quaternion.CreateFromYawPitchRoll(
         MathHelper.ToRadians(eulerAngles.Y),
         MathHelper.ToRadians(eulerAngles.X),
         MathHelper.ToRadians(eulerAngles.Z)
-    );
-    public void Rotate(float angleX, float angleY, float angleZ) => Dim += new Vector3(angleX, angleY, angleZ);
-
-    public void Rotate(Quaternion quaternion) => Orientation += quaternion;
+    ) * Orientation;
+   
+    public void Rotate(Quaternion quaternion) => Orientation = quaternion * Orientation;
 
     public Matrix GetWorld(){
         return Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
