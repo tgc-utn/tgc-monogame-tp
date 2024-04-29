@@ -50,6 +50,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Model Tree1 { get; set; }
+        public Model Box1 { get; private set; }
         private Edificio Cottage { get; set; }
         private Edificio School { get; set; }
         private Edificio CasaGrande {get; set; }
@@ -111,19 +112,21 @@ namespace TGC.MonoGame.TP
             // Cargo el modelo del logo.
             Model = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             Tree1 = Content.Load<Model>(ContentFolder3D + "trees/Tree2");
+            Box1 = Content.Load<Model>(ContentFolder3D + "Street/model/towers");
 
             Cottage = new Edificio(new Vector3(-20, 0, -20));
             var cottageModel = Content.Load<Model>(ContentFolder3D + "Street/model/House"); 
             Cottage.Load(cottageModel, Effect);
 
             School = new Edificio(new Vector3(20, 0, 20));
-            var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/School"); 
+            var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/House"); 
             School.Load(schoolModel, Effect);
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
             LoadEffect(Model);
             LoadEffect(Tree1);
+            LoadEffect(Box1);
 
             base.LoadContent();
         }
@@ -210,6 +213,7 @@ namespace TGC.MonoGame.TP
             DrawFloor(Box);
             DrawCar();
             DrawTrees();
+            DrawBox();
             Cottage.Draw();
             School.Draw();
         }
@@ -221,6 +225,19 @@ namespace TGC.MonoGame.TP
                 Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(0, 0, 0)));
                 mesh.Draw();
+            }
+        }
+        private void DrawBox()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Vector3 boxTraslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                foreach (var mesh in Box1.Meshes)
+                {
+                    Effect.Parameters["DiffuseColor"].SetValue(Color.DarkGreen.ToVector3());
+                    Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1, 1, 1)) * mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(boxTraslation));
+                    mesh.Draw();
+                }
             }
         }
 
