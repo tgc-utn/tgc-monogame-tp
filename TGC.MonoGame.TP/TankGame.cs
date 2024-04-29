@@ -69,13 +69,8 @@ namespace TGC.MonoGame.TP
             NumerosZ = new List<int>();
 
             var Random = new Random();
-<<<<<<< HEAD
 
             for(int i = 0; i < 50; i++)
-=======
-            //int Numero[] = Random.Next(1, 20);
-            for (int i = 0; i < 50; i++)
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
             {
                 NumerosX.Add(Random.Next(-100, 100));
                 NumerosZ.Add(Random.Next(-100, 100));
@@ -85,20 +80,10 @@ namespace TGC.MonoGame.TP
 
         }
 
-<<<<<<< HEAD
     protected override void LoadContent()
     {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-=======
-
-
-
-
-
-        protected override void LoadContent()
-        {
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
             ground.Model = Content.Load<Model>("Models/Grid/ground");
 
             Casa = Content.Load<Model>("Models/Casa/house");
@@ -157,23 +142,13 @@ namespace TGC.MonoGame.TP
             }
             */
 
-<<<<<<< HEAD
             base.LoadContent();
-=======
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
 
         }
 
         protected override void Update(GameTime gameTime)
         {
             // Update input from sources, Keyboard and GamePad
-<<<<<<< HEAD
-=======
-            lastKeyboardState = currentKeyboardState;
-            currentKeyboardState = Keyboard.GetState();
-            lastGamePadState = currentGamePadState;
-            currentGamePadState = GamePad.GetState(PlayerIndex.One);
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
 
             lastKeyboardState = currentKeyboardState;
             currentKeyboardState = Keyboard.GetState();
@@ -182,16 +157,8 @@ namespace TGC.MonoGame.TP
             currentGamePadState = GamePad.GetState(PlayerIndex.One);
 
             tanque.Update(currentGamePadState, currentKeyboardState);
-<<<<<<< HEAD
+
             gameCamera.Update(tanque.ForwardDirection, tanque.Position, Graphics.GraphicsDevice.Viewport.AspectRatio);
-=======
-            gameCamera.Update(tanque.ForwardDirection, tanque.Position, graphics.GraphicsDevice.Viewport.AspectRatio);
-            // Allows the game to exit
-            if (currentKeyboardState.IsKeyDown(Keys.Escape) || currentGamePadState.Buttons.Back == ButtonState.Pressed)
-            {
-                this.Exit();
-            }
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
 
             if (currentKeyboardState.IsKeyDown(Keys.Escape) || currentGamePadState.Buttons.Back == ButtonState.Pressed)
                 {
@@ -245,19 +212,12 @@ namespace TGC.MonoGame.TP
 
             for (int i = 0; i < 50; i++)
             {
-<<<<<<< HEAD
-=======
 
-
-
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
                 Vector3 vector = new Vector3(NumerosX[i], 2, NumerosZ[i]);
                 
                 Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
                 worldMatrixAntitanque = scaleMatrix * translateMatrixAntitanque;
-<<<<<<< HEAD
 
-=======
                 /*
                 foreach (var mesh in Casa.Meshes)
                 {
@@ -265,16 +225,12 @@ namespace TGC.MonoGame.TP
                     mesh.Draw();
                 }
                 */
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
+
                 Antitanque.Draw(worldMatrixAntitanque, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
             }
 
             //Casa.Draw(World, View, Projection);
 
-<<<<<<< HEAD
-             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-         
-=======
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             
             foreach (var mesh in Casa.Meshes)
@@ -284,7 +240,6 @@ namespace TGC.MonoGame.TP
             }
 
 
->>>>>>> 616bb646442208c2824a8999664bbef9fbba3354
             base.Draw(gameTime);
         }
 
