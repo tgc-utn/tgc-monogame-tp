@@ -58,6 +58,8 @@ namespace TGC.MonoGame.TP
         private Terrain Terrain { get; set; }
         private Terrain Terrain2 { get; set; }
 
+        private CubePrimitive Cube1;
+
         private float SquareSize = 50f;
 
         /// <summary>
@@ -125,6 +127,9 @@ namespace TGC.MonoGame.TP
             Terrain = new Terrain(GraphicsDevice, SquareSize, Color.BlueViolet, 4, 4);
             Terrain2 = new Terrain(GraphicsDevice, SquareSize, Color.Coral, 2, 2, new Vector3(50, 20, 3));
 
+            Cube1 = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
+            Cube1.Effect.World = Matrix.CreateTranslation(new Vector3(50, 20, 3));
+
             base.LoadContent();
         }
 
@@ -170,6 +175,9 @@ namespace TGC.MonoGame.TP
 
             Terrain.Draw(Camera.View, Camera.Projection);
             Terrain2.Draw(Camera.View, Camera.Projection);
+
+
+            Cube1.Draw(Camera.View, Camera.Projection);
 
            /* foreach (var mesh in Model.Meshes)
             {
