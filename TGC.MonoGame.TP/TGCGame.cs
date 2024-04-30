@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -133,8 +134,9 @@ namespace TGC.MonoGame.TP
         private CubePrimitive Cube59;
         private CubePrimitive Cube60;
 
+        // BOLITA
 
-
+        private SpherePrimitive Bola;
 
 
         // ---------------------------------------
@@ -410,6 +412,11 @@ namespace TGC.MonoGame.TP
             Cube60 = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
             Cube60.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, -100));
 
+            // BOLITA
+
+            Bola = new SpherePrimitive(GraphicsDevice, 25, 50, Color.White);
+            Bola.Effect.World = Matrix.CreateTranslation(new Vector3(25, 25, 0));
+
 
 
 
@@ -528,6 +535,8 @@ namespace TGC.MonoGame.TP
             Cube58.Draw(Camera.View, Camera.Projection);
             Cube59.Draw(Camera.View, Camera.Projection);
             Cube60.Draw(Camera.View, Camera.Projection);
+
+            Bola.Draw(Camera.View, Camera.Projection);
             
 
            /* foreach (var mesh in Model.Meshes)
