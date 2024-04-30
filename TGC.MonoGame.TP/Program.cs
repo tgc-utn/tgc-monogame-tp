@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TGC.MonoGame.TP
+namespace ThunderingTanks
 {
     public static class Program
     {

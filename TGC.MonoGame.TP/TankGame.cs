@@ -1,233 +1,130 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ThunderingTanks.Cameras;
+using ThunderingTanks.Content.Models;
 
-
-namespace TGC.MonoGame.TP
+namespace ThunderingTanks
 {
     public class TankGame : Game
     {
-        private GraphicsDeviceManager Graphics;
-        private GameObject ground;
-        private Camera gameCamera;
-        private SpriteBatch SpriteBatch { get; set; }
-        private Effect Effect { get; set; }
-
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
 
-        private Tanque tanque;
-
-        private Model Antitanque { get; set; }
-        private Model Casa { get; set; }
-        private List<Texture2D> Textures { get; set; }
-
+        private GraphicsDeviceManager Graphics { get; }
+        private MapScene City { get; set; }
+        private Model Modelo { get; set; }
+        private Model rock { get; set; }
         private List<int> NumerosX { get; set; }
         private List<int> NumerosZ { get; set; }
 
-        //private Barrier[] barriers;
-        private Vector3 startPosition = new Vector3(10, GameConstants.HeightOffset - 8, 0);
+        private FreeCamera _freeCamera;
+        private Matrix World { get; set; }
 
-        // States to store input values
-        private KeyboardState lastKeyboardState = new KeyboardState();
-        private KeyboardState currentKeyboardState = new KeyboardState();
-        private GamePadState lastGamePadState = new GamePadState();
-        private GamePadState currentGamePadState = new GamePadState();
-
+        private SkyBox _skyBox;
+        private readonly Vector3 _cameraInitialPosition = new(0f, 200f, 300f);
+        private readonly Vector3 _lightPosition = new(1000f, 500f, 300f);
 
         public TankGame()
         {
             Graphics = new GraphicsDeviceManager(this);
-
-            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
-            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-
         }
 
         protected override void Initialize()
         {
-            ground = new GameObject();
-            gameCamera = new Camera();
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
+            GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.ApplyChanges();
+            _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
+            World = Matrix.Identity;
 
             NumerosX = new List<int>();
             NumerosZ = new List<int>();
+            var random = new Random();
 
-            tanque = new Tanque();
-            Textures = new List<Texture2D>();
-
-            var Random = new Random();
-
-            for(int i = 0; i < 50; i++)
+            for (int i = 0; i < 20; i++)
             {
-                NumerosX.Add(Random.Next(-100, 100));
-                NumerosZ.Add(Random.Next(-100, 100));
+                NumerosX.Add(random.Next(-10000, 10000)); // Rango más amplio
+                NumerosZ.Add(random.Next(-10000, 10000)); // Rango más amplio
             }
 
             base.Initialize();
-
         }
 
-    protected override void LoadContent()
-    {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+        protected override void LoadContent()
+        {
+            City = new MapScene(Content);
+            Modelo = Content.Load<Model>("Models/Panzer/Panzer");
+            rock = Content.Load<Model>("Models/nature/rock/Rock_1");
 
-            ground.Model = Content.Load<Model>(ContentFolder3D + "Grid/ground");
-
-            Casa = Content.Load<Model>(ContentFolder3D + "Casa/house");
-
-            Antitanque = Content.Load<Model>(ContentFolder3D + "assets militares/rsg_military_antitank_hedgehog_01");
-
-            tanque.LoadContent(Content, ContentFolder3D + "Panzer/Panzer");
-
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 5000);
 
             base.LoadContent();
-
         }
 
         protected override void Update(GameTime gameTime)
         {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
 
-            lastKeyboardState = currentKeyboardState;
-            currentKeyboardState = Keyboard.GetState();
-
-            lastGamePadState = currentGamePadState;
-            currentGamePadState = GamePad.GetState(PlayerIndex.One);
-
-            tanque.Update(currentGamePadState, currentKeyboardState);
-
-            gameCamera.Update(tanque.ForwardDirection, tanque.Position, Graphics.GraphicsDevice.Viewport.AspectRatio);
-
-            if (currentKeyboardState.IsKeyDown(Keys.Escape) || currentGamePadState.Buttons.Back == ButtonState.Pressed)
-                {
-                    this.Exit();
-                }
+            _freeCamera.Update(gameTime);
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            DrawTerrain(ground.Model);
+            City.Draw(gameTime, _freeCamera.View, _freeCamera.Projection);
+            Modelo.Draw(World, _freeCamera.View, _freeCamera.Projection);
+            DrawSkyBox(_freeCamera.View, _freeCamera.Projection, _freeCamera.Position);
 
-            Matrix worldMatrix;
-            Matrix worldMatrixAntitanque;
-            Matrix scaleMatrix = Matrix.CreateScale(5f, 5f, 5f);
+            List<Matrix> rockTransforms = new List<Matrix>(); // Crear la lista de transformaciones de las rocas
 
-            worldMatrix = scaleMatrix * Matrix.CreateTranslation(startPosition);
-            
-            foreach (ModelMesh mesh in Casa.Meshes)
+            for (int i = 0; i < 20; i++)
             {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.World = worldMatrix;
-                    effect.View = gameCamera.ViewMatrix;
-                    effect.Projection = gameCamera.ProjectionMatrix;
-
-                    effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
-                    // Aquí podrías asignar una textura al efecto si la casa usa texturas
-                    // Por ejemplo: effect.Texture = tuTextura;
-                }
-            }
-            
-            tanque.Draw(gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
-
-            Effect.Parameters["View"].SetValue(gameCamera.ViewMatrix);
-            Effect.Parameters["Projection"].SetValue(gameCamera.ProjectionMatrix);
-
-            /*
-                        foreach (var mesh in Casa.Meshes)
-                        {
-                            foreach (var meshPart in mesh.MeshParts)
-                            {
-                                meshPart.Effect = Effect;
-                            }
-                        }
-
-
-                        foreach (var mesh in Antitanque.Meshes)
-                        {
-                            foreach (var meshPart in mesh.MeshParts)
-                            {
-                                meshPart.Effect = Effect;
-                            }
-                        }
-            */
-
-            for (int i = 0; i < 50; i++)
-            {
-
                 Vector3 vector = new Vector3(NumerosX[i], 2, NumerosZ[i]);
-                
                 Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
-                worldMatrixAntitanque = scaleMatrix * translateMatrixAntitanque;
-
- //             Antitanque.Draw(worldMatrixAntitanque, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+                Matrix worldMatrixAntitanque = Matrix.CreateScale(5f) * translateMatrixAntitanque;
+                rockTransforms.Add(worldMatrixAntitanque);
             }
 
-            Casa.Draw(worldMatrix, gameCamera.ViewMatrix, gameCamera.ProjectionMatrix);
+            foreach (var transform in rockTransforms)
+            {
+                rock.Draw(transform, _freeCamera.View, _freeCamera.Projection);
+            }
 
             base.Draw(gameTime);
         }
 
-        private void DrawTerrain(Model model)
+        private void DrawSkyBox(Matrix view, Matrix projection, Vector3 position)
         {
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.PreferPerPixelLighting = true;
-                    effect.World = Matrix.Identity;
-
-                    // Use the matrices provided by the game camera
-                    effect.View = gameCamera.ViewMatrix;
-                    effect.Projection = gameCamera.ProjectionMatrix;
-                }
-                mesh.Draw();
-            }
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            GraphicsDevice.RasterizerState = rasterizerState;
+            _skyBox.Draw(view, projection, position);
+            GraphicsDevice.RasterizerState = originalRasterizerState;
         }
 
         protected override void UnloadContent()
         {
-            // Libero los recursos.
             Content.Unload();
-
             base.UnloadContent();
         }
-
-
     }
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

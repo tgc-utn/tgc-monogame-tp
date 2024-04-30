@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿/*
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -106,8 +107,8 @@ namespace TGC.MonoGame.TP
         private bool ValidateMovement(Vector3 futurePosition)
         {
             //Do not allow off-terrain driving
-            if ((Math.Abs(futurePosition.X) > MaxRange) || (Math.Abs(futurePosition.Z) > MaxRange))
-                return false;
+            //if ((Math.Abs(futurePosition.X) > MaxRange) || (Math.Abs(futurePosition.Z) > MaxRange))
+              //  return false;
 
             return true;
         }
@@ -146,3 +147,4 @@ namespace TGC.MonoGame.TP
         }
     }
 }
+*/
