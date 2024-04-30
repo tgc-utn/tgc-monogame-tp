@@ -77,7 +77,8 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitZ * 150f, size);
+            var cameraPosition = new Vector3(20f, 100f, 500f);
+            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
 
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
