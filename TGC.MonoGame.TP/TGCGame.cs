@@ -59,6 +59,7 @@ namespace TGC.MonoGame.TP
         private Terrain Terrain2 { get; set; }
 
         private CubePrimitive Cube1;
+        private RampPrimitive Ramp;
 
         // ---------------------------------------
 
@@ -410,11 +411,12 @@ namespace TGC.MonoGame.TP
             Cube60 = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
             Cube60.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, -100));
 
+            // rampa
+            Ramp = new RampPrimitive(GraphicsDevice, 25f, Color.Red);
+            Ramp.Effect.World = Matrix.CreateTranslation(new Vector3(150, 150, -100));
 
 
 
-
-           
 
             base.LoadContent();
         }
@@ -528,13 +530,14 @@ namespace TGC.MonoGame.TP
             Cube58.Draw(Camera.View, Camera.Projection);
             Cube59.Draw(Camera.View, Camera.Projection);
             Cube60.Draw(Camera.View, Camera.Projection);
-            
 
-           /* foreach (var mesh in Model.Meshes)
-            {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                mesh.Draw();
-            }*/
+            Ramp.Draw(Camera.View, Camera.Projection);
+
+            /* foreach (var mesh in Model.Meshes)
+             {
+                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+                 mesh.Draw();
+             }*/
         }
 
         /// <summary>
