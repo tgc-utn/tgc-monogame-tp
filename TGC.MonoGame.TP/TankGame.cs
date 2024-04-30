@@ -19,6 +19,11 @@ namespace ThunderingTanks
         private MapScene City { get; set; }
         private Model Modelo { get; set; }
         private Model rock { get; set; }
+
+        private Model tree { get; set; }
+
+
+        private Model casa { get; set; }
         private Model antitank { get; set; }
         private List<int> NumerosX { get; set; }
         private List<int> NumerosZ { get; set; }
@@ -48,6 +53,7 @@ namespace ThunderingTanks
 
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.GraphicsProfile = GraphicsProfile.HiDef;
             Graphics.ApplyChanges();
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
             World = Matrix.Identity;
@@ -60,8 +66,8 @@ namespace ThunderingTanks
 
             for (int i = 0; i < N_Of_Rocks; i++)
             {
-                NumerosX.Add(random.Next(-10000, 10000)); // Rango más amplio
-                NumerosZ.Add(random.Next(-10000, 10000)); // Rango más amplio
+                NumerosX.Add(random.Next(-20000, 20000)); // Rango más amplio
+                NumerosZ.Add(random.Next(-20000, 20000)); // Rango más amplio
             }
 
             base.Initialize();
@@ -73,11 +79,15 @@ namespace ThunderingTanks
             Modelo = Content.Load<Model>("Models/Panzer/Panzer");
             rock = Content.Load<Model>("Models/nature/rock/Rock_1");
             antitank = Content.Load<Model>("Models/assets militares/rsg_military_antitank_hedgehog_01");
+            tree = Content.Load<Model>("Models/nature/tree/Southern Magnolia-CORONA");
+            casa = Content.Load<Model>("Models/casa/house");
+
+
 
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-            _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 5000);
+            _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
 
             base.LoadContent();
         }
@@ -100,13 +110,25 @@ namespace ThunderingTanks
             Modelo.Draw(World, _freeCamera.View, _freeCamera.Projection);
             DrawSkyBox(_freeCamera.View, _freeCamera.Projection, _freeCamera.Position);
 
+            tree.Draw(Matrix.CreateScale(3f)*Matrix.CreateTranslation(new Vector3(100, -10, 9000)), _freeCamera.View, _freeCamera.Projection);
+
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(100, -10, -9000)), _freeCamera.View, _freeCamera.Projection);
+
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(9000, -10, 100)), _freeCamera.View, _freeCamera.Projection);
+
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 100)), _freeCamera.View, _freeCamera.Projection);
+
+            casa.Draw(Matrix.CreateScale(500f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 7000)), _freeCamera.View, _freeCamera.Projection);
+
+
+
             List<Matrix> rockTransforms = new List<Matrix>(); // Crear la lista de transformaciones de las rocas
 
             for (int i = 0; i < N_Of_Rocks; i++)
             {
                 Vector3 vector = new Vector3(NumerosX[i], 2, NumerosZ[i]);
                 Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
-                Matrix worldMatrixAntitanque = Matrix.CreateScale(5f) * translateMatrixAntitanque;
+                Matrix worldMatrixAntitanque = Matrix.CreateScale(3f) * translateMatrixAntitanque;
                 rockTransforms.Add(worldMatrixAntitanque);
             }
 

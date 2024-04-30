@@ -31,7 +31,7 @@ namespace ThunderingTanks.Cameras
             CalculateView();
         }
 
-        private float MovementSpeed { get; set; } = 500f;
+        private float MovementSpeed { get; set; } = 1000f;
         private float MouseSensitivity { get; set; } = 5f;
 
         private void CalculateView()
