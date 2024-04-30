@@ -22,6 +22,8 @@ namespace ThunderingTanks
         private List<int> NumerosZ { get; set; }
 
         private FreeCamera _freeCamera;
+
+        private int N_Of_Rocks {  get; set; }
         private Matrix World { get; set; }
 
         private SkyBox _skyBox;
@@ -52,7 +54,9 @@ namespace ThunderingTanks
             NumerosZ = new List<int>();
             var random = new Random();
 
-            for (int i = 0; i < 20; i++)
+            N_Of_Rocks = 20;
+
+            for (int i = 0; i < N_Of_Rocks; i++)
             {
                 NumerosX.Add(random.Next(-10000, 10000)); // Rango más amplio
                 NumerosZ.Add(random.Next(-10000, 10000)); // Rango más amplio
@@ -95,7 +99,7 @@ namespace ThunderingTanks
 
             List<Matrix> rockTransforms = new List<Matrix>(); // Crear la lista de transformaciones de las rocas
 
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < N_Of_Rocks; i++)
             {
                 Vector3 vector = new Vector3(NumerosX[i], 2, NumerosZ[i]);
                 Matrix translateMatrixAntitanque = Matrix.CreateTranslation(vector);
