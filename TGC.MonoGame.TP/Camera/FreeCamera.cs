@@ -93,7 +93,7 @@ namespace TGC.MonoGame.TP.Camera
                 var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
                 mouseDelta *= MouseSensitivity * elapsedTime;
 
-                yaw -= mouseDelta.X;
+                yaw += mouseDelta.X;
                 pitch += mouseDelta.Y;
 
                 if (pitch > 89.0f)
