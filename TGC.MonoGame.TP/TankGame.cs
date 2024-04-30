@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -18,6 +19,7 @@ namespace ThunderingTanks
         private MapScene City { get; set; }
         private Model Modelo { get; set; }
         private Model rock { get; set; }
+        private Model antitank { get; set; }
         private List<int> NumerosX { get; set; }
         private List<int> NumerosZ { get; set; }
 
@@ -70,6 +72,7 @@ namespace ThunderingTanks
             City = new MapScene(Content);
             Modelo = Content.Load<Model>("Models/Panzer/Panzer");
             rock = Content.Load<Model>("Models/nature/rock/Rock_1");
+            antitank = Content.Load<Model>("Models/assets militares/rsg_military_antitank_hedgehog_01");
 
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
@@ -112,6 +115,30 @@ namespace ThunderingTanks
                 rock.Draw(transform, _freeCamera.View, _freeCamera.Projection);
             }
 
+            float DistanceToEdge = 40f; //trate de usar este código -> MapScene.DistanceBetweenParcels * MapScene.NumInstances/4 <- para no hardcodear pero no funciona;
+            
+
+            
+            for (float i = 0; i < 80f; i += 1f)
+            {
+                Vector3 Corner1 = new Vector3(DistanceToEdge, 0, DistanceToEdge - i);
+                Vector3 Corner2 = new Vector3((-1*DistanceToEdge) + i, 0, DistanceToEdge);
+                Vector3 Corner3 = new Vector3(DistanceToEdge - i, 0, (-1 * DistanceToEdge));
+                Vector3 Corner4 = new Vector3((-1 * DistanceToEdge), 0, (-1 * DistanceToEdge) + i);
+                Matrix MC1 = Matrix.CreateTranslation(Corner1) * Matrix.Identity;
+                MC1 *= Matrix.CreateScale(500);
+                antitank.Draw(MC1, _freeCamera.View, _freeCamera.Projection);
+                Matrix MC2 = Matrix.CreateTranslation(Corner2) * Matrix.Identity;
+                MC2 *= Matrix.CreateScale(500);
+                antitank.Draw(MC2, _freeCamera.View, _freeCamera.Projection);
+                Matrix MC3 = Matrix.CreateTranslation(Corner3) * Matrix.Identity;
+                MC3 *= Matrix.CreateScale(500);
+                antitank.Draw(MC3, _freeCamera.View, _freeCamera.Projection);
+                Matrix MC4 = Matrix.CreateTranslation(Corner4) * Matrix.Identity;
+                MC4 *= Matrix.CreateScale(500);
+                antitank.Draw(MC4, _freeCamera.View, _freeCamera.Projection);
+            }
+            //funciona, pero mirá este choclo, horrible
             base.Draw(gameTime);
         }
 
