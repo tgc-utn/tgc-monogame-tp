@@ -252,9 +252,9 @@ namespace TGC.MonoGame.TP
             Track.Add(Ramp);
 
             // BOLITA
-
+            // Propuesta de punto de inicio del escenario
             Bola = new SpherePrimitive(GraphicsDevice, 25, 50, Color.White);
-            Bola.Effect.World = Matrix.CreateTranslation(new Vector3(25, 25, 0));
+            Bola.Effect.World = Matrix.CreateTranslation(new Vector3(25, 25, -800));
 
             // planos inclinados (ROLL)
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
