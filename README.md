@@ -22,7 +22,10 @@ Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com
 
 TGC, Tgcito  |  Apellido, Nombre
 ------------ | -------------
-|            |              |
+|            | Lucas Gelabert |
+|            | Santiago Saucedo |
+|            | Simon Cutrera |
+|            | Tomas Zubizarreta |
 
 ## Capturas
 
