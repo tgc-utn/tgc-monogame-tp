@@ -46,7 +46,6 @@ public class Rock : Entity
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
         _renderable = new Renderable(model);
-        _renderable.AddShader("color", new ColorShader(Color.Gray));
 
         base.LoadContent();
     }

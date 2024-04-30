@@ -38,6 +38,16 @@ public class Renderable
                 shader.Value.UseWorld(modelWorld);
             }
 
+            foreach (Effect effect in mesh.Effects)
+            {
+                if (effect is BasicEffect basicEffect)
+                {
+                    basicEffect.World = mesh.ParentBone.Transform * world;
+                    basicEffect.View = scene.GetCamera().View;
+                    basicEffect.Projection = scene.GetCamera().Projection;
+                }
+            }
+
             mesh.Draw();
         };
     }

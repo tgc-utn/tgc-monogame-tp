@@ -18,7 +18,6 @@ class Bush : Entity
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
         _renderable = new Renderable(model);
-        _renderable.AddShader("color", new ColorShader(Color.Green));
 
         base.LoadContent();
     }

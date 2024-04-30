@@ -21,7 +21,7 @@ public class Ground : Entity
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
         _renderable = new Renderable(model);
-        _renderable.AddShader("color", new ColorShader(Color.Gray));
+
         base.LoadContent();
     }
 }
