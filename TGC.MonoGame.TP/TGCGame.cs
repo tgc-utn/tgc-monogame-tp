@@ -134,271 +134,173 @@ namespace TGC.MonoGame.TP
             // PRIMERA PLATAFORMA
             // primera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 0));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 0));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 0));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 0));
             Track.Add(Cube);
 
             // segunda linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 25));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 25));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 25));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 25));
             Track.Add(Cube);
 
             // tercera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 50));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 50));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 50));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 50));
             Track.Add(Cube);
 
             // cuarte linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 75));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 75));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 75));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 75));
             Track.Add(Cube);
 
             // quinta linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 100));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 100));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 100));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 100));
             Track.Add(Cube);
 
             // sexta linea 
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 125));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 125));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 125));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 125));
             Track.Add(Cube);
 
             // SEGUNDA PLATAFORMA
             // primera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 175));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 175));
             Track.Add(Cube);
 
             // segunda linda
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 200));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 200));
             Track.Add(Cube);
 
             // tercera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(0, 0, 225));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(25, 0, 225));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(50, 0, 225));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(25, 0, 225));
             Track.Add(Cube);
 
             // ESCALERA 
             // primer escalon 
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(75, 25, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(75, 25, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(75, 25, 225));
+            Cube.Effect.World = Matrix.CreateScale(1f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(75, 25, 200));
             Track.Add(Cube);
 
             // segundo escalon
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(100, 50, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(100, 50, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(100, 50, 225));
+            Cube.Effect.World = Matrix.CreateScale(1f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(100, 50, 200));
             Track.Add(Cube);
 
             // tercer escalon
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(125, 75, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(125, 75, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(125, 75, 225));
+            Cube.Effect.World = Matrix.CreateScale(1f, 1f, 3f) * Matrix.CreateTranslation(new Vector3(125, 75, 200));
             Track.Add(Cube);
 
             // TERCERA PLATAFORMA
             // primera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(150, 100, 225));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 225));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, 225));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 100, 225));
             Track.Add(Cube);
 
             // segunda linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(150, 100, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 200));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, 200));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 100, 200));
             Track.Add(Cube);
 
             // tercera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(150, 100, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 175));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, 175));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 100, 175));
             Track.Add(Cube);
 
             //CUARTA PLATAFORMA
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 125));
-            Track.Add(Cube);
-
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 100));
+            Cube.Effect.World = Matrix.CreateScale(1f, 1f, 6f) * Matrix.CreateTranslation(new Vector3(175, 100, 62));
             Track.Add(Cube);
 
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 75));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 50));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 25));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, 0));
-            Track.Add(Cube);
 
             // QUINTA PLATAFORMA
             // primera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(150, 100, -50));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, -50));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, -50));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 100, -50));
             Track.Add(Cube);
 
             // segunda linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(150, 100, -75));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, -75));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, -75));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 100, -75));
             Track.Add(Cube);
 
             // tercera linea
             Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(150, 100, -100));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(175, 100, -100));
-            Track.Add(Cube);
-
-            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
-            Cube.Effect.World = Matrix.CreateTranslation(new Vector3(200, 100, -100));
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 100, -100));
             Track.Add(Cube);
 
             // rampa
-            Ramp = new RampPrimitive(GraphicsDevice, 25f, Color.Red);
-            Ramp.Effect.World = Matrix.CreateTranslation(new Vector3(150, 150, -100));
+            Ramp = new RampPrimitive(GraphicsDevice, 25f, Color.Aquamarine);
+            Ramp.Effect.World = Matrix.CreateScale(3f, 1f, 1f) * Matrix.CreateTranslation(new Vector3(175, 125, -125));
             Track.Add(Ramp);
+
+            // canaleta
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(175, 125, -250));
+            Track.Add(Cube);
+            Ramp = new RampPrimitive(GraphicsDevice, 25f, Color.BlueViolet);
+            Ramp.Effect.World = Matrix.CreateScale(9f, 1f, 1f) * Matrix.CreateFromYawPitchRoll((float)Math.PI / 2, 0, 0) * Matrix.CreateTranslation(new Vector3(150, 150, -250)); // * ;
+            Track.Add(Ramp);
+            Ramp = new RampPrimitive(GraphicsDevice, 25f, Color.BlueViolet);
+            Ramp.Effect.World = Matrix.CreateScale(9f, 1f, 1f) * Matrix.CreateFromYawPitchRoll((float)Math.PI / (-2), 0, 0) * Matrix.CreateTranslation(new Vector3(200, 150, -250)); // * ;
+            Track.Add(Ramp);
+
+            // planos inclinados (ROLL)
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / (-6)) * Matrix.CreateTranslation(new Vector3(25, 0, -75));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateTranslation(new Vector3(25, 0, -175));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / 6) * Matrix.CreateTranslation(new Vector3(25, 0, -275));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateTranslation(new Vector3(25, 0, -375));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / (-6)) * Matrix.CreateTranslation(new Vector3(25, 0, -475));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.BlueViolet);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateTranslation(new Vector3(25, 0, -575));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.LightPink);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / 6) * Matrix.CreateTranslation(new Vector3(25, 0, -675));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Aquamarine);
+            Cube.Effect.World = Matrix.CreateScale(3f, 1f, 4f) * Matrix.CreateTranslation(new Vector3(25, 0, -775));
+            Track.Add(Cube);
+
+            // rampa grande
+            Ramp = new RampPrimitive(GraphicsDevice, 25f, Color.Gray);
+            Ramp.Effect.World = Matrix.CreateScale(7f, 7f, 7f) * Matrix.CreateFromYawPitchRoll((float)Math.PI / 2, 0, 0) * Matrix.CreateTranslation(new Vector3(175, 125, -450));
+            Track.Add(Ramp);
+            
+            // cuadrados grandes 
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Red);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(275, 25, -425));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Orange);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(300, 0, -400));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Yellow);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(325, -25, -375));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Green);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(350, -50, -350));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Blue);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(375, -75, -325));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Indigo);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(400, -100, -300));
+            Track.Add(Cube);
+            Cube = new CubePrimitive(GraphicsDevice, 25f, Color.Purple);
+            Cube.Effect.World = Matrix.CreateScale(9f, 1f, 9f) * Matrix.CreateTranslation(new Vector3(425, -125, -275));
+            Track.Add(Cube);
 
 
             base.LoadContent();
