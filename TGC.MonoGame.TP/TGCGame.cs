@@ -168,8 +168,8 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(Camera.Projection);
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
-            Terrain.Draw(View, Projection);
-            Terrain2.Draw(View, Projection);
+            Terrain.Draw(Camera.View, Camera.Projection);
+            Terrain2.Draw(Camera.View, Camera.Projection);
 
            /* foreach (var mesh in Model.Meshes)
             {
