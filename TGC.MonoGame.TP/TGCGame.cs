@@ -63,7 +63,9 @@ namespace TGC.MonoGame.TP
         private SpherePrimitive Bola;
         private List<GeometricPrimitive> Track;
 
-        private float SquareSize = 50f;
+        // Comentada porque no está en uso
+        //private float SquareSize = 50f;
+        
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
