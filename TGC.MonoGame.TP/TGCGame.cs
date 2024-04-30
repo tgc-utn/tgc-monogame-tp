@@ -26,8 +26,7 @@ namespace TGC.MonoGame.TP
         public const float Offset = 10f;
         private const int SEED = 0;
         public const float CameraSpeed = 50f;
-        // public Vector3 LookAtVector = new Vector3(0, 0, Offset);
-        public Vector3 LookAtVector = new Vector3(0, 0, 0);
+        public Vector3 LookAtVector = new Vector3(0, 0, Offset);
 
         /// <summary>
         ///     Constructor del juego.
@@ -271,7 +270,6 @@ namespace TGC.MonoGame.TP
             DrawRamp();
             DrawGasoline();
             DrawCarDBZ();
-            DrawCar2();
             DrawModels(Models3d);
         }
 
@@ -281,7 +279,7 @@ namespace TGC.MonoGame.TP
             {
                 for (int i = 0; i < 15; i++)
                 {
-                    Vector3 modelTraslation =  new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                    Vector3 modelTraslation =  new Vector3(_random.Next(-200, 200), 0, _random.Next(-450, 450));
                     foreach (var mesh in model.Meshes)
                     {
                         Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
@@ -312,20 +310,12 @@ namespace TGC.MonoGame.TP
                 mesh.Draw();
             }
         }
-        private void DrawCar2()
-        {
-            foreach (var mesh in Car2.Meshes)
-            {
-                Effect.Parameters["DiffuseColor"].SetValue(Color.BlueViolet.ToVector3());
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(-50, 0, 40)));
-                mesh.Draw();
-            }
-        }
+
         private void DrawBox()
         {
             for (int i = 0; i < 100; i++)
             {
-                Vector3 boxTraslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 boxTraslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Box1.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.DarkGreen.ToVector3());
@@ -339,7 +329,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 15; i++)
             {
-                Vector3 towerTraslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 towerTraslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Tower.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
@@ -352,7 +342,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 15; i++)
             {
-                Vector3 rampTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 rampTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 var randomRotation = Convert.ToSingle(_random.NextDouble() * 2.0 * Math.PI);
                 foreach (var mesh in Ramp.Meshes)
                 {
@@ -366,7 +356,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 100; i++)
             {
-                Vector3 rampTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 rampTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Bush1.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.Pink.ToVector3());
@@ -380,7 +370,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 100; i++)
             {
-                Vector3 treeTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 treeTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Tree1.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
@@ -394,7 +384,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 20; i++)
             {
-                Vector3 armaTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 armaTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Weapon1.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.Gray.ToVector3());
@@ -407,7 +397,7 @@ namespace TGC.MonoGame.TP
         private void DrawVehicle()
         {
 
-            Vector3 vehicleTranslation = new Vector3(_random.Next(-100, 100), 0, _random.Next(-100, 100));
+            Vector3 vehicleTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
 
             foreach (var mesh in Vehicle.Meshes)
             {
@@ -420,7 +410,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 25; i++)
             {
-                Vector3 rampTranslation = new Vector3(_random.Next(-300, 300), 0, _random.Next(-300, 300));
+                Vector3 rampTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Ramp.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
@@ -433,7 +423,7 @@ namespace TGC.MonoGame.TP
         {
             for (int i = 0; i < 15; i++)
             {
-                Vector3 gasolineTranslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-200, 200));
+                Vector3 gasolineTranslation = new Vector3(_random.Next(-450, 450), 0, _random.Next(-450, 450));
                 foreach (var mesh in Gasoline.Meshes)
                 {
                     Effect.Parameters["DiffuseColor"].SetValue(Color.Brown.ToVector3());
