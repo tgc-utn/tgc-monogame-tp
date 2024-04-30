@@ -36,7 +36,7 @@ namespace TGC.MonoGame.TP.Camera
 
         private void CalculateView()
         {
-            View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
+            View = Matrix.CreateLookAt(Position, Position - FrontDirection, UpDirection);
         }
 
         /// <inheritdoc />
@@ -61,25 +61,25 @@ namespace TGC.MonoGame.TP.Camera
 
             if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
-                Position += -RightDirection * currentMovementSpeed * elapsedTime;
+                Position += RightDirection * currentMovementSpeed * elapsedTime;
                 changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
             {
-                Position += RightDirection * currentMovementSpeed * elapsedTime;
+                Position += -RightDirection * currentMovementSpeed * elapsedTime;
                 changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
             {
-                Position += FrontDirection * currentMovementSpeed * elapsedTime;
+                Position += -FrontDirection * currentMovementSpeed * elapsedTime;
                 changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
             {
-                Position += -FrontDirection * currentMovementSpeed * elapsedTime;
+                Position += FrontDirection * currentMovementSpeed * elapsedTime;
                 changed = true;
             }
         }
