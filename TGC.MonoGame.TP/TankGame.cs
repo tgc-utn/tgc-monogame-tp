@@ -84,6 +84,8 @@ namespace ThunderingTanks
 
 
 
+
+
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
@@ -106,7 +108,7 @@ namespace ThunderingTanks
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            City.Draw(gameTime, _freeCamera.View, _freeCamera.Projection);
+            City.Draw(gameTime, _freeCamera.View, _freeCamera.Projection, Color.Green);
             Modelo.Draw(World, _freeCamera.View, _freeCamera.Projection);
             DrawSkyBox(_freeCamera.View, _freeCamera.Projection, _freeCamera.Position);
 
@@ -118,7 +120,18 @@ namespace ThunderingTanks
 
             tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 100)), _freeCamera.View, _freeCamera.Projection);
 
-            casa.Draw(Matrix.CreateScale(500f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 7000)), _freeCamera.View, _freeCamera.Projection);
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-6000, -10, 100)), _freeCamera.View, _freeCamera.Projection);
+
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-12000, -10, 100)), _freeCamera.View, _freeCamera.Projection);
+
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-12000, -10, -20000)), _freeCamera.View, _freeCamera.Projection);
+
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-12000, -10, -15000)), _freeCamera.View, _freeCamera.Projection);
+
+
+
+
+            //casa.Draw(Matrix.CreateScale(500f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 7000)), _freeCamera.View, _freeCamera.Projection);
 
 
 

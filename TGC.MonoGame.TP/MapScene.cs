@@ -30,19 +30,10 @@ namespace ThunderingTanks.Content.Models
         /// <param name="content">The Content Manager to load resources</param>
         public MapScene(ContentManager content)
         {
-            // Load the City Model
             Model = content.Load<Model>(ContentFolder3D + "Grid/ground");
 
             // Load an effect that will be used to draw the scene
             Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            // Get the first texture we find
-            // The city model only contains a single texture
-            var effect = Model.Meshes.FirstOrDefault().Effects.FirstOrDefault() as BasicEffect;
-            var texture = effect.Texture;
-
-            // Set the Texture to the Effect
-            Effect.Parameters["ModelTexture"].SetValue(texture);
 
             // Assign the mesh effect
             foreach (var mesh in Model.Meshes)
@@ -51,7 +42,6 @@ namespace ThunderingTanks.Content.Models
                     meshPart.Effect = Effect;
             }
 
-            // Create a list of places where the city model will be drawn
             WorldMatrices = new List<Matrix>();
             for (int i = 0; i < NumInstances; i++)
             {
@@ -63,16 +53,13 @@ namespace ThunderingTanks.Content.Models
             }
         }
 
-        /// <summary>
-        /// Draws the City Scene
-        /// </summary>
-        /// <param name="gameTime">The Game Time for this frame</param>
-        /// <param name="view">A view matrix, generally from a camera</param>
-        /// <param name="projection">A projection matrix</param>
-        public void Draw(GameTime gameTime, Matrix view, Matrix projection)
+
+        public void Draw(GameTime gameTime, Matrix view, Matrix projection, Color color)
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+
 
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
