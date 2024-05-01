@@ -1,52 +1,53 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using ThunderingTanks.Cameras;
 
 namespace ThunderingTanks.Cameras
-
 {
     internal class FreeCamera : Camera
     {
-        private readonly bool _lockMouse;
-        private readonly Point _screenCenter;
-        private bool _changed;
-        private Vector2 _pastMousePosition;
-        private float _pitch;
-        private float _yaw = -90f;
-        private float RotationSpeed { get; set; } = 1.5f;
+        private readonly bool lockMouse;
 
+        private readonly Point screenCenter;
+        private bool changed;
+
+        private Vector2 pastMousePosition;
+        private float pitch;
+
+        // Angles
+        private float yaw = -90f;
 
         public FreeCamera(float aspectRatio, Vector3 position, Point screenCenter) : this(aspectRatio, position)
         {
-            _lockMouse = true;
-            this._screenCenter = screenCenter;
+            lockMouse = true;
+            this.screenCenter = screenCenter;
         }
 
         public FreeCamera(float aspectRatio, Vector3 position) : base(aspectRatio)
         {
             Position = position;
-            _pastMousePosition = Mouse.GetState().Position.ToVector2();
+            pastMousePosition = Mouse.GetState().Position.ToVector2();
             UpdateCameraVectors();
             CalculateView();
         }
 
-        private float MovementSpeed { get; set; } = 1000f;
-        private float MouseSensitivity { get; set; } = 5f;
+        public float MovementSpeed { get; set; } = 100f;
+        public float MouseSensitivity { get; set; } = 5f;
 
         private void CalculateView()
         {
             View = Matrix.CreateLookAt(Position, Position + FrontDirection, UpDirection);
         }
 
+        /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _changed = false;
+            var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            changed = false;
             ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
 
-            if (_changed)
+            if (changed)
                 CalculateView();
         }
 
@@ -58,60 +59,29 @@ namespace ThunderingTanks.Cameras
             if (keyboardState.IsKeyDown(Keys.LeftShift))
                 currentMovementSpeed *= 5f;
 
-            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Right))
+            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
             {
                 Position += -RightDirection * currentMovementSpeed * elapsedTime;
-                _changed = true;
+                changed = true;
             }
 
-            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Left))
+            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
             {
                 Position += RightDirection * currentMovementSpeed * elapsedTime;
-                _changed = true;
+                changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
             {
                 Position += FrontDirection * currentMovementSpeed * elapsedTime;
-                _changed = true;
+                changed = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
             {
                 Position += -FrontDirection * currentMovementSpeed * elapsedTime;
-                _changed = true;
+                changed = true;
             }
-
-            // Agregar lógica para girar la cámara con las flechas
-            if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                _yaw += RotationSpeed;
-                _changed = true;
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Left))
-            {
-                _yaw -= RotationSpeed;
-                _changed = true;
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Up))
-            {
-                _pitch += RotationSpeed;
-                if (_pitch > 89.0f)
-                    _pitch = 89.0f;
-                _changed = true;
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Down))
-            {
-                _pitch -= RotationSpeed;
-                if (_pitch < -89.0f)
-                    _pitch = -89.0f;
-                _changed = true;
-            }
-
-            UpdateCameraVectors();
         }
 
         private void ProcessMouseMovement(float elapsedTime)
@@ -120,23 +90,23 @@ namespace ThunderingTanks.Cameras
 
             if (mouseState.RightButton.Equals(ButtonState.Pressed))
             {
-                var mouseDelta = mouseState.Position.ToVector2() - _pastMousePosition;
+                var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
                 mouseDelta *= MouseSensitivity * elapsedTime;
 
-                _yaw -= mouseDelta.X;
-                _pitch += mouseDelta.Y;
+                yaw -= mouseDelta.X;
+                pitch += mouseDelta.Y;
 
-                if (_pitch > 89.0f)
-                    _pitch = 89.0f;
-                if (_pitch < -89.0f)
-                    _pitch = -89.0f;
+                if (pitch > 89.0f)
+                    pitch = 89.0f;
+                if (pitch < -89.0f)
+                    pitch = -89.0f;
 
-                _changed = true;
+                changed = true;
                 UpdateCameraVectors();
 
-                if (_lockMouse)
+                if (lockMouse)
                 {
-                    Mouse.SetPosition(_screenCenter.X, _screenCenter.Y);
+                    Mouse.SetPosition(screenCenter.X, screenCenter.Y);
                     Mouse.SetCursor(MouseCursor.Crosshair);
                 }
                 else
@@ -145,19 +115,21 @@ namespace ThunderingTanks.Cameras
                 }
             }
 
-            _pastMousePosition = Mouse.GetState().Position.ToVector2();
+            pastMousePosition = Mouse.GetState().Position.ToVector2();
         }
 
         private void UpdateCameraVectors()
         {
+            // Calculate the new Front vector
             Vector3 tempFront;
-
-            tempFront.X = MathF.Cos(MathHelper.ToRadians(_yaw)) * MathF.Cos(MathHelper.ToRadians(_pitch));
-            tempFront.Y = MathF.Sin(MathHelper.ToRadians(_pitch));
-            tempFront.Z = MathF.Sin(MathHelper.ToRadians(_yaw)) * MathF.Cos(MathHelper.ToRadians(_pitch));
+            tempFront.X = MathF.Cos(MathHelper.ToRadians(yaw)) * MathF.Cos(MathHelper.ToRadians(pitch));
+            tempFront.Y = MathF.Sin(MathHelper.ToRadians(pitch));
+            tempFront.Z = MathF.Sin(MathHelper.ToRadians(yaw)) * MathF.Cos(MathHelper.ToRadians(pitch));
 
             FrontDirection = Vector3.Normalize(tempFront);
 
+            // Also re-calculate the Right and Up vector
+            // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
             RightDirection = Vector3.Normalize(Vector3.Cross(FrontDirection, Vector3.Up));
             UpDirection = Vector3.Normalize(Vector3.Cross(RightDirection, FrontDirection));
         }

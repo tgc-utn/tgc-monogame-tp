@@ -19,17 +19,13 @@ namespace ThunderingTanks
         private MapScene City { get; set; }
         private Model Modelo { get; set; }
         private Model rock { get; set; }
-
         private Model tree { get; set; }
-
-
         private Model casa { get; set; }
         private Model antitank { get; set; }
         private List<int> NumerosX { get; set; }
         private List<int> NumerosZ { get; set; }
 
         private FreeCamera _freeCamera;
-
         private int N_Of_Rocks {  get; set; }
         private Matrix World { get; set; }
 
@@ -49,12 +45,14 @@ namespace ThunderingTanks
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+        //    GraphicsDevice.BlendState = BlendState.Opaque;
 
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            Graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            Graphics.GraphicsProfile = GraphicsProfile.Reach;
+
             Graphics.ApplyChanges();
+
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
             World = Matrix.Identity;
 
@@ -107,7 +105,9 @@ namespace ThunderingTanks
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             City.Draw(gameTime, _freeCamera.View, _freeCamera.Projection);
+
             Modelo.Draw(World, _freeCamera.View, _freeCamera.Projection);
+
             DrawSkyBox(_freeCamera.View, _freeCamera.Projection, _freeCamera.Position);
 
             tree.Draw(Matrix.CreateScale(3f)*Matrix.CreateTranslation(new Vector3(100, -10, 9000)), _freeCamera.View, _freeCamera.Projection);
