@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
-using WarSteel.Managers;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
@@ -15,12 +13,12 @@ public class Entity
     public string Name { get; }
     public string[] Tags { get; }
 
-    public Component[] Components {get; private set;}
+    public List<Component> Components { get; private set; }
 
     public Transform Transform { get; }
     protected Renderable _renderable { get; set; }
 
-    public Entity(string name, string[] tags, Transform transform, Component[] Components)
+    public Entity(string name, string[] tags, Transform transform, List<Component> Components)
     {
         Id = Guid.NewGuid().ToString();
         Name = name;
@@ -39,8 +37,9 @@ public class Entity
         _renderable = renderable;
     }
 
-    public void AddComponent(Component c){
-        Components = Components.Append(c).ToArray();
+    public void AddComponent(Component c)
+    {
+        Components.Add(c);
     }
 
     public virtual void Initialize() { }
@@ -50,11 +49,13 @@ public class Entity
         if (_renderable != null)
             _renderable.Draw(Transform.GetWorld(), scene);
     }
-    public virtual void Update(GameTime gameTime,Scene scene)
+    public virtual void Update(GameTime gameTime, Scene scene)
     {
-        foreach(var m in Components){
-            m.UpdateEntity(this,gameTime,scene);
+        foreach (var m in Components)
+        {
+            m.UpdateEntity(this, gameTime, scene);
         }
     }
-    public virtual void OnDestroy() {}
+
+    public virtual void OnDestroy() { }
 }

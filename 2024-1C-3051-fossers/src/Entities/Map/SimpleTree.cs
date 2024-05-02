@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
@@ -10,7 +11,7 @@ namespace WarSteel.Entities;
 
 class SimpleTree : Entity
 {
-    public SimpleTree() : base("simple-tree", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
+    public SimpleTree() : base("simple-tree", Array.Empty<string>(), new Transform(), new List<Component>())
     {
     }
 

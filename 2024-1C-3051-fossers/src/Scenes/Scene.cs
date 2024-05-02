@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Entities;
-using WarSteel.Managers;
 
 namespace WarSteel.Scenes;
 
@@ -11,6 +10,10 @@ public class Scene
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
     protected GraphicsDeviceManager Graphics;
     protected Camera camera;
+
+    private List<LightSource> lightSources = new List<LightSource>();
+
+    private Color ambientLight = Color.White;
 
     public Scene(GraphicsDeviceManager Graphics)
     {
@@ -46,7 +49,6 @@ public class Scene
         }
         return null;
     }
-
     public virtual void Initialize()
     {
         foreach (var entity in entities.Values)
@@ -76,7 +78,14 @@ public class Scene
         {
             entity.Update(gameTime,this);
         }
+    }
 
+    public void AddLightSource(LightSource lightSource){
+        lightSources.Add(lightSource);
+    }
+
+    public List<LightSource> GetLightSources(){
+        return lightSources;
     }
 
     public virtual void Unload()
