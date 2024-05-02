@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
@@ -10,7 +11,7 @@ namespace WarSteel.Entities.Map;
 
 public class Ground : Entity
 {
-    public Ground() : base("ground", Array.Empty<string>(), new Transform(), Array.Empty<Component>()) { }
+    public Ground() : base("ground", Array.Empty<string>(), new Transform(), new List<Component>()) { }
 
     public override void Initialize()
     {

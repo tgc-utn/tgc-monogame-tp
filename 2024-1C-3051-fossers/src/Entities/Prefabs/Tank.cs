@@ -11,7 +11,7 @@ namespace WarSteel.Entities;
 
 public class Tank : Entity
 {
-    public Tank(string name) : base(name, Array.Empty<string>(), new Transform(),new Component[]{new RigidBody(
+    public Tank(string name) : base(name, Array.Empty<string>(), new Transform(),new List<Component>{new RigidBody(
         Vector3.Zero,Vector3.Zero,1,Matrix.Identity
     )})
     {

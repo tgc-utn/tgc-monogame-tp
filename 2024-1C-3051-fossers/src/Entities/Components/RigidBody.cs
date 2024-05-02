@@ -88,11 +88,6 @@ class RigidBody : Component
     }
 
 
-    public string id()
-    {
-        return "rigidbody";
-    }
-
 
 }
 

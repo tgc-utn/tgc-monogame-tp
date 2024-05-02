@@ -1,11 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Dynamic;
-using System.Linq;
-using System.Xml;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Scenes;
 
@@ -70,10 +64,6 @@ class MouseController : Component
         return mouseState.Position.ToVector2();
     }
 
-    public string id()
-    {
-        return "camera";
-    }
 
 
 }
