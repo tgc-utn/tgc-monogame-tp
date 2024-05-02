@@ -19,6 +19,8 @@ class RigidBody : Component
 
     private Matrix _inertiaTensor;
 
+    private Matrix _inverseInertiaTensor;
+
     private Force[] _instForces = Array.Empty<Force>();
 
     private Force[] _constForces = Array.Empty<Force>();
@@ -30,6 +32,7 @@ class RigidBody : Component
         _angularVelocity = angularVelocity;
         _mass = mass;
         _inertiaTensor = inertiaTensor;
+        _inverseInertiaTensor = Matrix.Invert(inertiaTensor);
     }
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
@@ -38,7 +41,7 @@ class RigidBody : Component
         Vector3 torques = calculateTorques();
         Vector3 forces = calculateForces();
         
-        _angularVelocity += Vector3.Transform(torques, Matrix.Invert(_inertiaTensor)) * dt;
+        _angularVelocity += Vector3.Transform(torques, _inverseInertiaTensor) * dt;
         _velocity += forces / _mass * dt;
 
         self.Transform.Translate(_velocity * dt);

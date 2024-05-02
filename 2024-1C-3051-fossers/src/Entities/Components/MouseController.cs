@@ -14,43 +14,59 @@ namespace WarSteel.Entities;
 class MouseController : Component
 {
 
-    private float sensitivity;
+    private float _sensitivity;
 
-    private Vector2 prevMousePosition;
+    private float _smoothing = 0.5f;
+
+    private float _pitch = 0;
+    private float _yaw = 0;
+
+    private Vector2 _mousePosition;
+
 
     public MouseController(float sensitivity)
     {
-        this.sensitivity = sensitivity;
-        prevMousePosition = MousePosition();
+        _sensitivity = sensitivity;
+        _mousePosition = MousePosition() * _sensitivity;
     }
 
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
-        MouseState currentMouseState = Mouse.GetState();
+        Vector2 mouseDelta = MousePosition() * _sensitivity;
+
+        Vector2 delta = (mouseDelta - _mousePosition) * (1 - _smoothing);
+        _mousePosition += delta;
+
+        float pitch = delta.Y;
+        float yaw = delta.X;
+
+        _pitch += pitch;
+        _yaw += yaw;
+
+        _pitch = MathHelper.Clamp(_pitch,-(float)Math.PI/2f,(float)Math.PI/2f);
+
         
-        // Calculate mouse delta
-        Vector2 mouseDelta = new Vector2(currentMouseState.X - prevMousePosition.X, currentMouseState.Y - prevMousePosition.Y);
-        
-        // Sensitivity factor to scale the mouse movement
 
-        // Convert mouse delta into rotation angles
-        float yaw = mouseDelta.X * sensitivity;
-        float pitch = -mouseDelta.Y * sensitivity;
 
-        // Update the entity's rotation matrix by appending new rotations
-         self.Transform.Pos =Vector3.Transform(self.Transform.Pos,Matrix.CreateFromYawPitchRoll(yaw,pitch,0));
 
-        // Save the current mouse state for the next frame
-        prevMousePosition = currentMouseState.Position.ToVector2();
+        float radius = self.Transform.Pos.Length();
+
+         Vector3 newPosition = new Vector3(
+        radius * (float)(Math.Sin(_pitch) * Math.Cos(_yaw)),
+        radius * (float)Math.Cos(_pitch),
+        radius * (float)(Math.Sin(_pitch) * Math.Sin(_yaw))
+    );
+
+        self.Transform.Pos = newPosition;
+
     }
+
+
 
     private Vector2 MousePosition()
     {
         MouseState mouseState = Mouse.GetState();
-
-
-       
         return mouseState.Position.ToVector2();
     }
 
