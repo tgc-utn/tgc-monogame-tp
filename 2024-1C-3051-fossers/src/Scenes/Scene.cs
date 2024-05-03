@@ -31,7 +31,8 @@ public class Scene
         return camera;
     }
 
-    public GraphicsDeviceManager GetGraphicsDevice(){
+    public GraphicsDeviceManager GetGraphicsDevice()
+    {
         return Graphics;
     }
 
@@ -76,18 +77,29 @@ public class Scene
     {
         foreach (var entity in entities.Values)
         {
-            entity.Update(gameTime,this);
+            entity.Update(gameTime, this);
         }
     }
 
-    public void AddLightSource(LightSource lightSource){
+    public void AddLightSource(LightSource lightSource)
+    {
         lightSources.Add(lightSource);
     }
 
-    public List<LightSource> GetLightSources(){
+    public List<LightSource> GetLightSources()
+    {
         return lightSources;
     }
 
+    public Color GetAmbientLightColor()
+    {
+        return ambientLight;
+    }
+
+    public void SetAmbientLightColor(Color color)
+    {
+        ambientLight = color;
+    }
     public virtual void Unload()
     {
 

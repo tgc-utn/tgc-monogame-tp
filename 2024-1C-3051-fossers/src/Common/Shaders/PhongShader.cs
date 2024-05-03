@@ -4,7 +4,9 @@ using System.Numerics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Entities;
+using WarSteel.Managers;
 using WarSteel.Scenes;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace WarSteel.Common.Shaders;
 
@@ -23,41 +25,47 @@ class PhongShader : Shader
         _diffuse = diffuse;
         _specular = specular;
         _texture = texture;
+        Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
     }
 
     public override void ApplyEffects(Scene scene)
     {
         Matrix[] matrices = new Matrix[LIGHTSOURCE_LIMIT];
-        
+
         List<LightSource> sources = scene.GetLightSources();
 
-        for(int i = 0; i < LIGHTSOURCE_LIMIT; i ++){
-            matrices[i] = new Matrix4x4();
-            LightSource source = sources[i];
+        for (int i = 0; i < LIGHTSOURCE_LIMIT; i++)
+        {
 
-            matrices[i].M11 = source.Light.Color.R;
-            matrices[i].M21 = source.Light.Color.G;
-            matrices[i].M31 = source.Light.Color.B;
-            matrices[i].M41 = 0;
+            if (i < sources.Count)
+            {
+                matrices[i] = new Matrix();
+                LightSource source = sources[i];
 
-            matrices[i].M12 = source.Position.X;
-            matrices[i].M22 = source.Position.Y;
-            matrices[i].M32 = source.Position.Z;
-            matrices[i].M42 = 0;
+                 matrices[i] = new Matrix(
+                    source.Color.R, source.Position.X, source.Direction.X, source.ConeAngle,
+                    source.Color.G, source.Position.Y, source.Direction.Y, 0,
+                    source.Color.B, source.Position.Z, source.Direction.Z, 0,
+                    1, 0, 0, 0
+                );
+            }
+            else
+            {
+                matrices[i] = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            }
 
-            matrices[i].M13 = source.Direction.X;
-            matrices[i].M23 = source.Direction.Y;
-            matrices[i].M33 = source.Direction.Z;
-            matrices[i].M43 = 0;
-
-            matrices[i].M14 = source.ConeAngle;
-            matrices[i].M24 = source.Light.Intensity;
-            matrices[i].M34 = 0;
-            matrices[i].M44 = 0;
-
+            // Effect.Parameters["LightSources"].Elements[i].SetValue(matrices[i]);
         }
 
-        Effect.Parameters["LightSources"].SetValue(matrices);
-    
+
+        Color color = scene.GetAmbientLightColor();
+        Effect.Parameters["AmbientLight"].SetValue(color.ToVector3());
+        Effect.Parameters["LightSourceCount"].SetValue(sources.Count);
+        Effect.Parameters["MaterialProperties"].SetValue(new Vector3(_ambient, _diffuse, _specular));
+        Effect.Parameters["Texture"].SetValue(_texture);
+       
+
+
+
     }
 }
