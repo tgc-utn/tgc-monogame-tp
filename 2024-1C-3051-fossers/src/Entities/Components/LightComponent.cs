@@ -7,15 +7,15 @@ namespace WarSteel.Entities;
 
 class LightComponent : Component {
 
-    private Light _light;
+    private Color _color;
     private Vector3 _localDirection;
 
     private Vector3 _localPosition;
 
     private float _coneAngle;
 
-    public LightComponent(Light light, Vector3 localDirection, Vector3 localPosition, float coneAngle){
-        _light = light;
+    public LightComponent(Color light, Vector3 localDirection, Vector3 localPosition, float coneAngle){
+        _color = light;
         _localDirection = localDirection;
         _coneAngle = coneAngle;
         _localPosition = localPosition;
@@ -25,7 +25,7 @@ class LightComponent : Component {
 
         Vector3 worldDirection = Vector3.Transform(_localDirection,self.Transform.GetWorld()) - self.Transform.Pos;
         Vector3 worldPosition = Vector3.Transform(_localPosition, self.Transform.GetWorld());
-        scene.AddLightSource(new LightSource(_light,worldDirection,_coneAngle,worldPosition));
+        scene.AddLightSource(new LightSource(_color,worldDirection,_coneAngle,worldPosition));
 
     }
 
@@ -33,28 +33,16 @@ class LightComponent : Component {
 
 public struct LightSource {
 
-    public Light Light;
+    public Color Color;
     public Vector3 Direction;
     public float ConeAngle;
     public Vector3 Position;
 
-    public LightSource(Light light, Vector3 localDirection, float coneAngle, Vector3 pos) : this()
+    public LightSource(Color color, Vector3 localDirection, float coneAngle, Vector3 pos) : this()
     {
-        Light = light;
+        Color = color;
         Direction = localDirection;
         ConeAngle = coneAngle;
         Position = pos;
     }
-}
-
-public struct Light {
-
-    public Color Color;
-    public float Intensity;
-
-    public Light(Color color, float intensity){
-        Color = color;
-        Intensity = intensity;
-    }
-
 }
