@@ -46,8 +46,8 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[1], vertexList[0], vertexList[7], size, color);
             AddTriangle(vertexList[7], vertexList[8], vertexList[1], size, color);
             AddTriangle(vertexList[2], vertexList[1], vertexList[8], size, color);
-            AddTriangle(vertexList[8], vertexList[6], vertexList[2], size, color);
-            AddTriangle(vertexList[0], vertexList[2], vertexList[6], size, color);
+            AddTriangle(vertexList[11], vertexList[6], vertexList[5], size, color);
+            AddTriangle(vertexList[0], vertexList[5], vertexList[6], size, color);
 
             // bottom - front/back
             AddTriangle(vertexList[3], vertexList[4], vertexList[5], size, color);
@@ -57,8 +57,8 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[4], vertexList[3], vertexList[10], size, color);
             AddTriangle(vertexList[10], vertexList[11], vertexList[4], size, color);
             AddTriangle(vertexList[5], vertexList[4], vertexList[11], size, color);
-            AddTriangle(vertexList[11], vertexList[9], vertexList[5], size, color);
-            AddTriangle(vertexList[3], vertexList[5], vertexList[9], size, color);
+            AddTriangle(vertexList[8], vertexList[9], vertexList[2], size, color);
+            AddTriangle(vertexList[3], vertexList[2], vertexList[9], size, color);
 
             InitializePrimitive(graphicsDevice);
         }
