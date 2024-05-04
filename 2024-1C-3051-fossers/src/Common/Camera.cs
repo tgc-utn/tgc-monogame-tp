@@ -36,4 +36,5 @@ public class Camera : Entity
 
         View = Matrix.CreateLookAt(Transform.Pos, FollowedEntity.Transform.Pos, Vector3.Up);
     }
+
 }
