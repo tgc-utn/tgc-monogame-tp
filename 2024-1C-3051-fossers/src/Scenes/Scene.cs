@@ -13,7 +13,7 @@ public class Scene
 
     private List<LightSource> lightSources = new List<LightSource>();
 
-    private Color ambientLight = Color.White;
+    private Color ambientLight = Color.Blue;
 
     public Scene(GraphicsDeviceManager Graphics)
     {
@@ -72,6 +72,7 @@ public class Scene
         {
             entity.Draw(this);
         }
+        ClearLightSources();
     }
     public virtual void Update(GameTime gameTime)
     {
@@ -94,6 +95,10 @@ public class Scene
     public Color GetAmbientLightColor()
     {
         return ambientLight;
+    }
+
+    public void ClearLightSources(){
+        lightSources = new List<LightSource>();
     }
 
     public void SetAmbientLightColor(Color color)

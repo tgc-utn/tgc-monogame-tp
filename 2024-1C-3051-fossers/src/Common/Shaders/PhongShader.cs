@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Microsoft.Xna.Framework;
@@ -7,65 +8,46 @@ using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
+using Vector4 = Microsoft.Xna.Framework.Vector4;
 
 namespace WarSteel.Common.Shaders;
 
 class PhongShader : Shader
 {
-    private const int LIGHTSOURCE_LIMIT = 8;
-    private float _ambient;
-    private float _diffuse;
-    private float _specular;
+    private const int LIGHTSOURCE_LIMIT = 2;
+    private float ambientCoefficient;
+    private float diffuseCoefficient;
+    private Texture2D texture;
 
-    private Texture2D _texture;
-
-    public PhongShader(float ambient, float diffuse, float specular, Texture2D texture)
+    public PhongShader(float ambient, float diffuse, Texture2D texture)
     {
-        _ambient = ambient;
-        _diffuse = diffuse;
-        _specular = specular;
-        _texture = texture;
+        ambientCoefficient = ambient;
+        diffuseCoefficient = diffuse;
+        this.texture = texture;
         Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
     }
 
     public override void ApplyEffects(Scene scene)
     {
-        Matrix[] matrices = new Matrix[LIGHTSOURCE_LIMIT];
 
         List<LightSource> sources = scene.GetLightSources();
+        Vector3[] colors = new Vector3[LIGHTSOURCE_LIMIT];
+        Vector3[] positions = new Vector3[LIGHTSOURCE_LIMIT];
 
-        for (int i = 0; i < LIGHTSOURCE_LIMIT; i++)
+        for (int i = 0; i < Math.Min(sources.Count,LIGHTSOURCE_LIMIT) ; i++)
         {
-
-            if (i < sources.Count)
-            {
-                matrices[i] = new Matrix();
-                LightSource source = sources[i];
-
-                 matrices[i] = new Matrix(
-                    source.Color.R, source.Position.X, source.Direction.X, source.ConeAngle,
-                    source.Color.G, source.Position.Y, source.Direction.Y, 0,
-                    source.Color.B, source.Position.Z, source.Direction.Z, 0,
-                    1, 0, 0, 0
-                );
-            }
-            else
-            {
-                matrices[i] = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            }
-
-            // Effect.Parameters["LightSources"].Elements[i].SetValue(matrices[i]);
+            Vector3 sourceColor = sources[i].Color.ToVector3();
+            Vector3 sourcePosition = sources[i].Position;
+            colors[i] = sourceColor;
+            positions[i] = sourcePosition;
         }
 
-
-        Color color = scene.GetAmbientLightColor();
-        Effect.Parameters["AmbientLight"].SetValue(color.ToVector3());
-        Effect.Parameters["LightSourceCount"].SetValue(sources.Count);
-        Effect.Parameters["MaterialProperties"].SetValue(new Vector3(_ambient, _diffuse, _specular));
-        Effect.Parameters["Texture"].SetValue(_texture);
-       
-
-
+        Effect.Parameters["AmbientLight"].SetValue(scene.GetAmbientLightColor().ToVector3());
+        Effect.Parameters["AmbientCoefficient"].SetValue(ambientCoefficient);
+        Effect.Parameters["LightSourcePositions"].SetValue(positions);
+        Effect.Parameters["LightSourceColors"].SetValue(colors);
+        Effect.Parameters["DiffuseCoefficient"].SetValue(diffuseCoefficient);
+        Effect.Parameters["Texture"].SetValue(texture);
 
     }
 }
