@@ -19,11 +19,21 @@ class PhongShader : Shader
     private float diffuseCoefficient;
     private Texture2D texture;
 
+    private Color color;
+
     public PhongShader(float ambient, float diffuse, Texture2D texture)
     {
         ambientCoefficient = ambient;
         diffuseCoefficient = diffuse;
         this.texture = texture;
+        Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
+    }
+
+    public PhongShader(float ambient, float diffuse, Color color)
+    {
+        ambientCoefficient = ambient;
+        diffuseCoefficient = diffuse;
+        this.color = color;
         Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
     }
 
@@ -34,7 +44,7 @@ class PhongShader : Shader
         Vector3[] colors = new Vector3[LIGHTSOURCE_LIMIT];
         Vector3[] positions = new Vector3[LIGHTSOURCE_LIMIT];
 
-        for (int i = 0; i < Math.Min(sources.Count,LIGHTSOURCE_LIMIT) ; i++)
+        for (int i = 0; i < Math.Min(sources.Count, LIGHTSOURCE_LIMIT); i++)
         {
             Vector3 sourceColor = sources[i].Color.ToVector3();
             Vector3 sourcePosition = sources[i].Position;
@@ -47,7 +57,19 @@ class PhongShader : Shader
         Effect.Parameters["LightSourcePositions"].SetValue(positions);
         Effect.Parameters["LightSourceColors"].SetValue(colors);
         Effect.Parameters["DiffuseCoefficient"].SetValue(diffuseCoefficient);
-        Effect.Parameters["Texture"].SetValue(texture);
+
+
+
+        if (texture == null)
+        {
+            Effect.Parameters["Color"].SetValue(color.ToVector3());
+            Effect.Parameters["HasTexture"].SetValue(false);
+        }
+        else
+        {
+            Effect.Parameters["Texture"].SetValue(texture);
+            Effect.Parameters["HasTexture"].SetValue(true);
+        }
 
     }
 }

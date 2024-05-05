@@ -24,22 +24,9 @@ public class MainScene : Scene
 
         AddEntity(new Tank("player"));
         AddEntity(new Ground());
-
-        List<Entity> trees = EntityGenerator.Generate(new Vector3(0, -10, 0), 100, typeof(SimpleTree));
-        List<Entity> bigRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.LARGE);
-        List<Entity> mediumRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.MEDIUM);
-        List<Entity> smallRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.SMALL);
-        List<Entity> bush = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Bush));
-
-        bigRocks.ForEach(rock => AddEntity(rock));
-        mediumRocks.ForEach(rock => AddEntity(rock));
-        smallRocks.ForEach(rock => AddEntity(rock));
-        trees.ForEach(tree => AddEntity(tree));
-        bush.ForEach(bush => AddEntity(bush));
         
-        bigRocks[0].AddComponent(new LightComponent(Color.Blue,Vector3.Zero));
-
         camera.Follow(GetEntityByName("player"));
+        GetEntityByName("player").AddComponent(new LightComponent(Color.White,new Vector3(2000,0,0)));
 
         SetCamera(camera);
         base.Initialize();
