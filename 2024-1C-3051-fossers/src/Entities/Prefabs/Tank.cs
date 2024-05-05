@@ -21,7 +21,7 @@ public class Tank : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
-        Shader texture = new PhongShader(0.5f,0.5f,ContentRepoManager.Instance().GetTexture("Tanks/T90/textures_mod/hullA"));
+        Shader texture = new PhongShader(0.2f,0.5f,Color.Gray);
         _renderable = new Renderable(model);
         _renderable.AddShader("phong", texture);
 

@@ -22,7 +22,7 @@ public class Ground : Entity
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
         _renderable = new Renderable(model);
-        _renderable.AddShader("color", new ColorShader(Color.Gray));
+        _renderable.AddShader("color",new PhongShader(0.5f,0.5f,Color.Gray));
         base.LoadContent();
     }
 }

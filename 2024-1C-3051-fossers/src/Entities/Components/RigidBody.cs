@@ -47,6 +47,8 @@ class RigidBody : Component
         self.Transform.Translate(_velocity * dt);
         self.Transform.Orientation += new Quaternion(_angularVelocity * 0.5f * dt, 0) * self.Transform.Orientation;
         self.Transform.Orientation = Quaternion.Multiply(self.Transform.Orientation,1/self.Transform.Orientation.Length());
+
+
     }
 
     private Vector3 calculateTorques()
