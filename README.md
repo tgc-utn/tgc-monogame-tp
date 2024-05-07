@@ -6,6 +6,9 @@
 
 [#BuiltWithMonoGame](http://www.monogame.net) and [.NET Core](https://dotnet.microsoft.com)
 
+## Descripcion
+Juego de batalla de tanques creado por estudiantes de la carrera de ingenieria en sistemas de la UTN de buenos aires para la materia Tecnicas De Graficos Por Computadora utilizando el FrameWork Monogame.
+
 ## Integrantes
 
 TGC, Tgcito  |  Apellido, Nombre
