@@ -133,6 +133,18 @@ public class SphereCollider : ICollider
         return new BoundingBox(currCenter + new Vector3(currCenter.X - radius, currCenter.Y - radius, currCenter.Z - radius), currCenter + new Vector3(currCenter.X + radius, currCenter.Y + radius, currCenter.Z + radius));
     }
 
+    public BoundingSphere GetBoundingSphere(){
+        return new BoundingSphere(GetCenter(),radius);
+    }
+
+    public Vector3 GetCenter(){
+        return Vector3.Transform(center, transform.GetWorld());
+    }
+
+    public float GetRadius(){
+        return radius;
+    }
+
 }
 
 
