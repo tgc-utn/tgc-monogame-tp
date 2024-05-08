@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Entities;
 using WarSteel.Managers;
 using WarSteel.Scenes;
+using WarSteel.Scenes.SceneProcessors;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 using Vector4 = Microsoft.Xna.Framework.Vector4;
 
@@ -40,7 +41,12 @@ class PhongShader : Shader
     public override void ApplyEffects(Scene scene)
     {
 
-        List<LightSource> sources = scene.GetLightSources();
+        if (scene.GetSceneProcessor<LightProcessor>() == null){
+            return;
+        }
+
+        List<LightSource> sources = scene.GetSceneProcessor<LightProcessor>().GetLightSources();
+        
         Vector3[] colors = new Vector3[LIGHTSOURCE_LIMIT];
         Vector3[] positions = new Vector3[LIGHTSOURCE_LIMIT];
 
@@ -52,7 +58,7 @@ class PhongShader : Shader
             positions[i] = sourcePosition;
         }
 
-        Effect.Parameters["AmbientLight"].SetValue(scene.GetAmbientLightColor().ToVector3());
+        Effect.Parameters["AmbientLight"].SetValue(scene.GetSceneProcessor<LightProcessor>().GetAmbientColor().ToVector3());
         Effect.Parameters["AmbientCoefficient"].SetValue(ambientCoefficient);
         Effect.Parameters["LightSourcePositions"].SetValue(positions);
         Effect.Parameters["LightSourceColors"].SetValue(colors);

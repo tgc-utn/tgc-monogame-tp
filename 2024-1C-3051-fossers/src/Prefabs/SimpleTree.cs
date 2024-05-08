@@ -11,7 +11,7 @@ namespace WarSteel.Entities;
 
 class SimpleTree : Entity
 {
-    public SimpleTree() : base("simple-tree", Array.Empty<string>(), new Transform(), new List<Component>())
+    public SimpleTree() : base("simple-tree", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
     }
 

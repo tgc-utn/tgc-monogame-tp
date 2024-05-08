@@ -5,7 +5,7 @@ using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
-class MouseController : Component
+class MouseController : IComponent
 {
 
     private float _sensitivity;
@@ -24,6 +24,9 @@ class MouseController : Component
         _mousePosition = MousePosition() * _sensitivity;
     }
 
+    public void Initialize(Entity self, Scene scene){}
+
+    public void Destroy(Entity self, Scene scene) {}
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
@@ -65,5 +68,5 @@ class MouseController : Component
     }
 
 
-
+    
 }
