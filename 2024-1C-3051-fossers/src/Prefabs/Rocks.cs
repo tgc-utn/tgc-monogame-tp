@@ -23,7 +23,7 @@ public enum RockSize
 public class Rock : Entity
 {
     private RockSize rockSize;
-    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(),new List<Component>())
+    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(),new Dictionary<Type, IComponent>())
     {
         rockSize = size;
     }

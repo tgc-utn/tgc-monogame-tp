@@ -13,12 +13,12 @@ public class Entity
     public string Name { get; }
     public string[] Tags { get; }
 
-    public List<Component> Components { get; private set; }
+    public Dictionary<Type, IComponent> Components { get; private set; }
 
     public Transform Transform { get; }
     protected Renderable _renderable { get; set; }
 
-    public Entity(string name, string[] tags, Transform transform, List<Component> Components)
+    public Entity(string name, string[] tags, Transform transform, Dictionary<Type, IComponent> Components)
     {
         Id = Guid.NewGuid().ToString();
         Name = name;
@@ -37,12 +37,29 @@ public class Entity
         _renderable = renderable;
     }
 
-    public void AddComponent(Component c)
+    public void AddComponent(IComponent c)
     {
-        Components.Add(c);
+        Components.Add(c.GetType(), c);
     }
 
-    public virtual void Initialize() { }
+    public T GetComponent<T>() where T : class, IComponent
+    {
+        return Components.TryGetValue(typeof(T), out var processor) ? processor as T : default;
+    }
+
+    public bool HasComponent<T>() where T : class, IComponent
+    {
+        return Components.TryGetValue(typeof(T), out var pr);
+    }
+
+
+    public virtual void Initialize(Scene scene)
+    {
+        foreach (var c in Components.Values)
+        {
+            c.Initialize(this, scene);
+        }
+    }
     public virtual void LoadContent() { }
     public virtual void Draw(Scene scene)
     {
@@ -51,11 +68,18 @@ public class Entity
     }
     public virtual void Update(GameTime gameTime, Scene scene)
     {
-        foreach (var m in Components)
+        foreach (var m in Components.Values)
         {
             m.UpdateEntity(this, gameTime, scene);
         }
     }
 
-    public virtual void OnDestroy() { }
+    public virtual void OnDestroy(Scene scene)
+    {
+        foreach (var m in Components.Values)
+        {
+            m.Destroy(this,scene);
+        }
+    }
+
 }

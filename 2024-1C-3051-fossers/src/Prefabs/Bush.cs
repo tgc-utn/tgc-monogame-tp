@@ -11,7 +11,7 @@ namespace WarSteel.Entities;
 
 class Bush : Entity
 {
-    public Bush() : base("bush", Array.Empty<string>(), new Transform(), new List<Component>())
+    public Bush() : base("bush", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
     }
 
