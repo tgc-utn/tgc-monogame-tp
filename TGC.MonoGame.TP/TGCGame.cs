@@ -39,6 +39,8 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
 
+
+
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
@@ -48,6 +50,8 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; set; }
         private Random _random;
+        private FollowCamera FollowCamera { get; set; }
+        public Matrix CarWorld { get; private set; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
         private Model Tree1 { get; set; }
@@ -75,8 +79,29 @@ namespace TGC.MonoGame.TP
         private float XMovementPosition { get; set; }
         private float ZMovementPosition { get; set; }
 
+        private Vector3 CarPosition = Vector3.Zero;
+
+        private float CarVelocity { get; set; }
+
+        private float CarRotation { get; set; }
+
         private List<Model> Models3d = new List<Model>();
 
+        //Aceleración y frenado
+        float acceleration = 3f;
+        float frictionCoefficient = 0.5f;
+        float maxVelocity = 0.7f;
+        float minVelocity = -0.7f;
+        float stopCar = 0f;
+
+        //Rotacion
+        float carRotatingVelocity = 2.3f;
+
+        //Salto
+        float jumpSpeed = 100f;
+        float gravity = 10f;
+        float carMass = 3.8f;
+        float carInFloor = 0f;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -94,17 +119,24 @@ namespace TGC.MonoGame.TP
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
+
+            // Creo una camara para seguir a nuestro auto.
+            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+
+            // Configuro la matriz de mundo del auto.
+            CarWorld = Matrix.Identity;
+
             // Seria hasta aca.
 
             Box = new CubePrimitive(GraphicsDevice, 1, Color.DarkSeaGreen);
 
-            // Configuramos nuestras matrices de la escena.
-            XMovementPosition = 0f;
-            ZMovementPosition = 0f;
-            World = Matrix.Identity;
-            View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
+            //// Configuramos nuestras matrices de la escena.
+            //XMovementPosition = 0f;
+            //ZMovementPosition = 0f;
+            //World = Matrix.Identity;
+            //View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
+            //Projection =
+            //    Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 1000);
 
             base.Initialize();
         }
@@ -204,9 +236,95 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            Move(gameTime);
-            View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
+            //Move(gameTime);
+
+            // Capto el estado del teclado.
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Escape))
+            {
+                // Salgo del juego.
+                Exit();
+            }
+
+            MovePrincipalCarFollowCamara(gameTime);
+
+
+            //View = Matrix.CreateLookAt(new Vector3(-ViewDistance + XMovementPosition, ViewDistance, -ViewDistance + Offset + ZMovementPosition), LookAtVector, Vector3.Up);
             base.Update(gameTime);
+        }
+
+        private void MovePrincipalCarFollowCamara(GameTime gameTime)
+        {
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                //Mantener apretado para saltar 
+                CarPosition.Y += jumpSpeed * deltaTime;
+            }
+            //Fuerza de gravedad 
+            CarPosition.Y -= carMass * gravity * deltaTime;
+
+            if (CarPosition.Y <= carInFloor)
+            {
+                // Reiniciar la posición vertical del coche
+                CarPosition.Y = carInFloor;
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                // Acelerar hacia adelante en la dirección del coche
+                CarVelocity += (acceleration) * deltaTime;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                // Acelerar hacia atrás en la dirección opuesta del coche
+                CarVelocity += (-acceleration) * deltaTime;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            {
+                // Rotar hacia la izquierda
+                CarRotation += (carRotatingVelocity) * deltaTime;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+            {
+                // Rotar hacia la Derecha
+                CarRotation += (-carRotatingVelocity) * deltaTime;
+
+            }
+
+            // Frenado gradual por fricción
+            if (CarVelocity != stopCar)
+            {
+                // Calcular la dirección opuesta a la velocidad actual
+                float direction = Math.Sign(CarVelocity);
+
+                // Calcular la cantidad de frenado basada en la velocidad actual y el coeficiente de fricción
+                float friction = frictionCoefficient * direction * deltaTime;
+
+                // Aplicar el frenado por fricción
+                CarVelocity -= friction;
+
+                // Asegurar que la velocidad no se vuelva negativa
+                if (Math.Sign(CarVelocity) != direction)
+                {
+                    CarVelocity = stopCar;
+                }
+            }
+
+
+
+            // Actualizar la posición del coche en función de su velocidad, rotacion y ultima posicion 
+            CarPosition = CarPosition + Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(CarRotation)) * CarVelocity;
+
+            // Limitar la velocidad máxima y mínima
+            CarVelocity = MathHelper.Clamp(CarVelocity, minVelocity, maxVelocity);
+
+            // Actualizar la matriz de transformación del coche
+            CarWorld = Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(CarPosition);
+
+            // Actualizo la camara, enviandole la matriz de mundo del auto.
+            FollowCamera.Update(gameTime, CarWorld);
         }
 
         private void Move(GameTime gameTime)
@@ -251,8 +369,8 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Beige);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
+            Effect.Parameters["View"].SetValue(FollowCamera.View);
+            Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
             _random = new Random(SEED);
 
@@ -279,7 +397,7 @@ namespace TGC.MonoGame.TP
             {
                 for (int i = 0; i < 15; i++)
                 {
-                    Vector3 modelTraslation =  new Vector3(_random.Next(-200, 200), 0, _random.Next(-450, 450));
+                    Vector3 modelTraslation = new Vector3(_random.Next(-200, 200), 0, _random.Next(-450, 450));
                     foreach (var mesh in model.Meshes)
                     {
                         Effect.Parameters["DiffuseColor"].SetValue(Color.Yellow.ToVector3());
@@ -297,7 +415,7 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Model.Meshes)
             {
                 Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.ModelTransform * Matrix.CreateTranslation(new Vector3(0, 0, 0)));
+                Effect.Parameters["World"].SetValue(CarWorld);
                 mesh.Draw();
             }
         }
