@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -23,6 +25,7 @@ public class Car
     private float gravity = 10f;
     private float carMass = 3.8f;
     private float carInFloor = 0f;
+    private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
 
     public Car(Vector3 pos)
@@ -38,11 +41,16 @@ public class Car
         Model = model;
         World = Matrix.Identity;
 
-        foreach (var mesh in model.Meshes)
+        for (int mi = 0; mi < model.Meshes.Count; mi++)
         {
+            var mesh = model.Meshes[mi];
+            MeshPartTextures.Add(new List<Texture2D>());
             // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            foreach (var meshPart in mesh.MeshParts)
+            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
             {
+                var meshPart = mesh.MeshParts[mpi];
+                var texture = ((BasicEffect) meshPart.Effect).Texture;
+                MeshPartTextures[mi].Add(texture);
                 meshPart.Effect = Effect;
             }
         }
@@ -130,13 +138,18 @@ public class Car
 
 
     public void Draw() {
-        foreach (var mesh in Model.Meshes)
+        var scale = 1f;
+        for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
-            var scale = 1f;
+            var mesh = Model.Meshes[mi];
             World =  mesh.ParentBone.ModelTransform * Matrix.CreateScale(scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
-            foreach (var meshPart in mesh.MeshParts) {
-                meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
+            {
+                var meshPart = mesh.MeshParts[mpi];
+                var texture = MeshPartTextures[mi][mpi];
+                // meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 meshPart.Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["ModelTexture"].SetValue(texture);
             }
 
             mesh.Draw();

@@ -73,11 +73,12 @@ namespace TGC.MonoGame.TP
         private GameModel School { get; set; }
         private CubePrimitive Box { get; set; }
         private Effect Effect { get; set; }
+        private Effect EffectNoTextures { get; set; }
         // private float XMovementPosition { get; set; }
         // private float ZMovementPosition { get; set; }
 
 
-        private List<Model> Models3d = new List<Model>();
+        // private List<Model> Models3d = new List<Model>();
 
         //Aceleración y frenado
 
@@ -111,7 +112,7 @@ namespace TGC.MonoGame.TP
             Box1 = new GameModel(Vector3.Zero);
             Tower = new GameModel(Vector3.Zero);
             Weapon1 = new GameModel(Vector3.Zero, 0.1f);
-            Vehicle = new GameModel(Vector3.Zero, 0.03f);
+            Vehicle = new GameModel(Vector3.Zero, 0.3f);
             Ramp = new GameModel(Vector3.Zero, 4f);
             Gasoline = new GameModel(Vector3.Zero, 1.5f);
             CarDBZ = new GameModel(Vector3.Zero);
@@ -122,7 +123,7 @@ namespace TGC.MonoGame.TP
             Fence2 = new GameModel(Vector3.Zero);
             SceneCars = new GameModel(Vector3.Zero);
             Cottage = new GameModel(new Vector3(-20, 0, -20));
-            School = new GameModel(new Vector3(20, 0, 20));
+            // School = new GameModel(new Vector3(20, 0, 20));
 
             base.Initialize();
         }
@@ -140,6 +141,7 @@ namespace TGC.MonoGame.TP
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            EffectNoTextures = Content.Load<Effect>(ContentFolderEffects + "BasicShaderNoTextures");
 
             // Cargo el modelo del auto.
             var CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
@@ -186,13 +188,12 @@ namespace TGC.MonoGame.TP
 
             var SceneCarsModel = Content.Load<Model>(ContentFolder3D + "Street/model/WatercolorScene");
             SceneCars.Load(SceneCarsModel, Effect);
-
             
             var cottageModel = Content.Load<Model>(ContentFolder3D + "Street/model/House");
             Cottage.Load(cottageModel, Effect);
 
-            var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/House");
-            School.Load(schoolModel, Effect);
+            // var schoolModel = Content.Load<Model>(ContentFolder3D + "Street/model/House");
+            // School.Load(schoolModel, Effect);
 
             base.LoadContent();
         }
@@ -293,7 +294,7 @@ namespace TGC.MonoGame.TP
 
             Cottage.Draw();
 
-            School.Draw();
+            // School.Draw();
 
             for (int i = 0; i < 15; i++)
             {
@@ -303,7 +304,7 @@ namespace TGC.MonoGame.TP
 
             CarDBZ.Draw();
 
-            DrawModels(Models3d);
+            // DrawModels(Models3d);
         }
 
         private void DrawModels(List<Model> models)
@@ -327,9 +328,9 @@ namespace TGC.MonoGame.TP
 
         private void DrawFloor(GeometricPrimitive geometry)
         {
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
-            Effect.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1000, 2, 1000)) * Matrix.CreateTranslation(new Vector3(0, -1, 0)));
-            geometry.Draw(Effect);
+            EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
+            EffectNoTextures.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1000, 2, 1000)) * Matrix.CreateTranslation(new Vector3(0, -1, 0)));
+            geometry.Draw(EffectNoTextures);
         }
 
         /// <summary>

@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,6 +13,7 @@ public class GameModel
     private Matrix World;
     private Model Model;
     private Effect Effect;
+    private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
     public GameModel(Vector3 pos, float scale) 
     {
@@ -27,11 +30,16 @@ public class GameModel
 
         Effect = effect;
         Model = model;
-        foreach (var mesh in model.Meshes)
+        for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
+            var mesh = Model.Meshes[mi];
+            MeshPartTextures.Add(new List<Texture2D>());
             // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            foreach (var meshPart in mesh.MeshParts)
+            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
             {
+                var meshPart = mesh.MeshParts[mpi];
+                var texture = ((BasicEffect) meshPart.Effect).Texture;
+                MeshPartTextures[mi].Add(texture);
                 meshPart.Effect = Effect;
             }
         }
@@ -39,24 +47,36 @@ public class GameModel
     }
 
     public void Draw() {
-        foreach (var mesh in Model.Meshes)
+        for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
+            var mesh = Model.Meshes[mi];
             World =  mesh.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
-            foreach (var meshPart in mesh.MeshParts) {
-                meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
+            {
+                var meshPart = mesh.MeshParts[mpi];
+                var texture = MeshPartTextures[mi][mpi];
+                // meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 meshPart.Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["ModelTexture"].SetValue(texture);
             }
 
             mesh.Draw();
         }
     }
+
     public void Draw(Vector3 pos) {
-        foreach (var mesh in Model.Meshes)
+        // var texture = ((BasicEffect) Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+        for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
+            var mesh = Model.Meshes[mi];
             World =  mesh.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateTranslation(pos);
-            foreach (var meshPart in mesh.MeshParts) {
-                meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
+            {
+                var meshPart = mesh.MeshParts[mpi];
+                var texture = MeshPartTextures[mi][mpi];
+                // meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
                 meshPart.Effect.Parameters["World"].SetValue(World);
+                Effect.Parameters["ModelTexture"].SetValue(texture);
             }
 
             mesh.Draw();
