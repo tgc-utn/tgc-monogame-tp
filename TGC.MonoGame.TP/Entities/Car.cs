@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,6 +14,12 @@ public class Car
     private Vector3 Position;
     private Matrix World { get; set; }
     private Model Model;
+    private ModelMesh MainBody;
+    private ModelMesh FrontLeftWheel;
+    private ModelMesh FrontRightWheel;
+    private ModelMesh BackLeftWheel;
+    private ModelMesh BackRightWheel;
+    private float Scale = 1f;
     private Effect Effect;
     private float CarVelocity { get; set; }
     private float CarRotation { get; set; }
@@ -25,6 +33,7 @@ public class Car
     private float gravity = 10f;
     private float carMass = 3.8f;
     private float carInFloor = 0f;
+    private float wheelRotation = 0f;
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
 
@@ -41,7 +50,13 @@ public class Car
         Model = model;
         World = Matrix.Identity;
 
-        for (int mi = 0; mi < model.Meshes.Count; mi++)
+        MainBody = Model.Meshes[0];
+        FrontRightWheel = Model.Meshes[1];
+        FrontLeftWheel = Model.Meshes[2];
+        BackLeftWheel = Model.Meshes[3];
+        BackRightWheel = Model.Meshes[4];
+
+        for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
             var mesh = model.Meshes[mi];
             MeshPartTextures.Add(new List<Texture2D>());
@@ -57,18 +72,10 @@ public class Car
 
     }
 
-
-
-
     private void MovePrincipalCarFollowCamara(KeyboardState keyboardState, GameTime gameTime)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (keyboardState.IsKeyDown(Keys.Space))
-        {
-            //Mantener apretado para saltar 
-            Position.Y += jumpSpeed * deltaTime;
-        }
         //Fuerza de gravedad 
         Position.Y -= carMass * gravity * deltaTime;
 
@@ -83,21 +90,36 @@ public class Car
             // Acelerar hacia adelante en la dirección del coche
             CarVelocity += (acceleration) * deltaTime;
         }
+
         if (keyboardState.IsKeyDown(Keys.S))
         {
             // Acelerar hacia atrás en la dirección opuesta del coche
             CarVelocity += (-acceleration) * deltaTime;
         }
+
         if (keyboardState.IsKeyDown(Keys.A))
         {
             // Rotar hacia la izquierda
-            CarRotation += (carRotatingVelocity) * deltaTime;
+            // CarRotation += (carRotatingVelocity) * deltaTime;
+            wheelRotation += 5f * deltaTime;
+            wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / +4));
+        } 
+        else 
+        {
+            wheelRotation -= wheelRotation * 2f * deltaTime;
         }
+
         if (keyboardState.IsKeyDown(Keys.D))
         {
             // Rotar hacia la Derecha
-            CarRotation += (-carRotatingVelocity) * deltaTime;
+            // CarRotation += (-carRotatingVelocity) * deltaTime;
+            wheelRotation -= 5f * deltaTime;
+            wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / 4));
 
+        }
+        else 
+        {
+            wheelRotation -= wheelRotation * 2f * deltaTime;
         }
 
         // Frenado gradual por fricción
@@ -122,7 +144,10 @@ public class Car
 
 
         // Actualizar la posición del coche en función de su velocidad, rotacion y ultima posicion 
-        Position = Position + Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(CarRotation)) * CarVelocity;
+        // Position = Position + Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(CarRotation)) * CarVelocity;
+        CarRotation += CarVelocity * wheelRotation * 4f * deltaTime;
+        Position.X += Convert.ToSingle(Math.Sin(CarRotation)) * CarVelocity;
+        Position.Z += Convert.ToSingle(Math.Cos(CarRotation)) * CarVelocity;
 
         // Limitar la velocidad máxima y mínima
         CarVelocity = MathHelper.Clamp(CarVelocity, minVelocity, maxVelocity);
@@ -138,22 +163,65 @@ public class Car
 
 
     public void Draw() {
-        var scale = 1f;
-        for (int mi = 0; mi < Model.Meshes.Count; mi++)
-        {
-            var mesh = Model.Meshes[mi];
-            World =  mesh.ParentBone.ModelTransform * Matrix.CreateScale(scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
-            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
-            {
-                var meshPart = mesh.MeshParts[mpi];
-                var texture = MeshPartTextures[mi][mpi];
-                // meshPart.Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
-                meshPart.Effect.Parameters["World"].SetValue(World);
-                Effect.Parameters["ModelTexture"].SetValue(texture);
-            }
+        DrawCarBody();
+        DrawFrontWheels();
+        DrawBackWheels();
+    }
 
-            mesh.Draw();
+    private void DrawCarBody() {
+        World = MainBody.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        for (int mpi = 0; mpi < MainBody.MeshParts.Count; mpi++)
+        {
+            var meshPart = MainBody.MeshParts[mpi];
+            var texture = MeshPartTextures[0][mpi];
+            meshPart.Effect.Parameters["World"].SetValue(World);
+            Effect.Parameters["ModelTexture"].SetValue(texture);
         }
+        MainBody.Draw();
+    }
+
+    private void DrawFrontWheels() {
+        World = FrontLeftWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        for (int mpi = 0; mpi < FrontLeftWheel.MeshParts.Count; mpi++)
+        {
+            var meshPart = MainBody.MeshParts[mpi];
+            var texture = MeshPartTextures[2][mpi];
+            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * World);
+            Effect.Parameters["ModelTexture"].SetValue(texture);
+        }
+        FrontLeftWheel.Draw();
+
+        World = FrontRightWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        for (int mpi = 0; mpi < FrontRightWheel.MeshParts.Count; mpi++)
+        {
+            var meshPart = MainBody.MeshParts[mpi];
+            var texture = MeshPartTextures[1][mpi];
+            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * World);
+            Effect.Parameters["ModelTexture"].SetValue(texture);
+        }
+        FrontRightWheel.Draw();
+    }
+
+    private void DrawBackWheels() {
+        World = BackLeftWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        for (int mpi = 0; mpi < BackLeftWheel.MeshParts.Count; mpi++)
+        {
+            var meshPart = MainBody.MeshParts[mpi];
+            var texture = MeshPartTextures[3][mpi];
+            meshPart.Effect.Parameters["World"].SetValue(World);
+            Effect.Parameters["ModelTexture"].SetValue(texture);
+        }
+        BackLeftWheel.Draw();
+
+        World = BackRightWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        for (int mpi = 0; mpi < BackRightWheel.MeshParts.Count; mpi++)
+        {
+            var meshPart = MainBody.MeshParts[mpi];
+            var texture = MeshPartTextures[4][mpi];
+            meshPart.Effect.Parameters["World"].SetValue(World);
+            Effect.Parameters["ModelTexture"].SetValue(texture);
+        }
+        BackRightWheel.Draw();
     }
 }
 

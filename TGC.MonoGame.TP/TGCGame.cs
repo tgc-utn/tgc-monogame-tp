@@ -247,6 +247,8 @@ namespace TGC.MonoGame.TP
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
             Effect.Parameters["View"].SetValue(FollowCamera.View);
             Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            EffectNoTextures.Parameters["View"].SetValue(FollowCamera.View);
+            EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
             _random = new Random(SEED);
 
