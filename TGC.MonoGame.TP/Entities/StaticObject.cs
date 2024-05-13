@@ -9,10 +9,10 @@ namespace TGC.MonoGame.TP;
 
 public class StaticObject
 {
-    private Vector3 Position;
+    private Vector3 Position { get; set; }
     private float Scale = 1f;
-    private Matrix World;
-    public BoundingBox BBox;
+    public Matrix World {  get; set; } 
+    public BoundingBox BBox {  get; set; }
     private GameModel Model;
 
     public StaticObject(Vector3 pos, float scale) 

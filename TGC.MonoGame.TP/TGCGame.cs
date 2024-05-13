@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Viewer.Gizmos;
 using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
@@ -40,6 +42,7 @@ namespace TGC.MonoGame.TP
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
 
+            Gizmos = new Gizmos();
 
 
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
@@ -48,7 +51,7 @@ namespace TGC.MonoGame.TP
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
         }
-
+        public Gizmos Gizmos { get; set; }
         private GraphicsDeviceManager Graphics { get; set; }
         private Random _random;
         private FollowCamera FollowCamera { get; set; }
@@ -183,6 +186,8 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Gizmos.LoadContent(GraphicsDevice, Content);
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -288,6 +293,7 @@ namespace TGC.MonoGame.TP
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
             FollowCamera.Update(gameTime, CarWorld);
+            Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);
 
 
             base.Update(gameTime);
@@ -326,6 +332,8 @@ namespace TGC.MonoGame.TP
                 weapon.Draw();
 
             Vehicle.Draw();
+            Gizmos.DrawCube(new Vector3(1f,3f,1f) ,new Vector3(2f,2f,2f), Color.Red);
+            Gizmos.Draw();
 
             foreach (var tower in Towers)
                 tower.Draw();
