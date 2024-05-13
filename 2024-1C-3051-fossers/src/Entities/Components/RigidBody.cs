@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Scenes;
@@ -11,55 +12,27 @@ public class RigidBody : IComponent
 {
     public string Id;
     public Transform Transform;
-    public ICollider Collider;
-    public Vector3 Velocity;
-    public Vector3 AngularVelocity;
+    public Collider Collider;
+    public Vector3 LinearMomentum;
+    public Vector3 AngularMomentum;
     public float Mass;
     public Matrix InvInertiaTensor;
-    public Vector3 DeltaVelocity;
-    public Vector3 DeltaAngularVelocity;
-    public Vector3 Forces;
-    public Vector3 Torques;
 
-    public bool isFixed;
 
-    public RigidBody(Transform transform, ICollider collider, float mass, Matrix inertiaTensor, bool isFixed)
+    public RigidBody(Transform transform, Collider collider, float mass, Matrix inertiaTensor)
     {
         Transform = transform;
         Collider = collider;
         Mass = mass;
         InvInertiaTensor = Matrix.Invert(inertiaTensor);
-        DeltaVelocity = Vector3.Zero;
-        DeltaAngularVelocity = Vector3.Zero;
-        Forces = Vector3.Zero;
-        Torques = Vector3.Zero;
+        AngularMomentum = Vector3.Zero;
+        LinearMomentum = Vector3.Zero;
         Id = Guid.NewGuid().ToString();
-        this.isFixed = isFixed;
     }
 
     public void Initialize(Entity self, Scene scene) { }
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
-
-    public void AddVelocity(Vector3 Velocity)
-    {
-        DeltaVelocity += Velocity;
-    }
-
-    public void AddAngularVelocity(Vector3 AngularVelocity)
-    {
-        DeltaAngularVelocity = AngularVelocity;
-    }
-
-    public void AddForce(Vector3 Force)
-    {
-        Forces += Force;
-    }
-
-    public void AddTorque(Vector3 Torque)
-    {
-        Torques += Torque;
-    }
 
     public void Destroy(Entity self, Scene scene)
     {
@@ -69,82 +42,26 @@ public class RigidBody : IComponent
             processor.RemoveRigidBody(this);
         }
     }
+
+
+    public void IntegrateVelocities(Vector3 forces, Vector3 torques, float dt){
+        LinearMomentum += forces * dt;
+        AngularMomentum += torques * dt;
+
+        Transform.Pos += LinearMomentum / Mass * dt;
+        Transform.Orientation += new Quaternion(0.5f * dt * Vector3.Transform(AngularMomentum,InvInertiaTensor),0) * Transform.Orientation;
+        Transform.Orientation *= 1 / Transform.Orientation.Length();
+    }
+
 }
 
-public interface ICollider
-{
-    public ColliderType GetColliderType();
 
-    public BoundingBox GetBoundingBox();
-
-}
-
-public enum ColliderType
-{
-    BOX,
-    SPHERE,
-}
-
-public class BoxCollider : ICollider
+public class Collider : Component
 {
 
-    private readonly Transform transform;
-    private Vector3 min;
-    private Vector3 max;
-
-    public BoxCollider(Transform transform, Vector3 min, Vector3 max)
-    {
-        this.transform = transform;
-        this.min = min;
-        this.max = max;
-    }
-
-    public ColliderType GetColliderType()
-    {
-        return ColliderType.BOX;
-    }
-
-    public BoundingBox GetBoundingBox()
-    {
-        return new BoundingBox(Vector3.Transform(min, transform.GetWorld()), Vector3.Transform(max, transform.GetWorld()));
-    }
 
 }
 
-public class SphereCollider : ICollider
-{
-    private readonly Transform transform;
-    private float radius;
-    private Vector3 center;
 
-    public SphereCollider(Transform transform, float radius, Vector3 center)
-    {
-        this.radius = radius;
-        this.center = center;
-        this.transform = transform;
-    }
-
-    public ColliderType GetColliderType(){
-        return ColliderType.SPHERE;
-    }
-
-    public BoundingBox GetBoundingBox(){
-        Vector3 currCenter = Vector3.Transform(center,transform.GetWorld());
-        return new BoundingBox(currCenter + new Vector3(currCenter.X - radius, currCenter.Y - radius, currCenter.Z - radius), currCenter + new Vector3(currCenter.X + radius, currCenter.Y + radius, currCenter.Z + radius));
-    }
-
-    public BoundingSphere GetBoundingSphere(){
-        return new BoundingSphere(GetCenter(),radius);
-    }
-
-    public Vector3 GetCenter(){
-        return Vector3.Transform(center, transform.GetWorld());
-    }
-
-    public float GetRadius(){
-        return radius;
-    }
-
-}
 
 

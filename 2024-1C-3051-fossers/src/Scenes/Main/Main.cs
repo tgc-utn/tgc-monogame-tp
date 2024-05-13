@@ -19,7 +19,7 @@ public class MainScene : Scene
     public override void Initialize()
     {
 
-        PhysicsProcessor processor = new PhysicsProcessor(new(0,-980,0),0.05f,0.05f);
+        PhysicsProcessor processor = new PhysicsProcessor(new(0,-2000,0),0.05f,0.05f);
         AddSceneProcessor(new LightProcessor(Color.AliceBlue));
         AddSceneProcessor(processor);
 
@@ -31,7 +31,6 @@ public class MainScene : Scene
         tank.Transform.Pos = new Vector3(0,500,0);
 
         processor.AddRigidBody(tank.GetComponent<RigidBody>());
-        processor.AddRigidBody(ground.GetComponent<RigidBody>());
 
         AddEntity(tank);
         AddEntity(ground);

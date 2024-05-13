@@ -15,12 +15,6 @@ public class Ground : Entity
 {
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-
-        Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        float width = ModelUtils.GetWidth(model);
-        float height = ModelUtils.GetHeight(model);
-        AddComponent(new RigidBody(Transform, new BoxCollider(Transform, new Vector3(-width, -height, -height), new Vector3(width, height, height)), 20, Matrix.Identity, true));
-
     }
 
     public override void Initialize(Scene scene)
