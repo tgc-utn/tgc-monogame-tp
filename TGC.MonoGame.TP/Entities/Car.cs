@@ -6,6 +6,7 @@ using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Collisions;
 
 namespace TGC.MonoGame.TP;
 
@@ -34,6 +35,7 @@ public class Car
     private float carMass = 3.8f;
     private float carInFloor = 0f;
     private float wheelRotation = 0f;
+    public OrientedBoundingBox BBox;
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
 
@@ -55,6 +57,9 @@ public class Car
         FrontLeftWheel = Model.Meshes[2];
         BackLeftWheel = Model.Meshes[3];
         BackRightWheel = Model.Meshes[4];
+
+        BBox = OrientedBoundingBox.FromAABB(BoundingVolumesExtensions.CreateAABBFrom(Model));
+        BBox = new OrientedBoundingBox(new Vector3(0, 0, 0), new Vector3(5f, 2.5f, 5f));
 
         for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
@@ -142,7 +147,6 @@ public class Car
         }
 
 
-
         // Actualizar la posición del coche en función de su velocidad, rotacion y ultima posicion 
         // Position = Position + Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(CarRotation)) * CarVelocity;
         CarRotation += CarVelocity * wheelRotation * 4f * deltaTime;
@@ -156,7 +160,12 @@ public class Car
         World = Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
     }
 
+    public void Chocar() {
+        this.CarVelocity = this.CarVelocity * -0.5f;
+    }
+
     public void Update(KeyboardState keyboardState, GameTime gameTime) {
+        BBox.Orientation = Matrix.CreateRotationY(CarRotation);
         MovePrincipalCarFollowCamara(keyboardState, gameTime);
     }
 
