@@ -150,8 +150,12 @@ namespace ThunderingTanks
             // Dibuja el Tanque (Panzer)
             Panzer.Draw(PanzerMatrix, camara.View, camara.Projection);
 
+            // Dibujar los proyectiles
+            Panzer.DrawProjectiles(rock, camara.View, camara.Projection);
+
             // Dibuja El Cielo
             DrawSkyBox(camara.View, camara.Projection, camara.Position);
+            
 
             base.Draw(gameTime);
         }
