@@ -21,6 +21,10 @@ namespace ThunderingTanks
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
 
+        private GraphicsDevice graphicsDevice;
+        public List<ModelBone> Bones { get; private set; }
+        public List<ModelMesh> Meshes { get; private set; }
+
         public Matrix Update(GameTime gameTime, KeyboardState keyboardState, Matrix TankMatrix)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -44,5 +48,34 @@ namespace ThunderingTanks
             return TankMatrix;
         }
 
+        public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
+        {
+            if (graphicsDevice == null)
+            {
+                throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
+            }
+
+            this.graphicsDevice = graphicsDevice;
+            Bones = bones;
+            Meshes = meshes;
+        }
+
+        public override void Draw(Matrix world, Matrix view, Matrix projection)
+        {
+
+
+            foreach (ModelMesh mesh in Meshes)
+            {
+                foreach (Effect effect in mesh.Effects)
+                {
+                    IEffectMatrices obj = (effect as IEffectMatrices) ?? throw new InvalidOperationException();
+                    obj.World = sharedDrawBoneMatrices[mesh.ParentBone.Index] * world;
+                    obj.View = view;
+                    obj.Projection = projection;
+                }
+
+                mesh.Draw();
+            }
+        }
     }
 }

@@ -24,7 +24,7 @@ namespace ThunderingTanks
             BoundingSphere = new BoundingSphere();
         }
 
-        public void Draw(Matrix world, Matrix view, Matrix projection)
+        public virtual void Draw(Matrix world, Matrix view, Matrix projection)
         {
             GameModel.Draw(world, view, projection);
         }

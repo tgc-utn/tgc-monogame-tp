@@ -77,7 +77,7 @@ namespace ThunderingTanks
 
             var random = new Random();
 
-            N_Of_Rocks = 20;
+            N_Of_Rocks = 50;
 
             for (int i = 0; i < N_Of_Rocks; i++)
             {
