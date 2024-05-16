@@ -17,6 +17,7 @@ namespace ThunderingTanks
     {
         Vector3 Direction = new Vector3(0, 0, 0);
         public float Rotation = 0;
+        public BoundingBox TankBox { get; set; }
 
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
@@ -27,6 +28,8 @@ namespace ThunderingTanks
 
         private float fireRate = 0.5f; // Tiempo mínimo entre disparos en segundos
         private float timeSinceLastShot = 0f;
+        public float GunRotationFinal = 0;
+        public float GunRotation { get; set; }
 
         public Matrix Update(GameTime gameTime, KeyboardState keyboardState, Matrix TankMatrix)
         {
@@ -35,15 +38,24 @@ namespace ThunderingTanks
 
             if (keyboardState.IsKeyDown(Keys.W))
                 Direction -= TankMatrix.Forward * TankVelocity * time;
+            MoveTankBoundingBox(Direction);
 
             if (keyboardState.IsKeyDown(Keys.S))
                 Direction -= TankMatrix.Backward * TankVelocity * time;
+            MoveTankBoundingBox(Direction);
 
             if (keyboardState.IsKeyDown(Keys.D))
                 Rotation -= TankRotation * time;
 
             if (keyboardState.IsKeyDown(Keys.A))
                 Rotation -= -TankRotation * time;
+
+            // Actualizar la rotación de la torreta
+            if (keyboardState.IsKeyDown(Keys.LeftShift))
+                GunRotationFinal -= GunRotation * time;
+
+            if (keyboardState.IsKeyDown(Keys.LeftControl))
+                GunRotationFinal += GunRotation * time;
 
             this.Position = Direction + new Vector3(0, 400f, 0f);
 
@@ -83,6 +95,24 @@ namespace ThunderingTanks
                 } //sacar el basic effect
                 mesh.Draw();
 
+                /*
+                Creo que tendria que ser algo asi para la torreta, habria que ver como implementar una matriz que este pegada a otra.
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    if (mesh.Name.Equals("Gun"))
+                    {
+                        Matrix gunWorld = Matrix.CreateRotationY(MathHelper.ToRadians(GunRotationFinal)) * world;
+                        effect.World = gunWorld;
+                    }
+                    else
+                    {
+                        effect.World = world;
+                    }
+                    effect.View = view;
+                    effect.Projection = projection;
+                }
+                */
+
             }
             _GraphicsDevice.RasterizerState = originalRasterizerState;
         }
@@ -103,6 +133,13 @@ namespace ThunderingTanks
             {
                 return null;
             }
+        }
+
+        public BoundingBox MoveTankBoundingBox(Vector3 increment)
+        {
+            // Update its Bounding Box, moving both min and max positions
+            TankBox = new BoundingBox(TankBox.Min + increment, TankBox.Max + increment);
+            return TankBox;
         }
     }
 }

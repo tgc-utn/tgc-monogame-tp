@@ -4,6 +4,7 @@ using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.Monogame.TP;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Content.Models;
 
@@ -16,7 +17,7 @@ namespace ThunderingTanks
         public const string ContentFolderTextures = "Textures/";
 
         private GraphicsDeviceManager Graphics { get; }
-        public  KeyboardState keyboardState;
+        public KeyboardState keyboardState;
 
         private MapScene City { get; set; }
         private SkyBox _skyBox;
@@ -54,25 +55,25 @@ namespace ThunderingTanks
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
 
             GraphicsDevice.RasterizerState = rasterizerState;
-            GraphicsDevice.BlendState =      BlendState.Opaque;
+            GraphicsDevice.BlendState = BlendState.Opaque;
 
-            Graphics.PreferredBackBufferWidth =  GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            Graphics.GraphicsProfile =           GraphicsProfile.Reach;
+            Graphics.GraphicsProfile = GraphicsProfile.Reach;
             Graphics.ApplyChanges();
 
             keyboardState = new KeyboardState();
 
-            Panzer = new Tank 
+            Panzer = new Tank
             {
                 TankVelocity = 300f,
                 TankRotation = 20f
             };
 
-            _freeCamera =   new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
-            _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, PanzerMatrix.Forward); 
+            _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
+            _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, PanzerMatrix.Forward);
 
-            World =        Matrix.Identity;
+            World = Matrix.Identity;
             PanzerMatrix = Matrix.Identity;
 
             NumerosX = new List<int>();
@@ -95,15 +96,17 @@ namespace ThunderingTanks
         {
             City = new MapScene(Content);
 
-            Panzer.GameModel =  Content.Load<Model>("Models/Panzer/Panzer");
-            rock =              Content.Load<Model>("Models/nature/rock/Rock_1");
-            antitank =          Content.Load<Model>("Models/assets militares/rsg_military_antitank_hedgehog_01");
-            tree =              Content.Load<Model>("Models/nature/tree/Southern Magnolia-CORONA");
-            casa =              Content.Load<Model>("Models/casa/house");
+            Panzer.GameModel = Content.Load<Model>("Models/Panzer/Panzer");
+            rock = Content.Load<Model>("Models/nature/rock/Rock_1");
+            antitank = Content.Load<Model>("Models/assets militares/rsg_military_antitank_hedgehog_01");
+            tree = Content.Load<Model>("Models/nature/tree/Southern Magnolia-CORONA");
+            casa = Content.Load<Model>("Models/casa/house");
 
-            var skyBox =        Content.Load<Model>(ContentFolder3D + "cube");
+            var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
-            var skyBoxEffect =  Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+
+            Panzer.TankBox = Collisions.CreateAABBFrom(Panzer.GameModel);
 
             _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
 
@@ -123,10 +126,10 @@ namespace ThunderingTanks
             {
                 Projectile projectile = Panzer.Shoot(PanzerMatrix);
 
-                if (projectile != null)  
+                if (projectile != null)
                     projectiles.Add(projectile);
             }
-               
+
             UpdateProjectiles(gameTime);
 
             _freeCamera.Update(gameTime);
@@ -141,21 +144,21 @@ namespace ThunderingTanks
 
             Camera camara = _targetCamera;
 
-            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(100, -10, 9000)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(100, -10, 9000)), camara.View, camara.Projection);
 
-            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(100, -10, -9000)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(100, -10, -9000)), camara.View, camara.Projection);
 
-            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(9000, -10, 100)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(9000, -10, 100)), camara.View, camara.Projection);
 
-            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(-9000, -10, 100)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 100)), camara.View, camara.Projection);
 
             casa.Draw(Matrix.CreateScale(500f) * Matrix.CreateTranslation(new Vector3(-9000, 0, 7000)), camara.View, camara.Projection);
-            
+
             // Dibuja Las Piedras Aleatoriamente en el Mapa
-            DrawRocks(camara); 
+            DrawRocks(camara);
 
             // Dibuja el Borde del Mapa con el Objeto Antitanque
-            DrawBorder(camara); 
+            DrawBorder(camara);
 
             // Dibuja La Ciudad
             City.Draw(gameTime, camara.View, camara.Projection);
@@ -168,7 +171,6 @@ namespace ThunderingTanks
 
             // Dibuja El Cielo
             DrawSkyBox(camara.View, camara.Projection, camara.Position);
-            
 
             base.Draw(gameTime);
         }

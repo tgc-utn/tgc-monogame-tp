@@ -9,7 +9,7 @@ namespace ThunderingTanks
     {
         public Vector3 Direction { get; set; }
         public float Speed { get; set; }
-        public Vector3 PositionVector = new(0,0,0);
+        public Vector3 PositionVector = new(0, 0, 0);
         public new Matrix Position { get; set; }
 
 
@@ -26,7 +26,7 @@ namespace ThunderingTanks
         public void Draw(Model projectileModel, Matrix view, Matrix projection)
         {
             Matrix worldMatrix = Position;
-            // Dibujar el proyectil en su posición actual
+            // Dibujar el proyectil en su posicion actual
             foreach (ModelMesh mesh in projectileModel.Meshes)
             {
                 foreach (BasicEffect effect in mesh.Effects)
