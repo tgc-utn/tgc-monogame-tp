@@ -24,7 +24,7 @@ namespace ThunderingTanks
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
-        private List<Projectile> projectiles = new List<Projectile>();
+
         private float fireRate = 0.5f; // Tiempo mínimo entre disparos en segundos
         private float timeSinceLastShot = 0f;
 
@@ -32,7 +32,6 @@ namespace ThunderingTanks
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timeSinceLastShot += time;
-
 
             if (keyboardState.IsKeyDown(Keys.W))
                 Direction -= TankMatrix.Forward * TankVelocity * time;
@@ -47,12 +46,6 @@ namespace ThunderingTanks
                 Rotation -= -TankRotation * time;
 
             this.Position = Direction + new Vector3(0, 400f, 0f);
-            if (keyboardState.IsKeyDown(Keys.Space))
-            {
-                Shoot(TankMatrix);
-            }
-
-            UpdateProjectiles(gameTime);
 
             TankMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
 
@@ -93,42 +86,22 @@ namespace ThunderingTanks
             }
             _GraphicsDevice.RasterizerState = originalRasterizerState;
         }
-        public void Shoot(Matrix TankMatrix)
+
+        public Projectile Shoot(Matrix TankMatrix)
         {
             if (timeSinceLastShot >= fireRate)
-            {   
-                Matrix projectileMatrix = TankMatrix * Matrix.CreateTranslation(new Vector3(0, 250, 600));
-                Vector3 projectilePosition = projectileMatrix.Translation; // Obtener la posición del tanque desde la matriz
-                Vector3 projectileDirection = TankMatrix.Backward; // Dirección del proyectil es hacia adelante del tanque
-                Projectile projectile = new Projectile(projectilePosition , projectileDirection, 2000f); // Crear el proyectil con la posición y dirección correcta
-                projectiles.Add(projectile);
-                timeSinceLastShot = 0f;
-            }
-        }
-        public void UpdateProjectiles(GameTime gameTime)
-        {
-            foreach (Projectile projectile in projectiles)
             {
-                projectile.Update(gameTime);
-            }
-        }
+                Matrix projectileMatrix = Matrix.CreateTranslation(new Vector3(0, 250, 600)) * TankMatrix;
 
-        public void DrawProjectiles(Model projectileModel, Matrix view, Matrix projection)
-        {
-            foreach (Projectile projectile in projectiles)
+                Projectile projectile = new Projectile(projectileMatrix, 50000f); // Crear el proyectil con la posición y dirección correcta
+
+                timeSinceLastShot = 0f;
+
+                return projectile;
+            }
+            else
             {
-                Matrix worldMatrix = Matrix.CreateTranslation(projectile.Position);
-                // Dibujar el proyectil en su posición actual
-                foreach (ModelMesh mesh in projectileModel.Meshes)
-                {
-                    foreach (BasicEffect effect in mesh.Effects)
-                    {
-                        effect.World = worldMatrix;
-                        effect.View = view;
-                        effect.Projection = projection;
-                    }
-                    mesh.Draw();
-                }
+                return null;
             }
         }
     }

@@ -27,12 +27,15 @@ namespace ThunderingTanks
         private Model casa { get; set; }
         private Model antitank { get; set; }
 
-        private readonly Vector3 _cameraInitialPosition = new(0f, 200f, 300f);
         private FreeCamera _freeCamera;
+        private readonly Vector3 _cameraInitialPosition = new(0f, 200f, 300f);
+
         private TargetCamera _targetCamera;
 
         private Matrix World { get; set; }
         private Matrix PanzerMatrix { get; set; }
+
+        private List<Projectile> projectiles = new();
 
         private int N_Of_Rocks { get; set; }
         private List<int> NumerosX { get; set; }
@@ -116,6 +119,16 @@ namespace ThunderingTanks
 
             PanzerMatrix = Panzer.Update(gameTime, keyboardState, PanzerMatrix);
 
+            if (keyboardState.IsKeyDown(Keys.Space))
+            {
+                Projectile projectile = Panzer.Shoot(PanzerMatrix);
+
+                if (projectile != null)  
+                    projectiles.Add(projectile);
+            }
+               
+            UpdateProjectiles(gameTime);
+
             _freeCamera.Update(gameTime);
             _targetCamera.Update(Panzer.Position, MathHelper.ToRadians(Panzer.Rotation) + MathHelper.ToRadians(180));
 
@@ -128,13 +141,13 @@ namespace ThunderingTanks
 
             Camera camara = _targetCamera;
 
-            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(100, -10, 9000)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(100, -10, 9000)), camara.View, camara.Projection);
 
-            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(100, -10, -9000)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(100, -10, -9000)), camara.View, camara.Projection);
 
-            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(9000, -10, 100)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(9000, -10, 100)), camara.View, camara.Projection);
 
-            tree.Draw(Matrix.CreateScale(3f) * Matrix.CreateTranslation(new Vector3(-9000, -10, 100)), camara.View, camara.Projection);
+            tree.Draw(Matrix.CreateScale(3f)   * Matrix.CreateTranslation(new Vector3(-9000, -10, 100)), camara.View, camara.Projection);
 
             casa.Draw(Matrix.CreateScale(500f) * Matrix.CreateTranslation(new Vector3(-9000, 0, 7000)), camara.View, camara.Projection);
             
@@ -151,7 +164,7 @@ namespace ThunderingTanks
             Panzer.Draw(PanzerMatrix, camara.View, camara.Projection);
 
             // Dibujar los proyectiles
-            Panzer.DrawProjectiles(rock, camara.View, camara.Projection);
+            DrawProjectiles(rock, camara.View, camara.Projection);
 
             // Dibuja El Cielo
             DrawSkyBox(camara.View, camara.Projection, camara.Position);
@@ -166,7 +179,8 @@ namespace ThunderingTanks
             base.UnloadContent();
         }
 
-        // FUNCTIONS
+        // ------------ FUNCTIONS ------------ //
+
         private void DrawSkyBox(Matrix view, Matrix projection, Vector3 position)
         {
             var originalRasterizerState = GraphicsDevice.RasterizerState;
@@ -180,6 +194,7 @@ namespace ThunderingTanks
 
             GraphicsDevice.RasterizerState = originalRasterizerState;
         }
+
         private void DrawRocks(Camera camera)
         {
             List<Matrix> rockTransforms = new List<Matrix>(); // Crear la lista de transformaciones de las rocas
@@ -199,6 +214,7 @@ namespace ThunderingTanks
                 rock.Draw(transform, camera.View, camera.Projection);
             }
         }
+
         private void DrawBorder(Camera camera)
         {
             float DistanceToEdge = 40f; //trate de usar este código -> MapScene.DistanceBetweenParcels * MapScene.NumInstances/4 <- para no hardcodear pero no funciona;
@@ -228,5 +244,20 @@ namespace ThunderingTanks
             }
         }
 
+        public void UpdateProjectiles(GameTime gameTime)
+        {
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Update(gameTime);
+            }
+        }
+
+        public void DrawProjectiles(Model projectileModel, Matrix view, Matrix projection)
+        {
+            foreach (Projectile projectile in projectiles)
+            {
+                projectile.Draw(projectileModel, view, projection);
+            }
+        }
     }
 }
