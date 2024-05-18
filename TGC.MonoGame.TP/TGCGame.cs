@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using BepuPhysics;
+using BepuPhysics.Constraints;
 using BepuPhysics.Trees;
+using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Viewer.Gizmos;
+using TGC.MonoGame.Samples.Physics.Bepu;
 using TGC.MonoGame.TP.Geometries;
+using NumericVector3 = System.Numerics.Vector3;
 
 namespace TGC.MonoGame.TP
 {
@@ -19,6 +24,22 @@ namespace TGC.MonoGame.TP
     /// </summary>
     public class TGCGame : Game
     {
+        /// <summary>
+        ///     Gets the simulation created by the demo's Initialize call.
+        /// </summary>
+        public Simulation Simulation { get; protected set; }
+
+        //Note that the buffer pool used by the simulation is not considered to be *owned* by the simulation. The simulation merely uses the pool.
+        //Disposing the simulation will not dispose or clear the buffer pool.
+        /// <summary>
+        ///     Gets the buffer pool used by the demo's simulation.
+        /// </summary>
+        public BufferPool BufferPool { get; private set; }
+
+        /// <summary>
+        ///     Gets the thread dispatcher available for use by the simulation.
+        /// </summary>
+        public SimpleThreadDispatcher ThreadDispatcher { get; private set; }
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderMusic = "Music/";
@@ -102,6 +123,12 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
+            BufferPool = new BufferPool();
+            var targetThreadCount = Math.Max(1,
+                Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
+            ThreadDispatcher = new SimpleThreadDispatcher(targetThreadCount);
+
+
             _random = new Random(SEED);
 
 
@@ -184,6 +211,10 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
+            Simulation = Simulation.Create(BufferPool, new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
+                new PoseIntegratorCallbacks(new NumericVector3(0, -10, 0)), new SolveDescription(8, 1));
+
+
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             Gizmos.LoadContent(GraphicsDevice, Content);
@@ -239,29 +270,6 @@ namespace TGC.MonoGame.TP
             base.LoadContent();
         }
 
-        private bool isCarIntersecting() {
-            var result = false;
-            foreach (var obj in Trees)
-                if (MainCar.BBox.Intersects(obj.BBox)) result = true;
-            foreach (var obj in Boxes)
-                if (MainCar.BBox.Intersects(obj.BBox)) result = true;
-            foreach (var obj in Weapons)
-                if (MainCar.BBox.Intersects(obj.BBox)) result = true;
-            foreach (var obj in Towers)
-                if (MainCar.BBox.Intersects(obj.BBox)) result = true;
-            foreach (var obj in Ramps)
-                if (MainCar.BBox.Intersects(obj.BBox)) result = true;
-            foreach (var obj in Gasolines)
-                if (MainCar.BBox.Intersects(obj.BBox)) result = true;
-
-
-            if (MainCar.BBox.Intersects(CarDBZ.BBox)) result = true;
-            if (MainCar.BBox.Intersects(Vehicle.BBox)) result = true;
-            if (MainCar.BBox.Intersects(Cottage.BBox)) result = true;
-
-            return result;
-        }
-
         /// <summary>
         ///     Se llama en cada frame.
         ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
@@ -270,6 +278,7 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
+            Simulation.Timestep(1 / 60f, ThreadDispatcher);
 
             // Capturar Input teclado
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -289,7 +298,6 @@ namespace TGC.MonoGame.TP
             // Actualizar estado del auto
             MainCar.Update(Keyboard.GetState(), gameTime);
             var CarWorld = MainCar.getWorld();
-            if (isCarIntersecting()) MainCar.Chocar();
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
             FollowCamera.Update(gameTime, CarWorld);

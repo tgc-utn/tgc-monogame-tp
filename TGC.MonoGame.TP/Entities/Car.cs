@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Collisions;
+using NumericVector3 = System.Numerics.Vector3;
 
 namespace TGC.MonoGame.TP;
 
@@ -20,6 +22,7 @@ public class Car
     private ModelMesh FrontRightWheel;
     private ModelMesh BackLeftWheel;
     private ModelMesh BackRightWheel;
+    private BodyHandle Handle;
     private float Scale = 1f;
     private Effect Effect;
     private float CarVelocity { get; set; }
@@ -35,7 +38,6 @@ public class Car
     private float carMass = 3.8f;
     private float carInFloor = 0f;
     private float wheelRotation = 0f;
-    public OrientedBoundingBox BBox;
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
 
@@ -46,6 +48,15 @@ public class Car
 
     public Matrix getWorld() { return World; }
 
+    public void LoadPhysics(Simulation Simulation) {
+        var box = new Box(5f, 2.5f, 5f);
+        var boxIndex = Simulation.Shapes.Add(box);
+        var bh = Simulation.Bodies.Add(BodyDescription.CreateDynamic(
+            new NumericVector3(0, 0, 0),
+            box.ComputeInertia(carMass),
+            new CollidableDescription(boxIndex, 0.1f),
+            new BodyActivityDescription(0.01f)));
+    }
     public void Load(Model model, Effect effect) {
 
         Effect = effect;
@@ -57,9 +68,6 @@ public class Car
         FrontLeftWheel = Model.Meshes[2];
         BackLeftWheel = Model.Meshes[3];
         BackRightWheel = Model.Meshes[4];
-
-        BBox = OrientedBoundingBox.FromAABB(BoundingVolumesExtensions.CreateAABBFrom(Model));
-        BBox = new OrientedBoundingBox(new Vector3(0, 0, 0), new Vector3(5f, 2.5f, 5f));
 
         for (int mi = 0; mi < Model.Meshes.Count; mi++)
         {
@@ -120,7 +128,6 @@ public class Car
             // CarRotation += (-carRotatingVelocity) * deltaTime;
             wheelRotation -= 5f * deltaTime;
             wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / 4));
-
         }
         else 
         {
@@ -160,12 +167,7 @@ public class Car
         World = Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
     }
 
-    public void Chocar() {
-        this.CarVelocity = this.CarVelocity * -0.5f;
-    }
-
     public void Update(KeyboardState keyboardState, GameTime gameTime) {
-        BBox.Orientation = Matrix.CreateRotationY(CarRotation);
         MovePrincipalCarFollowCamara(keyboardState, gameTime);
     }
 
