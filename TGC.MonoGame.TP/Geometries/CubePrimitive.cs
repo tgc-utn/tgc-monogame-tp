@@ -12,6 +12,7 @@
 #region Using Statements
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -25,7 +26,10 @@ namespace TGC.MonoGame.TP.Geometries {
         /// <summary>
         ///     Constructs a new cube primitive, with the specified size.
         /// </summary>
-        public CubePrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public CubePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
+            
             // A cube has six faces, each one pointing in a different direction.
             Vector3[] normals =
             {
@@ -69,16 +73,7 @@ namespace TGC.MonoGame.TP.Geometries {
                 i++;
             }
 
-            InitializePrimitive(graphicsDevice);
-        }
-
-        public void Draw(Matrix view, Matrix projection) {
-            
-            var newEffect = this.Effect;
-            newEffect.View = view;
-            newEffect.Projection = projection;
-
-            this.Draw(newEffect);
+            InitializePrimitive(graphicsDevice, content);
         }
     }
 }

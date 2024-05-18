@@ -12,6 +12,7 @@
 #region Using Statements
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -22,14 +23,15 @@ namespace TGC.MonoGame.TP.Geometries {
     /// </summary>
     public class SquarePrimitive : GeometricPrimitive {
 
-        public SquarePrimitive(GraphicsDevice graphicsDevice) : this(graphicsDevice, 1, Color.White, Vector3.Up) {}
+       // public SquarePrimitive(GraphicsDevice graphicsDevice) : this(graphicsDevice, 1, Color.White, Vector3.Up) {}
 
         /// <summary>
         ///     Constructs a new square primitive, with the specified size and color.
         /// </summary>
-        public SquarePrimitive(GraphicsDevice graphicsDevice, float size, Color color, Vector3 faceNormal) {
+        public SquarePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color, Vector3 faceNormal) {
 
             Vector3 normal = faceNormal;
+            Color = color;
 
             // Get two vectors perpendicular to the face normal and to each other.
             var side1 = new Vector3(normal.Y, normal.Z, normal.X);
@@ -51,7 +53,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddVertex((normal + side1 - side2) * size / 2, color, normal);
 
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
     }
 }

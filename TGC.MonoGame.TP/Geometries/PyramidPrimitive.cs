@@ -13,6 +13,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -21,7 +22,7 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class PyramidPrimitive : GeometricPrimitive {
         
-        public PyramidPrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public PyramidPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
 
             Vector3[] vertexList =
             {
@@ -42,11 +43,13 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[0], vertexList[4], vertexList[2], size, color);
             AddTriangle(vertexList[0], vertexList[2], vertexList[1], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
-        private void AddTriangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, float size, Color color)
-        {
+        private void AddTriangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, float size, Color color) {
+
+            Color = color;
+            
             Vector3 normal = Vector3.Cross(vertex1 - vertex2, vertex1 - vertex3);
 
             AddIndex(CurrentVertex + 0);
@@ -56,15 +59,6 @@ namespace TGC.MonoGame.TP.Geometries {
             AddVertex(vertex1 * size / 2, color, normal);
             AddVertex(vertex2 * size / 2, color, normal);
             AddVertex(vertex3 * size / 2, color, normal);
-        }
-
-        public void Draw(Matrix view, Matrix projection) {
-            
-            var newEffect = this.Effect;
-            newEffect.View = view;
-            newEffect.Projection = projection;
-
-            this.Draw(newEffect);
         }
     }
 }

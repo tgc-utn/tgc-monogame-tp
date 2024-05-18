@@ -12,6 +12,7 @@
 #region Using Statements
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -20,7 +21,9 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class RampPrimitive : GeometricPrimitive {
         
-        public RampPrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public RampPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -48,7 +51,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[0], vertexList[2], vertexList[4], size, color);
             AddTriangle(vertexList[5], vertexList[3], vertexList[1], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
         private void AddTriangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, float size, Color color)
@@ -62,15 +65,6 @@ namespace TGC.MonoGame.TP.Geometries {
             AddVertex(vertex1 * size / 2, color, normal);
             AddVertex(vertex2 * size / 2, color, normal);
             AddVertex(vertex3 * size / 2, color, normal);
-        }
-
-        public void Draw(Matrix view, Matrix projection) {
-            
-            var newEffect = this.Effect;
-            newEffect.View = view;
-            newEffect.Projection = projection;
-
-            this.Draw(newEffect);
         }
     }
 }

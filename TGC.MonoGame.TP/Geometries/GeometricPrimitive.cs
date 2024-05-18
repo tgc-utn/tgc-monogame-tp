@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -29,6 +30,8 @@ namespace TGC.MonoGame.TP.Geometries
     {
         #region Fields
 
+        public const string ContentFolderEffects = "Effects/";
+
         // During the process of constructing a primitive model, vertex and index data is stored on the CPU in these managed lists.
         public List<VertexPositionColorNormal> Vertices { get; } = new List<VertexPositionColorNormal>();
 
@@ -39,7 +42,11 @@ namespace TGC.MonoGame.TP.Geometries
         private VertexBuffer VertexBuffer { get; set; }
 
         private IndexBuffer IndexBuffer { get; set; }
-        public BasicEffect Effect { get; set; }
+        public Effect Effect { get; set; }
+
+        public Matrix World { get; set; }
+        public Color Color { get; set; }
+
 
         #endregion Fields
 
@@ -75,8 +82,8 @@ namespace TGC.MonoGame.TP.Geometries
         ///     Once all the geometry has been specified by calling AddVertex and AddIndex, this method copies the vertex and index
         ///     data into GPU format buffers, ready for efficient rendering.
         /// </summary>
-        protected void InitializePrimitive(GraphicsDevice graphicsDevice)
-        {
+        //
+         protected void InitializePrimitive(GraphicsDevice graphicsDevice, ContentManager content, Effect? primitiveEffect = null) {
             // Create a vertex declaration, describing the format of our vertex data.
 
             // Create a vertex buffer, and copy our vertex data into it.
@@ -89,10 +96,8 @@ namespace TGC.MonoGame.TP.Geometries
 
             IndexBuffer.SetData(Indices.ToArray());
 
-            // Create a BasicEffect, which will be used to render the primitive.
-            Effect = new BasicEffect(graphicsDevice);
-            Effect.VertexColorEnabled = true;
-            Effect.EnableDefaultLighting();
+            Effect = primitiveEffect ?? content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            
         }
 
         /// <summary>
@@ -151,21 +156,16 @@ namespace TGC.MonoGame.TP.Geometries
                 graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
             }
         }
-
-        /// <summary>
-        ///     Draw the box.
-        /// </summary>
-        /// <param name="world">The world matrix for this box.</param>
-        /// <param name="view">The view matrix, normally from the camera.</param>
-        /// <param name="projection">The projection matrix, normally from the application.</param>
-        public void Draw(Matrix world, Matrix view, Matrix projection)
+        
+        public void Draw(Matrix view, Matrix projection)
         {
-            // Set BasicEffect parameters.
-            Effect.World = world;
-            Effect.View = view;
-            Effect.Projection = projection;
+            // Set Effect parameters.
+            Effect.Parameters["World"].SetValue(World);
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.ToVector3());
 
-            // Draw the model, using BasicEffect.
+            // Draw the model.
             Draw(Effect);
         }
 

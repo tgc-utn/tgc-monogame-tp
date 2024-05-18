@@ -13,6 +13,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 
@@ -25,17 +26,8 @@ namespace TGC.MonoGame.TP.Geometries
     /// </summary>
     public class SpherePrimitive : GeometricPrimitive
     {
-        /// <summary>
-        ///     Constructs a new sphere primitive, with the specified size, tessellation level and white color.
-        /// </summary>
-        /// <param name="graphicsDevice">Used to initialize and control the presentation of the graphics device.</param>
-        /// <param name="diameter">Diameter of the sphere.</param>
-        /// <param name="tessellation">The number of times the surface triangles are subdivided.</param>
-        public SpherePrimitive(GraphicsDevice graphicsDevice, float diameter = 1, int tessellation = 16) : this(
-            graphicsDevice, diameter, tessellation, Color.White)
-        {
-        }
 
+        
         /// <summary>
         ///     Constructs a new sphere primitive, with the specified size, tessellation level and color.
         /// </summary>
@@ -43,7 +35,7 @@ namespace TGC.MonoGame.TP.Geometries
         /// <param name="diameter">Diameter of the sphere.</param>
         /// <param name="tessellation">The number of times the surface triangles are subdivided.</param>
         /// <param name="color">Color of the sphere.</param>
-        public SpherePrimitive(GraphicsDevice graphicsDevice, float diameter, int tessellation, Color color)
+        public SpherePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float diameter, int tessellation, Color color, Matrix world)
         {
             if (tessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");
@@ -52,6 +44,9 @@ namespace TGC.MonoGame.TP.Geometries
             var horizontalSegments = tessellation * 2;
 
             var radius = diameter / 2;
+
+            World = world;
+            Color = color;
 
             // Start with a single vertex at the bottom of the sphere.
             AddVertex(Vector3.Down * radius, color, Vector3.Down);
@@ -114,19 +109,7 @@ namespace TGC.MonoGame.TP.Geometries
                 AddIndex(CurrentVertex - 2 - i);
             }
 
-            
-    
-
-            InitializePrimitive(graphicsDevice);
-        }
-
-        public void Draw(Matrix view, Matrix projection) {
-            
-            var newEffect = this.Effect;
-            newEffect.View = view;
-            newEffect.Projection = projection;
-
-            this.Draw(newEffect);
+            InitializePrimitive(graphicsDevice, content);
         }
     }
 }

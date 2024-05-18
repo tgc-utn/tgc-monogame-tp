@@ -43,7 +43,7 @@ namespace TGC.MonoGame.TP.Environment {
         public Terrain(GraphicsDevice graphicsDevice, float squareSize, Color color, int width, int length, Vector3 position) {
 
             GraphicsDevice = graphicsDevice;
-            Square = new SquarePrimitive(GraphicsDevice, squareSize, color, FloorNormal);
+            //Square = new SquarePrimitive(GraphicsDevice, squareSize, color, FloorNormal);
 
             // Create a list of places where the squares will be drawn
             SquareMatrices = new List<Matrix>() {
@@ -65,10 +65,10 @@ namespace TGC.MonoGame.TP.Environment {
             foreach (var squareWorld in SquareMatrices) {
 
                 var squareEffect = Square.Effect;
-                squareEffect.World = squareWorld;
+                /*squareEffect.World = squareWorld;
                 squareEffect.View = view;
                 squareEffect.Projection = projection;
-                squareEffect.LightingEnabled = false;
+                squareEffect.LightingEnabled = false;*/
                 Square.Draw(squareEffect);
             }
         }
