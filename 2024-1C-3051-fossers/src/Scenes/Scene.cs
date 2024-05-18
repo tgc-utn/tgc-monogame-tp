@@ -61,6 +61,7 @@ public class Scene
         }
         return list;
     }
+    
 
     public Entity GetEntityByName(string name)
     {
