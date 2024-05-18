@@ -19,7 +19,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP.Geometries {
 
-    public class RampPrimitive : GeometricPrimitive {
+    public class RampPrimitive : CustomPrimitive {
         
         public RampPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
 

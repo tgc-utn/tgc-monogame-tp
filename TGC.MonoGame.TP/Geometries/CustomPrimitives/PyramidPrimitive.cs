@@ -20,9 +20,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP.Geometries {
 
-    public class PyramidPrimitive : GeometricPrimitive {
+    public class PyramidPrimitive : CustomPrimitive {
         
         public PyramidPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -45,10 +47,7 @@ namespace TGC.MonoGame.TP.Geometries {
 
             InitializePrimitive(graphicsDevice, content);
         }
-
         private void AddTriangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, float size, Color color) {
-
-            Color = color;
             
             Vector3 normal = Vector3.Cross(vertex1 - vertex2, vertex1 - vertex3);
 
