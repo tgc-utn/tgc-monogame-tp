@@ -15,7 +15,7 @@ using NumericVector3 = System.Numerics.Vector3;
 
 namespace TGC.MonoGame.TP;
 
-public class Car 
+public class Car
 {
     private Vector3 Position;
     private Matrix World { get; set; }
@@ -51,7 +51,8 @@ public class Car
 
     public Matrix getWorld() { return World; }
 
-    public void LoadPhysics(Simulation Simulation) {
+    public void LoadPhysics(Simulation Simulation)
+    {
         var box = new Box(5f, 2.5f, 5f);
         var boxIndex = Simulation.Shapes.Add(box);
         var bh = Simulation.Bodies.Add(BodyDescription.CreateDynamic(
@@ -62,7 +63,8 @@ public class Car
         Handle = bh;
     }
 
-    public void Load(Model model, Effect effect) {
+    public void Load(Model model, Effect effect)
+    {
 
         Effect = effect;
         Model = model;
@@ -82,7 +84,7 @@ public class Car
             for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
             {
                 var meshPart = mesh.MeshParts[mpi];
-                var texture = ((BasicEffect) meshPart.Effect).Texture;
+                var texture = ((BasicEffect)meshPart.Effect).Texture;
                 MeshPartTextures[mi].Add(texture);
                 meshPart.Effect = Effect;
             }
@@ -92,26 +94,56 @@ public class Car
 
     private void MoveCar(KeyboardState keyboardState, GameTime gameTime, BodyReference bodyReference)
     {
-         if (keyboardState.IsKeyDown(Keys.W))
-        {
-           bodyReference.ApplyLinearImpulse(new System.Numerics.Vector3(0, 0, -100f) * (float)gameTime.ElapsedGameTime.TotalSeconds);
-        }
-        if (keyboardState.IsKeyDown(Keys.S))
-        {
-            bodyReference.ApplyLinearImpulse(new System.Numerics.Vector3(0, 0, 100f) * (float)gameTime.ElapsedGameTime.TotalSeconds);
-        }
-        if (keyboardState.IsKeyDown(Keys.A))
-        {
-            bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -100f, 0) * (float)gameTime.ElapsedGameTime.TotalSeconds);
-        }
-        if (keyboardState.IsKeyDown(Keys.D))
-        {
-            bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, 100f, 0) * (float)gameTime.ElapsedGameTime.TotalSeconds);
-        }
+         float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            // Define constants for car physics
+            float acceleration = 50f;
+            float braking = 30f;
+            float maxSpeed = 20f;
+            float turnSpeed = 50f;
+            float friction = 0.98f;
+
+            // Calculate forward and backward impulses
+            var forwardImpulse = new System.Numerics.Vector3(0, 0, -acceleration) * elapsedTime;
+            var backwardImpulse = new System.Numerics.Vector3(0, 0, braking) * elapsedTime;
+
+            // Apply forward/backward impulses relative to the car's orientation
+            if (keyboardState.IsKeyDown(Keys.W))
+            {
+                var transformedForwardImpulse = System.Numerics.Vector3.Transform(forwardImpulse, bodyReference.Pose.Orientation);
+                bodyReference.ApplyLinearImpulse(transformedForwardImpulse);
+            }
+            if (keyboardState.IsKeyDown(Keys.S))
+            {
+                var transformedBackwardImpulse = System.Numerics.Vector3.Transform(backwardImpulse, bodyReference.Pose.Orientation);
+                bodyReference.ApplyLinearImpulse(transformedBackwardImpulse);
+            }
+
+            // Apply friction to simulate resistance
+            bodyReference.Velocity.Linear *= friction;
+
+            // Apply angular impulses for turning
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
+            }
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
+            }
+
+            // Limit the maximum speed
+            var linearVelocity = bodyReference.Velocity.Linear;
+            if (linearVelocity.Length() > maxSpeed)
+            {
+                linearVelocity = System.Numerics.Vector3.Normalize(linearVelocity) * maxSpeed;
+                bodyReference.Velocity.Linear = linearVelocity;
+            }
     }
 
-    public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation) {
-    
+    public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation)
+    {
+
         var bodyHandle = Handle;
         var bodyReference = simulation.Bodies.GetBodyReference(bodyHandle);
         MoveCar(keyboardState, gameTime, bodyReference);
@@ -126,13 +158,15 @@ public class Car
 
 
 
-    public void Draw() {
+    public void Draw()
+    {
         DrawCarBody();
         DrawFrontWheels();
         DrawBackWheels();
     }
 
-    private void DrawCarBody() {
+    private void DrawCarBody()
+    {
         // World = MainBody.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
         World = MainBody.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < MainBody.MeshParts.Count; mpi++)
@@ -145,7 +179,8 @@ public class Car
         MainBody.Draw();
     }
 
-    private void DrawFrontWheels() {
+    private void DrawFrontWheels()
+    {
         var frontLeftWorld = FrontLeftWheel.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < FrontLeftWheel.MeshParts.Count; mpi++)
         {
@@ -167,7 +202,8 @@ public class Car
         FrontRightWheel.Draw();
     }
 
-    private void DrawBackWheels() {
+    private void DrawBackWheels()
+    {
         var backLeftWorld = BackLeftWheel.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < BackLeftWheel.MeshParts.Count; mpi++)
         {
