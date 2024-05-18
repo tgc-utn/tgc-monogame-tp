@@ -12,6 +12,7 @@
 #region Using Statements
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -20,10 +21,12 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class CustomCubePrimitive : CustomPrimitive {
 
-        // Esta clase crea un modelo prácticamente igual de al CubePrimitive. 
-        // La agrago al proyecto únicamente como referencia para el uso de CustomPrimitive.
+        // Esta clase crea un modelo prï¿½cticamente igual de al CubePrimitive. 
+        // La agrago al proyecto ï¿½nicamente como referencia para el uso de CustomPrimitive.
 
-        public CustomCubePrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public CustomCubePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -61,7 +64,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[4], vertexList[5], vertexList[6], size, color);
             AddTriangle(vertexList[7], vertexList[6], vertexList[5], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
     }

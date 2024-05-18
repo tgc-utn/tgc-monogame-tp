@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
-using TGC.MonoGame.TP.Environment;
 using TGC.MonoGame.TP.Geometries;
 
 namespace TGC.MonoGame.TP
@@ -55,9 +54,6 @@ namespace TGC.MonoGame.TP
 
         // Camera to draw the scene
         private FreeCamera Camera { get; set; }
-
-        private Terrain Terrain { get; set; }
-        private Terrain Terrain2 { get; set; }
 
         // BOLITA
         private SpherePrimitive Bola;

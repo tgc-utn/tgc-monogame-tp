@@ -12,6 +12,7 @@
 #region Using Statements
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -20,7 +21,9 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class LightningPrimitive : CustomPrimitive {
         
-        public LightningPrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public LightningPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -60,7 +63,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[8], vertexList[9], vertexList[2], size, color);
             AddTriangle(vertexList[3], vertexList[2], vertexList[9], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
     }

@@ -18,7 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP.Geometries {
 
-    public class CustomPrimitive : GeometricPrimitive {
+    public abstract class CustomPrimitive : GeometricPrimitive {
       
         protected void AddTriangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, float size, Color color)
         {
@@ -31,15 +31,6 @@ namespace TGC.MonoGame.TP.Geometries {
             AddVertex(vertex1 * size / 2, color, normal);
             AddVertex(vertex2 * size / 2, color, normal);
             AddVertex(vertex3 * size / 2, color, normal);
-        }
-
-        public void Draw(Matrix view, Matrix projection) {
-            
-            var newEffect = this.Effect;
-            newEffect.View = view;
-            newEffect.Projection = projection;
-
-            this.Draw(newEffect);
         }
     }
 }

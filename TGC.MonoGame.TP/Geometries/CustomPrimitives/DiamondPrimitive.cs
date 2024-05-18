@@ -13,6 +13,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -21,7 +22,9 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class DiamondPrimitive : CustomPrimitive {
         
-        public DiamondPrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public DiamondPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -70,7 +73,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[12], vertexList[7], vertexList[6], size, color);
             AddTriangle(vertexList[12], vertexList[6], vertexList[11], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
     }

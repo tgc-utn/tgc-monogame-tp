@@ -12,6 +12,7 @@
 #region Using Statements
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -20,7 +21,9 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class RupeePrimitive : CustomPrimitive {
         
-        public RupeePrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public RupeePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -82,7 +85,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[11], vertexList[6], vertexList[17], size, color);
             AddTriangle(vertexList[12], vertexList[17], vertexList[6], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
     }

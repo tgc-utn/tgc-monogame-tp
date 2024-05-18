@@ -47,17 +47,5 @@ namespace TGC.MonoGame.TP.Geometries {
 
             InitializePrimitive(graphicsDevice, content);
         }
-        private void AddTriangle(Vector3 vertex1, Vector3 vertex2, Vector3 vertex3, float size, Color color) {
-            
-            Vector3 normal = Vector3.Cross(vertex1 - vertex2, vertex1 - vertex3);
-
-            AddIndex(CurrentVertex + 0);
-            AddIndex(CurrentVertex + 1);
-            AddIndex(CurrentVertex + 2);
-
-            AddVertex(vertex1 * size / 2, color, normal);
-            AddVertex(vertex2 * size / 2, color, normal);
-            AddVertex(vertex3 * size / 2, color, normal);
-        }
     }
 }

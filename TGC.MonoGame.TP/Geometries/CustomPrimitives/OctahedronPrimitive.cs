@@ -13,6 +13,7 @@
 
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
@@ -21,7 +22,9 @@ namespace TGC.MonoGame.TP.Geometries {
 
     public class OctahedronPrimitive : CustomPrimitive {
         
-        public OctahedronPrimitive(GraphicsDevice graphicsDevice, float size, Color color) {
+        public OctahedronPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+
+            Color = color;
 
             Vector3[] vertexList =
             {
@@ -45,7 +48,7 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[5], vertexList[2], vertexList[4], size, color);
             AddTriangle(vertexList[5], vertexList[1], vertexList[2], size, color);
 
-            InitializePrimitive(graphicsDevice);
+            InitializePrimitive(graphicsDevice, content);
         }
 
     }
