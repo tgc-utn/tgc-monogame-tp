@@ -19,9 +19,8 @@ public class MainScene : Scene
     public override void Initialize()
     {
 
-        PhysicsProcessor processor = new PhysicsProcessor(new(0,-2000,0),0.05f,0.05f);
         AddSceneProcessor(new LightProcessor(Color.AliceBlue));
-        AddSceneProcessor(processor);
+        AddSceneProcessor(new PhysicsProcessor());
 
         Camera camera = new(new Vector3(1000, 1000, 0), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
         camera.AddComponent(new MouseController(0.01f));
@@ -30,7 +29,8 @@ public class MainScene : Scene
         Entity ground = new Ground();
         tank.Transform.Pos = new Vector3(0,500,0);
 
-        processor.AddRigidBody(tank.GetComponent<RigidBody>());
+
+
 
         AddEntity(tank);
         AddEntity(ground);

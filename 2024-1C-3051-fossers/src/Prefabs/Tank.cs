@@ -16,10 +16,10 @@ public class Tank : Entity
 {
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
-        float width = ModelUtils.GetWidth(model);
-        float height = ModelUtils.GetHeight(model);
-        AddComponent(new RigidBody(Transform, new Collider(), 20, Matrix.Identity));
+        RigidBody r = new RigidBody(Transform, 20, Matrix.Identity, new List<Func<RigidBody, OVector3>>(){
+            {r => new OVector3(Vector3.Zero,- Vector3.Up * 900)}
+        },new Collider(Transform, new Vector3(200,200,200)));
+        AddComponent(r);
         AddComponent(new LightComponent(Color.White, new Vector3(2000, 0, 0)));
     }
 
