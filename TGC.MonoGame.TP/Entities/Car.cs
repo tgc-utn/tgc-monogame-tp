@@ -6,6 +6,7 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.Samples.Collisions;
 using NumericVector3 = System.Numerics.Vector3;
@@ -56,7 +57,9 @@ public class Car
             box.ComputeInertia(carMass),
             new CollidableDescription(boxIndex, 0.1f),
             new BodyActivityDescription(0.01f)));
+        Handle = bh;
     }
+
     public void Load(Model model, Effect effect) {
 
         Effect = effect;
@@ -167,8 +170,19 @@ public class Car
         World = Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
     }
 
-    public void Update(KeyboardState keyboardState, GameTime gameTime) {
+    public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation) {
         MovePrincipalCarFollowCamara(keyboardState, gameTime);
+
+
+        var bodyHandle = Handle;
+        var bodyReference = simulation.Bodies.GetBodyReference(bodyHandle);
+        var position = bodyReference.Pose.Position;
+        var quaternion = bodyReference.Pose.Orientation;
+        var world =
+            Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z,
+                quaternion.W)) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
+        World = world;
+
     }
 
 
@@ -180,7 +194,8 @@ public class Car
     }
 
     private void DrawCarBody() {
-        World = MainBody.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        // World = MainBody.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        World = MainBody.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < MainBody.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
@@ -192,44 +207,44 @@ public class Car
     }
 
     private void DrawFrontWheels() {
-        World = FrontLeftWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        var frontLeftWorld = FrontLeftWheel.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < FrontLeftWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[2][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * World);
+            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * frontLeftWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         FrontLeftWheel.Draw();
 
-        World = FrontRightWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        var frontRightWorld = FrontRightWheel.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < FrontRightWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[1][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * World);
+            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * frontRightWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         FrontRightWheel.Draw();
     }
 
     private void DrawBackWheels() {
-        World = BackLeftWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        var backLeftWorld = BackLeftWheel.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < BackLeftWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[3][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(World);
+            meshPart.Effect.Parameters["World"].SetValue(backLeftWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         BackLeftWheel.Draw();
 
-        World = BackRightWheel.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
+        var backRightWorld = BackRightWheel.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < BackRightWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[4][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(World);
+            meshPart.Effect.Parameters["World"].SetValue(backRightWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         BackRightWheel.Draw();

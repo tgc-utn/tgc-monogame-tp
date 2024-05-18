@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using BepuPhysics;
 using BepuPhysics.Constraints;
-using BepuPhysics.Trees;
+using BepuPhysics.Collidables;
 using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -227,6 +227,7 @@ namespace TGC.MonoGame.TP
 
             var CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             MainCar.Load(CarModel, Effect);
+            MainCar.LoadPhysics(Simulation);
 
 
             // Cargo el modelo del auto.
@@ -267,6 +268,14 @@ namespace TGC.MonoGame.TP
             foreach (var weapon in Weapons)
                 weapon.setModel(WeaponModel);
 
+
+            var planeShape = new Box(2500f, 1f, 2500f);
+            var planeDescription = new StaticDescription(
+                new System.Numerics.Vector3(0, -1f, 0), 
+                Simulation.Shapes.Add(planeShape)
+            );
+            Simulation.Statics.Add(planeDescription);
+
             base.LoadContent();
         }
 
@@ -296,7 +305,7 @@ namespace TGC.MonoGame.TP
             }
 
             // Actualizar estado del auto
-            MainCar.Update(Keyboard.GetState(), gameTime);
+            MainCar.Update(Keyboard.GetState(), gameTime, Simulation);
             var CarWorld = MainCar.getWorld();
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
