@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using BepuPhysics;
 using BepuPhysics.Collidables;
+using BepuUtilities.Memory;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
@@ -88,94 +90,31 @@ public class Car
 
     }
 
-    private void MovePrincipalCarFollowCamara(KeyboardState keyboardState, GameTime gameTime)
+    private void MoveCar(KeyboardState keyboardState, GameTime gameTime, BodyReference bodyReference)
     {
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        //Fuerza de gravedad 
-        Position.Y -= carMass * gravity * deltaTime;
-
-        if (Position.Y <= carInFloor)
+         if (keyboardState.IsKeyDown(Keys.W))
         {
-            // Reiniciar la posición vertical del coche
-            Position.Y = carInFloor;
+           bodyReference.ApplyLinearImpulse(new System.Numerics.Vector3(0, 0, -100f) * (float)gameTime.ElapsedGameTime.TotalSeconds);
         }
-
-        if (keyboardState.IsKeyDown(Keys.W))
-        {
-            // Acelerar hacia adelante en la dirección del coche
-            CarVelocity += (acceleration) * deltaTime;
-        }
-
         if (keyboardState.IsKeyDown(Keys.S))
         {
-            // Acelerar hacia atrás en la dirección opuesta del coche
-            CarVelocity += (-acceleration) * deltaTime;
+            bodyReference.ApplyLinearImpulse(new System.Numerics.Vector3(0, 0, 100f) * (float)gameTime.ElapsedGameTime.TotalSeconds);
         }
-
         if (keyboardState.IsKeyDown(Keys.A))
         {
-            // Rotar hacia la izquierda
-            // CarRotation += (carRotatingVelocity) * deltaTime;
-            wheelRotation += 5f * deltaTime;
-            wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / +4));
-        } 
-        else 
-        {
-            wheelRotation -= wheelRotation * 2f * deltaTime;
+            bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -100f, 0) * (float)gameTime.ElapsedGameTime.TotalSeconds);
         }
-
         if (keyboardState.IsKeyDown(Keys.D))
         {
-            // Rotar hacia la Derecha
-            // CarRotation += (-carRotatingVelocity) * deltaTime;
-            wheelRotation -= 5f * deltaTime;
-            wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / 4));
+            bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, 100f, 0) * (float)gameTime.ElapsedGameTime.TotalSeconds);
         }
-        else 
-        {
-            wheelRotation -= wheelRotation * 2f * deltaTime;
-        }
-
-        // Frenado gradual por fricción
-        if (CarVelocity != stopCar)
-        {
-            // Calcular la dirección opuesta a la velocidad actual
-            float direction = Math.Sign(CarVelocity);
-
-            // Calcular la cantidad de frenado basada en la velocidad actual y el coeficiente de fricción
-            float friction = frictionCoefficient * direction * deltaTime;
-
-            // Aplicar el frenado por fricción
-            CarVelocity -= friction;
-
-            // Asegurar que la velocidad no se vuelva negativa
-            if (Math.Sign(CarVelocity) != direction)
-            {
-                CarVelocity = stopCar;
-            }
-        }
-
-
-        // Actualizar la posición del coche en función de su velocidad, rotacion y ultima posicion 
-        // Position = Position + Vector3.Transform(Vector3.Backward, Matrix.CreateRotationY(CarRotation)) * CarVelocity;
-        CarRotation += CarVelocity * wheelRotation * 4f * deltaTime;
-        Position.X += Convert.ToSingle(Math.Sin(CarRotation)) * CarVelocity;
-        Position.Z += Convert.ToSingle(Math.Cos(CarRotation)) * CarVelocity;
-
-        // Limitar la velocidad máxima y mínima
-        CarVelocity = MathHelper.Clamp(CarVelocity, minVelocity, maxVelocity);
-
-        // Actualizar la matriz de transformación del coche
-        World = Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
     }
 
     public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation) {
-        MovePrincipalCarFollowCamara(keyboardState, gameTime);
-
-
+    
         var bodyHandle = Handle;
         var bodyReference = simulation.Bodies.GetBodyReference(bodyHandle);
+        MoveCar(keyboardState, gameTime, bodyReference);
         var position = bodyReference.Pose.Position;
         var quaternion = bodyReference.Pose.Orientation;
         var world =
