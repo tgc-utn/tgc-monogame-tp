@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,7 +23,7 @@ public enum RockSize
 public class Rock : Entity
 {
     private RockSize rockSize;
-    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(), Array.Empty<Component>())
+    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(),new Dictionary<Type, IComponent>())
     {
         rockSize = size;
     }
@@ -46,6 +47,7 @@ public class Rock : Entity
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
         _renderable = new Renderable(model);
+        _renderable.AddShader("color", new ColorShader(Color.DarkGray));
 
         base.LoadContent();
     }

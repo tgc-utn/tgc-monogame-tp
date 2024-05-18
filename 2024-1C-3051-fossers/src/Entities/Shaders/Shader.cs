@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using WarSteel.Scenes;
 
 namespace WarSteel.Common.Shaders;
 
@@ -29,5 +30,5 @@ public abstract class Shader
         Effect.Parameters["World"].SetValue(world);
     }
 
-    public abstract void ApplyEffects();
+    public abstract void ApplyEffects(Scene scene);
 }

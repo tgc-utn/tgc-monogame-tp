@@ -32,7 +32,7 @@ public class Renderable
             foreach (var shader in _shaders)
             {
                 shader.Value.UseCamera(scene.GetCamera());
-                shader.Value.ApplyEffects();
+                shader.Value.ApplyEffects(scene);
 
                 Matrix modelWorld = mesh.ParentBone.Transform * world;
                 shader.Value.UseWorld(modelWorld);

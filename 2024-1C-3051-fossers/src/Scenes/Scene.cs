@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Entities;
-using WarSteel.Managers;
 
 namespace WarSteel.Scenes;
 
@@ -10,13 +11,15 @@ public class Scene
 {
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
     protected GraphicsDeviceManager Graphics;
-
     protected Camera camera;
+    private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
 
     public Scene(GraphicsDeviceManager Graphics)
     {
         this.Graphics = Graphics;
     }
+
+
 
     public void SetCamera(Camera camera)
     {
@@ -29,10 +32,36 @@ public class Scene
         return camera;
     }
 
+    public GraphicsDeviceManager GetGraphicsDevice()
+    {
+        return Graphics;
+    }
+
+    public void AddSceneProcessor(ISceneProcessor p)
+    {
+        SceneProcessors.Add(p.GetType(), p);
+    }
+
     public void AddEntity(Entity entity)
     {
         entities.Add(entity.Id, entity);
     }
+
+    public T GetSceneProcessor<T>() where T : class, ISceneProcessor
+    {
+        return SceneProcessors.TryGetValue(typeof(T), out var processor) ? processor as T : default;
+    }
+
+    public List<Entity> GetEntities()
+    {
+        List<Entity> list = new List<Entity>();
+        foreach (var e in entities.Values)
+        {
+            list.Add(e);
+        }
+        return list;
+    }
+    
 
     public Entity GetEntityByName(string name)
     {
@@ -44,12 +73,19 @@ public class Scene
         return null;
     }
 
+
     public virtual void Initialize()
     {
         foreach (var entity in entities.Values)
         {
-            entity.Initialize();
+            entity.Initialize(this);
         }
+
+        foreach (var processor in SceneProcessors.Values)
+        {
+            processor.Initialize(this);
+        }
+
     }
 
     public virtual void LoadContent()
@@ -66,12 +102,22 @@ public class Scene
         {
             entity.Draw(this);
         }
+
+        foreach (var processor in SceneProcessors.Values)
+        {
+            processor.Draw(this);
+        }
     }
     public virtual void Update(GameTime gameTime)
     {
         foreach (var entity in entities.Values)
         {
-            entity.Update(gameTime,this);
+            entity.Update(gameTime, this);
+        }
+
+        foreach (var processor in SceneProcessors.Values)
+        {
+            processor.Update(this,gameTime);
         }
 
     }

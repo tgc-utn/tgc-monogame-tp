@@ -18,7 +18,7 @@ public class Game : Microsoft.Xna.Framework.Game
     {
         Graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
-        IsMouseVisible = true;
+        IsMouseVisible = false;
     }
 
     protected override void Initialize()

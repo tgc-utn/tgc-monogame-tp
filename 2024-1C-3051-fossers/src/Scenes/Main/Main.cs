@@ -5,6 +5,8 @@ using WarSteel.Common;
 using WarSteel.Entities.Map;
 using WarSteel.Managers;
 using System.Collections.Generic;
+using System;
+using WarSteel.Scenes.SceneProcessors;
 
 namespace WarSteel.Scenes.Main;
 
@@ -16,37 +18,28 @@ public class MainScene : Scene
 
     public override void Initialize()
     {
-       
-       
-        AddEntity(new Ground());
 
-        // Forest
-        List<Entity> trees = EntityGenerator.Generate(new Vector3(0, -10, 0), 100, typeof(SimpleTree));
-        trees.ForEach(tree => AddEntity(tree));
+        AddSceneProcessor(new LightProcessor(Color.AliceBlue));
+        AddSceneProcessor(new PhysicsProcessor());
 
-        // Rocks
-        List<Entity> bigRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.LARGE);
-        List<Entity> mediumRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.MEDIUM);
-        List<Entity> smallRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.SMALL);
-        
-        bigRocks.ForEach(rock => AddEntity(rock));
-        mediumRocks.ForEach(rock => AddEntity(rock));
-        smallRocks.ForEach(rock => AddEntity(rock));
+        Camera camera = new(new Vector3(1000, 1000, 0), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
+        camera.AddComponent(new MouseController(0.01f));
 
-        // Vegetation
-        List<Entity> bush = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Bush));
-        bush.ForEach(bush => AddEntity(bush));
+        Entity tank = new Tank("player");
+        Entity ground = new Ground();
+        tank.Transform.Pos = new Vector3(0,500,0);
+
+
+
+
+        AddEntity(tank);
+        AddEntity(ground);
         
-        
-        Camera camera = new(new Vector3(2000, 2000, 0), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
-        
-        SetCamera(camera);
-      
-        AddEntity(new Tank("player"));
         camera.Follow(GetEntityByName("player"));
 
+        SetCamera(camera);
         base.Initialize();
     }
 
-   
+
 }

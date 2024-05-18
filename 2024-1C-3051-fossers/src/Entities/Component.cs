@@ -5,10 +5,12 @@ using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
-public interface Component {
-
-    public string id();
+public interface IComponent {
 
     void UpdateEntity(Entity self,GameTime gameTime, Scene scene);
+
+    void Initialize(Entity self, Scene scene);
+
+    void Destroy(Entity self, Scene scene);
 
 }
