@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -10,8 +11,8 @@ namespace WarSteel.Common;
 
 public class Renderable
 {
-    private Model _model { get; }
-    private Dictionary<string, Shader> _shaders;
+    protected Model _model { get; }
+    protected Dictionary<string, Shader> _shaders;
 
     public Renderable(Model model)
     {
@@ -25,7 +26,7 @@ public class Renderable
         shader.AssociateShaderTo(_model);
     }
 
-    public void Draw(Matrix world, Scene scene)
+    public virtual void Draw(Matrix world, Scene scene)
     {
         foreach (var mesh in _model.Meshes)
         {
