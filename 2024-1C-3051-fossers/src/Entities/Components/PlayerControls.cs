@@ -11,19 +11,19 @@ public class PlayerControls : IComponent
     {
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
-            rb.AddForce(new OVector3(Vector3.Zero, self.Transform.GetWorld().Forward * 20000));
+            rb.ApplyForce(self.Transform.GetWorld().Forward * 350);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
-            rb.AddForce(new OVector3(Vector3.Zero, self.Transform.GetWorld().Backward * 20000));
+            rb.ApplyForce(self.Transform.GetWorld().Backward * 350);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
-            self.Transform.Rotate(new Vector3(0, 5, 0));
+            rb.ApplyTorque(self.Transform.GetWorld().Up * 6000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
-            self.Transform.Rotate(new Vector3(0, -5, 0));
+            rb.ApplyTorque(self.Transform.GetWorld().Up * -6000);
         }
     }
 

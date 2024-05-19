@@ -16,7 +16,6 @@ using Vector3 = System.Numerics.Vector3;
 
 class PhysicsProcessor : ISceneProcessor
 {
-
     private Simulation _simulation;
 
     private Dictionary<RigidBody, BodyHandle> simIndex = new Dictionary<RigidBody, BodyHandle>();
@@ -36,7 +35,6 @@ class PhysicsProcessor : ISceneProcessor
 
         foreach (var r in rigidBodies)
         {
-
             switch (r.Collider.ColliderType)
             {
                 case ColliderType.SPHERE:
@@ -46,7 +44,6 @@ class PhysicsProcessor : ISceneProcessor
                     AddAsBox(r);
                     break;
             }
-
         }
     }
 
@@ -107,6 +104,15 @@ class PhysicsProcessor : ISceneProcessor
             r.Orientation = body.Pose.Orientation;
             r.Velocity = body.Velocity.Linear;
             r.AngularVelocity = body.Velocity.Angular;
+            if (r.Forces.Concat(r.Torques).Count() > 0) body.Awake = true;
+            foreach (var f in r.Forces){
+                body.ApplyLinearImpulse(new Vector3(f.X,f.Y,f.Z));
+            }
+            foreach( var t in r.Torques){
+                body.ApplyAngularImpulse(new Vector3(t.X,t.Y,t.Z));
+            }
+            r.Forces.Clear();
+            r.Torques.Clear();
         }
     }
 

@@ -15,7 +15,7 @@ public class Ground : Entity
 {
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        RigidBody r = new RigidBody(Transform, float.MaxValue, Matrix.Identity,new BoxCollider(new Transform(Transform, - Vector3.Up * 500), new System.Numerics.Vector3(10000,200,10000)), true);
+        RigidBody r = new RigidBody(new Transform(Transform, Vector3.Down * 200), float.MaxValue, Matrix.Identity,new BoxCollider(new Transform(), new System.Numerics.Vector3(10000,200,10000)), true);
         AddComponent(r); 
     }
 

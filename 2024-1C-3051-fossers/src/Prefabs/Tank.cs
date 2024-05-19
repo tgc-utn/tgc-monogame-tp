@@ -13,13 +13,13 @@ namespace WarSteel.Entities;
 
 public class Tank : Entity
 {
-    RigidBody rb;
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
         RigidBody r = new RigidBody(Transform, 20, Matrix.Identity, new BoxCollider(Transform, new System.Numerics.Vector3(200,200,200)));
         AddComponent(r);
         AddComponent(new LightComponent(Color.White, new Vector3(2000, 0, 0)));
+        AddComponent(new PlayerControls());
     }
 
     public override void Initialize(Scene scene)
@@ -30,6 +30,7 @@ public class Tank : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
+        
         Shader texture = new PhongShader(0.2f, 0.5f, Color.Gray);
         _renderable = new Renderable(model);
         _renderable.AddShader("phong", texture);

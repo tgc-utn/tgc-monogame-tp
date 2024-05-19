@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Scenes;
@@ -18,6 +18,10 @@ public class RigidBody : IComponent
     private Vector3 _velocity;
     private Vector3 _angularVelocity;
     private Collider _collider;
+
+    private List<Vector3> _forces;
+
+    private List<Vector3> _torques;
 
     public Vector3 Pos
     {
@@ -58,6 +62,16 @@ public class RigidBody : IComponent
         get => _isFixed;
     }
 
+    public List<Vector3> Forces
+    {
+        get => _forces;
+    }
+
+    public List<Vector3> Torques
+    {
+        get => _torques;
+    }
+
     public RigidBody(Transform transform, float mass, Matrix inertiaTensor,  Collider collider, bool isFixed = false)
     {
         _transform = transform;
@@ -68,40 +82,21 @@ public class RigidBody : IComponent
         _collider = collider;
         _velocity = Vector3.Zero;
         _angularVelocity = Vector3.Zero;
+        _forces = new List<Vector3>();
+        _torques = new List<Vector3>();
+    }
+
+    public void ApplyForce(Vector3 force){
+        _forces.Add(force);
+    }
+
+    public void ApplyTorque(Vector3 torque){
+        _torques.Add(torque);
     }
 
     public void Initialize(Entity self, Scene scene) { }
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
-
-    public void ApplyImpulse(OVector3 impulse)
-    {
-        _linearMomentum += impulse.Vector;
-        _angularMomentum += Vector3.Cross(Vector3.Transform(impulse.Origin, _transform.GetWorld()), impulse.Vector);
-    }
-
-    public void ApplyForces(float dt)
-    {
-        foreach (var f in _constForces.Concat(_forces))
-        {
-            OVector3 Force = f.Invoke(this);
-            _linearMomentum += Force.Vector * dt;
-            _angularMomentum += Vector3.Cross(Force.Origin, Force.Vector) * dt;
-        }
-
-        _forces.Clear();
-    }
-
-    public void IntegrateVelocity(float dt)
-    {
-        _transform.Pos += Velocity * dt;
-        _transform.Orientation += new Quaternion(0.5f * dt * AngularVelocity, 0) * _transform.Orientation;
-        _transform.Orientation *= 1 / _transform.Orientation.Length();
-    }
-
-    public Vector3 GetVelocityOfPoint(Vector3 p){
-        return Velocity + Vector3.Cross(p - Pos, AngularVelocity);
-    }
 
     public void Destroy(Entity self, Scene scene) { }
 }
