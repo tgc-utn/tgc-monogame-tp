@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Scenes;
@@ -14,22 +12,12 @@ public class RigidBody : IComponent
 {
     public string Id;
     private Transform _transform;
-    private Vector3 _linearMomentum;
-    private Vector3 _angularMomentum;
     public float _mass;
-    private Matrix _invInertiaTensor;
     private Matrix _inertiaTensor;
     private bool _isFixed;
-    private List<Func<RigidBody, OVector3>> _forces;
-    private List<Func<RigidBody, OVector3>> _constForces;
-
+    private Vector3 _velocity;
+    private Vector3 _angularVelocity;
     private Collider _collider;
-
-    public Vector3 Velocity
-    {
-        get => _linearMomentum / _mass;
-        set => _linearMomentum = value * _mass;
-    }
 
     public Vector3 Pos
     {
@@ -37,20 +25,27 @@ public class RigidBody : IComponent
         set => _transform.Pos = value;
     }
 
+    public Quaternion Orientation
+    {
+        get => _transform.Orientation;
+        set => _transform.Orientation = value;
+    }
+    
+    public Vector3 Velocity
+    {
+        get => _velocity;
+        set => _velocity = value;
+    }
+
     public Vector3 AngularVelocity
     {
-        get => Vector3.Transform(_angularMomentum, _invInertiaTensor);
-        set => _angularMomentum = Vector3.Transform(value, _inertiaTensor);
+        get => _angularVelocity;
+        set => _angularVelocity = value;
     }
 
-    public List<Func<RigidBody, OVector3>> Forces
+    public Matrix InertiaTensor
     {
-        get => _forces.Concat(_constForces).ToList();
-    }
-
-    public bool IsFixed
-    {
-        get => _isFixed;
+        get => _inertiaTensor;
     }
 
     public Collider Collider
@@ -58,19 +53,21 @@ public class RigidBody : IComponent
         get => _collider;
     }
 
-    public RigidBody(Transform transform, float mass, Matrix inertiaTensor, List<Func<RigidBody, OVector3>> constForces, Collider collider, bool isFixed = false)
+    public bool IsFixed
+    {
+        get => _isFixed;
+    }
+
+    public RigidBody(Transform transform, float mass, Matrix inertiaTensor,  Collider collider, bool isFixed = false)
     {
         _transform = transform;
         _mass = mass;
         _inertiaTensor = inertiaTensor;
-        _invInertiaTensor = Matrix.Invert(inertiaTensor);
-        _angularMomentum = Vector3.Zero;
-        _linearMomentum = Vector3.Zero;
-        _constForces = constForces;
-        _forces = new List<Func<RigidBody, OVector3>>();
         Id = Guid.NewGuid().ToString();
         _isFixed = isFixed;
         _collider = collider;
+        _velocity = Vector3.Zero;
+        _angularVelocity = Vector3.Zero;
     }
 
     public void Initialize(Entity self, Scene scene) { }
@@ -95,11 +92,6 @@ public class RigidBody : IComponent
         _forces.Clear();
     }
 
-    public void AddForce(OVector3 force)
-    {
-        _forces.Add(rb => force);
-    }
-
     public void IntegrateVelocity(float dt)
     {
         _transform.Pos += Velocity * dt;
@@ -107,8 +99,7 @@ public class RigidBody : IComponent
         _transform.Orientation *= 1 / _transform.Orientation.Length();
     }
 
-    public Vector3 GetVelocityOfPoint(Vector3 p)
-    {
+    public Vector3 GetVelocityOfPoint(Vector3 p){
         return Velocity + Vector3.Cross(p - Pos, AngularVelocity);
     }
 

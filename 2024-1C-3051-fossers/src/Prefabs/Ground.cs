@@ -15,12 +15,8 @@ public class Ground : Entity
 {
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        RigidBody r = new RigidBody(Transform, 20, Matrix.Identity, new List<Func<RigidBody, OVector3>>(){
-            
-        },new Collider(new Transform(Transform,new Vector3(0,-395,0)),new Vector3(1200,200,990)),true);
-        AddComponent(r);
-
-        
+        RigidBody r = new RigidBody(Transform, float.MaxValue, Matrix.Identity,new BoxCollider(new Transform(Transform, - Vector3.Up * 500), new System.Numerics.Vector3(10000,200,10000)), true);
+        AddComponent(r); 
     }
 
     public override void Initialize(Scene scene)

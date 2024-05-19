@@ -17,8 +17,8 @@ public class Tank : Entity
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        rb = new RigidBody(Transform, 20, Matrix.Identity, new List<Func<RigidBody, OVector3>>() { }, new Collider(Transform, new Vector3(200, 200, 200)));
-        AddComponent(rb);
+        RigidBody r = new RigidBody(Transform, 20, Matrix.Identity, new BoxCollider(Transform, new System.Numerics.Vector3(200,200,200)));
+        AddComponent(r);
         AddComponent(new LightComponent(Color.White, new Vector3(2000, 0, 0)));
     }
 
