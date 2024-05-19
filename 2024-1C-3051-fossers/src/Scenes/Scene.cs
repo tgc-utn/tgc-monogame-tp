@@ -105,9 +105,16 @@ public class Scene
             processor.Draw(this);
         }
     }
+
     public virtual void Update(GameTime gameTime)
     {
-        foreach (var entity in entities.Values)
+        // creating a copy here to prevent weird behaviors 
+        // while adding a new entity to the list and iterating over it at the same time in the game loop 
+        var copyEntities = new Dictionary<string, Entity>(entities);
+        // When pressing LMB, the bullet does not appear. 
+        // If AddEntity(bullet) is in main, bullet appears
+        //If AddEntity(bullet) is in PlayerControls, it does not.
+        foreach (var entity in copyEntities.Values)
         {
             entity.Update(gameTime, this);
         }

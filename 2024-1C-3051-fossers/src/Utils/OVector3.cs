@@ -1,6 +1,6 @@
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-namespace WarSteel.Entities;
+namespace WarSteel.Utils;
 
 public struct OVector3
 {
