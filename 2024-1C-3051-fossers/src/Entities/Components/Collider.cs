@@ -56,12 +56,12 @@ public class Collider : IComponent
 
     public void Initialize(Entity self, Scene scene) { }
 
-    public void UpdateEntity(Entity self, GameTime gameTime, Scene scene){}
+    public void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
 
     public List<Vector3> VerticesContainedIn(Collider c)
     {
         List<Vector3> l = new List<Vector3>();
-        
+
         foreach (var vert in _vertices)
         {
             Vector3 p = Vector3.Transform(vert, Matrix.Invert(c.Transform.GetWorld()));
@@ -74,8 +74,9 @@ public class Collider : IComponent
         return l;
     }
 
-    public (Vector3, float)[] GetFaceNormals(){
-        return new List<(Vector3, float)>{ (_forward, HalfWidths.X), (_up, HalfWidths.Y), (_right, HalfWidths.Z), (-_forward, HalfWidths.X), (-_up, HalfWidths.Y), (-_right, HalfWidths.Z)}.ToArray();
+    public (Vector3, float)[] GetFaceNormals()
+    {
+        return new List<(Vector3, float)> { (_forward, HalfWidths.X), (_up, HalfWidths.Y), (_right, HalfWidths.Z), (-_forward, HalfWidths.X), (-_up, HalfWidths.Y), (-_right, HalfWidths.Z) }.ToArray();
     }
 
 
@@ -142,15 +143,16 @@ public class Collider : IComponent
 
             float overlap = FindOverlap(aProjMin, aProjMax, bProjMin, bProjMax);
 
-            if (overlap <= 0) return new CollisionResult(false,Vector3.Zero,-1);
+            if (overlap <= 0) return new CollisionResult(false, Vector3.Zero, -1);
 
-            if (overlap <= minSeparation){
+            if (overlap <= minSeparation)
+            {
                 minSeparation = overlap;
                 separatingAxis = axis;
             }
         }
 
-        return new CollisionResult(true,separatingAxis,minSeparation);
+        return new CollisionResult(true, separatingAxis, minSeparation);
     }
 
     private static float FindOverlap(float astart, float aend, float bstart, float bend)
@@ -175,17 +177,17 @@ public class Collider : IComponent
 
 }
 
-public struct CollisionResult {
-
+public struct CollisionResult
+{
     public bool Collides;
     public Vector3 MinSeparatingAxis;
     public float MinSeparation;
 
-    public CollisionResult(bool collides, Vector3 minSeparatingAxis, float minSeparation){
+    public CollisionResult(bool collides, Vector3 minSeparatingAxis, float minSeparation)
+    {
         Collides = collides;
         MinSeparatingAxis = minSeparatingAxis;
         MinSeparation = minSeparation;
     }
-
 }
 

@@ -95,6 +95,11 @@ public class RigidBody : IComponent
         _forces.Clear();
     }
 
+    public void AddForce(OVector3 force)
+    {
+        _forces.Add(rb => force);
+    }
+
     public void IntegrateVelocity(float dt)
     {
         _transform.Pos += Velocity * dt;
@@ -102,7 +107,8 @@ public class RigidBody : IComponent
         _transform.Orientation *= 1 / _transform.Orientation.Length();
     }
 
-    public Vector3 GetVelocityOfPoint(Vector3 p){
+    public Vector3 GetVelocityOfPoint(Vector3 p)
+    {
         return Velocity + Vector3.Cross(p - Pos, AngularVelocity);
     }
 
