@@ -12,8 +12,6 @@ public class Camera : Entity
     public Matrix View { get; private set; }
     private Entity FollowedEntity;
 
-    private Vector3 prevPosition;
-
     private const float defaultNearPlaneDistance = 0.1f;
     private const float defaultFarPlaneDistance = 1000f;
     private const float defaultFOV = MathHelper.PiOver2;
@@ -27,19 +25,13 @@ public class Camera : Entity
     public void Follow(Entity entity)
     {
         FollowedEntity = entity;
-        prevPosition = entity.Transform.Pos;
-        Transform.Pos = Vector3.Transform(Transform.Pos, FollowedEntity.Transform.GetWorld());
+        Transform.Parent = entity.Transform;
     }
 
     public override void Update(GameTime time, Scene scene)
     {
         base.Update(time, scene);
-        
-        Transform.Pos += FollowedEntity.Transform.Pos - prevPosition;
 
-        prevPosition = FollowedEntity.Transform.Pos;
-
-        View = Matrix.CreateLookAt(Transform.Pos, FollowedEntity.Transform.Pos, Vector3.Up);
+        View = Matrix.CreateLookAt(FollowedEntity.Transform.Pos + Transform.Pos, FollowedEntity.Transform.Pos, Vector3.Up);
     }
-
 }

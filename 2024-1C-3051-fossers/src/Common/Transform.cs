@@ -1,6 +1,3 @@
-
-using System;
-using System.Diagnostics;
 using Microsoft.Xna.Framework;
 
 namespace WarSteel.Common;
@@ -21,7 +18,8 @@ public class Transform
         Parent = null;
     }
 
-    public Transform(Transform parent, Vector3 pos){
+    public Transform(Transform parent, Vector3 pos)
+    {
         Dim = Vector3.One;
         Pos = pos;
         Orientation = Quaternion.Identity;
@@ -41,10 +39,11 @@ public class Transform
         MathHelper.ToRadians(eulerAngles.X),
         MathHelper.ToRadians(eulerAngles.Z)
     ) * Orientation;
-   
+
     public void Rotate(Quaternion quaternion) => Orientation = quaternion * Orientation;
 
-    public Matrix GetWorld(){
-        return (Parent == null ? Matrix.Identity : Parent.GetWorld())* Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
+    public Matrix GetWorld()
+    {
+        return (Parent == null ? Matrix.Identity : Parent.GetWorld()) * Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
     }
 }

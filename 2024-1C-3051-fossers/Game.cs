@@ -28,8 +28,8 @@ public class Game : Microsoft.Xna.Framework.Game
 
         SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics));
         SceneManager.SetCurrentScene(ScenesNames.MAIN);
-        
-        
+
+
         SceneManager.CurrentScene().Initialize();
 
         base.Initialize();

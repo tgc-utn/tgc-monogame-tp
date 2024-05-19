@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Entities;
@@ -18,8 +17,6 @@ public class Scene
     {
         this.Graphics = Graphics;
     }
-
-
 
     public void SetCamera(Camera camera)
     {
@@ -61,7 +58,7 @@ public class Scene
         }
         return list;
     }
-    
+
 
     public Entity GetEntityByName(string name)
     {
@@ -117,7 +114,7 @@ public class Scene
 
         foreach (var processor in SceneProcessors.Values)
         {
-            processor.Update(this,gameTime);
+            processor.Update(this, gameTime);
         }
 
     }

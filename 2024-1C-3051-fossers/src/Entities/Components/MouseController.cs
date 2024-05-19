@@ -24,9 +24,9 @@ class MouseController : IComponent
         _mousePosition = MousePosition() * _sensitivity;
     }
 
-    public void Initialize(Entity self, Scene scene){}
+    public void Initialize(Entity self, Scene scene) { }
 
-    public void Destroy(Entity self, Scene scene) {}
+    public void Destroy(Entity self, Scene scene) { }
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
@@ -41,19 +41,16 @@ class MouseController : IComponent
         _pitch += pitch;
         _yaw += yaw;
 
-        _pitch = MathHelper.Clamp(_pitch,-(float)Math.PI/2f,(float)Math.PI/2f);
-
-        
-
+        _pitch = MathHelper.Clamp(_pitch, -(float)Math.PI / 2f, (float)Math.PI / 2f);
 
 
         float radius = self.Transform.Pos.Length();
 
-         Vector3 newPosition = new Vector3(
-        radius * (float)(Math.Sin(_pitch) * Math.Cos(_yaw)),
-        radius * (float)Math.Cos(_pitch),
-        radius * (float)(Math.Sin(_pitch) * Math.Sin(_yaw))
-    );
+        Vector3 newPosition = new Vector3(
+            radius * (float)(Math.Sin(_pitch) * Math.Cos(_yaw)),
+            radius * (float)Math.Cos(_pitch),
+            radius * (float)(Math.Sin(_pitch) * Math.Sin(_yaw))
+        );
 
         self.Transform.Pos = newPosition;
 
@@ -67,6 +64,4 @@ class MouseController : IComponent
         return mouseState.Position.ToVector2();
     }
 
-
-    
 }
