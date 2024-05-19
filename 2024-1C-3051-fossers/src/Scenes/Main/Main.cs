@@ -22,11 +22,12 @@ public class MainScene : Scene
         Camera camera = new(new Vector3(0, 800, -500), Graphics.GraphicsDevice.Viewport.AspectRatio, MathHelper.PiOver2, 0.1f, 300000f);
         camera.AddComponent(new MouseController(0.01f));
 
-        Entity tank = new Tank("player");
+        Entity player = new Tank("player");
         Entity ground = new Ground();
-        tank.Transform.Pos = new Vector3(0, 200, 0);
+        player.Transform.Pos = new Vector3(0, 200, 0);
+        player.AddComponent(new PlayerControls());
 
-        AddEntity(tank);
+        AddEntity(player);
         AddEntity(ground);
 
         camera.Follow(GetEntityByName("player"));
