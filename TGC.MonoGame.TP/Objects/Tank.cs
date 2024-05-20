@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
+using Microsoft.VisualBasic.FileIO;
 
 namespace ThunderingTanks.Objects
 {
@@ -41,14 +42,21 @@ namespace ThunderingTanks.Objects
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
 
+
+
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
 
         private float fireRate = 0.5f; // Tiempo mínimo entre disparos en segundos
         private float timeSinceLastShot = 0f;
+
+        public float screenHeight;
+        public float screenWidth;
+
         public float GunRotationFinal = 0;
         public float GunRotation { get; set; }
+        public float GunElevation {  get; set; }
 
         public Matrix turretWorld { get; set; }
         public Matrix cannonWorld { get; set; }
@@ -96,18 +104,20 @@ namespace ThunderingTanks.Objects
                 Direction += PanzerMatrix.Forward * TankVelocity * time;
 
             if (keyboardState.IsKeyDown(Keys.D))
-                Rotation += TankRotation * time;
-
-            if (keyboardState.IsKeyDown(Keys.A))
                 Rotation -= TankRotation * time;
 
-            GunRotationFinal = -GetRotationFromCursorX() + Rotation;
-            float gunElevation = GetElevationFromCursorY();
+            if (keyboardState.IsKeyDown(Keys.A))
+                Rotation += TankRotation * time;
+
+            GunRotationFinal -= GetRotationFromCursorX();
+            GunElevation += GetElevationFromCursorY();
+
+            Mouse.SetPosition((int)screenWidth /2 , (int)screenHeight / 2);
 
             this.Position = Direction + new Vector3(0, 400f, 0f);
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            turretWorld = Matrix.CreateRotationY(GunRotationFinal) * PanzerMatrix;
-            cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(gunElevation) * turretWorld;
+            turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+            cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
         }
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
         {
@@ -126,8 +136,6 @@ namespace ThunderingTanks.Objects
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
             //Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
-
-        
 
             foreach (var mesh in Tanque.Meshes)
             {
@@ -155,10 +163,9 @@ namespace ThunderingTanks.Objects
         {
             if (timeSinceLastShot >= fireRate)
             {
-                Matrix projectileMatrix = Matrix.CreateTranslation(new Vector3(0, 250, 600)) * TankMatrix;
+                Matrix projectileMatrix = Matrix.CreateRotationX(GunElevation) * turretWorld;
 
                 float projectileScale = 0.3f; // Ajusta esta escala según tus necesidades
-
 
                 Projectile projectile = new Projectile(projectileMatrix, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
@@ -179,20 +186,21 @@ namespace ThunderingTanks.Objects
             return TankBox;
         }
 
-
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();
             float mouseX = mouseState.X;
-            float screenWidth = graphicsDevice.Viewport.Width;
+            screenWidth = graphicsDevice.Viewport.Width;
             return MathHelper.ToRadians((mouseX / screenWidth) * 360f - 180f);
         }
 
         private float GetElevationFromCursorY()
         {
+            screenHeight = graphicsDevice.Viewport.Height;
+
             MouseState mouseState = Mouse.GetState();
             float mouseY = mouseState.Y;
-            float screenHeight = graphicsDevice.Viewport.Height;
+
             return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
         }
 

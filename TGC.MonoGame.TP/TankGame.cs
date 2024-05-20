@@ -4,6 +4,7 @@ using System.Linq;
 using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
 using TGC.Monogame.TP;
 using ThunderingTanks.Cameras;
@@ -44,6 +45,7 @@ namespace ThunderingTanks
         private CasaAbandonada casa;
 
         private Projectile projectile;
+
 
 
 
@@ -185,7 +187,7 @@ namespace ThunderingTanks
             UpdateProjectiles(gameTime);
 
             _freeCamera.Update(gameTime);
-            _targetCamera.Update(Panzer.Position, MathHelper.ToRadians(Panzer.Rotation) + MathHelper.ToRadians(180));
+            _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
 
 
             base.Update(gameTime);
