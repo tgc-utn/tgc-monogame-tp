@@ -178,9 +178,8 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
         RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);
         RigidBody B = _processor.GetRigidBodyFromCollision(pair.B);
-
-        A.Collider.OnCollide(B.Collider);
-        B.Collider.OnCollide(A.Collider);
+        A.Collider.OnCollide(new Collision(B.Entity));
+        B.Collider.OnCollide(new Collision(A.Entity));
 
 
         return true;

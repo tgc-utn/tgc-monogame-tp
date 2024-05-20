@@ -10,6 +10,7 @@ namespace WarSteel.Entities;
 public abstract class RigidBody : IComponent
 {
     private Transform _transform;
+    private Entity _entity;
     protected Collider _collider;
 
     public Collider Collider
@@ -22,6 +23,11 @@ public abstract class RigidBody : IComponent
         get => _transform;
     }
 
+    public Entity Entity
+    {
+        get => _entity;
+    }
+
     public RigidBody(Transform transform, Collider collider)
     {
         _transform = transform;
@@ -30,9 +36,8 @@ public abstract class RigidBody : IComponent
 
     public void Initialize(Entity self, Scene scene)
     {
-
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
-
+        _entity = self;
         processor.AddBody(this);
 
     }
@@ -135,10 +140,10 @@ public class DynamicBody : RigidBody
         TypedIndex index = processor.AddShape(_collider);
 
         BodyDescription bodyDescription = BodyDescription.CreateDynamic(
-            
-            new System.Numerics.Vector3(Transform.Pos.X,Transform.Pos.Y,Transform.Pos.Z),
+
+            new System.Numerics.Vector3(Transform.Pos.X, Transform.Pos.Y, Transform.Pos.Z),
             _collider.ColliderShape.GetInertia(this),
-            new CollidableDescription(index,0.01f),
+            new CollidableDescription(index, 0.01f),
 
             new BodyActivityDescription(1000f)
         );
