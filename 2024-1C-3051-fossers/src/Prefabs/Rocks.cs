@@ -1,7 +1,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
@@ -17,18 +16,23 @@ public enum RockSize
     LARGE
 }
 
-
-
-
 public class Rock : Entity
 {
     private RockSize rockSize;
-    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(),new Dictionary<Type, IComponent>())
+
+    class RockCollider : Collider
     {
+        public RockCollider() : base(new BoxCollider(200, 200, 200)) { }
+    }
+
+
+    public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
+    {
+        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -200, 0)), new RockCollider()));
         rockSize = size;
     }
 
-    private String GetRockSizeStringValue()
+    private string GetRockSizeStringValue()
     {
         switch (rockSize)
         {

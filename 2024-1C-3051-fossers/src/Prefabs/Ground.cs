@@ -6,22 +6,19 @@ using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 using WarSteel.Scenes;
-using WarSteel.Utils;
-
-
 namespace WarSteel.Entities.Map;
+
 
 public class Ground : Entity
 {
+    class GroundCollider : Collider
+    {
+        public GroundCollider() : base(new BoxCollider(200, 9000, 9000)) { }
+    }
+
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new StaticBody(new Transform(Transform,new Vector3(0,-200,0)), 
-        new BoxCollider(
-            new List<string>(){"ground"},
-            new Dictionary<string, object>(),
-            new List<ColliderListener>(),
-            200, 9000, 9000)
-            ));
+        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -200, 0)), new GroundCollider()));
     }
 
     public override void Initialize(Scene scene)

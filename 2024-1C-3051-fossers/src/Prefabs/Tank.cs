@@ -9,14 +9,23 @@ using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
+
+
 public class Tank : Entity
 {
+    class TankCollider : Collider
+    {
+        public TankCollider() : base(new BoxCollider(200, 200, 200)) { }
+
+        public override void OnCollide(Collision other)
+        {
+
+        }
+    }
+
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-
-        // AddComponent(new DynamicBody(Transform, new BoxCollider(new List<string>(){"tank"},new Dictionary<string, object>(){}, new List<ColliderListener>(){new Logger()},200, 200, 200), 5));
-        // AddComponent(new PlayerControls());
-
+        AddComponent(new DynamicBody(Transform, new TankCollider(), 5));
     }
 
     public override void Initialize(Scene scene)
