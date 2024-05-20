@@ -129,7 +129,7 @@ public class DynamicBody : RigidBody
 
         BodyDescription bodyDescription = BodyDescription.CreateDynamic(
             new System.Numerics.Vector3(Transform.Pos.X,Transform.Pos.Y,Transform.Pos.Z),
-            _collider.GetInertia(this),
+            _collider.ColliderShape.GetInertia(this),
             new CollidableDescription(index,0.01f),
             new BodyActivityDescription(1000f)
         );
