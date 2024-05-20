@@ -55,6 +55,7 @@ public class Car
         new NumericVector3(0.8f, 0.6f, 1.5f),
         new NumericVector3(-0.8f, 0.6f, 1.5f)
     };
+
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
 
@@ -146,10 +147,29 @@ public class Car
             if (keyboardState.IsKeyDown(Keys.A))
             {
                 bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
+                // Rotar hacia la izquierda
+                CarRotation += (carRotatingVelocity) * elapsedTime;
+                // CarRotation += (carRotatingVelocity) * deltaTime;
+                wheelRotation += 5f * elapsedTime;
+                wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / +4));
+            } 
+            else 
+            {
+                wheelRotation -= wheelRotation * 2f * elapsedTime;
             }
+            
             if (keyboardState.IsKeyDown(Keys.D))
             {
                 bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
+                // Rotar hacia la Derecha
+                CarRotation += (-carRotatingVelocity) * elapsedTime;
+                // CarRotation += (-carRotatingVelocity) * deltaTime;
+                wheelRotation -= 5f * elapsedTime;
+                wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / 4));
+            }
+            else 
+            {
+                wheelRotation -= wheelRotation * 2f * elapsedTime;
             }
 
             // Limit the maximum speed
@@ -181,7 +201,7 @@ public class Car
 
 
 
-    public void Draw()
+    public void Draw(GraphicsDevice graphicsDevice)
     {
         DrawCarBody();
         DrawFrontWheels();

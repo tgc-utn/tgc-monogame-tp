@@ -82,7 +82,7 @@ namespace TGC.MonoGame.TP
         private GameModel TreeModel { get; set; }
         private List<StaticObject> Trees = new List<StaticObject>();
         public GameModel BoxModel { get; private set; }
-        private List<StaticObject> Boxes = new List<StaticObject>();
+        public List<StaticObject> Boxes = new List<StaticObject>();
         private GameModel WeaponModel { get; set; }
         private List<StaticObject> Weapons = new List<StaticObject>();
         private GameModel VehicleModel { get; set; }
@@ -252,21 +252,70 @@ namespace TGC.MonoGame.TP
             Car2.setModel(Car2Model);
             Truck.setModel(TruckModel);
             Cottage.setModel(CottageModel);
+            Vector3 cottagePos = Cottage.getPosition();
+            var cottageBox = new Box(17.5f, 10f, 17.5f);
+            var cottageDescription = new StaticDescription(
+            new System.Numerics.Vector3(cottagePos.X, cottagePos.Y, cottagePos.Z), 
+            Simulation.Shapes.Add(cottageBox));
+            Simulation.Statics.Add(cottageDescription);
 
             foreach (var tree in Trees)
+            {
                 tree.setModel(TreeModel);
+                Vector3 position = tree.getPosition();
+                var box1 = new Sphere(1.5f);
+                var boxDescription = new StaticDescription(
+                new System.Numerics.Vector3(position.X, position.Y, position.Z), 
+                Simulation.Shapes.Add(box1));
+                Simulation.Statics.Add(boxDescription);
+
+            }
             foreach (var box in Boxes)
+            {
                 box.setModel(BoxModel);
+                Vector3 position = box.getPosition();
+                var box1 = new Box(3, 3f, 2);
+                var boxDescription = new StaticDescription(
+                    new System.Numerics.Vector3(position.X, position.Y, position.Z), 
+                    Simulation.Shapes.Add(box1));
+                Simulation.Statics.Add(boxDescription);
+
+            }
             foreach (var tower in Towers)
+             {
                 tower.setModel(TowerModel);
+                Vector3 position = tower.getPosition();
+                var box1 = new Box(5, 10f, 4);
+                var boxDescription = new StaticDescription(
+                new System.Numerics.Vector3(position.X, position.Y, position.Z), 
+                Simulation.Shapes.Add(box1));
+                Simulation.Statics.Add(boxDescription);
+            }
             foreach (var ramp in Ramps)
                 ramp.setModel(RampModel);
             foreach (var gasoline in Gasolines)
+            {
                 gasoline.setModel(GasolineModel);
+                Vector3 position = gasoline.getPosition();
+                var box1 = new Box(2, 3f, 2);
+                var boxDescription = new StaticDescription(
+                new System.Numerics.Vector3(position.X, position.Y, position.Z), 
+                Simulation.Shapes.Add(box1));
+                Simulation.Statics.Add(boxDescription);
+
+            }
             foreach (var bush in Bushes)
                 bush.setModel(BushModel);
             foreach (var weapon in Weapons)
+            {
                 weapon.setModel(WeaponModel);
+                Vector3 position = weapon.getPosition();
+                var box1 = new Box(2.5f, 2f, 2.5f);
+                var boxDescription = new StaticDescription(
+                new System.Numerics.Vector3(position.X, position.Y, position.Z), 
+                Simulation.Shapes.Add(box1));
+                Simulation.Statics.Add(boxDescription);
+            }
 
 
             var planeShape = new Box(2500f, 1f, 2500f);
@@ -337,7 +386,7 @@ namespace TGC.MonoGame.TP
             DrawFloor(Box);
             DrawWalls();
 
-            MainCar.Draw();
+            MainCar.Draw(GraphicsDevice);
 
             foreach (var tree in Trees)
                 tree.Draw();
@@ -349,8 +398,6 @@ namespace TGC.MonoGame.TP
                 weapon.Draw();
 
             Vehicle.Draw();
-            Gizmos.DrawCube(new Vector3(1f,3f,1f) ,new Vector3(2f,2f,2f), Color.Red);
-            Gizmos.Draw();
 
             foreach (var tower in Towers)
                 tower.Draw();
