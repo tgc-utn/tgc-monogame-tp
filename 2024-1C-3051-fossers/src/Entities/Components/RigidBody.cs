@@ -28,7 +28,8 @@ public abstract class RigidBody : IComponent
         _collider = collider;
     }
 
-    public void Initialize(Entity self, Scene scene) {
+    public void Initialize(Entity self, Scene scene)
+    {
 
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
 
@@ -38,7 +39,8 @@ public abstract class RigidBody : IComponent
 
     public virtual void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
 
-    public void Destroy(Entity self, Scene scene) {
+    public void Destroy(Entity self, Scene scene)
+    {
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
         RemoveSelf(processor);
     }
@@ -51,18 +53,16 @@ public abstract class RigidBody : IComponent
 
 public class StaticBody : RigidBody
 {
-    public StaticBody(Transform transform, Collider collider) : base(transform, collider){}
-
-
+    public StaticBody(Transform transform, Collider collider) : base(transform, collider) { }
 
     public override void Build(PhysicsProcessor processor)
     {
         TypedIndex index = processor.AddShape(_collider);
         StaticDescription staticDescription = new StaticDescription(
-            new System.Numerics.Vector3(Transform.Pos.X,Transform.Pos.Y,Transform.Pos.Z),
+            new System.Numerics.Vector3(Transform.Pos.X, Transform.Pos.Y, Transform.Pos.Z),
             index
         );
-       processor.AddStatic(this,staticDescription);
+        processor.AddStatic(this, staticDescription);
     }
 
     public override void RemoveSelf(PhysicsProcessor processor)
@@ -74,7 +74,6 @@ public class StaticBody : RigidBody
 
 public class DynamicBody : RigidBody
 {
-
     private Vector3 _velocity;
     private Vector3 _angularVelocity;
     private float _mass;
@@ -83,25 +82,30 @@ public class DynamicBody : RigidBody
 
     private Vector3 _torques = Vector3.Zero;
 
-    public Vector3 Velocity{
+    public Vector3 Velocity
+    {
         get => _velocity;
         set => _velocity = value;
     }
 
-    public Vector3 AngularVelocity{
+    public Vector3 AngularVelocity
+    {
         get => _angularVelocity;
         set => _angularVelocity = value;
     }
 
-    public float Mass {
+    public float Mass
+    {
         get => _mass;
     }
 
-    public Vector3 Force {
+    public Vector3 Force
+    {
         get => _forces;
     }
 
-    public Vector3 Torque {
+    public Vector3 Torque
+    {
         get => _torques;
     }
 
@@ -110,16 +114,19 @@ public class DynamicBody : RigidBody
         _mass = mass;
     }
 
-    public override void UpdateEntity(Entity self, GameTime time, Scene scene){
+    public override void UpdateEntity(Entity self, GameTime time, Scene scene)
+    {
         _forces *= 0;
         _torques *= 0;
-    } 
+    }
 
-    public void ApplyForce(Vector3 force){
+    public void ApplyForce(Vector3 force)
+    {
         _forces += force;
     }
 
-    public void ApplyTorque(Vector3 torque){
+    public void ApplyTorque(Vector3 torque)
+    {
         _torques += torque;
     }
 
@@ -128,13 +135,13 @@ public class DynamicBody : RigidBody
         TypedIndex index = processor.AddShape(_collider);
 
         BodyDescription bodyDescription = BodyDescription.CreateDynamic(
-            new System.Numerics.Vector3(Transform.Pos.X,Transform.Pos.Y,Transform.Pos.Z),
+            new System.Numerics.Vector3(Transform.Pos.X, Transform.Pos.Y, Transform.Pos.Z),
             _collider.GetInertia(this),
-            new CollidableDescription(index,0.01f),
+            new CollidableDescription(index, 0.01f),
             new BodyActivityDescription(1000f)
         );
 
-        processor.AddDynamic(this,bodyDescription);
+        processor.AddDynamic(this, bodyDescription);
     }
 
     public override void RemoveSelf(PhysicsProcessor processor)
