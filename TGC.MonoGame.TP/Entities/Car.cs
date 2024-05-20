@@ -38,10 +38,25 @@ public class Car
     private float carRotatingVelocity = 2.3f;
     private float jumpSpeed = 100f;
     private float gravity = 10f;
-    private float carMass = 3.8f;
+    private float carMass = 1f;
     private float carInFloor = 0f;
     private float wheelRotation = 0f;
+    private static NumericVector3[] carColliderVertices = new NumericVector3[]
+    {
+        // Bottom vertices
+        new NumericVector3(-1.0f, 0.0f, -2.0f),
+        new NumericVector3(1.0f, 0.0f, -2.0f),
+        new NumericVector3(1.0f, 0.0f, 2.0f),
+        new NumericVector3(-1.0f, 0.0f, 2.0f),
+
+        // Top vertices
+        new NumericVector3(-0.8f, 0.6f, -1.5f),
+        new NumericVector3(0.8f, 0.6f, -1.5f),
+        new NumericVector3(0.8f, 0.6f, 1.5f),
+        new NumericVector3(-0.8f, 0.6f, 1.5f)
+    };
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
+
 
 
     public Car(Vector3 pos)
@@ -53,13 +68,15 @@ public class Car
 
     public void LoadPhysics(Simulation Simulation)
     {
-        var box = new Box(5f, 2.5f, 5f);
-        var boxIndex = Simulation.Shapes.Add(box);
-        var bh = Simulation.Bodies.Add(BodyDescription.CreateDynamic(
+        NumericVector3 center;
+        var convexHullShape  = new ConvexHull(carColliderVertices, Simulation.BufferPool, out center);
+        var carBodyDescription = BodyDescription.CreateConvexDynamic(
             new NumericVector3(0, 0, 0),
-            box.ComputeInertia(carMass),
-            new CollidableDescription(boxIndex, 0.1f),
-            new BodyActivityDescription(0.01f)));
+            new BodyVelocity(new NumericVector3(0,0,0)),
+            1,
+            Simulation.Shapes, convexHullShape
+        );
+        var bh = Simulation.Bodies.Add(carBodyDescription);
         Handle = bh;
     }
 
@@ -100,12 +117,14 @@ public class Car
             float acceleration = 50f;
             float braking = 30f;
             float maxSpeed = 20f;
+            float maxTurn = 3f;
             float turnSpeed = 50f;
             float friction = 0.98f;
 
             // Calculate forward and backward impulses
             var forwardImpulse = new System.Numerics.Vector3(0, 0, -acceleration) * elapsedTime;
             var backwardImpulse = new System.Numerics.Vector3(0, 0, braking) * elapsedTime;
+            var linearVelocity = bodyReference.Velocity.Linear;
 
             // Apply forward/backward impulses relative to the car's orientation
             if (keyboardState.IsKeyDown(Keys.W))
@@ -121,23 +140,29 @@ public class Car
 
             // Apply friction to simulate resistance
             bodyReference.Velocity.Linear *= friction;
+            bodyReference.Velocity.Angular *= friction;
 
             // Apply angular impulses for turning
             if (keyboardState.IsKeyDown(Keys.A))
             {
-                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
+                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
             }
             if (keyboardState.IsKeyDown(Keys.D))
             {
-                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
+                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
             }
 
             // Limit the maximum speed
-            var linearVelocity = bodyReference.Velocity.Linear;
             if (linearVelocity.Length() > maxSpeed)
             {
                 linearVelocity = System.Numerics.Vector3.Normalize(linearVelocity) * maxSpeed;
                 bodyReference.Velocity.Linear = linearVelocity;
+            }
+            var angularVelocity = bodyReference.Velocity.Angular;
+            if (angularVelocity.Length() > maxTurn)
+            {
+                angularVelocity = System.Numerics.Vector3.Normalize(angularVelocity) * maxTurn;
+                bodyReference.Velocity.Angular = angularVelocity;
             }
     }
 
@@ -148,11 +173,9 @@ public class Car
         var bodyReference = simulation.Bodies.GetBodyReference(bodyHandle);
         MoveCar(keyboardState, gameTime, bodyReference);
         var position = bodyReference.Pose.Position;
-        var quaternion = bodyReference.Pose.Orientation;
-        var world =
-            Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z,
-                quaternion.W)) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
-        World = world;
+        Quaternion quaternion = bodyReference.Pose.Orientation;
+        Quaternion rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
+        World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
 
     }
 
@@ -167,8 +190,6 @@ public class Car
 
     private void DrawCarBody()
     {
-        // World = MainBody.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * Matrix.CreateRotationY(CarRotation) * Matrix.CreateTranslation(Position);
-        World = MainBody.ParentBone.ModelTransform * World;
         for (int mpi = 0; mpi < MainBody.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];

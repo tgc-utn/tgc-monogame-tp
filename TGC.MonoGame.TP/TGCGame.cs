@@ -271,7 +271,7 @@ namespace TGC.MonoGame.TP
 
             var planeShape = new Box(2500f, 1f, 2500f);
             var planeDescription = new StaticDescription(
-                new System.Numerics.Vector3(0, -1f, 0), 
+                new System.Numerics.Vector3(0, -0.5f, 0), 
                 Simulation.Shapes.Add(planeShape)
             );
             Simulation.Statics.Add(planeDescription);
