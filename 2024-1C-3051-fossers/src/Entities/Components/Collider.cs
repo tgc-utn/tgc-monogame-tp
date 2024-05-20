@@ -1,69 +1,74 @@
 
+using System;
+using System.Collections.Generic;
 using System.Numerics;
-using WarSteel.Common;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using WarSteel.Entities;
 
+public abstract class Collider {
 
-public abstract class Collider
-{
+    protected List<string> _tags;
 
-    private ColliderType _colliderType;
-    private Transform _transform;
+    protected Dictionary<string,object> _data;
 
-    public Collider(ColliderType type, Transform transform)
-    {
-        _colliderType = type;
-        _transform = transform;
+    protected List<ColliderListener> _listeners = new List<ColliderListener>();
+
+    public List<string> Tags {
+        get => _tags;
     }
 
-    public ColliderType ColliderType
-    {
-        get => _colliderType;
+    public Dictionary<string, object> Data {
+        get => Data;
     }
 
-    public Transform Transform
+    public Collider(List<string> tags, Dictionary<string,Object> data, List<ColliderListener> listener){
+        _tags = tags;
+        _data = data;
+        _listeners = listener;
+    }
+
+    public void OnCollide(Collider otherCollider){
+        if (otherCollider != this){
+        _listeners.ForEach(l => l.listen(otherCollider));
+        }
+    }
+
+
+    public abstract IShape GetShape();
+
+    public abstract BodyInertia GetInertia(DynamicBody body);
+
+}
+
+public class BoxCollider : Collider {
+
+    private float _height;
+    private float _width;
+    private float _length;
+
+    public BoxCollider(List<string> tags, Dictionary<string,object> data, List<ColliderListener> colliderListeners,float height, float width, float length) : base(tags,data,colliderListeners) {
+        _height = height;
+        _width = width;
+        _length = length;
+    }
+
+    public override BodyInertia GetInertia(DynamicBody body)
     {
-        get => _transform;
+        return ((Box) GetShape()).ComputeInertia(body.Mass);
+    }
+
+    public override IShape GetShape()
+    {
+        return new Box(_width,_height,_length);
     }
 
 }
 
-public class BoxCollider : Collider
-{
 
-    private Vector3 _halfWidths;
+public interface ColliderListener {
 
-    public BoxCollider(Transform transform, Vector3 halfWidths) : base(ColliderType.BOX, transform)
-    {
-        _halfWidths = halfWidths;
-    }
-
-    public Vector3 HalfWidths
-    {
-        get => _halfWidths;
-    }
+    public void listen(Collider collider);
 
 }
-
-public class SphereCollider : Collider
-{
-    private float _radius;
-    public SphereCollider(Transform transform, float radius) : base(ColliderType.SPHERE, transform)
-    {
-        _radius = radius;
-    }
-
-    public float Radius
-    {
-        get => _radius;
-    }
-}
-
-public enum ColliderType
-{
-    BOX,
-    SPHERE
-}
-
-
-
 

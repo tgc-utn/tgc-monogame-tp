@@ -1,7 +1,9 @@
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
@@ -14,106 +16,132 @@ using WarSteel.Scenes;
 using Vector3 = System.Numerics.Vector3;
 
 
-class PhysicsProcessor : ISceneProcessor
+public class PhysicsProcessor : ISceneProcessor
 {
     private Simulation _simulation;
 
-    private Dictionary<RigidBody, BodyHandle> simIndex = new Dictionary<RigidBody, BodyHandle>();
-    private Dictionary<RigidBody, StaticHandle> simIndexStatic = new Dictionary<RigidBody, StaticHandle>();
+    private List<(StaticBody, StaticHandle)> _staticBodies = new List<(StaticBody, StaticHandle)>();
+    private List<(DynamicBody, BodyHandle)> _dynamicBodies = new List<(DynamicBody, BodyHandle)>();
+
+    public PhysicsProcessor()
+    {
+        BufferPool bufferPool = new BufferPool();
+        SolveDescription solveDescription = new SolveDescription(1, 1, 8);
+
+        _simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), solveDescription);
+    }
 
     public void Draw(Scene scene) { }
 
     public void Initialize(Scene scene)
     {
+    }
 
-        BufferPool bufferPool = new BufferPool();
-        SolveDescription solveDescription = new SolveDescription(1, 1, 8);
+    public void AddBody(RigidBody r)
+    {
+        r.Build(this);
+    }
 
-        _simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(), new PoseIntegratorCallbacks(), solveDescription);
-
-        RigidBody[] rigidBodies = scene.GetEntities().FindAll(e => e.HasComponent<RigidBody>()).Select(e => e.GetComponent<RigidBody>()).ToArray();
-
-        foreach (var r in rigidBodies)
+    public void RemoveDynamicBody(DynamicBody r)
+    {
+        foreach (var (b, h) in _dynamicBodies)
         {
-            switch (r.Collider.ColliderType)
+            if (b == r)
             {
-                case ColliderType.SPHERE:
-                    AddAsSphere(r);
-                    break;
-                case ColliderType.BOX:
-                    AddAsBox(r);
-                    break;
+                _simulation.Bodies.Remove(h);
+                _dynamicBodies.Remove((b, h));
+                break;
+            }
+        }
+
+    }
+
+    public void RemoveStaticBody(StaticBody r)
+    {
+        foreach (var (b, h) in _staticBodies)
+        {
+            if (b == r)
+            {
+                _simulation.Statics.Remove(h);
+                _staticBodies.Remove((b, h));
+                break;
             }
         }
     }
 
-    public void AddAsSphere(RigidBody r)
-    {
-        SphereCollider collider = (SphereCollider)r.Collider;
-        Sphere sphere = new Sphere(collider.Radius);
-        TypedIndex index = _simulation.Shapes.Add(sphere);
-        BodyDescription bodyDescription = BodyDescription.CreateDynamic(
-            new Vector3(r.Pos.X, r.Pos.Y, r.Pos.Z),
-            new BodyInertia { InverseMass = 1 / r._mass },
-            new CollidableDescription(index),
-            new BodyActivityDescription(0.01f)
-            );
-        BodyHandle handle = _simulation.Bodies.Add(bodyDescription);
-        simIndex.Add(r, handle);
-    }
-
-    public void AddAsBox(RigidBody r)
-    {
-        BoxCollider collider = (BoxCollider)r.Collider;
-        Box box = new Box(collider.HalfWidths.X, collider.HalfWidths.Y, collider.HalfWidths.Z);
-        TypedIndex index = _simulation.Shapes.Add(box);
-        if (r.IsFixed)
-        {
-            StaticDescription staticDescription = new StaticDescription(
-                new Vector3(r.Pos.X, r.Pos.Y, r.Pos.Z),
-                index
-            );
-            StaticHandle handle = _simulation.Statics.Add(staticDescription);
-            simIndexStatic.Add(r, handle);
-        }
-        else
-        {
-            BodyDescription bodyDescription = BodyDescription.CreateDynamic(
-                new Vector3(r.Pos.X, r.Pos.Y, r.Pos.Z),
-                box.ComputeInertia(r._mass),
-                new CollidableDescription(index),
-                new BodyActivityDescription(0.01f)
-            );
-            bodyDescription.Pose.Orientation = new System.Numerics.Quaternion(r.Orientation.X,r.Orientation.Y,r.Orientation.Z,r.Orientation.W);
-            BodyHandle handle = _simulation.Bodies.Add(bodyDescription);
-            simIndex.Add(r, handle);
-        }
-
-    }
 
     public void Update(Scene scene, GameTime gameTime)
     {
-        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds + 0.0001f;
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds + 0.01f;
 
         _simulation.Timestep(dt);
 
-        foreach (var r in simIndex.Keys)
+        foreach (var (r, k) in _dynamicBodies)
         {
-            BodyReference body = _simulation.Bodies[simIndex[r]];
-            r.Pos = body.Pose.Position;
-            r.Orientation = body.Pose.Orientation;
+            BodyReference body = _simulation.Bodies[k];
+            body.Awake = true;
+            r.Transform.Pos = body.Pose.Position;
+            r.Transform.Orientation = body.Pose.Orientation;
             r.Velocity = body.Velocity.Linear;
             r.AngularVelocity = body.Velocity.Angular;
-            if (r.Forces.Concat(r.Torques).Count() > 0) body.Awake = true;
-            foreach (var f in r.Forces){
-                body.ApplyLinearImpulse(new Vector3(f.X,f.Y,f.Z));
-            }
-            foreach( var t in r.Torques){
-                body.ApplyAngularImpulse(new Vector3(t.X,t.Y,t.Z));
-            }
-            r.Forces.Clear();
-            r.Torques.Clear();
+
+
+            body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
+            body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
+
         }
+
+
+
+    }
+
+    internal TypedIndex AddShape(Collider collider)
+    {
+        IShape shape = collider.GetShape();
+
+        if (shape is Box boxShape)
+        {
+            return _simulation.Shapes.Add(boxShape);
+        }
+
+        else throw new InvalidOperationException("Unsupported shape added!");
+
+    }
+
+    internal void AddStatic(StaticBody body, StaticDescription staticDescription)
+    {
+        StaticHandle handle = _simulation.Statics.Add(staticDescription);
+        _staticBodies.Add((body, handle));
+    }
+
+    internal void AddDynamic(DynamicBody body, BodyDescription bodyDescription)
+    {
+        BodyHandle handle = _simulation.Bodies.Add(bodyDescription);
+        _dynamicBodies.Add((body, handle)); ;
+    }
+
+    internal DynamicBody FindDynamic(BodyHandle handle){
+        foreach (var (a,b) in _dynamicBodies){
+            if (handle == b) return a;
+        }
+        return null;
+    }
+
+    internal StaticBody FindStatic(StaticHandle handle){
+        foreach (var (a,b) in _staticBodies){
+            if (handle == b) return a;
+        }
+        return null;
+    }
+
+    public RigidBody GetRigidBodyFromCollision(CollidableReference r){
+        if (r.Mobility == CollidableMobility.Static){
+            return FindStatic(r.StaticHandle);
+        }
+        if (r.Mobility == CollidableMobility.Dynamic){
+            return FindDynamic(r.BodyHandle);
+        }
+        return null;
     }
 
 
@@ -122,6 +150,13 @@ class PhysicsProcessor : ISceneProcessor
 
 public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 {
+
+    private PhysicsProcessor _processor;
+
+    public NarrowPhaseCallbacks(PhysicsProcessor processor){
+        _processor = processor;
+    }
+
     public bool AllowContactGeneration(int workerIndex, CollidableReference a, CollidableReference b, ref float speculativeMargin)
     {
         return true;
@@ -134,9 +169,17 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        pairMaterial.FrictionCoefficient = 1f;
-        pairMaterial.MaximumRecoveryVelocity = 2f;
-        pairMaterial.SpringSettings = new SpringSettings(30, 1);
+        pairMaterial.FrictionCoefficient = 0.1f;
+        pairMaterial.MaximumRecoveryVelocity = 1f;
+        pairMaterial.SpringSettings = new SpringSettings(30, 3);
+
+        RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);
+        RigidBody B = _processor.GetRigidBodyFromCollision(pair.B);
+
+        A.Collider.OnCollide(B.Collider);
+        B.Collider.OnCollide(A.Collider);
+
+        
         return true;
     }
 
@@ -161,6 +204,8 @@ public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 
     Vector3 Gravity = new Vector3(0, -100, 0);
 
+    float dragCoeff = 0.3f;
+
     public PoseIntegratorCallbacks()
     {
     }
@@ -179,8 +224,12 @@ public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
     public void IntegrateVelocity(Vector<int> bodyIndices, Vector3Wide position, QuaternionWide orientation, BodyInertiaWide localInertia, Vector<int> integrationMask, int workerIndex, Vector<float> dt, ref BodyVelocityWide velocity)
     {
         Vector3Wide gravityWide;
-        Vector3Wide.Broadcast(Gravity * dt[0], out gravityWide);
-        Vector3Wide.Add(velocity.Linear, gravityWide, out velocity.Linear);
+        Vector3Wide dvGrav;
+        Vector3Wide.Broadcast(Gravity, out gravityWide);
+        Vector3Wide.Scale(gravityWide, dt, out dvGrav);
+        Vector3Wide.Add(velocity.Linear, dvGrav, out velocity.Linear);
+        Vector3Wide.Scale(velocity.Linear, -Vector.Multiply(dragCoeff, dt), out Vector3Wide drag);
+        Vector3Wide.Add(velocity.Linear, drag, out velocity.Linear);
 
     }
 

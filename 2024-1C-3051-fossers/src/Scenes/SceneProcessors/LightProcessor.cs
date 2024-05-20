@@ -18,7 +18,7 @@ class LightProcessor : ISceneProcessor
 
     public void Draw(Scene scene)
     {
-        Sources = new List<LightSource>();
+        // Sources = new List<LightSource>();
     }
 
     public void Initialize(Scene scene) { }
@@ -32,6 +32,10 @@ class LightProcessor : ISceneProcessor
     public List<LightSource> GetLightSources()
     {
         return Sources;
+    }
+
+    public void AddLightSource(LightSource s){
+        Sources.Add(s);
     }
 
     public Color GetAmbientColor()

@@ -87,9 +87,8 @@ float4 MainPS(VertexShaderOutput input) : SV_Target
             float NdotL = dot(L,N);
         if (NdotL > 0.0) {
             float distanceSq = length(lightPosition - input.WorldPos.xyz) * 0.001;
-            float attenuation = 1.0 / (distanceSq + 1.0); 
             float diffuseIntensity = saturate(NdotL);
-            DiffuseColor += diffuseIntensity * lightColor * attenuation * DiffuseCoefficient;
+            DiffuseColor += diffuseIntensity * lightColor  * DiffuseCoefficient;
 }
         
     }        

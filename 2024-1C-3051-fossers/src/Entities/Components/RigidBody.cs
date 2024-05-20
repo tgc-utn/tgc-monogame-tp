@@ -1,104 +1,146 @@
 using System;
-using System.Collections.Generic;
+using BepuPhysics;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Scenes;
-using WarSteel.Scenes.SceneProcessors;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace WarSteel.Entities;
 
-public class RigidBody : IComponent
+public abstract class RigidBody : IComponent
 {
-    public string Id;
     private Transform _transform;
-    public float _mass;
-    private Matrix _inertiaTensor;
-    private bool _isFixed;
-    private Vector3 _velocity;
-    private Vector3 _angularVelocity;
-    private Collider _collider;
-
-    private List<Vector3> _forces;
-
-    private List<Vector3> _torques;
-
-    public Vector3 Pos
-    {
-        get => _transform.Pos;
-        set => _transform.Pos = value;
-    }
-
-    public Quaternion Orientation
-    {
-        get => _transform.Orientation;
-        set => _transform.Orientation = value;
-    }
-    
-    public Vector3 Velocity
-    {
-        get => _velocity;
-        set => _velocity = value;
-    }
-
-    public Vector3 AngularVelocity
-    {
-        get => _angularVelocity;
-        set => _angularVelocity = value;
-    }
-
-    public Matrix InertiaTensor
-    {
-        get => _inertiaTensor;
-    }
+    protected Collider _collider;
 
     public Collider Collider
     {
         get => _collider;
     }
 
-    public bool IsFixed
+    public Transform Transform
     {
-        get => _isFixed;
+        get => _transform;
     }
 
-    public List<Vector3> Forces
+    public RigidBody(Transform transform, Collider collider)
     {
+        _transform = transform;
+        _collider = collider;
+    }
+
+    public void Initialize(Entity self, Scene scene) {
+
+        PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
+
+        processor.AddBody(this);
+
+    }
+
+    public virtual void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
+
+    public void Destroy(Entity self, Scene scene) {
+        PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
+        RemoveSelf(processor);
+    }
+
+    public abstract void Build(PhysicsProcessor processor);
+
+    public abstract void RemoveSelf(PhysicsProcessor processor);
+
+}
+
+public class StaticBody : RigidBody
+{
+    public StaticBody(Transform transform, Collider collider) : base(transform, collider){}
+
+
+
+    public override void Build(PhysicsProcessor processor)
+    {
+        TypedIndex index = processor.AddShape(_collider);
+        StaticDescription staticDescription = new StaticDescription(
+            new System.Numerics.Vector3(Transform.Pos.X,Transform.Pos.Y,Transform.Pos.Z),
+            index
+        );
+       processor.AddStatic(this,staticDescription);
+    }
+
+    public override void RemoveSelf(PhysicsProcessor processor)
+    {
+        processor.RemoveStaticBody(this);
+    }
+
+}
+
+public class DynamicBody : RigidBody
+{
+
+    private Vector3 _velocity;
+    private Vector3 _angularVelocity;
+    private float _mass;
+
+    private Vector3 _forces = Vector3.Zero;
+
+    private Vector3 _torques = Vector3.Zero;
+
+    public Vector3 Velocity{
+        get => _velocity;
+        set => _velocity = value;
+    }
+
+    public Vector3 AngularVelocity{
+        get => _angularVelocity;
+        set => _angularVelocity = value;
+    }
+
+    public float Mass {
+        get => _mass;
+    }
+
+    public Vector3 Force {
         get => _forces;
     }
 
-    public List<Vector3> Torques
-    {
+    public Vector3 Torque {
         get => _torques;
     }
 
-    public RigidBody(Transform transform, float mass, Matrix inertiaTensor,  Collider collider, bool isFixed = false)
+    public DynamicBody(Transform transform, Collider collider, float mass) : base(transform, collider)
     {
-        _transform = transform;
         _mass = mass;
-        _inertiaTensor = inertiaTensor;
-        Id = Guid.NewGuid().ToString();
-        _isFixed = isFixed;
-        _collider = collider;
-        _velocity = Vector3.Zero;
-        _angularVelocity = Vector3.Zero;
-        _forces = new List<Vector3>();
-        _torques = new List<Vector3>();
     }
 
+    public override void UpdateEntity(Entity self, GameTime time, Scene scene){
+        _forces *= 0;
+        _torques *= 0;
+    } 
+
     public void ApplyForce(Vector3 force){
-        _forces.Add(force);
+        _forces += force;
     }
 
     public void ApplyTorque(Vector3 torque){
-        _torques.Add(torque);
+        _torques += torque;
     }
 
-    public void Initialize(Entity self, Scene scene) { }
+    public override void Build(PhysicsProcessor processor)
+    {
+        TypedIndex index = processor.AddShape(_collider);
 
-    public void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
+        BodyDescription bodyDescription = BodyDescription.CreateDynamic(
+            new System.Numerics.Vector3(Transform.Pos.X,Transform.Pos.Y,Transform.Pos.Z),
+            _collider.GetInertia(this),
+            new CollidableDescription(index,0.01f),
+            new BodyActivityDescription(1000f)
+        );
 
-    public void Destroy(Entity self, Scene scene) { }
+        processor.AddDynamic(this,bodyDescription);
+    }
+
+    public override void RemoveSelf(PhysicsProcessor processor)
+    {
+        processor.RemoveDynamicBody(this);
+    }
 }
 
 
