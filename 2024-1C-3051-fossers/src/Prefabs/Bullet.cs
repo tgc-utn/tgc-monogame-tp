@@ -19,18 +19,19 @@ public class Bullet : Entity
 
     public Bullet(string name, float damage, Vector3 Pos, Vector3 direction, float force) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        DynamicBody r = new DynamicBody(Transform, new BoxCollider(new List<string>(){"bullet"}, new Dictionary<string, object>(),new List<ColliderListener>(), 10, 10, 10),10);
+        DynamicBody r = new DynamicBody(Transform, new BoxCollider(new List<string>() { "bullet" }, new Dictionary<string, object>(), new List<ColliderListener>(), 1, 1, 1), 10);
         AddComponent(r);
+        r.ApplyForce(direction * force);
 
         _direction = direction;
         _force = force;
         Damage = damage;
         Transform.Pos = Pos;
-        Transform.Dim = new Vector3(10, 10, 10);
     }
 
     public override void Initialize(Scene scene)
     {
+        LoadContent();
         base.Initialize(scene);
     }
 
