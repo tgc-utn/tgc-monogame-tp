@@ -97,7 +97,7 @@ public class PhysicsProcessor : ISceneProcessor
 
     internal TypedIndex AddShape(Collider collider)
     {
-        IShape shape = collider.GetShape();
+        IShape shape = collider.ColliderShape.GetShape();
 
         if (shape is Box boxShape)
         {

@@ -1,39 +1,35 @@
 
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using WarSteel.Entities;
 
 public abstract class Collider {
 
-    protected List<string> _tags;
 
-    protected Dictionary<string,object> _data;
+    private ColliderShape _colliderShape;
+    private Type _type;
 
-    protected List<ColliderListener> _listeners = new List<ColliderListener>();
 
-    public List<string> Tags {
-        get => _tags;
+    public ColliderShape ColliderShape{
+        get => _colliderShape;
     }
 
-    public Dictionary<string, object> Data {
-        get => Data;
+    public Type Type{
+        get => _type;
     }
 
-    public Collider(List<string> tags, Dictionary<string,Object> data, List<ColliderListener> listener){
-        _tags = tags;
-        _data = data;
-        _listeners = listener;
+    public Collider(ColliderShape colliderShape){
+        _colliderShape = colliderShape;
+        _type = GetType();
     }
 
-    public void OnCollide(Collider otherCollider){
-        if (otherCollider != this){
-        _listeners.ForEach(l => l.listen(otherCollider));
-        }
-    }
+    public abstract void OnCollide(Collider other);
 
+}
+
+public interface ColliderShape {
 
     public abstract IShape GetShape();
 
@@ -41,24 +37,24 @@ public abstract class Collider {
 
 }
 
-public class BoxCollider : Collider {
+public class BoxCollider : ColliderShape {
 
     private float _height;
     private float _width;
     private float _length;
 
-    public BoxCollider(List<string> tags, Dictionary<string,object> data, List<ColliderListener> colliderListeners,float height, float width, float length) : base(tags,data,colliderListeners) {
+    public BoxCollider(float height, float width, float length)  {
         _height = height;
         _width = width;
         _length = length;
     }
 
-    public override BodyInertia GetInertia(DynamicBody body)
+    public  BodyInertia GetInertia(DynamicBody body)
     {
         return ((Box) GetShape()).ComputeInertia(body.Mass);
     }
 
-    public override IShape GetShape()
+    public  IShape GetShape()
     {
         return new Box(_width,_height,_length);
     }
@@ -66,9 +62,4 @@ public class BoxCollider : Collider {
 }
 
 
-public interface ColliderListener {
-
-    public void listen(Collider collider);
-
-}
 

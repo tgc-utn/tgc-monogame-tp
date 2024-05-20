@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
-using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 
@@ -19,8 +18,8 @@ public class Bullet : Entity
 
     public Bullet(string name, float damage, Vector3 Pos, Vector3 direction, float force) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        DynamicBody r = new DynamicBody(Transform, new BoxCollider(new List<string>(){"bullet"}, new Dictionary<string, object>(),new List<ColliderListener>(), 10, 10, 10),10);
-        AddComponent(r);
+        // DynamicBody r = new DynamicBody(Transform, new BoxCollider(10, 10, 10),10);
+        // AddComponent(r);
 
         _direction = direction;
         _force = force;

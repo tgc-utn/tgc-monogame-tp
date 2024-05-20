@@ -14,8 +14,8 @@ public class Tank : Entity
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new DynamicBody(Transform, new BoxCollider(new List<string>(){"tank"},new Dictionary<string, object>(){}, new List<ColliderListener>(){new Logger()},200, 200, 200), 5));
-        AddComponent(new PlayerControls());
+        // AddComponent(new DynamicBody(Transform, new BoxCollider(new List<string>(){"tank"},new Dictionary<string, object>(){}, new List<ColliderListener>(){new Logger()},200, 200, 200), 5));
+        // AddComponent(new PlayerControls());
     }
 
     public override void Initialize(Scene scene)
@@ -39,11 +39,3 @@ public class Tank : Entity
     }
 }
 
-class Logger : ColliderListener
-{
-    public void listen(Collider collider)
-    {
-
-    }
-
-}
