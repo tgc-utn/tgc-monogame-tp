@@ -29,7 +29,7 @@ public class PlayerControls : IComponent
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
-            rb.ApplyTorque(self.Transform.GetWorld().Up * -6000);
+            rb.ApplyTorque(self.Transform.GetWorld().Up * -350f);
         }
         if (isClickingLMB())
         {

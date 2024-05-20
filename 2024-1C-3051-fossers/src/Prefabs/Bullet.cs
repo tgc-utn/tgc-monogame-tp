@@ -19,7 +19,7 @@ public class Bullet : Entity
 
     public Bullet(string name, float damage, Vector3 Pos, Vector3 direction, float force) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        RigidBody r = new RigidBody(Transform, 20, Matrix.Identity, new BoxCollider(Transform, new Vector3(10, 10, 10)));
+        DynamicBody r = new DynamicBody(Transform, new BoxCollider(new List<string>(){"bullet"}, new Dictionary<string, object>(),new List<ColliderListener>(), 10, 10, 10),10);
         AddComponent(r);
 
         _direction = direction;
