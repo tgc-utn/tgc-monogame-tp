@@ -106,7 +106,7 @@ namespace ThunderingTanks.Objects
 
             this.Position = Direction + new Vector3(0, 400f, 0f);
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Position);
+            turretWorld = Matrix.CreateRotationY(GunRotationFinal) * PanzerMatrix;
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(gunElevation) * turretWorld;
         }
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
