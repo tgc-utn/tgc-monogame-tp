@@ -63,7 +63,8 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 {
     //float3 color = tex2D(TextureSampler, input.TextureCoordinate.xy).rgb;
     
-    return float4(DiffuseColor, 1.0);
+    return tex2D(TextureSampler, input.TextureCoordinate);
+
 }
 
 technique BasicColorDrawing

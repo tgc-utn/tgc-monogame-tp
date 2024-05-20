@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,6 +19,8 @@ namespace ThunderingTanks
         public const string ContentFolderTextures = "Textures/";
 
         private GraphicsDeviceManager Graphics { get; }
+
+        private GraphicsDevice _graphicsDevice;
         public KeyboardState keyboardState;
 
         private MapScene City { get; set; }
@@ -76,7 +79,7 @@ namespace ThunderingTanks
 
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition); //creo que no se está usando
 
-            Panzer = new Tank
+            Panzer = new Tank(GraphicsDevice)
             {
                 TankVelocity = 300f,
                 TankRotation = 20f
@@ -128,11 +131,11 @@ namespace ThunderingTanks
 
             arbol.LoadContent(Content);
 
-            AgregarArboles(25);
+            AgregarArboles(15);
 
             casa.LoadContent(Content);
 
-            casa.AgregarCasa(new Vector3(-700f, -650f, 200f));
+            casa.AgregarCasa(new Vector3(-3300f, -690f, 7000f));
 
 
 
@@ -157,7 +160,20 @@ namespace ThunderingTanks
 
             Panzer.Update(gameTime, keyboardState);
 
-            
+            BoundingBox tankBox = Panzer.TankBox; // Asumiendo que Tank tiene una propiedad BoundingBox
+
+            for (int i = 0; i < roca.BoundingBoxes.Count; i++)
+            {
+                if (tankBox.Intersects(roca.BoundingBoxes[i]))
+                {
+                    // Colisión detectada, puedes manejarlo aquí
+                    roca.BoundingBoxes.RemoveAt(i);
+                    roca.RocaWorlds = roca.RocaWorlds.Where((val, idx) => idx != i).ToArray();
+                    i--; // Ajustar el índice después de remover
+                }
+            }
+
+
             if (keyboardState.IsKeyDown(Keys.Space))
             {
                 Projectile projectile = Panzer.Shoot(Panzer.PanzerMatrix);

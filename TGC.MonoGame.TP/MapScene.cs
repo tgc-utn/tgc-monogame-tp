@@ -20,6 +20,8 @@ namespace ThunderingTanks.Content.Models
         public const float ScaleFactor = 200f; // Factor de escala para agrandar cada parcela
 
         private Model Model { get; set; }
+
+        private Texture2D TexturaTerreno { get; set; }
         private List<Matrix> WorldMatrices { get; set; }
         private Effect Effect { get; set; }
 
@@ -32,6 +34,8 @@ namespace ThunderingTanks.Content.Models
         {
             // Load the City Model
             Model = content.Load<Model>(ContentFolder3D + "Grid/ground");
+
+            TexturaTerreno = content.Load<Texture2D>(ContentFolder3D + "Grid/terreno");
 
             // Load an effect that will be used to draw the scene
             Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -73,7 +77,9 @@ namespace ThunderingTanks.Content.Models
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
+            Effect.Parameters["ModelTexture"].SetValue(TexturaTerreno);
+
 
 
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];

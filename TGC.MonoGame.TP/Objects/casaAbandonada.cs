@@ -11,7 +11,11 @@ namespace ThunderingTanks.Objects
     {
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderTextures = "Textures/";
+
         public Model CasaModel { get; set; }
+
+        private Texture2D TexturaCasa { get; set; }
         public Matrix[] CasaWorlds { get; set; }
         public Effect Effect { get; set; }
 
@@ -32,6 +36,8 @@ namespace ThunderingTanks.Objects
         public void LoadContent(ContentManager Content)
         {
             CasaModel = Content.Load<Model>(ContentFolder3D + "casa/house");
+
+            TexturaCasa = Content.Load<Texture2D>(ContentFolderTextures + "casaAbandonada/Medieval_Brick_Texture_by_goodtextures");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in CasaModel.Meshes)
             {
@@ -46,13 +52,15 @@ namespace ThunderingTanks.Objects
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Azure.ToVector3());
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Azure.ToVector3());
             foreach (var mesh in CasaModel.Meshes)
             {
 
                 for (int i = 0; i < CasaWorlds.Length; i++)
                 {
                     Matrix _casaWorld = CasaWorlds[i];
+                    Effect.Parameters["ModelTexture"].SetValue(TexturaCasa);
+
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _casaWorld);
                     mesh.Draw();
                 }

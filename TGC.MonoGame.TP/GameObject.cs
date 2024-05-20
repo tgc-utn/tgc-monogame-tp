@@ -16,6 +16,8 @@ namespace ThunderingTanks
         public bool IsActive { get; set; }
         public BoundingSphere BoundingSphere { get; set; }
 
+        public BoundingBox BoundingBox { get; set; }
+
         public GameObject()
         {
             GameModel = null;

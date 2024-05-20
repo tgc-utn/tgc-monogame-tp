@@ -26,6 +26,7 @@ namespace ThunderingTanks
 
 
 
+
         public Projectile(Matrix matrix, float speed, float scale)
         {
             this.Position = matrix;
@@ -35,6 +36,7 @@ namespace ThunderingTanks
             this.Speed = speed;
 
             Scale = scale;
+
 
 
         }
@@ -75,6 +77,15 @@ namespace ThunderingTanks
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             PositionVector += Direction * Speed * time;
             this.Position = Matrix.CreateTranslation(PositionVector);
+
+
+        }
+
+        private BoundingBox CalculateBoundingBox()
+        {
+            // Aquí debes calcular la BoundingBox inicial del modelo del proyectil
+            // Por simplicidad, asumimos un tamaño pequeño centrado en (0,0,0)
+            return new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f));
         }
 
     }

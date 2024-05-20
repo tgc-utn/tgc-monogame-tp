@@ -26,6 +26,8 @@ namespace ThunderingTanks.Objects
 
         public Model Tanque { get; set; }
 
+        private Texture2D PanzerTexture { get; set; }
+
         public Vector3 PanzerPosition { get; set; }
 
         public TargetCamera PanzerCamera { get; set; }
@@ -48,11 +50,24 @@ namespace ThunderingTanks.Objects
         public float GunRotationFinal = 0;
         public float GunRotation { get; set; }
 
-   
+        public Matrix turretWorld { get; set; }
+        public Matrix cannonWorld { get; set; }
+
+        public Tank(GraphicsDevice graphicsDevice)
+        {
+            this.graphicsDevice = graphicsDevice;
+            turretWorld = Matrix.Identity;
+            cannonWorld = Matrix.Identity;
+        }
+
+
+
         public void LoadContent(ContentManager Content)
         {
 
             Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
+
+            PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
@@ -76,31 +91,24 @@ namespace ThunderingTanks.Objects
 
             if (keyboardState.IsKeyDown(Keys.W))
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
-            MoveTankBoundingBox(Direction);
 
             if (keyboardState.IsKeyDown(Keys.S))
-                Direction -= PanzerMatrix.Backward * TankVelocity * time;
-            MoveTankBoundingBox(Direction);
+                Direction += PanzerMatrix.Forward * TankVelocity * time;
 
             if (keyboardState.IsKeyDown(Keys.D))
-                Rotation -= TankRotation * time;
+                Rotation += TankRotation * time;
 
             if (keyboardState.IsKeyDown(Keys.A))
-                Rotation -= -TankRotation * time;
+                Rotation -= TankRotation * time;
 
-            // Actualizar la rotación de la torreta
-            if (keyboardState.IsKeyDown(Keys.LeftShift))
-                GunRotationFinal -= GunRotation * time;
-
-            if (keyboardState.IsKeyDown(Keys.LeftControl))
-                GunRotationFinal += GunRotation * time;
+            GunRotationFinal = -GetRotationFromCursorX() + Rotation;
+            float gunElevation = GetElevationFromCursorY();
 
             this.Position = Direction + new Vector3(0, 400f, 0f);
-
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-
+            turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Position);
+            cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(gunElevation) * turretWorld;
         }
-
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
         {
             if (graphicsDevice == null)
@@ -115,55 +123,32 @@ namespace ThunderingTanks.Objects
 
         public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice _GraphicsDevice)
         {
-
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
+
+        
+
             foreach (var mesh in Tanque.Meshes)
             {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
-                mesh.Draw();
-            }
-
-            /*
-            var originalRasterizerState = _GraphicsDevice.RasterizerState;
-            foreach (var mesh in GameModel.Meshes)
-            {
-                var rasterizerState = new RasterizerState();
-                if (mesh.Name.Equals("Gun"))
-                    rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
-                else
-                    rasterizerState.CullMode = CullMode.CullClockwiseFace;
-                _GraphicsDevice.RasterizerState = rasterizerState;
-                foreach (BasicEffect effect in mesh.Effects)
+                if (mesh.Name.Equals("Turret"))
                 {
-                    effect.World = world;
-                    effect.View = view;
-                    effect.Projection = projection;
-                } //sacar el basic effect
-                mesh.Draw();
-
-
-            */
-
-            /*
-            Creo que tendria que ser algo asi para la torreta, habria que ver como implementar una matriz que este pegada a otra.
-            foreach (BasicEffect effect in mesh.Effects)
-            {
-                if (mesh.Name.Equals("Gun"))
+                    //Effect.Parameters["DiffuseColor"]?.SetValue(Color.Aquamarine.ToVector3());
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * turretWorld);
+                }
+                else if (mesh.Name.Equals("Cannon"))
                 {
-                    Matrix gunWorld = Matrix.CreateRotationY(MathHelper.ToRadians(GunRotationFinal)) * world;
-                    effect.World = gunWorld;
+                    //Effect.Parameters["DiffuseColor"].SetValue(Color.Coral.ToVector3());
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * cannonWorld);
                 }
                 else
                 {
-                    effect.World = world;
-                }
-                effect.View = view;
-                effect.Projection = projection;
-            }
-            */
+                    Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
 
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+                }
+                mesh.Draw();
+            }
         }
 
         public Projectile Shoot(Matrix TankMatrix)
@@ -193,5 +178,23 @@ namespace ThunderingTanks.Objects
             TankBox = new BoundingBox(TankBox.Min + increment, TankBox.Max + increment);
             return TankBox;
         }
+
+
+        private float GetRotationFromCursorX()
+        {
+            MouseState mouseState = Mouse.GetState();
+            float mouseX = mouseState.X;
+            float screenWidth = graphicsDevice.Viewport.Width;
+            return MathHelper.ToRadians((mouseX / screenWidth) * 360f - 180f);
+        }
+
+        private float GetElevationFromCursorY()
+        {
+            MouseState mouseState = Mouse.GetState();
+            float mouseY = mouseState.Y;
+            float screenHeight = graphicsDevice.Viewport.Height;
+            return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
+        }
+
     }
 }

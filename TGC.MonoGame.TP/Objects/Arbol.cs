@@ -12,6 +12,8 @@ namespace ThunderingTanks.Objects
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public Model ArbolModel { get; set; }
+
+        private Texture2D TexturaArbol { get; set; }
         public Matrix[] ArbolWorlds { get; set; }
         public Effect Effect { get; set; }
 
@@ -32,6 +34,8 @@ namespace ThunderingTanks.Objects
         public void LoadContent(ContentManager Content)
         {
             ArbolModel = Content.Load<Model>(ContentFolder3D + "nature/tree/Southern Magnolia-CORONA");
+
+            TexturaArbol = Content.Load<Texture2D>(ContentFolder3D + "nature/tree/MagnoliaBark");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in ArbolModel.Meshes)
             {
@@ -44,15 +48,17 @@ namespace ThunderingTanks.Objects
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
-            Effect.Parameters["View"].SetValue(view); //Cambio View por Eso
+            Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Brown.ToVector3());
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Brown.ToVector3());
             foreach (var mesh in ArbolModel.Meshes)
             {
 
                 for (int i = 0; i < ArbolWorlds.Length; i++)
                 {
                     Matrix _arbolWorld = ArbolWorlds[i];
+                    Effect.Parameters["ModelTexture"].SetValue(TexturaArbol);
+
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _arbolWorld);
                     mesh.Draw();
                 }

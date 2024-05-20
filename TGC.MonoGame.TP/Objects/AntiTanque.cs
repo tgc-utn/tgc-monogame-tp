@@ -12,6 +12,8 @@ namespace ThunderingTanks.Objects
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public Model AntitanqueModel { get; set; }
+
+        private Texture2D TexturaAntitanque { get; set; }
         public Matrix[] AntitanqueWorlds { get; set; }
         public Effect Effect { get; set; }
 
@@ -32,6 +34,8 @@ namespace ThunderingTanks.Objects
         public void LoadContent(ContentManager Content)
         {
             AntitanqueModel = Content.Load<Model>(ContentFolder3D + "assets militares/rsg_military_antitank_hedgehog_01");
+
+            TexturaAntitanque = Content.Load<Texture2D>(ContentFolder3D + "assets militares/Textures/UE/T_rsg_military_sandbox_01_BC");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in AntitanqueModel.Meshes)
             {
@@ -44,9 +48,11 @@ namespace ThunderingTanks.Objects
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
-            Effect.Parameters["View"].SetValue(view); //Cambio View por Eso
+            Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
+            Effect.Parameters["ModelTexture"].SetValue(TexturaAntitanque);
+
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Black.ToVector3());
             foreach (var mesh in AntitanqueModel.Meshes)
             {
 
