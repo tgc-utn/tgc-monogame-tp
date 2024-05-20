@@ -38,11 +38,11 @@ namespace ThunderingTanks.Content.Models
 
             // Get the first texture we find
             // The city model only contains a single texture
-            var effect = Model.Meshes.FirstOrDefault().Effects.FirstOrDefault() as BasicEffect;
-            var texture = effect.Texture;
+            //var effect = Model.Meshes.FirstOrDefault().Effects.FirstOrDefault() as BasicEffect;
+            //var texture = effect.Texture;
 
             // Set the Texture to the Effect
-            Effect.Parameters["ModelTexture"].SetValue(texture);
+            //Effect.Parameters["ModelTexture"].SetValue(texture);
 
             // Assign the mesh effect
             foreach (var mesh in Model.Meshes)
@@ -73,6 +73,8 @@ namespace ThunderingTanks.Content.Models
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
+
 
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);

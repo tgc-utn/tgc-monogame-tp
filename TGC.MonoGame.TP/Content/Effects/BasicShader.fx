@@ -17,6 +17,9 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
+float3 DiffuseColor;
+
+
 
 texture ModelTexture;
 sampler2D TextureSampler = sampler_state
@@ -58,9 +61,9 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    float3 color = tex2D(TextureSampler, input.TextureCoordinate.xy).rgb;
+    //float3 color = tex2D(TextureSampler, input.TextureCoordinate.xy).rgb;
     
-    return float4(color, 1);
+    return float4(DiffuseColor, 1.0);
 }
 
 technique BasicColorDrawing

@@ -1,41 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
+using System.Runtime.Loader;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using static System.Formats.Asn1.AsnWriter;
 namespace ThunderingTanks
 {
     public class Projectile : GameObject
     {
+        public const string ContentFolder3D = "Models/";
+        public const string ContentFolderEffects = "Effects/";
         public Vector3 Direction { get; set; }
         public float Speed { get; set; }
         public Vector3 PositionVector = new(0, 0, 0);
         public new Matrix Position { get; set; }
 
+        public Effect Effect { get; set; }
 
-        public Projectile(Matrix matrix, float speed)
+        private Model projectile { get; set; }
+
+        public float Scale { get; set; } // Nueva propiedad
+
+
+
+        public Projectile(Matrix matrix, float speed, float scale)
         {
             this.Position = matrix;
             PositionVector = Position.Translation;
 
             this.Direction = matrix.Backward;
-
             this.Speed = speed;
+
+            Scale = scale;
+
+
         }
 
-        public void Draw(Model projectileModel, Matrix view, Matrix projection)
+        public void LoadContent(ContentManager Content)
         {
-            Matrix worldMatrix = Position;
-            // Dibujar el proyectil en su posicion actual
-            foreach (ModelMesh mesh in projectileModel.Meshes)
+            projectile = Content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
+            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            foreach (var mesh in projectile.Meshes)
             {
-                foreach (BasicEffect effect in mesh.Effects)
+                foreach (var meshPart in mesh.MeshParts)
                 {
-                    effect.World = worldMatrix;
-                    effect.View = view;
-                    effect.Projection = projection;
+                    meshPart.Effect = Effect;
                 }
+            }
+
+        }
+
+
+        public void Draw(Matrix view, Matrix projection)
+        {
+            Matrix worldMatrix = Matrix.CreateScale(Scale) * Position;
+
+            Effect.Parameters["View"].SetValue(view);
+            Effect.Parameters["Projection"].SetValue(projection);
+            Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            foreach (var mesh in projectile.Meshes)
+            {
+
+                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
                 mesh.Draw();
+
             }
         }
 
