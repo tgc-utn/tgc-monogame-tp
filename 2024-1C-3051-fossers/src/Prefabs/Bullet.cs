@@ -16,13 +16,24 @@ public class Bullet : Entity
     // future attr when implementing bullets explosions
     //// public float ExplosionArea;
 
+    class BulletCollider : Collider
+    {
+        Scene _scene;
+        public BulletCollider(Scene scene) : base(new BoxCollider(10, 10, 10))
+        {
+            _scene = scene;
+        }
+
+        public override void OnCollide(Collision col)
+        {
+            // hardcoded for now
+            if (col.Entity?.Name != "player-bullet")
+                _scene.RemoveEntity(col.Entity);
+        }
+    }
+
     public Bullet(string name, float damage, Vector3 Pos, Vector3 direction, float force) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-
-        // DynamicBody r = new DynamicBody(Transform, new BoxCollider(10, 10, 10),10);
-        // AddComponent(r);
-
-
         _direction = direction;
         _force = force;
         Damage = damage;
@@ -31,6 +42,9 @@ public class Bullet : Entity
 
     public override void Initialize(Scene scene)
     {
+        DynamicBody r = new DynamicBody(Transform, new BulletCollider(scene), 10);
+        AddComponent(r);
+        r.ApplyForce(_direction * _force);
         LoadContent();
         base.Initialize(scene);
     }
