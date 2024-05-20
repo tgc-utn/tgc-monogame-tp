@@ -1,9 +1,6 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Managers;
-using WarSteel.Scenes;
 using WarSteel.Scenes.Main;
 
 namespace WarSteel;
@@ -19,6 +16,10 @@ public class Game : Microsoft.Xna.Framework.Game
         Graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
+        // Graphics.IsFullScreen = true;
+        Window.AllowUserResizing = true;
+        Graphics.PreferredBackBufferWidth = 1280;
+        Graphics.PreferredBackBufferHeight = 720;
     }
 
     protected override void Initialize()
