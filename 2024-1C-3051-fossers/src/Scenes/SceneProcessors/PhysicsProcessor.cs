@@ -1,9 +1,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuPhysics.CollisionDetection;
@@ -90,9 +88,6 @@ public class PhysicsProcessor : ISceneProcessor
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
 
         }
-
-
-
     }
 
     internal TypedIndex AddShape(Collider collider)
@@ -120,25 +115,32 @@ public class PhysicsProcessor : ISceneProcessor
         _dynamicBodies.Add((body, handle)); ;
     }
 
-    internal DynamicBody FindDynamic(BodyHandle handle){
-        foreach (var (a,b) in _dynamicBodies){
+    internal DynamicBody FindDynamic(BodyHandle handle)
+    {
+        foreach (var (a, b) in _dynamicBodies)
+        {
             if (handle == b) return a;
         }
         return null;
     }
 
-    internal StaticBody FindStatic(StaticHandle handle){
-        foreach (var (a,b) in _staticBodies){
+    internal StaticBody FindStatic(StaticHandle handle)
+    {
+        foreach (var (a, b) in _staticBodies)
+        {
             if (handle == b) return a;
         }
         return null;
     }
 
-    public RigidBody GetRigidBodyFromCollision(CollidableReference r){
-        if (r.Mobility == CollidableMobility.Static){
+    public RigidBody GetRigidBodyFromCollision(CollidableReference r)
+    {
+        if (r.Mobility == CollidableMobility.Static)
+        {
             return FindStatic(r.StaticHandle);
         }
-        if (r.Mobility == CollidableMobility.Dynamic){
+        if (r.Mobility == CollidableMobility.Dynamic)
+        {
             return FindDynamic(r.BodyHandle);
         }
         return null;
@@ -153,7 +155,8 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     private PhysicsProcessor _processor;
 
-    public NarrowPhaseCallbacks(PhysicsProcessor processor){
+    public NarrowPhaseCallbacks(PhysicsProcessor processor)
+    {
         _processor = processor;
     }
 
@@ -179,7 +182,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
         A.Collider.OnCollide(B.Collider);
         B.Collider.OnCollide(A.Collider);
 
-        
+
         return true;
     }
 

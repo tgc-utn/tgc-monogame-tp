@@ -11,11 +11,12 @@ public class Scene
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
     protected GraphicsDeviceManager Graphics;
     protected Camera camera;
+    protected PhysicsProcessor physics = new PhysicsProcessor();
     private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
 
-    public Scene(GraphicsDeviceManager Graphics)
+    public Scene(GraphicsDeviceManager graphics)
     {
-        this.Graphics = Graphics;
+        Graphics = graphics;
     }
 
     public void SetCamera(Camera camera)
@@ -42,6 +43,13 @@ public class Scene
     public void AddEntity(Entity entity)
     {
         entities.Add(entity.Id, entity);
+        // adding the physics can be done via the initialize method in each entity, 
+        // in that case we would be avoiding these ifs, 
+        // though we would actually have to remember to do it on every implementation!
+        if (entity.HasComponent<DynamicBody>())
+            physics.AddBody(entity.GetComponent<DynamicBody>());
+        if (entity.HasComponent<StaticBody>())
+            physics.AddBody(entity.GetComponent<StaticBody>());
     }
 
     public T GetSceneProcessor<T>() where T : class, ISceneProcessor
@@ -111,9 +119,6 @@ public class Scene
         // creating a copy here to prevent weird behaviors 
         // while adding a new entity to the list and iterating over it at the same time in the game loop 
         var copyEntities = new Dictionary<string, Entity>(entities);
-        // When pressing LMB, the bullet does not appear. 
-        // If AddEntity(bullet) is in main, bullet appears
-        //If AddEntity(bullet) is in PlayerControls, it does not.
         foreach (var entity in copyEntities.Values)
         {
             entity.Update(gameTime, this);

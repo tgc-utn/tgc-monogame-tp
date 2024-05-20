@@ -4,6 +4,8 @@ using WarSteel.Entities;
 using WarSteel.Common;
 using WarSteel.Entities.Map;
 using WarSteel.Scenes.SceneProcessors;
+using Microsoft.Xna.Framework.Graphics;
+using WarSteel.Entities.Components;
 
 namespace WarSteel.Scenes.Main;
 
@@ -16,10 +18,9 @@ public class MainScene : Scene
     public override void Initialize()
     {
 
-        PhysicsProcessor physics = new PhysicsProcessor();
         LightProcessor light = new LightProcessor(Color.AliceBlue);
 
-        light.AddLightSource(new LightSource(Color.Red,new Vector3(0,500,0)));
+        light.AddLightSource(new LightSource(Color.Red, new Vector3(0, 500, 0)));
 
         AddSceneProcessor(light);
         AddSceneProcessor(physics);
@@ -28,19 +29,12 @@ public class MainScene : Scene
         camera.AddComponent(new MouseController(0.01f));
 
         Entity tank = new Tank("player");
+        tank.AddComponent(new PlayerControls());
         Entity ground = new Ground();
-        tank.Transform.Pos = new Vector3(0, 900, 0);
-
-
+        tank.Transform.Rotate(new Vector3(0, 180, 0));
 
         AddEntity(tank);
         AddEntity(ground);
-
-        physics.AddBody(tank.GetComponent<DynamicBody>());
-        physics.AddBody(ground.GetComponent<StaticBody>());
-
-
-
 
         camera.Follow(GetEntityByName("player"));
 

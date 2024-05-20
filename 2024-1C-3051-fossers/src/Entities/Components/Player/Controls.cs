@@ -1,27 +1,29 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using WarSteel.Entities;
 using WarSteel.Scenes;
 using WarSteel.Utils;
+
+namespace WarSteel.Entities.Components;
 
 public class PlayerControls : IComponent
 {
     DynamicBody rb;
     float Damage = 100;
+    float BulletForce = 100;
     bool IsReloading = false;
-    int ReloadingTimeInMs = 2000;
+    int ReloadingTimeInMs = 500;
 
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
-            rb.ApplyForce(self.Transform.GetWorld().Forward * 100);
+            // model is reversed
+            rb.ApplyForce(self.Transform.GetWorld().Backward * 100);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
-            rb.ApplyForce(self.Transform.GetWorld().Backward * 100);
+            rb.ApplyForce(self.Transform.GetWorld().Forward * 100);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
@@ -34,10 +36,13 @@ public class PlayerControls : IComponent
         if (isClickingLMB())
         {
             if (IsReloading) return;
-            scene.AddEntity(new Bullet("player-bullet", Damage, new Vector3(50, 50, 50), new Vector3(1, 1, 1), 100));
+            Vector3 CameraPos = scene.GetCamera().Transform.Pos;
+            Vector3 Dir = new(-CameraPos.X, CameraPos.Y, -CameraPos.Z);
+            Bullet bullet = new Bullet("player-bullet", Damage, self.Transform.Pos + new Vector3(Dir.X, 200, Dir.Z), Dir, BulletForce);
+            bullet.Initialize(scene);
+            scene.AddEntity(bullet);
             IsReloading = true;
             Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
-            Console.WriteLine("Realoding");
         }
     }
 
