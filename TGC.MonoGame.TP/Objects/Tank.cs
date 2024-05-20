@@ -67,7 +67,7 @@ namespace ThunderingTanks.Objects
 
             Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
 
-            PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
+            PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
@@ -157,7 +157,7 @@ namespace ThunderingTanks.Objects
             {
                 Matrix projectileMatrix = Matrix.CreateTranslation(new Vector3(0, 250, 600)) * TankMatrix;
 
-                float projectileScale = 0.1f; // Ajusta esta escala según tus necesidades
+                float projectileScale = 0.3f; // Ajusta esta escala según tus necesidades
 
 
                 Projectile projectile = new Projectile(projectileMatrix, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta

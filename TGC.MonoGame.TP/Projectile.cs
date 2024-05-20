@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
 using System.Runtime.Loader;
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ThunderingTanks.Objects;
 using static System.Formats.Asn1.AsnWriter;
 namespace ThunderingTanks
 {
@@ -21,6 +23,8 @@ namespace ThunderingTanks
         public Effect Effect { get; set; }
 
         private Model projectile { get; set; }
+
+        private Texture2D TexturaProjectile { get; set; }
 
         public float Scale { get; set; } // Nueva propiedad
 
@@ -44,6 +48,8 @@ namespace ThunderingTanks
         public void LoadContent(ContentManager Content)
         {
             projectile = Content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
+
+            TexturaProjectile = Content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasör/Rock_1_Base_Color");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in projectile.Meshes)
             {
@@ -62,7 +68,7 @@ namespace ThunderingTanks
 
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
             foreach (var mesh in projectile.Meshes)
             {
 
