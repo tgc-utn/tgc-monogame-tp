@@ -110,7 +110,7 @@ public class Car
 
     }
 
-    private void MoveCar(KeyboardState keyboardState, GameTime gameTime, BodyReference bodyReference)
+    private void MoveCar(KeyboardState keyboardState, GameTime gameTime, BodyReference bodyReference, Simulation simulation)
     {
          float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -126,15 +126,18 @@ public class Car
             var forwardImpulse = new System.Numerics.Vector3(0, 0, -acceleration) * elapsedTime;
             var backwardImpulse = new System.Numerics.Vector3(0, 0, braking) * elapsedTime;
             var linearVelocity = bodyReference.Velocity.Linear;
+            var awake = bodyReference.Awake;
 
             // Apply forward/backward impulses relative to the car's orientation
             if (keyboardState.IsKeyDown(Keys.W))
             {
+                if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
                 var transformedForwardImpulse = System.Numerics.Vector3.Transform(forwardImpulse, bodyReference.Pose.Orientation);
                 bodyReference.ApplyLinearImpulse(transformedForwardImpulse);
             }
             if (keyboardState.IsKeyDown(Keys.S))
             {
+                if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
                 var transformedBackwardImpulse = System.Numerics.Vector3.Transform(backwardImpulse, bodyReference.Pose.Orientation);
                 bodyReference.ApplyLinearImpulse(transformedBackwardImpulse);
             }
@@ -146,6 +149,7 @@ public class Car
             // Apply angular impulses for turning
             if (keyboardState.IsKeyDown(Keys.A))
             {
+                if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
                 bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
                 // Rotar hacia la izquierda
                 CarRotation += (carRotatingVelocity) * elapsedTime;
@@ -160,6 +164,7 @@ public class Car
             
             if (keyboardState.IsKeyDown(Keys.D))
             {
+                if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
                 bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
                 // Rotar hacia la Derecha
                 CarRotation += (-carRotatingVelocity) * elapsedTime;
@@ -191,7 +196,7 @@ public class Car
 
         var bodyHandle = Handle;
         var bodyReference = simulation.Bodies.GetBodyReference(bodyHandle);
-        MoveCar(keyboardState, gameTime, bodyReference);
+        MoveCar(keyboardState, gameTime, bodyReference, simulation);
         var position = bodyReference.Pose.Position;
         Quaternion quaternion = bodyReference.Pose.Orientation;
         Quaternion rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
