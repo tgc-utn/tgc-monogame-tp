@@ -42,7 +42,7 @@ public class Tank : Entity
 {
     class TankCollider : Collider
     {
-        public TankCollider() : base(new BoxCollider(200, 200, 200)) { }
+        public TankCollider() : base(new BoxCollider(500, 500, 500)) { }
 
         public override void OnCollide(Collision other)
         {

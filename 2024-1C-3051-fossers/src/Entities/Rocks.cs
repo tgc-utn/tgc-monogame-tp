@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Managers;
+using WarSteel.Scenes;
 
 namespace WarSteel.Entities.Map;
 
@@ -28,8 +29,13 @@ public class Rock : Entity
 
     public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -200, 0)), new RockCollider()));
         rockSize = size;
+    }
+
+    public override void Initialize(Scene scene)
+    {
+        AddComponent(new StaticBody(Transform, new RockCollider()));
+        base.Initialize(scene);
     }
 
     private string GetRockSizeStringValue()

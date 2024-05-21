@@ -13,7 +13,7 @@ public class Ground : Entity
 {
     class GroundCollider : Collider
     {
-        public GroundCollider() : base(new BoxCollider(200, 9000, 9000)) { }
+        public GroundCollider() : base(new BoxCollider(200, 100000000000, 100000000000)) { }
     }
 
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())

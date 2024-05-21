@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
 using WarSteel.Managers;
+using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
@@ -17,7 +18,12 @@ class SimpleTree : Entity
 
     public SimpleTree() : base("simple-tree", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -200, 0)), new TreeCollider()));
+    }
+
+    public override void Initialize(Scene scene)
+    {
+        AddComponent(new StaticBody(Transform, new TreeCollider()));
+        base.Initialize(scene);
     }
 
     public override void LoadContent()
