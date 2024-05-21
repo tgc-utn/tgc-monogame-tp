@@ -5,7 +5,7 @@ using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
-class MouseController : IComponent
+public class MouseController : IComponent
 {
 
     private float _sensitivity;
@@ -13,10 +13,18 @@ class MouseController : IComponent
     private float _smoothing = 0.5f;
 
     private float _pitch = 0;
-    private float _yaw = 0;
+    private float _yaw = MathHelper.PiOver2;
+
+    public float Pitch
+    {
+        get => _pitch;
+    }
+    public float Yaw
+    {
+        get => _yaw;
+    }
 
     private Vector2 _mousePosition;
-
 
     public MouseController(float sensitivity)
     {
@@ -41,8 +49,7 @@ class MouseController : IComponent
         _pitch += pitch;
         _yaw += yaw;
 
-        _pitch = MathHelper.Clamp(_pitch, -(float)Math.PI / 2f, (float)Math.PI / 2f);
-
+        _pitch = MathHelper.Clamp(_pitch, 0.01f, MathHelper.PiOver2 - 0.05f);
 
         float radius = self.Transform.Pos.Length();
 
@@ -53,7 +60,6 @@ class MouseController : IComponent
         );
 
         self.Transform.Pos = newPosition;
-
     }
 
 

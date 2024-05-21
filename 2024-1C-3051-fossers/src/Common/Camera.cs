@@ -12,6 +12,7 @@ public class Camera : Entity
     public Matrix View { get; private set; }
     private Entity FollowedEntity;
 
+
     private const float defaultNearPlaneDistance = 0.1f;
     private const float defaultFarPlaneDistance = 1000f;
     private const float defaultFOV = MathHelper.PiOver2;

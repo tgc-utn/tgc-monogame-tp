@@ -9,17 +9,42 @@ using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
 
-class TankRenderable : Renderable
+public class TankRenderable : Renderable
 {
-    public TankRenderable(Model model) : base(model) { }
+    private Matrix[] boneTransforms;
+    private ModelBone turretBone;
+    private Matrix turretTransform;
+    public ModelBone cannonBone;
+    public Matrix cannonTransform;
+
+    public Transform CannonTransform
+    {
+        get => new(cannonTransform);
+    }
+
+    public TankRenderable(Model model) : base(model)
+    {
+        boneTransforms = new Matrix[model.Bones.Count];
+        turretBone = model.Bones["Turret"];
+        turretTransform = turretBone.Transform;
+        cannonBone = model.Bones["Cannon"];
+        cannonTransform = cannonBone.Transform;
+    }
 
     public override void Draw(Matrix world, Scene scene)
     {
         Matrix view = scene.GetCamera().View;
         Matrix projection = scene.GetCamera().Projection;
+        MouseController mouse = scene.GetCamera().GetComponent<MouseController>();
 
-        var modelMeshesBaseTransforms = new Matrix[_model.Bones.Count];
-        _model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+        _model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+
+        Matrix turretRotation = Matrix.CreateRotationY(TurretRotation(mouse));
+        Matrix cannonRotation = Matrix.CreateRotationX(CannonRotation(mouse));
+
+
+        turretBone.Transform = turretRotation * turretTransform;
+        cannonBone.Transform = cannonRotation * cannonTransform;
 
         foreach (ModelMesh mesh in _model.Meshes)
         {
@@ -32,7 +57,7 @@ class TankRenderable : Renderable
 
             foreach (Effect effect in mesh.Effects)
             {
-                var relativeTransform = modelMeshesBaseTransforms[mesh.ParentBone.Index];
+                var relativeTransform = boneTransforms[mesh.ParentBone.Index];
                 effect.Parameters["World"].SetValue(relativeTransform * world);
                 effect.Parameters["View"].SetValue(view);
                 effect.Parameters["Projection"].SetValue(projection);
@@ -41,10 +66,30 @@ class TankRenderable : Renderable
             mesh.Draw();
         }
     }
+
+
+    public float TurretRotation(MouseController mouse)
+    {
+        return -mouse.Yaw - MathHelper.PiOver2;
+    }
+
+    public float CannonRotation(MouseController mouse)
+    {
+        float pitchThreshold = MathHelper.ToRadians(60f);
+        float pitch = 0f;
+        if (mouse.Pitch > pitchThreshold)
+        {
+            pitch = mouse.Pitch - pitchThreshold;
+        }
+        return -pitch;
+
+    }
 }
 
 public class Tank : Entity
 {
+    public TankRenderable Renderable;
+
     class TankCollider : Collider
     {
         public TankCollider() : base(new BoxCollider(200, 200, 200)) { }
@@ -70,7 +115,8 @@ public class Tank : Entity
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
 
         Shader texture = new PhongShader(0.2f, 0.5f, Color.Gray);
-        _renderable = new TankRenderable(model);
+        Renderable = new TankRenderable(model);
+        _renderable = Renderable;
         _renderable.AddShader("phong", texture);
 
         base.LoadContent();
