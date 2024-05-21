@@ -316,10 +316,6 @@ namespace ThunderingTanks
                 Console.WriteLine("Tanque detenido debido a colisión.");
             }
 
-            if (Panzer.Position != previousPosition)
-            {
-                Panzer.TankBox = Panzer.MoveTankBoundingBox();
-            }
         }
 
     }

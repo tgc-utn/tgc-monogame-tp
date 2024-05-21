@@ -128,7 +128,8 @@ namespace ThunderingTanks.Objects
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
-            TankBox = MoveTankBoundingBox();
+            // Mover bounding box en base a los movimientos del tanque
+            TankBox = new BoundingBox(TankBox.Min + Position, TankBox.Max + Position);
 
             Console.WriteLine($"BoundingBox tanque actualizada: Min={TankBox.Min}, Max={TankBox.Max}");
         }
