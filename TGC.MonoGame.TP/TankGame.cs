@@ -45,6 +45,7 @@ namespace ThunderingTanks
 
         private Projectile projectile;
 
+        private List<EnemyTank> enemyTanks = new List<EnemyTank>();
 
 
 
@@ -99,6 +100,18 @@ namespace ThunderingTanks
             casa = new CasaAbandonada();
 
             World = Matrix.Identity;
+
+            for(int i = 0; i < 3; i++)
+            {
+                EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
+                {
+                    TankVelocity = 300f,
+                    TankRotation = 20f,
+                };
+                enemyTank.LoadContent(Content);
+                enemyTank.Position = new Vector3(3000*i, 0, 9000);
+                enemyTanks.Add(enemyTank);
+            }
             /*NumerosX = new List<int>();
             NumerosZ = new List<int>();
 
@@ -166,6 +179,8 @@ namespace ThunderingTanks
             {
                 Panzer.Update(gameTime, keyboardState);
 
+
+
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     Projectile projectile = Panzer.Shoot(Panzer.PanzerMatrix);
@@ -173,6 +188,11 @@ namespace ThunderingTanks
                     if (projectile != null)
                         projectiles.Add(projectile);
                 }
+            }
+
+            foreach (var enemyTank in enemyTanks)
+            {
+                enemyTank.Update(gameTime, Panzer.Position);
             }
 
             UpdateProjectiles(gameTime);
@@ -192,6 +212,11 @@ namespace ThunderingTanks
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+
+            foreach (var enemyTank in enemyTanks)
+            {
+                enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+            }
 
             City.Draw(gameTime, camara.View, camara.Projection);
 
