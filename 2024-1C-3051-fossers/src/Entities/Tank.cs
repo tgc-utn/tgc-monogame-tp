@@ -11,25 +11,31 @@ namespace WarSteel.Entities;
 
 class TankRenderable : Renderable
 {
-    private Matrix[] boneTransforms;
-
     public TankRenderable(Model model) : base(model) { }
 
     public override void Draw(Matrix world, Scene scene)
     {
-        // Look up combined bone matrices for the entire model.
+        Matrix view = scene.GetCamera().View;
+        Matrix projection = scene.GetCamera().Projection;
 
-        // Draw the model.
-        foreach (var mesh in _model.Meshes)
+        var modelMeshesBaseTransforms = new Matrix[_model.Bones.Count];
+        _model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+
+        foreach (ModelMesh mesh in _model.Meshes)
         {
-
-            foreach (BasicEffect effect in mesh.Effects)
+            foreach (var shader in _shaders)
             {
-                effect.World = boneTransforms[mesh.ParentBone.Index];
-                effect.View = scene.GetCamera().View;
-                effect.Projection = scene.GetCamera().Projection;
+                shader.Value.UseCamera(scene.GetCamera());
+                shader.Value.ApplyEffects(scene);
+                shader.Value.UseWorld(world);
+            }
 
-                effect.EnableDefaultLighting();
+            foreach (Effect effect in mesh.Effects)
+            {
+                var relativeTransform = modelMeshesBaseTransforms[mesh.ParentBone.Index];
+                effect.Parameters["World"].SetValue(relativeTransform * world);
+                effect.Parameters["View"].SetValue(view);
+                effect.Parameters["Projection"].SetValue(projection);
             }
 
             mesh.Draw();
@@ -37,12 +43,11 @@ class TankRenderable : Renderable
     }
 }
 
-
 public class Tank : Entity
 {
     class TankCollider : Collider
     {
-        public TankCollider() : base(new BoxCollider(500, 500, 500)) { }
+        public TankCollider() : base(new BoxCollider(200, 200, 200)) { }
 
         public override void OnCollide(Collision other)
         {
@@ -65,7 +70,7 @@ public class Tank : Entity
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
 
         Shader texture = new PhongShader(0.2f, 0.5f, Color.Gray);
-        _renderable = new Renderable(model);
+        _renderable = new TankRenderable(model);
         _renderable.AddShader("phong", texture);
 
         base.LoadContent();
