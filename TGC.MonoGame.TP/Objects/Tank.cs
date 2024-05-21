@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
 using Microsoft.VisualBasic.FileIO;
+using TGC.Monogame.TP;
 
 namespace ThunderingTanks.Objects
 {
@@ -35,13 +36,14 @@ namespace ThunderingTanks.Objects
 
         public Matrix PanzerMatrix { get; set; }
 
-        Vector3 Direction = new Vector3(0, 0, 0);
+        public Vector3 Direction = new Vector3(0, 0, 0);
 
         public float Rotation = 0;
         public BoundingBox TankBox { get; set; }
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
 
+        public bool IsMoving { get; set; } = true;
 
 
         private GraphicsDevice graphicsDevice;
@@ -56,7 +58,7 @@ namespace ThunderingTanks.Objects
 
         public float GunRotationFinal = 0;
         public float GunRotation { get; set; }
-        public float GunElevation {  get; set; }
+        public float GunElevation { get; set; }
 
         public Matrix turretWorld { get; set; }
         public Matrix cannonWorld { get; set; }
@@ -89,6 +91,8 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
+            TankBox = Collisions.CreateAABBFrom(Tanque);
+
 
         }
 
@@ -112,12 +116,14 @@ namespace ThunderingTanks.Objects
             GunRotationFinal -= GetRotationFromCursorX();
             GunElevation += GetElevationFromCursorY();
 
-            Mouse.SetPosition((int)screenWidth /2 , (int)screenHeight / 2);
+            Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
-            this.Position = Direction + new Vector3(0, 400f, 0f);
+            Position = Direction + new Vector3(0, 400f, 0f);
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
+
+            TankBox = MoveTankBoundingBox();
         }
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
         {
@@ -165,7 +171,7 @@ namespace ThunderingTanks.Objects
             {
                 Matrix projectileMatrix = Matrix.CreateRotationX(GunElevation) * turretWorld;
 
-                float projectileScale = 0.3f; // Ajusta esta escala según tus necesidades
+                float projectileScale = 100f; // Ajusta esta escala según tus necesidades
 
                 Projectile projectile = new Projectile(projectileMatrix, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
@@ -179,11 +185,11 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public BoundingBox MoveTankBoundingBox(Vector3 increment)
+        public BoundingBox MoveTankBoundingBox()
         {
-            // Update its Bounding Box, moving both min and max positions
-            TankBox = new BoundingBox(TankBox.Min + increment, TankBox.Max + increment);
-            return TankBox;
+            var minPoint = Vector3.Transform(new Vector3(TankBox.Min.X, TankBox.Min.Y, TankBox.Min.Z), PanzerMatrix);
+            var maxPoint = Vector3.Transform(new Vector3(TankBox.Max.X, TankBox.Max.Y, TankBox.Max.Z), PanzerMatrix);
+            return new BoundingBox(minPoint, maxPoint);
         }
 
         private float GetRotationFromCursorX()

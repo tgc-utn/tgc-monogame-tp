@@ -47,9 +47,9 @@ namespace ThunderingTanks
 
         public void LoadContent(ContentManager Content)
         {
-            projectile = Content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
+            projectile = Content.Load<Model>(ContentFolder3D + "ammo_rocket");
 
-            TexturaProjectile = Content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasör/Rock_1_Base_Color");
+            //TexturaProjectile = Content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasï¿½r/Rock_1_Base_Color");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in projectile.Meshes)
             {
@@ -64,7 +64,7 @@ namespace ThunderingTanks
 
         public void Draw(Matrix view, Matrix projection)
         {
-            Matrix worldMatrix = Matrix.CreateScale(Scale) * Position;
+            Matrix worldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationX(MathHelper.ToRadians(180)) * Position;
 
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
@@ -89,8 +89,8 @@ namespace ThunderingTanks
 
         private BoundingBox CalculateBoundingBox()
         {
-            // Aquí debes calcular la BoundingBox inicial del modelo del proyectil
-            // Por simplicidad, asumimos un tamaño pequeño centrado en (0,0,0)
+            // Aquï¿½ debes calcular la BoundingBox inicial del modelo del proyectil
+            // Por simplicidad, asumimos un tamaï¿½o pequeï¿½o centrado en (0,0,0)
             return new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f));
         }
 

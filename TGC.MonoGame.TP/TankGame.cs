@@ -20,7 +20,6 @@ namespace ThunderingTanks
         public const string ContentFolderTextures = "Textures/";
 
         private GraphicsDeviceManager Graphics { get; }
-
         private GraphicsDevice _graphicsDevice;
         public KeyboardState keyboardState;
 
@@ -140,13 +139,12 @@ namespace ThunderingTanks
             casa.AgregarCasa(new Vector3(-3300f, -690f, 7000f));
 
 
-
+            Panzer.TankBox = Collisions.CreateAABBFrom(Panzer.Tanque);
 
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
 
-            Panzer.TankBox = Collisions.CreateAABBFrom(Panzer.Tanque);
 
             _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
 
@@ -160,28 +158,21 @@ namespace ThunderingTanks
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            Panzer.Update(gameTime, keyboardState);
+            var previousPosition = Panzer.Position;
 
-            BoundingBox tankBox = Panzer.TankBox; // Asumiendo que Tank tiene una propiedad BoundingBox
+            CheckCollisions(previousPosition);
 
-            for (int i = 0; i < roca.BoundingBoxes.Count; i++)
+            if (Panzer.IsMoving)
             {
-                if (tankBox.Intersects(roca.BoundingBoxes[i]))
+                Panzer.Update(gameTime, keyboardState);
+
+                if (keyboardState.IsKeyDown(Keys.Space))
                 {
-                    // Colisión detectada, puedes manejarlo aquí
-                    roca.BoundingBoxes.RemoveAt(i);
-                    roca.RocaWorlds = roca.RocaWorlds.Where((val, idx) => idx != i).ToArray();
-                    i--; // Ajustar el índice después de remover
+                    Projectile projectile = Panzer.Shoot(Panzer.PanzerMatrix);
+
+                    if (projectile != null)
+                        projectiles.Add(projectile);
                 }
-            }
-
-
-            if (keyboardState.IsKeyDown(Keys.Space))
-            {
-                Projectile projectile = Panzer.Shoot(Panzer.PanzerMatrix);
-
-                if (projectile != null)
-                    projectiles.Add(projectile);
             }
 
             UpdateProjectiles(gameTime);
@@ -189,9 +180,10 @@ namespace ThunderingTanks
             _freeCamera.Update(gameTime);
             _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
 
-
             base.Update(gameTime);
         }
+
+
 
         protected override void Draw(GameTime gameTime)
         {
@@ -297,5 +289,24 @@ namespace ThunderingTanks
                 projectile.Draw(view, projection);
             }
         }
+
+        private void CheckCollisions(Vector3 previousPosition)
+        {
+            var tankBox = Panzer.TankBox;
+            var tankPosition = Panzer.Position;
+
+            // Colisión con rocas
+            for (int i = 0; i < roca.BoundingBoxes.Count; i++)
+            {
+                if (tankBox.Intersects(roca.BoundingBoxes[i]))
+                {
+                    // Revertir la posición del tanque si colisiona
+                    Panzer.Position = previousPosition;
+                    Panzer.TankBox = Panzer.MoveTankBoundingBox();
+                    Panzer.IsMoving = false; // Detener el movimiento
+                }
+            }
+        }
+
     }
 }
