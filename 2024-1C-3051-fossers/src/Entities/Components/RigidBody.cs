@@ -42,7 +42,10 @@ public abstract class RigidBody : IComponent
 
     }
 
-    public virtual void UpdateEntity(Entity self, GameTime gameTime, Scene scene) { }
+    public virtual void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
+    {
+        _collider.ColliderShape.DrawGizmos(_transform, scene.Gizmos);
+    }
 
     public void Destroy(Entity self, Scene scene)
     {
@@ -53,7 +56,6 @@ public abstract class RigidBody : IComponent
     public abstract void Build(PhysicsProcessor processor);
 
     public abstract void RemoveSelf(PhysicsProcessor processor);
-
 }
 
 public class StaticBody : RigidBody
@@ -123,6 +125,7 @@ public class DynamicBody : RigidBody
     {
         _forces *= 0;
         _torques *= 0;
+        base.UpdateEntity(self, time, scene);
     }
 
     public void ApplyForce(Vector3 force)

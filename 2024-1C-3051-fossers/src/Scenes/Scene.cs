@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
 using WarSteel.Entities;
+using WarSteel.Managers.Gizmos;
 
 namespace WarSteel.Scenes;
 
@@ -13,6 +14,13 @@ public class Scene
     protected Camera camera;
     protected PhysicsProcessor physics = new PhysicsProcessor();
     private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
+    protected Gizmos _gizmos = new Gizmos();
+
+    public Gizmos Gizmos
+    {
+        get => _gizmos;
+    }
+
     // We collect entities to remove separately to avoid changing the main list of entities
     // while we're still going through it. This prevents any mix-ups or errors that might happen
     // if we tried to remove entities directly during the loop.
@@ -136,6 +144,11 @@ public class Scene
         }
     }
 
+    public virtual void DrawGizmos()
+    {
+        _gizmos.Draw();
+    }
+
     public virtual void Update(GameTime gameTime)
     {
         // creating a copy here to prevent weird behaviors 
@@ -161,7 +174,7 @@ public class Scene
 
     public virtual void Unload()
     {
-
+        _gizmos.Dispose();
     }
 
 }

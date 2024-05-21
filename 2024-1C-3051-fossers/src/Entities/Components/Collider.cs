@@ -3,7 +3,9 @@ using System;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
+using WarSteel.Common;
 using WarSteel.Entities;
+using WarSteel.Managers.Gizmos;
 
 public class Collision
 {
@@ -38,20 +40,19 @@ public class Collider
     }
 
     public virtual void OnCollide(Collision collision) { }
-
 }
 
 public interface ColliderShape
 {
-
     public abstract IShape GetShape();
 
     public abstract BodyInertia GetInertia(DynamicBody body);
+
+    public abstract void DrawGizmos(Transform transform, Gizmos gizmos);
 }
 
 public class BoxCollider : ColliderShape
 {
-
     private float _height;
     private float _width;
     private float _length;
@@ -71,5 +72,10 @@ public class BoxCollider : ColliderShape
     public IShape GetShape()
     {
         return new Box(_width, _height, _length);
+    }
+
+    public void DrawGizmos(Transform transform, Gizmos gizmos)
+    {
+        gizmos.DrawCube(transform.Pos, new Vector3(_height, _width, _length));
     }
 }
