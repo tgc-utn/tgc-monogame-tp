@@ -146,11 +146,6 @@ namespace TGC.MonoGame.TP
 
             Box = new CubePrimitive(GraphicsDevice, 1, Color.DarkSeaGreen);
 
-            WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(200f, 0f, 0f));
-            WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(-200f, 0f, 0f));
-            WallWorlds.Add(Matrix.CreateRotationY(Convert.ToSingle(Math.PI / 2)) * Matrix.CreateTranslation(0f, 0f, 200f));
-            WallWorlds.Add(Matrix.CreateRotationY(Convert.ToSingle(Math.PI / 2)) * Matrix.CreateTranslation(0f, 0f, -200f));
-
             MainCar = new Car(Vector3.Zero);
 
             Vehicle = new StaticObject(new Vector3(30f, 0f, 30f));
@@ -291,6 +286,7 @@ namespace TGC.MonoGame.TP
                 Simulation.Shapes.Add(box1));
                 Simulation.Statics.Add(boxDescription);
             }
+
             foreach (var ramp in Ramps) {
                 ramp.setModel(RampModel);
                 var vertices = new NumericVector3[] {
@@ -343,10 +339,34 @@ namespace TGC.MonoGame.TP
                 Simulation.Statics.Add(boxDescription);
             }
 
+            // Add walls
+            WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(200f, 0f, 0f));
+            WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(-200f, 0f, 0f));
+            WallWorlds.Add(Matrix.CreateRotationY(Convert.ToSingle(Math.PI / 2)) * Matrix.CreateTranslation(0f, 0f, 200f));
+            WallWorlds.Add(Matrix.CreateRotationY(Convert.ToSingle(Math.PI / 2)) * Matrix.CreateTranslation(0f, 0f, -200f));
+            var wallShape = new Box(1f, 10f, 1000f);
+            for (int i = 0; i<2; i++) {
+                var world = WallWorlds[i];
+                var wallDescription = new StaticDescription(
+                    new NumericVector3(world.Translation.X, world.Translation.Y, world.Translation.Z),
+                    Simulation.Shapes.Add(wallShape)
+                );
+                Simulation.Statics.Add(wallDescription);
+            }
+            for (int i = 2; i<4; i++) {
+                var world = WallWorlds[i];
+                var wallDescription = new StaticDescription(
+                    new NumericVector3(world.Translation.X, world.Translation.Y, world.Translation.Z),
+                    System.Numerics.Quaternion.CreateFromAxisAngle(NumericVector3.UnitY, Convert.ToSingle(Math.PI / 2)),
+                    Simulation.Shapes.Add(wallShape),
+                    ContinuousDetection.Discrete
+                );
+                Simulation.Statics.Add(wallDescription);
+            }
 
             var planeShape = new Box(2500f, 1f, 2500f);
             var planeDescription = new StaticDescription(
-                new System.Numerics.Vector3(0, -0.5f, 0), 
+                new NumericVector3(0, -0.5f, 0), 
                 Simulation.Shapes.Add(planeShape)
             );
             Simulation.Statics.Add(planeDescription);
