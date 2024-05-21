@@ -98,6 +98,11 @@ namespace ThunderingTanks.Objects
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
+            if (!IsMoving)
+            {
+                return;
+            }
+
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timeSinceLastShot += time;
 
@@ -124,7 +129,10 @@ namespace ThunderingTanks.Objects
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             TankBox = MoveTankBoundingBox();
+
+            Console.WriteLine($"BoundingBox tanque actualizada: Min={TankBox.Min}, Max={TankBox.Max}");
         }
+
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
         {
             if (graphicsDevice == null)
@@ -171,7 +179,7 @@ namespace ThunderingTanks.Objects
             {
                 Matrix projectileMatrix = Matrix.CreateRotationX(GunElevation) * turretWorld;
 
-                float projectileScale = 100f; // Ajusta esta escala según tus necesidades
+                float projectileScale = 100f;
 
                 Projectile projectile = new Projectile(projectileMatrix, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
@@ -209,6 +217,12 @@ namespace ThunderingTanks.Objects
 
             return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
         }
+
+        public bool CollidesWith(BoundingBox otherBox)
+        {
+            return TankBox.Intersects(otherBox);
+        }
+
 
     }
 }

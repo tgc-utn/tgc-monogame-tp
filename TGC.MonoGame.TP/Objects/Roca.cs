@@ -19,33 +19,33 @@ namespace ThunderingTanks.Objects
 
         public List<BoundingBox> BoundingBoxes { get; private set; }
 
-
         public Roca()
         {
             RocaWorlds = new Matrix[] { };
             BoundingBoxes = new List<BoundingBox>();
-
         }
 
-        public void AgregarRoca(Vector3 Position)
+        public void AgregarRoca(Vector3 position)
         {
             Matrix escala = Matrix.CreateScale(2.5f);
             var nuevaRoca = new Matrix[]{
-                escala * Matrix.CreateTranslation(Position),
+                escala * Matrix.CreateTranslation(position),
             };
             RocaWorlds = RocaWorlds.Concat(nuevaRoca).ToArray();
 
             // Crear BoundingBox para la nueva roca
-            BoundingBox box = CreateBoundingBox(RocaModel, escala, Position);
+            BoundingBox box = CreateBoundingBox(RocaModel, escala, position);
             BoundingBoxes.Add(box);
+
+            // Debug: Verificar la creación de BoundingBox
+            Console.WriteLine($"BoundingBox creada: Min={box.Min}, Max={box.Max}");
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager content)
         {
-            RocaModel = Content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
-
-            TexturaRoca = Content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasör/Rock_1_Base_Color");
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            RocaModel = content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
+            TexturaRoca = content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasör/Rock_1_Base_Color");
+            Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in RocaModel.Meshes)
             {
                 foreach (var meshPart in mesh.MeshParts)
@@ -59,10 +59,8 @@ namespace ThunderingTanks.Objects
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            //Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
             foreach (var mesh in RocaModel.Meshes)
             {
-
                 for (int i = 0; i < RocaWorlds.Length; i++)
                 {
                     Matrix _cartelWorld = RocaWorlds[i];
@@ -70,11 +68,8 @@ namespace ThunderingTanks.Objects
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _cartelWorld);
                     mesh.Draw();
                 }
-
             }
         }
-
-
 
         private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
         {
