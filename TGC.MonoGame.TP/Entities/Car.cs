@@ -157,7 +157,7 @@ public class Car
             if (keyboardState.IsKeyDown(Keys.A))
             {
                 if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
-                // bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
+                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
                 // Rotar hacia la izquierda
                 // CarRotation += (carRotatingVelocity) * elapsedTime;
                 // CarRotation += (carRotatingVelocity) * deltaTime;
@@ -167,7 +167,7 @@ public class Car
             else if (keyboardState.IsKeyDown(Keys.D))
             {
                 if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
-                // bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
+                bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
                 // Rotar hacia la Derecha
                 // CarRotation += (-carRotatingVelocity) * elapsedTime;
                 // CarRotation += (-carRotatingVelocity) * deltaTime;
