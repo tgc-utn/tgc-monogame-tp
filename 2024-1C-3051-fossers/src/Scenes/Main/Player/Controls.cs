@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
@@ -10,9 +11,9 @@ public class PlayerControls : IComponent
 {
     DynamicBody rb;
     float Damage = 100;
-    float BulletForce = 5000;
+    float BulletForce = 300;
     bool IsReloading = false;
-    int ReloadingTimeInMs = 500;
+    int ReloadingTimeInMs = 100;
 
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
@@ -57,9 +58,9 @@ public class PlayerControls : IComponent
         if (self is Tank tank)
         {
             // get cannon transform
-            Matrix cannonTransform = tank.Renderable.cannonBone.Transform * tank.Transform.GetWorld();
-            Vector3 cannonOffset = new(0, 300, 600);
-            Bullet bullet = new Bullet("player-bullet", Damage, cannonTransform.Translation + cannonOffset, cannonTransform.Forward, BulletForce);
+            Matrix cannonWorld = tank.Renderable.CannonWorld;
+            Vector3 cannonOffset = cannonWorld.Forward * 8;
+            Bullet bullet = new Bullet("player-bullet", Damage, cannonWorld.Translation - cannonOffset, -cannonWorld.Forward, BulletForce);
 
             // init and add to scene
             bullet.Initialize(scene);

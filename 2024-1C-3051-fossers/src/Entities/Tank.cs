@@ -11,13 +11,14 @@ namespace WarSteel.Entities;
 
 public class TankRenderable : Renderable
 {
-    public Matrix[] boneTransforms;
+    private Matrix[] boneTransforms;
     // turret
     private ModelBone turretBone;
     private Matrix turretTransform;
     // cannon
     public ModelBone cannonBone;
-    public Matrix cannonTransform;
+    private Matrix cannonTransform;
+    public Matrix CannonWorld;
 
     public TankRenderable(Model model) : base(model)
     {
@@ -55,7 +56,9 @@ public class TankRenderable : Renderable
             foreach (Effect effect in mesh.Effects)
             {
                 var relativeTransform = boneTransforms[mesh.ParentBone.Index];
-                effect.Parameters["World"].SetValue(relativeTransform * world);
+                Matrix World = relativeTransform * world;
+                if (mesh.Name == "Cannon") CannonWorld = World;
+                effect.Parameters["World"].SetValue(World);
                 effect.Parameters["View"].SetValue(view);
                 effect.Parameters["Projection"].SetValue(projection);
             }
@@ -86,6 +89,7 @@ public class TankRenderable : Renderable
 public class Tank : Entity
 {
     public TankRenderable Renderable;
+    public Matrix CannonWorld;
 
     class TankCollider : Collider
     {
@@ -110,7 +114,6 @@ public class Tank : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
-
         Shader texture = new PhongShader(0.2f, 0.5f, Color.Gray);
         Renderable = new TankRenderable(model);
         _renderable = Renderable;
