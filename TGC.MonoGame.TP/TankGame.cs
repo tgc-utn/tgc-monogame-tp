@@ -47,6 +47,7 @@ namespace ThunderingTanks
 
         private List<EnemyTank> enemyTanks = new List<EnemyTank>();
 
+        private Vector3 lastPosition;
 
 
 
@@ -171,9 +172,9 @@ namespace ThunderingTanks
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            var previousPosition = Panzer.Position;
+            lastPosition = Panzer.Position;
 
-            CheckCollisions(previousPosition);
+            CheckCollisions(lastPosition);
 
             if (Panzer.IsMoving)
             {
@@ -318,19 +319,29 @@ namespace ThunderingTanks
         private void CheckCollisions(Vector3 previousPosition)
         {
             var tankBox = Panzer.TankBox;
-            var tankPosition = Panzer.Position;
+            var isColliding = false;
 
-            // Colisión con rocas
             for (int i = 0; i < roca.BoundingBoxes.Count; i++)
             {
                 if (tankBox.Intersects(roca.BoundingBoxes[i]))
                 {
-                    // Revertir la posición del tanque si colisiona
-                    Panzer.Position = previousPosition;
-                    Panzer.TankBox = Panzer.MoveTankBoundingBox();
-                    Panzer.IsMoving = false; // Detener el movimiento
+                    // Colisión detectada, manejarlo aquí
+                    Console.WriteLine($"Colisión detectada con roca en índice {i}");
+                    roca.BoundingBoxes.RemoveAt(i);
+                    roca.RocaWorlds = roca.RocaWorlds.Where((val, idx) => idx != i).ToArray();
+                    i--;
+                    Panzer.IsMoving = false;
+                    isColliding = true;
                 }
             }
+
+            if (isColliding)
+            {
+                Panzer.Position = previousPosition;
+                Panzer.IsMoving = false;
+                Console.WriteLine("Tanque detenido debido a colisión.");
+            }
+
         }
 
     }
