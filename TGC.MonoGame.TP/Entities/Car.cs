@@ -148,9 +148,15 @@ public class Car
                 var transformedBackwardImpulse = System.Numerics.Vector3.Transform(backwardImpulse, bodyReference.Pose.Orientation);
                 bodyReference.ApplyLinearImpulse(transformedBackwardImpulse);
             }
+            if (keyboardState.IsKeyDown(Keys.Space))
+            {           
+                // Aplica un impulso hacia arriba cuando se presiona la tecla de espacio y el objeto está en el suelo
+                bodyReference.ApplyLinearImpulse(System.Numerics.Vector3.UnitY * 100f * (float) gameTime.ElapsedGameTime.TotalSeconds);
+             
+            }
 
-            // Apply friction to simulate resistance
-            bodyReference.Velocity.Linear *= friction;
+        // Apply friction to simulate resistance
+        bodyReference.Velocity.Linear *= friction;
             // bodyReference.Velocity.Angular *= friction;
 
             // Apply angular impulses for turning
