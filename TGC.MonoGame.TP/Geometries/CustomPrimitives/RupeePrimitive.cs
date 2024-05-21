@@ -72,18 +72,18 @@ namespace TGC.MonoGame.TP.Geometries {
             AddTriangle(vertexList[16], vertexList[14], vertexList[17], size, color);
             AddTriangle(vertexList[13], vertexList[17], vertexList[14], size, color);
             // back to middle
-            AddTriangle(vertexList[6], vertexList[7], vertexList[12], size, color);
-            AddTriangle(vertexList[13], vertexList[12], vertexList[7], size, color);
-            AddTriangle(vertexList[7], vertexList[8], vertexList[13], size, color);
-            AddTriangle(vertexList[14], vertexList[13], vertexList[8], size, color);
-            AddTriangle(vertexList[8], vertexList[9], vertexList[14], size, color);
-            AddTriangle(vertexList[15], vertexList[14], vertexList[9], size, color);
-            AddTriangle(vertexList[9], vertexList[10], vertexList[15], size, color);
-            AddTriangle(vertexList[16], vertexList[15], vertexList[10], size, color);
-            AddTriangle(vertexList[10], vertexList[11], vertexList[16], size, color);
-            AddTriangle(vertexList[17], vertexList[16], vertexList[11], size, color);
-            AddTriangle(vertexList[11], vertexList[6], vertexList[17], size, color);
-            AddTriangle(vertexList[12], vertexList[17], vertexList[6], size, color);
+            AddTriangle(vertexList[6], vertexList[12], vertexList[7], size, color);
+            AddTriangle(vertexList[13], vertexList[7], vertexList[12], size, color);
+            AddTriangle(vertexList[7], vertexList[13], vertexList[8], size, color);
+            AddTriangle(vertexList[14], vertexList[8], vertexList[13], size, color);
+            AddTriangle(vertexList[8], vertexList[14], vertexList[9], size, color);
+            AddTriangle(vertexList[15], vertexList[9], vertexList[14], size, color);
+            AddTriangle(vertexList[9], vertexList[15], vertexList[10], size, color);
+            AddTriangle(vertexList[16], vertexList[10], vertexList[15], size, color);
+            AddTriangle(vertexList[10], vertexList[16], vertexList[11], size, color);
+            AddTriangle(vertexList[17], vertexList[11], vertexList[16], size, color);
+            AddTriangle(vertexList[11], vertexList[17], vertexList[6], size, color);
+            AddTriangle(vertexList[12], vertexList[6], vertexList[17], size, color);
 
             InitializePrimitive(graphicsDevice, content);
         }
