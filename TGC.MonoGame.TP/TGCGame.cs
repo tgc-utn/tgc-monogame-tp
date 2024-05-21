@@ -291,8 +291,34 @@ namespace TGC.MonoGame.TP
                 Simulation.Shapes.Add(box1));
                 Simulation.Statics.Add(boxDescription);
             }
-            foreach (var ramp in Ramps)
+            foreach (var ramp in Ramps) {
                 ramp.setModel(RampModel);
+                var vertices = new NumericVector3[] {
+                    // Bottom vertices
+                    new NumericVector3(0f, 0.0f, 0f),
+                    new NumericVector3(4.5f, 0.0f, 0f),
+                    new NumericVector3(4.5f, 0.0f, 9f),
+                    new NumericVector3(0f, 0.0f, 9f),
+
+                    // Top vertices
+                    new NumericVector3(0f, 0.5f, 1f),
+                    new NumericVector3(4.5f, 0.5f, 1f),
+                    new NumericVector3(0f, 1.2f, 2.5f),
+                    new NumericVector3(4.5f, 1.2f, 2.5f),
+                    new NumericVector3(0f, 2.0f, 4.5f),
+                    new NumericVector3(4.5f, 2.0f, 4.5f),
+                    new NumericVector3(4.5f, 3f, 9f),
+                    new NumericVector3(0f, 3f, 9f)
+                };
+                NumericVector3 center;
+                var convexHullShape  = new ConvexHull(vertices, Simulation.BufferPool, out center);
+                var rampPosition = ramp.getPosition();
+                var rampDescription = new StaticDescription(
+                    new NumericVector3(rampPosition.X + 2f, rampPosition.Y, rampPosition.Z + 4f),
+                    Simulation.Shapes.Add(convexHullShape)
+                );
+                Simulation.Statics.Add(rampDescription);
+            }
             foreach (var gasoline in Gasolines)
             {
                 gasoline.setModel(GasolineModel);

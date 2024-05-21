@@ -49,6 +49,12 @@ public class Car
         new NumericVector3(1.0f, 0.0f, 2.0f),
         new NumericVector3(-1.0f, 0.0f, 2.0f),
 
+        // middle vertices
+        new NumericVector3(-1.0f, 0.3f, -2.0f),
+        new NumericVector3(1.0f, 0.3f, -2.0f),
+        new NumericVector3(1.0f, 0.3f, 2.0f),
+        new NumericVector3(-1.0f, 0.3f, 2.0f),
+
         // Top vertices
         new NumericVector3(-0.8f, 0.6f, -1.5f),
         new NumericVector3(0.8f, 0.6f, -1.5f),
