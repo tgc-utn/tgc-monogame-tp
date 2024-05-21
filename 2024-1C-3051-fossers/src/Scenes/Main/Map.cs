@@ -29,6 +29,11 @@ class Map
         // Vegetation
         List<Entity> bush = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Bush));
         bush.ForEach(bush => scene.AddEntity(bush));
+
+        // tanks
+        List<Entity> tanks = EntityGenerator.Generate(new Vector3(0, -10, 0), 5, typeof(Tank), "tank");
+        tanks.ForEach(tank => scene.AddEntity(tank));
+
     }
 
 }
