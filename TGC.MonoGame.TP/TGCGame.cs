@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -46,8 +45,10 @@ namespace TGC.MonoGame.TP
 
         // Camera to draw the scene
         private FreeCamera Camera { get; set; }
+        private FollowCamera FollowCamera { get; set; }
 
         // BOLITA
+        private Vector3 Position { get; set; }
         private SpherePrimitive Bola;
         private List<GeometricPrimitive> Track;
 
@@ -65,8 +66,13 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-            var cameraPosition = new Vector3(25f, 100f, -1100f);
-            Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
+
+
+            //var cameraPosition = new Vector3(25f, 100f, -1100f);
+            //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
+            // Creo una camaar para seguir a nuestro auto.
+            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+
 
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
@@ -301,14 +307,35 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-            Camera.Update(gameTime);
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            float speed = 100;
             // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
+            {
+                Position += Vector3.Right * speed * elapsedTime;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
+            {
+                Position += Vector3.Left * speed * elapsedTime;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
+            {
+                Position += Vector3.Forward * speed * elapsedTime;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
+            {
+                Position += Vector3.Backward * speed * elapsedTime;
+            }
+            else if(Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
+            Bola.World = Matrix.CreateTranslation(Position);
+
+            FollowCamera.Update(gameTime, Bola.World);
 
             base.Update(gameTime);
         }
@@ -322,10 +349,10 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.LightSkyBlue);
 
-            Bola.Draw(Camera.View, Camera.Projection);
+            Bola.Draw(FollowCamera.View, FollowCamera.Projection);
 
             foreach (GeometricPrimitive primitive in Track) {
-                primitive.Draw(Camera.View, Camera.Projection);
+                primitive.Draw(FollowCamera.View, FollowCamera.Projection);
             }
         }
 
