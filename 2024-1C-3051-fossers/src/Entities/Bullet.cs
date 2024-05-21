@@ -19,16 +19,17 @@ public class Bullet : Entity
     class BulletCollider : Collider
     {
         Scene _scene;
-        public BulletCollider(Scene scene) : base(new BoxCollider(10, 10, 10))
+        public BulletCollider(Scene scene) : base(new BoxCollider(50, 50, 50))
         {
             _scene = scene;
         }
 
         public override void OnCollide(Collision col)
         {
-            // hardcoded for now
-            if (col.Entity?.Name != "player-bullet")
+            if (col.Entity?.Name != "player-bullet" && col.Entity?.Name != "player")
+            {
                 _scene.RemoveEntity(col.Entity);
+            }
         }
     }
 

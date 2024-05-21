@@ -11,16 +11,13 @@ namespace WarSteel.Entities;
 
 public class TankRenderable : Renderable
 {
-    private Matrix[] boneTransforms;
+    public Matrix[] boneTransforms;
+    // turret
     private ModelBone turretBone;
     private Matrix turretTransform;
+    // cannon
     public ModelBone cannonBone;
     public Matrix cannonTransform;
-
-    public Transform CannonTransform
-    {
-        get => new(cannonTransform);
-    }
 
     public TankRenderable(Model model) : base(model)
     {
@@ -37,14 +34,14 @@ public class TankRenderable : Renderable
         Matrix projection = scene.GetCamera().Projection;
         MouseController mouse = scene.GetCamera().GetComponent<MouseController>();
 
-        _model.CopyAbsoluteBoneTransformsTo(boneTransforms);
 
         Matrix turretRotation = Matrix.CreateRotationY(TurretRotation(mouse));
         Matrix cannonRotation = Matrix.CreateRotationX(CannonRotation(mouse));
 
-
         turretBone.Transform = turretRotation * turretTransform;
         cannonBone.Transform = cannonRotation * cannonTransform;
+
+        _model.CopyAbsoluteBoneTransformsTo(boneTransforms);
 
         foreach (ModelMesh mesh in _model.Meshes)
         {
