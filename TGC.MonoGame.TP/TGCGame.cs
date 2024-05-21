@@ -203,7 +203,8 @@ namespace TGC.MonoGame.TP
 
             // BOLITA
             // Propuesta de punto de inicio del escenario
-            Bola = new SpherePrimitive(GraphicsDevice, Content, 25, 50, Color.Red, Matrix.CreateTranslation(new Vector3(25, 25, -800)));
+            Position = new Vector3(25, 25, -775);
+            Bola = new SpherePrimitive(GraphicsDevice, Content, 25, 50, Color.Red, Matrix.CreateTranslation(Position));
 
             // PLANOS INCLINADOS (ROLL)
             Cube = new CubePrimitive(GraphicsDevice, Content, 25f, Color.LightPink);
