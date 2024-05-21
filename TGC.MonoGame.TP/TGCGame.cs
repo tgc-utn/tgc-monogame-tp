@@ -48,7 +48,15 @@ namespace TGC.MonoGame.TP
         private FollowCamera FollowCamera { get; set; }
 
         // BOLITA
+        //física
         private Vector3 Position { get; set; }
+        private Vector3 Velocity { get; set; }
+        private Vector3 Acceleration { get; set; } = Vector3.Zero;
+
+        private Quaternion Rotation { get; set; } = Quaternion.Identity;
+        private Vector3 RotationAxis {get; set; } = Vector3.UnitY;
+        private float RotationAngle = 0f;
+        //física
         private SpherePrimitive Bola;
         private List<GeometricPrimitive> Track;
 
@@ -315,26 +323,40 @@ namespace TGC.MonoGame.TP
             var keyboardState = Keyboard.GetState();
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
-                Position += Vector3.Right * speed * elapsedTime;
+                //Position += Vector3.Right * speed * elapsedTime;
+                Acceleration = Vector3.Transform(Vector3.UnitY * speed, Rotation);
             }
             else if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
-                Position += Vector3.Left * speed * elapsedTime;
+                //Position += Vector3.Left * speed * elapsedTime;
+                Acceleration = Vector3.Transform(Vector3.UnitY * speed, Rotation) * (- 1);
             }
             else if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
-                Position += Vector3.Forward * speed * elapsedTime;
+                //Position += Vector3.Forward * speed * elapsedTime;
+                Acceleration = Vector3.Transform(Vector3.UnitZ * speed, Rotation);
             }
             else if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
             {
-                Position += Vector3.Backward * speed * elapsedTime;
+                //Position += Vector3.Backward * speed * elapsedTime;
+                Acceleration = Vector3.Transform(Vector3.UnitZ * speed, Rotation) * (-1);
             }
             else if(Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
+
+            Rotation = Quaternion.CreateFromAxisAngle(RotationAxis, RotationAngle);
+
+            var direction = Vector3.Transform(Vector3.UnitZ, Rotation);
+
+            Velocity += Acceleration * elapsedTime;
+            Position += direction * Velocity * elapsedTime * 0.5f;
+
             Bola.World = Matrix.CreateTranslation(Position);
+
+            Acceleration = Vector3.Zero;
 
             FollowCamera.Update(gameTime, Bola.World);
 
