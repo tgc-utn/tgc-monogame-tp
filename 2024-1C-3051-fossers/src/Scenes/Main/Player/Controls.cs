@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using WarSteel.Common;
 using WarSteel.Entities;
 using WarSteel.Utils;
 
@@ -9,7 +10,7 @@ public class PlayerControls : IComponent
 {
     DynamicBody rb;
     float Damage = 100;
-    float BulletForce = 100;
+    float BulletForce = 5000;
     bool IsReloading = false;
     int ReloadingTimeInMs = 500;
 
@@ -35,14 +36,7 @@ public class PlayerControls : IComponent
         }
         if (isClickingLMB())
         {
-            if (IsReloading) return;
-            Vector3 CameraPos = scene.GetCamera().Transform.Pos;
-            Vector3 Dir = new(-CameraPos.X, CameraPos.Y, -CameraPos.Z);
-            Bullet bullet = new Bullet("player-bullet", Damage, self.Transform.Pos + new Vector3(Dir.X, 200, Dir.Z), Dir, BulletForce);
-            bullet.Initialize(scene);
-            scene.AddEntity(bullet);
-            IsReloading = true;
-            Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
+            Shoot(self, scene);
         }
     }
 
@@ -52,6 +46,29 @@ public class PlayerControls : IComponent
             return true;
 
         return false;
+    }
+
+    public void Shoot(Entity self, Scene scene)
+    {
+        if (IsReloading) return;
+        Camera camera = scene.GetCamera();
+        MouseController mouse = camera.GetComponent<MouseController>();
+
+        if (self is Tank tank)
+        {
+            // get cannon transform
+            Matrix cannonTransform = tank.Renderable.cannonBone.Transform * tank.Transform.GetWorld();
+            Vector3 cannonOffset = new(0, 300, 600);
+            Bullet bullet = new Bullet("player-bullet", Damage, cannonTransform.Translation + cannonOffset, cannonTransform.Forward, BulletForce);
+
+            // init and add to scene
+            bullet.Initialize(scene);
+            scene.AddEntity(bullet);
+
+            // mark as reloading and 
+            IsReloading = true;
+            Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
+        }
     }
 
     public void Initialize(Entity self, Scene scene)
