@@ -47,9 +47,9 @@ namespace ThunderingTanks
 
         public void LoadContent(ContentManager Content)
         {
-            projectile = Content.Load<Model>(ContentFolder3D + "ammo_rocket");
+            projectile = Content.Load<Model>(ContentFolder3D + "Rocket/ammo_rocket");
 
-            //TexturaProjectile = Content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klas�r/Rock_1_Base_Color");
+            TexturaProjectile = Content.Load<Texture2D>(ContentFolder3D + "Rocket/ammo_rocket_texture");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             foreach (var mesh in projectile.Meshes)
             {
@@ -69,6 +69,7 @@ namespace ThunderingTanks
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
             //Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+            Effect.Parameters["ModelTexture"].SetValue(TexturaProjectile);
             foreach (var mesh in projectile.Meshes)
             {
 
