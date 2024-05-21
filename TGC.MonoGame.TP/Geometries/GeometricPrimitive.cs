@@ -82,7 +82,6 @@ namespace TGC.MonoGame.TP.Geometries
         ///     Once all the geometry has been specified by calling AddVertex and AddIndex, this method copies the vertex and index
         ///     data into GPU format buffers, ready for efficient rendering.
         /// </summary>
-        //
          protected void InitializePrimitive(GraphicsDevice graphicsDevice, ContentManager content, Effect? primitiveEffect = null) {
             // Create a vertex declaration, describing the format of our vertex data.
 
@@ -99,6 +98,7 @@ namespace TGC.MonoGame.TP.Geometries
             Effect = primitiveEffect ?? content.Load<Effect>(ContentFolderEffects + "BasicShader");
             
         }
+        
 
         /// <summary>
         ///     Finalizer.

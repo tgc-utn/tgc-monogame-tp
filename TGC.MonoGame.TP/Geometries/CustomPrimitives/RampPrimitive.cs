@@ -17,11 +17,22 @@ using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
 
-namespace TGC.MonoGame.TP.Geometries {
+namespace TGC.MonoGame.TP.Geometries
+{
 
-    public class RampPrimitive : CustomPrimitive {
-        
-        public RampPrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+    public class RampPrimitive : CustomPrimitive
+    {
+
+        public RampPrimitive(
+                GraphicsDevice graphicsDevice,
+                ContentManager content,
+                Color color,
+                float size,
+                Vector3? coordinates = null,
+                Vector3? scale = null,
+                Matrix? rotation = null
+            )
+        {
 
             Color = color;
 
@@ -50,6 +61,8 @@ namespace TGC.MonoGame.TP.Geometries {
             // sides
             AddTriangle(vertexList[0], vertexList[2], vertexList[4], size, color);
             AddTriangle(vertexList[5], vertexList[3], vertexList[1], size, color);
+
+            World =  Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
 
             InitializePrimitive(graphicsDevice, content);
         }

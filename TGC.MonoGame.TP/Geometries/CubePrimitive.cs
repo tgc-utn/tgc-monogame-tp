@@ -17,19 +17,30 @@ using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
 
-namespace TGC.MonoGame.TP.Geometries {
+namespace TGC.MonoGame.TP.Geometries
+{
     /// <summary>
     ///     Geometric primitive class for drawing cubes.
     /// </summary>
-    public class CubePrimitive : GeometricPrimitive {
-        
+    public class CubePrimitive : GeometricPrimitive
+    {
+
         /// <summary>
         ///     Constructs a new cube primitive, with the specified size.
         /// </summary>
-        public CubePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float size, Color color) {
+        public CubePrimitive(
+                GraphicsDevice graphicsDevice,
+                ContentManager content,
+                Color color,
+                float size = 25f,
+                Vector3? coordinates = null,
+                Vector3? scale = null,
+                Matrix? rotation = null
+            )
+        {
 
             Color = color;
-            
+
             // A cube has six faces, each one pointing in a different direction.
             Vector3[] normals =
             {
@@ -72,6 +83,8 @@ namespace TGC.MonoGame.TP.Geometries {
 
                 i++;
             }
+
+            World = Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
 
             InitializePrimitive(graphicsDevice, content);
         }

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TGC.MonoGame.TP.Camera
 {
-    internal class FreeCamera : Camera
+    class FreeCamera : Camera
     {
         private readonly bool lockMouse;
 

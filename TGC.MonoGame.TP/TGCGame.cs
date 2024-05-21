@@ -50,9 +50,6 @@ namespace TGC.MonoGame.TP
         // BOLITA
         private Character MainCharacter;
         private List<GeometricPrimitive> Track;
-
-        // Comentada porque no está en uso
-        //private float SquareSize = 50f;
         
 
         /// <summary>
