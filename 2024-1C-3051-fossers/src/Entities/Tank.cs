@@ -6,7 +6,6 @@ using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 using WarSteel.Scenes;
-using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace WarSteel.Entities;
 
@@ -38,15 +37,22 @@ class TankRenderable : Renderable
     }
 }
 
+
 public class Tank : Entity
 {
-    RigidBody rb;
+    class TankCollider : Collider
+    {
+        public TankCollider() : base(new BoxCollider(200, 200, 200)) { }
+
+        public override void OnCollide(Collision other)
+        {
+
+        }
+    }
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        rb = new RigidBody(Transform, 20, Matrix.Identity, new List<Func<RigidBody, OVector3>>() { }, new Collider(Transform, new Vector3(200, 200, 200)));
-        AddComponent(rb);
-        AddComponent(new LightComponent(Color.White, new Vector3(2000, 0, 0)));
+        AddComponent(new DynamicBody(Transform, new TankCollider(), 5));
     }
 
     public override void Initialize(Scene scene)
@@ -57,6 +63,7 @@ public class Tank : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
+
         Shader texture = new PhongShader(0.2f, 0.5f, Color.Gray);
         _renderable = new Renderable(model);
         _renderable.AddShader("phong", texture);
@@ -69,3 +76,4 @@ public class Tank : Entity
         base.Update(gameTime, scene);
     }
 }
+
