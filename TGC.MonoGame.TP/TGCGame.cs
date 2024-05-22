@@ -14,6 +14,7 @@ using TGC.MonoGame.Samples.Viewer.Gizmos;
 using TGC.MonoGame.Samples.Physics.Bepu;
 using TGC.MonoGame.TP.Geometries;
 using NumericVector3 = System.Numerics.Vector3;
+using TGC.MonoGame.Samples.Geometries.Textures;
 
 namespace TGC.MonoGame.TP
 {
@@ -77,6 +78,7 @@ namespace TGC.MonoGame.TP
         private Random _random;
         private FollowCamera FollowCamera { get; set; }
         private SpriteBatch SpriteBatch { get; set; }
+        private Texture2D FloorTexture {get; set; }
         private Model Model { get; set; }
         private Car MainCar {get; set; }
         private GameModel TreeModel { get; set; }
@@ -108,10 +110,12 @@ namespace TGC.MonoGame.TP
         public GameModel SceneCarsModel { get; private set; }
         private GameModel CottageModel { get; set; }
         private StaticObject Cottage { get; set; }
-        private CubePrimitive Box { get; set; }
+        private QuadPrimitive FloorQuad { get; set; }
+        private Matrix FloorWorld {get; set; }
         private List<Matrix> WallWorlds = new List<Matrix>();
         private Effect Effect { get; set; }
         private Effect EffectNoTextures { get; set; }
+        private Effect TilingEffect { get; set; }
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
 
@@ -144,7 +148,8 @@ namespace TGC.MonoGame.TP
 
             // Seria hasta aca.
 
-            Box = new CubePrimitive(GraphicsDevice, 1, Color.DarkSeaGreen);
+            FloorQuad = new QuadPrimitive(GraphicsDevice);
+            FloorWorld = Matrix.CreateScale(2500f, 1f, 2500f);
 
             MainCar = new Car(Vector3.Zero);
 
@@ -219,6 +224,9 @@ namespace TGC.MonoGame.TP
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectNoTextures = Content.Load<Effect>(ContentFolderEffects + "BasicShaderNoTextures");
+            TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
+
+            FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
 
             var CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             MainCar.Load(CarModel, Effect);
@@ -429,7 +437,7 @@ namespace TGC.MonoGame.TP
             EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
 
-            DrawFloor(Box);
+            DrawFloor(FloorQuad);
             DrawWalls();
 
             MainCar.Draw(GraphicsDevice);
@@ -464,11 +472,16 @@ namespace TGC.MonoGame.TP
         }
 
 
-        private void DrawFloor(GeometricPrimitive geometry)
+        private void DrawFloor(QuadPrimitive geometry)
         {
-            EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
-            EffectNoTextures.Parameters["World"].SetValue(Matrix.CreateScale(new Vector3(1000, 2, 1000)) * Matrix.CreateTranslation(new Vector3(0, -1, 0)));
-            geometry.Draw(EffectNoTextures);
+            // EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
+            TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"];
+            var world = FloorWorld * Matrix.CreateTranslation(0f, -0.1f, 0f);
+            TilingEffect.Parameters["WorldViewProjection"].SetValue(world * FollowCamera.View * FollowCamera.Projection);
+            TilingEffect.Parameters["Tiling"].SetValue(new Vector2(350f, 350f));
+            TilingEffect.Parameters["Texture"].SetValue(FloorTexture);
+            geometry.Draw(TilingEffect);
+
         }
 
         private void DrawWalls() {
