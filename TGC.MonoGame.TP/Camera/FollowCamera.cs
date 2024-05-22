@@ -10,9 +10,9 @@ namespace TGC.MonoGame.TP
     /// </summary>
     class FollowCamera
     {
-        private const float AxisDistanceToTarget = 100f;
+        private const float AxisDistanceToTarget = 20f;
 
-        private const float AngleFollowSpeed = 0.015f;
+        private const float AngleFollowSpeed = 0.03f;
 
         private const float AngleThreshold = 0.85f;
 
@@ -20,11 +20,11 @@ namespace TGC.MonoGame.TP
 
         public Matrix View { get; private set; }
 
-        private Vector3 CurrentBackwardVector { get; set; } = Vector3.Backward;
+        private Vector3 CurrentBackwardVector { get; set; } = Vector3.Forward;
 
         private float BackwardVectorInterpolator { get; set; } = 0f;
 
-        private Vector3 PastBackwardVector { get; set; } = Vector3.Backward;
+        private Vector3 PastBackwardVector { get; set; } = Vector3.Forward;
 
         /// <summary>
         /// Crea una FollowCamera que sigue a una matriz de mundo
@@ -54,7 +54,7 @@ namespace TGC.MonoGame.TP
             var followedPosition = followedWorld.Translation;
 
             // Obtengo el vector Backward de la matriz de mundo que estoy siguiendo
-            var followedBackward = followedWorld.Backward;
+            var followedBackward = followedWorld.Forward;
 
             // Si el producto escalar entre el vector Backward anterior
             // y el actual es mas grande que un limite,
@@ -84,7 +84,7 @@ namespace TGC.MonoGame.TP
             // tomo la posicion que estoy siguiendo, agrego un offset en los ejes Y y Derecha
             var offsetedPosition = followedPosition 
                 + CurrentBackwardVector * AxisDistanceToTarget
-                + Vector3.Up * AxisDistanceToTarget;
+                + Vector3.Up * AxisDistanceToTarget * 5f;
 
             // Calculo el vector Arriba actualizado
             // Nota: No se puede usar el vector Arriba por defecto (0, 1, 0)
@@ -93,7 +93,7 @@ namespace TGC.MonoGame.TP
             // Calcular el vector Adelante haciendo la resta entre el destino y el origen
             // y luego normalizandolo (Esta operacion es cara!)
             // (La siguiente operacion necesita vectores normalizados)
-            var forward = (followedPosition - offsetedPosition);
+            var forward = followedPosition - offsetedPosition;
             forward.Normalize();
 
             // Obtengo el vector Derecha asumiendo que la camara tiene el vector Arriba apuntando hacia arriba
