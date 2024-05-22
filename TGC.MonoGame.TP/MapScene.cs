@@ -66,7 +66,7 @@ namespace ThunderingTanks.Content.Models
         }
 
 
-        public void Draw(GameTime gameTime, Matrix view, Matrix projection, Color color)
+        public void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
