@@ -24,45 +24,27 @@ namespace ThunderingTanks
         public const string ContentFolderTextures = "Textures/";
 
         private GraphicsDeviceManager Graphics { get; }
-        private GraphicsDevice _graphicsDevice;
         public KeyboardState keyboardState;
 
-        private MapScene City { get; set; }
+        private BoundingBox[] Colliders { get; set; }
+        private Gizmoss Gizmos { get; set; }
 
-        private SkyBox _skyBox;
+        private MapScene City { get; set; }
         private Tank Panzer { get; set; }
-        private Effect Effect { get; set; }
+        private SkyBox SkyBox { get; set; }
 
         private readonly Vector3 _cameraInitialPosition = new(0f, 200f, 300f);
-
         private TargetCamera _targetCamera;
-
         private FreeCamera _freeCamera;
 
         private Roca roca;
-
         private AntiTanque antitanque;
-
         private Arbol arbol;
-
         private CasaAbandonada casa;
-
-        private Projectile projectile;
-
-        private List<EnemyTank> enemyTanks = new List<EnemyTank>();
+        private List<EnemyTank> EnemyTanks = new();
+        private List<Projectile> Projectiles = new();
 
         private Vector3 lastPosition;
-
-        private BoundingBox[] Colliders {get; set;}
-
-        private Matrix World { get; set; }
-
-        private List<Projectile> projectiles = new();
-
-        private Gizmoss Gizmos { get; set; }
-
-        private GizmoGeometry _geometry {  get; set; }
-
 
         public TankGame()
         {
@@ -72,8 +54,6 @@ namespace ThunderingTanks
             Gizmos = new Gizmoss();
 
         }
-
-
 
         protected override void Initialize()
         {
@@ -112,8 +92,6 @@ namespace ThunderingTanks
             casa = new CasaAbandonada();
             casa.Position=new Vector3(-3300f, 200f, 7000f);
 
-            World = Matrix.Identity;
-
             for(int i = 0; i < 3; i++)
             {
                 EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
@@ -123,10 +101,11 @@ namespace ThunderingTanks
                 };
                 enemyTank.LoadContent(Content);
                 enemyTank.Position = new Vector3(3000*i, 0, 9000);
-                enemyTanks.Add(enemyTank);
+                EnemyTanks.Add(enemyTank);
             }
 
             Colliders = new BoundingBox[40];
+
             /*NumerosX = new List<int>();
             NumerosZ = new List<int>();
 
@@ -139,7 +118,7 @@ namespace ThunderingTanks
                 NumerosX.Add(random.Next(-20000, 20000)); // Rango más amplio
                 NumerosZ.Add(random.Next(-20000, 20000)); // Rango más amplio
             }*/
-            //Gizmos = new Gizmoss();
+
             base.Initialize();
         }
 
@@ -163,17 +142,16 @@ namespace ThunderingTanks
             AgregarArboles(15);
 
             casa.LoadContent(Content);
+
             //casa.AgregarCasa(new Vector3(-3300f, -690f, 7000f));
 
             //Panzer.TankBox =  new BoundingCylinder(Panzer.Position, 10f, 20f);
-
 
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
 
-
-            _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
+            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider ,"content"));
             base.LoadContent();
         }
@@ -193,18 +171,16 @@ namespace ThunderingTanks
             {
                 Panzer.Update(gameTime, keyboardState);
 
-
-
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     Projectile projectile = Panzer.Shoot();
 
                     if (projectile != null)
-                        projectiles.Add(projectile);
+                        Projectiles.Add(projectile);
                 }
             }
 
-            foreach (var enemyTank in enemyTanks)
+            foreach (var enemyTank in EnemyTanks)
             {
                 enemyTank.Update(gameTime, Panzer.Position);
             }
@@ -217,8 +193,6 @@ namespace ThunderingTanks
             base.Update(gameTime);
         }
 
-
-
         protected override void Draw(GameTime gameTime)
         {
             Camera camara = _targetCamera;
@@ -227,7 +201,7 @@ namespace ThunderingTanks
 
             Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
 
-            foreach (var enemyTank in enemyTanks)
+            foreach (var enemyTank in EnemyTanks)
             {
                 enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
             }
@@ -268,7 +242,7 @@ namespace ThunderingTanks
 
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            _skyBox.Draw(view, projection, position);
+            SkyBox.Draw(view, projection, position);
 
             GraphicsDevice.RasterizerState = originalRasterizerState;
         }
@@ -289,8 +263,6 @@ namespace ThunderingTanks
                 antitanque.AgregarAntitanque(Corner4);
             }
         }
-
-
         private void AgregarRocas(int cantidad)
         {
             Random random = new Random(42); // Aquí 42 es la semilla fija
@@ -321,20 +293,19 @@ namespace ThunderingTanks
         }
         public void UpdateProjectiles(GameTime gameTime)
         {
-            foreach (Projectile projectile in projectiles)
+            foreach (Projectile projectile in Projectiles)
             {
                 projectile.Update(gameTime);
             }
         }
         public void DrawProjectiles(Matrix view, Matrix projection)
         {
-            foreach (Projectile projectile in projectiles)
+            foreach (Projectile projectile in Projectiles)
             {
                 projectile.LoadContent(Content);
                 projectile.Draw(view, projection);
             }
         }
-
         private void CheckCollisions(Vector3 previousPosition)
         {
             var tankBox = Panzer.TankBox;
@@ -369,6 +340,5 @@ namespace ThunderingTanks
             }
 
         }
-
     }
 }
