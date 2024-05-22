@@ -49,6 +49,14 @@ namespace TGC.MonoGame.TP
 
         // BOLITA
         //física
+        private Vector3 Position {get; set; }
+        private Vector3 Velocity { get; set; }
+        private Vector3 Acceleration { get; set; } = Vector3.Zero;
+        //vectores físicos
+        private Quaternion Rotation { get; set; } = Quaternion.Identity;
+        private Vector3 RotationAxis {get; set; } = Vector3.UnitY;
+        private float RotationAngle = 0f;
+        //física
         private Character MainCharacter;
         private List<GeometricPrimitive> Track;
 
@@ -305,14 +313,74 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            if(Keyboard.GetState().IsKeyDown(Keys.Escape))
+            // Aca deberiamos poner toda la logica de actualizacion del juego.
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            var directionX = new Vector3();
+            var directionY = new Vector3();
+            var directionZ = new Vector3();
+            
+            bool salto = false;
+            float speed = 100;
+            // Capturar Input teclado
+            var keyboardState = Keyboard.GetState();
+            if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
+            {
+                Acceleration = Vector3.Transform(Vector3.UnitX * speed, Rotation);
+            }
+            else if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
+            {
+                Acceleration = Vector3.Transform(Vector3.UnitX * speed, Rotation) * (- 1);
+            }
+            else if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
+            {
+                Acceleration = Vector3.Transform(Vector3.UnitZ * speed, Rotation);
+            }
+            else if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
+            {
+                Acceleration = Vector3.Transform(Vector3.UnitZ * speed, Rotation) * (-1);
+            }
+            else if(Keyboard.GetState().IsKeyDown(Keys.Space) && Velocity.Y == 0f)
+            {
+                Velocity += Vector3.Up * speed;
+                salto = true;
+            }
+            else if(Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
 
-            MainCharacter.Update(gameTime);
-            
+            Vector3 gravity = Vector3.Zero;
+
+            Rotation = Quaternion.CreateFromAxisAngle(RotationAxis, RotationAngle);
+
+            directionX = Vector3.Transform(Vector3.UnitX, Rotation);
+            directionY = Vector3.Transform(Vector3.UnitY, Rotation);
+            directionZ = Vector3.Transform(Vector3.UnitZ, Rotation);
+
+            if(Position.Y <= 25f)
+            {
+                gravity = new Vector3(0f, 0f, 0f);
+                if (!salto)
+                {
+                    Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
+                }
+            }
+            else
+            {
+                gravity = new Vector3(0f, -100f, 0f);
+            }
+
+            Velocity += (Acceleration + gravity) * elapsedTime;
+            Position += (directionX + directionY + directionZ) * Velocity * elapsedTime * 0.5f;
+
+            //SolveVerticalMovement(Velocity);
+
+            MainCharacter.World = Matrix.CreateTranslation(Position);
+
+            Acceleration = Vector3.Zero;
+
             FollowCamera.Update(gameTime, MainCharacter.World);
 
             base.Update(gameTime);
