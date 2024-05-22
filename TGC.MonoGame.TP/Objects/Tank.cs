@@ -42,8 +42,6 @@ namespace ThunderingTanks.Objects
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
 
-
-
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
@@ -55,6 +53,7 @@ namespace ThunderingTanks.Objects
         public float screenWidth;
 
         public float GunRotationFinal = 0;
+
         public float GunRotation { get; set; }
         public float GunElevation {  get; set; }
 
@@ -67,8 +66,6 @@ namespace ThunderingTanks.Objects
             turretWorld = Matrix.Identity;
             cannonWorld = Matrix.Identity;
         }
-
-
 
         public void LoadContent(ContentManager Content)
         {
@@ -119,6 +116,7 @@ namespace ThunderingTanks.Objects
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
         }
+
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
         {
             if (graphicsDevice == null)
@@ -159,7 +157,9 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public Projectile Shoot(Matrix TankMatrix)
+        // ------------ FUNCTIONS ------------ //
+
+        public Projectile Shoot()
         {
             if (timeSinceLastShot >= fireRate)
             {
@@ -178,14 +178,12 @@ namespace ThunderingTanks.Objects
                 return null;
             }
         }
-
         public BoundingBox MoveTankBoundingBox(Vector3 increment)
         {
             // Update its Bounding Box, moving both min and max positions
             TankBox = new BoundingBox(TankBox.Min + increment, TankBox.Max + increment);
             return TankBox;
         }
-
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();
@@ -193,7 +191,6 @@ namespace ThunderingTanks.Objects
             screenWidth = graphicsDevice.Viewport.Width;
             return MathHelper.ToRadians((mouseX / screenWidth) * 360f - 180f);
         }
-
         private float GetElevationFromCursorY()
         {
             screenHeight = graphicsDevice.Viewport.Height;

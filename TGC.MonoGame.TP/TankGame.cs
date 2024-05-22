@@ -46,15 +46,9 @@ namespace ThunderingTanks
 
         private Projectile projectile;
 
-
-
-
-
-
         private Matrix World { get; set; }
 
         private List<Projectile> projectiles = new();
-
 
         public TankGame()
         {
@@ -175,10 +169,9 @@ namespace ThunderingTanks
                 }
             }
 
-
             if (keyboardState.IsKeyDown(Keys.Space))
             {
-                Projectile projectile = Panzer.Shoot(Panzer.PanzerMatrix);
+                Projectile projectile = Panzer.Shoot();
 
                 if (projectile != null)
                     projectiles.Add(projectile);
@@ -209,7 +202,7 @@ namespace ThunderingTanks
 
             antitanque.Draw(gameTime, camara.View, camara.Projection);
 
-            arbol.Draw(gameTime, camara.View, camara.Projection);
+//            arbol.Draw(gameTime, camara.View, camara.Projection);
 
             casa.Draw(gameTime, camara.View, camara.Projection);
 
