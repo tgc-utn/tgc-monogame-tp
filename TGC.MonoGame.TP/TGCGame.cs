@@ -112,8 +112,13 @@ namespace TGC.MonoGame.TP
         private List<Matrix> WallWorlds = new List<Matrix>();
         private Effect Effect { get; set; }
         private Effect EffectNoTextures { get; set; }
+        private GameModel VelocityPowerUpModel { get; set; }
+        private Effect EffectPowerUps { get; set; }
+        private StaticObject VelocityPower { get; set; }
+
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
+        private float time;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -153,6 +158,8 @@ namespace TGC.MonoGame.TP
             Car2 = new StaticObject(new Vector3(-60f, 0f, 60f));
             Truck = new StaticObject(new Vector3(60f, 0f, -60f));
             Cottage = new StaticObject(new Vector3(-20, 0, -20));
+            VelocityPower = new StaticObject(new Vector3(20f, 2f, 20f));
+
 
 
             for (int i = 0; i < 100; i++)
@@ -219,6 +226,8 @@ namespace TGC.MonoGame.TP
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectNoTextures = Content.Load<Effect>(ContentFolderEffects + "BasicShaderNoTextures");
+            EffectPowerUps = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
+
 
             var CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             MainCar.Load(CarModel, Effect);
@@ -242,11 +251,23 @@ namespace TGC.MonoGame.TP
             SceneCarsModel = new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/WatercolorScene"), Effect);
             CottageModel = new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect);
 
+            VelocityPowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo"), EffectPowerUps, 1.5f);
+            VelocityPower.setModel(VelocityPowerUpModel);
+
             Vehicle.setModel(VehicleModel);
             CarDBZ.setModel(CarDBZModel);
             Car2.setModel(Car2Model);
             Truck.setModel(TruckModel);
             Cottage.setModel(CottageModel);
+
+
+            Vector3 powerUpPos = VelocityPower.getPosition();
+            var powerBox = new Box(1.5f,1.5f,1.5f);
+            var powerDescription = new StaticDescription(
+           new System.Numerics.Vector3(powerUpPos.X, powerUpPos.Y, powerUpPos.Z),
+           Simulation.Shapes.Add(powerBox));
+            Simulation.Statics.Add(powerDescription);
+
             Vector3 cottagePos = Cottage.getPosition();
             var cottageBox = new Box(17.5f, 10f, 17.5f);
             var cottageDescription = new StaticDescription(
@@ -419,6 +440,8 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
+
+            time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Beige);
 
@@ -427,10 +450,16 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
             EffectNoTextures.Parameters["View"].SetValue(FollowCamera.View);
             EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            EffectPowerUps.Parameters["View"].SetValue(FollowCamera.View);
+            EffectPowerUps.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            Effect.Parameters["Time"]?.SetValue(Convert.ToSingle(time));
+            EffectNoTextures.Parameters["Time"]?.SetValue(Convert.ToSingle(time));
+            EffectPowerUps.Parameters["Time"].SetValue(Convert.ToSingle(time));
 
 
             DrawFloor(Box);
             DrawWalls();
+            VelocityPower.Draw();
 
             MainCar.Draw(GraphicsDevice);
 
