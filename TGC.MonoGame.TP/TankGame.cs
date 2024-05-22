@@ -174,7 +174,7 @@ namespace ThunderingTanks
 
 
             _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
-            Gizmos.LoadContent(_graphicsDevice, new ContentManager(Content.ServiceProvider ,"content"));
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider ,"content"));
             base.LoadContent();
         }
 
@@ -240,13 +240,13 @@ namespace ThunderingTanks
 
             antitanque.Draw(gameTime, camara.View, camara.Projection);
 
-//            arbol.Draw(gameTime, camara.View, camara.Projection);
+            arbol.Draw(gameTime, camara.View, camara.Projection);
 
             casa.Draw(gameTime, camara.View, camara.Projection);
 
             DrawSkyBox(camara.View, camara.Projection, camara.Position);
 
-            Gizmos.DrawCylinder(Panzer.TankBox.Transform, Color.Orange);
+            Gizmos.DrawCylinder(Matrix.CreateScale(500f) * Panzer.TankBox.Transform, Color.Orange);
 
             base.Draw(gameTime);
         }
