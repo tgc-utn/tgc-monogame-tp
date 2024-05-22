@@ -25,11 +25,11 @@ namespace ThunderingTanks.Content.Models
         private List<Matrix> WorldMatrices { get; set; }
         private Effect Effect { get; set; }
 
-
         /// <summary>
         /// Creates a City Scene with a content manager to load resources.
         /// </summary>
         /// <param name="content">The Content Manager to load resources</param>
+        
         public MapScene(ContentManager content)
         {
             Model = content.Load<Model>(ContentFolder3D + "Grid/ground");
@@ -64,7 +64,6 @@ namespace ThunderingTanks.Content.Models
                 WorldMatrices.Add(worldMatrix);
             }
         }
-
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
