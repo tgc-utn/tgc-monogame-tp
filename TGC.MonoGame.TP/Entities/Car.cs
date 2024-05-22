@@ -140,13 +140,13 @@ public class Car
             {
                 if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
                 var transformedForwardImpulse = System.Numerics.Vector3.Transform(forwardImpulse, bodyReference.Pose.Orientation);
-                bodyReference.ApplyLinearImpulse(transformedForwardImpulse);
+                bodyReference.ApplyLinearImpulse(new System.Numerics.Vector3(transformedForwardImpulse.X, forwardImpulse.Y, transformedForwardImpulse.Z));
             }
             if (keyboardState.IsKeyDown(Keys.S))
             {
                 if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
                 var transformedBackwardImpulse = System.Numerics.Vector3.Transform(backwardImpulse, bodyReference.Pose.Orientation);
-                bodyReference.ApplyLinearImpulse(transformedBackwardImpulse);
+                bodyReference.ApplyLinearImpulse(new System.Numerics.Vector3(transformedBackwardImpulse.X, backwardImpulse.Y, transformedBackwardImpulse.Z));
             }
             if (keyboardState.IsKeyDown(Keys.Space) && bodyReference.Pose.Position.Y <= 2)
             {           
