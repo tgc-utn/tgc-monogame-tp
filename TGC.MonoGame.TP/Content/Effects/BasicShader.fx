@@ -19,7 +19,16 @@ float4x4 Projection;
 
 float3 DiffuseColor;
 
-float Time = 0;
+
+texture ModelTexture;
+sampler2D TextureSampler = sampler_state
+{
+    Texture = (ModelTexture);
+    MagFilter = Linear;
+    MinFilter = Linear;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
 
 struct VertexShaderInput
 {
@@ -47,7 +56,10 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    return float4(DiffuseColor, 1.0);
+    //float3 color = tex2D(TextureSampler, input.TextureCoordinate.xy).rgb;
+    
+    return tex2D(TextureSampler, input.TextureCoordinate);
+
 }
 
 technique BasicColorDrawing
