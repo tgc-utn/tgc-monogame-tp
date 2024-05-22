@@ -42,13 +42,8 @@ namespace ThunderingTanks.Objects
         public BoundingCylinder TankBox { get; set; }
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
-
-<<<<<<< HEAD
-=======
         public bool IsMoving { get; set; } = true;
 
-
->>>>>>> 721971f08dcf375faea5eeb002b9659f33f0711e
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
@@ -172,8 +167,6 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        // ------------ FUNCTIONS ------------ //
-
         public Projectile Shoot()
         {
             if (timeSinceLastShot >= fireRate)
@@ -193,16 +186,6 @@ namespace ThunderingTanks.Objects
                 return null;
             }
         }
-<<<<<<< HEAD
-        public BoundingBox MoveTankBoundingBox(Vector3 increment)
-        {
-            // Update its Bounding Box, moving both min and max positions
-            TankBox = new BoundingBox(TankBox.Min + increment, TankBox.Max + increment);
-            return TankBox;
-        }
-=======
-
->>>>>>> 721971f08dcf375faea5eeb002b9659f33f0711e
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();

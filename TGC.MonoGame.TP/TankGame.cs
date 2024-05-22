@@ -10,6 +10,10 @@ using ThunderingTanks.Cameras;
 using ThunderingTanks.Content.Models;
 using ThunderingTanks.Objects;
 using ThunderingTanks.Collisions;
+using ThunderingTanks.Gizmos;
+using ThunderingTanks.Gizmos.Geometries;
+using System.Runtime.ConstrainedExecution;
+using Microsoft.Xna.Framework.Content;
 
 namespace ThunderingTanks
 {
@@ -55,12 +59,21 @@ namespace ThunderingTanks
 
         private List<Projectile> projectiles = new();
 
+        private Gizmoss Gizmos { get; set; }
+
+        private GizmoGeometry _geometry {  get; set; }
+
+
         public TankGame()
         {
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            Gizmos = new Gizmoss();
+
         }
+
+
 
         protected override void Initialize()
         {
@@ -126,7 +139,7 @@ namespace ThunderingTanks
                 NumerosX.Add(random.Next(-20000, 20000)); // Rango más amplio
                 NumerosZ.Add(random.Next(-20000, 20000)); // Rango más amplio
             }*/
-
+            //Gizmos = new Gizmoss();
             base.Initialize();
         }
 
@@ -161,7 +174,7 @@ namespace ThunderingTanks
 
 
             _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
-
+            Gizmos.LoadContent(_graphicsDevice, new ContentManager(Content.ServiceProvider ,"content"));
             base.LoadContent();
         }
 
@@ -184,7 +197,7 @@ namespace ThunderingTanks
 
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
-                    Projectile projectile = Panzer.Shoot(Panzer.PanzerMatrix);
+                    Projectile projectile = Panzer.Shoot();
 
                     if (projectile != null)
                         projectiles.Add(projectile);
@@ -200,7 +213,7 @@ namespace ThunderingTanks
 
             _freeCamera.Update(gameTime);
             _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
-
+            Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
             base.Update(gameTime);
         }
 
@@ -232,6 +245,8 @@ namespace ThunderingTanks
             casa.Draw(gameTime, camara.View, camara.Projection);
 
             DrawSkyBox(camara.View, camara.Projection, camara.Position);
+
+            Gizmos.DrawCylinder(Panzer.TankBox.Transform, Color.Orange);
 
             base.Draw(gameTime);
         }
