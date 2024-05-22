@@ -174,7 +174,7 @@ namespace ThunderingTanks
 
 
             _skyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
-            Gizmos.LoadContent(_graphicsDevice, new ContentManager(Content.ServiceProvider ,"content"));
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider ,"content"));
             base.LoadContent();
         }
 

@@ -78,7 +78,7 @@ namespace ThunderingTanks.Gizmos
             PolyLine = new PolyLineGizmoGeometry(GraphicsDevice);
             Disk = new DiskGizmoGeometry(GraphicsDevice, 20);
             Cylinder = new CylinderGizmoGeometry(GraphicsDevice, 20);
-            AxisLines = new AxisLines(GraphicsDevice, Content.Load<Model>("3D/geometries/arrow"));
+ //           AxisLines = new AxisLines(GraphicsDevice, Content.Load<Model>("3D/geometries/arrow"));
 
             DrawInstances[LineSegment] = new Dictionary<Color, List<Matrix>>();
             DrawInstances[Sphere] = new Dictionary<Color, List<Matrix>>();
