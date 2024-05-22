@@ -170,7 +170,7 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public Projectile Shoot(Matrix TankMatrix)
+        public Projectile Shoot()
         {
             if (timeSinceLastShot >= fireRate)
             {
