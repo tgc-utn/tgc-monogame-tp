@@ -42,9 +42,7 @@ namespace ThunderingTanks.Objects
         public BoundingCylinder TankBox { get; set; }
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
-
         public bool IsMoving { get; set; } = true;
-
 
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
@@ -57,6 +55,7 @@ namespace ThunderingTanks.Objects
         public float screenWidth;
 
         public float GunRotationFinal = 0;
+
         public float GunRotation { get; set; }
         public float GunElevation { get; set; }
 
@@ -69,8 +68,6 @@ namespace ThunderingTanks.Objects
             turretWorld = Matrix.Identity;
             cannonWorld = Matrix.Identity;
         }
-
-
 
         public void LoadContent(ContentManager Content)
         {
@@ -170,7 +167,7 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public Projectile Shoot(Matrix TankMatrix)
+        public Projectile Shoot()
         {
             if (timeSinceLastShot >= fireRate)
             {
@@ -189,7 +186,6 @@ namespace ThunderingTanks.Objects
                 return null;
             }
         }
-
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();
@@ -197,7 +193,6 @@ namespace ThunderingTanks.Objects
             screenWidth = graphicsDevice.Viewport.Width;
             return MathHelper.ToRadians((mouseX / screenWidth) * 360f - 180f);
         }
-
         private float GetElevationFromCursorY()
         {
             screenHeight = graphicsDevice.Viewport.Height;
