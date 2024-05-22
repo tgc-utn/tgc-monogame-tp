@@ -13,7 +13,7 @@ class SimpleTree : Entity
 {
     class TreeCollider : Collider
     {
-        public TreeCollider() : base(new BoxCollider(50, 1000, 50)) { }
+        public TreeCollider() : base(new BoxCollider(200, 800, 200)) { }
     }
 
     public SimpleTree() : base("simple-tree", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
