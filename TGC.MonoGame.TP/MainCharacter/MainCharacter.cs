@@ -104,28 +104,35 @@ namespace TGC.MonoGame.TP.MainCharacter
         {
             var keyboardState = Keyboard.GetState();
 
+            var NewMaterial = CurrentMaterial;
+
             if (keyboardState.IsKeyDown(Keys.D1))
             {
-                CurrentMaterial = Material.RustedMetal;
+                NewMaterial = Material.RustedMetal;
             }
             else if (keyboardState.IsKeyDown(Keys.D2))
             {
-                CurrentMaterial = Material.Grass;
+                NewMaterial = Material.Grass;
             }
             else if (keyboardState.IsKeyDown(Keys.D3))
             {
-                CurrentMaterial = Material.Gold;
+                NewMaterial = Material.Gold;
             }
             else if (keyboardState.IsKeyDown(Keys.D4))
             {
-                CurrentMaterial = Material.Marble;
+                NewMaterial = Material.Marble;
             }
             else if (keyboardState.IsKeyDown(Keys.D5))
             {
-                CurrentMaterial = Material.Metal;
+                NewMaterial = Material.Metal;
             }
 
-            SwitchMaterial();
+            if (NewMaterial != CurrentMaterial) 
+            {
+                CurrentMaterial = NewMaterial;
+                SwitchMaterial();
+            }
+                
         }
 
         private void UpdateMaterialPath()
@@ -169,39 +176,59 @@ namespace TGC.MonoGame.TP.MainCharacter
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            float speed = 100;
+            var directionX = new Vector3();
+            var directionY = new Vector3();
+            var directionZ = new Vector3();
             
+            bool salto = false;
+            float speed = 100;
             // Capturar Input teclado
             var keyboardState = Keyboard.GetState();
-
-
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
-                //Position += Vector3.Right * speed * elapsedTime;
-                Acceleration = Vector3.Transform(Vector3.UnitY * speed, Rotation);
+                Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation);
             }
-            else if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
+            if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
-                //Position += Vector3.Left * speed * elapsedTime;
-                Acceleration = Vector3.Transform(Vector3.UnitY * speed, Rotation) * (- 1);
+                Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation) * (- 1);
             }
-            else if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
+            if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
-                //Position += Vector3.Forward * speed * elapsedTime;
-                Acceleration = Vector3.Transform(Vector3.UnitZ * speed, Rotation);
+                Acceleration += Vector3.Transform(Vector3.UnitZ * speed, Rotation);
             }
-            else if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
+            if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
             {
-                //Position += Vector3.Backward * speed * elapsedTime;
-                Acceleration = Vector3.Transform(Vector3.UnitZ * speed, Rotation) * (-1);
+                Acceleration += Vector3.Transform(Vector3.UnitZ * speed, Rotation) * (-1);
             }
+            if(Keyboard.GetState().IsKeyDown(Keys.Space) && Velocity.Y == 0f)
+            {
+                Velocity += Vector3.Up * speed;
+                salto = true;
+            }
+
+            Vector3 gravity = Vector3.Zero;
 
             Rotation = Quaternion.CreateFromAxisAngle(RotationAxis, RotationAngle);
 
-            var direction = Vector3.Transform(Vector3.UnitZ, Rotation);
+            directionX = Vector3.Transform(Vector3.UnitX, Rotation);
+            directionY = Vector3.Transform(Vector3.UnitY, Rotation);
+            directionZ = Vector3.Transform(Vector3.UnitZ, Rotation);
 
-            Velocity += Acceleration * elapsedTime;
-            Position += direction * Velocity * elapsedTime * 0.5f;
+            if(Position.Y <= 25f)
+            {
+                gravity = new Vector3(0f, 0f, 0f);
+                if (!salto)
+                {
+                    Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
+                }
+            }
+            else
+            {
+                gravity = new Vector3(0f, -100f, 0f);
+            }
+
+            Velocity += (Acceleration + gravity) * elapsedTime;
+            Position += (directionX + directionY + directionZ) * Velocity * elapsedTime * 0.5f;
 
             MoveTo(Position);
 
