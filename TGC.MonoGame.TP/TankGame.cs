@@ -6,10 +6,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
-using TGC.Monogame.TP;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Content.Models;
 using ThunderingTanks.Objects;
+using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks
 {
@@ -49,8 +49,7 @@ namespace ThunderingTanks
 
         private Vector3 lastPosition;
 
-
-
+        private BoundingBox[] Colliders {get; set;}
 
         private Matrix World { get; set; }
 
@@ -84,7 +83,7 @@ namespace ThunderingTanks
 
             Panzer = new Tank(GraphicsDevice)
             {
-                TankVelocity = 300f,
+                TankVelocity = 3000f,
                 TankRotation = 20f
             };
 
@@ -99,6 +98,7 @@ namespace ThunderingTanks
             arbol = new Arbol();
 
             casa = new CasaAbandonada();
+            casa.Position=new Vector3(-3300f, 200f, 7000f);
 
             World = Matrix.Identity;
 
@@ -106,13 +106,15 @@ namespace ThunderingTanks
             {
                 EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
                 {
-                    TankVelocity = 300f,
+                    TankVelocity = 3000f,
                     TankRotation = 20f,
                 };
                 enemyTank.LoadContent(Content);
                 enemyTank.Position = new Vector3(3000*i, 0, 9000);
                 enemyTanks.Add(enemyTank);
             }
+
+            Colliders = new BoundingBox[40];
             /*NumerosX = new List<int>();
             NumerosZ = new List<int>();
 
@@ -149,11 +151,10 @@ namespace ThunderingTanks
             AgregarArboles(15);
 
             casa.LoadContent(Content);
+            //casa.AgregarCasa(new Vector3(-3300f, -690f, 7000f));
 
-            casa.AgregarCasa(new Vector3(-3300f, -690f, 7000f));
+            //Panzer.TankBox =  new BoundingCylinder(Panzer.Position, 10f, 20f);
 
-
-            Panzer.TankBox = Collisions.CreateAABBFrom(Panzer.Tanque);
 
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
@@ -274,6 +275,8 @@ namespace ThunderingTanks
                 antitanque.AgregarAntitanque(Corner4);
             }
         }
+
+
         private void AgregarRocas(int cantidad)
         {
             Random random = new Random(42); // Aquí 42 es la semilla fija
@@ -285,6 +288,8 @@ namespace ThunderingTanks
                     (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
                 roca.AgregarRoca(randomPosition);
+                Colliders[i] = roca.RocaBox;
+                Console.WriteLine(roca.RocaBox);
             }
         }
         private void AgregarArboles(int cantidad)
@@ -321,18 +326,25 @@ namespace ThunderingTanks
             var tankBox = Panzer.TankBox;
             var isColliding = false;
 
-            for (int i = 0; i < roca.BoundingBoxes.Count; i++)
+            for (int i = 0; i < 40; i++)
             {
-                if (tankBox.Intersects(roca.BoundingBoxes[i]))
+                Console.WriteLine(tankBox.Intersects(Colliders[i]));
+                //Console.WriteLine(tankBox.Center);
+                if (!tankBox.Intersects(Colliders[i]).Equals(BoxCylinderIntersection.None))
                 {
                     // Colisión detectada, manejarlo aquí
                     Console.WriteLine($"Colisión detectada con roca en índice {i}");
-                    roca.BoundingBoxes.RemoveAt(i);
-                    roca.RocaWorlds = roca.RocaWorlds.Where((val, idx) => idx != i).ToArray();
-                    i--;
-                    Panzer.IsMoving = false;
-                    isColliding = true;
+                    //roca.BoundingBoxes.RemoveAt(i);
+                    //roca.RocaWorlds = roca.RocaWorlds.Where((val, idx) => idx != i).ToArray();
+                    //i--;
+                    //Panzer.IsMoving = false;
+                    //isColliding = true;
                 }
+            }
+
+            if(!tankBox.Intersects(casa.CasaBox).Equals(BoxCylinderIntersection.None))
+            {
+                Console.WriteLine($"Colisión detectada con casa");
             }
 
             if (isColliding)

@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
 using Microsoft.VisualBasic.FileIO;
-using TGC.Monogame.TP;
+using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects
 {
@@ -39,7 +39,7 @@ namespace ThunderingTanks.Objects
         public Vector3 Direction = new Vector3(0, 0, 0);
 
         public float Rotation = 0;
-        public BoundingBox TankBox { get; set; }
+        public BoundingCylinder TankBox { get; set; }
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
 
@@ -91,18 +91,14 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            TankBox = Collisions.CreateAABBFrom(Tanque);
+            TankBox = new BoundingCylinder(PanzerPosition, 10f, 20f);
 
 
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
-            if (!IsMoving)
-            {
-                return;
-            }
-
+            bool moved = false;
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timeSinceLastShot += time;
 
@@ -129,9 +125,9 @@ namespace ThunderingTanks.Objects
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             // Mover bounding box en base a los movimientos del tanque
-            TankBox = new BoundingBox(TankBox.Min + Position, TankBox.Max + Position);
+            TankBox = new BoundingCylinder(Position, 10f, 20f);
 
-            Console.WriteLine($"BoundingBox tanque actualizada: Min={TankBox.Min}, Max={TankBox.Max}");
+            Console.WriteLine(TankBox.Center);
         }
 
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
@@ -194,13 +190,6 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public BoundingBox MoveTankBoundingBox()
-        {
-            var minPoint = Vector3.Transform(new Vector3(TankBox.Min.X, TankBox.Min.Y, TankBox.Min.Z), PanzerMatrix);
-            var maxPoint = Vector3.Transform(new Vector3(TankBox.Max.X, TankBox.Max.Y, TankBox.Max.Z), PanzerMatrix);
-            return new BoundingBox(minPoint, maxPoint);
-        }
-
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();
@@ -217,11 +206,6 @@ namespace ThunderingTanks.Objects
             float mouseY = mouseState.Y;
 
             return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
-        }
-
-        public bool CollidesWith(BoundingBox otherBox)
-        {
-            return TankBox.Intersects(otherBox);
         }
 
 

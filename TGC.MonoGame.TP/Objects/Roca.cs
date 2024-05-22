@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects
 {
@@ -16,6 +17,8 @@ namespace ThunderingTanks.Objects
         private Texture2D TexturaRoca { get; set; }
         public Matrix[] RocaWorlds { get; set; }
         public Effect Effect { get; set; }
+
+        public BoundingBox RocaBox {get; set; }
 
         public List<BoundingBox> BoundingBoxes { get; private set; }
 
@@ -34,11 +37,15 @@ namespace ThunderingTanks.Objects
             RocaWorlds = RocaWorlds.Concat(nuevaRoca).ToArray();
 
             // Crear BoundingBox para la nueva roca
-            BoundingBox box = CreateBoundingBox(RocaModel, escala, position);
-            BoundingBoxes.Add(box);
+            //BoundingBox box = CreateBoundingBox(RocaModel, escala, position);
+            //BoundingBoxes.Add(box);
 
             // Debug: Verificar la creación de BoundingBox
-            Console.WriteLine($"BoundingBox creada: Min={box.Min}, Max={box.Max}");
+            //Console.WriteLine($"BoundingBox creada: Min={box.Min}, Max={box.Max}");
+            RocaBox = new BoundingBox(position - new Vector3(200, 289, 167), position + new Vector3(200, 289, 167));
+
+            // Debug: Verificar la creación de BoundingBox
+            Console.WriteLine($"BoundingBox creada: Min={RocaBox.Min}, Max={RocaBox.Max}");
         }
 
         public void LoadContent(ContentManager content)
@@ -103,6 +110,40 @@ namespace ThunderingTanks.Objects
             }
 
             return new BoundingBox(minPoint + position, maxPoint + position);
+        }
+
+        public BoundingBox CreateAABBFrom(Model model)
+        {
+            var minPoint = Vector3.One * float.MaxValue;
+            var maxPoint = Vector3.One * float.MinValue;
+
+            var transforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(transforms);
+
+            var meshes = model.Meshes;
+            for (int index = 0; index < meshes.Count; index++)
+            {
+                var meshParts = meshes[index].MeshParts;
+                for (int subIndex = 0; subIndex < meshParts.Count; subIndex++)
+                {
+                    var vertexBuffer = meshParts[subIndex].VertexBuffer;
+                    var declaration = vertexBuffer.VertexDeclaration;
+                    var vertexSize = declaration.VertexStride / sizeof(float);
+
+                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
+                    vertexBuffer.GetData(rawVertexBuffer);
+
+                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
+                    {
+                        var transform = transforms[meshes[index].ParentBone.Index];
+                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
+                        vertex = Vector3.Transform(vertex, transform);
+                        minPoint = Vector3.Min(minPoint, vertex);
+                        maxPoint = Vector3.Max(maxPoint, vertex);
+                    }
+                }
+            }
+            return new BoundingBox(minPoint, maxPoint);
         }
     }
 }
