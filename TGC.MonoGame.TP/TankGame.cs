@@ -214,7 +214,7 @@ namespace ThunderingTanks
 
             antitanque.Draw(gameTime, camara.View, camara.Projection);
 
-            arbol.Draw(gameTime, camara.View, camara.Projection);
+//          arbol.Draw(gameTime, camara.View, camara.Projection);
 
             casa.Draw(gameTime, camara.View, camara.Projection);
 
@@ -277,7 +277,7 @@ namespace ThunderingTanks
                 Colliders[i] = roca.RocaBox;
                 Console.WriteLine(roca.RocaBox);
             }
-        }
+        }    
         private void AgregarArboles(int cantidad)
         {
             Random random = new Random(42); // Aquí 42 es la semilla fija

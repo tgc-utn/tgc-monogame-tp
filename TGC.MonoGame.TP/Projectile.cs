@@ -15,20 +15,16 @@ namespace ThunderingTanks
     {
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
+
+
+        public Vector3 PositionVector = new(0, 0, 0);
         public Vector3 Direction { get; set; }
         public float Speed { get; set; }
-        public Vector3 PositionVector = new(0, 0, 0);
         public new Matrix Position { get; set; }
-
         public Effect Effect { get; set; }
-
         private Model projectile { get; set; }
-
         private Texture2D TexturaProjectile { get; set; }
-
         public float Scale { get; set; } // Nueva propiedad
-
-
 
 
         public Projectile(Matrix matrix, float speed, float scale)
@@ -40,8 +36,6 @@ namespace ThunderingTanks
             this.Speed = speed;
 
             Scale = scale;
-
-
 
         }
 
@@ -60,7 +54,6 @@ namespace ThunderingTanks
             }
 
         }
-
 
         public void Draw(Matrix view, Matrix projection)
         {
@@ -84,13 +77,11 @@ namespace ThunderingTanks
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             PositionVector += Direction * Speed * time;
             this.Position = Matrix.CreateTranslation(PositionVector);
-
-
         }
 
         private BoundingBox CalculateBoundingBox()
         {
-            // Aqu� debes calcular la BoundingBox inicial del modelo del proyectil
+            // Aqui debes calcular la BoundingBox inicial del modelo del proyectil
             // Por simplicidad, asumimos un tama�o peque�o centrado en (0,0,0)
             return new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f));
         }

@@ -118,8 +118,8 @@ namespace ThunderingTanks.Objects
 
             Position = Direction + new Vector3(0, 400f, 0f);
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal)               * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateScale(100f)                               * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
             // Mover bounding box en base a los movimientos del tanque
             TankBox = new BoundingCylinder(Position, 10f, 20f);
@@ -167,11 +167,13 @@ namespace ThunderingTanks.Objects
             }
         }
 
+        // ------------ FUNCTIONS ------------ //
+
         public Projectile Shoot()
         {
             if (TimeSinceLastShot >= FireRate)
             {
-                Matrix projectileMatrix = Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+                Matrix projectileMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 100f;
 
