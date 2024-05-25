@@ -26,7 +26,7 @@ namespace TGC.MonoGame.TP.Geometries
     {
 
         /// <summary>
-        ///     Constructs a new cube primitive, with the specified size.
+        ///     Constructs a new cube primitive.
         /// </summary>
         public CubePrimitive(
                 GraphicsDevice graphicsDevice,

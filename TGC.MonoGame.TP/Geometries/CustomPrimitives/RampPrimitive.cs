@@ -27,7 +27,7 @@ namespace TGC.MonoGame.TP.Geometries
                 GraphicsDevice graphicsDevice,
                 ContentManager content,
                 Color color,
-                float size,
+                float size = 25f,
                 Vector3? coordinates = null,
                 Vector3? scale = null,
                 Matrix? rotation = null
