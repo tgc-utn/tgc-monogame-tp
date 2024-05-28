@@ -14,15 +14,13 @@ abstract class Stage
     protected GraphicsDevice GraphicsDevice;
     protected ContentManager Content;
 
-    protected List<GeometricPrimitive> Track;
+    protected List<GeometricPrimitive> Track; // circuito y obstáculos fijos 
+    protected List<GeometricPrimitive> Obstacles; // obstáculos móviles
     protected List<GeometricPrimitive> Signs; //FIXME: eventualmente podrían ser algo distinto a GeometricPrimitive
     protected List<GeometricPrimitive> Pickups; //FIXME: eventualmente podrían ser algo distinto a GeometricPrimitive
+    protected List<GeometricPrimitive> Checkpoints; // puntos de respawn
 
     public Vector3 CharacterInitialPosition;
-
-    //TODO: por acá podría estar el tema de los puntos de respawn
-
-
 
     public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
     {
@@ -32,13 +30,23 @@ abstract class Stage
         CharacterInitialPosition = characterPosition;
 
         LoadTrack();
+        LoadObstacles();
         LoadSigns();
         LoadPickups();
+        LoadCheckpoints();
     }
+
+    public abstract void Update(GameTime gameTime);
+
 
     public void Draw(Matrix view, Matrix projection)
     {
         foreach (GeometricPrimitive primitive in Track)
+        {
+            primitive.Draw(view, projection);
+        }
+
+        foreach (GeometricPrimitive primitive in Obstacles)
         {
             primitive.Draw(view, projection);
         }
@@ -56,8 +64,13 @@ abstract class Stage
 
     abstract protected void LoadTrack();
 
+    abstract protected void LoadObstacles();
+
     abstract protected void LoadPickups();
 
     abstract protected void LoadSigns();
+
+    abstract protected void LoadCheckpoints();
+
 
 }

@@ -56,7 +56,6 @@ class Stage_01 : Stage
             new RampPrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(200, 150, -250), scale: new Vector3(9f, 1f, 1f), rotation: Matrix.CreateFromYawPitchRoll((float)Math.PI / (-2), 0, 0)),
 
             // PLANOS INCLINADOS (ROLL)
-
             new CubePrimitive(GraphicsDevice, Content, Color.LightPink, coordinates: new Vector3(25, 0, -75), scale: new Vector3(3f, 1f, 4f), rotation: Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / (-6))),
             new CubePrimitive(GraphicsDevice, Content, Color.Aquamarine, coordinates: new Vector3(25, 0, -175), scale: new Vector3(3f, 1f, 4f)),
             new CubePrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(25, 0, -275), scale: new Vector3(3f, 1f, 4f), rotation: Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / 6)),
@@ -74,7 +73,7 @@ class Stage_01 : Stage
             new CubePrimitive(GraphicsDevice, Content, Color.Orange, coordinates: new Vector3(300, 0, -400), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Yellow, coordinates: new Vector3(325, -25, -375), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Green, coordinates: new Vector3(350, -50, -350), scale: new Vector3(9f, 1f, 9f)),
-            new CubePrimitive(GraphicsDevice, Content, Color.Blue, coordinates: new Vector3(375, -75, -325), scale: new Vector3(9f, 1f, 9f)),
+            new CubePrimitive(GraphicsDevice, Content, Color.Blue, coordinates: new Vector3(375, -75, -325), scale: new Vector3(9f, 1f, 9f)),   
             new CubePrimitive(GraphicsDevice, Content, Color.Indigo, coordinates: new Vector3(400, -100, -300), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Purple, coordinates: new Vector3(425, -125, -275), scale: new Vector3(9f, 1f, 9f)),
 
@@ -82,6 +81,11 @@ class Stage_01 : Stage
             new CubePrimitive(GraphicsDevice, Content, Color.Aquamarine, coordinates: new Vector3(425, -125, -75), scale: new Vector3(7f, 1f, 6f))
         };
 
+    }
+
+    protected override void LoadObstacles()
+    {
+        Obstacles = new List<GeometricPrimitive>();
     }
 
     protected override void LoadSigns()
@@ -114,6 +118,16 @@ class Stage_01 : Stage
         Pickups = new List<GeometricPrimitive>();
     }
 
+    protected override void LoadCheckpoints()
+    {
+        Checkpoints = new List<GeometricPrimitive>();
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        // TODO: actualizar el estado de todas las piezas móviles del nivel
+
+    }
 
 }
 
