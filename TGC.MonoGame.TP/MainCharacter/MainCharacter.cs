@@ -31,6 +31,12 @@ namespace TGC.MonoGame.TP.MainCharacter
         Vector3 RotationAxis = Vector3.UnitY;
         float RotationAngle = 0f;
 
+        Vector3 BallSpinAxis=Vector3.UnitX;
+        float BallSpinAngle=0f;
+        Matrix WorldWithBallSpin;
+        float BallPitch=0f;
+        float BallRoll=0f;
+
 
         public Character(ContentManager content, Vector3 initialPosition)
         {
@@ -50,6 +56,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             Position = initialPosition;
             World = Scale * Matrix.CreateTranslation(Position);
+            WorldWithBallSpin=World;
 
             // Apply the effect to all mesh parts
             Sphere.Meshes.FirstOrDefault().MeshParts.FirstOrDefault().Effect = Effect;
@@ -75,10 +82,12 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         public void Draw(Matrix view, Matrix projection)
         {
-            var worldView = World * view;
+            var worldView = WorldWithBallSpin * view;
             Effect.Parameters["matWorld"].SetValue(World);
             Effect.Parameters["matWorldViewProj"].SetValue(worldView * projection);
             Effect.Parameters["matInverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
+
+            //Game.Gizmos.DrawSphere(World, Vector3.One*20, Color.Red);
 
             Sphere.Meshes.FirstOrDefault().Draw();
         }
@@ -208,6 +217,15 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             Vector3 gravity = Vector3.Zero;
 
+            Vector3 SpinVelocity=Velocity;
+
+
+            BallSpinAngle += Velocity.Length()*elapsedTime / (MathHelper.Pi*12.5f);
+            BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
+            
+            if(Acceleration==Vector3.Zero && Velocity!=Vector3.Zero) Velocity *= (1-elapsedTime);
+            if(Velocity==Vector3.Zero) BallSpinAxis = Vector3.UnitZ;
+
             Rotation = Quaternion.CreateFromAxisAngle(RotationAxis, RotationAngle);
 
             directionX = Vector3.Transform(Vector3.UnitX, Rotation);
@@ -238,6 +256,7 @@ namespace TGC.MonoGame.TP.MainCharacter
         public void MoveTo(Vector3 position)
         {
             World = Scale * Matrix.CreateTranslation(position);
+            WorldWithBallSpin=Matrix.CreateFromAxisAngle(BallSpinAxis, BallSpinAngle) * World;
         }
     }
 }
