@@ -168,6 +168,7 @@ namespace TGC.MonoGame.TP
             FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
 
             var vertices = new NumericVector3[] {
+
                     // Bottom vertices
                     new NumericVector3(0f, 0.0f, 0f),
                     new NumericVector3(4.5f, 0.0f, 0f),
@@ -184,6 +185,7 @@ namespace TGC.MonoGame.TP
                     new NumericVector3(4.5f, 3f, 9f),
                     new NumericVector3(0f, 3f, 9f)
                 };
+
             NumericVector3 center;
 
             var CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
@@ -206,7 +208,7 @@ namespace TGC.MonoGame.TP
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence"), Effect, 1f, GenerateRandomPositions(4)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence2"), Effect, 1f, GenerateRandomPositions(4)),
 
-        };
+            };
 
 
             // Add walls
@@ -272,7 +274,6 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
-
             // Actualizar estado del auto
             MainCar.Update(Keyboard.GetState(), gameTime, Simulation);
 
@@ -309,14 +310,20 @@ namespace TGC.MonoGame.TP
 
             Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.World));
 
+            foreach (GameModel model in GameModels)
+                foreach (Matrix world in model.World)
+                    Gizmos.DrawCube(world/* * Matrix.CreateScale(model.Scale)*/, Color.Red);
+
+
             DrawFloor(FloorQuad);
 
             DrawWalls();
 
             MainCar.Draw();
 
-        }
+            Gizmos.Draw();
 
+        }
 
         private void DrawFloor(QuadPrimitive geometry)
         {
@@ -329,7 +336,6 @@ namespace TGC.MonoGame.TP
             geometry.Draw(TilingEffect);
 
         }
-
         private void DrawWalls()
         {
             var prim = new BoxPrimitive(GraphicsDevice, new Vector3(1f, 10f, 200f), Color.HotPink);
@@ -348,6 +354,8 @@ namespace TGC.MonoGame.TP
         {
             // Libero los recursos.
             Content.Unload();
+
+            Gizmos.Dispose();
 
             base.UnloadContent();
         }

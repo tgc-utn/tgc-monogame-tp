@@ -12,11 +12,12 @@ namespace TGC.MonoGame.TP.PowerUps
 {
     public abstract class PowerUp
     {
-
         public Vector3 Position { get; set; }
+
         public BoundingBox BoundingBox { get; set; }
 
         public Matrix PowerUpWorld { get; set; }
+
         public GameModel PowerUpModel { get; set; }
 
         public Effect PowerUpEffect { get; set; }
@@ -26,6 +27,7 @@ namespace TGC.MonoGame.TP.PowerUps
         private float time { get; set; }
 
         private bool GoingUp { get; set; }
+
         private bool GoingDown { get; set; }
 
         public bool Activated;
@@ -62,6 +64,7 @@ namespace TGC.MonoGame.TP.PowerUps
             }
 
         }
+        
         public void Draw(FollowCamera Camera, GameTime gameTime)
         {
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
@@ -90,6 +93,7 @@ namespace TGC.MonoGame.TP.PowerUps
             BodyReference CarBody = Simulation.Bodies.GetBodyReference(carConvexHull.CarHandle);
             if (IsWithinBounds(CarBody.Pose.Position)) Activate(carConvexHull);
         }
+       
         public abstract void Activate(CarConvexHull carConvexHull);
     }
 }

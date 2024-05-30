@@ -9,7 +9,6 @@ using TGC.MonoGame.Samples.Collisions;
 
 namespace TGC.MonoGame.TP
 {
-
     public class BaseModel
     {
         public Model Model { get; private set; }

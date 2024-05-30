@@ -17,7 +17,7 @@ namespace TGC.MonoGame.TP;
 
 public class CarConvexHull
 {
-    private Vector3 Position;
+    public Vector3 Position {  get; set; }  
     public Matrix World { get; set; }
 
     private Model Model;
@@ -27,29 +27,18 @@ public class CarConvexHull
     private ModelMesh BackLeftWheel;
     private ModelMesh BackRightWheel;
 
-
     public BodyHandle CarHandle { get; private set; }
+    
     private ConvexHull CarConvex;
 
     public float maxSpeed = 20f;
+
     public float maxTurn = 3f;
 
-
-    private float Scale = 1f;
     private Effect Effect;
-    private float CarVelocity { get; set; }
-    private float CarRotation { get; set; }
-    private float acceleration = 3f;
-    private float frictionCoefficient = 0.5f;
-    private float maxVelocity = 0.7f;
-    private float minVelocity = -0.7f;
-    private float stopCar = 0f;
-    private float carRotatingVelocity = 2.3f;
-    private float jumpSpeed = 100f;
-    private float gravity = 10f;
-    private float carMass = 1f;
-    private float carInFloor = 0f;
+
     private float wheelRotation = 0f;
+
     private static NumericVector3[] carColliderVertices = new NumericVector3[]
     {
         // Bottom vertices

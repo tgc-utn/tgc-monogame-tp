@@ -32,6 +32,7 @@ public class GameModel : BaseModel
     {
         AddToSimulation(simulation, sphere);
     }
+    
     public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Sphere sphere)
         : base(model, effect, scale, listPos)
     {
@@ -55,6 +56,7 @@ public class GameModel : BaseModel
     {
         AddToSimulation(simulation, convexHull);
     }
+    
     public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, ConvexHull convexHull)
      : base(model, effect, scale, listPos)
     {
@@ -68,6 +70,7 @@ public class GameModel : BaseModel
             simulation.Shapes.Add(sphere)
         ));
     }
+    
     private void AddToSimulation(Simulation simulation, Sphere sphere, List<Vector3> listPos)
     {
         foreach (var Position in listPos)
@@ -76,7 +79,7 @@ public class GameModel : BaseModel
                 simulation.Shapes.Add(sphere)
             ));
     }
-
+    
     private void AddToSimulation(Simulation simulation, Box box)
     {
         simulation.Statics.Add(new StaticDescription(
@@ -84,6 +87,7 @@ public class GameModel : BaseModel
             simulation.Shapes.Add(box)
         ));
     }
+    
     private void AddToSimulation(Simulation simulation, Box box, List<Vector3> listPos)
     {
         foreach (var pos in listPos)
@@ -92,7 +96,7 @@ public class GameModel : BaseModel
                 simulation.Shapes.Add(box)
             ));
     }
-
+    
     private void AddToSimulation(Simulation simulation, ConvexHull convexHull)
     {
         simulation.Statics.Add(new StaticDescription(
@@ -100,11 +104,12 @@ public class GameModel : BaseModel
             simulation.Shapes.Add(convexHull)
         ));
     }
+    
     private void AddToSimulation(Simulation simulation, ConvexHull convexHull , List<Vector3> listPos)
     {
         foreach (var Position in listPos)
         simulation.Statics.Add(new StaticDescription(
-            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
+            new System.Numerics.Vector3(Position.X + 2f, Position.Y, Position.Z ),
             simulation.Shapes.Add(convexHull)
         ));
     }
@@ -159,4 +164,5 @@ public class MatrixHelper
         return false;
     }
 }
+
 

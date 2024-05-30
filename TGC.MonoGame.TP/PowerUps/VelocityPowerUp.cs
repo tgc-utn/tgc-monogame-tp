@@ -21,12 +21,7 @@ namespace TGC.MonoGame.TP.PowerUps
 
         public VelocityPowerUp(Vector3 position) : base(position)
         {
-            var quaternion = Quaternion.CreateFromAxisAngle(Vector3.Backward, 0) *
-                         Quaternion.CreateFromAxisAngle(Vector3.Up, (float)Math.PI / 2) *
-                         Quaternion.CreateFromAxisAngle(Vector3.Right, 0);
-
             PowerUpWorld = Matrix.CreateScale(1f, 1f, 1f) * Matrix.CreateTranslation(position);
-                //* Matrix.CreateFromQuaternion(quaternion);
            
             var worldBounding = Matrix.CreateScale(1.5f, 1.5f, 1.5f) * Matrix.CreateTranslation(position);
             BoundingBox = BoundingVolumesExtensions.FromMatrix(worldBounding);
@@ -36,7 +31,6 @@ namespace TGC.MonoGame.TP.PowerUps
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
             
             PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo"), PowerUpEffect, 1.5f , Position);
-
 
         }
 
