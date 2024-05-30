@@ -3,7 +3,7 @@ using System;
 
 namespace TGC.MonoGame.TP
 {
-    class FollowCamera
+    public class FollowCamera
     {
         private const float DistanceToTarget = 20f;
 

@@ -2,69 +2,143 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using BepuPhysics;
+using BepuPhysics.Collidables;
+using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.Samples.Collisions;
+using static System.Formats.Asn1.AsnWriter;
+using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP;
 
-public class GameModel 
+public class GameModel : BaseModel
 {
-    public Model Model;
-    public Effect Effect;
-    private float Scale = 1f;
-    public List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
-
-    public GameModel(Model model, Effect effect, float scale) {
-
-        Effect = effect;
-        Model = model;
-        Scale = scale;
-
-        for (int mi = 0; mi < Model.Meshes.Count; mi++)
-        {
-            var mesh = Model.Meshes[mi];
-            MeshPartTextures.Add(new List<Texture2D>());
-            // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
-            {
-                var meshPart = mesh.MeshParts[mpi];
-                var texture = ((BasicEffect) meshPart.Effect).Texture;
-                MeshPartTextures[mi].Add(texture);
-                meshPart.Effect = Effect;
-            }
-        }
+    public GameModel(Model model, Effect effect, float scale, Vector3 pos)
+        : base(model, effect, scale, pos)
+    {
+        // Constructor sin lógica adicional
     }
 
-    public GameModel(Model model, Effect effect) : this(model, effect, 1f) {
+    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos)
+        : base(model, effect, scale, listPos)
+    {
+        // Constructor sin lógica adicional
     }
 
-    public void Draw(Matrix World) {
-        // var texture = ((BasicEffect) Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+    public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, Sphere sphere)
+        : base(model, effect, scale, pos)
+    {
+        AddToSimulation(simulation, sphere);
+    }
+    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Sphere sphere)
+        : base(model, effect, scale, listPos)
+    {
+        AddToSimulation(simulation, sphere, listPos);
+    }
+
+    public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, Box box)
+       : base(model, effect, scale, pos)
+    {
+        AddToSimulation(simulation, box);
+    }
+
+    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Box box)
+       : base(model, effect, scale, listPos)
+    {
+        AddToSimulation(simulation, box, listPos);
+    }
+
+    public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, ConvexHull convexHull)
+       : base(model, effect, scale, pos)
+    {
+        AddToSimulation(simulation, convexHull);
+    }
+    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, ConvexHull convexHull)
+     : base(model, effect, scale, listPos)
+    {
+        AddToSimulation(simulation, convexHull , listPos);
+    }
+
+    private void AddToSimulation(Simulation simulation, Sphere sphere)
+    {
+        simulation.Statics.Add(new StaticDescription(
+            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
+            simulation.Shapes.Add(sphere)
+        ));
+    }
+    private void AddToSimulation(Simulation simulation, Sphere sphere, List<Vector3> listPos)
+    {
+        foreach (var Position in listPos)
+            simulation.Statics.Add(new StaticDescription(
+                new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
+                simulation.Shapes.Add(sphere)
+            ));
+    }
+
+    private void AddToSimulation(Simulation simulation, Box box)
+    {
+        simulation.Statics.Add(new StaticDescription(
+            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
+            simulation.Shapes.Add(box)
+        ));
+    }
+    private void AddToSimulation(Simulation simulation, Box box, List<Vector3> listPos)
+    {
+        foreach (var pos in listPos)
+            simulation.Statics.Add(new StaticDescription(
+                new System.Numerics.Vector3(pos.X, pos.Y, pos.Z),
+                simulation.Shapes.Add(box)
+            ));
+    }
+
+    private void AddToSimulation(Simulation simulation, ConvexHull convexHull)
+    {
+        simulation.Statics.Add(new StaticDescription(
+            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
+            simulation.Shapes.Add(convexHull)
+        ));
+    }
+    private void AddToSimulation(Simulation simulation, ConvexHull convexHull , List<Vector3> listPos)
+    {
+        foreach (var Position in listPos)
+        simulation.Statics.Add(new StaticDescription(
+            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
+            simulation.Shapes.Add(convexHull)
+        ));
+    }
+
+    public void Draw(List<Matrix> Worlds)
+    {
         Matrix world;
-        for (int mi = 0; mi < Model.Meshes.Count; mi++)
+        //var texture = ((BasicEffect) Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+        foreach (Matrix World in Worlds)
         {
-            var mesh = Model.Meshes[mi];
-            // Verifica si la matriz de transformación del hueso está compuesta completamente de ceros
-            if (!MatrixHelper.IsZeroMatrix(mesh.ParentBone.ModelTransform))
+            for (int mi = 0; mi < Model.Meshes.Count; mi++)
             {
-                // Aplica la transformación del hueso al mundo
-                world = mesh.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * World;
-            }
-            else
-            {
-                // Si la matriz del hueso está compuesta de ceros, utiliza solo la escala y la matriz del mundo
-                world = Matrix.CreateScale(Scale) * World;
-            }
-            for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
-            {
-                var meshPart = mesh.MeshParts[mpi];
-                var texture = MeshPartTextures[mi][mpi];
-                meshPart.Effect.Parameters["World"].SetValue(world);
-                Effect.Parameters["ModelTexture"]?.SetValue(texture);
-            }
+                var mesh = Model.Meshes[mi];
+                // Verifica si la matriz de transformación del hueso está compuesta completamente de ceros
+                if (!MatrixHelper.IsZeroMatrix(mesh.ParentBone.ModelTransform))
+                {
+                    // Aplica la transformación del hueso al mundo
+                    world = mesh.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * World;
+                }
+                else
+                {
+                    // Si la matriz del hueso está compuesta de ceros, utiliza solo la escala y la matriz del mundo
+                    world = Matrix.CreateScale(Scale) * World;
+                }
+                for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
+                {
+                    var meshPart = mesh.MeshParts[mpi];
+                    var texture = MeshPartTextures[mi][mpi];
+                    meshPart.Effect.Parameters["World"]?.SetValue(world);
+                    Effect.Parameters["ModelTexture"]?.SetValue(texture);
+                }
 
-            mesh.Draw();
+                mesh.Draw();
+            }
         }
     }
 }

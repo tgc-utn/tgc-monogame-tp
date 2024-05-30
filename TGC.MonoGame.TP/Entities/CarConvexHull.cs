@@ -15,17 +15,26 @@ using NumericVector3 = System.Numerics.Vector3;
 
 namespace TGC.MonoGame.TP;
 
-public class Car
+public class CarConvexHull
 {
     private Vector3 Position;
-    private Matrix World { get; set; }
+    public Matrix World { get; set; }
+
     private Model Model;
     private ModelMesh MainBody;
     private ModelMesh FrontLeftWheel;
     private ModelMesh FrontRightWheel;
     private ModelMesh BackLeftWheel;
     private ModelMesh BackRightWheel;
-    private BodyHandle Handle;
+
+
+    public BodyHandle CarHandle { get; private set; }
+    private ConvexHull CarConvex;
+
+    public float maxSpeed = 20f;
+    public float maxTurn = 3f;
+
+
     private float Scale = 1f;
     private Effect Effect;
     private float CarVelocity { get; set; }
@@ -64,27 +73,21 @@ public class Car
 
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
-
-
-    public Car(Vector3 pos)
-    {
-        Position = pos;
-    }
-
-    public Matrix getWorld() { return World; }
-
-    public void LoadPhysics(Simulation Simulation)
+    public CarConvexHull(Vector3 InitialPosition, float Gravity, Simulation Simulation)
     {
         NumericVector3 center;
-        var convexHullShape  = new ConvexHull(carColliderVertices, Simulation.BufferPool, out center);
+        Position = InitialPosition;
+        CarHandle = new BodyHandle();
+        World = new Matrix();
+        CarConvex = new ConvexHull(carColliderVertices, Simulation.BufferPool, out center);
         var carBodyDescription = BodyDescription.CreateConvexDynamic(
-            new NumericVector3(0, 0, 0),
-            new BodyVelocity(new NumericVector3(0,0,0)),
-            1,
-            Simulation.Shapes, convexHullShape
-        );
-        var bh = Simulation.Bodies.Add(carBodyDescription);
-        Handle = bh;
+           new NumericVector3(0, 0, 0),
+           new BodyVelocity(new NumericVector3(0, 0, 0)),
+           1,
+           Simulation.Shapes, CarConvex
+       );
+       CarHandle = Simulation.Bodies.Add(carBodyDescription);
+        
     }
 
     public void Load(Model model, Effect effect)
@@ -123,8 +126,7 @@ public class Car
             // Define constants for car physics
             float acceleration = 50f;
             float braking = 30f;
-            float maxSpeed = 20f;
-            float maxTurn = 3f;
+
             float turnSpeed = 20f;
             float friction = 0.98f;
 
@@ -206,19 +208,21 @@ public class Car
     public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation)
     {
 
-        var bodyHandle = Handle;
-        var bodyReference = simulation.Bodies.GetBodyReference(bodyHandle);
+        var bodyReference = simulation.Bodies.GetBodyReference(CarHandle);
+        bodyReference.Awake = true; 
+
         MoveCar(keyboardState, gameTime, bodyReference, simulation);
+
         var position = bodyReference.Pose.Position;
+
         Quaternion quaternion = bodyReference.Pose.Orientation;
         Quaternion rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
+        
         World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
 
     }
 
-
-
-    public void Draw(GraphicsDevice graphicsDevice)
+    public void Draw()
     {
         DrawCarBody();
         DrawFrontWheels();
@@ -231,7 +235,7 @@ public class Car
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[0][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(World);
+            meshPart.Effect.Parameters["World"]?.SetValue(World);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         MainBody.Draw();
@@ -244,7 +248,7 @@ public class Car
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[2][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * frontLeftWorld);
+            meshPart.Effect.Parameters["World"]?.SetValue(Matrix.CreateRotationY(wheelRotation) * frontLeftWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         FrontLeftWheel.Draw();
@@ -254,7 +258,7 @@ public class Car
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[1][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(Matrix.CreateRotationY(wheelRotation) * frontRightWorld);
+            meshPart.Effect.Parameters["World"]?.SetValue(Matrix.CreateRotationY(wheelRotation) * frontRightWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         FrontRightWheel.Draw();
@@ -267,7 +271,7 @@ public class Car
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[3][mpi];
-            meshPart.Effect.Parameters["World"].SetValue(backLeftWorld);
+            meshPart.Effect.Parameters["World"]?.SetValue(backLeftWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         BackLeftWheel.Draw();

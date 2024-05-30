@@ -36,7 +36,7 @@ public class StaticObject
 
     public void Draw() {
         World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
-        Model.Draw(World);
+        //Model.Draw(World);
     }
     public Vector3 getPosition() {
         return Position;
