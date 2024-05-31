@@ -49,7 +49,7 @@ public class Tank : Entity
     {
         _turretTransform = new Transform(Transform,Vector3.Zero);
         _cannonTransform = new Transform(_turretTransform,Vector3.Zero);
-        AddComponent(new DynamicBody(Transform, new Collider(new BoxShape(200,200,200), new NoAction()), 200));
+        AddComponent(new DynamicBody(Transform, new Collider(new BoxShape(200,200,200), new NoAction()), 200, 0.9f,2f));
         AddComponent(new PlayerControls(_cannonTransform));
     }
 
@@ -72,7 +72,7 @@ public class Tank : Entity
     }
 
     public override void Update(GameTime gameTime, Scene scene)
-    {
+    {   
         base.Update(gameTime, scene);
     }
 }

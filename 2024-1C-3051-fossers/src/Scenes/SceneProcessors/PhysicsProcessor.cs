@@ -87,6 +87,8 @@ public class PhysicsProcessor : ISceneProcessor
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
+            body.ApplyLinearImpulse(-body.Velocity.Linear * r.Drag);
+            body.ApplyAngularImpulse(-body.Velocity.Angular * r.AngularDrag);
 
         }
     }
@@ -207,7 +209,7 @@ public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 
     private Vector3 _gravity = new Vector3(0, -100, 0);
 
-    private float _dragCoeff = 0.9f;
+    private float _dragCoeff = 0.2f;
 
     public PoseIntegratorCallbacks()
     {

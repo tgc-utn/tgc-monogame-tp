@@ -43,7 +43,7 @@ public class Bullet : Entity
         _force = force;
         Damage = damage;
         Transform.Position = Pos;
-        AddComponent(new DynamicBody(Transform, new Collider(new BoxShape(50,50,50),new DeleteOnImpact(this)), 5));
+        AddComponent(new DynamicBody(Transform, new Collider(new BoxShape(50,50,50),new DeleteOnImpact(this)), 5,0,0));
     }
 
     public override void Initialize(Scene scene)

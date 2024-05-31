@@ -22,7 +22,7 @@ class LightComponent : IComponent {
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene){
 
-        Vector3 worldPosition = self.Transform.TransformPoint(_localPosition);
+        Vector3 worldPosition = self.Transform.TransformPosition(_localPosition);
         CurrentLightSource = new LightSource(_color,worldPosition);
 
     }

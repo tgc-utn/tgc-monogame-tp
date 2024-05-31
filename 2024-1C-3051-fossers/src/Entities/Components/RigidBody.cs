@@ -84,6 +84,10 @@ public class DynamicBody : RigidBody
     private Vector3 _angularVelocity;
     private float _mass;
 
+    private float _dragCoeff = 0.2f;
+
+    private float _angularDragCoeff = 0.3f;
+
     private Vector3 _forces = Vector3.Zero;
 
     private Vector3 _torques = Vector3.Zero;
@@ -105,6 +109,16 @@ public class DynamicBody : RigidBody
         get => _mass;
     }
 
+    public float AngularDrag
+    {
+        get => _angularDragCoeff;
+    }
+
+    public float Drag
+    {
+        get => _dragCoeff;
+    }
+
     public Vector3 Force
     {
         get => _forces;
@@ -115,9 +129,11 @@ public class DynamicBody : RigidBody
         get => _torques;
     }
 
-    public DynamicBody(Transform transform, Collider collider, float mass) : base(transform, collider)
+    public DynamicBody(Transform transform, Collider collider, float mass, float dragCoeff, float angularDragCoeff) : base(transform, collider)
     {
         _mass = mass;
+        _dragCoeff = dragCoeff;
+        _angularDragCoeff = angularDragCoeff;
     }
 
     public override void UpdateEntity(Entity self, GameTime time, Scene scene)

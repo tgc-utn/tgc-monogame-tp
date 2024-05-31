@@ -39,10 +39,10 @@ public class CameraController : IComponent
 
         MouseState state = Mouse.GetState();
 
-        float deltaX = state.X - _previousMouseState.X;
+        float deltaX = state.X - _previousMouseState.X; 
         float deltaY = state.Y - _previousMouseState.Y;
 
-        _currentYaw += deltaX * _rotationSpeed * dt;
+        _currentYaw -= deltaX * _rotationSpeed * dt;
         _currentPitch -= deltaY * _rotationSpeed * dt;
 
         _currentPitch = Math.Clamp(_currentPitch, -40, 80);
