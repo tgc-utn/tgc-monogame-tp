@@ -28,11 +28,11 @@ public class TankRenderable : Renderable
     {
        
         if (mesh.Name is string t && t == TurretBone){
-            return _turretTransform.TransformMatrix(mesh.ParentBone.Transform);
+            return _turretTransform.LocalToWorldMatrix(mesh.ParentBone.Transform);
         }
 
         if (mesh.Name is string c && c == Cannonbone){
-            return _cannonTransform.TransformMatrix(mesh.ParentBone.Transform);
+            return _cannonTransform.LocalToWorldMatrix(mesh.ParentBone.Transform);
         }
 
         return base.GetMatrix(mesh, transform);

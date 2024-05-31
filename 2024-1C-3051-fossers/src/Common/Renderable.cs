@@ -49,7 +49,7 @@ public class Renderable
     }
 
     public virtual Matrix GetMatrix(ModelMesh mesh, Transform transform){
-        return transform.TransformMatrix(mesh.ParentBone.Transform);
+        return transform.LocalToWorldMatrix(mesh.ParentBone.Transform);
     }
 
 

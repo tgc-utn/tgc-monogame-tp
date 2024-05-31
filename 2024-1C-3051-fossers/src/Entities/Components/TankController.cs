@@ -31,7 +31,7 @@ public class TurretController : IComponent
         Quaternion cameraOrientation = _camera.Transform.Orientation;
         Quaternion desiredWorldOrientation = cameraOrientation;
 
-        Quaternion localOrientation = _transform.Parent.WorldToLocal(desiredWorldOrientation);
+        Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(desiredWorldOrientation);
 
         Vector3 forward = Vector3.Transform(Vector3.Forward, localOrientation);
         float yaw = (float)Math.Atan2(forward.X, forward.Z);
@@ -65,7 +65,7 @@ public class CannonController : IComponent
     {
         Quaternion cameraOrientation = _camera.Transform.Orientation;
         Quaternion desiredWorldOrientation = cameraOrientation;
-        Quaternion localOrientation = _transform.Parent.WorldToLocal(desiredWorldOrientation);
+        Quaternion localOrientation = _transform.Parent.WorldToLocalOrientation(desiredWorldOrientation);
         Vector3 forward = Vector3.Transform(Vector3.Forward, localOrientation);
         float pitch = -(float)Math.Atan2(forward.Y, forward.Z);
         Quaternion pitchRotation = Quaternion.CreateFromAxisAngle(Vector3.Right, pitch);

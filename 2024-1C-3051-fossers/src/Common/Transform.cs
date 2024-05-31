@@ -71,22 +71,22 @@ public class Transform
 
     public void RotateQuaternion(Quaternion quaternion) => Orientation = quaternion * Orientation;
 
-    public Vector3 TransformPosition(Vector3 point)
+    public Vector3 LocalToWorldPosition(Vector3 point)
     {
         return Vector3.Transform(point, World);
     }
 
-    public Quaternion LocalToWorld(Quaternion orientation)
+    public Quaternion LocalToWorldOrientation(Quaternion orientation)
     {
-        return Parent == null ? orientation * Orientation : Parent.LocalToWorld(orientation * Orientation);
+        return Parent == null ? orientation * Orientation : Parent.LocalToWorldOrientation(orientation * Orientation);
     }
 
-    public Quaternion WorldToLocal(Quaternion orientation)
+    public Quaternion WorldToLocalOrientation(Quaternion orientation)
     {
-        return Parent == null ? Quaternion.Inverse(Orientation) * orientation : Parent.WorldToLocal(Quaternion.Inverse(Orientation) * orientation);
+        return Parent == null ? Quaternion.Inverse(Orientation) * orientation : Parent.WorldToLocalOrientation(Quaternion.Inverse(Orientation) * orientation);
     }
 
-    public Matrix TransformMatrix(Matrix matrix)
+    public Matrix LocalToWorldMatrix(Matrix matrix)
     {
         return matrix * World;
     }
