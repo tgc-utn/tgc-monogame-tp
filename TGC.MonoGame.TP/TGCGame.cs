@@ -147,8 +147,8 @@ namespace TGC.MonoGame.TP
             // PowerUps
             PowerUps = new PowerUp[]
             {
-                new VelocityPowerUp(new Vector3(20f, 2f, 20f))
-                //new MissilePowerUp(new Vector3(0,0,0))
+                new VelocityPowerUp(new Vector3(20f, 2f, 20f)),
+                new MissilePowerUp(new Vector3(5f,0,5f))
             };
 
             SpheresWorld = new List<Matrix>();
@@ -273,27 +273,17 @@ namespace TGC.MonoGame.TP
 
             var keyboardState = Keyboard.GetState();
 
-            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot)
+            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot && MainCar.CanShoot)
             {
                 CanShoot = false;
                 // Create the shape that we'll launch at the pyramids when the user presses a button.
-                var radius = 0.5f + 5 * (float) _random.NextDouble();
+                var radius = 0.5f + 5 * (float)_random.NextDouble();
                 var bulletShape = new Sphere(radius);
 
-                // Note that the use of radius^3 for mass can produce some pretty serious mass ratios. 
-                // Observe what happens when a large ball sits on top of a few boxes with a fraction of the mass-
-                // the collision appears much squishier and less stable. For most games, if you want to maintain rigidity, you'll want to use some combination of:
-                // 1) Limit the ratio of heavy object masses to light object masses when those heavy objects depend on the light objects.
-                // 2) Use a shorter timestep duration and update more frequently.
-                // 3) Use a greater number of solver iterations.
-                // #2 and #3 can become very expensive. In pathological cases, it can end up slower than using a quality-focused solver for the same simulation.
-                // Unfortunately, at the moment, bepuphysics v2 does not contain any alternative solvers, so if you can't afford to brute force the the problem away,
-                // the best solution is to cheat as much as possible to avoid the corner cases.
                 var forwardWorld = Vector3.Transform(forwardLocal, MainCar.rotationQuaternion * MainCar.quaternion);
 
-
                 var bodyDescription = BodyDescription.CreateConvexDynamic(MainCar.Pose,
-                    new BodyVelocity(new NumericVector3(forwardWorld.X, forwardWorld.Y, forwardWorld.Z) * -110 ),
+                    new BodyVelocity(new NumericVector3(forwardWorld.X, forwardWorld.Y, forwardWorld.Z) * -110),
                     bulletShape.Radius * bulletShape.Radius * bulletShape.Radius, Simulation.Shapes, bulletShape);
 
                 var bodyHandle = Simulation.Bodies.Add(bodyDescription);
@@ -302,7 +292,7 @@ namespace TGC.MonoGame.TP
                 SphereHandles.Add(bodyHandle);
             }
 
-            if (keyboardState.IsKeyUp(Keys.Z))
+            if (keyboardState.IsKeyUp(Keys.Z) && MainCar.CanShoot)
                 CanShoot = true;
 
 
@@ -343,10 +333,10 @@ namespace TGC.MonoGame.TP
                             Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z,
                                 quaternion.W)) *
                             Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
-                            
+
                 SpheresWorld.Add(world);
             }
-            
+
 
 
             Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);

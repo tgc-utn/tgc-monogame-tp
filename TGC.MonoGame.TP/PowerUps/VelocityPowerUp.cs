@@ -12,13 +12,6 @@ namespace TGC.MonoGame.TP.PowerUps
 {
     public class VelocityPowerUp : PowerUp
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
-        public const string ContentFolderTextures = "Textures/";
-
         public VelocityPowerUp(Vector3 position) : base(position)
         {
             PowerUpWorld = Matrix.CreateScale(1f, 1f, 1f) * Matrix.CreateTranslation(position);

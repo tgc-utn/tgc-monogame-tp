@@ -12,6 +12,13 @@ namespace TGC.MonoGame.TP.PowerUps
 {
     public abstract class PowerUp
     {
+        public const string ContentFolder3D = "Models/";
+        public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderMusic = "Music/";
+        public const string ContentFolderSounds = "Sounds/";
+        public const string ContentFolderSpriteFonts = "SpriteFonts/";
+        public const string ContentFolderTextures = "Textures/";
+
         public Vector3 Position { get; set; }
 
         public BoundingBox BoundingBox { get; set; }
@@ -31,6 +38,8 @@ namespace TGC.MonoGame.TP.PowerUps
         private bool GoingDown { get; set; }
 
         public bool Activated;
+
+        public List<Matrix> list = new List<Matrix>();
 
         protected PowerUp(Vector3 position)
         {
@@ -76,7 +85,7 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["Projection"].SetValue(Camera.Projection);
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
-                List<Matrix> list = new List<Matrix>();
+                
                 list.Add(PowerUpWorld);
                 PowerUpModel.Draw(list);
             }
@@ -95,5 +104,6 @@ namespace TGC.MonoGame.TP.PowerUps
         }
        
         public abstract void Activate(CarConvexHull carConvexHull);
+
     }
 }

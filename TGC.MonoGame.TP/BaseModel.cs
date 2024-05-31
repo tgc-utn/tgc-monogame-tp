@@ -43,9 +43,10 @@ namespace TGC.MonoGame.TP
             foreach (var mesh in Model.Meshes)
             {
                 var textures = new List<Texture2D>();
+
                 foreach (var meshPart in mesh.MeshParts)
                 {
-                    var texture = ((BasicEffect)meshPart.Effect).Texture;
+                    var texture = ((BasicEffect)meshPart.Effect)?.Texture;
                     textures.Add(texture);
                     meshPart.Effect = Effect;
                 }
@@ -74,13 +75,9 @@ namespace TGC.MonoGame.TP
 
             foreach (var mesh in Model.Meshes)
             {
-
                 var textures = new List<Texture2D>();
                 foreach (var meshPart in mesh.MeshParts)
                 {
-                    if ((meshPart.Effect is BasicEffect) == false)
-                        continue;
-
                     var texture = ((BasicEffect)meshPart.Effect)?.Texture;
                     textures.Add(texture);
                     meshPart.Effect = Effect;
