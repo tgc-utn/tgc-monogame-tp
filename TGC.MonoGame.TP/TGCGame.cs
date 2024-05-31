@@ -88,6 +88,15 @@ namespace TGC.MonoGame.TP
         private PowerUp[] PowerUps { get; set; }
         private GameModel[] GameModels { get; set; }
 
+
+        //Misiles
+        private Random Random { get; set; }
+        private SpherePrimitive Sphere { get; set; }
+        private List<float> Radii { get; set; }
+        private List<BodyHandle> SphereHandles { get; set; }
+        private List<Matrix> SpheresWorld { get; set; }
+        private bool CanShoot { get; set; }
+
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
         private float time;
@@ -139,8 +148,13 @@ namespace TGC.MonoGame.TP
             PowerUps = new PowerUp[]
             {
                 new VelocityPowerUp(new Vector3(20f, 2f, 20f))
+                //new MissilePowerUp(new Vector3(0,0,0))
             };
 
+            SpheresWorld = new List<Matrix>();
+            Radii = new List<float>();
+            SphereHandles = new List<BodyHandle>();
+            Sphere = new SpherePrimitive(GraphicsDevice);
 
             base.Initialize();
         }
@@ -255,6 +269,43 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            Vector3 forwardLocal = new Vector3(0, 0, -1);
+
+            var keyboardState = Keyboard.GetState();
+
+            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot)
+            {
+                CanShoot = false;
+                // Create the shape that we'll launch at the pyramids when the user presses a button.
+                var radius = 0.5f + 5 * (float) _random.NextDouble();
+                var bulletShape = new Sphere(radius);
+
+                // Note that the use of radius^3 for mass can produce some pretty serious mass ratios. 
+                // Observe what happens when a large ball sits on top of a few boxes with a fraction of the mass-
+                // the collision appears much squishier and less stable. For most games, if you want to maintain rigidity, you'll want to use some combination of:
+                // 1) Limit the ratio of heavy object masses to light object masses when those heavy objects depend on the light objects.
+                // 2) Use a shorter timestep duration and update more frequently.
+                // 3) Use a greater number of solver iterations.
+                // #2 and #3 can become very expensive. In pathological cases, it can end up slower than using a quality-focused solver for the same simulation.
+                // Unfortunately, at the moment, bepuphysics v2 does not contain any alternative solvers, so if you can't afford to brute force the the problem away,
+                // the best solution is to cheat as much as possible to avoid the corner cases.
+                var forwardWorld = Vector3.Transform(forwardLocal, MainCar.rotationQuaternion * MainCar.quaternion);
+
+
+                var bodyDescription = BodyDescription.CreateConvexDynamic(MainCar.Pose,
+                    new BodyVelocity(new NumericVector3(forwardWorld.X, forwardWorld.Y, forwardWorld.Z) * -110 ),
+                    bulletShape.Radius * bulletShape.Radius * bulletShape.Radius, Simulation.Shapes, bulletShape);
+
+                var bodyHandle = Simulation.Bodies.Add(bodyDescription);
+
+                Radii.Add(radius);
+                SphereHandles.Add(bodyHandle);
+            }
+
+            if (keyboardState.IsKeyUp(Keys.Z))
+                CanShoot = true;
+
+
             CarSimulation.Update();
 
             Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
@@ -267,7 +318,6 @@ namespace TGC.MonoGame.TP
             }
 
             // Capto el estado del teclado.
-            var keyboardState = Keyboard.GetState();
             if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 // Salgo del juego.
@@ -281,6 +331,23 @@ namespace TGC.MonoGame.TP
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
             FollowCamera.Update(gameTime, MainCar.World);
+
+            SpheresWorld.Clear();
+            var sphereHandleCount = SphereHandles.Count;
+            for (var index = 0; index < sphereHandleCount; index++)
+            {
+                var pose = Simulation.Bodies.GetBodyReference(SphereHandles[index]).Pose;
+                var position = pose.Position;
+                var quaternion = pose.Orientation;
+                var world = Matrix.CreateScale(Radii[index]) *
+                            Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z,
+                                quaternion.W)) *
+                            Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
+                            
+                SpheresWorld.Add(world);
+            }
+            
+
 
             Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);
 
@@ -305,6 +372,8 @@ namespace TGC.MonoGame.TP
 
             EffectNoTextures.Parameters["View"].SetValue(FollowCamera.View);
             EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
+
+            SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
 
             Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
 
@@ -354,6 +423,8 @@ namespace TGC.MonoGame.TP
         {
             // Libero los recursos.
             Content.Unload();
+
+            Simulation.Dispose();
 
             Gizmos.Dispose();
 

@@ -46,7 +46,7 @@ namespace TGC.MonoGame.TP.PowerUps
         {
             if (GoingUp)
             {
-                PowerUpWorld *= Matrix.CreateTranslation(0, 0.2f, 0);
+                //PowerUpWorld *= Matrix.CreateTranslation(0, 0.2f, 0);
                 if (PowerUpWorld.Translation.Y >= Position.Y + 10f)
                 {
                     GoingUp = false;

@@ -17,7 +17,8 @@ namespace TGC.MonoGame.TP;
 
 public class CarConvexHull
 {
-    public Vector3 Position {  get; set; }  
+    public Vector3 Position {  get; set; }
+    public RigidPose Pose { get; private set; }
     public Matrix World { get; set; }
 
     private Model Model;
@@ -30,6 +31,10 @@ public class CarConvexHull
     public BodyHandle CarHandle { get; private set; }
     
     private ConvexHull CarConvex;
+
+    public Quaternion quaternion = new Quaternion();
+
+    public Quaternion rotationQuaternion = new Quaternion();
 
     public float maxSpeed = 20f;
 
@@ -204,11 +209,15 @@ public class CarConvexHull
 
         var position = bodyReference.Pose.Position;
 
-        Quaternion quaternion = bodyReference.Pose.Orientation;
-        Quaternion rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
+        Position = position;
+
+        Pose = bodyReference.Pose;
+
+        quaternion = bodyReference.Pose.Orientation;
+
+        rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
         
         World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
-
     }
 
     public void Draw()
