@@ -11,6 +11,7 @@ using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 using WarSteel.Scenes;
+using Quaternion = System.Numerics.Quaternion;
 using Vector3 = System.Numerics.Vector3;
 
 
@@ -78,11 +79,11 @@ public class PhysicsProcessor : ISceneProcessor
         {
             BodyReference body = _simulation.Bodies[k];
             body.Awake = true;
-            r.Transform.Pos = body.Pose.Position;
+
+            r.Transform.Position = body.Pose.Position;
             r.Transform.Orientation = body.Pose.Orientation;
             r.Velocity = body.Velocity.Linear;
             r.AngularVelocity = body.Velocity.Angular;
-
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
@@ -204,9 +205,9 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 {
 
-    Vector3 Gravity = new Vector3(0, -100, 0);
+    private Vector3 _gravity = new Vector3(0, -100, 0);
 
-    float dragCoeff = 0.3f;
+    private float _dragCoeff = 0.9f;
 
     public PoseIntegratorCallbacks()
     {
@@ -227,10 +228,10 @@ public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
     {
         Vector3Wide gravityWide;
         Vector3Wide dvGrav;
-        Vector3Wide.Broadcast(Gravity, out gravityWide);
+        Vector3Wide.Broadcast(_gravity, out gravityWide);
         Vector3Wide.Scale(gravityWide, dt, out dvGrav);
         Vector3Wide.Add(velocity.Linear, dvGrav, out velocity.Linear);
-        Vector3Wide.Scale(velocity.Linear, -Vector.Multiply(dragCoeff, dt), out Vector3Wide drag);
+        Vector3Wide.Scale(velocity.Linear, -Vector.Multiply(_dragCoeff, dt), out Vector3Wide drag);
         Vector3Wide.Add(velocity.Linear, drag, out velocity.Linear);
 
     }

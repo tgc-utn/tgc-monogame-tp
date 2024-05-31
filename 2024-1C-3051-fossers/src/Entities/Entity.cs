@@ -13,6 +13,8 @@ public class Entity
     public string Name { get; }
     public string[] Tags { get; }
 
+    public bool ToDestroy = false;
+
     public Dictionary<Type, IComponent> Components { get; private set; }
 
     public Transform Transform { get; }
@@ -60,11 +62,12 @@ public class Entity
             c.Initialize(this, scene);
         }
     }
+    
     public virtual void LoadContent() { }
     public virtual void Draw(Scene scene)
     {
         if (_renderable != null)
-            _renderable.Draw(Transform.GetWorld(), scene);
+            _renderable.Draw(Transform, scene);
     }
     public virtual void Update(GameTime gameTime, Scene scene)
     {
@@ -72,6 +75,10 @@ public class Entity
         {
             m.UpdateEntity(this, gameTime, scene);
         }
+    }
+
+    public void Destroy(){
+        ToDestroy = true;
     }
 
     public virtual void OnDestroy(Scene scene)

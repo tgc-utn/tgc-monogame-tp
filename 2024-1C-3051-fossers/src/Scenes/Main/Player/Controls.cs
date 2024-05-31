@@ -11,9 +11,15 @@ public class PlayerControls : IComponent
 {
     DynamicBody rb;
     float Damage = 100;
-    float BulletForce = 300;
+    float BulletForce = 36000;
     bool IsReloading = false;
     int ReloadingTimeInMs = 100;
+
+    Transform _tankCannon;
+
+    public PlayerControls(Transform tankCannon){
+        _tankCannon = tankCannon;
+    }
 
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
@@ -21,50 +27,37 @@ public class PlayerControls : IComponent
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
             // model is reversed
-            rb.ApplyForce(self.Transform.GetWorld().Backward * 100);
+            rb.ApplyForce(self.Transform.Backward * 2000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
-            rb.ApplyForce(self.Transform.GetWorld().Forward * 100);
+            rb.ApplyForce(self.Transform.Forward * 2000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
-            rb.ApplyTorque(self.Transform.GetWorld().Up * 350f);
+            rb.ApplyTorque(self.Transform.Up * 8050f);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
-            rb.ApplyTorque(self.Transform.GetWorld().Up * -350f);
+            rb.ApplyTorque(self.Transform.Down * 8050f);
         }
-        if (isClickingLMB())
+        if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
             Shoot(self, scene);
         }
     }
 
-    private bool isClickingLMB()
-    {
-        if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-            return true;
-
-        return false;
-    }
-
     public void Shoot(Entity self, Scene scene)
     {
         if (IsReloading) return;
-        Camera camera = scene.GetCamera();
-        MouseController mouse = camera.GetComponent<MouseController>();
 
         if (self is Tank tank)
         {
             // get cannon transform
-            Matrix cannonWorld = tank.Renderable.CannonWorld;
-            Vector3 cannonOffset = cannonWorld.Forward * 8;
-            Bullet bullet = new Bullet("player-bullet", Damage, cannonWorld.Translation - cannonOffset, -cannonWorld.Forward, BulletForce);
 
-            // init and add to scene
-            bullet.Initialize(scene);
-            scene.AddEntity(bullet);
+            Bullet bullet = new("player-bullet", Damage, _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200, -_tankCannon.Forward , BulletForce);
+
+            scene.AddEntityDynamically(bullet);
 
             // mark as reloading and 
             IsReloading = true;

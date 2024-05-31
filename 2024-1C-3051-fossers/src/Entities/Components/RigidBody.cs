@@ -39,7 +39,6 @@ public abstract class RigidBody : IComponent
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
         _entity = self;
         processor.AddBody(this);
-
     }
 
     public virtual void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
@@ -66,7 +65,7 @@ public class StaticBody : RigidBody
     {
         TypedIndex index = processor.AddShape(_collider);
         StaticDescription staticDescription = new StaticDescription(
-            new System.Numerics.Vector3(Transform.Pos.X, Transform.Pos.Y, Transform.Pos.Z),
+            new System.Numerics.Vector3(Transform.Position.X, Transform.Position.Y, Transform.Position.Z),
             index
         );
         processor.AddStatic(this, staticDescription);
@@ -144,7 +143,7 @@ public class DynamicBody : RigidBody
 
         BodyDescription bodyDescription = BodyDescription.CreateDynamic(
 
-            new System.Numerics.Vector3(Transform.Pos.X, Transform.Pos.Y, Transform.Pos.Z),
+            new System.Numerics.Vector3(Transform.Position.X, Transform.Position.Y, Transform.Position.Z),
             _collider.ColliderShape.GetInertia(this),
             new CollidableDescription(index, 0.01f),
 

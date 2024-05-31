@@ -21,12 +21,6 @@ public class Rock : Entity
 {
     private RockSize rockSize;
 
-    class RockCollider : Collider
-    {
-        public RockCollider() : base(new BoxCollider(200, 200, 200)) { }
-    }
-
-
     public Rock(RockSize size) : base("rock", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
         rockSize = size;
@@ -34,7 +28,7 @@ public class Rock : Entity
 
     public override void Initialize(Scene scene)
     {
-        AddComponent(new StaticBody(Transform, new RockCollider()));
+        AddComponent(new StaticBody(Transform, new Collider(new BoxShape(100,100,100),new NoAction())));
         base.Initialize(scene);
     }
 

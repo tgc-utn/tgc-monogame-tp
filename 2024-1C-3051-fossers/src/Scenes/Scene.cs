@@ -21,11 +21,6 @@ public class Scene
         get => _gizmos;
     }
 
-    // We collect entities to remove separately to avoid changing the main list of entities
-    // while we're still going through it. This prevents any mix-ups or errors that might happen
-    // if we tried to remove entities directly during the loop.
-    // After we've finished going through all the entities, we safely remove the collected ones.
-    List<Entity> entitiesToRemove = new List<Entity>();
 
     public Scene(GraphicsDeviceManager graphics)
     {
@@ -53,33 +48,22 @@ public class Scene
         SceneProcessors.Add(p.GetType(), p);
     }
 
-    public void AddEntity(Entity entity)
+    public void AddEntityBeforeRun(Entity entity)
     {
         entities.Add(entity.Id, entity);
-        // adding the physics can be done via the initialize method in each entity, 
-        // in that case we would be avoiding these ifs, 
-        // though we would actually have to remember to do it on every implementation!
-        if (entity.HasComponent<DynamicBody>())
-            physics.AddBody(entity.GetComponent<DynamicBody>());
-        if (entity.HasComponent<StaticBody>())
-            physics.AddBody(entity.GetComponent<StaticBody>());
     }
 
-    public void RemoveEntity(Entity entity)
-    {
-        if (entity != null && entities.ContainsKey(entity.Id))
-            entitiesToRemove.Add(entity);
+    public void AddEntityDynamically(Entity entity){
+        entity.Initialize(this);
+        entity.LoadContent();
+        entities.Add(entity.Id,entity);
     }
+
 
     private void DeleteEntity(Entity entity)
     {
         entities.Remove(entity.Id);
-
-        // Remove the physics body if it exists
-        if (entity.HasComponent<DynamicBody>())
-            physics.RemoveDynamicBody(entity.GetComponent<DynamicBody>());
-        if (entity.HasComponent<StaticBody>())
-            physics.RemoveStaticBody(entity.GetComponent<StaticBody>());
+        entity.OnDestroy(this);
     }
 
     public T GetSceneProcessor<T>() where T : class, ISceneProcessor
@@ -151,9 +135,15 @@ public class Scene
 
     public virtual void Update(GameTime gameTime)
     {
-        // creating a copy here to prevent weird behaviors 
-        // while adding a new entity to the list and iterating over it at the same time in the game loop 
-        var copyEntities = new Dictionary<string, Entity>(entities);
+
+        foreach (var entity in entities.Values)
+        {
+            if (entity.ToDestroy){
+                DeleteEntity(entity);
+            }
+        }
+
+         var copyEntities = new Dictionary<string, Entity>(entities);
         foreach (var entity in copyEntities.Values)
         {
             entity.Update(gameTime, this);
@@ -164,11 +154,6 @@ public class Scene
             processor.Update(this, gameTime);
         }
 
-        // remove the entities 
-        foreach (Entity entity in entitiesToRemove)
-            DeleteEntity(entity);
-
-        entitiesToRemove.Clear();
 
     }
 

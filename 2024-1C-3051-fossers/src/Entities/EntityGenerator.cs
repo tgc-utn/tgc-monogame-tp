@@ -14,7 +14,7 @@ public class EntityGenerator
         for (int i = 0; i < maxElems; i++)
         {
             Entity elem = (Entity)Activator.CreateInstance(Entity, constructorParams);
-            elem.Transform.Pos = center + new Vector3(rand.Next(-10000, 10000), 0, rand.Next(-10000, 10000));
+            elem.Transform.Position = center + new Vector3(rand.Next(-10000, 10000), 0, rand.Next(-10000, 10000));
             elems.Add(elem);
         }
 

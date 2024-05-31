@@ -1,49 +1,102 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace WarSteel.Common;
 
+
 public class Transform
 {
-    public Vector3 Dim { get; set; }
-    public Vector3 Pos { get; set; }
-    public Quaternion Orientation { get; set; }
 
+    public Vector3 Dimensions;
+    public Vector3 Position;
+    public Quaternion Orientation;
     public Transform Parent;
+
+    public Matrix World
+    {
+        get => Matrix.CreateScale(Dimensions) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Position) * (Parent == null ? Matrix.Identity : Parent.World);
+    }
+
+    public Vector3 Forward
+    {
+        get => World.Forward;
+    }
+
+    public Vector3 Right
+    {
+        get => World.Right;
+    }
+
+    public Vector3 Up
+    {
+        get => World.Up;
+    }
+
+    public Vector3 Backward
+    {
+        get => World.Backward;
+    }
+
+    public Vector3 Down
+    {
+        get => World.Down;
+    }
+
+    public Vector3 AbsolutePosition
+    {
+        get => World.Translation;
+    }
 
     public Transform()
     {
-        Dim = Vector3.One;
-        Pos = Vector3.Zero;
+        Dimensions = Vector3.One;
+        Position = Vector3.Zero;
         Orientation = Quaternion.Identity;
         Parent = null;
     }
 
-    public Transform(Transform parent, Vector3 pos)
+    public Transform(Transform transform, Vector3 pos)
     {
-        Dim = Vector3.One;
-        Pos = pos;
+        Dimensions = Vector3.One;
+        Position = pos;
         Orientation = Quaternion.Identity;
-        Parent = parent;
-
+        Parent = transform;
     }
 
-    public void Scale(Vector3 scale) => Dim += scale;
-    public void Scale(float x, float y, float z) => Dim += new Vector3(x, y, z);
-
-    public void Translate(Vector3 position) => Pos += position;
-    public void Translate(float x, float y, float z) => Pos += new Vector3(x, y, z);
-
-    // x,y,z angles in degrees
-    public void Rotate(Vector3 eulerAngles) => Orientation = Quaternion.CreateFromYawPitchRoll(
+    public void RotateEuler(Vector3 eulerAngles) => Orientation = Quaternion.CreateFromYawPitchRoll(
         MathHelper.ToRadians(eulerAngles.Y),
         MathHelper.ToRadians(eulerAngles.X),
         MathHelper.ToRadians(eulerAngles.Z)
     ) * Orientation;
 
-    public void Rotate(Quaternion quaternion) => Orientation = quaternion * Orientation;
+    public void RotateQuaternion(Quaternion quaternion) => Orientation = quaternion * Orientation;
 
-    public Matrix GetWorld()
+    public Vector3 TransformPoint(Vector3 point)
     {
-        return (Parent == null ? Matrix.Identity : Parent.GetWorld()) * Matrix.CreateScale(Dim) * Matrix.CreateFromQuaternion(Orientation) * Matrix.CreateTranslation(Pos);
+        return Vector3.Transform(point, World);
     }
+
+    public Quaternion TransformQuaternion(Quaternion quaternion)
+    {
+        return Parent == null ? quaternion * Orientation : Parent.TransformQuaternion(quaternion * Orientation);
+    }
+
+    public Matrix TransformMatrix(Matrix matrix)
+    {
+        return matrix * World;
+    }
+
+    public void LookAt(Vector3 point)
+    {
+        Matrix rotationMatrix = Matrix.CreateLookAt(Position, point, Vector3.Up);
+        Orientation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(rotationMatrix));
+    }
+
+
+
+
+
 }
+
+
+

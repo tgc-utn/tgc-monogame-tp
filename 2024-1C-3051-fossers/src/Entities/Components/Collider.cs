@@ -20,7 +20,8 @@ public class Collision
 public class Collider
 {
     private ColliderShape _colliderShape;
-    private Type _type;
+
+    private CollisionAction _action;
 
 
     public ColliderShape ColliderShape
@@ -28,19 +29,27 @@ public class Collider
         get => _colliderShape;
     }
 
-    public Type Type
-    {
-        get => _type;
-    }
-
-    public Collider(ColliderShape colliderShape)
+    public Collider(ColliderShape colliderShape, CollisionAction action)
     {
         _colliderShape = colliderShape;
-        _type = GetType();
+        _action = action;
     }
 
-    public virtual void OnCollide(Collision collision) { }
+    public void OnCollide(Collision collision) {
+        _action.ExecuteAction(collision);
+    }
 }
+
+public interface CollisionAction {
+    public void ExecuteAction(Collision collision);
+}
+
+public class NoAction : CollisionAction {
+    public void ExecuteAction(Collision collision){
+    }
+
+}
+
 
 public interface ColliderShape
 {
@@ -51,13 +60,13 @@ public interface ColliderShape
     public abstract void DrawGizmos(Transform transform, Gizmos gizmos);
 }
 
-public class BoxCollider : ColliderShape
+public class BoxShape : ColliderShape
 {
     private float _height;
     private float _width;
     private float _length;
 
-    public BoxCollider(float height, float width, float length)
+    public BoxShape(float height, float width, float length)
     {
         _height = height;
         _width = width;
@@ -76,6 +85,7 @@ public class BoxCollider : ColliderShape
 
     public void DrawGizmos(Transform transform, Gizmos gizmos)
     {
-        gizmos.DrawCube(transform.Pos, new Vector3(_height, _width, _length));
+        gizmos.DrawCube(transform.Position, new Vector3(_height, _width, _length));
     }
+    
 }

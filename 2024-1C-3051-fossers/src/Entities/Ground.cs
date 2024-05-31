@@ -11,19 +11,17 @@ namespace WarSteel.Entities.Map;
 
 public class Ground : Entity
 {
-    class GroundCollider : Collider
-    {
-        public GroundCollider() : base(new BoxCollider(200, 100000000000, 100000000000)) { }
-    }
+
 
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -200, 0)), new GroundCollider()));
+        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -10, 0)), new Collider(new BoxShape(10, 100000000000, 100000000000), new NoAction())));
     }
 
     public override void Initialize(Scene scene)
     {
-        Transform.Pos = new Vector3(0, -100f, 0);
+        Transform.Position = new Vector3(0, -100f, 0);
+        base.Initialize(scene);
     }
 
     public override void LoadContent()
