@@ -48,13 +48,13 @@ public class CameraController : IComponent
         _currentPitch = Math.Clamp(_currentPitch, -40, 80);
 
         Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_currentYaw,_currentPitch, 0);
-        Vector3 desiredPosition = _transform.Position + Vector3.Transform(_offset, Matrix.CreateFromQuaternion(rotation));
+        Vector3 desiredPosition = _transform.AbsolutePosition + Vector3.Transform(_offset, Matrix.CreateFromQuaternion(rotation));
 
 
         Vector3 smoothedPosition = Vector3.Lerp(self.Transform.Position, desiredPosition, _smoothSpeed);
         self.Transform.Position = smoothedPosition;
 
-        self.Transform.LookAt(_transform.Position + Vector3.Up * _verticalOffset);
+        self.Transform.LookAt(_transform.AbsolutePosition + Vector3.Up * _verticalOffset);
 
         _previousMouseState = state;
     }

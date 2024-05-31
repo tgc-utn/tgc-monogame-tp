@@ -47,9 +47,13 @@ public class Tank : Entity
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
+        Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
         _turretTransform = new Transform(Transform,Vector3.Zero);
         _cannonTransform = new Transform(_turretTransform,Vector3.Zero);
-        AddComponent(new DynamicBody(Transform, new Collider(new BoxShape(200,200,200), new NoAction()), 200, 0.9f,2f));
+        Transform bodyTransform = new Transform();
+        Transform.Parent = bodyTransform;
+        Transform.Position = new Vector3(0,-400,0);
+        AddComponent(new DynamicBody(bodyTransform, new Collider(new BoxShape(325,200,450), new NoAction()), 200, 0.9f,2f));
         AddComponent(new PlayerControls(_cannonTransform));
     }
 
@@ -74,6 +78,11 @@ public class Tank : Entity
     public override void Update(GameTime gameTime, Scene scene)
     {   
         base.Update(gameTime, scene);
+    }
+
+    public override void Draw(Scene scene)
+    {
+        base.Draw(scene);
     }
 }
 

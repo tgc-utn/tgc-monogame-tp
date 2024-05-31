@@ -3,6 +3,7 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using WarSteel.Common;
+using WarSteel.Managers.Gizmos;
 using WarSteel.Scenes;
 
 namespace WarSteel.Entities;
@@ -43,7 +44,10 @@ public abstract class RigidBody : IComponent
 
     public virtual void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
-        _collider.ColliderShape.DrawGizmos(_transform, scene.Gizmos);
+    }
+
+    public virtual void DrawGizmos(Gizmos gizmos){
+        _collider.ColliderShape.DrawGizmos(_transform, gizmos);
     }
 
     public void Destroy(Entity self, Scene scene)

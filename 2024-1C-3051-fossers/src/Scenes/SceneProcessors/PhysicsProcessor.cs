@@ -102,6 +102,18 @@ public class PhysicsProcessor : ISceneProcessor
             return _simulation.Shapes.Add(boxShape);
         }
 
+        if (shape is Sphere sphereShape)
+        {
+            return _simulation.Shapes.Add(sphereShape);
+        }
+
+
+        if (shape is ConvexHull hullShape)
+        {
+            return _simulation.Shapes.Add(hullShape);
+        }
+
+
         else throw new InvalidOperationException("Unsupported shape added!");
 
     }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using WarSteel.Common;
 using WarSteel.Entities;
+using WarSteel.Managers;
 using WarSteel.Managers.Gizmos;
 
 namespace WarSteel.Scenes;
@@ -12,14 +14,7 @@ public class Scene
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
     protected GraphicsDeviceManager Graphics;
     protected Camera camera;
-    protected PhysicsProcessor physics = new PhysicsProcessor();
     private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
-    protected Gizmos _gizmos = new Gizmos();
-
-    public Gizmos Gizmos
-    {
-        get => _gizmos;
-    }
 
 
     public Scene(GraphicsDeviceManager graphics)
@@ -113,6 +108,7 @@ public class Scene
         {
             entity.LoadContent();
         }
+
     }
 
     public virtual void Draw()
@@ -126,11 +122,6 @@ public class Scene
         {
             processor.Draw(this);
         }
-    }
-
-    public virtual void DrawGizmos()
-    {
-        _gizmos.Draw();
     }
 
     public virtual void Update(GameTime gameTime)
@@ -159,7 +150,6 @@ public class Scene
 
     public virtual void Unload()
     {
-        _gizmos.Dispose();
     }
 
 }

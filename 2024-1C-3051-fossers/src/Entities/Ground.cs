@@ -15,7 +15,7 @@ public class Ground : Entity
 
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -10, 0)), new Collider(new BoxShape(10, 100000000000, 100000000000), new NoAction())));
+        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -100, 0)), new Collider(new BoxShape(100, 100000000000, 100000000000), new NoAction())));
     }
 
     public override void Initialize(Scene scene)

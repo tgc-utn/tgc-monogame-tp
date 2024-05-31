@@ -40,7 +40,6 @@ public class Game : Microsoft.Xna.Framework.Game
     protected override void LoadContent()
     {
         SceneManager.CurrentScene().LoadContent();
-        if (GlobalConstants.DEBUG_MODE) SceneManager.CurrentScene().Gizmos.LoadContent(Graphics.GraphicsDevice, Content);
         base.LoadContent();
     }
 
@@ -48,7 +47,6 @@ public class Game : Microsoft.Xna.Framework.Game
     {
         Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
         SceneManager.CurrentScene().Draw();
-        if (GlobalConstants.DEBUG_MODE) SceneManager.CurrentScene().DrawGizmos();
         base.Draw(gameTime);
     }
 
