@@ -36,7 +36,6 @@ sampler2D normalSampler = sampler_state
 };
 
 //Textura para Metallic
-//texture metallicTexture;
 texture metallicTexture;
 sampler2D metallicSampler = sampler_state
 {
@@ -81,8 +80,8 @@ struct Light
 
 #define LIGHT_COUNT 4
 
-float3 lightPosition;
-float3 lightColor;
+float3 lightPositions[4];
+float3 lightColors[4];
 
 float3 eyePosition; //Posicion de la camara
 
@@ -202,36 +201,38 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	// Reflectance equation
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
-	float3 light = lightPosition - input.WorldPosition.xyz;
-	float distance = length(light);
-	// Normalize our light vector after using its length
-	light = normalize(light);
-	float3 halfVector = normalize(view + light);		
-	float attenuation = 1.0 / (distance);
-	float3 radiance = lightColor * attenuation;
+	for (int index = 0; index < 4; index++)
+	{
+		float3 light = lightPositions[index] - input.WorldPosition.xyz;
+		float distance = length(light);
+		// Normalize our light vector after using its length
+		light = normalize(light);
+		float3 halfVector = normalize(view + light);		
+		float attenuation = 1.0 / (distance);
+		float3 radiance = lightColors[index] * attenuation;
 
 
-	// Cook-Torrance BRDF
-	float NDF = DistributionGGX(normal, halfVector, roughness);
-	float G = GeometrySmith(normal, view, light, roughness);
-	float3 F = fresnelSchlick(max(dot(halfVector, view), 0.0), F0);
+		// Cook-Torrance BRDF
+		float NDF = DistributionGGX(normal, halfVector, roughness);
+		float G = GeometrySmith(normal, view, light, roughness);
+		float3 F = fresnelSchlick(max(dot(halfVector, view), 0.0), F0);
 
-	float3 nominator = NDF * G * F;
-	float denominator = 4.0 * max(dot(normal, view), 0.0) + 0.001;
-	float3 specular = nominator / denominator;
+		float3 nominator = NDF * G * F;
+		float denominator = 4.0 * max(dot(normal, view), 0.0) + 0.001;
+		float3 specular = nominator / denominator;
 
-	float3 kS = F;
-	
-	float3 kD = float3(1.0, 1.0, 1.0) - kS;
-	
-	kD *= 1.0 - metallic;
+		float3 kS = F;
+        
+		float3 kD = float3(1.0, 1.0, 1.0) - kS;
+        
+		kD *= 1.0 - metallic;
 
-	// Scale light by NdotL
-	float NdotL = max(dot(normal, light), 0.0);
+		// Scale light by NdotL
+		float NdotL = max(dot(normal, light), 0.0);
 
-	//TODO
-	Lo += (kD * NdotL * albedo / PI + specular) * radiance;
-
+        //TODO
+		Lo += (kD * NdotL * albedo / PI + specular) * radiance;
+	}
 
 	float3 ambient = float3(0.03, 0.03, 0.03) * albedo * ao;
 

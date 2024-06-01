@@ -83,9 +83,11 @@ namespace TGC.MonoGame.TP.MainCharacter
         public void Draw(Matrix view, Matrix projection)
         {
             var worldView = WorldWithBallSpin * view;
-            Effect.Parameters["matWorld"].SetValue(World);
+            Effect.Parameters["matWorld"].SetValue(WorldWithBallSpin);
             Effect.Parameters["matWorldViewProj"].SetValue(worldView * projection);
-            Effect.Parameters["matInverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(World)));
+            Effect.Parameters["matInverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(WorldWithBallSpin)));
+            Effect.Parameters["lightPosition"].SetValue(new Vector3(25, 80, -800));
+            Effect.Parameters["lightColor"].SetValue(new Vector3(253, 251, 211));
 
             //Game.Gizmos.DrawSphere(World, Vector3.One*20, Color.Red);
 
@@ -223,7 +225,8 @@ namespace TGC.MonoGame.TP.MainCharacter
             BallSpinAngle += Velocity.Length()*elapsedTime / (MathHelper.Pi*12.5f);
             BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
             
-            if(Acceleration==Vector3.Zero && Velocity!=Vector3.Zero) Velocity *= (1-elapsedTime);
+            //if(Acceleration==Vector3.Zero && Velocity!=Vector3.Zero) Velocity *= (1-(elapsedTime/2));
+            if(Acceleration==Vector3.Zero || Vector3.Dot(Acceleration, Velocity)<0) Velocity *= (1-(elapsedTime));
             if(Velocity==Vector3.Zero) BallSpinAxis = Vector3.UnitZ;
 
             Rotation = Quaternion.CreateFromAxisAngle(RotationAxis, RotationAngle);
