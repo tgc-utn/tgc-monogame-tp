@@ -20,5 +20,5 @@ public abstract class Shader
         Effect.Parameters["World"].SetValue(world);
     }
 
-    public abstract void ApplyEffects(Scene scene);
+    public abstract void ApplyEffects(Transform transform,Scene scene);
 }

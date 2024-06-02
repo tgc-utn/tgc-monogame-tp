@@ -190,7 +190,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        pairMaterial.FrictionCoefficient = 0.1f;
+        pairMaterial.FrictionCoefficient = 0.01f;
         pairMaterial.MaximumRecoveryVelocity = 100000f;
         pairMaterial.SpringSettings = new SpringSettings(30, 3);
 
@@ -222,7 +222,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 {
 
-    private Vector3 _gravity = new Vector3(0, -100, 0);
+    private Vector3 _gravity = new Vector3(0, -1000, 0);
 
     private float _dragCoeff = 0.2f;
 

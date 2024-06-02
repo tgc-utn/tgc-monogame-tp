@@ -38,7 +38,7 @@ class PhongShader : Shader
         Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
     }
 
-    public override void ApplyEffects(Scene scene)
+    public override void ApplyEffects(Transform transform,Scene scene)
     {
 
         if (scene.GetSceneProcessor<LightProcessor>() == null){
@@ -63,6 +63,8 @@ class PhongShader : Shader
         Effect.Parameters["LightSourcePositions"].SetValue(positions);
         Effect.Parameters["LightSourceColors"].SetValue(colors);
         Effect.Parameters["DiffuseCoefficient"].SetValue(diffuseCoefficient);
+        Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(transform.World)));
+        
 
 
 

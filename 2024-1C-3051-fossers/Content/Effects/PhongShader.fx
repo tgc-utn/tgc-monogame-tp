@@ -7,11 +7,10 @@
     #define PS_SHADERMODEL ps_5_0
 #endif
 
-
-
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
+float4x4 InverseTransposeWorld;
 
 float3 LightSourcePositions[2]; 
 float3 LightSourceColors[2];
@@ -20,16 +19,9 @@ float3 AmbientLight;
 float AmbientCoefficient;
 float DiffuseCoefficient;
 
-
-
-
-
 Texture2D Texture;
 float3 Color;
 bool HasTexture;
-
-
-
 
 sampler2D textureSampler = sampler_state
 {
@@ -44,7 +36,7 @@ sampler2D textureSampler = sampler_state
 struct VertexShaderInput
 {
     float4 Position : POSITION0;
-    float3 Normal : NORMAL;
+    float4 Normal : NORMAL;
     float2 UV : TEXCOORD0;
 };
 
@@ -52,8 +44,8 @@ struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
     float2 UV : TEXCOORD0;
-    float3 Normal : TEXCOORD1;
-    float3 WorldPos : TEXCOORD2;
+    float4 Normal : TEXCOORD1;
+    float4 WorldPos : TEXCOORD2;
 };
 
 
@@ -62,10 +54,10 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     VertexShaderOutput output = (VertexShaderOutput)0;
     float4 worldPosition = mul(input.Position, World);
     float4 viewPosition = mul(worldPosition, View);	
-    output.WorldPos = worldPosition.xyz;
+    output.WorldPos = worldPosition;
     output.Position = mul(viewPosition, Projection);
     output.UV = input.UV;
-    output.Normal = input.Normal;
+    output.Normal = mul(input.Normal,InverseTransposeWorld);
     return output;
 }
 

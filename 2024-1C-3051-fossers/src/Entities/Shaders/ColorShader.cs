@@ -14,7 +14,7 @@ class ColorShader : Shader
         Effect = ContentRepoManager.Instance().GetEffect("BasicShader");
     }
 
-    public override void ApplyEffects(Scene scene)
+    public override void ApplyEffects(Transform transform,Scene scene)
     {
         Effect.Parameters["DiffuseColor"].SetValue(_color.ToVector3());
     }
