@@ -13,10 +13,12 @@ public class Entity
     public string Name { get; }
     public string[] Tags { get; }
 
+    public bool ToDestroy = false;
+
     public Dictionary<Type, IComponent> Components { get; private set; }
 
     public Transform Transform { get; }
-    protected Renderable _renderable { get; set; }
+    public Renderable Renderable { get; set; }
 
     public Entity(string name, string[] tags, Transform transform, Dictionary<Type, IComponent> Components)
     {
@@ -25,7 +27,7 @@ public class Entity
         Tags = tags;
         Transform = transform;
         this.Components = Components;
-        _renderable = null;
+        Renderable = null;
     }
 
     public Entity(string name, string[] tags, Transform transform, Renderable renderable)
@@ -34,7 +36,7 @@ public class Entity
         Name = name;
         Tags = tags;
         Transform = transform;
-        _renderable = renderable;
+        Renderable = renderable;
     }
 
     public void AddComponent(IComponent c)
@@ -60,11 +62,17 @@ public class Entity
             c.Initialize(this, scene);
         }
     }
-    public virtual void LoadContent() { }
+    
+    public virtual void LoadContent() {
+        foreach (var m in Components.Values)
+        {
+            m.LoadContent(this);
+        }
+    }
     public virtual void Draw(Scene scene)
     {
-        if (_renderable != null)
-            _renderable.Draw(Transform.GetWorld(), scene);
+        if (Renderable != null)
+            Renderable.Draw(Transform, scene);
     }
     public virtual void Update(GameTime gameTime, Scene scene)
     {
@@ -72,6 +80,10 @@ public class Entity
         {
             m.UpdateEntity(this, gameTime, scene);
         }
+    }
+
+    public void Destroy(){
+        ToDestroy = true;
     }
 
     public virtual void OnDestroy(Scene scene)

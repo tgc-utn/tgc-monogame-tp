@@ -16,7 +16,7 @@ class TextureShader : Shader
         this.Effect = ContentRepoManager.Instance().GetEffect("BasicTextureShader");
     }
 
-    public override void ApplyEffects(Scene scene)
+    public override void ApplyEffects(Transform transform,Scene scene)
     {
         this.Effect.Parameters["Texture"].SetValue(_texture);
     }

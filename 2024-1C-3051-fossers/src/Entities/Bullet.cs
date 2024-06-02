@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common;
+using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 
@@ -16,21 +17,21 @@ public class Bullet : Entity
     // future attr when implementing bullets explosions
     //// public float ExplosionArea;
 
-    class BulletCollider : Collider
+    class DeleteOnImpact : CollisionAction
     {
-        Scene _scene;
-        public BulletCollider(Scene scene) : base(new BoxCollider(50, 50, 50))
+
+        private Entity _self;
+
+        public DeleteOnImpact(Entity self)
         {
-            _scene = scene;
+            _self = self;
         }
 
-        public override void OnCollide(Collision col)
+        public void ExecuteAction(Collision col)
         {
-            if (col.Entity?.Name != "player-bullet" && col.Entity?.Name != "player")
-            {
-                _scene.RemoveEntity(col.Entity);
-            }
+
         }
+
     }
 
     public Bullet(string name, float damage, Vector3 Pos, Vector3 direction, float force) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
@@ -38,22 +39,22 @@ public class Bullet : Entity
         _direction = direction;
         _force = force;
         Damage = damage;
-        Transform.Pos = Pos;
+        Transform.Position = Pos;
+
     }
 
     public override void Initialize(Scene scene)
     {
-        DynamicBody r = new DynamicBody(Transform, new BulletCollider(scene), 10);
-        AddComponent(r);
-        r.ApplyForce(_direction * _force);
-        LoadContent();
+        AddComponent(new DynamicBody(new Collider(new SphereShape(10), new DeleteOnImpact(this)),Vector3.Zero, 5, 0, 0));
+        GetComponent<DynamicBody>().ApplyForce(_direction * _force);
         base.Initialize(scene);
     }
 
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Bullet");
-        _renderable = new Renderable(model);
+        Renderable = new Renderable(model);
+        Renderable.AddShader("color", new ColorShader(Color.Red));
 
         base.LoadContent();
     }

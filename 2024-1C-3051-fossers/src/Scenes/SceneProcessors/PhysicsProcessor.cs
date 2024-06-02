@@ -11,6 +11,7 @@ using BepuUtilities.Memory;
 using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 using WarSteel.Scenes;
+using Quaternion = System.Numerics.Quaternion;
 using Vector3 = System.Numerics.Vector3;
 
 
@@ -24,9 +25,11 @@ public class PhysicsProcessor : ISceneProcessor
     public PhysicsProcessor()
     {
         BufferPool bufferPool = new BufferPool();
-        SolveDescription solveDescription = new SolveDescription(1, 1, 8);
+        SolveDescription solveDescription = new SolveDescription(30, 5);
+
 
         _simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), solveDescription);
+
     }
 
     public void Draw(Scene scene) { }
@@ -70,22 +73,25 @@ public class PhysicsProcessor : ISceneProcessor
 
     public void Update(Scene scene, GameTime gameTime)
     {
-        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds + 0.01f;
+
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        dt = dt == 0 ? 0.0001f : dt;
 
         _simulation.Timestep(dt);
+
 
         foreach (var (r, k) in _dynamicBodies)
         {
             BodyReference body = _simulation.Bodies[k];
             body.Awake = true;
-            r.Transform.Pos = body.Pose.Position;
-            r.Transform.Orientation = body.Pose.Orientation;
-            r.Velocity = body.Velocity.Linear;
-            r.AngularVelocity = body.Velocity.Angular;
 
+            r.Transform.Position = body.Pose.Position;
+            r.Transform.Orientation = body.Pose.Orientation;
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
+            body.ApplyLinearImpulse(-body.Velocity.Linear * r.Drag);
+            body.ApplyAngularImpulse(-body.Velocity.Angular * r.AngularDrag);
 
         }
     }
@@ -98,6 +104,18 @@ public class PhysicsProcessor : ISceneProcessor
         {
             return _simulation.Shapes.Add(boxShape);
         }
+
+        if (shape is Sphere sphereShape)
+        {
+            return _simulation.Shapes.Add(sphereShape);
+        }
+
+
+        if (shape is ConvexHull hullShape)
+        {
+            return _simulation.Shapes.Add(hullShape);
+        }
+
 
         else throw new InvalidOperationException("Unsupported shape added!");
 
@@ -172,8 +190,8 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 
     public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
     {
-        pairMaterial.FrictionCoefficient = 0.1f;
-        pairMaterial.MaximumRecoveryVelocity = 1f;
+        pairMaterial.FrictionCoefficient = 0.01f;
+        pairMaterial.MaximumRecoveryVelocity = 100000f;
         pairMaterial.SpringSettings = new SpringSettings(30, 3);
 
         RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);
@@ -204,9 +222,9 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
 public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
 {
 
-    Vector3 Gravity = new Vector3(0, -100, 0);
+    private Vector3 _gravity = new Vector3(0, -1000, 0);
 
-    float dragCoeff = 0.3f;
+    private float _dragCoeff = 0.2f;
 
     public PoseIntegratorCallbacks()
     {
@@ -227,10 +245,10 @@ public struct PoseIntegratorCallbacks : IPoseIntegratorCallbacks
     {
         Vector3Wide gravityWide;
         Vector3Wide dvGrav;
-        Vector3Wide.Broadcast(Gravity, out gravityWide);
+        Vector3Wide.Broadcast(_gravity, out gravityWide);
         Vector3Wide.Scale(gravityWide, dt, out dvGrav);
         Vector3Wide.Add(velocity.Linear, dvGrav, out velocity.Linear);
-        Vector3Wide.Scale(velocity.Linear, -Vector.Multiply(dragCoeff, dt), out Vector3Wide drag);
+        Vector3Wide.Scale(velocity.Linear, -Vector.Multiply(_dragCoeff, dt), out Vector3Wide drag);
         Vector3Wide.Add(velocity.Linear, drag, out velocity.Linear);
 
     }

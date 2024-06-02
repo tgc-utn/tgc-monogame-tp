@@ -16,6 +16,10 @@ public class ContentRepoManager
 
     private static ContentRepoManager _INSTANCE = null;
 
+    public ContentManager Manager{
+        get => _manager;
+    }
+
     public static void SetUpInstance(ContentManager manager)
     {
         _INSTANCE = new ContentRepoManager

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common.Shaders;
@@ -23,33 +24,56 @@ public class Renderable
     public void AddShader(string name, Shader shader)
     {
         _shaders[name] = shader;
-        shader.AssociateShaderTo(_model);
     }
 
-    public virtual void Draw(Matrix world, Scene scene)
+    public virtual void Draw(Transform transform, Scene scene)
     {
         foreach (var mesh in _model.Meshes)
         {
             foreach (var shader in _shaders)
             {
                 shader.Value.UseCamera(scene.GetCamera());
-                shader.Value.ApplyEffects(scene);
+                shader.Value.ApplyEffects(transform,scene);
 
-                Matrix modelWorld = mesh.ParentBone.Transform * world;
+                Matrix modelWorld = GetMatrix(mesh, transform);
                 shader.Value.UseWorld(modelWorld);
-            }
 
-            foreach (Effect effect in mesh.Effects)
-            {
-                if (effect is BasicEffect basicEffect)
+                foreach (var part in mesh.MeshParts)
                 {
-                    basicEffect.World = mesh.ParentBone.Transform * world;
-                    basicEffect.View = scene.GetCamera().View;
-                    basicEffect.Projection = scene.GetCamera().Projection;
+                    part.Effect = shader.Value.Effect;
                 }
-            }
 
-            mesh.Draw();
+                mesh.Draw();
+            }
         };
     }
+
+    public  Vector3 GetModelCenter(){
+        int count = 0;
+        Vector3 center = Vector3.Zero;
+        foreach (ModelMesh mesh in _model.Meshes)
+        {
+            foreach (ModelMeshPart meshPart in mesh.MeshParts)
+            {
+                VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[meshPart.NumVertices];
+                meshPart.VertexBuffer.GetData(0, vertices, 0, meshPart.NumVertices, meshPart.VertexBuffer.VertexDeclaration.VertexStride);
+
+                foreach (VertexPositionNormalTexture vertex in vertices)
+                {
+                    Vector3 v = Vector3.Transform(vertex.Position, mesh.ParentBone.Transform);
+                    center += v;
+                    count++;
+                }
+            }
+        }
+        return center / count;
+    }
+
+    
+
+    public virtual Matrix GetMatrix(ModelMesh mesh, Transform transform){
+        return transform.LocalToWorldMatrix(mesh.ParentBone.Transform);
+    }
+
+
 }

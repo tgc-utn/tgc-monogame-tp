@@ -6,108 +6,61 @@ using WarSteel.Common;
 using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 using WarSteel.Scenes;
+using WarSteel.Scenes.Main;
+using WarSteel.Utils;
 
 namespace WarSteel.Entities;
 
 public class TankRenderable : Renderable
 {
-    private Matrix[] boneTransforms;
-    // turret
-    private ModelBone turretBone;
-    private Matrix turretTransform;
-    // cannon
-    public ModelBone cannonBone;
-    private Matrix cannonTransform;
-    public Matrix CannonWorld;
 
-    public TankRenderable(Model model) : base(model)
+    private static readonly string TurretBone = "Turret";
+    private static readonly string Cannonbone = "Cannon";
+    private Transform _turretTransform;
+    private Transform _cannonTransform;
+
+    public TankRenderable(Model model, Transform turretTransform, Transform cannonTransform) : base(model)
     {
-        boneTransforms = new Matrix[model.Bones.Count];
-        turretBone = model.Bones["Turret"];
-        turretTransform = turretBone.Transform;
-        cannonBone = model.Bones["Cannon"];
-        cannonTransform = cannonBone.Transform;
+        _turretTransform = turretTransform;
+        _cannonTransform = cannonTransform;
     }
 
-    public override void Draw(Matrix world, Scene scene)
+    public override Matrix GetMatrix(ModelMesh mesh, Transform transform)
     {
-        Matrix view = scene.GetCamera().View;
-        Matrix projection = scene.GetCamera().Projection;
-        MouseController mouse = scene.GetCamera().GetComponent<MouseController>();
 
-
-        Matrix turretRotation = Matrix.CreateRotationY(TurretRotation(mouse));
-        Matrix cannonRotation = Matrix.CreateRotationX(CannonRotation(mouse));
-
-        turretBone.Transform = turretRotation * turretTransform;
-        cannonBone.Transform = cannonRotation * cannonTransform;
-
-        _model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-
-        foreach (ModelMesh mesh in _model.Meshes)
+        if (mesh.Name is string t && t == TurretBone)
         {
-            foreach (var shader in _shaders)
-            {
-                shader.Value.UseCamera(scene.GetCamera());
-                shader.Value.ApplyEffects(scene);
-                shader.Value.UseWorld(world);
-            }
-
-            foreach (Effect effect in mesh.Effects)
-            {
-                var relativeTransform = boneTransforms[mesh.ParentBone.Index];
-                Matrix World = relativeTransform * world;
-                if (mesh.Name == "Cannon") CannonWorld = World;
-                effect.Parameters["World"].SetValue(World);
-                effect.Parameters["View"].SetValue(view);
-                effect.Parameters["Projection"].SetValue(projection);
-            }
-
-            mesh.Draw();
+            return _turretTransform.LocalToWorldMatrix(mesh.ParentBone.Transform);
         }
-    }
 
-
-    public float TurretRotation(MouseController mouse)
-    {
-        return -mouse.Yaw - MathHelper.PiOver2;
-    }
-
-    public float CannonRotation(MouseController mouse)
-    {
-        float pitchThreshold = MathHelper.ToRadians(60f);
-        float pitch = 0f;
-        if (mouse.Pitch > pitchThreshold)
+        if (mesh.Name is string c && c == Cannonbone)
         {
-            pitch = mouse.Pitch - pitchThreshold;
+            return _cannonTransform.LocalToWorldMatrix(mesh.ParentBone.Transform);
         }
-        return -pitch;
 
+        return base.GetMatrix(mesh, transform);
     }
+
 }
 
 public class Tank : Entity
 {
-    public TankRenderable Renderable;
-    public Matrix CannonWorld;
-
-    class TankCollider : Collider
-    {
-        public TankCollider() : base(new BoxCollider(200, 200, 200)) { }
-
-        public override void OnCollide(Collision other)
-        {
-
-        }
-    }
+    private Transform _turretTransform;
+    private Transform _cannonTransform;
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new DynamicBody(Transform, new TankCollider(), 5));
+        
     }
 
     public override void Initialize(Scene scene)
     {
+        _turretTransform = new Transform(Transform, Vector3.Zero);
+        _cannonTransform = new Transform(_turretTransform, Vector3.Zero);
+        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), new NoAction()), new Vector3(0,100,0), 200, 0.9f, 2f));
+        AddComponent(new PlayerControls(_cannonTransform));
+        AddComponent(new TurretController(_turretTransform, scene.GetCamera(), 3f));
+        AddComponent(new CannonController(_cannonTransform, scene.GetCamera(), 3f));
         base.Initialize(scene);
     }
 
@@ -115,9 +68,9 @@ public class Tank : Entity
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
         Shader texture = new PhongShader(0.2f, 0.5f, Color.Gray);
-        Renderable = new TankRenderable(model);
-        _renderable = Renderable;
-        _renderable.AddShader("phong", texture);
+
+        Renderable = new TankRenderable(model, _turretTransform, _cannonTransform);
+        Renderable.AddShader("phong", texture);
 
         base.LoadContent();
     }
@@ -125,6 +78,11 @@ public class Tank : Entity
     public override void Update(GameTime gameTime, Scene scene)
     {
         base.Update(gameTime, scene);
+    }
+
+    public override void Draw(Scene scene)
+    {
+        base.Draw(scene);
     }
 }
 
