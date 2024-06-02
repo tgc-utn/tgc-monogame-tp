@@ -59,7 +59,7 @@ public class PlayerControls : IComponent
 
             scene.AddEntityDynamically(bullet);
 
-            // mark as reloading and 
+            tank.GetComponent<DynamicBody>().ApplyForce(_tankCannon.Forward * BulletForce);
             IsReloading = true;
             Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
         }

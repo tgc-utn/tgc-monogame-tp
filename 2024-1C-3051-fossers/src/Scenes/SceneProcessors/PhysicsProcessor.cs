@@ -85,9 +85,7 @@ public class PhysicsProcessor : ISceneProcessor
             BodyReference body = _simulation.Bodies[k];
             body.Awake = true;
 
-            Microsoft.Xna.Framework.Matrix m = Microsoft.Xna.Framework.Matrix.CreateFromQuaternion(body.Pose.Orientation);
-
-            r.Transform.Position = body.Pose.Position - Microsoft.Xna.Framework.Vector3.Transform(r.Offset,m);
+            r.Transform.Position = body.Pose.Position;
             r.Transform.Orientation = body.Pose.Orientation;
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));

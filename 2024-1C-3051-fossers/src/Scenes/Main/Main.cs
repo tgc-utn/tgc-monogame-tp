@@ -26,7 +26,7 @@ public class MainScene : Scene
         AddSceneProcessor(new GizmosProcessor());
 
         Tank player = new Tank("player");
-        player.Transform.Position = new Vector3(0,100,0);
+        player.Transform.Position = new Vector3(0,400,0);
 
         AddEntityBeforeRun(player);
 

@@ -14,13 +14,13 @@ class Map
         scene.AddEntityBeforeRun(ground);
 
         // Forest
-        List<Entity> trees = EntityGenerator.Generate(new Vector3(0, -10, 0), 100, typeof(SimpleTree));
+        List<Entity> trees = EntityGenerator.Generate(new Vector3(0, -0, 0), 100, typeof(SimpleTree));
         trees.ForEach(tree => scene.AddEntityBeforeRun(tree));
 
         // Rocks
-        List<Entity> bigRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.LARGE);
-        List<Entity> mediumRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.MEDIUM);
-        List<Entity> smallRocks = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Rock), RockSize.SMALL);
+        List<Entity> bigRocks = EntityGenerator.Generate(new Vector3(0, -0, 0), 25, typeof(Rock), RockSize.LARGE);
+        List<Entity> mediumRocks = EntityGenerator.Generate(new Vector3(0, -00, 0), 25, typeof(Rock), RockSize.MEDIUM);
+        List<Entity> smallRocks = EntityGenerator.Generate(new Vector3(0, -00, 0), 25, typeof(Rock), RockSize.SMALL);
 
         bigRocks.ForEach(rock => scene.AddEntityBeforeRun(rock));
         mediumRocks.ForEach(rock => scene.AddEntityBeforeRun(rock));

@@ -41,7 +41,12 @@ public abstract class RigidBody : IComponent
     public virtual void Initialize(Entity self, Scene scene)
     {
         _entity = self;
-        _transform = self.Transform;
+        _transform = new Transform
+        {
+            Position = self.Transform.LocalToWorldPosition(Offset)
+        };
+        self.Transform.Parent = _transform;
+        self.Transform.Position = -Offset;
         PhysicsProcessor processor = scene.GetSceneProcessor<PhysicsProcessor>();
         processor.AddBody(this);
     }
@@ -52,7 +57,7 @@ public abstract class RigidBody : IComponent
 
     public virtual void DrawGizmos(Gizmos gizmos)
     {
-        _collider.ColliderShape.DrawGizmos(_transform.Position + Offset, gizmos);
+        _collider.ColliderShape.DrawGizmos(_transform.Position, gizmos);
     }
 
     public void Destroy(Entity self, Scene scene)
@@ -74,7 +79,7 @@ public class StaticBody : RigidBody
     public override void Build(PhysicsProcessor processor)
     {
         TypedIndex index = processor.AddShape(_collider);
-        Vector3 position = Transform.Position + Offset;
+        Vector3 position = Transform.Position;
         StaticDescription staticDescription = new StaticDescription(
             new System.Numerics.Vector3(position.X, position.Y, position.Z),
             index
@@ -149,10 +154,6 @@ public class DynamicBody : RigidBody
         _angularDragCoeff = angularDragCoeff;
     }
 
-    public override void Initialize(Entity entity, Scene scene){
-        base.Initialize(entity,scene);
-    }
-
     public override void UpdateEntity(Entity self, GameTime time, Scene scene)
     {
         _forces *= 0;
@@ -175,7 +176,7 @@ public class DynamicBody : RigidBody
     {
         TypedIndex index = processor.AddShape(_collider);
 
-        Vector3 position = Transform.Position + Offset;
+        Vector3 position = Transform.Position;
 
         BodyDescription bodyDescription = BodyDescription.CreateDynamic(
 

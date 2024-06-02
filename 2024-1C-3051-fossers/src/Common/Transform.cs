@@ -73,7 +73,7 @@ public class Transform
 
     public Vector3 LocalToWorldPosition(Vector3 point)
     {
-        return Vector3.Transform(point, World);
+        return Parent == null ? Vector3.Transform(point, World) : Parent.LocalToWorldPosition(Vector3.Transform(point, World));
     }
 
     public Quaternion LocalToWorldOrientation(Quaternion orientation)
