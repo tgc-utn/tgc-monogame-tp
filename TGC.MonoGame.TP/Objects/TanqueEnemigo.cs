@@ -28,15 +28,10 @@ namespace ThunderingTanks.Objects
         public BoundingBox TankBox { get; set; }
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
-        public float FireRate { get; set; }
-
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
-
-        
-        private float fireRateEnemy = 5f; // Tiempo mínimo entre disparos en segundos
-
+        public float FireRate { get; set; }
         private float timeSinceLastShot = 0f;
 
         public float screenHeight;
@@ -70,6 +65,7 @@ namespace ThunderingTanks.Objects
             }
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
+            TankBox = CreateBoundingBox(Tanque, Matrix.CreateScale(1f), Position);
         }
 
         public void Update(GameTime gameTime, Vector3 playerPosition)
@@ -135,6 +131,7 @@ namespace ThunderingTanks.Objects
             }
         }
 
+
         public Projectile Shoot(Vector3 playerPosition)
         {
             if (timeSinceLastShot >= FireRate)
@@ -159,12 +156,38 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public BoundingBox MoveTankBoundingBox(Vector3 increment)
+        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
         {
-            // Update its Bounding Box, moving both min and max positions
-            TankBox = new BoundingBox(TankBox.Min + increment, TankBox.Max + increment);
-            return TankBox;
+            var minPoint = Vector3.One * float.MaxValue;
+            var maxPoint = Vector3.One * float.MinValue;
+
+            var transforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(transforms);
+
+            foreach (var mesh in model.Meshes)
+            {
+                var meshParts = mesh.MeshParts;
+                foreach (var meshPart in meshParts)
+                {
+                    var vertexBuffer = meshPart.VertexBuffer;
+                    var declaration = vertexBuffer.VertexDeclaration;
+                    var vertexSize = declaration.VertexStride / sizeof(float);
+
+                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
+                    vertexBuffer.GetData(rawVertexBuffer);
+
+                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
+                    {
+                        var transform = transforms[mesh.ParentBone.Index] * escala;
+                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
+                        vertex = Vector3.Transform(vertex, transform);
+                        minPoint = Vector3.Min(minPoint, vertex);
+                        maxPoint = Vector3.Max(maxPoint, vertex);
+                    }
+                }
+            }
+
+            return new BoundingBox(minPoint + position, maxPoint + position);
         }
     }
 }
-

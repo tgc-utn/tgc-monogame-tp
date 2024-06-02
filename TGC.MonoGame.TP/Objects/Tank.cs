@@ -1,10 +1,18 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using BepuPhysics.Collidables;
+using BepuPhysics;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BepuPhysics.Constraints;
+using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
+using Microsoft.VisualBasic.FileIO;
 using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects
@@ -15,42 +23,45 @@ namespace ThunderingTanks.Objects
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderTextures = "Textures/";
+
+        private Effect Effect { get; set; }
+
+        public Model Tanque { get; set; }
+
+        private Texture2D PanzerTexture { get; set; }
+
+        public Vector3 LastPosition { get; set; }
+
+        public TargetCamera PanzerCamera { get; set; }
+
+        public Matrix PanzerMatrix { get; set; }
+
+        public Vector3 Direction = new Vector3(0, 0, 0);
+
+        public float Rotation = 0;
+        public OrientedBoundingBox TankBox { get; set; }
+        public Vector3 MinBox = new Vector3(-184, 0, -334);
+        public Vector3 MaxBox = new Vector3(184, 286, 658);
+        public float TankVelocity { get; set; }
+        public float TankRotation { get; set; }
+        public bool isColliding { get; set; } = false;
+
         private GraphicsDevice graphicsDevice;
+        public List<ModelBone> Bones { get; private set; }
+        public List<ModelMesh> Meshes { get; private set; }
+        public float FireRate { get; set; }
+        private float TimeSinceLastShot = 0f;
 
         public float screenHeight;
         public float screenWidth;
 
-        private Effect Effect { get; set; }
-        public Model Tanque { get; set; }
-        private Texture2D PanzerTexture { get; set; }
-        public Vector3 PanzerPosition { get; set; }
-        public TargetCamera PanzerCamera { get; set; }
+        public float GunRotationFinal = 0;
 
-
-        public List<ModelBone> Bones { get; private set; }
-        public List<ModelMesh> Meshes { get; private set; }
-
-        public float TankVelocity { get; set; }
-        public float TankRotation { get; set; }
-        public float FireRate { get; set; }
-
-
-        public Vector3 Direction = new(0, 0, 0);
-
-        public float Rotation = 0;
-
-        public BoundingCylinder TankBox { get; set; }
-
+        public float GunRotation { get; set; }
         public float GunElevation { get; set; }
-        public float GunRotationFinal { get; set; }
-
-        private float TimeSinceLastShot = 0f;
 
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
-        public Matrix PanzerMatrix { get; set; }
-
-        public bool IsMoving { get; set; } = true;
 
         public Tank(GraphicsDevice graphicsDevice)
         {
@@ -77,10 +88,11 @@ namespace ThunderingTanks.Objects
             }
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
+            var BoundingBox = new BoundingBox(MinBox, MaxBox);
+            Console.WriteLine($"Colisión detectada con roca en índice {BoundingBox}");
 
-            TankBox = new BoundingCylinder(PanzerPosition, 10f, 20f);
-
-
+            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
+            Console.WriteLine($"Colisión detectada con roca en índice {TankBox}");
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -88,6 +100,9 @@ namespace ThunderingTanks.Objects
 
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             TimeSinceLastShot += time;
+
+            //if(isColliding)
+            //    TankVelocity = TankVelocity * 0.01f;
 
             if (keyboardState.IsKeyDown(Keys.W))
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
@@ -104,15 +119,20 @@ namespace ThunderingTanks.Objects
             GunRotationFinal -= GetRotationFromCursorX();
             GunElevation += GetElevationFromCursorY();
 
-            Position = Direction + new Vector3(0, 400f, 0f);
+            Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
+
+            Position = Direction + new Vector3(0, 200f, 0f);
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateScale(100f) * Matrix.CreateTranslation(new Vector3(-10f, 5f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+            CannonMatrix = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
             // Mover bounding box en base a los movimientos del tanque
-            TankBox = new BoundingCylinder(Position, 10f, 20f);
+            var BoundingBox = new BoundingBox(MinBox + Position, MaxBox + Position);
+            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
 
-            Console.WriteLine(TankBox.Center);
+            LastPosition = Position;
+
+            Console.WriteLine(TankBox.Extents);
         }
 
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
@@ -133,16 +153,16 @@ namespace ThunderingTanks.Objects
             Effect.Parameters["Projection"].SetValue(projection);
             //Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
 
-
-
             foreach (var mesh in Tanque.Meshes)
             {
                 if (mesh.Name.Equals("Turret"))
                 {
+                    //Effect.Parameters["DiffuseColor"]?.SetValue(Color.Aquamarine.ToVector3());
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
                 }
                 else if (mesh.Name.Equals("Cannon"))
                 {
+                    //Effect.Parameters["DiffuseColor"].SetValue(Color.Coral.ToVector3());
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
                 }
                 else

@@ -47,10 +47,14 @@ namespace ThunderingTanks
         private AntiTanque antitanque;
         private Arbol arbol;
         private CasaAbandonada casa;
+        private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
         private List<Projectile> Projectiles = new();
-
-        private Vector3 lastPosition;
+        private List<Roca> Rocas = new();
+        private int CantidadRocas = 40;
+        private List<Arbol> Arboles = new();
+        private int CantidadArboles = 15;
+        private int CantidadTanquesEnemigos = 3;
 
         public Texture2D CrossHairTexture { get; set; }
         private Vector2 CrossHairPosition { get; set; }
@@ -102,29 +106,27 @@ namespace ThunderingTanks
 
             Panzer.PanzerCamera = _targetCamera;
 
-            roca = new Roca();
+            Rocas = new List<Roca>(CantidadRocas);
+            AgregarRocas(CantidadRocas);
 
             antitanque = new AntiTanque();
 
-            arbol = new Arbol();
+            Arboles = new List<Arbol>(CantidadArboles);
+            AgregarArboles(CantidadArboles);
 
             casa = new CasaAbandonada();
             casa.Position = new Vector3(-3300f, 200f, 7000f);
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
                 EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
                 {
                     TankVelocity = 3000f,
                     TankRotation = 20f,
-                    FireRate = 1f
+                    Position = new Vector3(3000 * i, 0, 9000)
                 };
-                enemyTank.LoadContent(Content);
-                enemyTank.Position = new Vector3(3000 * i, 0, 9000);
                 EnemyTanks.Add(enemyTank);
             }
-
-            Colliders = new BoundingBox[40];
 
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
@@ -139,23 +141,42 @@ namespace ThunderingTanks
 
             Panzer.LoadContent(Content);
 
-            roca.LoadContent(Content);
-
-            AgregarRocas(40);
-
+            for (int i = 0; i < CantidadRocas; i++)
+            {
+                roca = Rocas[i];
+                roca.LoadContent(Content);
+                //Colliders[i] = roca.RocaBox;
+                Console.WriteLine($"Roca {i} creada: Min={roca.RocaBox.Min}, Max={roca.RocaBox.Max}");
+            }
             antitanque.LoadContent(Content);
-
             AgregarAntitanques();
 
-            arbol.LoadContent(Content);
+            // for (int i = 0; i < 3; i++)
+            // {
+            //     antitanque = Antitanques[i];
+            //     antitanque.LoadContent(Content);
+            //     //Colliders[i] = antitanque.AntiTanqueBox;
+            //     Console.WriteLine($"Antitanque {i} creada: Min={antitanque.AntiTanqueBox.Min}, Max={antitanque.AntiTanqueBox.Max}");
+            // }
 
-            AgregarArboles(15);
+            for (int i = 0; i < CantidadArboles; i++)
+            {
+                arbol = Arboles[i];
+                arbol.LoadContent(Content);
+                //Colliders[i] = arbol.AntiTanqueBox;
+                Console.WriteLine($"Arbol {i} creada: Min={arbol.ArbolBox.Min}, Max={arbol.ArbolBox.Max}");
+            }
 
             casa.LoadContent(Content);
+            Console.WriteLine($"Casa creada: Min={casa.CasaBox.Min}, Max={casa.CasaBox.Max}");
 
-            //casa.AgregarCasa(new Vector3(-3300f, -690f, 7000f));
-
-            //Panzer.TankBox = new BoundingCylinder(Panzer.Position, 10f, 20f);
+            for (int i = 0; i < CantidadTanquesEnemigos; i++)
+            {
+                enemyTank = EnemyTanks[i];
+                enemyTank.LoadContent(Content);
+                //Colliders[i] = arbol.AntiTanqueBox;
+                Console.WriteLine($"Tanque enemigo {i} creado: Min={enemyTank.TankBox.Min}, Max={enemyTank.TankBox.Max}");
+            }
 
             CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
 
@@ -179,22 +200,33 @@ namespace ThunderingTanks
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            lastPosition = Panzer.Position;
+            var lastMatrix = Panzer.PanzerMatrix;
+            var turretPosition = Panzer.TurretMatrix;
+            var cannonPosition = Panzer.CannonMatrix;
+            var lastPosition = Panzer.Position;
 
-            CheckCollisions(lastPosition);
 
-            if (Panzer.IsMoving)
+            Panzer.Update(gameTime, keyboardState);
+
+            if (keyboardState.IsKeyDown(Keys.Space))
             {
-                Panzer.Update(gameTime, keyboardState);
+                Projectile projectile = Panzer.Shoot();
 
-                if (keyboardState.IsKeyDown(Keys.Space))
-                {
-                    Projectile projectile = Panzer.Shoot();
-
-                    if (projectile != null)
-                        Projectiles.Add(projectile);
-                }
+                if (projectile != null)
+                    Projectiles.Add(projectile);
             }
+
+            if (CheckCollisions())
+            {
+                Panzer.PanzerMatrix = lastMatrix;
+                Panzer.TurretMatrix = turretPosition;
+                Panzer.CannonMatrix = cannonPosition;
+                Panzer.Position = lastPosition;
+                Panzer.isColliding = true;
+            }
+            else
+                Panzer.isColliding = false;
+
             CrossHairAux = viewport.Project(new Vector3(Panzer.GunElevation, Panzer.GunRotationFinal, ConstConver), _targetCamera.Projection, _targetCamera.View, Matrix.Identity);
 
             CrossHairPosition = new Vector2(CrossHairAux.X, CrossHairAux.Y);
@@ -241,18 +273,27 @@ namespace ThunderingTanks
             City.Draw(gameTime, camara.View, camara.Projection);
 
             DrawProjectiles(camara.View, camara.Projection);
+            //roca.Draw(gameTime, camara.View, camara.Projection);
 
-            roca.Draw(gameTime, camara.View, camara.Projection);
+            foreach (var roca in Rocas)
+            {
+                roca.Draw(gameTime, camara.View, camara.Projection);
+            }
 
+            // foreach (var antitanque in Antitanques)
+            // {
+            //     antitanque.Draw(gameTime, camara.View, camara.Projection);
+            // }
             antitanque.Draw(gameTime, camara.View, camara.Projection);
 
-            //arbol.Draw(gameTime, camara.View, camara.Projection);
+            foreach (var arbol in Arboles)
+            {
+                arbol.Draw(gameTime, camara.View, camara.Projection);
+            }
 
             casa.Draw(gameTime, camara.View, camara.Projection);
 
             DrawSkyBox(camara.View, camara.Projection, camara.Position);
-
-            Gizmos.DrawCylinder(Matrix.CreateScale(500f) * Panzer.TankBox.Transform, Color.Orange);
 
             #endregion
 
@@ -271,7 +312,7 @@ namespace ThunderingTanks
             #endregion
 
             base.Draw(gameTime);
-        } 
+        }
 
         protected override void UnloadContent()
         {
@@ -313,19 +354,21 @@ namespace ThunderingTanks
         }
         private void AgregarRocas(int cantidad)
         {
-            Random random = new Random(42); // Aquí 42 es la semilla fija
+            Random random = new Random(42);
             for (int i = 0; i < cantidad; i++)
             {
                 Vector3 randomPosition = new Vector3(
                     (float)(random.NextDouble() * 40000 - 20000), // X entre -100 y 100
-                    0f,                                       // Y
+                    200f,                                       // Y
                     (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
-                roca.AgregarRoca(randomPosition);
-                Colliders[i] = roca.RocaBox;
-                Console.WriteLine(roca.RocaBox);
+                roca = new Roca();
+                {
+                    roca.Position = randomPosition;
+                }
+                Rocas.Add(roca);
             }
-        }    
+        }
         private void AgregarArboles(int cantidad)
         {
             Random random = new Random(42); // Aquí 42 es la semilla fija
@@ -336,7 +379,11 @@ namespace ThunderingTanks
                     0f,                                       // Y
                     (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
-                arbol.AgregarArbol(randomPosition);
+                arbol = new Arbol();
+                {
+                    arbol.Position = randomPosition;
+                }
+                Arboles.Add(arbol);
             }
         }
         public void UpdateProjectiles(GameTime gameTime)
@@ -354,39 +401,43 @@ namespace ThunderingTanks
                 projectile.Draw(view, projection);
             }
         }
-        private void CheckCollisions(Vector3 previousPosition)
+        private bool CheckCollisions()
         {
             var tankBox = Panzer.TankBox;
-            var isColliding = false;
 
-            for (int i = 0; i < 40; i++)
+            foreach (var roca in Rocas)
             {
-                Console.WriteLine(tankBox.Intersects(Colliders[i]));
-                //Console.WriteLine(tankBox.Center);
-                if (!tankBox.Intersects(Colliders[i]).Equals(BoxCylinderIntersection.None))
+                if (tankBox.Intersects(roca.RocaBox))
                 {
-                    // Colisión detectada, manejarlo aquí
-                    Console.WriteLine($"Colisión detectada con roca en índice {i}");
-                    //roca.BoundingBoxes.RemoveAt(i);
-                    //roca.RocaWorlds = roca.RocaWorlds.Where((val, idx) => idx != i).ToArray();
-                    //i--;
-                    //Panzer.IsMoving = false;
-                    //isColliding = true;
+                    Console.WriteLine("Colisión detectada con una roca.");
+                    return true;
                 }
             }
 
-            if(!tankBox.Intersects(casa.CasaBox).Equals(BoxCylinderIntersection.None))
+            foreach (var arbol in Arboles)
             {
-                Console.WriteLine($"Colisión detectada con casa");
+                if (tankBox.Intersects(arbol.ArbolBox))
+                {
+                    Console.WriteLine("Colisión detectada con un árbol.");
+                    return true;
+                }
             }
 
-            if (isColliding)
+            if (tankBox.Intersects(casa.CasaBox))
             {
-                Panzer.Position = previousPosition;
-                Panzer.IsMoving = false;
-                Console.WriteLine("Tanque detenido debido a colisión.");
+                Console.WriteLine("Colisión detectada con la casa.");
+                return true;
+            }
+            foreach (var EnemyTank in EnemyTanks)
+            {
+                if (tankBox.Intersects(EnemyTank.TankBox))
+                {
+                    Console.WriteLine("Colisión detectada con un tanque enemigo.");
+                    return true;
+                }
             }
 
+            return false;
         }
     }
 }

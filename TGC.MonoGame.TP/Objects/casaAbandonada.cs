@@ -22,25 +22,25 @@ namespace ThunderingTanks.Objects
         public Matrix[] CasaWorlds { get; set; }
         public Effect Effect { get; set; }
 
-        public BoundingBox CasaBox { get; set;}
+        public BoundingBox CasaBox { get; set; }
 
-        public Matrix CasaWorld {get; set;}
+        public Matrix CasaWorld { get; set; }
 
         public CasaAbandonada()
         {
             CasaWorlds = new Matrix[] { };
-           
+
         }
-/*
-        public void AgregarCasa(Vector3 Position)
-        {
-            Matrix escala = Matrix.CreateScale(500f);
-            var nuevaCasa = new Matrix[]{
-                escala * Matrix.CreateTranslation(Position),
-            };
-            CasaWorlds = CasaWorlds.Concat(nuevaCasa).ToArray();
-        }
-*/
+        /*
+                public void AgregarCasa(Vector3 Position)
+                {
+                    Matrix escala = Matrix.CreateScale(500f);
+                    var nuevaCasa = new Matrix[]{
+                        escala * Matrix.CreateTranslation(Position),
+                    };
+                    CasaWorlds = CasaWorlds.Concat(nuevaCasa).ToArray();
+                }
+        */
         public void LoadContent(ContentManager Content)
         {
             CasaModel = Content.Load<Model>(ContentFolder3D + "casa/house");
@@ -56,7 +56,6 @@ namespace ThunderingTanks.Objects
             }
             CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position);
             CasaBox = BoundingVolumesExtensions.FromMatrix(CasaWorld);
-            Console.WriteLine($"Casa creada: Min={CasaBox.Min}, Max={CasaBox.Max}");
         }
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
@@ -67,12 +66,12 @@ namespace ThunderingTanks.Objects
             foreach (var mesh in CasaModel.Meshes)
             {
 
-                    Matrix _casaWorld = CasaWorld;
-                    Effect.Parameters["ModelTexture"].SetValue(TexturaCasa);
+                Matrix _casaWorld = CasaWorld;
+                Effect.Parameters["ModelTexture"].SetValue(TexturaCasa);
 
-                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _casaWorld);
-                    mesh.Draw();
-                
+                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _casaWorld);
+                mesh.Draw();
+
 
             }
         }
