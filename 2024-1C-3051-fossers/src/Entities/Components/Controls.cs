@@ -17,7 +17,8 @@ public class PlayerControls : IComponent
 
     Transform _tankCannon;
 
-    public PlayerControls(Transform tankCannon){
+    public PlayerControls(Transform tankCannon)
+    {
         _tankCannon = tankCannon;
     }
 
@@ -27,24 +28,26 @@ public class PlayerControls : IComponent
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
             // model is reversed
-            rb.ApplyForce(self.Transform.Backward * 2000);
+            rb.ApplyForce(self.Transform.Backward * 2 * 2000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.S))
         {
-            rb.ApplyForce(self.Transform.Forward * 2000);
+            rb.ApplyForce(self.Transform.Forward * 2 * 2000);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
-            rb.ApplyTorque(self.Transform.Up * 32050f);
+            rb.ApplyTorque(self.Transform.Up * 15 * 32050f);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
-            rb.ApplyTorque(self.Transform.Down * 32050f);
+            rb.ApplyTorque(self.Transform.Down * 15 * 32050f);
         }
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
             Shoot(self, scene);
         }
+
+        rb.ApplyTorque(-rb.AngularVelocity * 100000);
     }
 
     public void Shoot(Entity self, Scene scene)
@@ -55,7 +58,7 @@ public class PlayerControls : IComponent
         {
             // get cannon transform
 
-            Bullet bullet = new("player-bullet", Damage, _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200, -_tankCannon.Forward , BulletForce);
+            Bullet bullet = new("player-bullet", Damage, _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200, -_tankCannon.Forward, BulletForce);
 
             scene.AddEntityDynamically(bullet);
 
@@ -72,7 +75,7 @@ public class PlayerControls : IComponent
 
     public void Destroy(Entity self, Scene scene) { }
 
-     public void LoadContent(Entity self){}
+    public void LoadContent(Entity self) { }
 
-    
+
 }
