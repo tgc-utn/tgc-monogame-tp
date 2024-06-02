@@ -89,12 +89,12 @@ public class BoxShape : ColliderShape
 
     public IShape GetShape()
     {
-        return new Box(_width,_height,_length);
+        return new Box(_width, _height, _length);
     }
 
     public void DrawGizmos(Vector3 position, Gizmos gizmos)
     {
-        gizmos.DrawCube(position, new Vector3(_width,_height,_length));
+        gizmos.DrawCube(position, new Vector3(_width, _height, _length));
     }
 
 
@@ -133,12 +133,12 @@ public class SphereShape : ColliderShape
 public class ConvexShape : ColliderShape
 {
 
-
     private ConvexHull _hull;
     private Vector3 _center;
 
     public ConvexShape(Model model)
     {
+
         List<Vector3> list = new List<Vector3>();
 
         foreach (ModelMesh mesh in model.Meshes)
@@ -198,4 +198,47 @@ public class ConvexShape : ColliderShape
     }
 
 
+}
+
+public class MeshShape : ColliderShape
+{
+
+    private Model _model;
+
+    private Mesh _mesh;
+
+    private Vector3 _center;
+
+    public MeshShape(Model model)
+    {
+        _mesh = new Mesh();
+    }
+
+    public void DrawGizmos(Vector3 position, Gizmos gizmos)
+    {
+        throw new NotImplementedException();
+    }
+
+    public BodyInertia GetInertia(DynamicBody body)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IShape GetShape()
+    {
+        throw new NotImplementedException();
+    }
+
+    private int NextPowerOfTwo(int n)
+    {
+        if (n < 1)
+            return 1;
+        n--;
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        n |= n >> 8;
+        n |= n >> 16;
+        return n + 1;
+    }
 }

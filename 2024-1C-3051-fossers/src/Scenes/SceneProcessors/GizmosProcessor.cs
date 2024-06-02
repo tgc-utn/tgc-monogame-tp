@@ -22,6 +22,7 @@ public class GizmosProcessor : ISceneProcessor
 
         scene.GetEntities().ForEach(e =>
        {
+
            if (e.HasComponent<StaticBody>())
            {
                e.GetComponent<StaticBody>().DrawGizmos(_gizmos);
@@ -29,7 +30,7 @@ public class GizmosProcessor : ISceneProcessor
 
        });
 
-       _gizmos.Draw();
+        _gizmos.Draw();
 
     }
 
@@ -40,7 +41,7 @@ public class GizmosProcessor : ISceneProcessor
 
     public void Update(Scene scene, GameTime gameTime)
     {
-        _gizmos.UpdateViewProjection(scene.GetCamera().View,scene.GetCamera().Projection);
+        _gizmos.UpdateViewProjection(scene.GetCamera().View, scene.GetCamera().Projection);
     }
 
 }

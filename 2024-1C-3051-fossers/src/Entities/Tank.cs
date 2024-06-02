@@ -50,14 +50,14 @@ public class Tank : Entity
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        
+
     }
 
     public override void Initialize(Scene scene)
     {
         _turretTransform = new Transform(Transform, Vector3.Zero);
         _cannonTransform = new Transform(_turretTransform, Vector3.Zero);
-        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), new NoAction()), new Vector3(0,100,0), 200, 0.9f, 2f));
+        AddComponent(new DynamicBody(new Collider(new BoxShape(200, 325, 450), new NoAction()), new Vector3(0, 100, 0), 200, 0.9f, 2f));
         AddComponent(new PlayerControls(_cannonTransform));
         AddComponent(new TurretController(_turretTransform, scene.GetCamera(), 3f));
         AddComponent(new CannonController(_cannonTransform, scene.GetCamera(), 3f));
