@@ -26,7 +26,8 @@ public class MainScene : Scene
         AddSceneProcessor(new GizmosProcessor());
 
         Tank player = new Tank("player");
-        player.Transform.Position += Vector3.Up * 300;
+        player.Transform.Position = new Vector3(0,100,0);
+
         AddEntityBeforeRun(player);
 
         Camera camera = new(new Vector3(0, 800, -500), Graphics.GraphicsDevice.Viewport.AspectRatio,Graphics.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);

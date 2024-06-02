@@ -18,7 +18,7 @@ public class Entity
     public Dictionary<Type, IComponent> Components { get; private set; }
 
     public Transform Transform { get; }
-    protected Renderable _renderable { get; set; }
+    public Renderable Renderable { get; set; }
 
     public Entity(string name, string[] tags, Transform transform, Dictionary<Type, IComponent> Components)
     {
@@ -27,7 +27,7 @@ public class Entity
         Tags = tags;
         Transform = transform;
         this.Components = Components;
-        _renderable = null;
+        Renderable = null;
     }
 
     public Entity(string name, string[] tags, Transform transform, Renderable renderable)
@@ -36,7 +36,7 @@ public class Entity
         Name = name;
         Tags = tags;
         Transform = transform;
-        _renderable = renderable;
+        Renderable = renderable;
     }
 
     public void AddComponent(IComponent c)
@@ -63,11 +63,16 @@ public class Entity
         }
     }
     
-    public virtual void LoadContent() { }
+    public virtual void LoadContent() {
+        foreach (var m in Components.Values)
+        {
+            m.LoadContent(this);
+        }
+    }
     public virtual void Draw(Scene scene)
     {
-        if (_renderable != null)
-            _renderable.Draw(Transform, scene);
+        if (Renderable != null)
+            Renderable.Draw(Transform, scene);
     }
     public virtual void Update(GameTime gameTime, Scene scene)
     {

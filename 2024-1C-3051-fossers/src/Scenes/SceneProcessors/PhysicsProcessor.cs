@@ -25,9 +25,11 @@ public class PhysicsProcessor : ISceneProcessor
     public PhysicsProcessor()
     {
         BufferPool bufferPool = new BufferPool();
-        SolveDescription solveDescription = new SolveDescription(1, 1, 8);
+        SolveDescription solveDescription = new SolveDescription(30, 5);
+
 
         _simulation = Simulation.Create(bufferPool, new NarrowPhaseCallbacks(this), new PoseIntegratorCallbacks(), solveDescription);
+
     }
 
     public void Draw(Scene scene) { }
@@ -71,19 +73,22 @@ public class PhysicsProcessor : ISceneProcessor
 
     public void Update(Scene scene, GameTime gameTime)
     {
-        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds + 0.01f;
+
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        dt = dt == 0 ? 0.0001f : dt;
 
         _simulation.Timestep(dt);
+
 
         foreach (var (r, k) in _dynamicBodies)
         {
             BodyReference body = _simulation.Bodies[k];
             body.Awake = true;
 
-            r.Transform.Position = body.Pose.Position;
+            Microsoft.Xna.Framework.Matrix m = Microsoft.Xna.Framework.Matrix.CreateFromQuaternion(body.Pose.Orientation);
+
+            r.Transform.Position = body.Pose.Position - Microsoft.Xna.Framework.Vector3.Transform(r.Offset,m);
             r.Transform.Orientation = body.Pose.Orientation;
-            r.Velocity = body.Velocity.Linear;
-            r.AngularVelocity = body.Velocity.Angular;
 
             body.ApplyLinearImpulse(new Vector3(r.Force.X, r.Force.Y, r.Force.Z));
             body.ApplyAngularImpulse(new Vector3(r.Torque.X, r.Torque.Y, r.Torque.Z));
@@ -188,7 +193,7 @@ public struct NarrowPhaseCallbacks : INarrowPhaseCallbacks
     public bool ConfigureContactManifold<TManifold>(int workerIndex, CollidablePair pair, ref TManifold manifold, out PairMaterialProperties pairMaterial) where TManifold : unmanaged, IContactManifold<TManifold>
     {
         pairMaterial.FrictionCoefficient = 0.1f;
-        pairMaterial.MaximumRecoveryVelocity = 1f;
+        pairMaterial.MaximumRecoveryVelocity = 100000f;
         pairMaterial.SpringSettings = new SpringSettings(30, 3);
 
         RigidBody A = _processor.GetRigidBodyFromCollision(pair.A);

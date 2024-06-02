@@ -18,7 +18,7 @@ class Bush : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Bush");
-        _renderable = new Renderable(model);
+        Renderable = new Renderable(model);
 
         base.LoadContent();
     }

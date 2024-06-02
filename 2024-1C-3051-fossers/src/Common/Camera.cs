@@ -11,7 +11,6 @@ public class Camera : Entity
 {
     public Matrix Projection { get; private set; }
     public Matrix View { get; private set; }
-    private Entity FollowedEntity;
 
     private GraphicsDevice _device;
 

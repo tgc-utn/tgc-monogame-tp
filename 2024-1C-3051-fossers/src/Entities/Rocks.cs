@@ -28,7 +28,8 @@ public class Rock : Entity
 
     public override void Initialize(Scene scene)
     {
-        AddComponent(new StaticBody(Transform, new Collider(new BoxShape(100,100,100),new NoAction())));
+        Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
+        AddComponent(new StaticBody(new Collider(new ConvexShape(model),new NoAction()),Vector3.Zero));
         base.Initialize(scene);
     }
 
@@ -50,8 +51,8 @@ public class Rock : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
-        _renderable = new Renderable(model);
-        _renderable.AddShader("color", new ColorShader(Color.DarkGray));
+        Renderable = new Renderable(model);
+        Renderable.AddShader("color", new ColorShader(Color.DarkGray));
 
         base.LoadContent();
     }

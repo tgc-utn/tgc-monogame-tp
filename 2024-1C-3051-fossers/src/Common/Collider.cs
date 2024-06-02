@@ -66,7 +66,7 @@ public interface ColliderShape
 
     public abstract BodyInertia GetInertia(DynamicBody body);
 
-    public abstract void DrawGizmos(Transform transform, Gizmos gizmos);
+    public abstract void DrawGizmos(Vector3 position, Gizmos gizmos);
 }
 
 public class BoxShape : ColliderShape
@@ -89,19 +89,22 @@ public class BoxShape : ColliderShape
 
     public IShape GetShape()
     {
-        return new Box(_width, _height, _length);
+        return new Box(_width,_height,_length);
     }
 
-    public void DrawGizmos(Transform transform, Gizmos gizmos)
+    public void DrawGizmos(Vector3 position, Gizmos gizmos)
     {
-        gizmos.DrawCube(transform.Position, new Vector3(_height, _width, _length));
+        gizmos.DrawCube(position, new Vector3(_width,_height,_length));
     }
+
+
 
 }
 
 public class SphereShape : ColliderShape
 {
     private float _radius;
+
 
     public SphereShape(float radius)
     {
@@ -118,10 +121,12 @@ public class SphereShape : ColliderShape
         return new Sphere(_radius);
     }
 
-    public void DrawGizmos(Transform transform, Gizmos gizmos)
+    public void DrawGizmos(Vector3 position, Gizmos gizmos)
     {
-        gizmos.DrawCube(transform.Position, new Vector3(_radius, _radius, _radius));
+        gizmos.DrawSphere(position, new Vector3(_radius, _radius, _radius));
     }
+
+
 
 }
 
@@ -172,13 +177,13 @@ public class ConvexShape : ColliderShape
     }
 
 
-    public void DrawGizmos(Transform transform, Gizmos gizmos)
+    public void DrawGizmos(Vector3 position, Gizmos gizmos)
     {
         for (int i = 0; i < _hull.Points.Length; i++)
         {
             Vector3Wide point = _hull.Points[i];
-            Vector3 position = new Vector3(point.X[0], point.Y[0], point.Z[0]);
-            gizmos.DrawSphere(transform.LocalToWorldPosition(position), new Vector3(10, 10, 10));
+            Vector3 pos = new Vector3(point.X[0], point.Y[0], point.Z[0]);
+            gizmos.DrawSphere(position + pos, new Vector3(10, 10, 10));
         }
     }
 
@@ -191,5 +196,6 @@ public class ConvexShape : ColliderShape
     {
         return _hull;
     }
+
 
 }

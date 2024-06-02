@@ -15,20 +15,19 @@ public class Ground : Entity
 
     public Ground() : base("ground", Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
-        AddComponent(new StaticBody(new Transform(Transform, new Vector3(0, -100, 0)), new Collider(new BoxShape(100, 100000000000, 100000000000), new NoAction())));
+        AddComponent(new StaticBody(new Collider(new BoxShape(100, 100000, 100000), new NoAction()),Vector3.Up * 50));
     }
 
     public override void Initialize(Scene scene)
     {
-        Transform.Position = new Vector3(0, -100f, 0);
         base.Initialize(scene);
     }
 
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        _renderable = new Renderable(model);
-        _renderable.AddShader("color", new PhongShader(0.5f, 0.5f, Color.Gray));
+        Renderable = new Renderable(model);
+        Renderable.AddShader("color", new PhongShader(0.5f, 0.5f, Color.Gray));
         base.LoadContent();
     }
 }

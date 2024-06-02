@@ -11,9 +11,9 @@ public class PlayerControls : IComponent
 {
     DynamicBody rb;
     float Damage = 100;
-    float BulletForce = 36000;
+    float BulletForce = 18000;
     bool IsReloading = false;
-    int ReloadingTimeInMs = 100;
+    int ReloadingTimeInMs = 1000;
 
     Transform _tankCannon;
 
@@ -35,11 +35,11 @@ public class PlayerControls : IComponent
         }
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
-            rb.ApplyTorque(self.Transform.Up * 8050f);
+            rb.ApplyTorque(self.Transform.Up * 32050f);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
-            rb.ApplyTorque(self.Transform.Down * 8050f);
+            rb.ApplyTorque(self.Transform.Down * 32050f);
         }
         if (Mouse.GetState().LeftButton == ButtonState.Pressed)
         {
@@ -71,4 +71,8 @@ public class PlayerControls : IComponent
     }
 
     public void Destroy(Entity self, Scene scene) { }
+
+     public void LoadContent(Entity self){}
+
+    
 }

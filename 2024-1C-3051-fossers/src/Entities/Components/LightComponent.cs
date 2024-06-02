@@ -32,6 +32,8 @@ class LightComponent : IComponent {
     }
 
     public void Destroy(Entity self, Scene scene){}
+
+     public void LoadContent(Entity self){}
 }
 
 public struct LightSource {
