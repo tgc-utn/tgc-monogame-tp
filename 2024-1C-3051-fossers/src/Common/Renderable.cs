@@ -28,27 +28,35 @@ public class Renderable
 
     public virtual void Draw(Transform transform, Scene scene)
     {
-        foreach (var mesh in _model.Meshes)
+
+        foreach (var shader in _shaders)
         {
-            foreach (var shader in _shaders)
+            foreach (var pass in shader.Value.Effect.CurrentTechnique.Passes)
             {
-                shader.Value.UseCamera(scene.GetCamera());
-                shader.Value.ApplyEffects(transform,scene);
+                pass.Apply();
 
-                Matrix modelWorld = GetMatrix(mesh, transform);
-                shader.Value.UseWorld(modelWorld);
-
-                foreach (var part in mesh.MeshParts)
+                foreach (var mesh in _model.Meshes)
                 {
-                    part.Effect = shader.Value.Effect;
-                }
 
-                mesh.Draw();
+                    shader.Value.UseCamera(scene.GetCamera());
+                    shader.Value.ApplyEffects(transform, scene);
+
+                    Matrix modelWorld = GetMatrix(mesh, transform);
+                    shader.Value.UseWorld(modelWorld);
+
+                    foreach (var part in mesh.MeshParts)
+                    {
+                        part.Effect = shader.Value.Effect;
+                    }
+
+                    mesh.Draw();
+                }
             }
         };
     }
 
-    public  Vector3 GetModelCenter(){
+    public Vector3 GetModelCenter()
+    {
         int count = 0;
         Vector3 center = Vector3.Zero;
         foreach (ModelMesh mesh in _model.Meshes)
@@ -69,9 +77,10 @@ public class Renderable
         return center / count;
     }
 
-    
 
-    public virtual Matrix GetMatrix(ModelMesh mesh, Transform transform){
+
+    public virtual Matrix GetMatrix(ModelMesh mesh, Transform transform)
+    {
         return transform.LocalToWorldMatrix(mesh.ParentBone.Transform);
     }
 

@@ -96,11 +96,6 @@ public class Transform
         Matrix rotationMatrix = Matrix.CreateLookAt(Position, point, Vector3.Up);
         Orientation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(rotationMatrix));
     }
-
-
-
-
-
 }
 
 

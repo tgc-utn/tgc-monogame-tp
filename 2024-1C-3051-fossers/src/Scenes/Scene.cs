@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using WarSteel.Common;
 using WarSteel.Entities;
-using WarSteel.Managers;
-using WarSteel.Managers.Gizmos;
 
 namespace WarSteel.Scenes;
 
@@ -48,10 +45,11 @@ public class Scene
         entities.Add(entity.Id, entity);
     }
 
-    public void AddEntityDynamically(Entity entity){
+    public void AddEntityDynamically(Entity entity)
+    {
         entity.Initialize(this);
         entity.LoadContent();
-        entities.Add(entity.Id,entity);
+        entities.Add(entity.Id, entity);
     }
 
 
@@ -129,12 +127,13 @@ public class Scene
 
         foreach (var entity in entities.Values)
         {
-            if (entity.ToDestroy){
+            if (entity.ToDestroy)
+            {
                 DeleteEntity(entity);
             }
         }
 
-         var copyEntities = new Dictionary<string, Entity>(entities);
+        var copyEntities = new Dictionary<string, Entity>(entities);
         foreach (var entity in copyEntities.Values)
         {
             entity.Update(gameTime, this);
@@ -144,12 +143,11 @@ public class Scene
         {
             processor.Update(this, gameTime);
         }
-
-
     }
 
     public virtual void Unload()
     {
+
     }
 
 }

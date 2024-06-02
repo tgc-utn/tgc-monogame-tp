@@ -16,7 +16,8 @@ public class ContentRepoManager
 
     private static ContentRepoManager _INSTANCE = null;
 
-    public ContentManager Manager{
+    public ContentManager Manager
+    {
         get => _manager;
     }
 
@@ -42,6 +43,11 @@ public class ContentRepoManager
 
     public Texture2D GetTexture(string texture)
     {
-        return _manager.Load<Texture2D>(ContentFolder3D + texture);
+        return _manager.Load<Texture2D>(ContentFolderTextures + texture);
+    }
+
+    public TextureCube GetTextureCube(string texture)
+    {
+        return _manager.Load<TextureCube>(ContentFolderTextures + texture);
     }
 }

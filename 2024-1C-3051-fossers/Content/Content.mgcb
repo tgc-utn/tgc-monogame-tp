@@ -75,6 +75,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/PhongShader.fx
 
+#begin Effects/SkyBox.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/SkyBox.fx
+
 #begin Models/Map/Bush.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -207,6 +213,25 @@
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=NoChange
 /build:Models/Map/SmallStone.fbx
+
+#begin Models/SkyBox/cube.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=False
+/processorParam:TextureFormat=Compressed
+/build:Models/SkyBox/cube.fbx
 
 #begin Models/Tanks/Bullet.fbx
 /importer:FbxImporter
@@ -432,4 +457,40 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Models/Tanks/T90/textures_mod/treadmills.png
+
+#begin Textures/skybox.dds
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/skybox.dds
+
+#begin Textures/SkyBox.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/SkyBox.jpg
+
+#begin Textures/sunset.dds
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/sunset.dds
 
