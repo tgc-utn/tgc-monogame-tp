@@ -1522,6 +1522,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/weapons/Weapons.fbx
 
+#begin SpriteFonts/CascadiaCodePL.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/CascadiaCodePL.spritefont
+
 #begin Textures/FloorTexture.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

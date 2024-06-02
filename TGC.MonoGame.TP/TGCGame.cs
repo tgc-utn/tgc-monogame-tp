@@ -18,6 +18,7 @@ using TGC.MonoGame.Samples.Geometries.Textures;
 using TGC.MonoGame.TP.Physics;
 using TGC.MonoGame.TP.PowerUps;
 using System.Linq;
+using System.Collections;
 
 namespace TGC.MonoGame.TP
 {
@@ -34,12 +35,18 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+
         public const float ViewDistance = 20f;
         public const float Offset = 10f;
         private const int SEED = 0;
         public const float CameraSpeed = 50f;
         private const float Gravity = 10f;
         public Vector3 LookAtVector = new Vector3(0, 0, Offset);
+        public const int ST_STAGE_1 = 1;
+        public const int ST_STAGE_2 = 2;
+        public const int ST_GAME_OVER = 99;
+
+        private int gameState = ST_STAGE_1;
 
         /// <summary>
         ///     Constructor del juego.
@@ -62,6 +69,7 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; set; }
         private Random _random;
+        public SpriteFont SpriteFont;
 
         private FollowCamera FollowCamera { get; set; }
         private SpriteBatch SpriteBatch { get; set; }
@@ -128,9 +136,9 @@ namespace TGC.MonoGame.TP
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
+            // var rasterizerState = new RasterizerState();
+            // rasterizerState.CullMode = CullMode.None;
+            // GraphicsDevice.RasterizerState = rasterizerState;
 
             // Creo una camara para seguir a nuestro auto.
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
@@ -168,6 +176,7 @@ namespace TGC.MonoGame.TP
         {
 
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
+            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCodePL");
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             Gizmos.LoadContent(GraphicsDevice, Content);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -269,6 +278,29 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            switch (gameState)
+            {
+                case ST_STAGE_1:
+                    if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+                        gameState = ST_STAGE_2;
+                    }    
+                    break;
+                case ST_STAGE_2:
+                    mainGameUpdate(gameTime);
+                    break;
+            }
+
+            // Capturar Input teclado
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
+                //Salgo del juego.
+                Exit();
+            }
+
+            base.Update(gameTime);
+        }
+
+        public void mainGameUpdate(GameTime gameTime) {
             Vector3 forwardLocal = new Vector3(0, 0, -1);
 
             var keyboardState = Keyboard.GetState();
@@ -300,19 +332,6 @@ namespace TGC.MonoGame.TP
 
             Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
 
-            // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                //Salgo del juego.
-                Exit();
-            }
-
-            // Capto el estado del teclado.
-            if (keyboardState.IsKeyDown(Keys.Escape))
-            {
-                // Salgo del juego.
-                Exit();
-            }
 
             // Actualizar estado del auto
             MainCar.Update(Keyboard.GetState(), gameTime, Simulation);
@@ -337,11 +356,7 @@ namespace TGC.MonoGame.TP
                 SpheresWorld.Add(world);
             }
 
-
-
             Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);
-
-            base.Update(gameTime);
         }
 
 
@@ -351,36 +366,52 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-            // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Beige);
 
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            Effect.Parameters["View"].SetValue(FollowCamera.View);
-            Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            switch (gameState)
+            {
+                case ST_STAGE_1: 
+                    GraphicsDevice.Clear(Color.Black);
+                    DrawCenterTextY("Crash Of Cars", 100, 5);
+                    DrawCenterTextY("Girar con A y D", 300, 1);
+                    DrawCenterTextY("Avanzar y retroceder con W y S", 400, 1);
+                    DrawCenterTextY("Saltar con Espacio", 500, 1);
+                    DrawCenterTextY("God Mode con G", 600, 1);
+                    DrawCenterTextY("Presione SPACE para comenzar", 700, 1);
+                    break;
 
-            EffectNoTextures.Parameters["View"].SetValue(FollowCamera.View);
-            EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
+                case ST_STAGE_2:
+                    GraphicsDevice.Clear(Color.Beige);
+                    // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+                    Effect.Parameters["View"].SetValue(FollowCamera.View);
+                    Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
-            SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
+                    EffectNoTextures.Parameters["View"].SetValue(FollowCamera.View);
+                    EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
-            Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
+                    SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
 
-            Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.World));
+                    Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.World));
 
-            foreach (GameModel model in GameModels)
-                foreach (Matrix world in model.World)
-                    Gizmos.DrawCube(world/* * Matrix.CreateScale(model.Scale)*/, Color.Red);
+                    Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
 
 
-            DrawFloor(FloorQuad);
+                    foreach (GameModel model in GameModels)
+                        foreach (Matrix world in model.World)
+                            Gizmos.DrawCube(world/* * Matrix.CreateScale(model.Scale)*/, Color.Red);
 
-            DrawWalls();
+                    DrawFloor(FloorQuad);
+                    DrawWalls();
+                    MainCar.Draw();
+                    Gizmos.Draw();
+                    break;
 
-            MainCar.Draw();
+                case ST_GAME_OVER:
+                    DrawCenterText("GAME OVER", 5);
+                    break;
+            }
 
-            Gizmos.Draw();
+            base.Draw(gameTime);
 
         }
 
@@ -405,6 +436,40 @@ namespace TGC.MonoGame.TP
                 prim.Draw(EffectNoTextures);
             }
         }
+
+        public void DrawCenterText(string msg, float escala)
+        {
+            var W = GraphicsDevice.Viewport.Width;
+            var H = GraphicsDevice.Viewport.Height;
+            var size = SpriteFont.MeasureString(msg) * escala;
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
+                Matrix.CreateScale(escala) * Matrix.CreateTranslation((W - size.X) / 2, (H - size.Y) / 2, 0));
+            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
+            SpriteBatch.End();
+        }
+
+        public void DrawCenterTextY(string msg, float Y, float escala)
+        {
+            var W = GraphicsDevice.Viewport.Width;
+            var H = GraphicsDevice.Viewport.Height;
+            var size = SpriteFont.MeasureString(msg) * escala;
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
+                Matrix.CreateScale(escala) * Matrix.CreateTranslation((W - size.X) / 2, Y, 0));
+            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
+            SpriteBatch.End();
+        }
+
+        public void DrawRightText(string msg, float Y, float escala)
+        {
+            var W = GraphicsDevice.Viewport.Width;
+            var H = GraphicsDevice.Viewport.Height;
+            var size = SpriteFont.MeasureString(msg) * escala;
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
+                Matrix.CreateScale(escala) * Matrix.CreateTranslation(W - size.X - 20, Y, 0));
+            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
+            SpriteBatch.End();
+        }
+
 
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
