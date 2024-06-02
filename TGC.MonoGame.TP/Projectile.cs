@@ -20,20 +20,23 @@ namespace ThunderingTanks
         public Vector3 PositionVector = new(0, 0, 0);
         public Vector3 Direction { get; set; }
         public float Speed { get; set; }
-        public new Matrix Position { get; set; }
+        public float GunRotation { get; set; }
+        public Matrix PositionMatrix { get; set; }
         public Effect Effect { get; set; }
         private Model projectile { get; set; }
         private Texture2D TexturaProjectile { get; set; }
         public float Scale { get; set; } // Nueva propiedad
 
 
-        public Projectile(Matrix matrix, float speed, float scale)
+        public Projectile(Matrix matrix, float rotation, float speed, float scale)
         {
-            this.Position = matrix;
-            PositionVector = Position.Translation;
+            this.PositionMatrix = matrix;
+            this.PositionVector = PositionMatrix.Translation;
 
             this.Direction = matrix.Backward;
             this.Speed = speed;
+
+            this.GunRotation = rotation;
 
             Scale = scale;
 
@@ -57,7 +60,7 @@ namespace ThunderingTanks
 
         public void Draw(Matrix view, Matrix projection)
         {
-            Matrix worldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationX(MathHelper.ToRadians(180)) * Position;
+            Matrix worldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationX(MathHelper.ToRadians(180)) * PositionMatrix;
 
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
@@ -76,7 +79,7 @@ namespace ThunderingTanks
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             PositionVector += Direction * Speed * time;
-            this.Position = Matrix.CreateTranslation(PositionVector);
+            this.PositionMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateTranslation(PositionVector);
         }
 
         private BoundingBox CalculateBoundingBox()

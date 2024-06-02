@@ -28,11 +28,13 @@ namespace ThunderingTanks.Objects
         public BoundingBox TankBox { get; set; }
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
+        public float FireRate { get; set; }
+
         private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
 
-        private float fireRate = 0.5f; // Tiempo mínimo entre disparos en segundos
+        
         private float fireRateEnemy = 5f; // Tiempo mínimo entre disparos en segundos
 
         private float timeSinceLastShot = 0f;
@@ -135,7 +137,7 @@ namespace ThunderingTanks.Objects
 
         public Projectile Shoot(Vector3 playerPosition)
         {
-            if (timeSinceLastShot >= fireRate)
+            if (timeSinceLastShot >= FireRate)
             {
                 // Calcular la dirección hacia el jugador
                 Vector3 direction = playerPosition - Position;
@@ -147,7 +149,7 @@ namespace ThunderingTanks.Objects
                 float projectileScale = 0.3f; // Ajusta esta escala según tus necesidades
 
                 // Crear el proyectil con la posición y dirección correcta
-                Projectile projectile = new Projectile(projectileMatrix, 50000f, projectileScale);
+                Projectile projectile = new Projectile(projectileMatrix, GunRotationFinal, 50000f, projectileScale);
                 timeSinceLastShot = 0f;
                 return projectile;
             }

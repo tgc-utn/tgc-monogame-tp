@@ -1,18 +1,10 @@
-﻿using BepuPhysics.Collidables;
-using BepuPhysics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BepuPhysics.Constraints;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
-using Microsoft.VisualBasic.FileIO;
 using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects
@@ -40,6 +32,8 @@ namespace ThunderingTanks.Objects
 
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
+        public float FireRate { get; set; }
+
 
         public Vector3 Direction = new(0, 0, 0);
 
@@ -47,12 +41,8 @@ namespace ThunderingTanks.Objects
 
         public BoundingCylinder TankBox { get; set; }
 
-        public float GunRotation { get; set; }
         public float GunElevation { get; set; }
         public float GunRotationFinal { get; set; }
-
-
-        private readonly float FireRate = 0.5f;// Tiempo mínimo entre disparos en segundos
 
         private float TimeSinceLastShot = 0f;
 
@@ -114,12 +104,10 @@ namespace ThunderingTanks.Objects
             GunRotationFinal -= GetRotationFromCursorX();
             GunElevation += GetElevationFromCursorY();
 
-            Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
-
             Position = Direction + new Vector3(0, 400f, 0f);
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal)               * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateScale(100f)                               * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateScale(100f) * Matrix.CreateTranslation(new Vector3(-10f, 5f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
             // Mover bounding box en base a los movimientos del tanque
             TankBox = new BoundingCylinder(Position, 10f, 20f);
@@ -145,16 +133,16 @@ namespace ThunderingTanks.Objects
             Effect.Parameters["Projection"].SetValue(projection);
             //Effect.Parameters["DiffuseColor"].SetValue(Color.Blue.ToVector3());
 
+
+
             foreach (var mesh in Tanque.Meshes)
             {
                 if (mesh.Name.Equals("Turret"))
                 {
-                    //Effect.Parameters["DiffuseColor"]?.SetValue(Color.Aquamarine.ToVector3());
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
                 }
                 else if (mesh.Name.Equals("Cannon"))
                 {
-                    //Effect.Parameters["DiffuseColor"].SetValue(Color.Coral.ToVector3());
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
                 }
                 else
@@ -173,11 +161,11 @@ namespace ThunderingTanks.Objects
         {
             if (TimeSinceLastShot >= FireRate)
             {
-                Matrix projectileMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+                Matrix projectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 20f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
-                float projectileScale = 100f;
+                float projectileScale = 50f;
 
-                Projectile projectile = new(projectileMatrix, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta
+                Projectile projectile = new(projectileMatrix, GunRotationFinal, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
                 TimeSinceLastShot = 0f;
 

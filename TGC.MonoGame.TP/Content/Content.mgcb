@@ -923,6 +923,18 @@
 /processorParam:TextureFormat=Color
 /build:Textures/casaAbandonada/WoodPlanksBare0051_3_M.jpg
 
+#begin Textures/punto-de-mira.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/punto-de-mira.png
+
 #begin Textures/skyboxes/empty-space/empty-space.dds
 /importer:TextureImporter
 /processor:TextureProcessor
