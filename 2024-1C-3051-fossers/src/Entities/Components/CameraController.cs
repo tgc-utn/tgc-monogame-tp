@@ -7,7 +7,6 @@ using WarSteel.Scenes;
 
 public class CameraController : IComponent
 {
-
     public Transform _transform;
     public Vector3 _offset = new Vector3(0, 600, -800);
     public float _smoothSpeed = 0.125f;
@@ -39,7 +38,7 @@ public class CameraController : IComponent
 
         MouseState state = Mouse.GetState();
 
-        float deltaX = state.X - _previousMouseState.X; 
+        float deltaX = state.X - _previousMouseState.X;
         float deltaY = state.Y - _previousMouseState.Y;
 
         _currentYaw -= deltaX * _rotationSpeed * dt;
@@ -47,7 +46,7 @@ public class CameraController : IComponent
 
         _currentPitch = Math.Clamp(_currentPitch, -40, 80);
 
-        Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_currentYaw,_currentPitch, 0);
+        Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_currentYaw, _currentPitch, 0);
         Vector3 desiredPosition = _transform.AbsolutePosition + Vector3.Transform(_offset, Matrix.CreateFromQuaternion(rotation));
 
 
@@ -61,7 +60,7 @@ public class CameraController : IComponent
 
     public void Destroy(Entity self, Scene scene) { }
 
-    public void LoadContent(Entity self){}
+    public void LoadContent(Entity self) { }
 
 
 }

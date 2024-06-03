@@ -1,8 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Common.Shaders;
@@ -37,12 +33,10 @@ public class Renderable
 
                 foreach (var mesh in _model.Meshes)
                 {
-
-                    shader.Value.UseCamera(scene.GetCamera());
-                    shader.Value.ApplyEffects(transform, scene);
-
                     Matrix modelWorld = GetMatrix(mesh, transform);
+                    shader.Value.UseCamera(scene.GetCamera());
                     shader.Value.UseWorld(modelWorld);
+                    shader.Value.ApplyEffects(transform, scene);
 
                     foreach (var part in mesh.MeshParts)
                     {
@@ -77,12 +71,8 @@ public class Renderable
         return center / count;
     }
 
-
-
     public virtual Matrix GetMatrix(ModelMesh mesh, Transform transform)
     {
         return transform.LocalToWorldMatrix(mesh.ParentBone.Transform);
     }
-
-
 }
