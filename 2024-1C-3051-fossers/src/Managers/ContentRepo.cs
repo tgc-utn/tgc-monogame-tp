@@ -50,4 +50,9 @@ public class ContentRepoManager
     {
         return _manager.Load<TextureCube>(ContentFolderTextures + texture);
     }
+
+    public SpriteFont GetSpriteFont(string font)
+    {
+        return _manager.Load<SpriteFont>(ContentFolderSpriteFonts + font);
+    }
 }

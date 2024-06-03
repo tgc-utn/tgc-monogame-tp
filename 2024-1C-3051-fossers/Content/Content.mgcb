@@ -458,6 +458,13 @@
 /processorParam:TextureFormat=Color
 /build:Models/Tanks/T90/textures_mod/treadmills.png
 
+#begin SpriteFonts/tenada/Tenada.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/tenada/Tenada.spritefont
+
 #begin Textures/skybox.dds
 /importer:TextureImporter
 /processor:TextureProcessor
