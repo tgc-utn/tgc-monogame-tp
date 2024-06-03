@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Content;
+
 
 
 namespace ThunderingTanks.Objects
@@ -17,10 +20,17 @@ namespace ThunderingTanks.Objects
         private Rectangle _playButton;
         private Rectangle _exitButton;
         private Texture2D _cursorTexture;
+        private Song backgroundSound { get; set; }
+
+        private bool _playing = true;
+
+        public const string ContentFolderMusic = "Music/";
 
 
-        public Menu(SpriteFont font, Texture2D cursorTexture)
+
+        public Menu(SpriteFont font, Texture2D cursorTexture, Song background)
         {
+            backgroundSound = background;
             _font = font;
             _cursorTexture = cursorTexture;
 
@@ -36,6 +46,9 @@ namespace ThunderingTanks.Objects
             _exitButton = new Rectangle(buttonX, buttonY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight);
         }
 
+
+
+
         public void Update(ref bool juegoIniciado)
         {
             // Verifica si se hace clic en los botones
@@ -47,12 +60,23 @@ namespace ThunderingTanks.Objects
                 {
                     // Lógica para iniciar el juego
                     juegoIniciado = true;
+                    MediaPlayer.Stop();
                 }
                 else if (_exitButton.Contains(mousePosition))
                 {
+
                     // Lógica para salir del juego
+                    Environment.Exit(0); // Cierra la aplicación
+
                 }
             }
+            if (_playing)
+            {
+                //Parar y reproducir MP3
+                MediaPlayer.Play(backgroundSound);
+                _playing = false;
+            }
+       
         }
 
         public void Draw(SpriteBatch spriteBatch)

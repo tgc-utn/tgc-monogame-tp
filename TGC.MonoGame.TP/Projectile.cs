@@ -9,6 +9,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ThunderingTanks.Objects;
 using static System.Formats.Asn1.AsnWriter;
+using ThunderingTanks.Collisions;
+//using BepuUtilities;
+
 namespace ThunderingTanks
 {
     public class Projectile : GameObject
@@ -26,6 +29,12 @@ namespace ThunderingTanks
         private Model projectile { get; set; }
         private Texture2D TexturaProjectile { get; set; }
         public float Scale { get; set; } // Nueva propiedad
+
+        public BoundingBox ProjectileBox { get; set; }
+
+        public bool WasShot { get; private set; }
+
+
 
 
         public Projectile(Matrix matrix, float rotation, float speed, float scale)
@@ -56,6 +65,9 @@ namespace ThunderingTanks
                 }
             }
 
+            ProjectileBox = CreateBoundingBox(projectile, Matrix.CreateScale(0.5f), PositionVector);
+
+
         }
 
         public void Draw(Matrix view, Matrix projection)
@@ -68,7 +80,7 @@ namespace ThunderingTanks
             //Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
 
             //Effect.Parameters["ModelTexture"].SetValue(false);
-
+           
             foreach (var mesh in projectile.Meshes)
             {
 
@@ -76,6 +88,7 @@ namespace ThunderingTanks
                 mesh.Draw();
 
             }
+            
         }
 
         public void Update(GameTime gameTime)
@@ -84,6 +97,15 @@ namespace ThunderingTanks
             PositionVector += Direction * Speed * time;
             this.PositionMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateTranslation(PositionVector);
         }
+        public void Disparado()
+        {
+            /*WasShot = true;
+            projectile = null;
+            TexturaProjectile = null;
+            Effect = null;*/
+            ProjectileBox = new BoundingBox();
+    
+        }
 
         private BoundingBox CalculateBoundingBox()
         {
@@ -91,8 +113,45 @@ namespace ThunderingTanks
             // Por simplicidad, asumimos un tama�o peque�o centrado en (0,0,0)
             return new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f));
         }
+ 
 
+        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
+        {
+            var minPoint = Vector3.One * float.MaxValue;
+            var maxPoint = Vector3.One * float.MinValue;
+
+            var transforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(transforms);
+
+            foreach (var mesh in model.Meshes)
+            {
+                var meshParts = mesh.MeshParts;
+                foreach (var meshPart in meshParts)
+                {
+                    var vertexBuffer = meshPart.VertexBuffer;
+                    var declaration = vertexBuffer.VertexDeclaration;
+                    var vertexSize = declaration.VertexStride / sizeof(float);
+
+                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
+                    vertexBuffer.GetData(rawVertexBuffer);
+
+                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
+                    {
+                        var transform = transforms[mesh.ParentBone.Index] * escala;
+                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
+                        vertex = Vector3.Transform(vertex, transform);
+                        minPoint = Vector3.Min(minPoint, vertex);
+                        maxPoint = Vector3.Max(maxPoint, vertex);
+                    }
+                }
+            }
+
+            return new BoundingBox(minPoint + position, maxPoint + position);
+        }
     }
 
-
 }
+
+
+
+

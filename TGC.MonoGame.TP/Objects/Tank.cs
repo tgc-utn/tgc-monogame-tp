@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
@@ -15,6 +16,8 @@ namespace ThunderingTanks.Objects
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderTextures = "Textures/";
+        public const string ContentFolderMusic = "Music/";
+
 
         private Effect Effect { get; set; }
 
@@ -56,8 +59,13 @@ namespace ThunderingTanks.Objects
         public Matrix CannonMatrix { get; set; }
         public Matrix ProjectileMatrix { get; private set; }
 
-        public Tank(GraphicsDevice graphicsDevice)
+        private Song movingTankSound { get; set; }
+
+        private bool _isPlaying = true;
+
+        public Tank(GraphicsDevice graphicsDevice, Song movingSound)
         {
+            movingTankSound = movingSound;
             this.graphicsDevice = graphicsDevice;
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
@@ -86,26 +94,58 @@ namespace ThunderingTanks.Objects
 
             TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
             Console.WriteLine($"Colisión detectada con roca en índice {TankBox}");
+
+
+
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
-
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             TimeSinceLastShot += time;
 
+            bool isMoving = false; // Variable para controlar si el tanque se está moviendo
 
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
+            {
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
+                isMoving = true; // El tanque se está moviendo hacia adelante
+            }
 
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
+            {
                 Direction += PanzerMatrix.Forward * TankVelocity * time;
+                isMoving = true; // El tanque se está moviendo hacia atrás
+            }
 
             if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
+            {
                 Rotation -= TankRotation * time;
+                isMoving = true; // El tanque está girando a la derecha
+            }
 
             if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
+            {
                 Rotation += TankRotation * time;
+                isMoving = true; // El tanque está girando a la izquierda
+            }
+
+            if (isMoving)
+            {
+                if (!_isPlaying)
+                {
+                    MediaPlayer.Play(movingTankSound); // Reproducir el sonido solo si el tanque se está moviendo
+                    _isPlaying = true;
+                }
+            }
+            else
+            {
+                if (_isPlaying)
+                {
+                    MediaPlayer.Stop(); // Detener el sonido si el tanque no se está moviendo
+                    _isPlaying = false;
+                }
+            }
 
             GunRotationFinal -= GetRotationFromCursorX();
             GunElevation += GetElevationFromCursorY();

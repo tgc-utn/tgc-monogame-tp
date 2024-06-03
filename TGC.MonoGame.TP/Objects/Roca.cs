@@ -24,6 +24,9 @@ namespace ThunderingTanks.Objects
 
         public List<BoundingBox> BoundingBoxes { get; private set; }
 
+        public bool IsDestroyed { get; private set; } // Indica si la roca ha sido destruida
+
+
         public Roca()
         {
             RocaWorld = Matrix.Identity;
@@ -45,18 +48,52 @@ namespace ThunderingTanks.Objects
             RocaBox = CreateBoundingBox(RocaModel, Matrix.CreateScale(2.5f), Position);
         }
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
-        {
-            Effect.Parameters["View"]?.SetValue(view);
-            Effect.Parameters["Projection"]?.SetValue(projection);
 
-            foreach (var mesh in RocaModel.Meshes)
+        {
+            if (!IsDestroyed)
             {
-                Matrix _cartelWorld = RocaWorld;
-                Effect.Parameters["ModelTexture"]?.SetValue(TexturaRoca);
-                Effect.Parameters["World"]?.SetValue(mesh.ParentBone.Transform * _cartelWorld);
-                mesh.Draw();
+            Effect.Parameters["Projection"]?.SetValue(projection);
+            Effect.Parameters["View"]?.SetValue(view);
+
+                foreach (var mesh in RocaModel.Meshes)
+                {
+                    Matrix _cartelWorld = RocaWorld;
+                    Effect.Parameters["ModelTexture"]?.SetValue(TexturaRoca);
+                    Effect.Parameters["World"]?.SetValue(mesh.ParentBone.Transform * _cartelWorld);
+                    mesh.Draw();
+                }
+            }
+
+        }
+
+        public void Destroy()
+        {
+            IsDestroyed = true;
+            DestruirRecursos();
+            DestruirBoundingBox();
+        }
+
+        public void DestruirRecursos()
+        {
+            //RocaModel?.Dispose();
+            //TexturaRoca?.Dispose();
+            //Effect?.Dispose();
+
+            RocaModel = null;
+            TexturaRoca = null;
+            Effect = null;
+            RocaBox = new BoundingBox();
+            //BoundingBoxes = null;
+        }
+
+        private void DestruirBoundingBox()
+        {
+            if (BoundingBoxes != null)
+            {
+                BoundingBoxes.Remove(RocaBox);
             }
         }
+
 
         private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
         {

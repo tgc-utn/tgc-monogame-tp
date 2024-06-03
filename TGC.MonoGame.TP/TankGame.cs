@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
@@ -17,6 +19,8 @@ namespace ThunderingTanks
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderTextures = "Textures/";
         public const string ContentFolderFonts = "Fonts/";
+        public const string ContentFolderMusic = "Music/";
+
 
 
         public float screenHeight;
@@ -65,6 +69,13 @@ namespace ThunderingTanks
         private SpriteFont _systemFont;
         private Texture2D _tankMouseTexture;
 
+        //Sonidos
+        private Song Song { get; set; }
+
+        private Song movingTankSound { get; set; }
+
+        private Song _shootSound { get; set; }
+
 
         public TankGame()
         {
@@ -97,8 +108,8 @@ namespace ThunderingTanks
             IsMouseVisible = false;
 
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition); //creo que no se está usando
-
-            Panzer = new Tank(GraphicsDevice)
+            movingTankSound = Content.Load<Song>(ContentFolderMusic + "movingTank");
+            Panzer = new Tank(GraphicsDevice, movingTankSound)
             {
                 TankVelocity = 3000f,
                 TankRotation = 20f,
@@ -135,6 +146,12 @@ namespace ThunderingTanks
             screenWidth = GraphicsDevice.Viewport.Width;
 
 
+            Song = Content.Load<Song>(ContentFolderMusic + "TankGameBackgroundSound");
+
+            _shootSound = Content.Load<Song>(ContentFolderMusic + "shootSound");
+
+
+
             base.Initialize();
         }
 
@@ -152,6 +169,7 @@ namespace ThunderingTanks
                 //Colliders[i] = roca.RocaBox;
                 Console.WriteLine($"Roca {i} creada: Min={roca.RocaBox.Min}, Max={roca.RocaBox.Max}");
             }
+            roca.LoadContent(Content);
             antitanque.LoadContent(Content);
 
             AgregarAntitanques();
@@ -182,7 +200,7 @@ namespace ThunderingTanks
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _systemFont = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
-            _menu = new Menu(_systemFont, _tankMouseTexture);
+            _menu = new Menu(_systemFont, _tankMouseTexture, Song);
 
 
 
@@ -193,6 +211,9 @@ namespace ThunderingTanks
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
 
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "content"));
+
+            //MediaPlayer.IsRepeating = true;
+
 
             base.LoadContent();
         }
@@ -216,14 +237,20 @@ namespace ThunderingTanks
             var turretPosition = Panzer.TurretMatrix;
             var cannonPosition = Panzer.CannonMatrix;
             var direction = Panzer.Direction;
+             
+                if (keyboardState.IsKeyDown(Keys.Space))
+                {
+                    Projectile projectile = Panzer.Shoot();
 
-            if (keyboardState.IsKeyDown(Keys.Space))
-            {
-                Projectile projectile = Panzer.Shoot();
+                    if (projectile != null)
+                    {
+                        Projectiles.Add(projectile);
+                    }
 
-                if (projectile != null)
-                    Projectiles.Add(projectile);
-            }
+                    MediaPlayer.Play(_shootSound);
+                
+                
+                }
 
             Panzer.Update(gameTime, keyboardState);
 
@@ -260,6 +287,7 @@ namespace ThunderingTanks
                 enemyTank.Update(gameTime, Panzer.Direction);
             }
 
+
             UpdateProjectiles(gameTime);
 
             _freeCamera.Update(gameTime);
@@ -267,6 +295,8 @@ namespace ThunderingTanks
 
             Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
             }
+
+    
 
             base.Update(gameTime);
         }
@@ -418,6 +448,22 @@ namespace ThunderingTanks
         {
             foreach (Projectile projectile in Projectiles)
             {
+                foreach (var roca in Rocas)
+                {
+                    if (projectile.ProjectileBox.Intersects(roca.RocaBox))
+                    {
+                        Console.WriteLine("Colisión detectada de proyectil con una roca.");
+                        roca.Destroy();
+                        //projectile.Disparado();
+                    }
+                }
+
+
+
+
+
+
+
                 projectile.Update(gameTime);
             }
         }
@@ -426,7 +472,9 @@ namespace ThunderingTanks
             foreach (Projectile projectile in Projectiles)
             {
                 projectile.LoadContent(Content);
-                projectile.Draw(view, projection);
+               
+                    projectile.Draw(view, projection);
+                
             }
         }
         private bool CheckCollisions()
