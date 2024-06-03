@@ -54,6 +54,7 @@ namespace ThunderingTanks.Objects
 
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
+        public Matrix ProjectileMatrix { get; private set; }
 
         public Tank(GraphicsDevice graphicsDevice)
         {
@@ -93,8 +94,6 @@ namespace ThunderingTanks.Objects
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             TimeSinceLastShot += time;
 
-            //if(isColliding)
-            //TankVelocity = TankVelocity * 0.01f;
 
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
@@ -117,7 +116,7 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+            CannonMatrix = Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
             // Mover bounding box en base a los movimientos del tanque
             var BoundingBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
@@ -174,11 +173,12 @@ namespace ThunderingTanks.Objects
         {
             if (TimeSinceLastShot >= FireRate)
             {
-                Matrix projectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 20f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+                ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
-                float projectileScale = 50f;
+                float projectileScale = 0f;
+                float projectileSpeed = 1000f;
 
-                Projectile projectile = new(projectileMatrix, GunRotationFinal, 50000f, projectileScale); // Crear el proyectil con la posición y dirección correcta
+                Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
                 TimeSinceLastShot = 0f;
 

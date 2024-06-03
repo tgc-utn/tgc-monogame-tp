@@ -77,6 +77,9 @@ namespace ThunderingTanks
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.GraphicsProfile = GraphicsProfile.Reach;
+
+            Graphics.IsFullScreen = true;
+
             Graphics.ApplyChanges();
 
             viewport = GraphicsDevice.Viewport;
@@ -142,15 +145,8 @@ namespace ThunderingTanks
                 Console.WriteLine($"Roca {i} creada: Min={roca.RocaBox.Min}, Max={roca.RocaBox.Max}");
             }
             antitanque.LoadContent(Content);
-            AgregarAntitanques();
 
-            // for (int i = 0; i < 3; i++)
-            // {
-            //     antitanque = Antitanques[i];
-            //     antitanque.LoadContent(Content);
-            //     //Colliders[i] = antitanque.AntiTanqueBox;
-            //     Console.WriteLine($"Antitanque {i} creada: Min={antitanque.AntiTanqueBox.Min}, Max={antitanque.AntiTanqueBox.Max}");
-            // }
+            AgregarAntitanques();
 
             for (int i = 0; i < CantidadArboles; i++)
             {
@@ -219,14 +215,18 @@ namespace ThunderingTanks
                 Panzer.CannonMatrix = cannonPosition;
                 Panzer.Direction = direction;
 
-
                 Panzer.Update(gameTime, keyboardState);
 
             }
 
-            CrossHairAux = viewport.Project(new Vector3(Panzer.GunElevation, Panzer.GunRotationFinal, ConstConver), _targetCamera.Projection, _targetCamera.View, Matrix.Identity);
+            CrossHairAux = viewport.Project(
+                Panzer.Direction, 
+                _targetCamera.Projection, 
+                _targetCamera.View, 
+                Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
+                );
 
-            CrossHairPosition = new Vector2(CrossHairAux.X, CrossHairAux.Y);
+            CrossHairPosition = new Vector2(screenWidth / 2 - 50 , CrossHairAux.Y);
 
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
