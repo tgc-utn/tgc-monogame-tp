@@ -122,14 +122,16 @@ public class CarConvexHull
         float acceleration = 50f;
         float braking = 30f;
 
-        float turnSpeed = 20f;
+        float maxTurnSpeed = 20f;
         float friction = 0.98f;
 
         // Calculate forward and backward impulses
         var forwardImpulse = new System.Numerics.Vector3(0, 0, -acceleration) * elapsedTime;
         var backwardImpulse = new System.Numerics.Vector3(0, 0, braking) * elapsedTime;
         var linearVelocity = bodyReference.Velocity.Linear;
-        var angularImpulse = new System.Numerics.Vector3(0f, turnSpeed * wheelRotation * linearVelocity.Length() / maxSpeed, 0f) * elapsedTime;
+        var angularImpulse = new System.Numerics.Vector3(0f, maxTurnSpeed * wheelRotation * linearVelocity.Length() / maxSpeed, 0f) * elapsedTime;
+        var forwardDirection = NumericVector3.Transform(new NumericVector3(0,0,-1), bodyReference.Pose.Orientation);
+        float speedSign = Vector3.Dot(forwardDirection, linearVelocity) < 0 ? -5 : 1;
         var awake = bodyReference.Awake;
 
         // Apply forward/backward impulses relative to the car's orientation
@@ -160,28 +162,22 @@ public class CarConvexHull
         if (keyboardState.IsKeyDown(Keys.A))
         {
             if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
-            bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, turnSpeed, 0) * elapsedTime);
-            // Rotar hacia la izquierda
-            // CarRotation += (carRotatingVelocity) * elapsedTime;
-            // CarRotation += (carRotatingVelocity) * deltaTime;
+            float turnSpeed = linearVelocity.Length() / maxSpeed * maxTurnSpeed * speedSign;
+            bodyReference.ApplyAngularImpulse(new NumericVector3(0, turnSpeed, 0) * elapsedTime);
             wheelRotation += 5f * elapsedTime;
             wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / +4));
         }
         else if (keyboardState.IsKeyDown(Keys.D))
         {
             if (!awake) bodyReference.SetLocalInertia(bodyReference.LocalInertia);
-            bodyReference.ApplyAngularImpulse(new System.Numerics.Vector3(0, -turnSpeed, 0) * elapsedTime);
-            // Rotar hacia la Derecha
-            // CarRotation += (-carRotatingVelocity) * elapsedTime;
-            // CarRotation += (-carRotatingVelocity) * deltaTime;
+            float turnSpeed = linearVelocity.Length() / maxSpeed * maxTurnSpeed * speedSign;
+            bodyReference.ApplyAngularImpulse(new NumericVector3(0, -turnSpeed, 0) * elapsedTime);
             wheelRotation -= 5f * elapsedTime;
             wheelRotation = Math.Clamp(wheelRotation, Convert.ToSingle(Math.PI / -4), Convert.ToSingle(Math.PI / 4));
         }
-        else
-        {
-            wheelRotation -= wheelRotation * 2f * elapsedTime;
-            bodyReference.Velocity.Angular -= bodyReference.Velocity.Angular * 0.12f;
-        }
+
+        wheelRotation -= wheelRotation * 2f * elapsedTime;
+        bodyReference.Velocity.Angular -= bodyReference.Velocity.Angular * 0.08f;
 
         var transformedAngularImpulse = System.Numerics.Vector3.Transform(angularImpulse, bodyReference.Pose.Orientation);
         bodyReference.ApplyAngularImpulse(transformedAngularImpulse);

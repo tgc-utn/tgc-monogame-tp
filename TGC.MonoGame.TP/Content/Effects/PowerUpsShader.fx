@@ -43,21 +43,21 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 // Animate position
     float atenuacion = 2.8;
-    float rotationSpeed = 30.0; // Velocidad de rotación en grados por segundo
+    float rotationSpeed = 30.0; // Velocidad de rotaciï¿½n en grados por segundo
     float verticalSpeed = 1.0; // Velocidad de movimiento vertical
     float3 position = input.Position;
 
-// Calcula la rotación en el eje y
+// Calcula la rotaciï¿½n en el eje y
     float rotationAngle = Time * rotationSpeed * 0.0174533; // Convertir grados a radianes
     float rotationX = sin(rotationAngle);
     float rotationZ = cos(rotationAngle);
 
-// Aplica la rotación alrededor del eje y
+// Aplica la rotaciï¿½n alrededor del eje y
     float rotatedX = position.x * rotationZ - position.z * rotationX;
     float rotatedZ = position.x * rotationX + position.z * rotationZ;
 
 // Calcula el desplazamiento vertical
-    float displacementY = sin(Time * atenuacion) * verticalSpeed;
+    float displacementY = sin(Time * atenuacion) * verticalSpeed + 10;
 
 // Aplica los desplazamientos a las coordenadas
     input.Position.x = rotatedX;
