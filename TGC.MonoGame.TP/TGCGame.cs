@@ -105,6 +105,10 @@ namespace TGC.MonoGame.TP
         private List<BodyHandle> SphereHandles { get; set; }
         private List<Matrix> SpheresWorld { get; set; }
         private bool CanShoot { get; set; }
+        private GameModel Missile { get; set; }
+
+        private List<bool> firstTime = new List<bool>();
+        private List<Quaternion> missileOrientation = new List<Quaternion>();
 
         //HUD 
         HUD HUD { get; set; }
@@ -134,7 +138,7 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-            HUD = new HUD(Content , GraphicsDevice);
+            HUD = new HUD(Content, GraphicsDevice);
             HUD.Initialize();
             _random = new Random(SEED);
 
@@ -179,7 +183,7 @@ namespace TGC.MonoGame.TP
         protected override void LoadContent()
         {
 
-            HUD.LoadContent();  
+            HUD.LoadContent();
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
 
             Gizmos.LoadContent(GraphicsDevice, Content);
@@ -237,6 +241,8 @@ namespace TGC.MonoGame.TP
 
             };
 
+            Missile = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2"), Effect, 1f, new Vector3(0, 0, 0));
+
 
             // Add walls
             WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(200f, 0f, 0f));
@@ -285,9 +291,10 @@ namespace TGC.MonoGame.TP
             switch (gameState)
             {
                 case ST_STAGE_1:
-                    if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+                    if (Keyboard.GetState().IsKeyDown(Keys.Space))
+                    {
                         gameState = ST_STAGE_2;
-                    }    
+                    }
                     break;
                 case ST_STAGE_2:
                     mainGameUpdate(gameTime);
@@ -304,31 +311,33 @@ namespace TGC.MonoGame.TP
             base.Update(gameTime);
         }
 
-        public void mainGameUpdate(GameTime gameTime) {
+        public void mainGameUpdate(GameTime gameTime)
+        {
             Vector3 forwardLocal = new Vector3(0, 0, -1);
 
             var keyboardState = Keyboard.GetState();
 
-            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot && MainCar.CanShoot)
+            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot /*&& MainCar.CanShoot*/)
             {
                 CanShoot = false;
                 // Create the shape that we'll launch at the pyramids when the user presses a button.
-                var radius = 0.5f + 5 * (float)_random.NextDouble();
+                var radius = 0.5f;
                 var bulletShape = new Sphere(radius);
 
                 var forwardWorld = Vector3.Transform(forwardLocal, MainCar.rotationQuaternion * MainCar.quaternion);
 
                 var bodyDescription = BodyDescription.CreateConvexDynamic(MainCar.Pose,
-                    new BodyVelocity(new NumericVector3(forwardWorld.X, forwardWorld.Y, forwardWorld.Z) * -110),
+                    new BodyVelocity(new NumericVector3(forwardWorld.X, forwardWorld.Y, forwardWorld.Z) * -50),
                     bulletShape.Radius * bulletShape.Radius * bulletShape.Radius, Simulation.Shapes, bulletShape);
 
                 var bodyHandle = Simulation.Bodies.Add(bodyDescription);
 
                 Radii.Add(radius);
                 SphereHandles.Add(bodyHandle);
+                firstTime.Add(true);
             }
 
-            if (keyboardState.IsKeyUp(Keys.Z) && MainCar.CanShoot)
+            if (keyboardState.IsKeyUp(Keys.Z) /*&& MainCar.CanShoot*/)
                 CanShoot = true;
 
 
@@ -346,18 +355,39 @@ namespace TGC.MonoGame.TP
             FollowCamera.Update(gameTime, MainCar.World);
 
             SpheresWorld.Clear();
+            var rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(90));
+            var rotationQuaternionY = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
+            var quaternionCar = MainCar.quaternion;
+
             var sphereHandleCount = SphereHandles.Count;
             for (var index = 0; index < sphereHandleCount; index++)
             {
                 var pose = Simulation.Bodies.GetBodyReference(SphereHandles[index]).Pose;
                 var position = pose.Position;
                 var quaternion = pose.Orientation;
-                var world = Matrix.CreateScale(Radii[index]) *
-                            Matrix.CreateFromQuaternion(new Quaternion(quaternion.X, quaternion.Y, quaternion.Z,
-                                quaternion.W)) *
+                Matrix world;
+
+                if (firstTime[index])
+                {
+                    world = Matrix.CreateScale(Radii[index]) *
+                            Matrix.CreateFromQuaternion(rotationQuaternionX) *
+                            Matrix.CreateFromQuaternion(rotationQuaternionY * quaternionCar) *
                             Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
+                    missileOrientation.Add(rotationQuaternionY * quaternionCar);
+
+                }
+                else
+                {
+                    world = Matrix.CreateScale(Radii[index]) *
+                                  Matrix.CreateFromQuaternion(rotationQuaternionX) *
+                                  Matrix.CreateFromQuaternion(missileOrientation[index]) *
+                                  Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
+                }
 
                 SpheresWorld.Add(world);
+
+                firstTime[index] = false;
+
             }
 
             Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);
@@ -374,7 +404,7 @@ namespace TGC.MonoGame.TP
 
             switch (gameState)
             {
-                case ST_STAGE_1: 
+                case ST_STAGE_1:
                     HUD.Draw(gameTime);
                     break;
 
@@ -387,12 +417,13 @@ namespace TGC.MonoGame.TP
                     EffectNoTextures.Parameters["View"].SetValue(FollowCamera.View);
                     EffectNoTextures.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
-                    SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
+                    //SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
 
                     Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.World));
 
                     Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
 
+                    Missile.Draw(SpheresWorld);
 
                     foreach (GameModel model in GameModels)
                         foreach (Matrix world in model.World)
