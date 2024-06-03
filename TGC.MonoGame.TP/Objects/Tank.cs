@@ -1,18 +1,10 @@
-﻿using BepuPhysics.Collidables;
-using BepuPhysics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BepuPhysics.Constraints;
-using System.Runtime.CompilerServices;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
-using Microsoft.VisualBasic.FileIO;
 using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects
@@ -102,18 +94,18 @@ namespace ThunderingTanks.Objects
             TimeSinceLastShot += time;
 
             //if(isColliding)
-            //    TankVelocity = TankVelocity * 0.01f;
+            //TankVelocity = TankVelocity * 0.01f;
 
-            if (keyboardState.IsKeyDown(Keys.W))
+            if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
 
-            if (keyboardState.IsKeyDown(Keys.S))
+            if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
                 Direction += PanzerMatrix.Forward * TankVelocity * time;
 
-            if (keyboardState.IsKeyDown(Keys.D))
+            if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
                 Rotation -= TankRotation * time;
 
-            if (keyboardState.IsKeyDown(Keys.A))
+            if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
                 Rotation += TankRotation * time;
 
             GunRotationFinal -= GetRotationFromCursorX();
@@ -121,16 +113,17 @@ namespace ThunderingTanks.Objects
 
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
-            Position = Direction + new Vector3(0, 200f, 0f);
+            Position = Direction + new Vector3(0f, 500f, 0f);
+
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
             // Mover bounding box en base a los movimientos del tanque
-            var BoundingBox = new BoundingBox(MinBox + Position, MaxBox + Position);
+            var BoundingBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
             TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
 
-            LastPosition = Position;
+            LastPosition = Direction;
 
             Console.WriteLine(TankBox.Extents);
         }
@@ -212,7 +205,6 @@ namespace ThunderingTanks.Objects
 
             return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
         }
-
 
     }
 }

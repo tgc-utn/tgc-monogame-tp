@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BepuPhysics.Trees;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
+using System;
+using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Content.Models;
-using ThunderingTanks.Objects;
-using ThunderingTanks.Collisions;
 using ThunderingTanks.Gizmos;
-using ThunderingTanks.Gizmos.Geometries;
-using System.Runtime.ConstrainedExecution;
-using Microsoft.Xna.Framework.Content;
-using System.Reflection.PortableExecutable;
+using ThunderingTanks.Objects;
 
 namespace ThunderingTanks
 {
@@ -203,10 +196,7 @@ namespace ThunderingTanks
             var lastMatrix = Panzer.PanzerMatrix;
             var turretPosition = Panzer.TurretMatrix;
             var cannonPosition = Panzer.CannonMatrix;
-            var lastPosition = Panzer.Position;
-
-
-            Panzer.Update(gameTime, keyboardState);
+            var direction = Panzer.Direction;
 
             if (keyboardState.IsKeyDown(Keys.Space))
             {
@@ -216,16 +206,23 @@ namespace ThunderingTanks
                     Projectiles.Add(projectile);
             }
 
+            Panzer.Update(gameTime, keyboardState);
+
+            Panzer.isColliding = false;
+
             if (CheckCollisions())
             {
+                Panzer.isColliding = true;
+
                 Panzer.PanzerMatrix = lastMatrix;
                 Panzer.TurretMatrix = turretPosition;
                 Panzer.CannonMatrix = cannonPosition;
-                Panzer.Position = lastPosition;
-                Panzer.isColliding = true;
+                Panzer.Direction = direction;
+
+
+                Panzer.Update(gameTime, keyboardState);
+
             }
-            else
-                Panzer.isColliding = false;
 
             CrossHairAux = viewport.Project(new Vector3(Panzer.GunElevation, Panzer.GunRotationFinal, ConstConver), _targetCamera.Projection, _targetCamera.View, Matrix.Identity);
 
@@ -235,11 +232,9 @@ namespace ThunderingTanks
             screenWidth = GraphicsDevice.Viewport.Width;
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
-
-
             foreach (var enemyTank in EnemyTanks)
             {
-                enemyTank.Update(gameTime, Panzer.Position);
+                enemyTank.Update(gameTime, Panzer.Direction);
             }
 
             UpdateProjectiles(gameTime);
@@ -284,11 +279,12 @@ namespace ThunderingTanks
             // {
             //     antitanque.Draw(gameTime, camara.View, camara.Projection);
             // }
+
             antitanque.Draw(gameTime, camara.View, camara.Projection);
 
             foreach (var arbol in Arboles)
             {
-                arbol.Draw(gameTime, camara.View, camara.Projection);
+                //arbol.Draw(gameTime, camara.View, camara.Projection);
             }
 
             casa.Draw(gameTime, camara.View, camara.Projection);
