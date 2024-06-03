@@ -7,7 +7,6 @@ namespace WarSteel.UIKit;
 
 public class Header : IUIRenderable
 {
-    private Texture2D _texture;
     private string _text;
     private Color _color;
     private SpriteFont _font;
@@ -16,12 +15,15 @@ public class Header : IUIRenderable
     {
         _text = text;
         _color = color;
-        _font = ContentRepoManager.Instance().GetSpriteFont("Tenada");
+        _font = ContentRepoManager.Instance().GetSpriteFont("tenada/Tenada");
     }
 
     public void Draw(Scene scene, UI ui)
     {
-        Vector3 pos = ui.Position;
-        scene.GetSpriteBatch().DrawString(_font, _text, new Vector2(pos.X, pos.Y), _color);
+        Vector3 center = ui.Position;
+        float fontSize = 1f;
+        Vector2 textSize = _font.MeasureString(_text) * fontSize;
+        Vector2 textPosition = new Vector2(center.X - textSize.X / 2, center.Y - textSize.Y / 2);
+        scene.GetSpriteBatch().DrawString(_font, _text, textPosition, _color, 0f, Vector2.Zero, fontSize, SpriteEffects.None, 0f);
     }
 }
