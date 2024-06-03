@@ -14,16 +14,33 @@ namespace TGC.MonoGame.TP.PowerUps
     {
         public VelocityPowerUp(Vector3 position) : base(position)
         {
-            PowerUpWorld = Matrix.CreateScale(1f, 1f, 1f) * Matrix.CreateTranslation(position);
+            RandomPositions = false;
+
+            //PowerUpWorld = Matrix.CreateScale(1f, 1f, 1f) * Matrix.CreateTranslation(position);
            
-            var worldBounding = Matrix.CreateScale(1.5f, 1.5f, 1.5f) * Matrix.CreateTranslation(position);
-            BoundingBox = BoundingVolumesExtensions.FromMatrix(worldBounding);
+            //var worldBounding = Matrix.CreateScale(1.5f, 1.5f, 1.5f) * Matrix.CreateTranslation(position);
+            //BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(worldBounding));
         }
+
+        public VelocityPowerUp() : base()
+        {
+            RandomPositions = true;
+        }
+
         public override void LoadContent(ContentManager Content)
         {
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
             
+            if(RandomPositions)
+            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo"), PowerUpEffect, 1.5f ,GenerateRandomPositions(15));
+            else
             PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo"), PowerUpEffect, 1.5f , Position);
+
+            PowerUpListWorld = PowerUpModel.World;
+
+            PowerUpListWorld.ForEach(World => BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(1.5f, 1.5f, 1.5f) * World)));
+
+            //PowerUpTexture = ((BasicEffect)PowerUpModel.Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
 
         }
 

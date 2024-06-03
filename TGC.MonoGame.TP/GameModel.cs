@@ -1,14 +1,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using BepuPhysics;
 using BepuPhysics.Collidables;
-using BepuPhysics.Trees;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TGC.MonoGame.Samples.Collisions;
-using static System.Formats.Asn1.AsnWriter;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP;

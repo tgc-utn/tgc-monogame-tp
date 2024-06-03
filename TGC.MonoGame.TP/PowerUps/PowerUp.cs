@@ -19,9 +19,11 @@ namespace TGC.MonoGame.TP.PowerUps
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
 
+        public bool RandomPositions { get; set; }
+
         public Vector3 Position { get; set; }
 
-        public BoundingBox BoundingBox { get; set; }
+        public List<BoundingBox> BoundingBox = new List<BoundingBox>();
 
         public Matrix PowerUpWorld { get; set; }
 
@@ -39,12 +41,23 @@ namespace TGC.MonoGame.TP.PowerUps
 
         public bool Activated;
 
-        public List<Matrix> list = new List<Matrix>();
+        public List<Matrix> PowerUpListWorld = new List<Matrix>();
+
+        private int ArenaWidth = 200;
+        private int ArenaHeight = 200;
+        private Random _random = new Random();
 
         protected PowerUp(Vector3 position)
         {
             Activated = false;
             Position = position;
+            GoingUp = true;
+            GoingDown = false;
+        }
+
+        protected PowerUp()
+        {
+            Activated = false;
             GoingUp = true;
             GoingDown = false;
         }
@@ -85,16 +98,27 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["Projection"].SetValue(Camera.Projection);
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
-                
-                list.Add(PowerUpWorld);
-                PowerUpModel.Draw(list);
+
+                PowerUpListWorld.Add(PowerUpWorld);
+                PowerUpModel.Draw(PowerUpListWorld);
+
+                //var mesh = PowerUpModel.Model.Meshes.FirstOrDefault();
+                //if (mesh != null)
+                //{
+                //    foreach (var part in mesh.MeshParts)
+                //    {
+                //        part.Effect = PowerUpEffect;
+                //    }
+
+                //    mesh.Draw();
+                //}
             }
         }
 
         public bool IsWithinBounds(Vector3 position)
         {
             var BoundingSphere = new BoundingSphere(position, 5f);
-            return BoundingBox.Intersects(BoundingSphere);
+            return BoundingBox.Any(Box => Box.Intersects(BoundingSphere));
         }
 
         public void ActivateIfBounding(Simulation Simulation, CarConvexHull carConvexHull)
@@ -104,6 +128,21 @@ namespace TGC.MonoGame.TP.PowerUps
         }
        
         public abstract void Activate(CarConvexHull carConvexHull);
+
+        public List<Vector3> GenerateRandomPositions(int count)
+        {
+            var positions = new List<Vector3>();
+
+            for (int i = 0; i < count; i++)
+            {
+                int x = _random.Next(-ArenaWidth, ArenaWidth);
+                int z = _random.Next(-ArenaHeight, ArenaHeight);
+                positions.Add(new Vector3(x, 0, z));
+            }
+
+            return positions;
+        }
+
 
     }
 }

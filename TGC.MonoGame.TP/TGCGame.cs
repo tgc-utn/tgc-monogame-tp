@@ -19,6 +19,7 @@ using TGC.MonoGame.TP.Physics;
 using TGC.MonoGame.TP.PowerUps;
 using System.Linq;
 using System.Collections;
+using TGC.MonoTP;
 
 namespace TGC.MonoGame.TP
 {
@@ -105,6 +106,9 @@ namespace TGC.MonoGame.TP
         private List<Matrix> SpheresWorld { get; set; }
         private bool CanShoot { get; set; }
 
+        //HUD 
+        HUD HUD { get; set; }
+
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
         private float time;
@@ -130,7 +134,8 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
+            HUD = new HUD(Content , GraphicsDevice);
+            HUD.Initialize();
             _random = new Random(SEED);
 
             // Apago el backface culling.
@@ -155,8 +160,8 @@ namespace TGC.MonoGame.TP
             // PowerUps
             PowerUps = new PowerUp[]
             {
-                new VelocityPowerUp(new Vector3(20f, 2f, 20f)),
-                new MissilePowerUp(new Vector3(5f,0,5f))
+                new VelocityPowerUp(),
+                new MissilePowerUp()
             };
 
             SpheresWorld = new List<Matrix>();
@@ -170,14 +175,13 @@ namespace TGC.MonoGame.TP
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
-        ///     que podemos pre calcular para nuestro juego.
         /// </summary>
         protected override void LoadContent()
         {
 
+            HUD.LoadContent();  
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCodePL");
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+
             Gizmos.LoadContent(GraphicsDevice, Content);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
@@ -371,13 +375,7 @@ namespace TGC.MonoGame.TP
             switch (gameState)
             {
                 case ST_STAGE_1: 
-                    GraphicsDevice.Clear(Color.Black);
-                    DrawCenterTextY("Crash Of Cars", 100, 5);
-                    DrawCenterTextY("Girar con A y D", 300, 1);
-                    DrawCenterTextY("Avanzar y retroceder con W y S", 400, 1);
-                    DrawCenterTextY("Saltar con Espacio", 500, 1);
-                    DrawCenterTextY("God Mode con G", 600, 1);
-                    DrawCenterTextY("Presione SPACE para comenzar", 700, 1);
+                    HUD.Draw(gameTime);
                     break;
 
                 case ST_STAGE_2:
@@ -407,7 +405,7 @@ namespace TGC.MonoGame.TP
                     break;
 
                 case ST_GAME_OVER:
-                    DrawCenterText("GAME OVER", 5);
+                    HUD.GameOver();
                     break;
             }
 
@@ -436,40 +434,6 @@ namespace TGC.MonoGame.TP
                 prim.Draw(EffectNoTextures);
             }
         }
-
-        public void DrawCenterText(string msg, float escala)
-        {
-            var W = GraphicsDevice.Viewport.Width;
-            var H = GraphicsDevice.Viewport.Height;
-            var size = SpriteFont.MeasureString(msg) * escala;
-            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
-                Matrix.CreateScale(escala) * Matrix.CreateTranslation((W - size.X) / 2, (H - size.Y) / 2, 0));
-            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
-            SpriteBatch.End();
-        }
-
-        public void DrawCenterTextY(string msg, float Y, float escala)
-        {
-            var W = GraphicsDevice.Viewport.Width;
-            var H = GraphicsDevice.Viewport.Height;
-            var size = SpriteFont.MeasureString(msg) * escala;
-            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
-                Matrix.CreateScale(escala) * Matrix.CreateTranslation((W - size.X) / 2, Y, 0));
-            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
-            SpriteBatch.End();
-        }
-
-        public void DrawRightText(string msg, float Y, float escala)
-        {
-            var W = GraphicsDevice.Viewport.Width;
-            var H = GraphicsDevice.Viewport.Height;
-            var size = SpriteFont.MeasureString(msg) * escala;
-            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
-                Matrix.CreateScale(escala) * Matrix.CreateTranslation(W - size.X - 20, Y, 0));
-            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
-            SpriteBatch.End();
-        }
-
 
         /// <summary>
         ///     Libero los recursos que se cargaron en el juego.
