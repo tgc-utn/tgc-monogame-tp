@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Managers;
 using WarSteel.Scenes.Main;
@@ -9,12 +9,14 @@ namespace WarSteel;
 public class Game : Microsoft.Xna.Framework.Game
 {
     private GraphicsDeviceManager Graphics { get; }
+    private SpriteBatch SpriteBatch;
 
     private SceneManager SceneManager;
 
     public Game()
     {
         Graphics = new GraphicsDeviceManager(this);
+        SpriteBatch = new SpriteBatch(GraphicsDevice);
         Content.RootDirectory = "Content";
         IsMouseVisible = false;
         // Graphics.IsFullScreen = true;
@@ -28,10 +30,8 @@ public class Game : Microsoft.Xna.Framework.Game
         ContentRepoManager.SetUpInstance(Content);
         SceneManager = new SceneManager();
 
-        SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics));
+        SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics, SpriteBatch));
         SceneManager.SetCurrentScene(ScenesNames.MAIN);
-
-
         SceneManager.CurrentScene().Initialize();
 
         base.Initialize();
@@ -46,7 +46,14 @@ public class Game : Microsoft.Xna.Framework.Game
     protected override void Draw(GameTime gameTime)
     {
         Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+        var originalRasterizerState = GraphicsDevice.RasterizerState;
+        var rasterizerState = new RasterizerState();
+        rasterizerState.CullMode = CullMode.None;
+        Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+
         SceneManager.CurrentScene().Draw();
+
+
         base.Draw(gameTime);
     }
 
@@ -58,6 +65,7 @@ public class Game : Microsoft.Xna.Framework.Game
         }
         SceneManager.CurrentScene().Update(gameTime);
 
+
         base.Update(gameTime);
     }
 
@@ -65,6 +73,8 @@ public class Game : Microsoft.Xna.Framework.Game
     {
         SceneManager.CurrentScene().Unload();
         Content.Unload();
+
+
         base.UnloadContent();
     }
 }

@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework;
 using WarSteel.Entities;
 using WarSteel.Common;
 using WarSteel.Scenes.SceneProcessors;
+using Microsoft.Xna.Framework.Graphics;
 
 
 namespace WarSteel.Scenes.Main;
 
 public class MainScene : Scene
 {
-    public MainScene(GraphicsDeviceManager Graphics) : base(Graphics)
+    public MainScene(GraphicsDeviceManager Graphics, SpriteBatch SpriteBatch) : base(Graphics, SpriteBatch)
     {
 
     }
