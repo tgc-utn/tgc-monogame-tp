@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
 using WarSteel.Entities;
-using WarSteel.UIKit;
 
 
 namespace WarSteel.Scenes;
@@ -17,7 +15,6 @@ public class Scene
     protected SpriteBatch spriteBatch;
     protected Camera camera;
     private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
-    private List<UI> UIs = new List<UI>();
 
 
     public Scene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch)
@@ -65,16 +62,6 @@ public class Scene
     {
         entities.Remove(entity.Id);
         entity.OnDestroy(this);
-    }
-
-    public void AddUi(UI ui)
-    {
-        UIs.Add(ui);
-    }
-
-    public void RemoveUi(UI ui)
-    {
-        ui.toDestroy = true;
     }
 
     public T GetSceneProcessor<T>() where T : class, ISceneProcessor
@@ -128,16 +115,6 @@ public class Scene
 
     public virtual void Draw()
     {
-
-        UIs.RemoveAll(ui => ui.toDestroy);
-
-        spriteBatch.Begin();
-        foreach (var ui in UIs)
-        {
-            ui.Draw(this);
-        }
-        spriteBatch.End();
-
         foreach (var entity in entities.Values)
         {
             entity.Draw(this);
@@ -164,12 +141,6 @@ public class Scene
         foreach (var entity in copyEntities.Values)
         {
             entity.Update(gameTime, this);
-        }
-
-        MouseState mouseState = Mouse.GetState();
-        foreach (var ui in UIs)
-        {
-            ui.Update(gameTime, mouseState, this);
         }
 
         foreach (var processor in SceneProcessors.Values)
