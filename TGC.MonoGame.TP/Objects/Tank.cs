@@ -175,8 +175,8 @@ namespace ThunderingTanks.Objects
             {
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
-                float projectileScale = 0f;
-                float projectileSpeed = 1000f;
+                float projectileScale = 1f;
+                float projectileSpeed = 5000f;
 
                 Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 

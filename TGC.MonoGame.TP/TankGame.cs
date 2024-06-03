@@ -52,7 +52,6 @@ namespace ThunderingTanks
         public Texture2D CrossHairTexture { get; set; }
         private Vector2 CrossHairPosition { get; set; }
 
-        private const float ConstConver = 100f;
         public SpriteBatch spriteBatch { get; set; }
 
         private Vector3 CrossHairAux;
@@ -65,7 +64,7 @@ namespace ThunderingTanks
             Gizmos = new Gizmoss();
 
         }
-
+        
         protected override void Initialize()
         {
             var rasterizerState = new RasterizerState();
@@ -77,8 +76,6 @@ namespace ThunderingTanks
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.GraphicsProfile = GraphicsProfile.Reach;
-
-            Graphics.IsFullScreen = true;
 
             Graphics.ApplyChanges();
 
@@ -226,7 +223,7 @@ namespace ThunderingTanks
                 Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
                 );
 
-            CrossHairPosition = new Vector2(screenWidth / 2 - 50 , CrossHairAux.Y);
+            CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
 
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
@@ -268,17 +265,11 @@ namespace ThunderingTanks
             City.Draw(gameTime, camara.View, camara.Projection);
 
             DrawProjectiles(camara.View, camara.Projection);
-            //roca.Draw(gameTime, camara.View, camara.Projection);
 
             foreach (var roca in Rocas)
             {
                 roca.Draw(gameTime, camara.View, camara.Projection);
             }
-
-            // foreach (var antitanque in Antitanques)
-            // {
-            //     antitanque.Draw(gameTime, camara.View, camara.Projection);
-            // }
 
             antitanque.Draw(gameTime, camara.View, camara.Projection);
 

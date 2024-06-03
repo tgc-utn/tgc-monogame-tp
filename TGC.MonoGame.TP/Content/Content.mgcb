@@ -837,8 +837,8 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/skybox/cube.fbx
 
-#begin Models/TankBullets/Aps-c.obj
-/importer:OpenAssetImporter
+#begin Models/TankBullets/Aps-c.fbx
+/importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
 /processorParam:ColorKeyEnabled=True
@@ -854,7 +854,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/TankBullets/Aps-c.obj
+/build:Models/TankBullets/Aps-c.fbx
 
 #begin Models/tgc-logo/tgc-logo.fbx
 /importer:FbxImporter
