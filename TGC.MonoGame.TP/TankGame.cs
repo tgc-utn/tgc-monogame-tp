@@ -16,6 +16,8 @@ namespace ThunderingTanks
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderTextures = "Textures/";
+        public const string ContentFolderFonts = "Fonts/";
+
 
         public float screenHeight;
         public float screenWidth;
@@ -55,6 +57,14 @@ namespace ThunderingTanks
         public SpriteBatch spriteBatch { get; set; }
 
         private Vector3 CrossHairAux;
+
+        //MENU
+
+        private Menu _menu;
+        private bool _juegoIniciado = false;
+        private SpriteFont _systemFont;
+        private Texture2D _tankMouseTexture;
+
 
         public TankGame()
         {
@@ -124,6 +134,7 @@ namespace ThunderingTanks
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
 
+
             base.Initialize();
         }
 
@@ -164,9 +175,16 @@ namespace ThunderingTanks
                 Console.WriteLine($"Tanque enemigo {i} creado: Min={enemyTank.TankBox.Min}, Max={enemyTank.TankBox.Max}");
             }
 
+            _tankMouseTexture = Content.Load<Texture2D>(ContentFolderTextures + "proyectilMouse");
+
             CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            _systemFont = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
+            _menu = new Menu(_systemFont, _tankMouseTexture);
+
+
 
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
@@ -181,6 +199,14 @@ namespace ThunderingTanks
 
         protected override void Update(GameTime gameTime)
         {
+
+            if (!_juegoIniciado)
+            {
+                _menu.Update(ref _juegoIniciado);
+            }
+            else
+            {
+
             keyboardState = Keyboard.GetState();
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -240,12 +266,26 @@ namespace ThunderingTanks
             _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
 
             Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
+            }
 
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            if (!_juegoIniciado)
+            {
+                #region Renderizar el menu
+                GraphicsDevice.Clear(Color.Black);
+                spriteBatch.Begin();
+
+                _menu.Draw(spriteBatch);
+                spriteBatch.End();
+                #endregion
+            }
+            else
+            {
+
             #region Pass 1
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -297,6 +337,7 @@ namespace ThunderingTanks
             spriteBatch.End();
 
             #endregion
+            }
 
             base.Draw(gameTime);
         }

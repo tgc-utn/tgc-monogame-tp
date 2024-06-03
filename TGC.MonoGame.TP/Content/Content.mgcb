@@ -50,6 +50,13 @@
 /processorParam:DebugMode=Auto
 /build:Effects/SkyBox.fx
 
+#begin Fonts/arial.spritefont
+/importer:FontDescriptionImporter
+/processor:LocalizedFontProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/arial.spritefont
+
 #begin Models/assets militares/rsg_military_antitank_hedgehog_01.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
@@ -910,6 +917,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/casaAbandonada/WoodPlanksBare0051_3_M.jpg
+
+#begin Textures/mouseTank.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/mouseTank.png
+
+#begin Textures/proyectilMouse.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/proyectilMouse.png
 
 #begin Textures/punto-de-mira.png
 /importer:TextureImporter
