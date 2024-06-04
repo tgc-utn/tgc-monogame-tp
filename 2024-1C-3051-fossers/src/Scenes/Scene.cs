@@ -26,7 +26,7 @@ public class Scene
     public void SetCamera(Camera camera)
     {
         entities.Add(camera.Id, camera);
-        this.Camera = camera;
+        Camera = camera;
     }
 
     public Camera GetCamera()
@@ -121,7 +121,6 @@ public class Scene
         I'm probably not going to make the refactor in time for the 6/4 delivery of the project so for now this stays here
 
         */
-
         // Set the DepthStencilState to enable the depth buffer
         GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
@@ -138,10 +137,6 @@ public class Scene
         {
             entity.Draw(this);
         }
-
-
-
-
     }
 
     public virtual void Update(GameTime gameTime)
@@ -170,7 +165,11 @@ public class Scene
 
     public virtual void Unload()
     {
-        SpriteBatch.Dispose();
+        // the entities could have a Dispose method to free its resources (models, textures, shaders)
+        entities.Clear();
+        Camera = null;
+        SceneProcessors.Clear();
+
     }
 
 }

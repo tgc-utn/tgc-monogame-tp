@@ -62,8 +62,9 @@ public class Entity
             c.Initialize(this, scene);
         }
     }
-    
-    public virtual void LoadContent() {
+
+    public virtual void LoadContent()
+    {
         foreach (var m in Components.Values)
         {
             m.LoadContent(this);
@@ -82,7 +83,8 @@ public class Entity
         }
     }
 
-    public void Destroy(){
+    public void Destroy()
+    {
         ToDestroy = true;
     }
 
@@ -90,7 +92,7 @@ public class Entity
     {
         foreach (var m in Components.Values)
         {
-            m.Destroy(this,scene);
+            m.Destroy(this, scene);
         }
     }
 
