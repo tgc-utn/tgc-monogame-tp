@@ -144,6 +144,19 @@ namespace TGC.MonoGame.TP
 
             return positions;
         }
+        public List<Vector3> GenerateRandomPositions(int count , float y)
+        {
+            var positions = new List<Vector3>();
+
+            for (int i = 0; i < count; i++)
+            {
+                int x = _random.Next(-ArenaWidth, ArenaWidth);
+                int z = _random.Next(-ArenaHeight, ArenaHeight);
+                positions.Add(new Vector3(x, y, z));
+            }
+
+            return positions;
+        }
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -248,7 +261,7 @@ namespace TGC.MonoGame.TP
              {
                 new GameModel(Content.Load<Model>(ContentFolder3D + "trees/Tree4"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Sphere(1.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/ElectronicBoxNew"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Box(3f, 3f, 2f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/towers"), Effect, 1f, GenerateRandomPositions(15), Simulation, new Box(5f, 10f, 4f)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/old_water_tower"), Effect, 1f, GenerateRandomPositions(15,10f), Simulation, new Box(10f, 20f, 10f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.1f, GenerateRandomPositions(20), Simulation, new Box(2.5f, 2f, 2.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "gasoline/gasoline"), Effect, 1.5f, GenerateRandomPositions(100), Simulation, new Box(2f, 3f, 2f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect , 1f , new Vector3(30f, 0 , 30f ) , Simulation ,  new Box(17.5f, 10f, 17.5f)),
@@ -458,14 +471,14 @@ namespace TGC.MonoGame.TP
                     }
 
 
-                    foreach (var model in GameModels)
-                        foreach (var box in model.BBox)
-                            Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(box), BoundingVolumesExtensions.GetExtents(box) , Color.Red);
+                    //foreach (var model in GameModels)
+                    //    foreach (var box in model.BBox)
+                    //        Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(box), BoundingVolumesExtensions.GetExtents(box) , Color.Red);
 
                     DrawFloor(FloorQuad);
                     DrawWalls();
                     MainCar.Draw();
-                    Gizmos.Draw();
+                    //Gizmos.Draw();
                     break;
 
                 case ST_GAME_OVER:

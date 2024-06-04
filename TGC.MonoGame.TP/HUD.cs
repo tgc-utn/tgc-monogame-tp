@@ -126,7 +126,7 @@ namespace TGC.MonoTP
             var size = SpriteFont.MeasureString(msg) * escala;
             SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null,
                 Matrix.CreateScale(escala) * Matrix.CreateTranslation((W - size.X) / 2, Y, 0));
-            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.YellowGreen);
+            SpriteBatch.DrawString(SpriteFont, msg, new Vector2(0, 0), Color.Black);
             SpriteBatch.End();
         }
 
