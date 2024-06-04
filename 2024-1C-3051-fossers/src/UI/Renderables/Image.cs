@@ -42,6 +42,6 @@ public class Image : IUIRenderable
         // Calculate the position to center the image within the specified width and height
         Vector2 position = new Vector2(ui.Position.X, ui.Position.Y);
 
-        scene.GetSpriteBatch().Draw(_texture, position, null, _color, 0f, _origin, scale, SpriteEffects.None, 0f);
+        scene.SpriteBatch.Draw(_texture, position, null, _color, 0f, _origin, scale, SpriteEffects.None, 0f);
     }
 }

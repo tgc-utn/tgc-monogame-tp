@@ -34,7 +34,7 @@ public class MainScene : Scene
 
         AddEntityBeforeRun(player);
 
-        Camera camera = new(new Vector3(0, 800, -500), Graphics.GraphicsDevice.Viewport.AspectRatio, Graphics.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
+        Camera camera = new(new Vector3(0, 800, -500), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, GraphicsDeviceManager.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
         camera.AddComponent(new CameraController(player.Transform));
 
         Map map = new Map();

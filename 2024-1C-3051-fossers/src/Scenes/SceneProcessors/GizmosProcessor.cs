@@ -36,7 +36,7 @@ public class GizmosProcessor : ISceneProcessor
 
     public void Initialize(Scene scene)
     {
-        _gizmos.LoadContent(scene.GetGraphicsDevice().GraphicsDevice, ContentRepoManager.Instance().Manager);
+        _gizmos.LoadContent(scene.GraphicsDeviceManager.GraphicsDevice, ContentRepoManager.Instance().Manager);
     }
 
     public void Update(Scene scene, GameTime gameTime)

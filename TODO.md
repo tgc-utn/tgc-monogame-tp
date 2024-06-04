@@ -4,3 +4,4 @@
 -   [ ] skybox
 -   [ ] unloaders
 -   [ ] terrain
+-   [ ] replace shader with something that isn't garbage (want to do a toon shader that allows for multiple light sources)

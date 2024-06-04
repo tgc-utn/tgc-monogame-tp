@@ -21,13 +21,13 @@ public class MenuScene : Scene
     {
         UIProcessor uiProcessor = new UIProcessor();
         AddSceneProcessor(uiProcessor);
-        Vector2 screenCenter = Screen.GetScreenCenter(Graphics);
-        int screenWidth = Screen.GetScreenWidth(Graphics);
-        int screenHeight = Screen.GetScreenHeight(Graphics);
+        Vector2 screenCenter = Screen.GetScreenCenter(GraphicsDeviceManager);
+        int screenWidth = Screen.GetScreenWidth(GraphicsDeviceManager);
+        int screenHeight = Screen.GetScreenHeight(GraphicsDeviceManager);
 
         Func<int, Vector3> GetButtonPos = (int pos) =>
         {
-            Vector2 screenCenter = Screen.GetScreenCenter(Graphics);
+            Vector2 screenCenter = Screen.GetScreenCenter(GraphicsDeviceManager);
             int margin = 90;
             return new Vector3(screenCenter.X, screenCenter.Y - 50 + margin * pos, 0);
         };
@@ -63,4 +63,5 @@ public class MenuScene : Scene
     {
         base.Update(gameTime);
     }
+
 }

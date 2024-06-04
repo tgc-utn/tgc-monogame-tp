@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Scenes;
 using WarSteel.UIKit;
@@ -31,9 +32,9 @@ public class UIProcessor : ISceneProcessor
 
     public void Draw(Scene scene)
     {
-        scene.GetSpriteBatch().Begin();
+        scene.SpriteBatch.Begin();
         _uiElements.ForEach(ui => ui.Draw(scene));
-        scene.GetSpriteBatch().End();
+        scene.SpriteBatch.End();
     }
 
     public void Update(Scene scene, GameTime gameTime)
@@ -69,4 +70,6 @@ public class UIProcessor : ISceneProcessor
                 _uiElements.Remove(ui);
         });
     }
+
+
 }

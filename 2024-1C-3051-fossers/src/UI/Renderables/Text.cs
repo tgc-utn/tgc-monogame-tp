@@ -25,6 +25,6 @@ public class TextUI : IUIRenderable
         Vector3 center = ui.Position;
         Vector2 textSize = _font.MeasureString(Text) * _fontSize;
         Vector2 textPosition = new Vector2(center.X - textSize.X / 2, center.Y - textSize.Y / 2);
-        scene.GetSpriteBatch().DrawString(_font, Text, textPosition, _color, 0f, Vector2.Zero, _fontSize, SpriteEffects.None, 0f);
+        scene.SpriteBatch.DrawString(_font, Text, textPosition, _color, 0f, Vector2.Zero, _fontSize, SpriteEffects.None, 0f);
     }
 }

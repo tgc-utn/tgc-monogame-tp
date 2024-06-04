@@ -23,6 +23,7 @@ public class Game : Microsoft.Xna.Framework.Game
         Window.AllowUserResizing = true;
         Graphics.PreferredBackBufferWidth = 1280;
         Graphics.PreferredBackBufferHeight = 720;
+
     }
 
     protected override void Initialize()
@@ -35,6 +36,7 @@ public class Game : Microsoft.Xna.Framework.Game
 
         SceneManager.AddScene(ScenesNames.MENU, new MenuScene(Graphics, SpriteBatch));
         SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics, SpriteBatch));
+
         SceneManager.CurrentScene().Initialize();
 
         base.Initialize();
@@ -49,11 +51,6 @@ public class Game : Microsoft.Xna.Framework.Game
     protected override void Draw(GameTime gameTime)
     {
         Graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-        var originalRasterizerState = GraphicsDevice.RasterizerState;
-        var rasterizerState = new RasterizerState();
-        rasterizerState.CullMode = CullMode.None;
-        Graphics.GraphicsDevice.RasterizerState = rasterizerState;
-
         SceneManager.CurrentScene().Draw();
 
 

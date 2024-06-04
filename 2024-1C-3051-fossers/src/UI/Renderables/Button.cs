@@ -27,11 +27,11 @@ public class Button : IUIRenderable
         Vector3 center = ui.Position;
         Vector2 buttonSize = new Vector2(ui.Width, ui.Height);
         Vector2 buttonPosition = new Vector2(center.X - buttonSize.X / 2, center.Y - buttonSize.Y / 2);
-        scene.GetSpriteBatch().Draw(_texture, new Rectangle((int)buttonPosition.X, (int)buttonPosition.Y, (int)buttonSize.X, (int)buttonSize.Y), Color.White);
+        scene.SpriteBatch.Draw(_texture, new Rectangle((int)buttonPosition.X, (int)buttonPosition.Y, (int)buttonSize.X, (int)buttonSize.Y), Color.White);
 
         float fontSize = 0.5f;
         Vector2 textSize = _font.MeasureString(Text) * _fontSize;
         Vector2 textPosition = new Vector2(center.X - textSize.X / 2, center.Y - textSize.Y / 2);
-        scene.GetSpriteBatch().DrawString(_font, Text, textPosition, Color.White, 0f, Vector2.Zero, fontSize, SpriteEffects.None, 0f);
+        scene.SpriteBatch.DrawString(_font, Text, textPosition, Color.White, 0f, Vector2.Zero, fontSize, SpriteEffects.None, 0f);
     }
 }

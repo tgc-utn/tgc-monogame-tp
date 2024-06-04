@@ -11,34 +11,27 @@ namespace WarSteel.Scenes;
 public class Scene
 {
     private Dictionary<string, Entity> entities = new Dictionary<string, Entity>();
-    protected GraphicsDeviceManager Graphics;
-    protected SpriteBatch spriteBatch;
-    protected Camera camera;
+    public GraphicsDeviceManager GraphicsDeviceManager;
+    public SpriteBatch SpriteBatch;
+    protected Camera Camera;
     private Dictionary<Type, ISceneProcessor> SceneProcessors = new Dictionary<Type, ISceneProcessor>();
 
 
     public Scene(GraphicsDeviceManager graphics, SpriteBatch spriteBatch)
     {
-        Graphics = graphics;
-        this.spriteBatch = spriteBatch;
+        GraphicsDeviceManager = graphics;
+        SpriteBatch = spriteBatch;
     }
-
-    public SpriteBatch GetSpriteBatch() => spriteBatch;
 
     public void SetCamera(Camera camera)
     {
         entities.Add(camera.Id, camera);
-        this.camera = camera;
+        this.Camera = camera;
     }
 
     public Camera GetCamera()
     {
-        return camera;
-    }
-
-    public GraphicsDeviceManager GetGraphicsDevice()
-    {
-        return Graphics;
+        return Camera;
     }
 
     public void AddSceneProcessor(ISceneProcessor p)
@@ -115,15 +108,40 @@ public class Scene
 
     public virtual void Draw()
     {
-        foreach (var entity in entities.Values)
-        {
-            entity.Draw(this);
-        }
 
         foreach (var processor in SceneProcessors.Values)
         {
             processor.Draw(this);
         }
+
+        /*
+        So apparently the spritebatch messes up with some GraphicsDevice settings that basically break 3D rendering.
+        Since we're storing the SpriteBatch in the scene class I think we should just have the UIProcessor behavior in the Scene class.
+
+        I'm probably not going to make the refactor in time for the 6/4 delivery of the project so for now this stays here
+
+        */
+
+        // Set the DepthStencilState to enable the depth buffer
+        GraphicsDeviceManager.GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+        // Other rendering state settings as needed
+        GraphicsDeviceManager.GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
+        GraphicsDeviceManager.GraphicsDevice.BlendState = BlendState.Opaque;
+        GraphicsDeviceManager.GraphicsDevice.SamplerStates[0] = SamplerState.LinearClamp;
+
+        // Clear the depth buffer
+        GraphicsDeviceManager.GraphicsDevice.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
+
+
+        foreach (var entity in entities.Values)
+        {
+            entity.Draw(this);
+        }
+
+
+
+
     }
 
     public virtual void Update(GameTime gameTime)
@@ -152,7 +170,7 @@ public class Scene
 
     public virtual void Unload()
     {
-
+        SpriteBatch.Dispose();
     }
 
 }
