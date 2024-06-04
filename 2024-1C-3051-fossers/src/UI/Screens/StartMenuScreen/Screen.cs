@@ -5,6 +5,8 @@ using WarSteel.Scenes;
 using WarSteel.UIKit;
 using WarSteel.Utils;
 
+namespace WarSteel.Screens.MainMenu;
+
 public class StartScreen : UIScreen
 {
     MenuScreens currentScreen = MenuScreens.START;

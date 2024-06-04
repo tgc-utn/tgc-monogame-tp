@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using WarSteel.Scenes;
 using WarSteel.UIKit;
 
+namespace WarSteel.Screens;
+
 public abstract class UIScreen
 {
     private string _name;
@@ -16,10 +18,10 @@ public abstract class UIScreen
         _uiElems = new List<UI>();
     }
 
-    // adds ui elements
+    // initial rendering
     public abstract void Render(Scene scene);
 
-    // removes all ui elements
+    // removes all current ui elements
     public void Remove()
     {
         _uiElems.ForEach(elem => elem.toDestroy = true);
