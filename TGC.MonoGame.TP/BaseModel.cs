@@ -18,7 +18,8 @@ namespace TGC.MonoGame.TP
         public Vector3 Position { get; set; }
 
         public List<Matrix> World = new List<Matrix>();
-        public BoundingBox BBox { get; set; }
+
+        public List<BoundingBox> BBox = new List<BoundingBox>();
 
         public List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
@@ -53,8 +54,8 @@ namespace TGC.MonoGame.TP
                 MeshPartTextures.Add(textures);
             }
 
-            var modelBoundingBox = BoundingVolumesExtensions.CreateAABBFrom(Model);
-            BBox = new BoundingBox(modelBoundingBox.Min + Position, modelBoundingBox.Max + Position);
+            BBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateTranslation(pos)));
+
         }
 
         private void Initialize(Model model, Effect effect, float scale, List<Vector3> listPos)
@@ -67,9 +68,8 @@ namespace TGC.MonoGame.TP
                 Position = pos;
                 World.Add(Matrix.CreateTranslation(Position));
 
+                BBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateTranslation(pos)));
 
-                var modelBoundingBox = BoundingVolumesExtensions.CreateAABBFrom(Model);
-                BBox = new BoundingBox(modelBoundingBox.Min + Position, modelBoundingBox.Max + Position);
 
             }
 

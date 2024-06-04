@@ -22,6 +22,7 @@ using System.Collections;
 using TGC.MonoTP;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
+using TGC.MonoGame.Samples.Collisions;
 
 namespace TGC.MonoGame.TP
 {
@@ -245,8 +246,8 @@ namespace TGC.MonoGame.TP
 
             GameModels = new GameModel[]
              {
-                new GameModel(Content.Load<Model>(ContentFolder3D + "trees/Tree2"), Effect, 60f, GenerateRandomPositions(100), Simulation, new Sphere(1.5f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/Electronic box"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Box(3f, 3f, 2f)),
+                new GameModel(Content.Load<Model>(ContentFolder3D + "trees/Tree4"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Sphere(1.5f)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/ElectronicBoxNew"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Box(3f, 3f, 2f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/towers"), Effect, 1f, GenerateRandomPositions(15), Simulation, new Box(5f, 10f, 4f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.1f, GenerateRandomPositions(20), Simulation, new Box(2.5f, 2f, 2.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "gasoline/gasoline"), Effect, 1.5f, GenerateRandomPositions(100), Simulation, new Box(2f, 3f, 2f)),
@@ -399,7 +400,7 @@ namespace TGC.MonoGame.TP
             {
                 Missiles.Remove(missileToDelete);
 
-                    Explosion.Play();
+                Explosion.Play();
 
             }
 
@@ -457,9 +458,9 @@ namespace TGC.MonoGame.TP
                     }
 
 
-                    foreach (GameModel model in GameModels)
-                        foreach (Matrix world in model.World)
-                            Gizmos.DrawCube(world/* * Matrix.CreateScale(model.Scale)*/, Color.Red);
+                    foreach (var model in GameModels)
+                        foreach (var box in model.BBox)
+                            Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(box), BoundingVolumesExtensions.GetExtents(box) , Color.Red);
 
                     DrawFloor(FloorQuad);
                     DrawWalls();
