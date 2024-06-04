@@ -16,9 +16,9 @@ public class Game : Microsoft.Xna.Framework.Game
     public Game()
     {
         Graphics = new GraphicsDeviceManager(this);
-        SpriteBatch = new SpriteBatch(GraphicsDevice);
+
         Content.RootDirectory = "Content";
-        IsMouseVisible = false;
+        IsMouseVisible = true;
         // Graphics.IsFullScreen = true;
         Window.AllowUserResizing = true;
         Graphics.PreferredBackBufferWidth = 1280;
@@ -27,11 +27,14 @@ public class Game : Microsoft.Xna.Framework.Game
 
     protected override void Initialize()
     {
+        // init singleton classes
         ContentRepoManager.SetUpInstance(Content);
-        SceneManager = new SceneManager();
+        SceneManager.SetUpInstance(ScenesNames.MENU);
+        SceneManager = SceneManager.Instance();
+        SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+        SceneManager.AddScene(ScenesNames.MENU, new MenuScene(Graphics, SpriteBatch));
         SceneManager.AddScene(ScenesNames.MAIN, new MainScene(Graphics, SpriteBatch));
-        SceneManager.SetCurrentScene(ScenesNames.MAIN);
         SceneManager.CurrentScene().Initialize();
 
         base.Initialize();
@@ -61,7 +64,7 @@ public class Game : Microsoft.Xna.Framework.Game
     {
         if (Keyboard.GetState().IsKeyDown(Keys.Escape))
         {
-            Exit();
+            SceneManager.SetCurrentScene(ScenesNames.MENU);
         }
         SceneManager.CurrentScene().Update(gameTime);
 
@@ -73,7 +76,6 @@ public class Game : Microsoft.Xna.Framework.Game
     {
         SceneManager.CurrentScene().Unload();
         Content.Unload();
-
 
         base.UnloadContent();
     }

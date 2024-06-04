@@ -22,6 +22,8 @@ public class MenuScene : Scene
         UIProcessor uiProcessor = new UIProcessor();
         AddSceneProcessor(uiProcessor);
         Vector2 screenCenter = Screen.GetScreenCenter(Graphics);
+        int screenWidth = Screen.GetScreenWidth(Graphics);
+        int screenHeight = Screen.GetScreenHeight(Graphics);
 
         Func<int, Vector3> GetButtonPos = (int pos) =>
         {
@@ -31,14 +33,16 @@ public class MenuScene : Scene
         };
 
         // ui elems
-        UI background = new UI(() => new Vector3(screenCenter.X, screenCenter.Y, 0), Screen.GetScreenWidth(Graphics), Screen.GetScreenHeight(Graphics), new Image("menuBg", Color.White), new List<UIAction>());
-        UI header = new UI(() => new Vector3(screenCenter.X, screenCenter.Y - 160, 0), 0, 0, new Header("WARSTEEL", Color.White), new List<UIAction>());
-        UI startBtn = new UI(() => GetButtonPos(0), 300, 60, new Button(ContentRepoManager.Instance().GetTexture("UI/button"), "Start"), new List<UIAction>()
+        UI background = new UI(new Vector3(screenCenter.X, screenCenter.Y, 0), screenWidth, screenWidth, new Image("UI/menu-bg"));
+        UI header = new UI(new Vector3(screenCenter.X, screenCenter.Y - 160, 0), new Header("WARSTEEL"));
+        UI startBtn = new UI(GetButtonPos(0), 300, 60, new PrimaryBtn("Start"), new List<UIAction>()
         {
-            (scene, ui) => {SceneManager.Instance().SetCurrentScene(ScenesNames.MAIN);},
+            (scene, ui) => { SceneManager.Instance().SetCurrentScene(ScenesNames.MAIN); },
         });
-        UI controlsBtn = new UI(() => GetButtonPos(1), 300, 60, new Button(ContentRepoManager.Instance().GetTexture("UI/button"), "Controls"), new List<UIAction>());
-        UI exitBtn = new UI(() => GetButtonPos(2), 300, 60, new Button(ContentRepoManager.Instance().GetTexture("UI/button"), "Exit"), new List<UIAction>());
+        UI controlsBtn = new UI(GetButtonPos(1), 300, 60, new SecondaryBtn("Controls"), new List<UIAction>()
+        {
+        });
+        UI exitBtn = new UI(GetButtonPos(2), 300, 60, new SecondaryBtn("Exit"), new List<UIAction>());
 
         // add elems
         uiProcessor.AddUi(background);
@@ -47,10 +51,8 @@ public class MenuScene : Scene
         uiProcessor.AddUi(controlsBtn);
         uiProcessor.AddUi(exitBtn);
 
-
         base.Initialize();
     }
-
 
     public override void Draw()
     {
