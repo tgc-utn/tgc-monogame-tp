@@ -107,7 +107,7 @@ namespace ThunderingTanks.Objects
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             // Lógica de disparo hacia el jugador
-            Shoot(playerPosition);
+            //Shoot();
         }
 
 
@@ -136,28 +136,16 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        public Projectile Shoot(Vector3 playerPosition)
+        public Projectile Shoot()
         {
-            if (timeSinceLastShot >= FireRate)
-            {
-                // Calcular la dirección hacia el jugador
-                Vector3 direction = playerPosition - Position;
-                direction.Y = 0; // Ignorar la componente Y para evitar movimientos verticales
-                direction.Normalize();
+            Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 0f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
-                // Crear la matriz de transformación del proyectil
-                Matrix projectileMatrix = Matrix.CreateWorld(Position, direction, Vector3.Up);
-                float projectileScale = 0.3f; // Ajusta esta escala según tus necesidades
+            float projectileScale = 1f;
+            float projectileSpeed = 5000f;
 
-                // Crear el proyectil con la posición y dirección correcta
-                Projectile projectile = new Projectile(projectileMatrix, GunRotationFinal, 50000f, projectileScale);
-                timeSinceLastShot = 0f;
-                return projectile;
-            }
-            else
-            {
-                return null;
-            }
+            Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
+
+            return projectile;
         }
 
         private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)

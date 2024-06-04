@@ -62,6 +62,9 @@ namespace ThunderingTanks
         private int CantidadArboles = 15;
         private int CantidadTanquesEnemigos = 3;
 
+        private float elapsedTime = 0f;
+        private const float shootInterval = 5f;
+
         //public Texture2D CrossHairTexture { get; set; }
         //private Vector2 CrossHairPosition { get; set; }
 
@@ -226,7 +229,8 @@ namespace ThunderingTanks
 
         protected override void Update(GameTime gameTime)
         {
-
+            var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            elapsedTime += time;
             if (!_juegoIniciado || Panzer.isDestroyed)
             {
                 Panzer.isDestroyed = false;
@@ -296,6 +300,18 @@ namespace ThunderingTanks
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Update(gameTime, Panzer.Direction);
+                    if (elapsedTime >= shootInterval)
+                    {
+                        Projectile projectile = enemyTank.Shoot();
+                        Console.WriteLine("Tanque enemigo quiere disparar");
+                        if (projectile != null)
+                        {
+                            Projectiles.Add(projectile);
+                            MediaPlayer.Play(_shootSound);
+                            Console.WriteLine("Disparo Tanque enemigo");
+                        }
+                        elapsedTime = 0f;
+                    }
                 }
 
                 UpdateProjectiles(gameTime);
