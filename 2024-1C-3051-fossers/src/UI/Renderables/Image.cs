@@ -14,6 +14,14 @@ public class Image : IUIRenderable
     private Vector2 _origin;
     private float _scale;
 
+    public Image(string texture, float scale = 1.0f)
+    {
+        _texture = ContentRepoManager.Instance().GetTexture(texture);
+        _color = Color.White;
+        _origin = new Vector2(_texture.Width / 2, _texture.Height / 2);
+        _scale = scale;
+    }
+
     public Image(string texture, Color color, float scale = 1.0f)
     {
         _texture = ContentRepoManager.Instance().GetTexture(texture);
