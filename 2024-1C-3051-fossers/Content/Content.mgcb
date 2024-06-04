@@ -51,6 +51,24 @@
 /processorParam:TextureFormat=Compressed
 /build:3D/geometries/sphere.fbx
 
+#begin Audio/button-click.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/button-click.wav
+
+#begin Audio/start-song.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/start-song.wav
+
+#begin Audio/tank-shot.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Audio/tank-shot.wav
+
 #begin Effects/BasicShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
