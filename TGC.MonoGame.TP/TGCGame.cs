@@ -105,9 +105,10 @@ namespace TGC.MonoGame.TP
         private SpherePrimitive Sphere { get; set; }
         private List<float> Radii { get; set; }
         private List<BodyHandle> SphereHandles { get; set; }
+        private List<Missile> Missiles { get; set; }
         private List<Matrix> SpheresWorld { get; set; }
         private bool CanShoot { get; set; }
-        private GameModel Missile { get; set; }
+        private GameModel MissileModel { get; set; }
         public GameModel Bullet { get; private set; }
 
         private List<bool> firstTime = new List<bool>();
@@ -175,6 +176,7 @@ namespace TGC.MonoGame.TP
             };
 
             SpheresWorld = new List<Matrix>();
+            Missiles = new List<Missile>();
             Radii = new List<float>();
             SphereHandles = new List<BodyHandle>();
             Sphere = new SpherePrimitive(GraphicsDevice);
@@ -252,7 +254,7 @@ namespace TGC.MonoGame.TP
 
             };
 
-            Missile = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2"), Effect, 1f, new Vector3(0, 0, 0));
+            MissileModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2"), Effect, 1f, new Vector3(0, 0, 0));
             Bullet = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Bullet"), Effect, 1f, new Vector3(0, 0, 0));
            
 
@@ -332,21 +334,7 @@ namespace TGC.MonoGame.TP
             if (keyboardState.IsKeyDown(Keys.Z) && CanShoot /*&& MainCar.CanShoot*/)
             {
                 CanShoot = false;
-                // Create the shape that we'll launch at the pyramids when the user presses a button.
-                var radius = 0.3f;
-                var bulletShape = new Sphere(radius);
-
-                var forwardWorld = Vector3.Transform(forwardLocal, MainCar.rotationQuaternion * MainCar.quaternion);
-
-                var bodyDescription = BodyDescription.CreateConvexDynamic(MainCar.Pose,
-                    new BodyVelocity(new NumericVector3(forwardWorld.X, forwardWorld.Y, forwardWorld.Z) * -50),
-                    bulletShape.Radius * bulletShape.Radius * bulletShape.Radius, Simulation.Shapes, bulletShape);
-
-                var bodyHandle = Simulation.Bodies.Add(bodyDescription);
-
-                Radii.Add(radius);
-                SphereHandles.Add(bodyHandle);
-                firstTime.Add(true);
+                Missiles.Add(new Missile(Simulation, MainCar));
             }
 
             if (keyboardState.IsKeyUp(Keys.Z) /*&& MainCar.CanShoot*/)
@@ -371,36 +359,17 @@ namespace TGC.MonoGame.TP
             var rotationQuaternionY = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
             var quaternionCar = MainCar.quaternion;
 
-            var sphereHandleCount = SphereHandles.Count;
-            for (var index = 0; index < sphereHandleCount; index++)
-            {
-                var pose = Simulation.Bodies.GetBodyReference(SphereHandles[index]).Pose;
-                var position = pose.Position;
-                var quaternion = pose.Orientation;
-                Matrix world;
-
-                if (firstTime[index])
-                {
-                    world = Matrix.CreateScale(Radii[index]) *
-                            Matrix.CreateFromQuaternion(rotationQuaternionX) *
-                            Matrix.CreateFromQuaternion(rotationQuaternionY * quaternionCar) *
-                            Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
-                    missileOrientation.Add(rotationQuaternionY * quaternionCar);
-
+            var missilesToDelete = new List<Missile>();
+            foreach (Missile missile in Missiles) {
+                missile.update(Simulation, quaternionCar);
+                if (missile.deleteFlag) {
+                    missilesToDelete.Add(missile);
                 }
-                else
-                {
-                    world = Matrix.CreateScale(Radii[index]) *
-                                  Matrix.CreateFromQuaternion(rotationQuaternionX) *
-                                  Matrix.CreateFromQuaternion(missileOrientation[index]) *
-                                  Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
-                }
-
-                SpheresWorld.Add(world);
-
-                firstTime[index] = false;
-
             }
+            foreach (Missile missileToDelete in missilesToDelete) {
+                Missiles.Remove(missileToDelete);
+            }
+
 
             Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);
         }
@@ -435,7 +404,11 @@ namespace TGC.MonoGame.TP
 
                     Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
 
-                    Missile.Draw(SpheresWorld);
+                    var missileWorlds = new List<Matrix>();
+                    foreach (Missile missile in Missiles) {
+                        missileWorlds.Add(missile.World);
+                    }
+                    MissileModel.Draw(missileWorlds);
 
                     foreach (GameModel model in GameModels)
                         foreach (Matrix world in model.World)
