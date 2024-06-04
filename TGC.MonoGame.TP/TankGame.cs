@@ -199,7 +199,8 @@ namespace ThunderingTanks
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _systemFont = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
-            _menu = new Menu(_systemFont, _tankMouseTexture, Song);
+            _menu = new Menu(_systemFont, _tankMouseTexture, Song, Content);
+            _menu.LoadContent(Content);
 
 
 
