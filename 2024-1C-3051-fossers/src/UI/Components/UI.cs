@@ -71,4 +71,6 @@ public class UI
     {
         _actions.ForEach(action => action.Invoke(scene, this));
     }
+
+    public virtual void Update(Scene scene) { }
 }
