@@ -13,9 +13,9 @@ public interface IUIRenderable
 public class UI
 {
     public bool toDestroy = false;
-    private Vector3 _position;
-    private float _height;
-    private float _width;
+    public Vector3 Position;
+    public float Height;
+    public float Width;
 
     private IUIRenderable _renderable;
     private List<UIAction> _actions;
@@ -24,18 +24,18 @@ public class UI
     {
         _renderable = renderable;
         _actions = actions;
-        _position = position;
-        _height = height;
-        _width = width;
+        Position = position;
+        Height = height;
+        Width = width;
     }
 
 
     public UI(Vector3 position, float width, float height, IUIRenderable renderable)
     {
         _renderable = renderable;
-        _position = position;
-        _height = height;
-        _width = width;
+        Position = position;
+        Height = height;
+        Width = width;
         _actions = new List<UIAction>();
     }
 
@@ -43,14 +43,11 @@ public class UI
     {
         _renderable = renderable;
         _actions = new List<UIAction>();
-        _position = position;
-        _height = 0;
-        _width = 0;
+        Position = position;
+        Height = 0;
+        Width = 0;
     }
 
-    public Vector3 Position => _position;
-    public float Width => _width;
-    public float Height => _height;
 
     public void Draw(Scene scene)
     {
@@ -61,10 +58,10 @@ public class UI
     {
         Vector3 position = Position;
 
-        return mousePosition.X <= position.X + _width / 2
-               && mousePosition.X >= position.X - _width / 2
-               && mousePosition.Y <= position.Y + _height / 2
-               && mousePosition.Y >= position.Y - _height / 2;
+        return mousePosition.X <= position.X + Width / 2
+               && mousePosition.X >= position.X - Width / 2
+               && mousePosition.Y <= position.Y + Height / 2
+               && mousePosition.Y >= position.Y - Height / 2;
     }
 
     public void OnClick(Scene scene)

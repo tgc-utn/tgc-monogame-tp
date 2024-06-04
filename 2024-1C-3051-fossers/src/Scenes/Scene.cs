@@ -109,10 +109,6 @@ public class Scene
     public virtual void Draw()
     {
 
-        foreach (var processor in SceneProcessors.Values)
-        {
-            processor.Draw(this);
-        }
 
         /*
         So apparently the spritebatch messes up with some GraphicsDevice settings that basically break 3D rendering.
@@ -136,6 +132,11 @@ public class Scene
         foreach (var entity in entities.Values)
         {
             entity.Draw(this);
+        }
+
+        foreach (var processor in SceneProcessors.Values)
+        {
+            processor.Draw(this);
         }
     }
 
