@@ -23,7 +23,10 @@ namespace TGC.MonoTP
 
         private SpriteFont SpriteFont;
         private SpriteBatch SpriteBatch;
-        private Texture2D texture;      
+        private Texture2D texture;
+       private Vector2 position { get; set; }
+        private Texture2D hudImage { get; set; }      
+        private float scale { get; set; }      
         private GraphicsDevice GraphicsDevice;
         private ContentManager Content;
 
@@ -44,8 +47,11 @@ namespace TGC.MonoTP
             //SpriteBatch.Begin();
             //SpriteBatch.DrawString(SpriteFont, "DERBY GAMES", new Vector2(300, 500), Color.White);
             //SpriteBatch.End();
-
             GraphicsDevice.Clear(Color.Black);
+            PrepareHud();
+            SpriteBatch.Begin();
+            SpriteBatch.Draw(hudImage, position, null, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            SpriteBatch.End();
             DrawCenterTextY("DERBY GAMES", 100, 5);
             DrawCenterTextY("CONTROLES -  WASD", 250, 1);
             DrawCenterTextY("SALTO - SPACE", 300, 1);
@@ -53,6 +59,36 @@ namespace TGC.MonoTP
             DrawCenterTextY("CLAXON - B", 400, 1);
             DrawCenterTextY("GOD MODE  -  G", 450, 1);
             DrawCenterTextY("Presione SPACE para comenzar...", 600, 1);
+        }
+
+        private void PrepareHud()
+        {
+            float screenWidth = GraphicsDevice.Viewport.Width;
+            float screenHeight = GraphicsDevice.Viewport.Height;
+            float imageWidth = hudImage.Width;
+            float imageHeight = hudImage.Height;
+
+            float screenAspectRatio = screenWidth / screenHeight;
+            float imageAspectRatio = imageWidth / imageHeight;
+
+            if (screenAspectRatio > imageAspectRatio)
+            {
+                // Screen is wider than the image
+                scale = screenHeight / imageHeight;
+            }
+            else
+            {
+                // Screen is taller than the image
+                scale = screenWidth / imageWidth;
+            }
+
+            // Calculate the position to center the image
+            float scaledWidth = imageWidth * scale;
+            float scaledHeight = imageHeight * scale;
+            position = new Vector2(
+                (screenWidth - scaledWidth) / 2,
+                (screenHeight - scaledHeight) / 2
+            );
         }
 
         public void Initialize()
@@ -64,6 +100,7 @@ namespace TGC.MonoTP
         {
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCodePL");
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CarCrash");
+            hudImage = Content.Load<Texture2D>(ContentFolder3D + "HUD/HUD1");
 
         }
 
