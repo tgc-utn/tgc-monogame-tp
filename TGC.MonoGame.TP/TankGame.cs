@@ -54,12 +54,12 @@ namespace ThunderingTanks
         private int CantidadArboles = 15;
         private int CantidadTanquesEnemigos = 3;
 
-        public Texture2D CrossHairTexture { get; set; }
-        private Vector2 CrossHairPosition { get; set; }
+        //public Texture2D CrossHairTexture { get; set; }
+        //private Vector2 CrossHairPosition { get; set; }
 
         public SpriteBatch spriteBatch { get; set; }
 
-        private Vector3 CrossHairAux;
+        //private Vector3 CrossHairAux;
 
         //MENU
 
@@ -195,13 +195,15 @@ namespace ThunderingTanks
 
             _tankMouseTexture = Content.Load<Texture2D>(ContentFolderTextures + "proyectilMouse");
 
-            CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
+            //CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _systemFont = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
             _menu = new Menu(_systemFont, _tankMouseTexture, Song, Content);
             _menu.LoadContent(Content);
+            _hud = new HUD();
+            _hud.loadContent(Content);
 
 
 
@@ -241,6 +243,8 @@ namespace ThunderingTanks
                 var cannonPosition = Panzer.CannonMatrix;
                 var direction = Panzer.Direction;
 
+                _hud.Update(Panzer, _targetCamera, ref viewport, screenWidth);
+
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     Projectile projectile = Panzer.Shoot();
@@ -274,14 +278,15 @@ namespace ThunderingTanks
 
                 }
 
-                CrossHairAux = viewport.Project(
+                /*CrossHairAux = viewport.Project(
                     Panzer.Direction,
                     _targetCamera.Projection,
                     _targetCamera.View,
                     Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
                     );
+                */
 
-                CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
+                //CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
 
                 screenHeight = GraphicsDevice.Viewport.Height;
                 screenWidth = GraphicsDevice.Viewport.Width;
@@ -373,24 +378,7 @@ namespace ThunderingTanks
 
                 spriteBatch.Begin();
 
-                /*spriteBatch.Draw(
-                    CrossHairTexture,
-                    CrossHairPosition,
-                    null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
-                 );*/
-
-
-                /*spriteBatch.Draw(
-                    Panzer.LifeBar,
-                    new Vector2(50,-200),
-                    null,
-                    Color.Yellow,
-                    0f,
-                    Vector2.Zero,
-                    1f,
-                    SpriteEffects.None,
-                    0.8f);
-                 );*/
+                
 
                 _hud.Draw(spriteBatch);
 

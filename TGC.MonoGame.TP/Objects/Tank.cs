@@ -65,7 +65,7 @@ namespace ThunderingTanks.Objects
 
         //PARAMETRO DE VIDA
 
-        public int _maxLifeBarWidth;
+       // public int _maxLifeBarWidth;
 
         public int _currentLife;
 
@@ -112,8 +112,8 @@ namespace ThunderingTanks.Objects
             Console.WriteLine($"Colisión detectada con roca en índice {TankBox}");
 
 
-            LifeBar = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
-            _maxLifeBarWidth = LifeBar.Width;
+            //LifeBar = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
+            //_maxLifeBarWidth = LifeBar.Width;
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
