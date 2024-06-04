@@ -1,6 +1,8 @@
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using WarSteel.Screens;
+using WarSteel.Screens.MainMenu;
 
 namespace WarSteel.Scenes.Main;
 
