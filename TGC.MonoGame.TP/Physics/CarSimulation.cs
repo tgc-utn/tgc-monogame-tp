@@ -28,7 +28,7 @@ namespace TGC.MonoGame.TP.Physics
 
             Simulation = Simulation.Create(BufferPool,
                 new NarrowPhaseCallbacks(new SpringSettings(30, 1)),
-                new PoseIntegratorCallbacks(new NumericVector3(0, -10, 0)),
+                new PoseIntegratorCallbacks(new NumericVector3(0, -25, 0)),
                 new SolveDescription(8, 1));
 
             return Simulation;

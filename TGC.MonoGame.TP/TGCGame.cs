@@ -20,6 +20,8 @@ using TGC.MonoGame.TP.PowerUps;
 using System.Linq;
 using System.Collections;
 using TGC.MonoTP;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace TGC.MonoGame.TP
 {
@@ -112,6 +114,8 @@ namespace TGC.MonoGame.TP
 
         //HUD 
         HUD HUD { get; set; }
+        public Song backgroundMusic { get; private set; }
+        public SoundEffect soundEffect { get; private set; }
 
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
@@ -182,9 +186,14 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
+            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
 
             HUD.LoadContent();
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
+            backgroundMusic = Content.Load<Song>(ContentFolder3D + "HUD/SoundTrack");
+            soundEffect = Content.Load<SoundEffect>(ContentFolder3D + "HUD/SoundEffect");
+
+            MediaPlayer.Play(backgroundMusic);
+            MediaPlayer.IsRepeating = true;
 
             Gizmos.LoadContent(GraphicsDevice, Content);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
