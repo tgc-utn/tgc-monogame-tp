@@ -17,11 +17,13 @@ class SkyBoxShader : Shader
         Effect = ContentRepoManager.Instance().GetEffect("SkyBox");
     }
 
-    public override void ApplyEffects(Transform transform, Scene scene)
+    public override void ApplyEffects(Scene scene, Matrix world)
     {
         Transform cameraTransform = scene.GetCamera().Transform;
-        Effect.Parameters["World"].SetValue(Matrix.CreateScale(transform.Dimensions) * Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
+        Effect.Parameters["World"].SetValue(Matrix.CreateTranslation(cameraTransform.AbsolutePosition));
         Effect.Parameters["SkyBoxTexture"].SetValue(_texture);
         Effect.Parameters["CameraPosition"].SetValue(cameraTransform.AbsolutePosition);
+        Effect.Parameters["View"].SetValue(scene.GetCamera().View);
+        Effect.Parameters["Projection"].SetValue(scene.GetCamera().Projection);
     }
 }

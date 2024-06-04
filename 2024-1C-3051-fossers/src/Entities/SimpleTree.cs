@@ -26,8 +26,7 @@ class SimpleTree : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/SimpleTree");
-        Renderable = new Renderable(model);
-        Renderable.AddShader("color", new PhongShader(0.5f, 0.5f, Color.Brown));
+        Renderable = new Renderable(model,new PhongShader(0.5f, 0.5f, Color.Brown));
 
         base.LoadContent();
     }

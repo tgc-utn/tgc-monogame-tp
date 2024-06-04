@@ -9,16 +9,11 @@ public abstract class Shader
 {
     public Effect Effect { get; set; }
 
-    public void UseCamera(Camera camera)
+    public void AssociateTo(Model model)
     {
-        Effect.Parameters["View"].SetValue(camera.View);
-        Effect.Parameters["Projection"].SetValue(camera.Projection);
+        foreach (var modelMesh in model.Meshes)
+            foreach (var meshPart in modelMesh.MeshParts)
+                meshPart.Effect = Effect;
     }
-
-    public void UseWorld(Matrix world)
-    {
-        Effect.Parameters["World"].SetValue(world);
-    }
-
-    public abstract void ApplyEffects(Transform transform,Scene scene);
+    public abstract void ApplyEffects(Scene scene, Matrix world);
 }

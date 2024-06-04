@@ -18,7 +18,7 @@ public class TankRenderable : Renderable
     private Transform _turretTransform;
     private Transform _cannonTransform;
 
-    public TankRenderable(Model model, Transform turretTransform, Transform cannonTransform) : base(model)
+    public TankRenderable(Model model, Shader shader, Transform turretTransform, Transform cannonTransform) : base(model, shader)
     {
         _turretTransform = turretTransform;
         _cannonTransform = cannonTransform;
@@ -77,10 +77,8 @@ public class Tank : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Panzer/Panzer");
-        Shader texture = new PhongShader(0.2f, 0.5f, Color.Blue);
 
-        Renderable = new TankRenderable(model, _turretTransform, _cannonTransform);
-        Renderable.AddShader("phong", texture);
+        Renderable = new TankRenderable(model,new PhongShader(0.2f, 0.8f, Color.DarkGreen), _turretTransform, _cannonTransform);
 
         base.LoadContent();
     }

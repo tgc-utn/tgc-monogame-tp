@@ -9,44 +9,27 @@ namespace WarSteel.Common;
 public class Renderable
 {
     protected Model _model { get; }
-    protected Dictionary<string, Shader> _shaders;
+    protected Shader _shader;
 
-    public Renderable(Model model)
+    public Renderable(Model model, Shader shader)
     {
         _model = model;
-        _shaders = new Dictionary<string, Shader>();
-    }
-
-    public void AddShader(string name, Shader shader)
-    {
-        _shaders[name] = shader;
+        _shader = shader;
+        _shader.AssociateTo(model);
     }
 
     public virtual void Draw(Transform transform, Scene scene)
     {
 
-        foreach (var shader in _shaders)
+        foreach (var mesh in _model.Meshes)
         {
-            foreach (var pass in shader.Value.Effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
+            Matrix modelWorld = GetMatrix(mesh, transform);
 
-                foreach (var mesh in _model.Meshes)
-                {
-                    Matrix modelWorld = GetMatrix(mesh, transform);
-                    shader.Value.UseCamera(scene.GetCamera());
-                    shader.Value.UseWorld(modelWorld);
-                    shader.Value.ApplyEffects(transform, scene);
+            _shader.ApplyEffects(scene, modelWorld);
 
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        part.Effect = shader.Value.Effect;
-                    }
+            mesh.Draw();
+        }
 
-                    mesh.Draw();
-                }
-            }
-        };
     }
 
     public Vector3 GetModelCenter()

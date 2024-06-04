@@ -27,7 +27,7 @@ class Map
         smallRocks.ForEach(rock => scene.AddEntityBeforeRun(rock));
 
         // Vegetation
-        List<Entity> bush = EntityGenerator.Generate(new Vector3(0, -10, 0), 25, typeof(Bush));
+        List<Entity> bush = EntityGenerator.Generate(new Vector3(0, 0, 0), 25, typeof(Bush));
         bush.ForEach(bush => scene.AddEntityBeforeRun(bush));
 
         // tanks

@@ -26,8 +26,7 @@ public class Ground : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/Ground");
-        Renderable = new Renderable(model);
-        Renderable.AddShader("color", new PhongShader(0.5f, 0.5f, Color.Gray));
+        Renderable = new Renderable(model,new PhongShader(0.5f, 0.5f, Color.Gray));
         base.LoadContent();
     }
 }

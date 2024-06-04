@@ -28,6 +28,7 @@ class PhongShader : Shader
         diffuseCoefficient = diffuse;
         this.texture = texture;
         Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
+        
     }
 
     public PhongShader(float ambient, float diffuse, Color color)
@@ -38,7 +39,7 @@ class PhongShader : Shader
         Effect = ContentRepoManager.Instance().GetEffect("PhongShader");
     }
 
-    public override void ApplyEffects(Transform transform,Scene scene)
+    public override void ApplyEffects(Scene scene, Matrix world)
     {
 
         if (scene.GetSceneProcessor<LightProcessor>() == null){
@@ -58,15 +59,15 @@ class PhongShader : Shader
             positions[i] = sourcePosition;
         }
 
+        Effect.Parameters["World"].SetValue(world);
+        Effect.Parameters["View"].SetValue(scene.GetCamera().View);
+        Effect.Parameters["Projection"].SetValue(scene.GetCamera().Projection);
         Effect.Parameters["AmbientLight"].SetValue(scene.GetSceneProcessor<LightProcessor>().GetAmbientColor().ToVector3());
         Effect.Parameters["AmbientCoefficient"].SetValue(ambientCoefficient);
         Effect.Parameters["LightSourcePositions"].SetValue(positions);
         Effect.Parameters["LightSourceColors"].SetValue(colors);
         Effect.Parameters["DiffuseCoefficient"].SetValue(diffuseCoefficient);
-        Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(transform.World)));
-        
-
-
+        Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
 
         if (texture == null)
         {

@@ -53,8 +53,8 @@ public class Bullet : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Tanks/Bullet");
-        Renderable = new Renderable(model);
-        Renderable.AddShader("color", new ColorShader(Color.Red));
+        Renderable = new Renderable(model,new PhongShader(0.2f,0.9f,Color.Red));
+
 
         base.LoadContent();
     }

@@ -51,8 +51,7 @@ public class Rock : Entity
     public override void LoadContent()
     {
         Model model = ContentRepoManager.Instance().GetModel("Map/" + GetRockSizeStringValue() + "Stone");
-        Renderable = new Renderable(model);
-        Renderable.AddShader("color", new ColorShader(Color.DarkGray));
+        Renderable = new Renderable(model,new ColorShader(Color.DarkGray));
 
         base.LoadContent();
     }

@@ -20,7 +20,7 @@ public class MainScene : Scene
         PhysicsProcessor physics = new PhysicsProcessor();
         UIProcessor uiProcessor = new UIProcessor();
 
-        light.AddLightSource(new LightSource(Color.Red, new Vector3(0, 500, 0)));
+        light.AddLightSource(new LightSource(Color.White, new Vector3(2000, 9000, 0)));
 
         AddSceneProcessor(light);
         AddSceneProcessor(physics);

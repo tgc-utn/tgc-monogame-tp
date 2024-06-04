@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Managers;
 using WarSteel.Scenes;
@@ -16,9 +17,12 @@ class TextureShader : Shader
         this.Effect = ContentRepoManager.Instance().GetEffect("BasicTextureShader");
     }
 
-    public override void ApplyEffects(Transform transform,Scene scene)
+    public override void ApplyEffects(Scene scene, Matrix world)
     {
-        this.Effect.Parameters["Texture"].SetValue(_texture);
+        Effect.Parameters["Texture"].SetValue(_texture);
+        Effect.Parameters["World"].SetValue(world);
+        Effect.Parameters["View"].SetValue(scene.GetCamera().View);
+        Effect.Parameters["Projection"].SetValue(scene.GetCamera().Projection);
     }
 
 }
