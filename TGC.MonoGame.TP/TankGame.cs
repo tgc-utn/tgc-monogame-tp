@@ -516,7 +516,7 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(roca.RocaBox))
                 {
-                    Panzer.ReceiveDamage();
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
                     return true;
                 }
@@ -540,7 +540,7 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
-                    Panzer.ReceiveDamage();
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con un tanque enemigo.");
                     return true;
                 }

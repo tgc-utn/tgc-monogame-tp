@@ -250,12 +250,14 @@ namespace ThunderingTanks.Objects
             }
         }
         
-        public void ReceiveDamage()
+        public void ReceiveDamage(ref bool _juegoIniciado)
         {
             _currentLife -= 5;
             if(_currentLife <= 0)
             {
                 isDestroyed = true;
+                _juegoIniciado = false;
+
             }
         }
 
