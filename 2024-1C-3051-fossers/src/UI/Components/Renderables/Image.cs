@@ -34,10 +34,8 @@ public class Image : IUIRenderable
         float scaleX = ui.Width / _texture.Width;
         float scaleY = ui.Height / _texture.Height;
 
-        float scale = Math.Min(scaleX, scaleY) * _scale;
-
         Vector2 position = new Vector2(ui.Position.X, ui.Position.Y);
 
-        scene.SpriteBatch.Draw(_texture, position, null, _color, 0f, _origin, scale, SpriteEffects.None, 0f);
+        scene.SpriteBatch.Draw(_texture, position, null, _color, 0f, _origin, new Vector2(scaleX, scaleY), SpriteEffects.None, 0f);
     }
 }
