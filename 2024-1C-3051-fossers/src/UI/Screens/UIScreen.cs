@@ -19,7 +19,7 @@ public abstract class UIScreen
     }
 
     // initial rendering
-    public abstract void Render(Scene scene);
+    public abstract void Initialize(Scene scene);
 
     // removes all current ui elements
     public void Remove()

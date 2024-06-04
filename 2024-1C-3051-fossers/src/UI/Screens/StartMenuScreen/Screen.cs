@@ -13,7 +13,7 @@ public class StartScreen : UIScreen
 
     public StartScreen() : base("start-screen") { }
 
-    public override void Render(Scene scene)
+    public override void Initialize(Scene scene)
     {
         GraphicsDeviceManager GraphicsDeviceManager = scene.GraphicsDeviceManager;
         Vector2 screenCenter = Screen.GetScreenCenter(GraphicsDeviceManager);
@@ -42,7 +42,7 @@ public class StartScreen : UIScreen
     {
         currentScreen = screen;
         Remove();
-        Render(scene);
+        Initialize(scene);
     }
 
 

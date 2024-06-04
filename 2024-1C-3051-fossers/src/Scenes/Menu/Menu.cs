@@ -19,7 +19,7 @@ public class MenuScene : Scene
         AddSceneProcessor(uiProcessor);
         UIScreen screen = new StartScreen();
         uiProcessor.AddScreen(screen);
-        screen.Render(this);
+        screen.Initialize(this);
 
         base.Initialize();
     }
