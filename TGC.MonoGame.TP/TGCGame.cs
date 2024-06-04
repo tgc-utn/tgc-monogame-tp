@@ -274,7 +274,7 @@ namespace TGC.MonoGame.TP
                 // new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Bushes/source/bush1"), Effect,1f , GenerateRandomPositions(4)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Truck/source/KAMAZ"), Effect, 1f, GenerateRandomPositions(4)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence"), Effect, 1f, GenerateRandomPositions(4)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/FencesNew"), Effect, 150f, GenerateRandomPositions(30)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence2"), Effect, 1f, GenerateRandomPositions(4)),
 
             };
