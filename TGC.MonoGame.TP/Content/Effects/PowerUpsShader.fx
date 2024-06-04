@@ -57,7 +57,7 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     float rotatedZ = position.x * rotationX + position.z * rotationZ;
 
 // Calcula el desplazamiento vertical
-    float displacementY = sin(Time * atenuacion) * verticalSpeed + 10;
+    float displacementY = sin(Time * atenuacion) * verticalSpeed + 1;
 
 // Aplica los desplazamientos a las coordenadas
     input.Position.x = rotatedX;

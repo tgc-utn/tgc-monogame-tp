@@ -108,6 +108,7 @@ namespace TGC.MonoGame.TP
         private List<Matrix> SpheresWorld { get; set; }
         private bool CanShoot { get; set; }
         private GameModel Missile { get; set; }
+        public GameModel Bullet { get; private set; }
 
         private List<bool> firstTime = new List<bool>();
         private List<Quaternion> missileOrientation = new List<Quaternion>();
@@ -169,7 +170,8 @@ namespace TGC.MonoGame.TP
             PowerUps = new PowerUp[]
             {
                 new VelocityPowerUp(),
-                new MissilePowerUp()
+                new MissilePowerUp(),
+                new MachineGunPowerUp()
             };
 
             SpheresWorld = new List<Matrix>();
@@ -251,7 +253,8 @@ namespace TGC.MonoGame.TP
             };
 
             Missile = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2"), Effect, 1f, new Vector3(0, 0, 0));
-
+            Bullet = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Bullet"), Effect, 1f, new Vector3(0, 0, 0));
+           
 
             // Add walls
             WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(200f, 0f, 0f));
@@ -330,7 +333,7 @@ namespace TGC.MonoGame.TP
             {
                 CanShoot = false;
                 // Create the shape that we'll launch at the pyramids when the user presses a button.
-                var radius = 0.5f;
+                var radius = 0.3f;
                 var bulletShape = new Sphere(radius);
 
                 var forwardWorld = Vector3.Transform(forwardLocal, MainCar.rotationQuaternion * MainCar.quaternion);
