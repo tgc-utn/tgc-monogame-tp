@@ -161,6 +161,7 @@ namespace ThunderingTanks.Objects
             // Mover bounding box en base a los movimientos del tanque
             var BoundingBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
             TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
+            TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
             LastPosition = Direction;
 

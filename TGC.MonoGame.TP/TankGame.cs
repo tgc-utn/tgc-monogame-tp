@@ -128,7 +128,7 @@ namespace ThunderingTanks
             AgregarArboles(CantidadArboles);
 
             casa = new CasaAbandonada();
-            casa.Position = new Vector3(-3300f, -500f, 7000f);
+            casa.Position = new Vector3(-3300f, -700f, 7000f);
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
@@ -326,10 +326,12 @@ namespace ThunderingTanks
                 Camera camara = _targetCamera;
 
                 Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                Gizmos.DrawCube(Panzer.TankBox.Center, Panzer.TankBox.Extents*2f, Color.Red);
 
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                    Gizmos.DrawCube((enemyTank.TankBox.Max + enemyTank.TankBox.Min) / 2f, enemyTank.TankBox.Max - enemyTank.TankBox.Min, Color.Red);
                 }
 
                 City.Draw(gameTime, camara.View, camara.Projection);
@@ -346,7 +348,8 @@ namespace ThunderingTanks
 
                 foreach (var arbol in Arboles)
                 {
-                    //arbol.Draw(gameTime, camara.View, camara.Projection);
+                    arbol.Draw(gameTime, camara.View, camara.Projection);
+                    Gizmos.DrawCube((arbol.ArbolBox.Max + arbol.ArbolBox.Min) / 2f, arbol.ArbolBox.Max - arbol.ArbolBox.Min, Color.Red);
                 }
 
                 casa.Draw(gameTime, camara.View, camara.Projection);

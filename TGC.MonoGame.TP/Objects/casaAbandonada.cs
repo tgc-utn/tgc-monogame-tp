@@ -55,8 +55,8 @@ namespace ThunderingTanks.Objects
                     meshPart.Effect = Effect;
                 }
             }
-            CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position - new Vector3(0, 500, 0));
-            CasaBox = BoundingVolumesExtensions.FromMatrix(CasaWorld);
+            CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position);
+            CasaBox = CreateBoundingBox(CasaModel, Matrix.CreateScale(500f), Position);
         }
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
@@ -76,7 +76,7 @@ namespace ThunderingTanks.Objects
 
             }
         }
-        public BoundingBox CreateAABBFrom(Model model)
+        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
         {
             var minPoint = Vector3.One * float.MaxValue;
             var maxPoint = Vector3.One * float.MinValue;
@@ -84,13 +84,12 @@ namespace ThunderingTanks.Objects
             var transforms = new Matrix[model.Bones.Count];
             model.CopyAbsoluteBoneTransformsTo(transforms);
 
-            var meshes = model.Meshes;
-            for (int index = 0; index < meshes.Count; index++)
+            foreach (var mesh in model.Meshes)
             {
-                var meshParts = meshes[index].MeshParts;
-                for (int subIndex = 0; subIndex < meshParts.Count; subIndex++)
+                var meshParts = mesh.MeshParts;
+                foreach (var meshPart in meshParts)
                 {
-                    var vertexBuffer = meshParts[subIndex].VertexBuffer;
+                    var vertexBuffer = meshPart.VertexBuffer;
                     var declaration = vertexBuffer.VertexDeclaration;
                     var vertexSize = declaration.VertexStride / sizeof(float);
 
@@ -99,7 +98,7 @@ namespace ThunderingTanks.Objects
 
                     for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
                     {
-                        var transform = transforms[meshes[index].ParentBone.Index];
+                        var transform = transforms[mesh.ParentBone.Index] * escala;
                         var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
                         vertex = Vector3.Transform(vertex, transform);
                         minPoint = Vector3.Min(minPoint, vertex);
@@ -107,7 +106,8 @@ namespace ThunderingTanks.Objects
                     }
                 }
             }
-            return new BoundingBox(minPoint, maxPoint);
+
+            return new BoundingBox(minPoint + position, maxPoint + position);
         }
     }
 }

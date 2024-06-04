@@ -65,7 +65,7 @@ namespace ThunderingTanks.Objects
             }
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
-            TankBox = CreateBoundingBox(Tanque, Matrix.CreateScale(1f), Position);
+            TankBox = CreateBoundingBox(Tanque, Matrix.CreateScale(0.8f), Position);
         }
 
         public void Update(GameTime gameTime, Vector3 playerPosition)
@@ -78,6 +78,11 @@ namespace ThunderingTanks.Objects
             direction.Y = 0; // Ignorar la componente Y para evitar movimientos verticales
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
+            
+            // Rotar el tanque enemigo hacia el jugador
+            Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
+
+            GunRotationFinal = Rotation;
 
             // Si el tanque está a una distancia menor que la permitida, no se mueve más
             if (distanceToPlayer < 2500f)
@@ -89,18 +94,13 @@ namespace ThunderingTanks.Objects
                 TankVelocity = 100f;
                 // Moverse hacia el jugador
                 Position += Direction * TankVelocity * time;
+                TankBox = new BoundingBox(TankBox.Min + Direction, TankBox.Max + Direction);
             }
-
-            // Rotar el tanque enemigo hacia el jugador
-            Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
-
-            GunRotationFinal = Rotation;
 
             // Actualizar la matriz del tanque con la rotación correcta
             PanzerMatrix = Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Position);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
-            TankBox = new BoundingBox(TankBox.Min + Direction, TankBox.Max + Direction);
 
             // Lógica de disparo hacia el jugador
             Shoot(playerPosition);
