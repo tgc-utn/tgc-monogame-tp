@@ -317,6 +317,7 @@ namespace ThunderingTanks
 
                 #region Pass 1
 
+
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
                 GraphicsDevice.BlendState = BlendState.Opaque;
 
@@ -338,7 +339,7 @@ namespace ThunderingTanks
                 foreach (var roca in Rocas)
                 {
                     roca.Draw(gameTime, camara.View, camara.Projection);
-                    Gizmos.DrawCube(roca.RocaWorld, Color.Red);
+                    Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
                 }
 
                 antitanque.Draw(gameTime, camara.View, camara.Projection);
@@ -352,6 +353,9 @@ namespace ThunderingTanks
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
 
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
+
+
+                Gizmos.Draw();
 
                 #endregion
 
