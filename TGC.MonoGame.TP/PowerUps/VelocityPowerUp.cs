@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -29,6 +30,9 @@ namespace TGC.MonoGame.TP.PowerUps
 
         public override void LoadContent(ContentManager Content)
         {
+
+            PowerUpSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "EncenderAuto");
+
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
             
             if(RandomPositions)
@@ -48,6 +52,7 @@ namespace TGC.MonoGame.TP.PowerUps
         {
             if (!Activated)
             {
+                PowerUpSound.Play();
                 carConvexHull.maxSpeed *= 2;
                 carConvexHull.maxTurn *= 2;
                 Activated = true;

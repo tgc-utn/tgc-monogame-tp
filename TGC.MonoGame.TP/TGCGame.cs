@@ -38,6 +38,7 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        public const string ContentFolderSoundEffects = "SoundEffects/";
 
         public const float ViewDistance = 20f;
         public const float Offset = 10f;
@@ -98,6 +99,12 @@ namespace TGC.MonoGame.TP
         //Modelos y PowerUps
         private PowerUp[] PowerUps { get; set; }
         private GameModel[] GameModels { get; set; }
+
+        //SoundEffects 
+        private SoundEffect MachineGunSound { get; set; }
+        private SoundEffect MissileSound { get; set; }
+        private SoundEffect Claxon { get; set; }
+
 
 
         //Misiles
@@ -195,6 +202,7 @@ namespace TGC.MonoGame.TP
             soundEffect = Content.Load<SoundEffect>(ContentFolder3D + "HUD/SoundEffect");
 
             MediaPlayer.Play(backgroundMusic);
+            MediaPlayer.Volume = 0.2f;
             MediaPlayer.IsRepeating = true;
 
             Gizmos.LoadContent(GraphicsDevice, Content);
@@ -254,7 +262,11 @@ namespace TGC.MonoGame.TP
 
             Missile = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2"), Effect, 1f, new Vector3(0, 0, 0));
             Bullet = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Bullet"), Effect, 1f, new Vector3(0, 0, 0));
-           
+
+            MissileSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "MissileSoundeffect");
+            MachineGunSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "MachineGunSoundEffect1Short");
+            Claxon = Content.Load<SoundEffect>(ContentFolderSoundEffects + "Bocina");
+            
 
             // Add walls
             WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(200f, 0f, 0f));
@@ -329,11 +341,18 @@ namespace TGC.MonoGame.TP
 
             var keyboardState = Keyboard.GetState();
 
-            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot /*&& MainCar.CanShoot*/)
+            if (keyboardState.IsKeyDown(Keys.Z) && CanShoot && MainCar.CanShoot && (MainCar.MachineGun || MainCar.MachineMissile))
             {
+                float radius = 0;
                 CanShoot = false;
                 // Create the shape that we'll launch at the pyramids when the user presses a button.
-                var radius = 0.3f;
+
+                if (MainCar.MachineMissile)
+                    radius = 0.4f;
+                else
+                    radius = 0.2f;
+
+
                 var bulletShape = new Sphere(radius);
 
                 var forwardWorld = Vector3.Transform(forwardLocal, MainCar.rotationQuaternion * MainCar.quaternion);
@@ -345,12 +364,24 @@ namespace TGC.MonoGame.TP
                 var bodyHandle = Simulation.Bodies.Add(bodyDescription);
 
                 Radii.Add(radius);
+
                 SphereHandles.Add(bodyHandle);
+
                 firstTime.Add(true);
+
+                if (MainCar.MachineMissile)
+                    MissileSound.Play();
+                else
+                    MachineGunSound.Play();
+
+
             }
 
-            if (keyboardState.IsKeyUp(Keys.Z) /*&& MainCar.CanShoot*/)
+            if (keyboardState.IsKeyUp(Keys.Z) && MainCar.CanShoot && (MainCar.MachineMissile || MainCar.MachineGun))
                 CanShoot = true;
+
+            if(keyboardState.IsKeyDown(Keys.B))
+                Claxon.Play();
 
 
             CarSimulation.Update();
@@ -435,7 +466,10 @@ namespace TGC.MonoGame.TP
 
                     Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
 
-                    Missile.Draw(SpheresWorld);
+                    if (MainCar.MachineMissile)
+                        Missile.Draw(SpheresWorld);
+                    else
+                        Bullet.Draw(SpheresWorld);
 
                     foreach (GameModel model in GameModels)
                         foreach (Matrix world in model.World)

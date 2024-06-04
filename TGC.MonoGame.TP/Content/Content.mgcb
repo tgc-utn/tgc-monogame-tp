@@ -1701,6 +1701,66 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/weapons/Weapons.fbx
 
+#begin SoundEffects/Bocina.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/Bocina.mp3
+
+#begin SoundEffects/EncenderAuto.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/EncenderAuto.mp3
+
+#begin SoundEffects/EncenderAutoSoundEffect.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/EncenderAutoSoundEffect.mp3
+
+#begin SoundEffects/ExplosionSoundEffect.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/ExplosionSoundEffect.mp3
+
+#begin SoundEffects/MachineGunSoundEffect1.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/MachineGunSoundEffect1.mp3
+
+#begin SoundEffects/MachineGunSoundEffect1Short.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/MachineGunSoundEffect1Short.mp3
+
+#begin SoundEffects/MachineGunSoundEffect2.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/MachineGunSoundEffect2.mp3
+
+#begin SoundEffects/MachineGunSoundEffect3.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/MachineGunSoundEffect3.mp3
+
+#begin SoundEffects/MissileSoundeffect.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/MissileSoundeffect.mp3
+
+#begin SoundEffects/PowerUpSoundEffectMachine.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:SoundEffects/PowerUpSoundEffectMachine.mp3
+
 #begin SpriteFonts/CarCrash.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -35,10 +36,13 @@ namespace TGC.MonoGame.TP.PowerUps
 
             if (!Activated)
             {
+                PowerUpSound.Play();
+                carConvexHull.MachineGun = true;
                 carConvexHull.CanShoot = true;
                 Activated = true;
                 await Task.Delay(4000);
                 carConvexHull.CanShoot = false;
+                carConvexHull.MachineGun = false;
                 await Task.Delay(4000);
                 Activated = false;
             }
@@ -47,6 +51,8 @@ namespace TGC.MonoGame.TP.PowerUps
 
         public override void LoadContent(ContentManager Content)
         {
+            PowerUpSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "PowerUpSoundEffectMachine");
+
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
 
             if (RandomPositions)

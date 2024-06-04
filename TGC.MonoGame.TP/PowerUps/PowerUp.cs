@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TGC.MonoGame.TP.PowerUps
 {
@@ -18,6 +19,9 @@ namespace TGC.MonoGame.TP.PowerUps
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+        public const string ContentFolderSoundEffects = "SoundEffects/";
+
+        public SoundEffect PowerUpSound {  get; set; }
 
         public bool RandomPositions { get; set; }
 

@@ -47,11 +47,12 @@ namespace TGC.MonoTP
 
             GraphicsDevice.Clear(Color.Black);
             DrawCenterTextY("DERBY GAMES", 100, 5);
-            DrawCenterTextY("Controles -  WASD", 250, 1);
-            DrawCenterTextY("SALTO - Space", 300, 1);
+            DrawCenterTextY("CONTROLES -  WASD", 250, 1);
+            DrawCenterTextY("SALTO - SPACE", 300, 1);
             DrawCenterTextY("SHOOT - Z", 350, 1);
-            DrawCenterTextY("God Mode  -  G", 400, 1);
-            DrawCenterTextY("Presione SPACE para comenzar...", 500, 1);
+            DrawCenterTextY("CLAXON - B", 400, 1);
+            DrawCenterTextY("GOD MODE  -  G", 450, 1);
+            DrawCenterTextY("Presione SPACE para comenzar...", 600, 1);
         }
 
         public void Initialize()

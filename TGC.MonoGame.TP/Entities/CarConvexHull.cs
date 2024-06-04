@@ -7,6 +7,7 @@ using BepuPhysics.Collidables;
 using BepuUtilities.Memory;
 using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
@@ -18,6 +19,8 @@ namespace TGC.MonoGame.TP;
 public class CarConvexHull   
 {
     public bool CanShoot { get; set; }
+    public bool MachineGun { get; set; }
+    public bool MachineMissile { get; set; }
     public Vector3 Position { get; set; }
     public RigidPose Pose { get; private set; }
     public Matrix World { get; set; }
@@ -82,6 +85,8 @@ public class CarConvexHull
            Simulation.Shapes, CarConvex
        );
         CarHandle = Simulation.Bodies.Add(carBodyDescription);
+
+       
 
     }
 
