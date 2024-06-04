@@ -1,11 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Audio;
-using System;
-using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Content.Models;
 using ThunderingTanks.Gizmos;
@@ -85,7 +84,7 @@ namespace ThunderingTanks
             Gizmos = new Gizmoss();
 
         }
-        
+
         protected override void Initialize()
         {
             var rasterizerState = new RasterizerState();
@@ -228,16 +227,16 @@ namespace ThunderingTanks
             else
             {
 
-            keyboardState = Keyboard.GetState();
+                keyboardState = Keyboard.GetState();
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+                if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    Exit();
 
-            var lastMatrix = Panzer.PanzerMatrix;
-            var turretPosition = Panzer.TurretMatrix;
-            var cannonPosition = Panzer.CannonMatrix;
-            var direction = Panzer.Direction;
-             
+                var lastMatrix = Panzer.PanzerMatrix;
+                var turretPosition = Panzer.TurretMatrix;
+                var cannonPosition = Panzer.CannonMatrix;
+                var direction = Panzer.Direction;
+
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
                     Projectile projectile = Panzer.Shoot();
@@ -245,58 +244,58 @@ namespace ThunderingTanks
                     if (projectile != null)
                     {
                         Projectiles.Add(projectile);
+                        MediaPlayer.Play(_shootSound);
                     }
 
-                    MediaPlayer.Play(_shootSound);
-                
-                
+
+
                 }
-
-            Panzer.Update(gameTime, keyboardState);
-
-            Panzer.isColliding = false;
-
-            if (CheckCollisions())
-            {
-                Panzer.isColliding = true;
-
-                Panzer.PanzerMatrix = lastMatrix;
-                Panzer.TurretMatrix = turretPosition;
-                Panzer.CannonMatrix = cannonPosition;
-                Panzer.Direction = direction;
 
                 Panzer.Update(gameTime, keyboardState);
 
+                Panzer.isColliding = false;
+
+                if (CheckCollisions())
+                {
+                    Panzer.isColliding = true;
+
+                    Panzer.PanzerMatrix = lastMatrix;
+                    Panzer.TurretMatrix = turretPosition;
+                    Panzer.CannonMatrix = cannonPosition;
+                    Panzer.Direction = direction;
+
+                    Panzer.Update(gameTime, keyboardState);
+
+                }
+
+                CrossHairAux = viewport.Project(
+                    Panzer.Direction,
+                    _targetCamera.Projection,
+                    _targetCamera.View,
+                    Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
+                    );
+
+                CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
+
+                screenHeight = GraphicsDevice.Viewport.Height;
+                screenWidth = GraphicsDevice.Viewport.Width;
+                Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
+
+                foreach (var enemyTank in EnemyTanks)
+                {
+                    enemyTank.Update(gameTime, Panzer.Direction);
+                }
+
+
+                UpdateProjectiles(gameTime);
+
+                _freeCamera.Update(gameTime);
+                _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
+
+                Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
             }
 
-            CrossHairAux = viewport.Project(
-                Panzer.Direction, 
-                _targetCamera.Projection, 
-                _targetCamera.View, 
-                Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
-                );
 
-            CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
-
-            screenHeight = GraphicsDevice.Viewport.Height;
-            screenWidth = GraphicsDevice.Viewport.Width;
-            Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
-
-            foreach (var enemyTank in EnemyTanks)
-            {
-                enemyTank.Update(gameTime, Panzer.Direction);
-            }
-
-
-            UpdateProjectiles(gameTime);
-
-            _freeCamera.Update(gameTime);
-            _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
-
-            Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
-            }
-
-    
 
             base.Update(gameTime);
         }
@@ -316,57 +315,57 @@ namespace ThunderingTanks
             else
             {
 
-            #region Pass 1
+                #region Pass 1
 
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                GraphicsDevice.BlendState = BlendState.Opaque;
 
-            GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
 
-            Camera camara = _targetCamera;
+                Camera camara = _targetCamera;
 
-            Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
 
-            foreach (var enemyTank in EnemyTanks)
-            {
-                enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
-            }
+                foreach (var enemyTank in EnemyTanks)
+                {
+                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                }
 
-            City.Draw(gameTime, camara.View, camara.Projection);
+                City.Draw(gameTime, camara.View, camara.Projection);
 
-            DrawProjectiles(camara.View, camara.Projection);
+                DrawProjectiles(camara.View, camara.Projection);
 
-            foreach (var roca in Rocas)
-            {
-                roca.Draw(gameTime, camara.View, camara.Projection);
-            }
+                foreach (var roca in Rocas)
+                {
+                    roca.Draw(gameTime, camara.View, camara.Projection);
+                }
 
-            antitanque.Draw(gameTime, camara.View, camara.Projection);
+                antitanque.Draw(gameTime, camara.View, camara.Projection);
 
-            foreach (var arbol in Arboles)
-            {
-                //arbol.Draw(gameTime, camara.View, camara.Projection);
-            }
+                foreach (var arbol in Arboles)
+                {
+                    //arbol.Draw(gameTime, camara.View, camara.Projection);
+                }
 
-            casa.Draw(gameTime, camara.View, camara.Projection);
+                casa.Draw(gameTime, camara.View, camara.Projection);
 
-            DrawSkyBox(camara.View, camara.Projection, camara.Position);
+                DrawSkyBox(camara.View, camara.Projection, camara.Position);
 
-            #endregion
+                #endregion
 
-            #region Pass 2
+                #region Pass 2
 
-            spriteBatch.Begin();
+                spriteBatch.Begin();
 
-            spriteBatch.Draw(
-                CrossHairTexture,
-                CrossHairPosition,
-                null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
-             );
+                spriteBatch.Draw(
+                    CrossHairTexture,
+                    CrossHairPosition,
+                    null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
+                 );
 
-            spriteBatch.End();
+                spriteBatch.End();
 
-            #endregion
+                #endregion
             }
 
             base.Draw(gameTime);
@@ -446,35 +445,42 @@ namespace ThunderingTanks
         }
         public void UpdateProjectiles(GameTime gameTime)
         {
-            foreach (Projectile projectile in Projectiles)
+            for (int j = 0; j < Projectiles.Count; ++j)
             {
-                foreach (var roca in Rocas)
+
+                for (int i = 0; i < Rocas.Count; ++i)
                 {
-                    if (projectile.ProjectileBox.Intersects(roca.RocaBox))
+                    if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
                     {
                         Console.WriteLine("Colisión detectada de proyectil con una roca.");
-                        roca.Destroy();
+                        //Rocas[i].Destroy();
+                        Projectiles.Remove(Projectiles[j]);
+                        Rocas.Remove(Rocas[i]);
+                        break;
                         //projectile.Disparado();
                     }
+
                 }
-
-
-
-
-
-
-
-                projectile.Update(gameTime);
+                break;
+                Projectiles[j].Update(gameTime);
             }
+
+
+
+
+
+
+
+
         }
         public void DrawProjectiles(Matrix view, Matrix projection)
         {
             foreach (Projectile projectile in Projectiles)
             {
                 projectile.LoadContent(Content);
-               
-                    projectile.Draw(view, projection);
-                
+
+                projectile.Draw(view, projection);
+
             }
         }
         private bool CheckCollisions()

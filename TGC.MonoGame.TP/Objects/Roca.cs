@@ -82,7 +82,7 @@ namespace ThunderingTanks.Objects
             RocaModel = null;
             TexturaRoca = null;
             Effect = null;
-            RocaBox = new BoundingBox();
+            RocaBox = new BoundingBox(Vector3.Zero, Vector3.Zero);
             //BoundingBoxes = null;
         }
 
