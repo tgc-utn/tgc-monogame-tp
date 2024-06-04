@@ -5,7 +5,7 @@ using WarSteel.Scenes;
 
 namespace WarSteel.UIKit;
 
-public class TextUI : IUIRenderable
+public class TextUI : UIRenderable
 {
     public string Text;
     private Color _color;
@@ -20,7 +20,7 @@ public class TextUI : IUIRenderable
         _fontSize = fontSize;
     }
 
-    public void Draw(Scene scene, UI ui)
+    public override void Draw(Scene scene, UI ui)
     {
         Vector3 center = ui.Position;
         Vector2 textSize = _font.MeasureString(Text) * _fontSize;

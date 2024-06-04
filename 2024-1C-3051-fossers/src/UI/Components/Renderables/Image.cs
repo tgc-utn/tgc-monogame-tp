@@ -6,7 +6,7 @@ using WarSteel.Scenes;
 
 namespace WarSteel.UIKit;
 
-public class Image : IUIRenderable
+public class Image : UIRenderable
 {
     private Texture2D _texture;
     private Color _color;
@@ -29,7 +29,7 @@ public class Image : IUIRenderable
         _scale = scale;
     }
 
-    public void Draw(Scene scene, UI ui)
+    public override void Draw(Scene scene, UI ui)
     {
         float scaleX = ui.Width / _texture.Width;
         float scaleY = ui.Height / _texture.Height;
