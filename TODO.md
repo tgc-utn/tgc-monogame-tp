@@ -1,7 +1,7 @@
 -   [x] ui menu
--   [ ] ui health bar and reload time
+-   [x] ui health bar and reload time
+-   [x] unloaders
 -   [ ] fix tank model (display cannon)
 -   [ ] skybox
--   [ ] unloaders
 -   [ ] terrain
 -   [ ] replace shader with something that isn't garbage (want to do a toon shader that allows for multiple light sources)
