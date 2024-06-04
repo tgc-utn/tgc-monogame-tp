@@ -9,7 +9,7 @@ public class PlayerScreen : UIScreen
 {
     public PlayerScreen() : base("player-screen") { }
     private UI _healthBar;
-    private int _healthBarWidth = 400;
+    private int _healthBarWidth = 600;
 
     private UI _reloadingTimeUI;
     private TextUI _reloadingTimeUIText;
@@ -25,8 +25,8 @@ public class PlayerScreen : UIScreen
         int screenHeight = Screen.GetScreenHeight(GraphicsDeviceManager);
 
         Vector3 healthBarPos = new(screenCenter.X, screenHeight - 60, 0);
-        UI healthBarBG = new UI(healthBarPos, _healthBarWidth, 50, new Image("UI/health-bar-bg"));
-        _healthBar = new UI(healthBarPos, _healthBarWidth, 50, new Image("UI/health-bar-fill"));
+        UI healthBarBG = new UI(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-bg"));
+        _healthBar = new UI(healthBarPos, _healthBarWidth, 30, new Image("UI/health-bar-fill"));
 
         // add ui elements
         AddUIElem(healthBarBG);

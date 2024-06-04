@@ -61,6 +61,8 @@ public class PlayerControls : IComponent
             tank.GetComponent<DynamicBody>().ApplyForce(_tankCannon.Forward * BulletForce);
             IsReloading = true;
             PlayerEvents.TriggerReload(ReloadingTimeInMs);
+            // this is for testing purposes only and it should get removed
+            tank.Health -= 10;
             Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
         }
     }
