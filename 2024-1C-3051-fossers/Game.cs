@@ -19,10 +19,15 @@ public class Game : Microsoft.Xna.Framework.Game
 
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-        // Graphics.IsFullScreen = true;
+        Graphics.IsFullScreen = true;
         Window.AllowUserResizing = true;
-        Graphics.PreferredBackBufferWidth = 1280;
-        Graphics.PreferredBackBufferHeight = 720;
+        // Get the user's current display resolution
+        int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+        int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        Graphics.PreferredBackBufferWidth = screenWidth;
+        Graphics.PreferredBackBufferHeight = screenHeight;
+
+        Graphics.ApplyChanges();
 
     }
 
