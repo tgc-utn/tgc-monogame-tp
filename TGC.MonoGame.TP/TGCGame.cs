@@ -104,7 +104,7 @@ namespace TGC.MonoGame.TP
         private SoundEffect MachineGunSound { get; set; }
         private SoundEffect MissileSound { get; set; }
         private SoundEffect Claxon { get; set; }
-
+        private SoundEffect Explosion { get; set; }
 
 
         //Misiles
@@ -268,6 +268,8 @@ namespace TGC.MonoGame.TP
             MissileSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "MissileSoundeffect");
             MachineGunSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "MachineGunSoundEffect1Short");
             Claxon = Content.Load<SoundEffect>(ContentFolderSoundEffects + "Bocina");
+            Explosion = Content.Load<SoundEffect>(ContentFolderSoundEffects + "ExplosionSoundEffect");
+
 
 
             // Add walls
@@ -382,8 +384,6 @@ namespace TGC.MonoGame.TP
             FollowCamera.Update(gameTime, MainCar.World);
 
             SpheresWorld.Clear();
-            var rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(90));
-            var rotationQuaternionY = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
             var quaternionCar = MainCar.quaternion;
 
             var missilesToDelete = new List<Missile>();
@@ -398,6 +398,9 @@ namespace TGC.MonoGame.TP
             foreach (Missile missileToDelete in missilesToDelete)
             {
                 Missiles.Remove(missileToDelete);
+
+                    Explosion.Play();
+
             }
 
 
