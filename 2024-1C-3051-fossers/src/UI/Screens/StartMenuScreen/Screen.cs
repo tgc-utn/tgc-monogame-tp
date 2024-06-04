@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+using WarSteel.Managers;
 using WarSteel.Scenes;
 using WarSteel.UIKit;
 using WarSteel.Utils;
@@ -10,6 +13,7 @@ namespace WarSteel.Screens.MainMenu;
 public class StartScreen : UIScreen
 {
     MenuScreens currentScreen = MenuScreens.START;
+    SoundEffectInstance song;
 
     public StartScreen() : base("start-screen") { }
 
@@ -18,6 +22,10 @@ public class StartScreen : UIScreen
         GraphicsDeviceManager GraphicsDeviceManager = scene.GraphicsDeviceManager;
         Vector2 screenCenter = Screen.GetScreenCenter(GraphicsDeviceManager);
         int screenWidth = Screen.GetScreenWidth(GraphicsDeviceManager);
+
+        song = ContentRepoManager.Instance().GetSoundEffect("start-song").CreateInstance();
+        song.IsLooped = true;
+        song.Play();
 
         // ui elems
         UI background = new UI(new Vector3(screenCenter.X, screenCenter.Y, 0), screenWidth, screenWidth, new Image("UI/menu-bg"));
@@ -35,7 +43,6 @@ public class StartScreen : UIScreen
                 RenderExit(scene);
                 break;
         }
-
     }
 
     private void ChangeCurrentScreen(Scene scene, MenuScreens screen)
@@ -63,7 +70,10 @@ public class StartScreen : UIScreen
 
         UI startBtn = new UI(GetBtnPos(0), 300, 60, new PrimaryBtn("Start"), new List<UIAction>()
         {
-            (scene, ui) => { SceneManager.Instance().SetCurrentScene(ScenesNames.MAIN); },
+            (scene, ui) => {
+                song.Stop();
+                SceneManager.Instance().SetCurrentScene(ScenesNames.MAIN);
+            },
         });
         UI controlsBtn = new UI(GetBtnPos(1), 300, 60, new SecondaryBtn("Controls"), new List<UIAction>()
         {
@@ -92,7 +102,7 @@ public class StartScreen : UIScreen
             return new Vector3(screenCenter.X, screenCenter.Y - 2 * margin + margin * pos, 0);
         }
 
-        UI background = new UI(new Vector3(screenCenter.X, screenCenter.Y, 0), 500, 500, new Image("UI/primary-btn"));
+        UI background = new UI(new Vector3(screenCenter.X, screenCenter.Y, 0), 400, 350, new Image("UI/primary-btn"));
         UI header = new UI(new Vector3(screenCenter.X, 100, 0), new Header("Tank Controls"));
         UI w = new UI(GetControlPos(0, screenCenter), new Paragraph("W - Move tank forward."));
         UI s = new UI(GetControlPos(1, screenCenter), new Paragraph("S - Move tank backwards."));
