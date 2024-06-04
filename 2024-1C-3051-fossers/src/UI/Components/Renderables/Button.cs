@@ -1,11 +1,12 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 
 namespace WarSteel.UIKit;
 
-public class Button : IUIRenderable
+public class Button : UIRenderable
 {
     private Texture2D _texture;
     public string Text;
@@ -18,11 +19,12 @@ public class Button : IUIRenderable
         Text = text;
         _fontSize = fontSize;
         _font = ContentRepoManager.Instance().GetSpriteFont("tenada/Tenada");
+        SoundEffect = ContentRepoManager.Instance().GetSoundEffect("button-click");
     }
 
     public void SetText() { }
 
-    public void Draw(Scene scene, UI ui)
+    public override void Draw(Scene scene, UI ui)
     {
         Vector3 center = ui.Position;
         Vector2 buttonSize = new Vector2(ui.Width, ui.Height);
