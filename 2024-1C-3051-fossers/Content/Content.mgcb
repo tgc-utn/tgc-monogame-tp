@@ -465,18 +465,6 @@
 /processorParam:TextureFormat=Compressed
 /build:SpriteFonts/tenada/Tenada.spritefont
 
-#begin Textures/menuBg.jpg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/menuBg.jpg
-
 #begin Textures/skybox.dds
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -513,7 +501,7 @@
 /processorParam:TextureFormat=Color
 /build:Textures/sunset.dds
 
-#begin Textures/UI/button.jpg
+#begin Textures/UI/menu-bg.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -523,5 +511,29 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/UI/button.jpg
+/build:Textures/UI/menu-bg.jpg
+
+#begin Textures/UI/primary-btn.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/UI/primary-btn.jpg
+
+#begin Textures/UI/secondary-btn.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/UI/secondary-btn.jpg
 
