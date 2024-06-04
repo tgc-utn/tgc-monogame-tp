@@ -63,12 +63,28 @@ namespace ThunderingTanks.Objects
 
         private bool _isPlaying = true;
 
+        //PARAMETRO DE VIDA
+
+        public int _maxLifeBarWidth;
+
+        public int _currentLife;
+
+        public int _maxLife = 50;
+
+        public bool isDestroyed = false;
+
+        public Texture2D LifeBar { get; set; }
+
+        public Rectangle _lifeBarRectangle;
+
+
         public Tank(GraphicsDevice graphicsDevice, Song movingSound)
         {
             movingTankSound = movingSound;
             this.graphicsDevice = graphicsDevice;
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
+            _currentLife = _maxLife;
         }
 
         public void LoadContent(ContentManager Content)
@@ -96,13 +112,15 @@ namespace ThunderingTanks.Objects
             Console.WriteLine($"Colisión detectada con roca en índice {TankBox}");
 
 
-
+            LifeBar = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
+            _maxLifeBarWidth = LifeBar.Width;
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             TimeSinceLastShot += time;
+
 
             bool isMoving = false; // Variable para controlar si el tanque se está moviendo
 
@@ -164,6 +182,7 @@ namespace ThunderingTanks.Objects
             TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
             LastPosition = Direction;
+
 
             Console.WriteLine(TankBox.Extents);
         }
@@ -230,6 +249,19 @@ namespace ThunderingTanks.Objects
                 return null;
             }
         }
+        
+        public void ReceiveDamage()
+        {
+            _currentLife -= 5;
+            if(_currentLife <= 0)
+            {
+                isDestroyed = true;
+            }
+        }
+
+        
+        
+        
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();

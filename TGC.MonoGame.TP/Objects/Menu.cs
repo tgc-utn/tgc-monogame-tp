@@ -1,4 +1,6 @@
 ﻿using System;
+using BepuPhysics.Collidables;
+using BepuPhysics.Constraints;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,33 +13,32 @@ namespace ThunderingTanks.Objects
 {
     public class Menu
     {
-
-        private SpriteFont _font;
-        private Rectangle _playButton;
-        private Rectangle _exitButton;
-        private Rectangle _soundOnButton;
-        private Rectangle _soundOffButton;
-
-        private Rectangle _playButtonHover;
-        private Rectangle _soundOnButtonHover;
-        private Rectangle _soundOffButtonHover;
-        private Rectangle _exitButtonHover;
-
-        private Texture2D _cursorTexture;
-
-        private ContentManager _contentManager;
-
-        private Song backgroundSound { get; set; }
-
-        private bool _playing = true;
-
         public const string ContentFolderMusic = "Music/";
         public const string ContentFolderModels = "Models/";
         public const string ContentFolderTextures = "Textures/";
         public const string ContentFolderEffects = "Effects/";
 
-        //Modelos y texturas para el menu
+        private ContentManager _contentManager;
 
+        private GraphicsDeviceManager Graphics { get; }
+
+        Viewport viewport;
+
+
+        private Song backgroundSound { get; set; }
+
+        private SpriteFont _font;
+
+        private Rectangle _playButton;
+        private Rectangle _exitButton;
+        private Rectangle _soundOnButton;
+        private Rectangle _soundOffButton;
+
+        private Texture2D _cursorTexture;
+
+        private bool _playing = true;
+
+        //BOTONES
         private Texture2D RectangleButtonHover { get; set; }
         private Texture2D RectangleButton { get; set; }
         private Texture2D PlayButton { get; set; }
@@ -46,8 +47,6 @@ namespace ThunderingTanks.Objects
         private Texture2D SoundOnButtonHover { get; set; }
         private Texture2D SoundOffButton { get; set; }
         private Texture2D SoundOffButtonHover { get; set; }
-
-
         private Texture2D RectangleButtonNormal { get; set; }
         private Texture2D PlayButtonNormal { get; set; }
         private Texture2D SoundOnButtonNormal { get; set; }
@@ -55,11 +54,9 @@ namespace ThunderingTanks.Objects
 
 
 
-
-
-
         public Menu(SpriteFont font, Texture2D cursorTexture, Song background, ContentManager contentManager)
         {
+
             _contentManager = contentManager;
 
             backgroundSound = background;
@@ -80,15 +77,11 @@ namespace ThunderingTanks.Objects
             _soundOnButton = new Rectangle(50, screenHeight - 300, 100, 100);
             _soundOffButton = new Rectangle(50, screenHeight - 300, 100, 100);
 
-
         }
 
         public void LoadContent(ContentManager Content)
         {
-            // Cargar otros recursos necesarios para el menú
-            // Por ejemplo:
-            // _font = _contentManager.Load<SpriteFont>("ruta_de_la_fuente");
-            // _cursorTexture = _contentManager.Load<Texture2D>("ruta_de_la_textura_del_cursor");
+
             RectangleButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/Default@4x");
             PlayButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/PlayButton");
             SoundOnButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOn");
@@ -99,11 +92,12 @@ namespace ThunderingTanks.Objects
             PlayButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/PlayButtonHover");
             SoundOnButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOnHover");
             SoundOffButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOffHover");
+
         }
 
 
         private bool SoundIsOn = true;
-        public void Update(ref bool juegoIniciado)
+        public void Update(ref bool juegoIniciado, GameTime gameTime)
         {
             // Verifica si se hace clic en los botones
             var mouseState = Mouse.GetState();
@@ -181,11 +175,12 @@ namespace ThunderingTanks.Objects
             }
             if (_playing)
             {
-                //Parar y reproducir MP3
                 MediaPlayer.Play(backgroundSound);
                 _playing = false;
             }
 
+
+          
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -194,16 +189,11 @@ namespace ThunderingTanks.Objects
             if (SoundIsOn)
             {
                 spriteBatch.Draw(SoundOnButton, _soundOnButton, Color.Gray);
-                //spriteBatch.Draw(SoundOffButton, _soundOffButton, Color.Transparent);
-
             }
             else
             {
                 spriteBatch.Draw(SoundOffButton, _soundOffButton, Color.Gray);
-                //spriteBatch.Draw(SoundOnButton, _soundOnButton, Color.Transparent);
-
             }
-            // Dibuja los botones como rectángulos grises
             spriteBatch.Draw(PlayButton, _playButton, Color.Gray);
             spriteBatch.Draw(RectangleButton, _exitButton, Color.Gray);
 
@@ -212,8 +202,7 @@ namespace ThunderingTanks.Objects
             Vector2 exitTextPosition = new Vector2(_exitButton.X + (_exitButton.Width - _font.MeasureString("Exit").X) / 2, _exitButton.Y + (_exitButton.Height - _font.MeasureString("Exit").Y) / 2);
 
             // Dibuja el texto en los botones agrandando el tamaño
-            //spriteBatch.DrawString(_font, "Play", playTextPosition, Color.White, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
-            spriteBatch.DrawString(_font, "Exit", exitTextPosition, Color.White, 0f, Vector2.Zero, 1.5f, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(_font, "Exit", exitTextPosition, Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0f);
 
             var mouseState = Mouse.GetState();
             spriteBatch.Draw(_cursorTexture, new Vector2(mouseState.X, mouseState.Y), Color.White);
