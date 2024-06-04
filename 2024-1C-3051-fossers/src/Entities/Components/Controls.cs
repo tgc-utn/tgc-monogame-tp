@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
 using WarSteel.Entities;
+using WarSteel.Managers;
 using WarSteel.Utils;
 
 namespace WarSteel.Scenes.Main;
@@ -13,12 +15,14 @@ public class PlayerControls : IComponent
     float BulletForce = 18000;
     bool IsReloading = false;
     int ReloadingTimeInMs = 1000;
+    SoundEffectInstance _shootSoundEffect;
 
     Transform _tankCannon;
 
     public PlayerControls(Transform tankCannon)
     {
         _tankCannon = tankCannon;
+        _shootSoundEffect = ContentRepoManager.Instance().GetSoundEffect("tank-shot").CreateInstance();
     }
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
@@ -56,6 +60,7 @@ public class PlayerControls : IComponent
         {
             Bullet bullet = new("player-bullet", Damage, _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200, -_tankCannon.Forward, BulletForce);
 
+            _shootSoundEffect.Play();
             scene.AddEntityDynamically(bullet);
 
             tank.GetComponent<DynamicBody>().ApplyForce(_tankCannon.Forward * BulletForce);
