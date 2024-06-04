@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using WarSteel.Common;
@@ -21,7 +20,6 @@ public class PlayerControls : IComponent
     {
         _tankCannon = tankCannon;
     }
-
 
     public void UpdateEntity(Entity self, GameTime gameTime, Scene scene)
     {
@@ -56,14 +54,13 @@ public class PlayerControls : IComponent
 
         if (self is Tank tank)
         {
-            // get cannon transform
-
             Bullet bullet = new("player-bullet", Damage, _tankCannon.AbsolutePosition - _tankCannon.Forward * 500 + _tankCannon.Up * 200, -_tankCannon.Forward, BulletForce);
 
             scene.AddEntityDynamically(bullet);
 
             tank.GetComponent<DynamicBody>().ApplyForce(_tankCannon.Forward * BulletForce);
             IsReloading = true;
+            PlayerEvents.TriggerReload(ReloadingTimeInMs);
             Timer.Timeout(ReloadingTimeInMs, () => IsReloading = false);
         }
     }
@@ -76,6 +73,4 @@ public class PlayerControls : IComponent
     public void Destroy(Entity self, Scene scene) { }
 
     public void LoadContent(Entity self) { }
-
-
 }

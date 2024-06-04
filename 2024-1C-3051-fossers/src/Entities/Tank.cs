@@ -7,7 +7,6 @@ using WarSteel.Common.Shaders;
 using WarSteel.Managers;
 using WarSteel.Scenes;
 using WarSteel.Scenes.Main;
-using WarSteel.Utils;
 
 namespace WarSteel.Entities;
 
