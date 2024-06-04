@@ -64,6 +64,7 @@ namespace ThunderingTanks
         //MENU
 
         private Menu _menu;
+        private HUD _hud;
         private bool _juegoIniciado = false;
         private SpriteFont _systemFont;
         private Texture2D _tankMouseTexture;
@@ -367,11 +368,13 @@ namespace ThunderingTanks
 
                 spriteBatch.Begin();
 
-                spriteBatch.Draw(
+                /*spriteBatch.Draw(
                     CrossHairTexture,
                     CrossHairPosition,
                     null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
-                 );
+                 );*/
+
+                _hud.Draw(spriteBatch);
 
                 spriteBatch.End();
 
