@@ -222,9 +222,11 @@ namespace ThunderingTanks
         protected override void Update(GameTime gameTime)
         {
 
-            if (!_juegoIniciado)
+            if (!_juegoIniciado || Panzer.isDestroyed)
             {
-                _menu.Update(ref _juegoIniciado);
+                Panzer.isDestroyed = false;
+                _menu.Update(ref _juegoIniciado, gameTime);
+
             }
             else
             {
@@ -266,6 +268,8 @@ namespace ThunderingTanks
                     Panzer.CannonMatrix = cannonPosition;
                     Panzer.Direction = direction;
 
+                    
+
                     Panzer.Update(gameTime, keyboardState);
 
                 }
@@ -304,8 +308,9 @@ namespace ThunderingTanks
 
         protected override void Draw(GameTime gameTime)
         {
-            if (!_juegoIniciado)
+            if (!_juegoIniciado || Panzer.isDestroyed)
             {
+                Panzer.isDestroyed = false;
                 #region Renderizar el menu
                 GraphicsDevice.Clear(Color.Black);
                 spriteBatch.Begin();
@@ -372,6 +377,19 @@ namespace ThunderingTanks
                     CrossHairTexture,
                     CrossHairPosition,
                     null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
+                 );*/
+
+
+                /*spriteBatch.Draw(
+                    Panzer.LifeBar,
+                    new Vector2(50,-200),
+                    null,
+                    Color.Yellow,
+                    0f,
+                    Vector2.Zero,
+                    1f,
+                    SpriteEffects.None,
+                    0.8f);
                  );*/
 
                 _hud.Draw(spriteBatch);
@@ -504,6 +522,7 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(roca.RocaBox))
                 {
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
                     return true;
                 }
@@ -527,6 +546,7 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con un tanque enemigo.");
                     return true;
                 }
