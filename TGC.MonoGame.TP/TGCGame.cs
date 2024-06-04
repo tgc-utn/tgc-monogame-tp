@@ -79,6 +79,7 @@ namespace TGC.MonoGame.TP
         private FollowCamera FollowCamera { get; set; }
         private SpriteBatch SpriteBatch { get; set; }
         private Texture2D FloorTexture { get; set; }
+        private Texture2D WallTexture { get; set; }
 
         //Auto Principal 
         private CarConvexHull MainCar { get; set; }
@@ -232,24 +233,26 @@ namespace TGC.MonoGame.TP
             EffectNoTextures = Content.Load<Effect>(ContentFolderEffects + "BasicShaderNoTextures");
             TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
             FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
+            WallTexture = Content.Load<Texture2D>(ContentFolderTextures + "stoneTexture");
 
-            var vertices = new NumericVector3[] {
+            var rampVertices = new NumericVector3[] {
 
                     // Bottom vertices
-                    new NumericVector3(0f, 0.0f, 0f),
-                    new NumericVector3(4.5f, 0.0f, 0f),
-                    new NumericVector3(4.5f, 0.0f, 9f),
-                    new NumericVector3(0f, 0.0f, 9f),
+                    new NumericVector3(0f, 0.0f, 11f),
+                    new NumericVector3(3.5f, 0.0f, 11f),
+                    new NumericVector3(3.5f, 0.0f, 12f),
+                    new NumericVector3(0f, 0.0f, 12f),
 
                     // Top vertices
-                    new NumericVector3(0f, 0.5f, 1f),
-                    new NumericVector3(4.5f, 0.5f, 1f),
-                    new NumericVector3(0f, 1.2f, 2.5f),
-                    new NumericVector3(4.5f, 1.2f, 2.5f),
-                    new NumericVector3(0f, 2.0f, 4.5f),
-                    new NumericVector3(4.5f, 2.0f, 4.5f),
-                    new NumericVector3(4.5f, 3f, 9f),
-                    new NumericVector3(0f, 3f, 9f)
+                    new NumericVector3(0f, 0.5f, 3.5f),
+                    new NumericVector3(3.5f, 0.5f, 3.5f),
+                    new NumericVector3(0f, 1.2f, 6f),
+                    new NumericVector3(3.5f, 1.2f, 6f),
+                    new NumericVector3(0f, 2.0f, 9f),
+                    new NumericVector3(3.5f, 2.0f, 9f),
+                    new NumericVector3(3.5f, 3f, 12f),
+                    new NumericVector3(0f, 3f, 12f)
+
                 };
 
             NumericVector3 center;
@@ -265,10 +268,10 @@ namespace TGC.MonoGame.TP
                 new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.1f, GenerateRandomPositions(20), Simulation, new Box(2.5f, 2f, 2.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "gasoline/gasoline"), Effect, 1.5f, GenerateRandomPositions(100), Simulation, new Box(2f, 3f, 2f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect , 1f , new Vector3(30f, 0 , 30f ) , Simulation ,  new Box(17.5f, 10f, 17.5f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "ramp/ramp"), Effect, 4f, GenerateRandomPositions(50), Simulation, new ConvexHull(vertices, Simulation.BufferPool, out center)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/WatercolorScene"), Effect, 1f, GenerateRandomPositions(10), Simulation, new Box(10f, 3f, 10f)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "ramp/ramp"), Effect, 4f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices, Simulation.BufferPool, out center)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/WatercolorScene"), Effect, 1f, GenerateRandomPositions(10), Simulation, new Box(15f, 3f, 15f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "carDBZ/carDBZ"), Effect ,1f , new Vector3(50f, 0, 50f) ),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4)),
+                // new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Bushes/source/bush1"), Effect,1f , GenerateRandomPositions(4)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Truck/source/KAMAZ"), Effect, 1f, GenerateRandomPositions(4)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence"), Effect, 1f, GenerateRandomPositions(4)),
@@ -503,12 +506,24 @@ namespace TGC.MonoGame.TP
         }
         private void DrawWalls()
         {
-            var prim = new BoxPrimitive(GraphicsDevice, new Vector3(1f, 10f, 200f), Color.HotPink);
+            // var prim = new BoxPrimitive(GraphicsDevice, new Vector3(1f, 10f, 200f), Color.HotPink);
+            var prim = new QuadPrimitive(GraphicsDevice);
             foreach (var wall in WallWorlds)
             {
-                EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
-                EffectNoTextures.Parameters["World"]?.SetValue(wall);
-                prim.Draw(EffectNoTextures);
+                // EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
+                // EffectNoTextures.Parameters["World"]?.SetValue(wall);
+                var quadCorrection1 = Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateScale(1f, 10f, 200f);
+                var quadCorrection2 = Matrix.CreateRotationZ(MathHelper.ToRadians(90)) * Matrix.CreateScale(1f, 10f, 200f);
+                TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 30f));
+                TilingEffect.Parameters["Texture"].SetValue(WallTexture);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(
+                    quadCorrection1 * wall * FollowCamera.View * FollowCamera.Projection
+                    );
+                prim.Draw(TilingEffect);
+                TilingEffect.Parameters["WorldViewProjection"].SetValue(
+                    quadCorrection2 * wall * FollowCamera.View * FollowCamera.Projection
+                    );
+                prim.Draw(TilingEffect);
             }
         }
 

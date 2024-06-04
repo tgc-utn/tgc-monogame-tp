@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BepuPhysics.Collidables;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -23,17 +24,17 @@ namespace TGC.MonoGame.TP
 
         public List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
-        protected BaseModel(Model model, Effect effect, float scale, Vector3 pos)
+        protected BaseModel(Model model, Effect effect, float scale, Vector3 pos, Box box)
         {
-            Initialize(model, effect, scale, pos);
+            Initialize(model, effect, scale, pos, box);
         }
 
-        protected BaseModel(Model model, Effect effect, float scale, List<Vector3> listPos)
+        protected BaseModel(Model model, Effect effect, float scale, List<Vector3> listPos, Box box)
         {
-            Initialize(model, effect, scale, listPos);
+            Initialize(model, effect, scale, listPos, box);
         }
 
-        private void Initialize(Model model, Effect effect, float scale, Vector3 pos)
+        private void Initialize(Model model, Effect effect, float scale, Vector3 pos, Box box)
         {
             Model = model;
             Effect = effect;
@@ -58,7 +59,7 @@ namespace TGC.MonoGame.TP
 
         }
 
-        private void Initialize(Model model, Effect effect, float scale, List<Vector3> listPos)
+        private void Initialize(Model model, Effect effect, float scale, List<Vector3> listPos, Box box)
         {
             foreach (var pos in listPos)
             {
@@ -69,8 +70,6 @@ namespace TGC.MonoGame.TP
                 World.Add(Matrix.CreateTranslation(Position));
 
                 BBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateTranslation(pos)));
-
-
             }
 
             foreach (var mesh in Model.Meshes)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection.Metadata.Ecma335;
 using BepuPhysics;
 using BepuPhysics.Collidables;
 using BepuUtilities.Memory;
@@ -136,7 +137,7 @@ public class CarConvexHull
         var linearVelocity = bodyReference.Velocity.Linear;
         var angularImpulse = new System.Numerics.Vector3(0f, maxTurnSpeed * wheelRotation * linearVelocity.Length() / maxSpeed, 0f) * elapsedTime;
         var forwardDirection = NumericVector3.Transform(new NumericVector3(0,0,-1), bodyReference.Pose.Orientation);
-        float speedSign = Vector3.Dot(forwardDirection, linearVelocity) < 0 ? -5 : 1;
+        float speedSign = Vector3.Dot(forwardDirection, linearVelocity) < 0 ? -3 : 3;
         var awake = bodyReference.Awake;
 
         // Apply forward/backward impulses relative to the car's orientation
@@ -218,6 +219,8 @@ public class CarConvexHull
         quaternion = bodyReference.Pose.Orientation;
 
         rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
+
+        // if (quaternion.Y <= 0.01 && quaternion.Y >= -0.01 && quaternion.W >= MathHelper.ToRadians(179.5) && quaternion.W <= MathHelper.ToRadians(180.5))
 
         World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
     }

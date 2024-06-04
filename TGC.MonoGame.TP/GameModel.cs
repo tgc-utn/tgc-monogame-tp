@@ -12,49 +12,49 @@ namespace TGC.MonoGame.TP;
 public class GameModel : BaseModel
 {
     public GameModel(Model model, Effect effect, float scale, Vector3 pos)
-        : base(model, effect, scale, pos)
+        : base(model, effect, scale, pos, new Box(0,0,0))
     {
-        // Constructor sin lógica adicional
+        // Constructor sin lï¿½gica adicional
     }
 
     public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos)
-        : base(model, effect, scale, listPos)
+        : base(model, effect, scale, listPos, new Box(0,0,0))
     {
-        // Constructor sin lógica adicional
+        // Constructor sin lï¿½gica adicional
     }
 
     public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, Sphere sphere)
-        : base(model, effect, scale, pos)
+        : base(model, effect, scale, pos, new Box(10,10,10))
     {
         AddToSimulation(simulation, sphere);
     }
     
     public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Sphere sphere)
-        : base(model, effect, scale, listPos)
+        : base(model, effect, scale, listPos, new Box(10, 10, 10))
     {
         AddToSimulation(simulation, sphere, listPos);
     }
 
     public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, Box box)
-       : base(model, effect, scale, pos)
+       : base(model, effect, scale, pos, box)
     {
         AddToSimulation(simulation, box);
     }
 
     public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Box box)
-       : base(model, effect, scale, listPos)
+       : base(model, effect, scale, listPos, box)
     {
         AddToSimulation(simulation, box, listPos);
     }
 
     public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, ConvexHull convexHull)
-       : base(model, effect, scale, pos)
+       : base(model, effect, scale, pos, new Box(0,0,0))
     {
         AddToSimulation(simulation, convexHull);
     }
     
     public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, ConvexHull convexHull)
-     : base(model, effect, scale, listPos)
+     : base(model, effect, scale, listPos, new Box(0,0,0))
     {
         AddToSimulation(simulation, convexHull , listPos);
     }
@@ -119,15 +119,15 @@ public class GameModel : BaseModel
             for (int mi = 0; mi < Model.Meshes.Count; mi++)
             {
                 var mesh = Model.Meshes[mi];
-                // Verifica si la matriz de transformación del hueso está compuesta completamente de ceros
+                // Verifica si la matriz de transformaciï¿½n del hueso estï¿½ compuesta completamente de ceros
                 if (!MatrixHelper.IsZeroMatrix(mesh.ParentBone.ModelTransform))
                 {
-                    // Aplica la transformación del hueso al mundo
+                    // Aplica la transformaciï¿½n del hueso al mundo
                     world = mesh.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * World;
                 }
                 else
                 {
-                    // Si la matriz del hueso está compuesta de ceros, utiliza solo la escala y la matriz del mundo
+                    // Si la matriz del hueso estï¿½ compuesta de ceros, utiliza solo la escala y la matriz del mundo
                     world = Matrix.CreateScale(Scale) * World;
                 }
                 for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
@@ -147,7 +147,7 @@ public class GameModel : BaseModel
 
 public class MatrixHelper
 {
-    // Función para verificar si una matriz 4x4 está compuesta completamente de ceros
+    // Funciï¿½n para verificar si una matriz 4x4 estï¿½ compuesta completamente de ceros
     public static bool IsZeroMatrix(Matrix matrix)
     {
         // Comprueba si todos los elementos de la matriz son cero
