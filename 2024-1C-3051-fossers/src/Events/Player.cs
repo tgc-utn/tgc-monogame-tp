@@ -15,7 +15,7 @@ public static class PlayerEvents
 
     public static void TriggerHealthChanged(int newHealthValue)
     {
-        EventManager.Instance.TriggerEvent(Constants.Events.Player.RELOADING, newHealthValue);
+        EventManager.Instance.TriggerEvent(Constants.Events.Player.HEALTH_CHANGED, newHealthValue);
     }
 
     public static void SubscribeToHealthChanged(Action<int> cb)
