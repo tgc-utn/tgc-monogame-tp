@@ -128,7 +128,7 @@ namespace ThunderingTanks
             AgregarArboles(CantidadArboles);
 
             casa = new CasaAbandonada();
-            casa.Position = new Vector3(-3300f, 200f, 7000f);
+            casa.Position = new Vector3(-3300f, -500f, 7000f);
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
@@ -292,10 +292,10 @@ namespace ThunderingTanks
                 _freeCamera.Update(gameTime);
                 _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
 
-                Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
+
             }
 
-
+            Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
 
             base.Update(gameTime);
         }
@@ -338,6 +338,7 @@ namespace ThunderingTanks
                 foreach (var roca in Rocas)
                 {
                     roca.Draw(gameTime, camara.View, camara.Projection);
+                    Gizmos.DrawCube(roca.RocaWorld, Color.Red);
                 }
 
                 antitanque.Draw(gameTime, camara.View, camara.Projection);
@@ -348,6 +349,7 @@ namespace ThunderingTanks
                 }
 
                 casa.Draw(gameTime, camara.View, camara.Projection);
+                Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
 
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
 
@@ -366,8 +368,7 @@ namespace ThunderingTanks
                 spriteBatch.End();
 
                 #endregion
-            }
-
+            }            
             base.Draw(gameTime);
         }
 
@@ -461,7 +462,8 @@ namespace ThunderingTanks
                     }
 
                 }
-                break;
+                if (Projectiles.Count <= j || Projectiles.Count == 0)
+                    break;
                 Projectiles[j].Update(gameTime);
             }
 

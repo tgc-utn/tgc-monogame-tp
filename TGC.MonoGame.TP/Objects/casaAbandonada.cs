@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BepuPhysics.Constraints;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -54,7 +55,7 @@ namespace ThunderingTanks.Objects
                     meshPart.Effect = Effect;
                 }
             }
-            CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position);
+            CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position - new Vector3(0, 500, 0));
             CasaBox = BoundingVolumesExtensions.FromMatrix(CasaWorld);
         }
 

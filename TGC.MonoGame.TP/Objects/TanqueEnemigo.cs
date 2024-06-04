@@ -100,6 +100,7 @@ namespace ThunderingTanks.Objects
             PanzerMatrix = Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Position);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
+            TankBox = new BoundingBox(TankBox.Min + Direction, TankBox.Max + Direction);
 
             // Lógica de disparo hacia el jugador
             Shoot(playerPosition);
