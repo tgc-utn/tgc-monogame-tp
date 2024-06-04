@@ -151,12 +151,9 @@ namespace ThunderingTanks
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
 
-
             Song = Content.Load<Song>(ContentFolderMusic + "TankGameBackgroundSound");
 
             _shootSound = Content.Load<Song>(ContentFolderMusic + "shootSound");
-
-
 
             base.Initialize();
         }
@@ -278,15 +275,19 @@ namespace ThunderingTanks
 
                 }
 
-                /*CrossHairAux = viewport.Project(
+                /*
+                
+                CrossHairAux = viewport.Project(
                     Panzer.Direction,
                     _targetCamera.Projection,
                     _targetCamera.View,
                     Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
                     );
-                */
+                
 
-                //CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
+                CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
+
+                */
 
                 screenHeight = GraphicsDevice.Viewport.Height;
                 screenWidth = GraphicsDevice.Viewport.Width;
