@@ -12,18 +12,19 @@ public class MainScene : Scene
 {
     public MainScene(GraphicsDeviceManager Graphics, SpriteBatch SpriteBatch) : base(Graphics, SpriteBatch)
     {
-
     }
 
     public override void Initialize()
     {
         LightProcessor light = new LightProcessor(Color.AliceBlue);
         PhysicsProcessor physics = new PhysicsProcessor();
+        UIProcessor uiProcessor = new UIProcessor();
 
         light.AddLightSource(new LightSource(Color.Red, new Vector3(0, 500, 0)));
 
         AddSceneProcessor(light);
         AddSceneProcessor(physics);
+        AddSceneProcessor(uiProcessor);
         AddSceneProcessor(new GizmosProcessor());
 
         // add skybox
@@ -33,13 +34,15 @@ public class MainScene : Scene
         player.Transform.Position = new Vector3(0, 400, 0);
 
         AddEntityBeforeRun(player);
+        PlayerScreen playerScreen = new PlayerScreen();
+        uiProcessor.AddScreen(playerScreen);
+        playerScreen.Initialize(this);
 
         Camera camera = new(new Vector3(0, 800, -500), GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio, GraphicsDeviceManager.GraphicsDevice, MathHelper.PiOver2, 0.1f, 300000f);
         camera.AddComponent(new CameraController(player.Transform));
 
         Map map = new Map();
         map.Initialize(this);
-
 
         SetCamera(camera);
 

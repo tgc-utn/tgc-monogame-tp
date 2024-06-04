@@ -501,6 +501,30 @@
 /processorParam:TextureFormat=Color
 /build:Textures/sunset.dds
 
+#begin Textures/UI/health-bar-bg.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/UI/health-bar-bg.jpg
+
+#begin Textures/UI/health-bar-fill.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/UI/health-bar-fill.jpg
+
 #begin Textures/UI/menu-bg.jpg
 /importer:TextureImporter
 /processor:TextureProcessor

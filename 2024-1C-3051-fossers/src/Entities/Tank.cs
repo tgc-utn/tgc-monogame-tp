@@ -46,6 +46,17 @@ public class Tank : Entity
 {
     private Transform _turretTransform;
     private Transform _cannonTransform;
+    private int _health = 100;
+
+    public int Health
+    {
+        get => _health;
+        set
+        {
+            _health = value;
+            PlayerEvents.TriggerHealthChanged(value);
+        }
+    }
 
     public Tank(string name) : base(name, Array.Empty<string>(), new Transform(), new Dictionary<Type, IComponent>())
     {
