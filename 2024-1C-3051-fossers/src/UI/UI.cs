@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using WarSteel.Scenes;
 
 namespace WarSteel.UIKit;
-
-using UIAction = Action<Scene, UI>;
 
 public interface IUIRenderable
 {
@@ -23,11 +20,32 @@ public class UI
     private IUIRenderable _renderable;
     private List<UIAction> _actions;
 
-    public UI(Vector3 position, IUIRenderable renderable, List<UIAction> actions)
+    public UI(Vector3 position, float width, float height, IUIRenderable renderable, List<UIAction> actions)
     {
         _renderable = renderable;
         _actions = actions;
         _position = position;
+        _height = height;
+        _width = width;
+    }
+
+
+    public UI(Vector3 position, float width, float height, IUIRenderable renderable)
+    {
+        _renderable = renderable;
+        _position = position;
+        _height = height;
+        _width = width;
+        _actions = new List<UIAction>();
+    }
+
+    public UI(Vector3 position, IUIRenderable renderable)
+    {
+        _renderable = renderable;
+        _actions = new List<UIAction>();
+        _position = position;
+        _height = 0;
+        _width = 0;
     }
 
     public Vector3 Position => _position;
@@ -41,20 +59,16 @@ public class UI
 
     public bool IsBeingClicked(Vector2 mousePosition)
     {
-        return mousePosition.X <= _position.X + _width / 2
-               && mousePosition.X >= _position.X - _width / 2
-               && mousePosition.Y <= _position.Y + _height / 2
-               && mousePosition.Y >= _position.Y - _height / 2;
+        Vector3 position = Position;
+
+        return mousePosition.X <= position.X + _width / 2
+               && mousePosition.X >= position.X - _width / 2
+               && mousePosition.Y <= position.Y + _height / 2
+               && mousePosition.Y >= position.Y - _height / 2;
     }
 
     public void OnClick(Scene scene)
     {
         _actions.ForEach(action => action.Invoke(scene, this));
-    }
-
-    public virtual void Update(GameTime gameTime, MouseState mouseState, Scene scene)
-    {
-        if (IsBeingClicked(new(mouseState.X, mouseState.Y)))
-            OnClick(scene);
     }
 }
