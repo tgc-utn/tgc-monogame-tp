@@ -75,7 +75,10 @@ namespace ThunderingTanks.Objects
 
             // Calcular la dirección hacia el jugador (solo en los ejes X y Z)
             Vector3 direction = playerPosition - Position;
-            direction.Y = 0; // Ignorar la componente Y para evitar movimientos verticales
+
+            // Ignorar la componente Y para evitar movimientos verticales
+            direction.Y = 0;
+
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
             
@@ -92,6 +95,7 @@ namespace ThunderingTanks.Objects
             else
             {
                 TankVelocity = 100f;
+
                 // Moverse hacia el jugador
                 Position += Direction * TankVelocity * time;
                 TankBox = new BoundingBox(TankBox.Min + Direction, TankBox.Max + Direction);
@@ -132,7 +136,6 @@ namespace ThunderingTanks.Objects
             }
         }
 
-
         public Projectile Shoot(Vector3 playerPosition)
         {
             if (timeSinceLastShot >= FireRate)
@@ -168,6 +171,7 @@ namespace ThunderingTanks.Objects
             foreach (var mesh in model.Meshes)
             {
                 var meshParts = mesh.MeshParts;
+
                 foreach (var meshPart in meshParts)
                 {
                     var vertexBuffer = meshPart.VertexBuffer;

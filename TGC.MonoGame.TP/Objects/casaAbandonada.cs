@@ -66,14 +66,11 @@ namespace ThunderingTanks.Objects
             //Effect.Parameters["DiffuseColor"].SetValue(Color.Azure.ToVector3());
             foreach (var mesh in CasaModel.Meshes)
             {
-
                 Matrix _casaWorld = CasaWorld;
                 Effect.Parameters["ModelTexture"].SetValue(TexturaCasa);
 
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _casaWorld);
                 mesh.Draw();
-
-
             }
         }
         private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)

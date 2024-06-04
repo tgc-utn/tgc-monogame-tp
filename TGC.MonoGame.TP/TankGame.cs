@@ -9,6 +9,7 @@ using ThunderingTanks.Cameras;
 using ThunderingTanks.Content.Models;
 using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
+using ThunderingTanks.Objects.Props;
 
 namespace ThunderingTanks
 {
@@ -19,8 +20,6 @@ namespace ThunderingTanks
         public const string ContentFolderTextures = "Textures/";
         public const string ContentFolderFonts = "Fonts/";
         public const string ContentFolderMusic = "Music/";
-
-
 
         public float screenHeight;
         public float screenWidth;
@@ -42,14 +41,23 @@ namespace ThunderingTanks
         private FreeCamera _freeCamera;
 
         private Roca roca;
+
         private AntiTanque antitanque;
+
         private Arbol arbol;
+
         private CasaAbandonada casa;
+ 
+        private Molino molino;
+
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
+
         private List<Projectile> Projectiles = new();
+
         private List<Roca> Rocas = new();
         private int CantidadRocas = 40;
+
         private List<Arbol> Arboles = new();
         private int CantidadArboles = 15;
         private int CantidadTanquesEnemigos = 3;
@@ -62,7 +70,6 @@ namespace ThunderingTanks
         private Vector3 CrossHairAux;
 
         //MENU
-
         private Menu _menu;
         private bool _juegoIniciado = false;
         private SpriteFont _systemFont;
@@ -70,11 +77,8 @@ namespace ThunderingTanks
 
         //Sonidos
         private Song Song { get; set; }
-
         private Song movingTankSound { get; set; }
-
         private Song _shootSound { get; set; }
-
 
         public TankGame()
         {
@@ -124,6 +128,8 @@ namespace ThunderingTanks
 
             antitanque = new AntiTanque();
 
+            molino = new Molino(Matrix.CreateTranslation( new(0, 0, 0) ));
+
             Arboles = new List<Arbol>(CantidadArboles);
             AgregarArboles(CantidadArboles);
 
@@ -161,6 +167,8 @@ namespace ThunderingTanks
 
             Panzer.LoadContent(Content);
 
+            molino.LoadContent(Content);
+
             for (int i = 0; i < CantidadRocas; i++)
             {
                 roca = Rocas[i];
@@ -177,7 +185,6 @@ namespace ThunderingTanks
             {
                 arbol = Arboles[i];
                 arbol.LoadContent(Content);
-                //Colliders[i] = arbol.AntiTanqueBox;
                 Console.WriteLine($"Arbol {i} creada: Min={arbol.ArbolBox.Min}, Max={arbol.ArbolBox.Max}");
             }
 
@@ -188,7 +195,6 @@ namespace ThunderingTanks
             {
                 enemyTank = EnemyTanks[i];
                 enemyTank.LoadContent(Content);
-                //Colliders[i] = arbol.AntiTanqueBox;
                 Console.WriteLine($"Tanque enemigo {i} creado: Min={enemyTank.TankBox.Min}, Max={enemyTank.TankBox.Max}");
             }
 
@@ -225,11 +231,9 @@ namespace ThunderingTanks
             {
                 Panzer.isDestroyed = false;
                 _menu.Update(ref _juegoIniciado, gameTime);
-
             }
             else
             {
-
                 keyboardState = Keyboard.GetState();
 
                 if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -250,8 +254,6 @@ namespace ThunderingTanks
                         MediaPlayer.Play(_shootSound);
                     }
 
-
-
                 }
 
                 Panzer.Update(gameTime, keyboardState);
@@ -266,8 +268,6 @@ namespace ThunderingTanks
                     Panzer.TurretMatrix = turretPosition;
                     Panzer.CannonMatrix = cannonPosition;
                     Panzer.Direction = direction;
-
-                    
 
                     Panzer.Update(gameTime, keyboardState);
 
@@ -291,12 +291,10 @@ namespace ThunderingTanks
                     enemyTank.Update(gameTime, Panzer.Direction);
                 }
 
-
                 UpdateProjectiles(gameTime);
 
                 _freeCamera.Update(gameTime);
                 _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
-
 
             }
 
@@ -323,7 +321,6 @@ namespace ThunderingTanks
 
                 #region Pass 1
 
-
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
                 GraphicsDevice.BlendState = BlendState.Opaque;
 
@@ -333,6 +330,8 @@ namespace ThunderingTanks
 
                 Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.TankBox.Center, Panzer.TankBox.Extents*2f, Color.Red);
+
+                molino.Draw(gameTime, camara.View, camara.Projection);
 
                 foreach (var enemyTank in EnemyTanks)
                 {
@@ -391,6 +390,7 @@ namespace ThunderingTanks
                 spriteBatch.End();
 
                 #endregion
+
             }            
             base.Draw(gameTime);
         }
