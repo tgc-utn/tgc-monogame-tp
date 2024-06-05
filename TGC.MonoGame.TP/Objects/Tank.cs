@@ -42,6 +42,9 @@ namespace ThunderingTanks.Objects
         public bool isColliding { get; set; } = false;
 
         private GraphicsDevice graphicsDevice;
+
+        private GraphicsDeviceManager Graphics { get; }
+
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
         public float FireRate { get; set; }

@@ -47,7 +47,7 @@ namespace ThunderingTanks.Objects.Props
             MolinoEffect.Parameters["Projection"].SetValue(projection);
             MolinoEffect.Parameters["ModelTexture"].SetValue(MolinoTexture);
 
-            Matrix _molinoMatrix = MolinoMatrix;
+            Matrix _molinoMatrix = MolinoMatrix * Matrix.CreateTranslation(100,0,555);
 
             foreach (var mesh in MolinoModel.Meshes)
             {

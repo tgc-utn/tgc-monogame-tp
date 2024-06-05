@@ -36,9 +36,11 @@ namespace ThunderingTanks
         private Tank Panzer { get; set; }
         private SkyBox SkyBox { get; set; }
 
-        private readonly Vector3 _cameraInitialPosition = new(0f, 200f, 300f);
+        private readonly Vector3 _cameraInitialPosition = new(-50f, 500f, 1500f);
         private TargetCamera _targetCamera;
         private FreeCamera _freeCamera;
+
+        private Camera _camera;
 
         private Roca roca;
 
@@ -115,6 +117,8 @@ namespace ThunderingTanks
             IsMouseVisible = false;
 
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition); //creo que no se está usando
+
+            //_camera = new Camera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, _cameraInitialPosition);
             movingTankSound = Content.Load<Song>(ContentFolderMusic + "movingTank");
             Panzer = new Tank(GraphicsDevice, movingTankSound)
             {
@@ -333,9 +337,11 @@ namespace ThunderingTanks
                 Panzer.isDestroyed = false;
                 #region Renderizar el menu
                 GraphicsDevice.Clear(Color.Black);
-                spriteBatch.Begin();
+                Camera camara = _freeCamera;
+                //Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
 
-                _menu.Draw(spriteBatch);
+                spriteBatch.Begin();
+                _menu.Draw(spriteBatch, GraphicsDevice, Panzer.PanzerMatrix, camara.View, camara.Projection, Panzer.TurretMatrix, Panzer.CannonMatrix);
                 spriteBatch.End();
                 #endregion
             }
@@ -482,7 +488,13 @@ namespace ThunderingTanks
         {
             for (int j = 0; j < Projectiles.Count; ++j)
             {
-
+                if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
+                {
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
+                    Projectiles.Remove(Projectiles[j]);
+                }
+                if (Projectiles.Count <= j || Projectiles.Count == 0)
+                    break;
                 for (int i = 0; i < Rocas.Count; ++i)
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
@@ -571,11 +583,11 @@ namespace ThunderingTanks
                     return true;
                 }
             }
-            for (int j = 0; j < Projectiles.Count; ++j)
+            /*for (int j = 0; j < Projectiles.Count; ++j)
             {
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                     Panzer.ReceiveDamage(ref _juegoIniciado);
-            }
+            }*/
             return false;
         }
     }
