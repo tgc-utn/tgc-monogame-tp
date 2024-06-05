@@ -69,17 +69,19 @@ namespace ThunderingTanks
 
         public SpriteBatch spriteBatch { get; set; }
 
-        //MENU
+        #region Menu
         private Menu _menu;
         private HUD _hud;
         private bool _juegoIniciado = false;
         private SpriteFont _systemFont;
         private Texture2D _tankMouseTexture;
+        #endregion
 
-        //Sonidos
+        #region Sounds
         private Song Song { get; set; }
         private Song movingTankSound { get; set; }
         private Song _shootSound { get; set; }
+        #endregion
 
         public TankGame()
         {
@@ -110,10 +112,10 @@ namespace ThunderingTanks
 
             IsMouseVisible = false;
 
-            _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition); //creo que no se está usando
+            _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
 
-            //_camera = new Camera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, _cameraInitialPosition);
             movingTankSound = Content.Load<Song>(ContentFolderMusic + "movingTank");
+
             Panzer = new Tank(GraphicsDevice, movingTankSound)
             {
                 TankVelocity = 3000f,
@@ -249,6 +251,7 @@ namespace ThunderingTanks
                     {
                         projectile.LoadContent(Content);
                         Projectiles.Add(projectile);
+
                         MediaPlayer.Play(_shootSound);
                     }
 
@@ -298,7 +301,6 @@ namespace ThunderingTanks
 
                 UpdateProjectiles(gameTime);
 
-                _freeCamera.Update(gameTime);
                 _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
 
             }
@@ -464,7 +466,6 @@ namespace ThunderingTanks
                 Arboles.Add(arbol);
             }
         }
-
         public void UpdateProjectiles(GameTime gameTime)
         {
             for (int j = 0; j < Projectiles.Count; ++j)
@@ -474,8 +475,10 @@ namespace ThunderingTanks
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     Projectiles.Remove(Projectiles[j]);
                 }
+
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
+
                 for (int i = 0; i < Rocas.Count; ++i)
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
@@ -489,8 +492,10 @@ namespace ThunderingTanks
                     }
 
                 }
+
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
+
                 for (int i = 0; i < EnemyTanks.Count; ++i)
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(EnemyTanks[i].TankBox))
@@ -504,13 +509,14 @@ namespace ThunderingTanks
                     }
 
                 }
+
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
 
                 Projectiles[j].Update(gameTime);
+
             }
         }
-
         public  void DrawProjectiles(Matrix view, Matrix projection)
         {
             foreach (Projectile projectile in Projectiles)
