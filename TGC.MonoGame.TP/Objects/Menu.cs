@@ -1,6 +1,4 @@
 ﻿using System;
-using BepuPhysics.Collidables;
-using BepuPhysics.Constraints;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,6 +21,8 @@ namespace ThunderingTanks.Objects
         private GraphicsDeviceManager Graphics { get; }
 
         Viewport viewport;
+
+        private GraphicsDevice graphicsDevice;
 
 
         private Song backgroundSound { get; set; }
@@ -53,6 +53,14 @@ namespace ThunderingTanks.Objects
         private Texture2D SoundOffButtonNormal { get; set; }
 
 
+        private Model Modelo { get; set; }
+
+        private Texture2D ModeloTexture { get; set; }
+
+        private Effect effect { get; set; }
+
+
+
 
         public Menu(SpriteFont font, Texture2D cursorTexture, Song background, ContentManager contentManager)
         {
@@ -77,6 +85,8 @@ namespace ThunderingTanks.Objects
             _soundOnButton = new Rectangle(50, screenHeight - 300, 100, 100);
             _soundOffButton = new Rectangle(50, screenHeight - 300, 100, 100);
 
+      
+
         }
 
         public void LoadContent(ContentManager Content)
@@ -92,6 +102,20 @@ namespace ThunderingTanks.Objects
             PlayButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/PlayButtonHover");
             SoundOnButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOnHover");
             SoundOffButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOffHover");
+
+            Modelo = Content.Load<Model>(ContentFolderModels + "Panzer/Panzer");
+
+            ModeloTexture = Content.Load<Texture2D>(ContentFolderModels + "Panzer/PzVl_Tiger_I");
+
+            effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
+            foreach (var mesh in Modelo.Meshes)
+            {
+                foreach (var meshPart in mesh.MeshParts)
+                {
+                    meshPart.Effect = effect;
+                }
+            }
 
         }
 
@@ -180,11 +204,38 @@ namespace ThunderingTanks.Objects
             }
 
 
-          
+
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Matrix World, Matrix View, Matrix Projection, Matrix TurretMatrix, Matrix CannonMatrix)
         {
+            graphicsDevice.Clear(Color.Black);
+
+
+            effect.Parameters["View"].SetValue(View);
+            effect.Parameters["Projection"].SetValue(Projection);
+
+            foreach (var mesh in Modelo.Meshes)
+            {
+                if (mesh.Name.Equals("Turret"))
+                {
+                    //Effect.Parameters["DiffuseColor"]?.SetValue(Color.Aquamarine.ToVector3());
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
+                }
+                else if (mesh.Name.Equals("Cannon"))
+                {
+                    //Effect.Parameters["DiffuseColor"].SetValue(Color.Coral.ToVector3());
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
+                }
+                else
+                {
+                    effect.Parameters["ModelTexture"].SetValue(ModeloTexture);
+
+                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+                }
+                mesh.Draw();
+            }
+
 
             if (SoundIsOn)
             {
