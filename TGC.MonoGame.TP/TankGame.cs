@@ -29,7 +29,7 @@ namespace ThunderingTanks
         private GraphicsDeviceManager Graphics { get; }
         public KeyboardState keyboardState;
         public MouseState mouseState;
-        private BoundingBox[] Colliders { get; set; }
+
         private Gizmoss Gizmos { get; set; }
 
         private MapScene City { get; set; }
@@ -62,12 +62,7 @@ namespace ThunderingTanks
         private int CantidadArboles = 15;
         private int CantidadTanquesEnemigos = 3;
 
-        //public Texture2D CrossHairTexture { get; set; }
-        //private Vector2 CrossHairPosition { get; set; }
-
         public SpriteBatch spriteBatch { get; set; }
-
-        //private Vector3 CrossHairAux;
 
         //MENU
         private Menu _menu;
@@ -87,7 +82,6 @@ namespace ThunderingTanks
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             Gizmos = new Gizmoss();
-
         }
 
         protected override void Initialize()
@@ -198,8 +192,6 @@ namespace ThunderingTanks
 
             _tankMouseTexture = Content.Load<Texture2D>(ContentFolderTextures + "proyectilMouse");
 
-            //CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
-
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _systemFont = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
@@ -208,8 +200,6 @@ namespace ThunderingTanks
             _hud = new HUD();
             _hud.loadContent(Content);
 
-
-
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
@@ -217,9 +207,6 @@ namespace ThunderingTanks
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
 
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "content"));
-
-            //MediaPlayer.IsRepeating = true;
-
 
             base.LoadContent();
         }
@@ -239,12 +226,12 @@ namespace ThunderingTanks
                 if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                     Exit();
 
+                _hud.Update(Panzer, _targetCamera, ref viewport, screenWidth);
+            
                 var lastMatrix = Panzer.PanzerMatrix;
                 var turretPosition = Panzer.TurretMatrix;
                 var cannonPosition = Panzer.CannonMatrix;
                 var direction = Panzer.Direction;
-
-                _hud.Update(Panzer, _targetCamera, ref viewport, screenWidth);
 
                 if (keyboardState.IsKeyDown(Keys.Space))
                 {
@@ -252,6 +239,7 @@ namespace ThunderingTanks
 
                     if (projectile != null)
                     {
+                        projectile.LoadContent(Content);
                         Projectiles.Add(projectile);
                         MediaPlayer.Play(_shootSound);
                     }
@@ -272,22 +260,7 @@ namespace ThunderingTanks
                     Panzer.Direction = direction;
 
                     Panzer.Update(gameTime, keyboardState);
-
                 }
-
-                /*
-                
-                CrossHairAux = viewport.Project(
-                    Panzer.Direction,
-                    _targetCamera.Projection,
-                    _targetCamera.View,
-                    Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
-                    );
-                
-
-                CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
-
-                */
 
                 screenHeight = GraphicsDevice.Viewport.Height;
                 screenWidth = GraphicsDevice.Viewport.Width;
@@ -315,6 +288,7 @@ namespace ThunderingTanks
             if (!_juegoIniciado || Panzer.isDestroyed)
             {
                 Panzer.isDestroyed = false;
+
                 #region Renderizar el menu
                 GraphicsDevice.Clear(Color.Black);
                 spriteBatch.Begin();
@@ -322,6 +296,7 @@ namespace ThunderingTanks
                 _menu.Draw(spriteBatch);
                 spriteBatch.End();
                 #endregion
+
             }
             else
             {
@@ -462,45 +437,34 @@ namespace ThunderingTanks
                 Arboles.Add(arbol);
             }
         }
-        public void UpdateProjectiles(GameTime gameTime)
+        public  void UpdateProjectiles(GameTime gameTime)
         {
             for (int j = 0; j < Projectiles.Count; ++j)
             {
-
                 for (int i = 0; i < Rocas.Count; ++i)
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
                     {
                         Console.WriteLine("Colisión detectada de proyectil con una roca.");
-                        //Rocas[i].Destroy();
+
                         Projectiles.Remove(Projectiles[j]);
                         Rocas.Remove(Rocas[i]);
-                        break;
-                        //projectile.Disparado();
-                    }
 
+                        break;
+                    }
                 }
+
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
+
                 Projectiles[j].Update(gameTime);
             }
-
-
-
-
-
-
-
-
         }
-        public void DrawProjectiles(Matrix view, Matrix projection)
+        public  void DrawProjectiles(Matrix view, Matrix projection)
         {
             foreach (Projectile projectile in Projectiles)
             {
-                projectile.LoadContent(Content);
-
                 projectile.Draw(view, projection);
-
             }
         }
         private bool CheckCollisions()
@@ -531,6 +495,7 @@ namespace ThunderingTanks
                 Console.WriteLine("Colisión detectada con la casa.");
                 return true;
             }
+
             foreach (var EnemyTank in EnemyTanks)
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))

@@ -26,9 +26,11 @@ namespace ThunderingTanks.Objects
         private Vector3 Direction = Vector3.Zero;
         public float Rotation = 0;
         public BoundingBox TankBox { get; set; }
+        private Vector3 MinBox { get; set; }
+        private Vector3 MaxBox { get; set; }
+
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
-        private GraphicsDevice graphicsDevice;
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
         public float FireRate { get; set; }
@@ -41,10 +43,11 @@ namespace ThunderingTanks.Objects
         public float GunElevation { get; set; }
         public Matrix turretWorld { get; set; }
         public Matrix cannonWorld { get; set; }
+        private Vector3 NormalizedMovement { get; set; }
+        private Vector3 LastPosition {get; set; }
 
         public EnemyTank(GraphicsDevice graphicsDevice)
         {
-            this.graphicsDevice = graphicsDevice;
             turretWorld = Matrix.Identity;
             cannonWorld = Matrix.Identity;
             TankVelocity = 100f;
@@ -65,7 +68,11 @@ namespace ThunderingTanks.Objects
             }
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
+
             TankBox = CreateBoundingBox(Tanque, Matrix.CreateScale(0.8f), Position);
+
+            MinBox = TankBox.Min;
+            MaxBox = TankBox.Max;
         }
 
         public void Update(GameTime gameTime, Vector3 playerPosition)
@@ -96,9 +103,14 @@ namespace ThunderingTanks.Objects
             {
                 TankVelocity = 100f;
 
+                LastPosition = Position;
                 // Moverse hacia el jugador
                 Position += Direction * TankVelocity * time;
-                TankBox = new BoundingBox(TankBox.Min + Direction, TankBox.Max + Direction);
+
+                NormalizedMovement += Position - LastPosition;
+
+                TankBox = new BoundingBox(MinBox + NormalizedMovement, MaxBox + NormalizedMovement);
+
             }
 
             // Actualizar la matriz del tanque con la rotación correcta
@@ -109,7 +121,6 @@ namespace ThunderingTanks.Objects
             // Lógica de disparo hacia el jugador
             Shoot(playerPosition);
         }
-
 
         public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice _GraphicsDevice)
         {

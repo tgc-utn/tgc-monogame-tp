@@ -35,6 +35,7 @@ namespace ThunderingTanks.Objects
 
         public float Rotation = 0;
         public OrientedBoundingBox TankBox { get; set; }
+
         public Vector3 MinBox = new Vector3(-184, 0, -334);
         public Vector3 MaxBox = new Vector3(184, 286, 658);
         public float TankVelocity { get; set; }
@@ -63,10 +64,6 @@ namespace ThunderingTanks.Objects
 
         private bool _isPlaying = true;
 
-        //PARAMETRO DE VIDA
-
-       // public int _maxLifeBarWidth;
-
         public int _currentLife;
 
         public int _maxLife = 50;
@@ -76,7 +73,6 @@ namespace ThunderingTanks.Objects
         public Texture2D LifeBar { get; set; }
 
         public Rectangle _lifeBarRectangle;
-
 
         public Tank(GraphicsDevice graphicsDevice, Song movingSound)
         {
@@ -111,16 +107,12 @@ namespace ThunderingTanks.Objects
             TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
             Console.WriteLine($"Colisión detectada con roca en índice {TankBox}");
 
-
-            //LifeBar = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
-            //_maxLifeBarWidth = LifeBar.Width;
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             TimeSinceLastShot += time;
-
 
             bool isMoving = false; // Variable para controlar si el tanque se está moviendo
 
@@ -168,7 +160,7 @@ namespace ThunderingTanks.Objects
             GunRotationFinal -= GetRotationFromCursorX();
             GunElevation += GetElevationFromCursorY();
 
-            Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
+            Mouse.SetPosition( (int)screenWidth / 2, (int)screenHeight / 2 );
 
             Position = Direction + new Vector3(0f, 500f, 0f);
 
@@ -176,13 +168,12 @@ namespace ThunderingTanks.Objects
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
-            // Mover bounding box en base a los movimientos del tanque
             var BoundingBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
+
             TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
             TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
             LastPosition = Direction;
-
 
             Console.WriteLine(TankBox.Extents);
         }
@@ -261,9 +252,6 @@ namespace ThunderingTanks.Objects
             }
         }
 
-        
-        
-        
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();
@@ -271,6 +259,7 @@ namespace ThunderingTanks.Objects
             screenWidth = graphicsDevice.Viewport.Width;
             return MathHelper.ToRadians((mouseX / screenWidth) * 360f - 180f);
         }
+
         private float GetElevationFromCursorY()
         {
             screenHeight = graphicsDevice.Viewport.Height;

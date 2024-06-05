@@ -21,21 +21,24 @@ namespace ThunderingTanks
 
 
         public Vector3 PositionVector = new(0, 0, 0);
+
         public Vector3 Direction { get; set; }
+
         public float Speed { get; set; }
+
         public float GunRotation { get; set; }
+
         public Matrix PositionMatrix { get; set; }
+
         public Effect Effect { get; set; }
+
         private Model projectile { get; set; }
-        private Texture2D TexturaProjectile { get; set; }
-        public float Scale { get; set; } // Nueva propiedad
+
+        public float Scale { get; set; }
 
         public BoundingBox ProjectileBox { get; set; }
 
         public bool WasShot { get; private set; }
-
-
-
 
         public Projectile(Matrix matrix, float rotation, float speed, float scale)
         {
@@ -64,10 +67,17 @@ namespace ThunderingTanks
                     meshPart.Effect = Effect;
                 }
             }
+            ProjectileBox = CreateBoundingBox(projectile, Matrix.CreateScale(0.5f), PositionVector);
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            PositionVector += Direction * Speed * time;
+
+            PositionMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateTranslation(PositionVector);
 
             ProjectileBox = CreateBoundingBox(projectile, Matrix.CreateScale(0.5f), PositionVector);
-
-
         }
 
         public void Draw(Matrix view, Matrix projection)
@@ -77,44 +87,13 @@ namespace ThunderingTanks
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
 
-            //Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
-
-            //Effect.Parameters["ModelTexture"].SetValue(false);
-           
             foreach (var mesh in projectile.Meshes)
             {
-
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
                 mesh.Draw();
-
-            }
-            
-        }
-
-        public void Update(GameTime gameTime)
-        {
-            float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            PositionVector += Direction * Speed * time;
-            this.PositionMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateTranslation(PositionVector);
-        }
-        public void Disparado()
-        {
-            /*WasShot = true;
-            projectile = null;
-            TexturaProjectile = null;
-            Effect = null;*/
-            ProjectileBox = new BoundingBox();
-    
-        }
-
-        private BoundingBox CalculateBoundingBox()
-        {
-            // Aqui debes calcular la BoundingBox inicial del modelo del proyectil
-            // Por simplicidad, asumimos un tama�o peque�o centrado en (0,0,0)
-            return new BoundingBox(new Vector3(-0.5f), new Vector3(0.5f));
+            }            
         }
  
-
         private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
         {
             var minPoint = Vector3.One * float.MaxValue;
@@ -149,7 +128,6 @@ namespace ThunderingTanks
             return new BoundingBox(minPoint + position, maxPoint + position);
         }
     }
-
 }
 
 
