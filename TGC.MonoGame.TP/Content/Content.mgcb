@@ -1062,7 +1062,7 @@
 /processorParam:TextureFormat=Color
 /build:Models/trees/Tree4.fbx
 
-#begin Models/Truck/caterpillar.fbx
+#begin Models/Truck/Caterpillar_Truck.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -1079,7 +1079,7 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/Truck/caterpillar.fbx
+/build:Models/Truck/Caterpillar_Truck.fbx
 
 #begin Models/weapons/Tex_0001_1.png
 /importer:TextureImporter
