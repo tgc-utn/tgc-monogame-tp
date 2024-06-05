@@ -227,7 +227,7 @@ namespace ThunderingTanks.Objects
         {
             if (TimeSinceLastShot >= FireRate)
             {
-                ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 0f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+                ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 300f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
                 float projectileSpeed = 5000f;

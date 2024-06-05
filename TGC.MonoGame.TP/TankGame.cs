@@ -235,7 +235,7 @@ namespace ThunderingTanks
                     Exit();
 
                 _hud.Update(Panzer, _targetCamera, ref viewport, screenWidth);
-            
+
                 var lastMatrix = Panzer.PanzerMatrix;
                 var turretPosition = Panzer.TurretMatrix;
                 var cannonPosition = Panzer.CannonMatrix;
@@ -277,13 +277,18 @@ namespace ThunderingTanks
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Update(gameTime, Panzer.Direction);
+
                     if (elapsedTime >= shootInterval)
                     {
                         Projectile projectile = enemyTank.Shoot();
+
                         Console.WriteLine("Tanque enemigo quiere disparar");
+
                         if (projectile != null)
                         {
                             Projectiles.Add(projectile);
+                            projectile.LoadContent(Content);
+
                             MediaPlayer.Play(_shootSound);
                             Console.WriteLine("Disparo Tanque enemigo");
                         }
@@ -459,29 +464,53 @@ namespace ThunderingTanks
                 Arboles.Add(arbol);
             }
         }
-        public  void UpdateProjectiles(GameTime gameTime)
+
+        public void UpdateProjectiles(GameTime gameTime)
         {
             for (int j = 0; j < Projectiles.Count; ++j)
             {
+                if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
+                {
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
+                    Projectiles.Remove(Projectiles[j]);
+                }
+                if (Projectiles.Count <= j || Projectiles.Count == 0)
+                    break;
                 for (int i = 0; i < Rocas.Count; ++i)
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
                     {
                         Console.WriteLine("Colisión detectada de proyectil con una roca.");
-
+                        
                         Projectiles.Remove(Projectiles[j]);
                         Rocas.Remove(Rocas[i]);
-
                         break;
+                        
                     }
-                }
 
+                }
+                if (Projectiles.Count <= j || Projectiles.Count == 0)
+                    break;
+                for (int i = 0; i < EnemyTanks.Count; ++i)
+                {
+                    if (Projectiles[j].ProjectileBox.Intersects(EnemyTanks[i].TankBox))
+                    {
+                        Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
+                        
+                        Projectiles.Remove(Projectiles[j]);
+                        EnemyTanks.Remove(EnemyTanks[i]);
+                        break;
+                        
+                    }
+
+                }
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
 
                 Projectiles[j].Update(gameTime);
             }
         }
+
         public  void DrawProjectiles(Matrix view, Matrix projection)
         {
             foreach (Projectile projectile in Projectiles)
