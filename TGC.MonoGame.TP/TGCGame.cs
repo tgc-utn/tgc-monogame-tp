@@ -127,6 +127,7 @@ namespace TGC.MonoGame.TP
         HUD HUD { get; set; }
         public Song backgroundMusic { get; private set; }
         public SoundEffect soundEffect { get; private set; }
+        public Model CarModel { get; private set; }
 
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
@@ -257,7 +258,7 @@ namespace TGC.MonoGame.TP
 
             NumericVector3 center;
 
-            var CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
+            CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             MainCar.Load(CarModel, Effect);
 
             GameModels = new GameModel[]
@@ -268,7 +269,7 @@ namespace TGC.MonoGame.TP
                 new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.1f, GenerateRandomPositions(20), Simulation, new Box(2.5f, 2f, 2.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "gasoline/gasoline"), Effect, 1.5f, GenerateRandomPositions(100), Simulation, new Box(2f, 3f, 2f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect , 1f , new Vector3(30f, 0 , 30f ) , Simulation ,  new Box(17.5f, 10f, 17.5f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "ramp/ramp"), Effect, 4f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices, Simulation.BufferPool, out center)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "ramp/RampNew"), Effect, 1f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices, Simulation.BufferPool, out center)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/WatercolorScene"), Effect, 1f, GenerateRandomPositions(10), Simulation, new Box(15f, 3f, 15f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "carDBZ/carDBZ"), Effect ,1f , new Vector3(50f, 0, 50f) ),
                 // new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4)),
@@ -394,6 +395,10 @@ namespace TGC.MonoGame.TP
 
             // Actualizar estado del auto
             MainCar.Update(Keyboard.GetState(), gameTime, Simulation);
+
+            if (keyboardState.IsKeyDown(Keys.R))
+                MainCar.Restart(new NumericVector3(0,10f,0) , Simulation);
+            
 
             Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MainCar));
 

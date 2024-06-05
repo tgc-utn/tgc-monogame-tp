@@ -57,7 +57,8 @@ namespace TGC.MonoTP
             DrawCenterTextY("SALTO - SPACE", 300, 1);
             DrawCenterTextY("SHOOT - Z", 350, 1);
             DrawCenterTextY("CLAXON - B", 400, 1);
-            DrawCenterTextY("GOD MODE  -  G", 450, 1);
+            DrawCenterTextY("RESTART - R", 450, 1);
+            DrawCenterTextY("GOD MODE  -  G", 500, 1);
             DrawCenterTextY("Presione SPACE para comenzar...", 600, 1);
         }
 

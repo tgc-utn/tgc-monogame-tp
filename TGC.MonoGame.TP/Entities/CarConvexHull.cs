@@ -225,6 +225,17 @@ public class CarConvexHull
         World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
     }
 
+    public void Restart(NumericVector3 pos , Simulation simulation)
+    {
+        var bodyReference = simulation.Bodies.GetBodyReference(CarHandle);
+        bodyReference.Awake = true;
+        bodyReference.Pose.Position = pos;
+        bodyReference.Velocity.Linear =  NumericVector3.Zero;
+        bodyReference.Velocity.Angular =  NumericVector3.Zero;
+        bodyReference.Pose.Orientation = new System.Numerics.Quaternion(0, 0, 0, 1);
+
+    }
+
     public void Draw()
     {
         DrawCarBody();
