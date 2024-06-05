@@ -21,7 +21,13 @@ abstract class Stage
     protected List<GeometricPrimitive> Checkpoints; // puntos de respawn
 
     public Vector3 CharacterInitialPosition;
-
+    //private SpriteBatch SpriteBatch;
+    
+    public void LoadSpriteBatch(){
+        //SpriteBatch=new SpriteBatch(GraphicsDevice);
+        //SpriteBatch.Begin();
+        
+    }
     public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
     {
         GraphicsDevice = graphicsDevice;
@@ -34,11 +40,13 @@ abstract class Stage
         LoadSigns();
         LoadPickups();
         LoadCheckpoints();
+        LoadSpriteBatch();
     }
 
     public abstract void Update(GameTime gameTime);
 
-
+    private SpriteFont SpriteFont { get; set; }
+    
     public void Draw(Matrix view, Matrix projection)
     {
         foreach (GeometricPrimitive primitive in Track)
@@ -60,6 +68,9 @@ abstract class Stage
         {
             pickup.Draw(view, projection);
         }
+        
+        //SpriteBatch.DrawString(SpriteFont, "Launch spheres with the 'Z' key.", new Vector2(GraphicsDevice.Viewport.Width - 500, 25), Color.White);
+
     }
 
     abstract protected void LoadTrack();
