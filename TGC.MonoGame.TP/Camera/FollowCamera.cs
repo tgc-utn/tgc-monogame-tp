@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace TGC.MonoGame.TP
 {
@@ -10,7 +12,7 @@ namespace TGC.MonoGame.TP
     /// </summary>
     class FollowCamera
     {
-        private const float AxisDistanceToTarget = 20f;
+        private const float AxisDistanceToTarget = 5f;
 
         private const float AngleFollowSpeed = 0.03f;
 
@@ -25,7 +27,7 @@ namespace TGC.MonoGame.TP
         private float BackwardVectorInterpolator { get; set; } = 0f;
 
         private Vector3 PastBackwardVector { get; set; } = Vector3.Forward;
-
+        //private Effect ballEffect;
         /// <summary>
         /// Crea una FollowCamera que sigue a una matriz de mundo
         /// </summary>
@@ -34,7 +36,7 @@ namespace TGC.MonoGame.TP
         {
             // Orthographic camera
             // Projection = Matrix.CreateOrthographic(screenWidth, screenHeight, 0.01f, 10000f);
-
+            //ballEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
             // Perspective camera
             // Uso 60° como FOV, aspect ratio, pongo las distancias a near plane y far plane en 0.1 y 100000 (mucho) respectivamente
             Projection = Matrix.CreatePerspectiveFieldOfView(MathF.PI / 3f, aspectRatio, 0.1f, 100000f);
@@ -45,11 +47,33 @@ namespace TGC.MonoGame.TP
         /// </summary>
         /// <param name="gameTime">The Game Time to calculate framerate-independent movement</param>
         /// <param name="followedWorld">The World matrix to follow</param>
+
+        private Vector2 pastMousePosition=Vector2.Zero;
+        private float MouseSensitivity=0.3f;
+        public Vector3 CamPosition;
+
         public void Update(GameTime gameTime, Matrix followedWorld)
         {
             // Obtengo el tiempo
             var elapsedTime = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             
+            var mouseState = Mouse.GetState();
+
+            if (mouseState.RightButton.Equals(ButtonState.Pressed))
+            {
+                var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
+                mouseDelta *= MouseSensitivity * elapsedTime;
+                followedWorld=Matrix.CreateRotationY(mouseDelta.X) * followedWorld;
+                //var size = GraphicsDevice.Viewport.Bounds.Size;
+                //Mouse.SetPosition(screenCenter.X, screenCenter.Y);
+                //Mouse.SetCursor(MouseCursor.Crosshair);
+            }
+
+            else
+            {
+                Mouse.SetCursor(MouseCursor.Arrow);
+            }
+
             // Obtengo la posicion de la matriz de mundo que estoy siguiendo
             var followedPosition = followedWorld.Translation;
 
@@ -106,7 +130,10 @@ namespace TGC.MonoGame.TP
 
             // Calculo la matriz de Vista de la camara usando la Posicion, La Posicion a donde esta mirando,
             // y su vector Arriba
+            CamPosition=offsetedPosition;
+
             View = Matrix.CreateLookAt(offsetedPosition, followedPosition, cameraCorrectUp);
+            
         }
     }
 }

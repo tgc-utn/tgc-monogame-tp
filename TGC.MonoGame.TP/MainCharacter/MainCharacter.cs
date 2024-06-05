@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Camera;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -34,20 +35,24 @@ namespace TGC.MonoGame.TP.MainCharacter
         Vector3 BallSpinAxis=Vector3.UnitX;
         float BallSpinAngle=0f;
         Matrix WorldWithBallSpin;
-        float BallPitch=0f;
-        float BallRoll=0f;
+        //float BallPitch=0f;
+        //float BallRoll=0f;
 
-
+        Vector3 LightPos{get;set;}
+        public Matrix Spin;//
         public Character(ContentManager content, Vector3 initialPosition)
         {
             Content = content;
-
+            Spin= Matrix.CreateFromAxisAngle(Vector3.UnitZ, 0);
 
             InitializeEffect();
             InitializeSphere(initialPosition);
             InitializeTextures();
+            InitializeLight();
         }
-
+        void InitializeLight(){
+            LightPos=Position+ new Vector3(0,10,0);
+        }
 
         private void InitializeSphere(Vector3 initialPosition)
         {
@@ -86,11 +91,13 @@ namespace TGC.MonoGame.TP.MainCharacter
             Effect.Parameters["matWorld"].SetValue(WorldWithBallSpin);
             Effect.Parameters["matWorldViewProj"].SetValue(worldView * projection);
             Effect.Parameters["matInverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(WorldWithBallSpin)));
-            Effect.Parameters["lightPosition"].SetValue(new Vector3(25, 80, -800));
+            //Effect.Parameters["lightPosition"].SetValue(new Vector3(25, 180, -800));
+            //Effect.Parameters["lightPosition"].SetValue(Position + new Vector3(0, 60, 0));
+            Effect.Parameters["lightPosition"].SetValue(LightPos);
             Effect.Parameters["lightColor"].SetValue(new Vector3(253, 251, 211));
 
             //Game.Gizmos.DrawSphere(World, Vector3.One*20, Color.Red);
-
+            
             Sphere.Meshes.FirstOrDefault().Draw();
         }
 
@@ -110,6 +117,8 @@ namespace TGC.MonoGame.TP.MainCharacter
             Effect.Parameters["roughnessTexture"]?.SetValue(roughness);
             Effect.Parameters["aoTexture"]?.SetValue(ao);
         }
+
+
 
         private void ProcessMaterialChange()
         {
@@ -142,6 +151,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             {
                 CurrentMaterial = NewMaterial;
                 SwitchMaterial();
+                LoadTextures();
             }
                 
         }
@@ -182,10 +192,14 @@ namespace TGC.MonoGame.TP.MainCharacter
             LoadTextures();
         }
 
+        private Vector2 pastMousePosition=Vector2.Zero;
+        private float MouseSensitivity=0.3f;
         private void ProcessMovement(GameTime gameTime) 
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            
 
             var directionX = new Vector3();
             var directionY = new Vector3();
@@ -224,6 +238,11 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             BallSpinAngle += Velocity.Length()*elapsedTime / (MathHelper.Pi*12.5f);
             BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
+            //DeltaX+=elapsedTime*Velocity.X/MathHelper.TwoPi;
+            //DeltaZ+=elapsedTime*Velocity.Z/MathHelper.TwoPi;
+            //Spin*=Matrix.CreateFromAxisAngle(BallSpinAxis, BallSpinAngle);
+            //BallSpinAxis.X=Math.Abs(BallSpinAxis.X);
+            //BallSpinAxis.Z=Math.Abs(BallSpinAxis.Z);
             
             //if(Acceleration==Vector3.Zero && Velocity!=Vector3.Zero) Velocity *= (1-(elapsedTime/2));
             if(Acceleration==Vector3.Zero || Vector3.Dot(Acceleration, Velocity)<0) Velocity *= (1-(elapsedTime));
@@ -251,15 +270,19 @@ namespace TGC.MonoGame.TP.MainCharacter
             Velocity += (Acceleration + gravity) * elapsedTime;
             Position += (directionX + directionY + directionZ) * Velocity * elapsedTime * 0.5f;
 
+
             MoveTo(Position);
 
             Acceleration = Vector3.Zero;
         }
-
+        //float DeltaX, DeltaZ;
         public void MoveTo(Vector3 position)
         {
             World = Scale * Matrix.CreateTranslation(position);
             WorldWithBallSpin=Matrix.CreateFromAxisAngle(BallSpinAxis, BallSpinAngle) * World;
+            LightPos=Position+ new Vector3(0,30,-30);
+            
+            //WorldWithBallSpin=Matrix.CreateRotationX(DeltaX) * Matrix.CreateRotationZ(DeltaZ) * World;
         }
     }
 }

@@ -202,12 +202,12 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	// Reflectance equation
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	
-	float3 light = lightPosition - input.WorldPosition.xyz;
+	float3 light = (lightPosition - input.WorldPosition.xyz);
 	float distance = length(light);
 	// Normalize our light vector after using its length
 	light = normalize(light);
 	float3 halfVector = normalize(view + light);		
-	float attenuation = 1.0 / (distance);
+	float attenuation = 1.0 / (distance); //cambiar para bajar o subir atenuacion
 	float3 radiance = lightColor * attenuation;
 
 

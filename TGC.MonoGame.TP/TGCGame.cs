@@ -82,20 +82,24 @@ namespace TGC.MonoGame.TP
 
             base.Initialize();
         }
-
+        private SpriteFont SpriteFont{get;set;}
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
         ///     que podemos pre calcular para nuestro juego.
         /// </summary>
+        public Effect BallEffect;
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            
 
             Stage = new Stage_01(GraphicsDevice, Content);
 
             MainCharacter = new Character(Content, Stage.CharacterInitialPosition);
+
+            BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
 
             base.LoadContent();
         }
@@ -115,7 +119,9 @@ namespace TGC.MonoGame.TP
 
             MainCharacter.Update(gameTime);
 
+
             FollowCamera.Update(gameTime, MainCharacter.World);
+            BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
 
             base.Update(gameTime);
         }
