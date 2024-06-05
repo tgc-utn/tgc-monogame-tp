@@ -160,6 +160,29 @@ namespace TGC.MonoGame.TP
             return positions;
         }
 
+        private NumericVector3[] GetVerticesFromModel(Model model)
+        {
+            List<NumericVector3> vertices = new List<NumericVector3>();
+
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    VertexBuffer vertexBuffer = part.VertexBuffer;
+                    int vertexStride = part.VertexBuffer.VertexDeclaration.VertexStride;
+                    int vertexBufferSize = vertexBuffer.VertexCount * vertexStride;
+
+                    // Get the vertices from the vertex buffer
+                    NumericVector3[] vertexData = new NumericVector3[vertexBuffer.VertexCount];
+                    vertexBuffer.GetData(vertexData);
+                    
+                    // Add the vertices to the list
+                    vertices.AddRange(vertexData);
+                }
+            }
+            return vertices.ToArray();
+        }
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -235,30 +258,11 @@ namespace TGC.MonoGame.TP
             TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
             FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
             WallTexture = Content.Load<Texture2D>(ContentFolderTextures + "stoneTexture");
-
-            var rampVertices = new NumericVector3[] {
-
-                    // Bottom vertices
-                    new NumericVector3(0f, 0.0f, 11f),
-                    new NumericVector3(3.5f, 0.0f, 11f),
-                    new NumericVector3(3.5f, 0.0f, 12f),
-                    new NumericVector3(0f, 0.0f, 12f),
-
-                    // Top vertices
-                    new NumericVector3(0f, 0.5f, 3.5f),
-                    new NumericVector3(3.5f, 0.5f, 3.5f),
-                    new NumericVector3(0f, 1.2f, 6f),
-                    new NumericVector3(3.5f, 1.2f, 6f),
-                    new NumericVector3(0f, 2.0f, 9f),
-                    new NumericVector3(3.5f, 2.0f, 9f),
-                    new NumericVector3(3.5f, 3f, 12f),
-                    new NumericVector3(0f, 3f, 12f)
-
-                };
-
             NumericVector3 center;
 
             CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
+            var RampModel = Content.Load < Model >(ContentFolder3D + "ramp/RampNew");
+            var rampVertices = GetVerticesFromModel(RampModel);
             MainCar.Load(CarModel, Effect);
 
             GameModels = new GameModel[]
@@ -269,12 +273,12 @@ namespace TGC.MonoGame.TP
                 new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.1f, GenerateRandomPositions(20), Simulation, new Box(2.5f, 2f, 2.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "gasoline/gasoline"), Effect, 1.5f, GenerateRandomPositions(100), Simulation, new Box(2f, 3f, 2f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect , 1f , new Vector3(30f, 0 , 30f ) , Simulation ,  new Box(17.5f, 10f, 17.5f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "ramp/RampNew"), Effect, 1f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices, Simulation.BufferPool, out center)),
+                new GameModel(RampModel, Effect, 1f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices, Simulation.BufferPool, out center)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/WatercolorScene"), Effect, 1f, GenerateRandomPositions(10), Simulation, new Box(15f, 3f, 15f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "carDBZ/carDBZ"), Effect ,1f , new Vector3(50f, 0, 50f) ),
                 // new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Bushes/source/bush1"), Effect,1f , GenerateRandomPositions(4)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Truck/source/KAMAZ"), Effect, 1f, GenerateRandomPositions(4)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Truck/caterpillar"), Effect, 1f, GenerateRandomPositions(4), Simulation, new Box(7f, 2f, 7f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/FencesNew"), Effect, 150f, GenerateRandomPositions(30)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence2"), Effect, 1f, GenerateRandomPositions(4)),
 
