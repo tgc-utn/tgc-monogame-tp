@@ -117,11 +117,15 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
+
             MainCharacter.Update(gameTime);
 
 
             FollowCamera.Update(gameTime, MainCharacter.World);
             BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
+
+
+            World = Matrix.CreateRotationY(Rotation);
 
             base.Update(gameTime);
         }
@@ -135,9 +139,11 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.LightSkyBlue);
 
+
             MainCharacter.Draw(FollowCamera.View, FollowCamera.Projection);
 
             Stage.Draw(FollowCamera.View, FollowCamera.Projection);
+
         }
 
         /// <summary>
