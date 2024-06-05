@@ -138,7 +138,7 @@ namespace ThunderingTanks.Objects
 
         public Projectile Shoot()
         {
-            Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 0f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
+            Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 200f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             float projectileScale = 1f;
             float projectileSpeed = 5000f;

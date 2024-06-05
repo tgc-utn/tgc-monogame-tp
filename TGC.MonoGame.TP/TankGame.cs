@@ -47,7 +47,7 @@ namespace ThunderingTanks
         private Arbol arbol;
 
         private CasaAbandonada casa;
- 
+
         private Molino molino;
 
         private EnemyTank enemyTank;
@@ -132,7 +132,7 @@ namespace ThunderingTanks
 
             antitanque = new AntiTanque();
 
-            molino = new Molino(Matrix.CreateTranslation( new(0, 0, 0) ));
+            molino = new Molino(Matrix.CreateTranslation(new(0, 0, 0)));
 
             Arboles = new List<Arbol>(CantidadArboles);
             AgregarArboles(CantidadArboles);
@@ -352,7 +352,7 @@ namespace ThunderingTanks
                 Camera camara = _targetCamera;
 
                 Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
-                Gizmos.DrawCube(Panzer.TankBox.Center, Panzer.TankBox.Extents*2f, Color.Red);
+                Gizmos.DrawCube(Panzer.TankBox.Center, Panzer.TankBox.Extents * 2f, Color.Red);
 
                 molino.Draw(gameTime, camara.View, camara.Projection);
 
@@ -394,7 +394,7 @@ namespace ThunderingTanks
 
                 spriteBatch.Begin();
 
-                
+
 
                 _hud.Draw(spriteBatch);
 
@@ -402,7 +402,7 @@ namespace ThunderingTanks
 
                 #endregion
 
-            }            
+            }
             base.Draw(gameTime);
         }
 
@@ -498,6 +498,21 @@ namespace ThunderingTanks
                 }
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
+                for (int i = 0; i < EnemyTanks.Count; ++i)
+                {
+                    if (Projectiles[j].ProjectileBox.Intersects(EnemyTanks[i].TankBox))
+                    {
+                        Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
+                        //Rocas[i].Destroy();
+                        Projectiles.Remove(Projectiles[j]);
+                        EnemyTanks.Remove(EnemyTanks[i]);
+                        break;
+                        //projectile.Disparado();
+                    }
+
+                }
+                if (Projectiles.Count <= j || Projectiles.Count == 0)
+                    break;
                 Projectiles[j].Update(gameTime);
             }
 
@@ -556,7 +571,11 @@ namespace ThunderingTanks
                     return true;
                 }
             }
-
+            for (int j = 0; j < Projectiles.Count; ++j)
+            {
+                if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
+                    Panzer.ReceiveDamage(ref _juegoIniciado);
+            }
             return false;
         }
     }
