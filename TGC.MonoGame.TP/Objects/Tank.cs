@@ -46,10 +46,16 @@ namespace ThunderingTanks.Objects
         public List<ModelMesh> Meshes { get; private set; }
         public TargetCamera PanzerCamera { get; set; }
         private Song movingTankSound { get; set; }
-        public OrientedBoundingBox TankBox { get; set; }
+
+        //public BoundingBox TankboundingBox { get; set; }
+        public BoundingBox TankBox { get; set; }
+        public Vector3 Center { get; set; }
+        public Vector3 Extents { get; set; }
+        //public OrientedBoundingBox TankBox { get; set; }
         public Vector3 MinBox = new(0, 0, 0);
         public Vector3 MaxBox = new(0, 0, 0);
         public bool isColliding { get; set; } = false;
+
         public Texture2D LifeBar { get; set; }
         public Rectangle _lifeBarRectangle;
         public int _maxLife = 50;
@@ -92,15 +98,11 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            var BoundingBox = CreateBoundingBox(Tanque, Matrix.CreateScale(1f), Position);
-            Console.WriteLine($"Colisión detectada con roca en índice {BoundingBox}");
+            TankBox = new BoundingBox( new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
+            //TankBox = new OrientedBoundingBox();
 
-            MinBox = BoundingBox.Min;
-            MaxBox = BoundingBox.Max;
-
-            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
-            Console.WriteLine($"Colisión detectada con roca en índice {TankBox}");
-
+            MinBox = TankBox.Min;
+            MaxBox = TankBox.Max;
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -162,14 +164,16 @@ namespace ThunderingTanks.Objects
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
-            var BoundingBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
+            TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);  
 
-            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
-            TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
+            Center = CollisionsClass.GetCenter(TankBox);
+            Extents = CollisionsClass.GetExtents(TankBox);
+
+            //TankBox = new OrientedBoundingBox(Center, Extents);
+            //TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
             LastPosition = Direction;
 
-            Console.WriteLine(TankBox.Extents);
         }
 
         public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
@@ -215,7 +219,7 @@ namespace ThunderingTanks.Objects
         {
             if (TimeSinceLastShot >= FireRate)
             {
-                ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 300f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+                ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
                 float projectileSpeed = 5000f;
@@ -259,41 +263,6 @@ namespace ThunderingTanks.Objects
             float mouseY = mouseState.Y;
 
             return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
-        }
-
-        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
-        {
-            var minPoint = Vector3.One * float.MaxValue;
-            var maxPoint = Vector3.One * float.MinValue;
-
-            var transforms = new Matrix[model.Bones.Count];
-            model.CopyAbsoluteBoneTransformsTo(transforms);
-
-            foreach (var mesh in model.Meshes)
-            {
-                var meshParts = mesh.MeshParts;
-
-                foreach (var meshPart in meshParts)
-                {
-                    var vertexBuffer = meshPart.VertexBuffer;
-                    var declaration = vertexBuffer.VertexDeclaration;
-                    var vertexSize = declaration.VertexStride / sizeof(float);
-
-                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
-                    vertexBuffer.GetData(rawVertexBuffer);
-
-                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
-                    {
-                        var transform = transforms[mesh.ParentBone.Index] * escala;
-                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
-                        vertex = Vector3.Transform(vertex, transform);
-                        minPoint = Vector3.Min(minPoint, vertex);
-                        maxPoint = Vector3.Max(maxPoint, vertex);
-                    }
-                }
-            }
-
-            return new BoundingBox(minPoint + position, maxPoint + position);
         }
     }
 }

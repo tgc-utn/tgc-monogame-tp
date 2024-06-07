@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using ThunderingTanks.Cameras;
+using ThunderingTanks.Collisions;
 using ThunderingTanks.Content.Models;
 using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
@@ -37,10 +39,9 @@ namespace ThunderingTanks
         private SkyBox SkyBox { get; set; }
 
         private readonly Vector3 _cameraInitialPosition = new(-50f, 500f, 1500f);
+
         private TargetCamera _targetCamera;
         private FreeCamera _freeCamera;
-
-        private Camera _camera;
 
         private Roca roca;
 
@@ -61,8 +62,8 @@ namespace ThunderingTanks
         private int CantidadRocas = 40;
 
         private List<Arbol> Arboles = new();
-        private int CantidadArboles = 15;
-        private int CantidadTanquesEnemigos = 3;
+        private readonly int CantidadArboles = 15;
+        private readonly int CantidadTanquesEnemigos = 3;
 
         private float elapsedTime = 0f;
         private const float shootInterval = 5f;
@@ -174,7 +175,6 @@ namespace ThunderingTanks
             {
                 roca = Rocas[i];
                 roca.LoadContent(Content);
-                //Colliders[i] = roca.RocaBox;
                 Console.WriteLine($"Roca {i} creada: Min={roca.RocaBox.Min}, Max={roca.RocaBox.Max}");
             }
             roca.LoadContent(Content);
@@ -340,14 +340,16 @@ namespace ThunderingTanks
                 Camera camara = _targetCamera;
 
                 Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
-                Gizmos.DrawCube(Panzer.TankBox.Center, Panzer.TankBox.Extents * 2f, Color.Red);
+
+                //Gizmos.DrawCube(Panzer.TankBox.Center, Panzer.TankBox.Extents * 2f, Color.Red);
+                Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
 
                 molino.Draw(gameTime, camara.View, camara.Projection);
 
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
-                    Gizmos.DrawCube((enemyTank.TankBox.Max + enemyTank.TankBox.Min) / 2f, enemyTank.TankBox.Max - enemyTank.TankBox.Min, Color.Red);
+                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
                 }
 
                 City.Draw(gameTime, camara.View, camara.Projection);
@@ -522,11 +524,13 @@ namespace ThunderingTanks
             foreach (Projectile projectile in Projectiles)
             {
                 projectile.Draw(view, projection);
+                Gizmos.DrawCube(CollisionsClass.GetCenter(projectile.BoundingBox), CollisionsClass.GetExtents(projectile.BoundingBox), Color.Red);
+                Gizmos.Draw();
             }
         }
         private bool CheckCollisions()
         {
-            var tankBox = Panzer.TankBox;
+            BoundingBox tankBox = Panzer.TankBox;
 
             foreach (var roca in Rocas)
             {

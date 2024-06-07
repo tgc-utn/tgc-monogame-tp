@@ -46,6 +46,9 @@ namespace ThunderingTanks.Objects
         private Vector3 NormalizedMovement { get; set; }
         private Vector3 LastPosition {get; set; }
 
+        public Vector3 Dimensiones1 = new(-200, 0, -300);
+        public Vector3 Dimensiones2 = new(200, 250, 300);
+
         public EnemyTank(GraphicsDevice graphicsDevice)
         {
             turretWorld = Matrix.Identity;
@@ -69,7 +72,7 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            TankBox = CreateBoundingBox(Tanque, Matrix.CreateScale(0.8f), Position);
+            TankBox = new BoundingBox(Position + Dimensiones1, Position + Dimensiones2);
 
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
@@ -80,21 +83,17 @@ namespace ThunderingTanks.Objects
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timeSinceLastShot += time;
 
-            // Calcular la dirección hacia el jugador (solo en los ejes X y Z)
             Vector3 direction = playerPosition - Position;
 
-            // Ignorar la componente Y para evitar movimientos verticales
             direction.Y = 0;
 
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
             
-            // Rotar el tanque enemigo hacia el jugador
             Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
 
             GunRotationFinal = Rotation;
 
-            // Si el tanque está a una distancia menor que la permitida, no se mueve más
             if (distanceToPlayer < 2500f)
             {
                 TankVelocity = 0f;
@@ -104,7 +103,7 @@ namespace ThunderingTanks.Objects
                 TankVelocity = 100f;
 
                 LastPosition = Position;
-                // Moverse hacia el jugador
+
                 Position += Direction * TankVelocity * time;
 
                 NormalizedMovement += Position - LastPosition;
@@ -113,12 +112,10 @@ namespace ThunderingTanks.Objects
 
             }
 
-            // Actualizar la matriz del tanque con la rotación correcta
             PanzerMatrix = Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Position);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
-            // Lógica de disparo hacia el jugador
             //Shoot();
         }
 
@@ -149,49 +146,15 @@ namespace ThunderingTanks.Objects
 
         public Projectile Shoot()
         {
-            Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 300f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
+            Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             float projectileScale = 1f;
             float projectileSpeed = 5000f;
 
-            Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
+            Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); 
 
             return projectile;
         }
 
-        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
-        {
-            var minPoint = Vector3.One * float.MaxValue;
-            var maxPoint = Vector3.One * float.MinValue;
-
-            var transforms = new Matrix[model.Bones.Count];
-            model.CopyAbsoluteBoneTransformsTo(transforms);
-
-            foreach (var mesh in model.Meshes)
-            {
-                var meshParts = mesh.MeshParts;
-
-                foreach (var meshPart in meshParts)
-                {
-                    var vertexBuffer = meshPart.VertexBuffer;
-                    var declaration = vertexBuffer.VertexDeclaration;
-                    var vertexSize = declaration.VertexStride / sizeof(float);
-
-                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
-                    vertexBuffer.GetData(rawVertexBuffer);
-
-                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
-                    {
-                        var transform = transforms[mesh.ParentBone.Index] * escala;
-                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
-                        vertex = Vector3.Transform(vertex, transform);
-                        minPoint = Vector3.Min(minPoint, vertex);
-                        maxPoint = Vector3.Max(maxPoint, vertex);
-                    }
-                }
-            }
-
-            return new BoundingBox(minPoint + position, maxPoint + position);
-        }
     }
 }

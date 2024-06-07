@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace ThunderingTanks.Collisions
 {
-    class Collisions
+    public static class CollisionsClass
     {
-        public BoundingBox CreateAABBFrom(Model model)
+
+        public static BoundingBox CreateAABBFrom(Model model)
         {
             var minPoint = Vector3.One * float.MaxValue;
             var maxPoint = Vector3.One * float.MinValue;
@@ -41,7 +40,7 @@ namespace ThunderingTanks.Collisions
             return new BoundingBox(minPoint, maxPoint);
         }
 
-        public BoundingSphere CreateSphereFrom(Model model)
+        public static BoundingSphere CreateSphereFrom(Model model)
         {
             var minPoint = Vector3.One * float.MaxValue;
             var maxPoint = Vector3.One * float.MinValue;
@@ -76,7 +75,7 @@ namespace ThunderingTanks.Collisions
             return new BoundingSphere(difference, difference.Length());
         }
 
-        public BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
+        public static BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
         {
             var minPoint = Vector3.One * float.MaxValue;
             var maxPoint = Vector3.One * float.MinValue;
@@ -109,12 +108,13 @@ namespace ThunderingTanks.Collisions
 
             return new BoundingBox(minPoint + position, maxPoint + position);
         }
-        public Vector3 GetCenter(BoundingBox box)
+
+        public static Vector3 GetCenter(BoundingBox box)
         {
             return (box.Max + box.Min) * 0.5f;
         }
 
-        public Vector3 GetExtents(BoundingBox box)
+        public static Vector3 GetExtents(BoundingBox box)
         {
             var max = box.Max;
             var min = box.Min;
