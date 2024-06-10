@@ -256,6 +256,17 @@ namespace TGC.MonoGame.TP
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             EffectNoTextures = Content.Load<Effect>(ContentFolderEffects + "BasicShaderNoTextures");
             TilingEffect = Content.Load<Effect>(ContentFolderEffects + "TextureTiling");
+
+            Effect.Parameters["ambientColor"].SetValue(new Vector3(0.7f, 0.7f, 0.5f));
+            Effect.Parameters["diffuseColor"].SetValue(new Vector3(0.4f, 0.5f, 0.6f));
+            Effect.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
+            Effect.Parameters["KAmbient"].SetValue(0.8f);
+            Effect.Parameters["KDiffuse"].SetValue(0.4f);
+            Effect.Parameters["KSpecular"].SetValue(0.2f);
+            Effect.Parameters["shininess"].SetValue(10.0f);
+
+            Effect.Parameters["lightPosition"]?.SetValue(new Vector3(100f, 40f, 100f));
+
             FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
             WallTexture = Content.Load<Texture2D>(ContentFolderTextures + "stoneTexture");
             NumericVector3 center;
@@ -363,6 +374,8 @@ namespace TGC.MonoGame.TP
 
         public void mainGameUpdate(GameTime gameTime)
         {
+
+
             Vector3 forwardLocal = new Vector3(0, 0, -1);
 
             var keyboardState = Keyboard.GetState();
@@ -408,6 +421,7 @@ namespace TGC.MonoGame.TP
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
             FollowCamera.Update(gameTime, MainCar.World);
+            Effect.Parameters["eyePosition"]?.SetValue(FollowCamera.Position);
 
             SpheresWorld.Clear();
             var quaternionCar = MainCar.quaternion;

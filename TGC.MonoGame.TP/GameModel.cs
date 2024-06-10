@@ -130,11 +130,15 @@ public class GameModel : BaseModel
                     // Si la matriz del hueso est� compuesta de ceros, utiliza solo la escala y la matriz del mundo
                     world = Matrix.CreateScale(Scale) * World;
                 }
+
+                var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
+
                 for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
                 {
                     var meshPart = mesh.MeshParts[mpi];
                     var texture = MeshPartTextures[mi][mpi];
                     meshPart.Effect.Parameters["World"]?.SetValue(world);
+                    meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
                     Effect.Parameters["ModelTexture"]?.SetValue(texture);
                 }
 

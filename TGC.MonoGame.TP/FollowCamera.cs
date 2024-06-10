@@ -9,6 +9,7 @@ namespace TGC.MonoGame.TP
 
         public Matrix Projection { get; private set; }
         public Matrix View { get; private set; }
+        public Vector3 Position { get; private set;}
 
         public FollowCamera(float aspectRatio)
         {
@@ -23,6 +24,7 @@ namespace TGC.MonoGame.TP
             var offsetZ = DistanceToTarget * MathF.Sin(MathF.PI / 4f);
 
             var cameraPosition = followedPosition + new Vector3(offsetX, offsetY, offsetZ);
+            Position = cameraPosition;
 
             var forward = (followedPosition - cameraPosition);
             forward.Normalize();
