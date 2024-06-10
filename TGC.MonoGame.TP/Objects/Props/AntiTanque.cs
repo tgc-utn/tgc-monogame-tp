@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ThunderingTanks.Objects
+namespace ThunderingTanks.Objects.Props
 {
     public class AntiTanque
     {

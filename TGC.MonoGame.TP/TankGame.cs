@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.VisualBasic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System;
+using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
-using ThunderingTanks.Content.Models;
 using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
 using ThunderingTanks.Objects.Props;
@@ -56,17 +54,19 @@ namespace ThunderingTanks
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
-        private List<Projectile> Projectiles = new();
+        public List<Projectile> Projectiles = new();
 
         private List<Roca> Rocas = new();
         private int CantidadRocas = 40;
 
         private List<Arbol> Arboles = new();
         private readonly int CantidadArboles = 15;
-        private readonly int CantidadTanquesEnemigos = 3;
+        private readonly int CantidadTanquesEnemigos = 0;
 
         private float elapsedTime = 0f;
         private const float shootInterval = 5f;
+
+        public Vector2 MapLimit { get; set; }
 
         public SpriteBatch spriteBatch { get; set; }
 
@@ -112,6 +112,8 @@ namespace ThunderingTanks
             mouseState = new MouseState();
 
             IsMouseVisible = false;
+
+            MapLimit = new Vector2(20000f, 20000f);
 
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition);
 
@@ -168,29 +170,24 @@ namespace ThunderingTanks
             City = new MapScene(Content);
 
             Panzer.LoadContent(Content);
-
             molino.LoadContent(Content);
+            roca.LoadContent(Content);
+            antitanque.LoadContent(Content);
+            casa.LoadContent(Content);
+
+            AgregarAntitanques();
 
             for (int i = 0; i < CantidadRocas; i++)
             {
                 roca = Rocas[i];
                 roca.LoadContent(Content);
-                Console.WriteLine($"Roca {i} creada: Min={roca.RocaBox.Min}, Max={roca.RocaBox.Max}");
             }
-            roca.LoadContent(Content);
-            antitanque.LoadContent(Content);
-
-            AgregarAntitanques();
 
             for (int i = 0; i < CantidadArboles; i++)
             {
                 arbol = Arboles[i];
                 arbol.LoadContent(Content);
-                Console.WriteLine($"Arbol {i} creada: Min={arbol.ArbolBox.Min}, Max={arbol.ArbolBox.Max}");
             }
-
-            casa.LoadContent(Content);
-            Console.WriteLine($"Casa creada: Min={casa.CasaBox.Min}, Max={casa.CasaBox.Max}");
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
@@ -204,6 +201,7 @@ namespace ThunderingTanks
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _systemFont = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
+
             _menu = new Menu(_systemFont, _tankMouseTexture, Song, Content);
             _menu.LoadContent(Content);
             _hud = new HUD();
@@ -384,8 +382,6 @@ namespace ThunderingTanks
 
                 spriteBatch.Begin();
 
-
-
                 _hud.Draw(spriteBatch);
 
                 spriteBatch.End();
@@ -403,7 +399,6 @@ namespace ThunderingTanks
         }
 
         // ------------ FUNCTIONS ------------ //
-
         private void DrawSkyBox(Matrix view, Matrix projection, Vector3 position)
         {
             var originalRasterizerState = GraphicsDevice.RasterizerState;
@@ -472,6 +467,16 @@ namespace ThunderingTanks
         {
             for (int j = 0; j < Projectiles.Count; ++j)
             {
+
+                _hud.BulletCount = Projectiles.Count;
+                _hud.BulletPosition = Projectiles[j].PositionVector;
+
+                if (OutOfMap(Projectiles[j].PositionVector))
+                {
+                    Projectiles.Remove(Projectiles[j]);
+                    break;
+                }
+
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                 {
                     Panzer.ReceiveDamage(ref _juegoIniciado);
@@ -486,11 +491,11 @@ namespace ThunderingTanks
                     if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
                     {
                         Console.WriteLine("Colisión detectada de proyectil con una roca.");
-                        
+
                         Projectiles.Remove(Projectiles[j]);
                         Rocas.Remove(Rocas[i]);
                         break;
-                        
+
                     }
 
                 }
@@ -503,11 +508,11 @@ namespace ThunderingTanks
                     if (Projectiles[j].ProjectileBox.Intersects(EnemyTanks[i].TankBox))
                     {
                         Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
-                        
+
                         Projectiles.Remove(Projectiles[j]);
                         EnemyTanks.Remove(EnemyTanks[i]);
                         break;
-                        
+
                     }
 
                 }
@@ -519,7 +524,20 @@ namespace ThunderingTanks
 
             }
         }
-        public  void DrawProjectiles(Matrix view, Matrix projection)
+        public bool OutOfMap(Vector3 position)
+        {
+            if (
+                position.X > MapLimit.X ||
+                position.X < -MapLimit.X ||
+
+                position.Y > MapLimit.Y ||
+                position.Y < -MapLimit.Y
+               )
+                return true;
+            else
+                return false;
+        }
+        public void DrawProjectiles(Matrix view, Matrix projection)
         {
             foreach (Projectile projectile in Projectiles)
             {

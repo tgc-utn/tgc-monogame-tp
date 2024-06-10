@@ -12,6 +12,12 @@ namespace ThunderingTanks.Objects
 {
     public class HUD
     {
+
+        public const string ContentFolderModels = "Models/";
+        public const string ContentFolderTextures = "Textures/";
+        public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderFonts = "Fonts/";
+
         private Rectangle lifeBar;
         private Rectangle e_lifeBar;
 
@@ -22,9 +28,10 @@ namespace ThunderingTanks.Objects
         private Vector2 CrossHairPosition;
         private Vector3 CrossHairAux;
 
-        public const string ContentFolderModels = "Models/";
-        public const string ContentFolderTextures = "Textures/";
-        public const string ContentFolderEffects = "Effects/";
+        private SpriteFont FontArial;
+
+        public Vector3 BulletPosition { get; set; }
+        public int BulletCount { get; set; }
 
         public int _maxLifeBarWidth;
 
@@ -45,6 +52,8 @@ namespace ThunderingTanks.Objects
             CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
             lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
             e_lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar_empty");
+            FontArial = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
+
             _maxLifeBarWidth = lifeBar.Width;
         }
 
@@ -77,6 +86,10 @@ namespace ThunderingTanks.Objects
                 e_lifeBar,
                 Color.Yellow
              );
+
+            spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
+            spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
+            spriteBatch.DrawString(FontArial, "X:" + BulletPosition.X.ToString() + "Y:" + BulletPosition.Y.ToString(), new Vector2(20, 60), Color.Red);
         }
     }
 }

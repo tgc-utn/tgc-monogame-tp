@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ThunderingTanks.Content.Models
+namespace ThunderingTanks.Objects
 {
     /// <summary>
     /// A City Scene to be drawn
@@ -29,7 +29,7 @@ namespace ThunderingTanks.Content.Models
         /// Creates a City Scene with a content manager to load resources.
         /// </summary>
         /// <param name="content">The Content Manager to load resources</param>
-        
+
         public MapScene(ContentManager content)
         {
             Model = content.Load<Model>(ContentFolder3D + "Grid/ground");

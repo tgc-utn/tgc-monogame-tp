@@ -60,8 +60,6 @@ namespace ThunderingTanks.Objects
         private Effect effect { get; set; }
 
 
-
-
         public Menu(SpriteFont font, Texture2D cursorTexture, Song background, ContentManager contentManager)
         {
 
@@ -119,8 +117,8 @@ namespace ThunderingTanks.Objects
 
         }
 
-
         private bool SoundIsOn = true;
+
         public void Update(ref bool juegoIniciado, GameTime gameTime)
         {
             // Verifica si se hace clic en los botones

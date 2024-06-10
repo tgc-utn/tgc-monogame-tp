@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ThunderingTanks
+namespace ThunderingTanks.Objects
 {
     /// <summary>
     ///     Handles all of the aspects of working with a SkyBox.

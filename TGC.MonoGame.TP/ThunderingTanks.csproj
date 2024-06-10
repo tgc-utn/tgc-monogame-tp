@@ -12,6 +12,11 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Objects\NewFolder\**" />
+    <EmbeddedResource Remove="Objects\NewFolder\**" />
+    <None Remove="Objects\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>

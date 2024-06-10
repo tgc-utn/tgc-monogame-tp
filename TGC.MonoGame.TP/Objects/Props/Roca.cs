@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ThunderingTanks.Collisions;
 
-namespace ThunderingTanks.Objects
+namespace ThunderingTanks.Objects.Props
 {
     public class Roca
     {
@@ -52,8 +52,8 @@ namespace ThunderingTanks.Objects
         {
             if (!IsDestroyed)
             {
-            Effect.Parameters["Projection"]?.SetValue(projection);
-            Effect.Parameters["View"]?.SetValue(view);
+                Effect.Parameters["Projection"]?.SetValue(projection);
+                Effect.Parameters["View"]?.SetValue(view);
 
                 foreach (var mesh in RocaModel.Meshes)
                 {

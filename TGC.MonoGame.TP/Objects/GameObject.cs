@@ -7,7 +7,7 @@ using System;
 using ThunderingTanks.Cameras;
 
 
-namespace ThunderingTanks
+namespace ThunderingTanks.Objects
 {
     public class GameObject
     {

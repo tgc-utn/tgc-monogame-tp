@@ -1,58 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BepuPhysics.Constraints;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ThunderingTanks.Collisions;
 
-namespace ThunderingTanks.Objects
+namespace ThunderingTanks.Objects.Props
 {
-    public class Arbol
+    public class CasaAbandonada
     {
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
-        public Model ArbolModel { get; set; }
+        public const string ContentFolderTextures = "Textures/";
 
-        private Texture2D TexturaArbol { get; set; }
-        public Matrix[] ArbolWorlds { get; set; }
-        public Matrix ArbolWorld { get; set; }
-        public BoundingBox ArbolBox { get; set; }
+        public Model CasaModel { get; set; }
+
         public Vector3 Position { get; set; }
+
+        private Texture2D TexturaCasa { get; set; }
+        public Matrix[] CasaWorlds { get; set; }
         public Effect Effect { get; set; }
 
-        public Arbol()
+        public BoundingBox CasaBox { get; set; }
+
+        public Matrix CasaWorld { get; set; }
+
+        public CasaAbandonada()
         {
-            ArbolWorlds = new Matrix[] { };
-            ArbolWorld = Matrix.Identity;
+            CasaWorlds = new Matrix[] { };
+
         }
+        /*
+                public void AgregarCasa(Vector3 Position)
+                {
+                    Matrix escala = Matrix.CreateScale(500f);
+                    var nuevaCasa = new Matrix[]{
+                        escala * Matrix.CreateTranslation(Position),
+                    };
+                    CasaWorlds = CasaWorlds.Concat(nuevaCasa).ToArray();
+                }
+        */
         public void LoadContent(ContentManager Content)
         {
-            ArbolModel = Content.Load<Model>(ContentFolder3D + "nature/tree/Southern Magnolia-CORONA");
+            CasaModel = Content.Load<Model>(ContentFolder3D + "casa/house");
 
-            TexturaArbol = Content.Load<Texture2D>(ContentFolder3D + "nature/tree/MagnoliaBark");
+            TexturaCasa = Content.Load<Texture2D>(ContentFolderTextures + "casaAbandonada/Medieval_Brick_Texture_by_goodtextures");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            foreach (var mesh in ArbolModel.Meshes)
+            foreach (var mesh in CasaModel.Meshes)
             {
                 foreach (var meshPart in mesh.MeshParts)
                 {
                     meshPart.Effect = Effect;
                 }
             }
-            ArbolWorld = Matrix.CreateScale(1f) * Matrix.CreateTranslation(Position);
-            ArbolBox = CreateBoundingBox(ArbolModel, Matrix.CreateScale(1f), Position);
+            CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position);
+            CasaBox = CreateBoundingBox(CasaModel, Matrix.CreateScale(500f), Position);
         }
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
         {
-            Effect.Parameters["View"]?.SetValue(view);
+            Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            //Effect.Parameters["DiffuseColor"].SetValue(Color.Brown.ToVector3());
-            foreach (var mesh in ArbolModel.Meshes)
+            //Effect.Parameters["DiffuseColor"].SetValue(Color.Azure.ToVector3());
+            foreach (var mesh in CasaModel.Meshes)
             {
-                Matrix _arbolWorld = ArbolWorld;
-                Effect.Parameters["ModelTexture"]?.SetValue(TexturaArbol);
+                Matrix _casaWorld = CasaWorld;
+                Effect.Parameters["ModelTexture"].SetValue(TexturaCasa);
 
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _arbolWorld);
+                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _casaWorld);
                 mesh.Draw();
             }
         }
