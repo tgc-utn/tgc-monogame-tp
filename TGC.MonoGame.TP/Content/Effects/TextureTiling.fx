@@ -11,10 +11,30 @@ float4x4 World;
 float4x4 WorldViewProjection;
 float2 Tiling;
 
+float3 ambientColor; 
+float3 diffuseColor; 
+float3 specularColor;
+float KAmbient; 
+float KDiffuse; 
+float KSpecular;
+float shininess; 
+float3 lightPosition;
+float3 eyePosition; 
+
 texture Texture;
 sampler2D textureSampler = sampler_state
 {
     Texture = (Texture);
+    MagFilter = Linear;
+    MinFilter = Linear;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+texture NormalMap;
+sampler2D normalSampler = sampler_state
+{
+    Texture = (NormalMap);
     MagFilter = Linear;
     MinFilter = Linear;
     AddressU = Wrap;
@@ -33,6 +53,7 @@ struct VertexShaderOutput
 {
     float4 Position : SV_POSITION;
     float2 TextureCoordinate : TEXCOORD0;
+    float4 WorldPosition : TEXCOORD1;
 };
 
 struct WorldVertexShaderInput
@@ -41,18 +62,19 @@ struct WorldVertexShaderInput
     float3 Normal : NORMAL0;
 };
 
+
 struct WorldVertexShaderOutput
 {
-    float4 Position : SV_POSITION;
-    float4 WorldPosition : TEXCOORD0;
-    float3 Normal : TEXCOORD1;
+    float4 Position : POSITION0;
+    float4 WorldPosition: TEXCOORD1;
+    float3 Normal : NORMAL0;
 };
-
 
 VertexShaderOutput BaseTilingVS(in VertexShaderInput input)
 {
     VertexShaderOutput output;
     output.Position = mul(input.Position, WorldViewProjection);
+    output.WorldPosition = mul(input.Position, World);
 
     // Propagate scaled Texture Coordinates
     output.TextureCoordinate = input.TextureCoordinate * Tiling;
@@ -65,6 +87,43 @@ float4 BaseTilingPS(VertexShaderOutput input) : COLOR
     // Sample the texture using our scaled Texture Coordinates
     return tex2D(textureSampler, input.TextureCoordinate);
 }
+
+
+VertexShaderOutput BaseTilingWithLightsVS(in VertexShaderInput input)
+{
+    VertexShaderOutput output;
+    output.Position = mul(input.Position, WorldViewProjection);
+    output.WorldPosition = mul(input.Position, World);
+
+    // Propagate scaled Texture Coordinates
+    output.TextureCoordinate = input.TextureCoordinate * Tiling;
+
+    return output;
+}
+
+float4 BaseTilingWithLightsPS(VertexShaderOutput input) : COLOR
+{
+    float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
+    float4 normal = tex2D(normalSampler, input.TextureCoordinate);
+
+    float3 lightDirection = normalize(lightPosition - input.WorldPosition.xyz);
+    float3 viewDirection = normalize(eyePosition - input.WorldPosition.xyz);
+    float3 halfVector = normalize(lightDirection + viewDirection);
+    
+	
+    float NdotL = saturate(dot(normal.xyz, lightDirection));
+    float3 diffuseLight = KDiffuse * diffuseColor * NdotL;
+
+	
+    float NdotH = dot(normal.xyz, halfVector);
+    float3 specularLight = sign(NdotL) * KSpecular * specularColor * pow(saturate(NdotH), shininess);
+    
+ 
+    float4 finalColor = float4(saturate(ambientColor * KAmbient + diffuseLight) * textureColor.rgb + specularLight, textureColor.a);
+	return finalColor;
+}
+
+
 
 
 
@@ -107,6 +166,15 @@ technique BaseTiling
     {
         VertexShader = compile VS_SHADERMODEL BaseTilingVS();
         PixelShader = compile PS_SHADERMODEL BaseTilingPS();
+    }
+};
+
+technique BaseTilingWithLights
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL BaseTilingWithLightsVS();
+        PixelShader = compile PS_SHADERMODEL BaseTilingWithLightsPS();
     }
 };
 
