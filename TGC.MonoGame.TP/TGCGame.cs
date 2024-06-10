@@ -80,6 +80,7 @@ namespace TGC.MonoGame.TP
         private SpriteBatch SpriteBatch { get; set; }
         private Texture2D FloorTexture { get; set; }
         private Texture2D WallTexture { get; set; }
+        private Texture2D WallNormalMap { get; set; }
 
         //Auto Principal 
         private CarConvexHull MainCar { get; set; }
@@ -260,15 +261,23 @@ namespace TGC.MonoGame.TP
             Effect.Parameters["ambientColor"].SetValue(new Vector3(0.7f, 0.7f, 0.5f));
             Effect.Parameters["diffuseColor"].SetValue(new Vector3(0.4f, 0.5f, 0.6f));
             Effect.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
-            Effect.Parameters["KAmbient"].SetValue(0.8f);
-            Effect.Parameters["KDiffuse"].SetValue(0.4f);
+            Effect.Parameters["KAmbient"].SetValue(0.7f);
+            Effect.Parameters["KDiffuse"].SetValue(0.5f);
             Effect.Parameters["KSpecular"].SetValue(0.2f);
             Effect.Parameters["shininess"].SetValue(10.0f);
 
-            Effect.Parameters["lightPosition"]?.SetValue(new Vector3(100f, 40f, 100f));
+            TilingEffect.Parameters["ambientColor"].SetValue(new Vector3(0.7f, 0.7f, 0.5f));
+            TilingEffect.Parameters["diffuseColor"].SetValue(new Vector3(0.7f, 0.8f, 0.6f));
+            TilingEffect.Parameters["specularColor"].SetValue(new Vector3(1f, 1f, 1f));
+            TilingEffect.Parameters["KAmbient"].SetValue(0.6f);
+            TilingEffect.Parameters["KDiffuse"].SetValue(0.6f);
+            TilingEffect.Parameters["KSpecular"].SetValue(0.5f);
+            TilingEffect.Parameters["shininess"].SetValue(10.0f);
+            TilingEffect.Parameters["lightPosition"]?.SetValue(new Vector3(100f, 40f, 100f));
 
             FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
             WallTexture = Content.Load<Texture2D>(ContentFolderTextures + "stoneTexture");
+            WallNormalMap = Content.Load<Texture2D>(ContentFolderTextures + "WallNormalMap");
             NumericVector3 center;
 
             CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
@@ -414,7 +423,7 @@ namespace TGC.MonoGame.TP
             MainCar.Update(Keyboard.GetState(), gameTime, Simulation);
 
             if (keyboardState.IsKeyDown(Keys.R))
-                MainCar.Restart(new NumericVector3(0,10f,0) , Simulation);
+                MainCar.Restart(new NumericVector3(MainCar.Position.X,10f,MainCar.Position.Z) , Simulation);
             
 
             Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MainCar));
@@ -521,6 +530,7 @@ namespace TGC.MonoGame.TP
             // EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.DarkSeaGreen.ToVector3());
             TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTiling"];
             var world = FloorWorld * Matrix.CreateTranslation(0f, -0.1f, 0f);
+            TilingEffect.Parameters["World"].SetValue(Matrix.Identity);
             TilingEffect.Parameters["WorldViewProjection"].SetValue(world * FollowCamera.View * FollowCamera.Projection);
             TilingEffect.Parameters["Tiling"].SetValue(new Vector2(350f, 350f));
             TilingEffect.Parameters["Texture"].SetValue(FloorTexture);
@@ -530,6 +540,7 @@ namespace TGC.MonoGame.TP
         private void DrawWalls()
         {
             // var prim = new BoxPrimitive(GraphicsDevice, new Vector3(1f, 10f, 200f), Color.HotPink);
+            TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTilingWithLights"];
             var prim = new QuadPrimitive(GraphicsDevice);
             foreach (var wall in WallWorlds)
             {
@@ -537,12 +548,15 @@ namespace TGC.MonoGame.TP
                 // EffectNoTextures.Parameters["World"]?.SetValue(wall);
                 var quadCorrection1 = Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateScale(1f, 10f, 200f);
                 var quadCorrection2 = Matrix.CreateRotationZ(MathHelper.ToRadians(90)) * Matrix.CreateScale(1f, 10f, 200f);
+                TilingEffect.Parameters["World"].SetValue(quadCorrection1 * wall);
                 TilingEffect.Parameters["Tiling"].SetValue(new Vector2(3f, 30f));
                 TilingEffect.Parameters["Texture"].SetValue(WallTexture);
+                TilingEffect.Parameters["NormalMap"].SetValue(WallNormalMap);
                 TilingEffect.Parameters["WorldViewProjection"].SetValue(
                     quadCorrection1 * wall * FollowCamera.View * FollowCamera.Projection
                     );
                 prim.Draw(TilingEffect);
+                TilingEffect.Parameters["World"].SetValue(quadCorrection2 * wall);
                 TilingEffect.Parameters["WorldViewProjection"].SetValue(
                     quadCorrection2 * wall * FollowCamera.View * FollowCamera.Projection
                     );
