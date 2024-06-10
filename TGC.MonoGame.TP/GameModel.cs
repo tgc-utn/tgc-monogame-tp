@@ -143,6 +143,14 @@ public class GameModel : BaseModel
         }
     }
 
+
+    public void Update(Vector3 position, CarConvexHull car ,  List<Matrix> worlds)
+    {
+        var rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(-90));
+
+        worlds[2] = Matrix.CreateFromQuaternion(rotationQuaternion) * Matrix.CreateTranslation(position) ;
+    }
+
 }
 
 public class MatrixHelper

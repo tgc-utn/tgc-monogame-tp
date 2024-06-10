@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using BepuPhysics;
 using BepuPhysics.Collidables;
@@ -38,7 +39,9 @@ public class CarConvexHull
     private ConvexHull CarConvex;
 
     public Quaternion quaternion = new Quaternion();
-
+    private Quaternion rotationQuaternionY;
+    private Quaternion rotationQuaternionX;
+    private Quaternion rotationQuaternionZ;
     public Quaternion rotationQuaternion = new Quaternion();
 
     public float maxSpeed = 20f;
@@ -72,7 +75,7 @@ public class CarConvexHull
 
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
-    public CarConvexHull(Vector3 InitialPosition, float Gravity, Simulation Simulation)
+    public CarConvexHull(Vector3 InitialPosition, float Gravity, Simulation Simulation , NumericVector3[] vertices)
     {
         NumericVector3 center;
         Position = InitialPosition;
@@ -83,7 +86,8 @@ public class CarConvexHull
            new NumericVector3(0, 0, 0),
            new BodyVelocity(new NumericVector3(0, 0, 0)),
            1,
-           Simulation.Shapes, CarConvex
+           Simulation.Shapes,
+           CarConvex
        );
         CarHandle = Simulation.Bodies.Add(carBodyDescription);
 
@@ -219,10 +223,12 @@ public class CarConvexHull
         quaternion = bodyReference.Pose.Orientation;
 
         rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
+        rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(-45));
+        rotationQuaternionZ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(-5));
 
         // if (quaternion.Y <= 0.01 && quaternion.Y >= -0.01 && quaternion.W >= MathHelper.ToRadians(179.5) && quaternion.W <= MathHelper.ToRadians(180.5))
 
-        World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
+        World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion /** rotationQuaternionX * rotationQuaternionZ*/) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
     }
 
     public void Restart(NumericVector3 pos , Simulation simulation)

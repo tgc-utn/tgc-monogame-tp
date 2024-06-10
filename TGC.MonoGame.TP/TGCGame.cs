@@ -23,6 +23,9 @@ using TGC.MonoTP;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.Samples.Collisions;
+using static System.Formats.Asn1.AsnWriter;
+using TGC.MonoGame.TP.Utils;
+using System.Runtime.ConstrainedExecution;
 
 namespace TGC.MonoGame.TP
 {
@@ -86,6 +89,8 @@ namespace TGC.MonoGame.TP
         private CarSimulation CarSimulation { get; set; }
         private Simulation Simulation { get; set; }
 
+        private List<NumericVector3> hull { get; set; }
+
         //Piso y paredes 
         private QuadPrimitive FloorQuad { get; set; }
         private Matrix FloorWorld { get; set; }
@@ -120,14 +125,20 @@ namespace TGC.MonoGame.TP
         private GameModel MissileModel { get; set; }
         public GameModel Bullet { get; private set; }
 
-        private List<bool> firstTime = new List<bool>();
-        private List<Quaternion> missileOrientation = new List<Quaternion>();
+        //Enemy
+        private Matrix EnemyWorld { get; set; }
+        public BodyHandle EnemyHandle { get; set; }
+
+        Vector3 posi = Vector3.Forward;
+        public GameModel Enemy { get; private set; }
+        public GameModel EnemyWeapon { get; private set; }
 
         //HUD 
         HUD HUD { get; set; }
         public Song backgroundMusic { get; private set; }
         public SoundEffect soundEffect { get; private set; }
         public Model CarModel { get; private set; }
+
 
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
@@ -160,13 +171,12 @@ namespace TGC.MonoGame.TP
             return positions;
         }
 
-        private NumericVector3[] GetVerticesFromModel(Model model)
+        private NumericVector3[] GetVerticesFromModel(Model model )
         {
             List<NumericVector3> vertices = new List<NumericVector3>();
 
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
+            
+                foreach (ModelMeshPart part in model.Meshes[0].MeshParts)
                 {
                     VertexBuffer vertexBuffer = part.VertexBuffer;
                     int vertexStride = part.VertexBuffer.VertexDeclaration.VertexStride;
@@ -175,11 +185,12 @@ namespace TGC.MonoGame.TP
                     // Get the vertices from the vertex buffer
                     NumericVector3[] vertexData = new NumericVector3[vertexBuffer.VertexCount];
                     vertexBuffer.GetData(vertexData);
-                    
+
                     // Add the vertices to the list
                     vertices.AddRange(vertexData);
                 }
-            }
+            
+
             return vertices.ToArray();
         }
 
@@ -205,9 +216,18 @@ namespace TGC.MonoGame.TP
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             //  Simulacion del auto principal 
+            CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
+            var MainCarVertices = GetVerticesFromModel(CarModel);
+
+            var MainCarVertices2 = ConvexHullUtils.ConvertVerticesToMonoGameVertices(MainCarVertices.ToList());
+            var MainCarVertices3 = ConvexHullUtils.ConvertVerticesToNumericsVertices(MainCarVertices2.ToList());
+
+            hull = ConvexHullUtils.QuickHull(MainCarVertices.ToList());
+
+            
             CarSimulation = new CarSimulation();
             Simulation = CarSimulation.Init();
-            MainCar = new CarConvexHull(Vector3.Zero, Gravity, Simulation);
+            MainCar = new CarConvexHull(Vector3.Zero, Gravity, Simulation , hull.ToArray());
 
 
             FloorQuad = new QuadPrimitive(GraphicsDevice);
@@ -226,6 +246,12 @@ namespace TGC.MonoGame.TP
             Radii = new List<float>();
             SphereHandles = new List<BodyHandle>();
             Sphere = new SpherePrimitive(GraphicsDevice);
+
+            var enemyBox = new Box(7f, 5f, 7f);
+            var enemyPose = new RigidPose(new NumericVector3(5f, 0f, 5f));
+            EnemyHandle = Simulation.Bodies.Add(BodyDescription.CreateKinematic(enemyPose,
+                  new CollidableDescription(Simulation.Shapes.Add(enemyBox), 0.1f, ContinuousDetection.Discrete),
+                  new BodyActivityDescription(-0.1f)));
 
             base.Initialize();
         }
@@ -260,27 +286,35 @@ namespace TGC.MonoGame.TP
             WallTexture = Content.Load<Texture2D>(ContentFolderTextures + "stoneTexture");
             NumericVector3 center;
 
-            CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
             var RampModel = Content.Load < Model >(ContentFolder3D + "ramp/RampNew");
-            var rampVertices = GetVerticesFromModel(RampModel);
+            var rampVertices1 = GetVerticesFromModel(RampModel);
+            var rampVertices = ConvexHullUtils.QuickHull(rampVertices1.ToList());
+
             MainCar.Load(CarModel, Effect);
+
+            List<Vector3> vehiclePos = GenerateRandomPositions(10);
+            List<Vector3> weaponePos = new List<Vector3>();
+            vehiclePos.ForEach(vehiclePos => weaponePos.Add(new Vector3(vehiclePos.X, vehiclePos.Y + 6f, vehiclePos.Z)));
+
+
 
             GameModels = new GameModel[]
              {
                 new GameModel(Content.Load<Model>(ContentFolder3D + "trees/Tree4"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Sphere(1.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/ElectronicBoxNew"), Effect, 1f, GenerateRandomPositions(100), Simulation, new Box(3f, 3f, 2f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/old_water_tower"), Effect, 1f, GenerateRandomPositions(15,10f), Simulation, new Box(10f, 20f, 10f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.1f, GenerateRandomPositions(20), Simulation, new Box(2.5f, 2f, 2.5f)),
+               Enemy = new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Weapons"), Effect, 0.05f, weaponePos, Simulation, new Box(2.5f, 2f, 2.5f)),
+               EnemyWeapon =  new GameModel(Content.Load < Model >(ContentFolder3D + "weapons/Vehicle"), Effect, 0.05f, vehiclePos, Simulation, new Box(2.5f, 2f, 2.5f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "gasoline/gasoline"), Effect, 1.5f, GenerateRandomPositions(100), Simulation, new Box(2f, 3f, 2f)),
                 new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect , 1f , new Vector3(30f, 0 , 30f ) , Simulation ,  new Box(17.5f, 10f, 17.5f)),
-                new GameModel(RampModel, Effect, 1f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices, Simulation.BufferPool, out center)),
+                new GameModel(RampModel, Effect, 1f, GenerateRandomPositions(50), Simulation, new ConvexHull(rampVertices.ToArray(), Simulation.BufferPool, out center)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/WatercolorScene"), Effect, 1f, GenerateRandomPositions(10), Simulation, new Box(15f, 3f, 15f)),
-                new GameModel(Content.Load<Model>(ContentFolder3D + "carDBZ/carDBZ"), Effect ,1f , new Vector3(50f, 0, 50f) ),
-                // new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4)),
-                new GameModel(Content.Load<Model>(ContentFolder3D + "Bushes/source/bush1"), Effect,1f , GenerateRandomPositions(4)),
+                new GameModel(Content.Load<Model>(ContentFolder3D + "carDBZ/carDBZ"), Effect ,1f , new Vector3(50f, 0, 50f) , Simulation, new Box(7f, 2f, 7f)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "car2/car2"), Effect, 1f, GenerateRandomPositions(4),  Simulation, new Box(7f, 2f, 7f)),
+                new GameModel(Content.Load<Model>(ContentFolder3D + "Bushes/source/bush1"), Effect,1f , GenerateRandomPositions(4), Simulation, new Box(7f, 2f, 7f)),
                 new GameModel(Content.Load < Model >(ContentFolder3D + "Truck/Caterpillar_Truck"), Effect, 1f, GenerateRandomPositions(4), Simulation, new Box(7f, 2f, 7f)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/FencesNew"), Effect, 150f, GenerateRandomPositions(30)),
-                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence2"), Effect, 1f, GenerateRandomPositions(4)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/FencesNew"), Effect, 150f, GenerateRandomPositions(30), Simulation, new Box(7f, 2f, 7f)),
+                new GameModel(Content.Load < Model >(ContentFolder3D + "Street/model/fence2"), Effect, 1f, GenerateRandomPositions(4), Simulation, new Box(7f, 2f, 7f)),
 
             };
 
@@ -357,6 +391,33 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
+
+            // Calcula la dirección hacia la que debe moverse el auto perseguidor para alcanzar al objetivo
+            Vector3 direction = Vector3.Normalize(MainCar.Position - Enemy.Position);
+
+            // Aplica la velocidad de persecución al auto perseguidor
+
+            // Calcula el ángulo de rotación necesario para que el auto perseguidor mire hacia el auto principal
+            float rotationAngle = MainCar.Pose.Orientation.Y * Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180)).Y;
+
+            // Aplica solo la rotación al vector de dirección
+            float rotatedDirection = Vector3.Transform(Vector3.Forward, MainCar.rotationQuaternion * MainCar.quaternion).Y;
+            
+
+            // Actualiza la posición del auto perseguidor usando el vector de dirección rotado
+            posi += direction * 2f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            Enemy.Position = posi;
+            EnemyWeapon.Position = posi;
+
+            var bodyReference = Simulation.Bodies.GetBodyReference(EnemyHandle);
+
+             bodyReference.Pose.Position = new NumericVector3(posi.X , 0f , posi.Z);    
+
+            // Actualiza la pose del cuerpo kinemático del enemigo
+            bodyReference.Pose = new RigidPose(bodyReference.Pose.Position, bodyReference.Pose.Orientation);
+            Enemy.Update(posi, MainCar,  Enemy.World);
+            Enemy.Update(posi , MainCar,  EnemyWeapon.World);
 
             base.Update(gameTime);
         }
@@ -487,10 +548,13 @@ namespace TGC.MonoGame.TP
                     //    foreach (var box in model.BBox)
                     //        Gizmos.DrawCube(BoundingVolumesExtensions.GetCenter(box), BoundingVolumesExtensions.GetExtents(box) , Color.Red);
 
+                    var bodyReference = Simulation.Bodies.GetBodyReference(EnemyHandle);
+
+                    Gizmos.DrawCube(bodyReference.Pose.Position , new NumericVector3(7f,5f,7f));
                     DrawFloor(FloorQuad);
                     DrawWalls();
                     MainCar.Draw();
-                    //Gizmos.Draw();
+                    Gizmos.Draw();
                     break;
 
                 case ST_GAME_OVER:
