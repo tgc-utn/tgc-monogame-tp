@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using ThunderingTanks.Objects.Tanks;
 
 namespace ThunderingTanks.Objects
 {
@@ -35,7 +36,7 @@ namespace ThunderingTanks.Objects
         public Vector3 TankPosition { get; set; }
         public int BulletCount { get; set; }
         public bool TankIsColliding { get; set; }
-        public int FPS { get; set; }
+        public float FPS { get; set; }
         public float TimeSinceLastShot { get; set; }
         #endregion
 
@@ -65,8 +66,7 @@ namespace ThunderingTanks.Objects
 
         public void Update(Tank Panzer, ref Viewport viewport)
         {
-
-            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2 - 25)));
+            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2 + 25)));
         }
 
         public void Draw(SpriteBatch spriteBatch)

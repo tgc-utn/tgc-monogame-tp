@@ -1,48 +1,53 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
 using ThunderingTanks.Objects.Props;
+using ThunderingTanks.Objects.Tanks;
 
 namespace ThunderingTanks
 {
     public class TankGame : Game
     {
+        #region Content
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderTextures = "Textures/";
         public const string ContentFolderFonts = "Fonts/";
         public const string ContentFolderMusic = "Music/";
         public const string ContentFolderAudio = "Audio/";
+        #endregion
+
+        #region Graphics
+        private GraphicsDeviceManager Graphics { get; }
 
         public float screenHeight;
         public float screenWidth;
 
         Viewport viewport;
+        #endregion
 
-        private GraphicsDeviceManager Graphics { get; }
+        #region State
         public KeyboardState keyboardState;
         public MouseState MouseState;
         public MouseState PreviousMouseState;
+        #endregion
 
-        private Gizmoss Gizmos { get; set; }
-
-        private MapScene City { get; set; }
-        private Tank Panzer { get; set; }
-        private SkyBox SkyBox { get; set; }
-
+        #region Camera
         private readonly Vector3 _cameraInitialPosition = new(0, 0, 0);
 
         private TargetCamera _targetCamera;
         private StaticCamera _staticCamera;
+        #endregion
+
+        #region Objects
 
         private Roca roca;
 
@@ -54,27 +59,19 @@ namespace ThunderingTanks
 
         private Molino molino;
 
+        private readonly int CantidadTanquesEnemigos = 3;
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
-        public  List<Projectile> Projectiles = new();
+        public List<Projectile> Projectiles = new();
 
         private List<Roca> Rocas = new();
         private readonly int CantidadRocas = 40;
 
         private List<Arbol> Arboles = new();
         private readonly int CantidadArboles = 15;
-        private readonly int CantidadTanquesEnemigos = 0;
 
-        private float elapsedTime = 0f;
-        private const float shootInterval = 5f;
-
-        public Vector2 MapLimit { get; set; }
-
-        public SpriteBatch spriteBatch { get; set; }
-
-        private bool DrawGizmos = false;
-        private bool CTrigger = true;
+        #endregion
 
         #region Menu
         private Menu _menu;
@@ -82,10 +79,42 @@ namespace ThunderingTanks
         private bool _juegoIniciado = false;
         #endregion
 
-        #region Sounds
-        private Song movingTankSound { get; set; }
-        private Song _shootSound { get; set; }
+        #region Gizmos
+
+        private Gizmoss Gizmos { get; set; }
+
+        private bool DrawGizmos = false;
+        private bool CTrigger = true;
+
         #endregion
+
+        #region Sounds
+        public float MasterSound { get; set; } = 1f;
+        public AudioEngine AudioEngine { get; set; }
+        public AudioEmitter AudioEmitter { get; set; }
+        private SoundEffect movingTankSoundEffect { get; set; }
+        private SoundEffect shootSoundEffect { get; set; }
+        private SoundEffectInstance movingTankSound { get; set; }
+        private SoundEffectInstance _shootSound { get; set; }
+        #endregion
+
+        #region Tanks
+        private Tank Panzer { get; set; }
+        private float elapsedTime = 0f;
+        private const float shootInterval = 5f;
+        #endregion
+
+        #region MapScene
+        private MapScene City { get; set; }
+        public Vector2 MapLimit { get; set; }
+        #endregion
+
+        private SkyBox SkyBox { get; set; }
+        public SpriteBatch spriteBatch { get; set; }
+
+        public bool StartGame { get; set; } = false;
+
+        // ------------ GAME ------------ //
 
         public TankGame()
         {
@@ -175,8 +204,13 @@ namespace ThunderingTanks
             antitanque.LoadContent(Content);
             casa.LoadContent(Content);
 
-            _shootSound = Content.Load<Song>(ContentFolderMusic + "shootSound");
-            movingTankSound = Content.Load<Song>(ContentFolderMusic + "movingTank");
+            shootSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "shootSound");
+            movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
+
+            movingTankSound = movingTankSoundEffect.CreateInstance();
+            _shootSound = shootSoundEffect.CreateInstance();
+
+            movingTankSound.Volume = 0.5f;
 
             Panzer.MovingTankSound = movingTankSound;
 
@@ -221,33 +255,68 @@ namespace ThunderingTanks
         {
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            _hud.FPS = (int) (1 / time);
+            _hud.FPS = (1 / time);
 
             elapsedTime += time;
 
+            #region Volume
+
+            PreviousMouseState = MouseState;
+
+            MouseState = Mouse.GetState();
+
+            int currentScrollValue = MouseState.ScrollWheelValue;
+            int previousScrollValue = PreviousMouseState.ScrollWheelValue;
+
+            int scrollDifference = currentScrollValue - previousScrollValue;
+
+            if (scrollDifference > 0)
+            {
+                MasterSound = Math.Min(1, MasterSound + 0.05f);
+            }
+            else if (scrollDifference < 0)
+            {
+                MasterSound = Math.Max(0, MasterSound - 0.05f);
+            }
+
+            _menu.MasterSound = MasterSound;
+            _shootSound.Volume = MasterSound;
+            movingTankSound.Volume = Math.Max(0, MasterSound - 0.3f);
+
+            #endregion
+
             if (!_juegoIniciado || Panzer.isDestroyed)
             {
+
                 Panzer.isDestroyed = false;
 
                 Panzer.PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(-10));
                 Panzer.TurretMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));
-                Panzer.CannonMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));  
+                Panzer.CannonMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));
 
                 _menu.Update(ref _juegoIniciado, gameTime);
+
             }
             else
             {
+
+                if (!StartGame)
+                {
+                    Panzer.Direction = new Vector3(-5000, 0, -10000);
+                    StartGame = true;
+                }
+
                 keyboardState = Keyboard.GetState();
 
                 if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                     Exit();
 
                 _hud.Update(Panzer, ref viewport);
-   
+
                 if (keyboardState.IsKeyDown(Keys.C) && CTrigger)
                 {
 
-                    CTrigger = false; 
+                    CTrigger = false;
 
                     if (DrawGizmos)
                         DrawGizmos = false;
@@ -257,28 +326,6 @@ namespace ThunderingTanks
 
                 if (keyboardState.IsKeyUp(Keys.C))
                     CTrigger = true;
-
-                PreviousMouseState = MouseState;
-
-
-                MouseState = Mouse.GetState();
-
-
-                int currentScrollValue = MouseState.ScrollWheelValue;
-                int previousScrollValue = PreviousMouseState.ScrollWheelValue;
-
-
-                int scrollDifference = currentScrollValue - previousScrollValue;
-
-                if (scrollDifference > 0)
-                {
-                    _hud.Convergence += 100;
-                }
-                else if (scrollDifference < 0)
-                {
-                    _hud.Convergence -= 100;
-                }
-
 
                 var lastMatrix = Panzer.PanzerMatrix;
                 var turretPosition = Panzer.TurretMatrix;
@@ -294,7 +341,7 @@ namespace ThunderingTanks
                         projectile.LoadContent(Content);
                         Projectiles.Add(projectile);
 
-                        MediaPlayer.Play(_shootSound);
+                        _shootSound.Play();
                     }
 
                 }
@@ -339,7 +386,8 @@ namespace ThunderingTanks
                             Projectiles.Add(projectile);
                             projectile.LoadContent(Content);
 
-                            MediaPlayer.Play(_shootSound);
+                            _shootSound.Play();
+                            _shootSound.Volume = 1.0f;
                             Console.WriteLine("Disparo Tanque enemigo");
                         }
                         elapsedTime = 0f;
@@ -376,7 +424,7 @@ namespace ThunderingTanks
                 Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
 
                 spriteBatch.Begin();
-                _menu.Draw(spriteBatch, GraphicsDevice, Panzer.PanzerMatrix, camara.View, camara.Projection, Panzer.TurretMatrix, Panzer.CannonMatrix);
+                _menu.Draw(spriteBatch);
                 spriteBatch.End();
 
                 #endregion
@@ -429,7 +477,7 @@ namespace ThunderingTanks
 
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
 
-                if (DrawGizmos) 
+                if (DrawGizmos)
                     Gizmos.Draw();
 
                 #endregion
@@ -456,6 +504,12 @@ namespace ThunderingTanks
 
         // ------------ FUNCTIONS ------------ //
 
+        /// <summary>
+        /// Dibuja el SkyBox en el juego
+        /// </summary>
+        /// <param name="view">Matriz de Vista</param>
+        /// <param name="projection">Matriz de Proyeccion</param>
+        /// <param name="position">Posicion del Jugador</param>
         private void DrawSkyBox(Matrix view, Matrix projection, Vector3 position)
         {
             var originalRasterizerState = GraphicsDevice.RasterizerState;
@@ -469,6 +523,10 @@ namespace ThunderingTanks
 
             GraphicsDevice.RasterizerState = originalRasterizerState;
         }
+
+        /// <summary>
+        /// Carga la posicion de los los objetos Antitanque en el borde del mapa
+        /// </summary>
         private void AgregarAntitanques()
         {
             float DistanceToEdge = 40f;
@@ -486,6 +544,11 @@ namespace ThunderingTanks
                 antitanque.AgregarAntitanque(Corner4);
             }
         }
+
+        /// <summary>
+        /// Carga la posicion de de los objetos Rocas en posiciones aleatorias pregenerdas
+        /// </summary>
+        /// <param name="cantidad">Cantidad de Rocas</param>
         private void AgregarRocas(int cantidad)
         {
             Random random = new Random(42);
@@ -503,6 +566,11 @@ namespace ThunderingTanks
                 Rocas.Add(roca);
             }
         }
+
+        /// <summary>
+        /// Carga la posicion de de los objetos Arboles en posiciones aleatorias pregenerdas
+        /// </summary>
+        /// <param name="cantidad">Cantidad de Arboles</param>
         private void AgregarArboles(int cantidad)
         {
             Random random = new Random(42); // Aquí 42 es la semilla fija
@@ -520,6 +588,11 @@ namespace ThunderingTanks
                 Arboles.Add(arbol);
             }
         }
+
+        /// <summary>
+        /// Actualiza la posicion y verifica la colision de los projectiles disparados
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void UpdateProjectiles(GameTime gameTime)
         {
             for (int j = 0; j < Projectiles.Count; ++j)
@@ -580,6 +653,12 @@ namespace ThunderingTanks
 
             }
         }
+
+        /// <summary>
+        /// Verifica si la posicion pasada por parametro se encuentra fuera del mapa
+        /// </summary>
+        /// <param name="position">Posicion del obejto a evaluar</param>
+        /// <returns>True si esta fuera del mapa</returns>
         public bool OutOfMap(Vector3 position)
         {
             if (
@@ -593,6 +672,12 @@ namespace ThunderingTanks
             else
                 return false;
         }
+
+        /// <summary>
+        /// Dibuja los proyectiles que fueron disparados y estan presentes en el juego
+        /// </summary>
+        /// <param name="view">Matriz de Vista</param>
+        /// <param name="projection">Matriz de Proyeccion</param>
         public void DrawProjectiles(Matrix view, Matrix projection)
         {
             foreach (Projectile projectile in Projectiles)
@@ -601,6 +686,11 @@ namespace ThunderingTanks
                 Gizmos.DrawCube(CollisionsClass.GetCenter(projectile.BoundingBox), CollisionsClass.GetExtents(projectile.BoundingBox), Color.Red);
             }
         }
+
+        /// <summary>
+        /// Chequea si hay alguna colision entre los tanques y entre un tanques y el entorno
+        /// </summary>
+        /// <returns>True si hay colision</returns>
         private bool CheckCollisions()
         {
             BoundingBox tankBox = Panzer.TankBox;

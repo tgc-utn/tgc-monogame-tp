@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
 
-namespace ThunderingTanks.Objects
+namespace ThunderingTanks.Objects.Tanks
 {
     public class EnemyTank : GameObject
     {
@@ -39,12 +39,13 @@ namespace ThunderingTanks.Objects
         public float screenHeight;
         public float screenWidth;
         public float GunRotationFinal = 0;
+
         public float GunRotation { get; set; }
         public float GunElevation { get; set; }
         public Matrix turretWorld { get; set; }
         public Matrix cannonWorld { get; set; }
         private Vector3 NormalizedMovement { get; set; }
-        private Vector3 LastPosition {get; set; }
+        private Vector3 LastPosition { get; set; }
 
         public Vector3 Dimensiones1 = new(-200, 0, -300);
         public Vector3 Dimensiones2 = new(200, 250, 300);
@@ -89,7 +90,7 @@ namespace ThunderingTanks.Objects
 
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
-            
+
             Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
 
             GunRotationFinal = Rotation;
@@ -149,9 +150,9 @@ namespace ThunderingTanks.Objects
             Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             float projectileScale = 1f;
-            float projectileSpeed = 5000f;
+            float projectileSpeed = 10000f;
 
-            Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); 
+            Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale);
 
             return projectile;
         }

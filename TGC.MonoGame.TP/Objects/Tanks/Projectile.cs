@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ThunderingTanks.Collisions;
 
-namespace ThunderingTanks.Objects
+namespace ThunderingTanks.Objects.Tanks
 {
     public class Projectile : GameObject
     {

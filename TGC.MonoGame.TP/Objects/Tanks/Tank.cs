@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
@@ -8,7 +9,7 @@ using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 
-namespace ThunderingTanks.Objects
+namespace ThunderingTanks.Objects.Tanks
 {
     public class Tank : GameObject
     {
@@ -36,7 +37,7 @@ namespace ThunderingTanks.Objects
         public Vector3 Direction = new(0, 0, 0);
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
-        public float Rotation     = 0;
+        public float Rotation = 0;
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
         public float FireRate { get; set; }
@@ -46,7 +47,7 @@ namespace ThunderingTanks.Objects
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
         public TargetCamera PanzerCamera { get; set; }
-        public Song MovingTankSound { get; set; }
+        public SoundEffectInstance MovingTankSound { get; set; }
 
         //public BoundingBox TankboundingBox { get; set; }
         //public OrientedBoundingBox TankBox { get; set; }
@@ -59,7 +60,8 @@ namespace ThunderingTanks.Objects
 
         public Texture2D LifeBar { get; set; }
         public Rectangle _lifeBarRectangle;
-        public int _maxLife = 50;
+
+        public int _maxLife = 20;
         public int _currentLife;
 
         public bool isDestroyed = false;
@@ -93,7 +95,7 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            TankBox = new BoundingBox( new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
+            TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
             //TankBox = new OrientedBoundingBox();
 
             MinBox = TankBox.Min;
@@ -136,12 +138,14 @@ namespace ThunderingTanks.Objects
             {
                 if (!_isPlaying)
                 {
-                    MediaPlayer.Play(MovingTankSound);
+                    MovingTankSound.Play();
                     _isPlaying = true;
                 }
             }
             else
             {
+                MovingTankSound.Stop();
+
                 if (_isPlaying)
                 {
                     MediaPlayer.Stop();
@@ -160,7 +164,7 @@ namespace ThunderingTanks.Objects
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateTranslation(Direction);
 
-            TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);  
+            TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
 
             Center = CollisionsClass.GetCenter(TankBox);
             Extents = CollisionsClass.GetExtents(TankBox);
@@ -223,18 +227,22 @@ namespace ThunderingTanks.Objects
                 }
 
                 mesh.Draw();
-                
+
             }
         }
 
         // ------------ FUNCTIONS ------------ //
 
+        /// <summary>
+        /// Genera un disparo de el tanque
+        /// </summary>
+        /// <returns>Projectile generado por el tanque</returns>
         public Projectile Shoot()
         {
             if (TimeSinceLastShot >= FireRate)
             {
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
-                
+
                 float projectileScale = 1f;
                 float projectileSpeed = 10000f;
 
@@ -250,6 +258,10 @@ namespace ThunderingTanks.Objects
             }
         }
 
+        /// <summary>
+        /// Resta vida al tanque
+        /// </summary>
+        /// <param name="_juegoIniciado">Condicion de que el juego inicio</param>
         public void ReceiveDamage(ref bool _juegoIniciado)
         {
             _currentLife -= 5;
@@ -261,14 +273,22 @@ namespace ThunderingTanks.Objects
             }
         }
 
+        /// <summary>
+        /// Valor X del movimiento del cursor
+        /// </summary>
+        /// <returns>Cantidad de Movimiento X</returns>
         private float GetRotationFromCursorX()
         {
             MouseState mouseState = Mouse.GetState();
             float mouseX = mouseState.X;
             screenWidth = graphicsDevice.Viewport.Width;
-            return MathHelper.ToRadians((mouseX / screenWidth) * 360f - 180f);
+            return MathHelper.ToRadians(mouseX / screenWidth * 360f - 180f);
         }
 
+        /// <summary>
+        /// Valor Y del movimiento del cursor
+        /// </summary>
+        /// <returns>Cantidad de Movimiento Y</returns>
         private float GetElevationFromCursorY()
         {
             screenHeight = graphicsDevice.Viewport.Height;
@@ -276,7 +296,7 @@ namespace ThunderingTanks.Objects
             MouseState mouseState = Mouse.GetState();
             float mouseY = mouseState.Y;
 
-            return MathHelper.ToRadians((mouseY / screenHeight) * 180f - 90f);
+            return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
         }
     }
 }

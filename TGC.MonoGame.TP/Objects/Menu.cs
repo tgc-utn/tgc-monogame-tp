@@ -17,28 +17,25 @@ namespace ThunderingTanks.Objects
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderFonts = "Fonts/";
 
-        private ContentManager _contentManager;
+        private float ScreenWidth { get; set; }
+        private float ScreenHeight { get; set; }
 
-        private GraphicsDeviceManager Graphics { get; }
-
-        Viewport viewport;
-
-        private GraphicsDevice graphicsDevice;
-
+        public float MasterSound { get; set; }
         private Song backgroundSound { get; set; }
 
         private SpriteFont _font;
-
-        private Rectangle _playButton;
-        private Rectangle _exitButton;
-        private Rectangle _soundOnButton;
-        private Rectangle _soundOffButton;
+        private SpriteFont WarIsOver;
 
         private Texture2D _cursorTexture;
 
         private bool _playing = true;
 
         #region BOTONS
+
+        private Rectangle _playButton;
+        private Rectangle _exitButton;
+        private Rectangle _soundOnButton;
+        private Rectangle _soundOffButton;
         private Texture2D RectangleButtonHover { get; set; }
         private Texture2D RectangleButton { get; set; }
         private Texture2D PlayButton { get; set; }
@@ -51,35 +48,29 @@ namespace ThunderingTanks.Objects
         private Texture2D PlayButtonNormal { get; set; }
         private Texture2D SoundOnButtonNormal { get; set; }
         private Texture2D SoundOffButtonNormal { get; set; }
+
         #endregion
 
-        private Model Modelo { get; set; }
-
-        private Texture2D ModeloTexture { get; set; }
-
-        private Effect effect { get; set; }
-
+        private bool SoundIsOn = true;
 
         public Menu(ContentManager contentManager)
         {
 
-            _contentManager = contentManager;
+            ScreenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            ScreenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
-            // Define la posición y tamaño de los botones
-            int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             int buttonWidth = 400;
             int buttonHeight = 200;
             int buttonSpacing = 20;
-            int buttonY = (screenHeight - 2 * buttonHeight - buttonSpacing) / 2; // Centra los botones verticalmente
-            //int buttonX = (screenWidth - buttonWidth) / 2; // Centra los botones horizontalmente
-            int buttonX = screenWidth - buttonWidth - 300;
+
+            int buttonY = (int) (ScreenHeight - 2 * buttonHeight - buttonSpacing) / 2;           
+            int buttonX = (int) ScreenWidth - buttonWidth - 300;
+
             _playButton = new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight);
             _exitButton = new Rectangle(buttonX, buttonY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight);
-            _soundOnButton = new Rectangle(50, screenHeight - 300, 100, 100);
-            _soundOffButton = new Rectangle(50, screenHeight - 300, 100, 100);
 
-      
+            _soundOnButton = new Rectangle(50, (int)(ScreenHeight - 300), 100, 100);
+            _soundOffButton = new Rectangle(50, (int)(ScreenHeight - 300), 100, 100);
 
         }
 
@@ -89,79 +80,56 @@ namespace ThunderingTanks.Objects
             backgroundSound = Content.Load<Song>(ContentFolderMusic + "TankGameBackgroundSound");
             _cursorTexture = Content.Load<Texture2D>(ContentFolderTextures + "proyectilMouse");
             _font = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
+            WarIsOver = Content.Load<SpriteFont>(ContentFolderFonts + "warisover/WarIsOver");
 
             RectangleButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/Default@4x");
             PlayButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/PlayButton");
             SoundOnButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOn");
             SoundOffButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOff");
 
-            //HOVERS
             RectangleButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/RectangleButtonHover");
             PlayButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/PlayButtonHover");
             SoundOnButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOnHover");
             SoundOffButtonHover = Content.Load<Texture2D>(ContentFolderTextures + "Menu/SoundOffHover");
 
-            Modelo = Content.Load<Model>(ContentFolderModels + "Panzer/Panzer");
-
-            ModeloTexture = Content.Load<Texture2D>(ContentFolderModels + "Panzer/PzVl_Tiger_I");
-
-            effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            foreach (var mesh in Modelo.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = effect;
-                }
-            }
-
         }
-
-        private bool SoundIsOn = true;
 
         public void Update(ref bool juegoIniciado, GameTime gameTime)
         {
-            // Verifica si se hace clic en los botones
             var mouseState = Mouse.GetState();
             var mousePosition = new Point(mouseState.X, mouseState.Y);
+
+            MediaPlayer.Volume = MasterSound;
+
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 if (_playButton.Contains(mousePosition))
                 {
-                    // Lógica para iniciar el juego
                     juegoIniciado = true;
                     MediaPlayer.Stop();
                 }
                 else if (_exitButton.Contains(mousePosition))
                 {
-
-                    // Lógica para salir del juego
-                    Environment.Exit(0); // Cierra la aplicación
-
+                    Environment.Exit(0); 
                 }
                 if (SoundIsOn && _soundOffButton.Contains(mousePosition))
                 {
-                    // Pausa el sonido si está reproduciéndose
                     if (MediaPlayer.State == MediaState.Playing)
                         MediaPlayer.Pause();
 
-                    // Cambia el estado del sonido y actualiza la textura del botón
                     SoundIsOn = false;
                 }
                 else if (!SoundIsOn && _soundOnButton.Contains(mousePosition))
                 {
-                    // Reanuda el sonido si está pausado
                     if (MediaPlayer.State == MediaState.Paused)
                         MediaPlayer.Resume();
 
-                    // Cambia el estado del sonido y actualiza la textura del botón
                     SoundIsOn = true;
                 }
             }
-            // Verifica si el mouse está sobre los botones para cambiar a las texturas hover
+
             if (_playButton.Contains(mousePosition))
             {
-                //_playButton = _playButtonHover;
                 PlayButton = PlayButtonHover;
             }
             else
@@ -170,7 +138,6 @@ namespace ThunderingTanks.Objects
             }
             if (_exitButton.Contains(mousePosition))
             {
-                //_exitButton = _exitButtonHover;
                 RectangleButton = RectangleButtonHover;
             }
             else
@@ -179,7 +146,6 @@ namespace ThunderingTanks.Objects
             }
             if (_soundOnButton.Contains(mousePosition))
             {
-                //_soundOnButton = _soundOnButtonHover;
                 SoundOnButton = SoundOnButtonHover;
             }
             else
@@ -188,7 +154,6 @@ namespace ThunderingTanks.Objects
             }
             if (_soundOffButton.Contains(mousePosition))
             {
-                //_soundOffButton = _soundOffButtonHover;
                 SoundOffButton = SoundOffButtonHover;
             }
             else
@@ -201,39 +166,10 @@ namespace ThunderingTanks.Objects
                 _playing = false;
             }
 
-
-
         }
 
-        public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Matrix World, Matrix View, Matrix Projection, Matrix TurretMatrix, Matrix CannonMatrix)
+        public void Draw(SpriteBatch spriteBatch)
         {
-
-            /*
-            effect.Parameters["View"].SetValue(View);
-            effect.Parameters["Projection"].SetValue(Projection);
-
-
-            foreach (var mesh in Modelo.Meshes)
-            {
-                if (mesh.Name.Equals("Turret"))
-                {
-                    //Effect.Parameters["DiffuseColor"]?.SetValue(Color.Aquamarine.ToVector3());
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
-                }
-                else if (mesh.Name.Equals("Cannon"))
-                {
-                    //Effect.Parameters["DiffuseColor"].SetValue(Color.Coral.ToVector3());
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
-                }
-                else
-                {
-                    effect.Parameters["ModelTexture"].SetValue(ModeloTexture);
-
-                    effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                }
-                mesh.Draw();
-            }
-            */ //Estoy probando hacerlo desde el main por eso no lo uso
 
             if (SoundIsOn)
             {
@@ -247,17 +183,16 @@ namespace ThunderingTanks.Objects
             spriteBatch.Draw(PlayButton, _playButton, Color.Gray);
             spriteBatch.Draw(RectangleButton, _exitButton, Color.Gray);
 
-            // Ajusta la posición del texto dentro de los botones
-            //Vector2 playTextPosition = new Vector2(_playButton.X + (_playButton.Width - _font.MeasureString("Play").X) / 2, _playButton.Y + (_playButton.Height - _font.MeasureString("Play").Y) / 2);
+            spriteBatch.DrawString(WarIsOver, "THUNDERING TANKS", new Vector2(450,  200), Color.SandyBrown);
+            spriteBatch.DrawString(WarIsOver, "VOLUMEN = " + MasterSound.ToString("P"), new Vector2(50, ScreenHeight - 200), Color.SaddleBrown);
+           
             Vector2 exitTextPosition = new Vector2(_exitButton.X + (_exitButton.Width - _font.MeasureString("Exit").X) / 2, _exitButton.Y + (_exitButton.Height - _font.MeasureString("Exit").Y) / 2);
 
-            // Dibuja el texto en los botones agrandando el tamaño
             spriteBatch.DrawString(_font, "Exit", exitTextPosition, Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0f);
 
             var mouseState = Mouse.GetState();
+
             spriteBatch.Draw(_cursorTexture, new Vector2(mouseState.X, mouseState.Y), Color.White);
         }
-
-
     }
 }
