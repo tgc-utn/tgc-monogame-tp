@@ -61,7 +61,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Texture2D LifeBar { get; set; }
         public Rectangle _lifeBarRectangle;
 
-        public int _maxLife = 20;
+        public int _maxLife = 10;
         public int _currentLife;
 
         public bool isDestroyed = false;
@@ -267,9 +267,10 @@ namespace ThunderingTanks.Objects.Tanks
             _currentLife -= 5;
             if (_currentLife <= 0)
             {
+                
                 isDestroyed = true;
                 _juegoIniciado = false;
-
+                
             }
         }
 

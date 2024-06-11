@@ -302,7 +302,7 @@ namespace ThunderingTanks
 
                 if (!StartGame)
                 {
-                    Panzer.Direction = new Vector3(-5000, 0, -10000);
+                    Panzer.Direction = new Vector3(-5000, 0, -11000);
                     StartGame = true;
                 }
 
