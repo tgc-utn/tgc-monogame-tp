@@ -15,6 +15,7 @@ namespace ThunderingTanks.Objects
         public const string ContentFolderModels = "Models/";
         public const string ContentFolderTextures = "Textures/";
         public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderFonts = "Fonts/";
 
         private ContentManager _contentManager;
 
@@ -23,7 +24,6 @@ namespace ThunderingTanks.Objects
         Viewport viewport;
 
         private GraphicsDevice graphicsDevice;
-
 
         private Song backgroundSound { get; set; }
 
@@ -38,7 +38,7 @@ namespace ThunderingTanks.Objects
 
         private bool _playing = true;
 
-        //BOTONES
+        #region BOTONS
         private Texture2D RectangleButtonHover { get; set; }
         private Texture2D RectangleButton { get; set; }
         private Texture2D PlayButton { get; set; }
@@ -51,7 +51,7 @@ namespace ThunderingTanks.Objects
         private Texture2D PlayButtonNormal { get; set; }
         private Texture2D SoundOnButtonNormal { get; set; }
         private Texture2D SoundOffButtonNormal { get; set; }
-
+        #endregion
 
         private Model Modelo { get; set; }
 
@@ -60,14 +60,10 @@ namespace ThunderingTanks.Objects
         private Effect effect { get; set; }
 
 
-        public Menu(SpriteFont font, Texture2D cursorTexture, Song background, ContentManager contentManager)
+        public Menu(ContentManager contentManager)
         {
 
             _contentManager = contentManager;
-
-            backgroundSound = background;
-            _font = font;
-            _cursorTexture = cursorTexture;
 
             // Define la posición y tamaño de los botones
             int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
@@ -89,6 +85,10 @@ namespace ThunderingTanks.Objects
 
         public void LoadContent(ContentManager Content)
         {
+
+            backgroundSound = Content.Load<Song>(ContentFolderMusic + "TankGameBackgroundSound");
+            _cursorTexture = Content.Load<Texture2D>(ContentFolderTextures + "proyectilMouse");
+            _font = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
 
             RectangleButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/Default@4x");
             PlayButtonNormal = Content.Load<Texture2D>(ContentFolderTextures + "Menu/PlayButton");
@@ -207,11 +207,11 @@ namespace ThunderingTanks.Objects
 
         public void Draw(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice, Matrix World, Matrix View, Matrix Projection, Matrix TurretMatrix, Matrix CannonMatrix)
         {
-            graphicsDevice.Clear(Color.Black);
 
-
+            /*
             effect.Parameters["View"].SetValue(View);
             effect.Parameters["Projection"].SetValue(Projection);
+
 
             foreach (var mesh in Modelo.Meshes)
             {
@@ -233,7 +233,7 @@ namespace ThunderingTanks.Objects
                 }
                 mesh.Draw();
             }
-
+            */ //Estoy probando hacerlo desde el main por eso no lo uso
 
             if (SoundIsOn)
             {
@@ -243,11 +243,12 @@ namespace ThunderingTanks.Objects
             {
                 spriteBatch.Draw(SoundOffButton, _soundOffButton, Color.Gray);
             }
+
             spriteBatch.Draw(PlayButton, _playButton, Color.Gray);
             spriteBatch.Draw(RectangleButton, _exitButton, Color.Gray);
 
             // Ajusta la posición del texto dentro de los botones
-            Vector2 playTextPosition = new Vector2(_playButton.X + (_playButton.Width - _font.MeasureString("Play").X) / 2, _playButton.Y + (_playButton.Height - _font.MeasureString("Play").Y) / 2);
+            //Vector2 playTextPosition = new Vector2(_playButton.X + (_playButton.Width - _font.MeasureString("Play").X) / 2, _playButton.Y + (_playButton.Height - _font.MeasureString("Play").Y) / 2);
             Vector2 exitTextPosition = new Vector2(_exitButton.X + (_exitButton.Width - _font.MeasureString("Exit").X) / 2, _exitButton.Y + (_exitButton.Height - _font.MeasureString("Exit").Y) / 2);
 
             // Dibuja el texto en los botones agrandando el tamaño

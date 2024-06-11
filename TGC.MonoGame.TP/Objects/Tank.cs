@@ -29,6 +29,7 @@ namespace ThunderingTanks.Objects
         private Effect Effect { get; set; }
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
+        private Texture2D TrackTexture { get; set; }
         public Matrix PanzerMatrix { get; set; }
         public Vector3 LastPosition { get; set; }
 
@@ -39,19 +40,19 @@ namespace ThunderingTanks.Objects
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
         public float FireRate { get; set; }
-        private float TimeSinceLastShot = 0f;
+        public float TimeSinceLastShot;
         public float GunRotationFinal { get; set; }
         public float GunElevation { get; set; }
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
         public TargetCamera PanzerCamera { get; set; }
-        private Song movingTankSound { get; set; }
+        public Song MovingTankSound { get; set; }
 
         //public BoundingBox TankboundingBox { get; set; }
+        //public OrientedBoundingBox TankBox { get; set; }
         public BoundingBox TankBox { get; set; }
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
-        //public OrientedBoundingBox TankBox { get; set; }
         public Vector3 MinBox = new(0, 0, 0);
         public Vector3 MaxBox = new(0, 0, 0);
         public bool isColliding { get; set; } = false;
@@ -68,9 +69,8 @@ namespace ThunderingTanks.Objects
 
         private bool _isPlaying = true;
 
-        public Tank(GraphicsDevice graphicsDevice, Song movingSound)
+        public Tank(GraphicsDevice graphicsDevice)
         {
-            movingTankSound = movingSound;
             this.graphicsDevice = graphicsDevice;
 
             TurretMatrix = Matrix.Identity;
@@ -85,16 +85,11 @@ namespace ThunderingTanks.Objects
             Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
 
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
+            TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            foreach (var mesh in Tanque.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
+            TimeSinceLastShot = FireRate;
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
@@ -108,6 +103,7 @@ namespace ThunderingTanks.Objects
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             TimeSinceLastShot += time;
 
             bool isMoving = false;
@@ -140,7 +136,7 @@ namespace ThunderingTanks.Objects
             {
                 if (!_isPlaying)
                 {
-                    MediaPlayer.Play(movingTankSound);
+                    MediaPlayer.Play(MovingTankSound);
                     _isPlaying = true;
                 }
             }
@@ -162,7 +158,7 @@ namespace ThunderingTanks.Objects
 
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+            CannonMatrix = Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateTranslation(Direction);
 
             TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);  
 
@@ -190,26 +186,44 @@ namespace ThunderingTanks.Objects
 
         public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice _GraphicsDevice)
         {
-            Effect.Parameters["View"].SetValue(view);
-            Effect.Parameters["Projection"].SetValue(projection);
 
             foreach (var mesh in Tanque.Meshes)
             {
+
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = Effect;
+                }
+
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["View"].SetValue(view);
+                    effect.Parameters["Projection"].SetValue(projection);
+                }
+
                 if (mesh.Name.Equals("Turret"))
                 {
+                    Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
                 }
                 else if (mesh.Name.Equals("Cannon"))
                 {
+                    Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
+                }
+                else if (mesh.Name.Equals("Treadmill1") || mesh.Name.Equals("Treadmill2"))
+                {
+                    Effect.Parameters["ModelTexture"].SetValue(TrackTexture);
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                 }
                 else
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
-
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                 }
+
                 mesh.Draw();
+                
             }
         }
 
@@ -220,9 +234,9 @@ namespace ThunderingTanks.Objects
             if (TimeSinceLastShot >= FireRate)
             {
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
-
+                
                 float projectileScale = 1f;
-                float projectileSpeed = 5000f;
+                float projectileSpeed = 10000f;
 
                 Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using ThunderingTanks.Cameras;
+using System;
 
 namespace ThunderingTanks.Objects
 {
@@ -18,6 +13,9 @@ namespace ThunderingTanks.Objects
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderFonts = "Fonts/";
 
+        private float ScreenWidth { get; set; }
+        private float ScreenHeight { get; set; }
+
         private Rectangle lifeBar;
         private Rectangle e_lifeBar;
 
@@ -25,29 +23,37 @@ namespace ThunderingTanks.Objects
         private Texture2D e_lifeBar_t;
         private Texture2D CrossHairTexture;
 
+
+        public float Convergence { get; set; } = 1000f;
         private Vector2 CrossHairPosition;
-        private Vector3 CrossHairAux;
 
         private SpriteFont FontArial;
 
-        public Vector3 BulletPosition { get; set; }
-        public int BulletCount { get; set; }
-
         public int _maxLifeBarWidth;
 
+        #region Debug
+        public Vector3 TankPosition { get; set; }
+        public int BulletCount { get; set; }
+        public bool TankIsColliding { get; set; }
+        public int FPS { get; set; }
+        public float TimeSinceLastShot { get; set; }
+        #endregion
 
-        public HUD() {
-            int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-            int barWidth = screenWidth / 10;
-            int barHeight = screenHeight / 20;
-            int barY = 10;
-            int barX = screenWidth - 2 * barWidth + 30;
-            lifeBar = new Rectangle(barX, barY, barWidth, barHeight);
+        public HUD(float screenWidth, float screenHeight)
+        {
+            ScreenWidth = screenWidth;
+            ScreenHeight = screenHeight;
+
+            float barWidth = screenWidth / 10;
+            float barHeight = screenHeight / 20;
+            float barY = 10;
+            float barX = screenWidth - 2 * barWidth + 30;
+
+            lifeBar = new Rectangle((int)barX, (int)barY, (int)barWidth, (int)barHeight);
             e_lifeBar = new Rectangle();
         }
 
-        public void loadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content)
         {
             CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
             lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
@@ -57,16 +63,10 @@ namespace ThunderingTanks.Objects
             _maxLifeBarWidth = lifeBar.Width;
         }
 
-        public void Update(Tank Panzer, TargetCamera _targetCamera, ref Viewport viewport, float screenWidth)
+        public void Update(Tank Panzer, ref Viewport viewport)
         {
-            CrossHairAux = viewport.Project(
-                Panzer.Direction,
-                _targetCamera.Projection,
-                _targetCamera.View,
-                Matrix.CreateRotationX(Panzer.GunElevation) * Panzer.TurretMatrix
-                );
 
-            CrossHairPosition = new Vector2(screenWidth / 2 - 25, CrossHairAux.Y);
+            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2 - 25)));
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -75,7 +75,7 @@ namespace ThunderingTanks.Objects
                     CrossHairTexture,
                     CrossHairPosition,
                     null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
-                 );
+              );
             spriteBatch.Draw(
                 lifeBar_t,
                 lifeBar,
@@ -87,9 +87,16 @@ namespace ThunderingTanks.Objects
                 Color.Yellow
              );
 
+            #region Debug
             spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
             spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
-            spriteBatch.DrawString(FontArial, "X:" + BulletPosition.X.ToString() + "Y:" + BulletPosition.Y.ToString(), new Vector2(20, 60), Color.Red);
+            spriteBatch.DrawString(FontArial, "Posicion Del Tanque: " + "X:" + TankPosition.X.ToString() + "Z:" + TankPosition.Z.ToString(), new Vector2(20, 60), Color.Red);
+            spriteBatch.DrawString(FontArial, (TankIsColliding) ? "Coliciona" : "No Coliciona", new Vector2(20, 80), Color.Red);
+            spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
+            spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
+            spriteBatch.DrawString(FontArial, "FPS " + FPS, new Vector2(20, 140), Color.Red);
+            #endregion
+
         }
     }
 }
