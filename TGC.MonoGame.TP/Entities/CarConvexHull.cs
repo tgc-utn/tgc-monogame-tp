@@ -209,6 +209,8 @@ public class CarConvexHull
     public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation)
     {
 
+
+
         var bodyReference = simulation.Bodies.GetBodyReference(CarHandle);
         bodyReference.Awake = true;
 
@@ -225,6 +227,9 @@ public class CarConvexHull
         rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
         rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(-45));
         rotationQuaternionZ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(-5));
+
+        var forwardDirection = NumericVector3.Transform(new NumericVector3(0,0,-1), bodyReference.Pose.Orientation);
+        Effect.Parameters["lightPosition"].SetValue(Position + 3 * forwardDirection);
 
         // if (quaternion.Y <= 0.01 && quaternion.Y >= -0.01 && quaternion.W >= MathHelper.ToRadians(179.5) && quaternion.W <= MathHelper.ToRadians(180.5))
 
