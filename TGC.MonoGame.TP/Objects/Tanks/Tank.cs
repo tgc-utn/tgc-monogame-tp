@@ -61,7 +61,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Texture2D LifeBar { get; set; }
         public Rectangle _lifeBarRectangle;
 
-        public int _maxLife = 10;
+        public int _maxLife = 50;
         public int _currentLife;
 
         public bool isDestroyed = false;
