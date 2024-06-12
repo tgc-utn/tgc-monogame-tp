@@ -8,6 +8,7 @@
 #endif
 
 float4x4 World;
+float4x4 InverseTransposeWorld;
 float4x4 WorldViewProjection;
 float2 Tiling;
 
@@ -104,7 +105,8 @@ VertexShaderOutput BaseTilingWithLightsVS(in VertexShaderInput input)
 float4 BaseTilingWithLightsPS(VertexShaderOutput input) : COLOR
 {
     float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
-    float4 normal = tex2D(normalSampler, input.TextureCoordinate);
+    float4 textureNormal = tex2D(normalSampler, input.TextureCoordinate);
+    float4 normal = mul(textureNormal, InverseTransposeWorld);
 
     float3 lightDirection = normalize(lightPosition - input.WorldPosition.xyz);
     float3 viewDirection = normalize(eyePosition - input.WorldPosition.xyz);
