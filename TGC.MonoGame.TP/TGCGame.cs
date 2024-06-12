@@ -529,7 +529,7 @@ namespace TGC.MonoGame.TP
             switch (gameState)
             {
                 case ST_STAGE_1:
-                    HUD.Draw(gameTime);
+                    HUD.DrawMenu(gameTime);
                     break;
 
                 case ST_STAGE_2:
@@ -578,6 +578,9 @@ namespace TGC.MonoGame.TP
                     DrawWalls();
                     MainCar.Draw();
                     Gizmos.Draw();
+
+                    HUD.DrawInGameHUD(gameTime);
+
                     break;
 
                 case ST_GAME_OVER:
@@ -603,13 +606,10 @@ namespace TGC.MonoGame.TP
         }
         private void DrawWalls()
         {
-            // var prim = new BoxPrimitive(GraphicsDevice, new Vector3(1f, 10f, 200f), Color.HotPink);
             TilingEffect.CurrentTechnique = TilingEffect.Techniques["BaseTilingWithLights"];
             var prim = new QuadPrimitive(GraphicsDevice);
             foreach (var wall in WallWorlds)
             {
-                // EffectNoTextures.Parameters["DiffuseColor"].SetValue(Color.HotPink.ToVector3());
-                // EffectNoTextures.Parameters["World"]?.SetValue(wall);
                 var quadCorrection1 = Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateScale(1f, 10f, 200f);
                 var quadCorrection2 = Matrix.CreateRotationZ(MathHelper.ToRadians(90)) * Matrix.CreateScale(1f, 10f, 200f);
                 TilingEffect.Parameters["World"].SetValue(quadCorrection1 * wall);
