@@ -150,9 +150,9 @@ namespace ThunderingTanks
 
             Panzer = new Tank(GraphicsDevice)
             {
-                TankVelocity = 200f,
-                TankRotation = 20f,
-                FireRate = 8f
+                TankVelocity = 1100f,
+                TankRotation = 50f,
+                FireRate = 2f
             };
 
             _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
@@ -608,7 +608,9 @@ namespace ThunderingTanks
 
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                 {
+
                     Panzer.ReceiveDamage(ref _juegoIniciado);
+                    //Panzer.RecibirImpacto(Projectiles[j].PositionVector, 500);
                     Projectiles.Remove(Projectiles[j]);
                 }
 

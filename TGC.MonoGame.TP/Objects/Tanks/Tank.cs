@@ -52,6 +52,8 @@ namespace ThunderingTanks.Objects.Tanks
         //public BoundingBox TankboundingBox { get; set; }
         //public OrientedBoundingBox TankBox { get; set; }
         public BoundingBox TankBox { get; set; }
+        public BoundingBox PrevTankBox { get; set; }
+
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
         public Vector3 MinBox = new(0, 0, 0);
@@ -70,6 +72,10 @@ namespace ThunderingTanks.Objects.Tanks
         public Matrix ProjectileMatrix { get; private set; }
 
         private bool _isPlaying = true;
+
+        List<Vector3> verticesTanque;
+
+
 
         public Tank(GraphicsDevice graphicsDevice)
         {
@@ -95,11 +101,35 @@ namespace ThunderingTanks.Objects.Tanks
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
+            //TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
             //TankBox = new OrientedBoundingBox();
 
+
+            verticesTanque = ObtenerVerticesModelo(Tanque);
+            BoundingBox meshBox = BoundingBox.CreateFromPoints(verticesTanque);
+
+            PrevTankBox = meshBox;
+            //TankBox = TankBox == null ? meshBox : BoundingBox.CreateMerged(TankBox, meshBox);
+            float factorEscala = 45f; // Escala del 20%
+            TankBox = EscalarBoundingBox(PrevTankBox, factorEscala);
+            
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
+
+        }
+        BoundingBox EscalarBoundingBox(BoundingBox originalBoundingBox, float escala)
+        {
+            // Obtener los puntos de esquina de la bounding box original
+            Vector3[] puntosEsquina = originalBoundingBox.GetCorners();
+
+            // Escalar cada punto de esquina por el factor de escala
+            for (int i = 0; i < puntosEsquina.Length; i++)
+            {
+                puntosEsquina[i] *= escala;
+            }
+
+            // Crear una nueva bounding box a partir de los puntos de esquina escalados
+            return BoundingBox.CreateFromPoints(puntosEsquina);
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -272,7 +302,30 @@ namespace ThunderingTanks.Objects.Tanks
                 _juegoIniciado = false;
                 
             }
+            
         }
+
+        public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
+        {
+            for (int i = 0; i < verticesTanque.Count; i++)
+            {
+                Vector3 vertice = verticesTanque[i];
+
+                // Calcula la distancia entre el vértice y el punto de impacto
+                float distancia = Vector3.Distance(vertice, puntoDeImpacto);
+
+                // Si la distancia está dentro de un radio de deformación
+                if (distancia < 50)
+                {
+                    // Calcula el vector de dirección desde el punto de impacto hacia el vértice
+                    Vector3 direccion = Vector3.Normalize(vertice - puntoDeImpacto);
+
+                    // Aplica una deformación al vértice según la fuerza del impacto y la dirección
+                    verticesTanque[i] += -direccion * fuerzaImpacto;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Valor X del movimiento del cursor
@@ -298,6 +351,25 @@ namespace ThunderingTanks.Objects.Tanks
             float mouseY = mouseState.Y;
 
             return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
+        }
+        List<Vector3> ObtenerVerticesModelo(Model modelo)
+        {
+            List<Vector3> vertices = new List<Vector3>();
+
+            foreach (ModelMesh mesh in modelo.Meshes)
+            {
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    // Obtener los vértices de este meshPart
+                    Vector3[] tempVertices = new Vector3[meshPart.NumVertices];
+                    meshPart.VertexBuffer.GetData(tempVertices);
+
+                    // Agregar los vértices a la lista
+                    vertices.AddRange(tempVertices);
+                }
+            }
+
+            return vertices;
         }
     }
 }
