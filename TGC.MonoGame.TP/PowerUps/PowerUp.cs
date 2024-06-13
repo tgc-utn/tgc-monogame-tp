@@ -91,7 +91,7 @@ namespace TGC.MonoGame.TP.PowerUps
 
         }
         
-        public void Draw(FollowCamera Camera, GameTime gameTime)
+        public void Draw(FollowCamera Camera, GameTime gameTime, BoundingFrustum boundingFrustum)
         {
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -103,8 +103,8 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
 
-                PowerUpListWorld.Add(PowerUpWorld);
-                PowerUpModel.Draw(PowerUpListWorld);
+                // PowerUpListWorld.Add(PowerUpWorld);
+                PowerUpModel.Draw(PowerUpListWorld, boundingFrustum);
 
                 //var mesh = PowerUpModel.Model.Meshes.FirstOrDefault();
                 //if (mesh != null)

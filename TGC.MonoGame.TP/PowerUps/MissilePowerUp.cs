@@ -56,10 +56,14 @@ namespace TGC.MonoGame.TP.PowerUps
 
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
 
-            if(RandomPositions)
-            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, GenerateRandomPositions(20));
-            else
-            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, Position);
+            if(RandomPositions) 
+            {
+                PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, GenerateRandomPositions(20));
+            }
+            else 
+            {
+                PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, Position);
+            }
 
             PowerUpListWorld = PowerUpModel.World;
 

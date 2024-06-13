@@ -80,6 +80,7 @@ namespace TGC.MonoGame.TP
         public SpriteFont SpriteFont;
 
         private FollowCamera FollowCamera { get; set; }
+        private BoundingFrustum BoundingFrustum { get; set; }
         private SpriteBatch SpriteBatch { get; set; }
         private Texture2D FloorTexture { get; set; }
         private Texture2D FloorNormalMap { get; set; }
@@ -216,6 +217,7 @@ namespace TGC.MonoGame.TP
 
             // Creo una camara para seguir a nuestro auto.
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+            BoundingFrustum = new BoundingFrustum(FollowCamera.View * FollowCamera.Projection);
 
             //  Simulacion del auto principal 
             CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
@@ -493,6 +495,8 @@ namespace TGC.MonoGame.TP
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
             FollowCamera.Update(gameTime, MainCar.World);
+            BoundingFrustum.Matrix = FollowCamera.View * FollowCamera.Projection;
+
             Effect.Parameters["eyePosition"]?.SetValue(FollowCamera.Position);
 
             SpheresWorld.Clear();
@@ -545,9 +549,9 @@ namespace TGC.MonoGame.TP
 
                     //SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
 
-                    Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.World));
+                    Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.World, BoundingFrustum));
 
-                    Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
+                    Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime, BoundingFrustum));
 
                     if (MainCar.MachineMissile)
                     {
@@ -556,7 +560,7 @@ namespace TGC.MonoGame.TP
                         {
                             missileWorlds.Add(missile.World);
                         }
-                        MissileModel.Draw(missileWorlds);
+                        MissileModel.Draw(missileWorlds, BoundingFrustum);
                     }
                     else
                     {
@@ -565,7 +569,7 @@ namespace TGC.MonoGame.TP
                         {
                             missileWorlds.Add(missile.World);
                         }
-                        Bullet.Draw(missileWorlds);
+                        Bullet.Draw(missileWorlds, BoundingFrustum);
                     }
 
 

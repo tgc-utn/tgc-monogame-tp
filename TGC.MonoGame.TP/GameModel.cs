@@ -110,12 +110,14 @@ public class GameModel : BaseModel
         ));
     }
 
-    public void Draw(List<Matrix> Worlds)
+    public void Draw(List<Matrix> Worlds, BoundingFrustum boundingFrustum)
     {
         Matrix world;
         //var texture = ((BasicEffect) Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
-        foreach (Matrix World in Worlds)
+        // foreach (Matrix World in Worlds)
+        for (int wi = 0; wi < Worlds.Count; wi++) 
         {
+            Matrix World = Worlds[wi];
             for (int mi = 0; mi < Model.Meshes.Count; mi++)
             {
                 var mesh = Model.Meshes[mi];
@@ -131,18 +133,20 @@ public class GameModel : BaseModel
                     world = Matrix.CreateScale(Scale) * World;
                 }
 
-                var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
+                if (boundingFrustum.Intersects(BBox[wi])) {
+                    var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
 
-                for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
-                {
-                    var meshPart = mesh.MeshParts[mpi];
-                    var texture = MeshPartTextures[mi][mpi];
-                    meshPart.Effect.Parameters["World"]?.SetValue(world);
-                    meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
-                    Effect.Parameters["ModelTexture"]?.SetValue(texture);
+                    for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
+                    {
+                        var meshPart = mesh.MeshParts[mpi];
+                        var texture = MeshPartTextures[mi][mpi];
+                        meshPart.Effect.Parameters["World"]?.SetValue(world);
+                        meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
+                        Effect.Parameters["ModelTexture"]?.SetValue(texture);
+                    }
+
+                    mesh.Draw();
                 }
-
-                mesh.Draw();
             }
         }
     }
