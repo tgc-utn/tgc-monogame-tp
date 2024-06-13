@@ -111,9 +111,12 @@ namespace ThunderingTanks
 
         private SkyBox SkyBox { get; set; }
         public SpriteBatch spriteBatch { get; set; }
+        public FrameCounter FrameCounter { get; set; }
 
 
         public bool StartGame { get; set; } = false;
+
+
 
         // ------------ GAME ------------ //
 
@@ -145,13 +148,15 @@ namespace ThunderingTanks
             MouseState = new MouseState();
             PreviousMouseState = new MouseState();
 
+            FrameCounter = new FrameCounter();  
+
             IsMouseVisible = false;
 
             Panzer = new Tank()
             {
-                TankVelocity = 1100f,
-                TankRotation = 50f,
-                FireRate = 2f
+                TankVelocity = 180f,
+                TankRotation = 20f,
+                FireRate = 5f
             };
 
             _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
@@ -178,8 +183,9 @@ namespace ThunderingTanks
             {
                 EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
                 {
-                    TankVelocity = 3000f,
+                    TankVelocity = 180f,
                     TankRotation = 20f,
+                    FireRate = 5,
                     Position = new Vector3(3000 * i, 0, 9000)
                 };
                 EnemyTanks.Add(enemyTank);
@@ -190,6 +196,8 @@ namespace ThunderingTanks
 
             _menu = new Menu(Content);
             _hud = new HUD(screenWidth, screenHeight);
+
+            Panzer.SensitivityFactor = 0.45f;
 
             base.Initialize();
         }
@@ -254,8 +262,6 @@ namespace ThunderingTanks
         protected override void Update(GameTime gameTime)
         {
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            _hud.FPS = (1 / time);
 
             elapsedTime += time;
 
@@ -359,8 +365,6 @@ namespace ThunderingTanks
 
                     Panzer.isColliding = true;
 
-                    
-
                     Panzer.PanzerMatrix = lastMatrix;
                     Panzer.TurretMatrix = turretPosition;
                     Panzer.CannonMatrix = cannonPosition;
@@ -391,6 +395,7 @@ namespace ThunderingTanks
 
                             _shootSound.Play();
                             _shootSound.Volume = 1.0f;
+
                             Console.WriteLine("Disparo Tanque enemigo");
                         }
                         elapsedTime = 0f;
@@ -412,6 +417,11 @@ namespace ThunderingTanks
 
         protected override void Draw(GameTime gameTime)
         {
+
+            float time = (float) (1 / gameTime.ElapsedGameTime.TotalSeconds);
+            FrameCounter.Update(time);
+            _hud.FPS = FrameCounter.AverageFramesPerSecond;
+
             if (!_juegoIniciado || Panzer.isDestroyed)
             {
                 Panzer.isDestroyed = false;

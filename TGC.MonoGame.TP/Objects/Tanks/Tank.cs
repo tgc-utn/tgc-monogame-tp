@@ -74,15 +74,15 @@ namespace ThunderingTanks.Objects.Tanks
         public bool isDestroyed = false;
         #endregion
 
+        public float SensitivityFactor { get; set; }
+
         public Matrix ProjectileMatrix { get; private set; }
 
         private bool _isPlaying = true;
 
         List<Vector3> verticesTanque;
 
-
-
-        public Tank(GraphicsDevice graphicsDevice)
+        public Tank()
         {
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
@@ -112,27 +112,15 @@ namespace ThunderingTanks.Objects.Tanks
             BoundingBox meshBox = BoundingBox.CreateFromPoints(verticesTanque);
 
             PrevTankBox = meshBox;
+
             //TankBox = TankBox == null ? meshBox : BoundingBox.CreateMerged(TankBox, meshBox);
             float factorEscala = 45f; // Escala del 20%
+
             TankBox = EscalarBoundingBox(PrevTankBox, factorEscala);
             
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
 
-        }
-        BoundingBox EscalarBoundingBox(BoundingBox originalBoundingBox, float escala)
-        {
-            // Obtener los puntos de esquina de la bounding box original
-            Vector3[] puntosEsquina = originalBoundingBox.GetCorners();
-
-            // Escalar cada punto de esquina por el factor de escala
-            for (int i = 0; i < puntosEsquina.Length; i++)
-            {
-                puntosEsquina[i] *= escala;
-            }
-
-            // Crear una nueva bounding box a partir de los puntos de esquina escalados
-            return BoundingBox.CreateFromPoints(puntosEsquina);
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -186,8 +174,8 @@ namespace ThunderingTanks.Objects.Tanks
                 }
             }
 
-            GunRotationFinal -= GetRotationFromCursorX();
-            GunElevation += GetElevationFromCursorY();
+            GunRotationFinal -= GetRotationFromCursorX() * SensitivityFactor;
+            GunElevation += GetElevationFromCursorY() * SensitivityFactor;
 
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
@@ -320,6 +308,67 @@ namespace ThunderingTanks.Objects.Tanks
             
         }
 
+        /// <summary>
+        /// Valor X del movimiento del cursor
+        /// </summary>
+        /// <returns>Cantidad de Movimiento X</returns>
+        private float GetRotationFromCursorX()
+        {
+            screenWidth = GraphicsDevice.Viewport.Width;
+
+            MouseState mouseState = Mouse.GetState();
+            float mouseX = mouseState.X;
+
+            return MathHelper.ToRadians(mouseX / screenWidth * 360f - 180f);
+        }
+
+        /// <summary>
+        /// Valor Y del movimiento del cursor
+        /// </summary>
+        /// <returns>Cantidad de Movimiento Y</returns>
+        private float GetElevationFromCursorY()
+        {
+            screenHeight = GraphicsDevice.Viewport.Height;
+
+            MouseState mouseState = Mouse.GetState();
+            float mouseY = mouseState.Y;
+
+            return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
+        }
+
+        BoundingBox EscalarBoundingBox(BoundingBox originalBoundingBox, float escala)
+        {
+
+            Vector3[] puntosEsquina = originalBoundingBox.GetCorners();
+
+            for (int i = 0; i < puntosEsquina.Length; i++)
+            {
+                puntosEsquina[i] *= escala;
+            }
+
+            return BoundingBox.CreateFromPoints(puntosEsquina);
+        }
+
+        List<Vector3> ObtenerVerticesModelo(Model modelo)
+        {
+            List<Vector3> vertices = new List<Vector3>();
+
+            foreach (ModelMesh mesh in modelo.Meshes)
+            {
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    // Obtener los vértices de este meshPart
+                    Vector3[] tempVertices = new Vector3[meshPart.NumVertices];
+                    meshPart.VertexBuffer.GetData(tempVertices);
+
+                    // Agregar los vértices a la lista
+                    vertices.AddRange(tempVertices);
+                }
+            }
+
+            return vertices;
+        }
+
         public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
         {
             for (int i = 0; i < verticesTanque.Count; i++)
@@ -339,52 +388,6 @@ namespace ThunderingTanks.Objects.Tanks
                     verticesTanque[i] += -direccion * fuerzaImpacto;
                 }
             }
-        }
-
-
-        /// <summary>
-        /// Valor X del movimiento del cursor
-        /// </summary>
-        /// <returns>Cantidad de Movimiento X</returns>
-        private float GetRotationFromCursorX()
-        {
-            MouseState mouseState = Mouse.GetState();
-            float mouseX = mouseState.X;
-            screenWidth = GraphicsDevice.Viewport.Width;
-            return MathHelper.ToRadians(mouseX / screenWidth * 360f - 180f);
-        }
-
-        /// <summary>
-        /// Valor Y del movimiento del cursor
-        /// </summary>
-        /// <returns>Cantidad de Movimiento Y</returns>
-        private float GetElevationFromCursorY()
-        {
-            screenHeight = GraphicsDevice.Viewport.Height;
-
-            MouseState mouseState = Mouse.GetState();
-            float mouseY = mouseState.Y;
-
-            return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
-        }
-        List<Vector3> ObtenerVerticesModelo(Model modelo)
-        {
-            List<Vector3> vertices = new List<Vector3>();
-
-            foreach (ModelMesh mesh in modelo.Meshes)
-            {
-                foreach (ModelMeshPart meshPart in mesh.MeshParts)
-                {
-                    // Obtener los vértices de este meshPart
-                    Vector3[] tempVertices = new Vector3[meshPart.NumVertices];
-                    meshPart.VertexBuffer.GetData(tempVertices);
-
-                    // Agregar los vértices a la lista
-                    vertices.AddRange(tempVertices);
-                }
-            }
-
-            return vertices;
         }
     }
 }

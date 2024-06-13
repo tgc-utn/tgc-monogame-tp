@@ -89,15 +89,14 @@ namespace ThunderingTanks.Objects
 
             lifeBarTexture = lifeBar1;
 
-
-
             _maxLifeBarWidth = lifeBar.Width;
         }
 
         public void Update(Tank Panzer, ref Viewport viewport)
         {
-            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2)));
+            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2) - 25));
             lifeBarTexture = lifeBar1;
+
             if (Panzer._currentLife == 50)
             {
                 lifeBarTexture = lifeBar1;

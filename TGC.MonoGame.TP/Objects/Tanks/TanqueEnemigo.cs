@@ -101,7 +101,7 @@ namespace ThunderingTanks.Objects.Tanks
             }
             else
             {
-                TankVelocity = 200f;
+                TankVelocity = 180f;
 
                 LastPosition = Position;
 
