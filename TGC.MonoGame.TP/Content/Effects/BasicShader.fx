@@ -21,7 +21,13 @@ float4x4 Projection;
 
 float3 DiffuseColor;
 
+bool onhit;
 
+float3 ImpactPosition;
+float3 TankPosition;
+
+float impacto; //tamaño del impacto
+float velocidad; //profundidad del impacto
 
 texture ModelTexture;
 sampler2D TextureSampler = sampler_state
@@ -45,6 +51,21 @@ struct VertexShaderOutput
     float4 TextureCoordinate : TEXCOORD0;
 };
 
+float3 VersorDireccion(float3 A, float3 B)
+{
+    float3 Vector = B - A;
+    float moduloVector = length(Vector);
+    
+    return Vector / moduloVector;
+}
+
+float3 desplazarPorRadio(float3 Posicion, float radio, float3 centro)
+{
+    float3 direccion = VersorDireccion(centro, Posicion);
+    float distancia = radio - distance(centro, Posicion);
+    return Posicion + (direccion * distancia);
+}
+
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
     // Clear the output
@@ -55,10 +76,23 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     float4 viewPosition = mul(worldPosition, View);
 	// View space to Projection space
     output.Position = mul(viewPosition, Projection);
-
+   
     output.TextureCoordinate = input.TextureCoordinate;
+    
+    if (onhit)
+    {
+        float3 direccion = VersorDireccion(ImpactPosition, TankPosition);
+        float3 c_Esfera = ImpactPosition + (direccion * velocidad);
+        float r_Esfera = impacto;
+        if (distance(c_Esfera, output.Position.xyz) <= r_Esfera)
+        {
+            output.TextureCoordinate.xyz = desplazarPorRadio(output.Position.xyz, r_Esfera, c_Esfera);
+        }
+    }
 	
     return output;
+    
+    
 }
 
 float4 MainPS(VertexShaderOutput input) : COLOR

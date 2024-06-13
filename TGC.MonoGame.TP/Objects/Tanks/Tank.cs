@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
+using SharpDX.MediaFoundation;
 
 namespace ThunderingTanks.Objects.Tanks
 {
@@ -54,16 +55,20 @@ namespace ThunderingTanks.Objects.Tanks
         //public BoundingBox TankboundingBox { get; set; }
         //public OrientedBoundingBox TankBox { get; set; }
         public BoundingBox TankBox { get; set; }
+        public BoundingBox PrevTankBox { get; set; }
+
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
         public Vector3 MinBox = new(0, 0, 0);
         public Vector3 MaxBox = new(0, 0, 0);
         public bool isColliding { get; set; } = false;
 
+        public Vector3 CollidingPosition { get; set; }
+
         public Texture2D LifeBar { get; set; }
         public Rectangle _lifeBarRectangle;
 
-        public int _maxLife = 10;
+        public int _maxLife = 50;
         public int _currentLife;
 
         public bool isDestroyed = false;
@@ -73,7 +78,11 @@ namespace ThunderingTanks.Objects.Tanks
 
         private bool _isPlaying = true;
 
-        public Tank()
+        List<Vector3> verticesTanque;
+
+
+
+        public Tank(GraphicsDevice graphicsDevice)
         {
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
@@ -95,11 +104,35 @@ namespace ThunderingTanks.Objects.Tanks
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
+            //TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
             //TankBox = new OrientedBoundingBox();
 
+
+            verticesTanque = ObtenerVerticesModelo(Tanque);
+            BoundingBox meshBox = BoundingBox.CreateFromPoints(verticesTanque);
+
+            PrevTankBox = meshBox;
+            //TankBox = TankBox == null ? meshBox : BoundingBox.CreateMerged(TankBox, meshBox);
+            float factorEscala = 45f; // Escala del 20%
+            TankBox = EscalarBoundingBox(PrevTankBox, factorEscala);
+            
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
+
+        }
+        BoundingBox EscalarBoundingBox(BoundingBox originalBoundingBox, float escala)
+        {
+            // Obtener los puntos de esquina de la bounding box original
+            Vector3[] puntosEsquina = originalBoundingBox.GetCorners();
+
+            // Escalar cada punto de esquina por el factor de escala
+            for (int i = 0; i < puntosEsquina.Length; i++)
+            {
+                puntosEsquina[i] *= escala;
+            }
+
+            // Crear una nueva bounding box a partir de los puntos de esquina escalados
+            return BoundingBox.CreateFromPoints(puntosEsquina);
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -224,6 +257,19 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                 }
 
+                if (isColliding)
+                {
+                    Effect.Parameters["onhit"].SetValue(true);
+                    Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
+                } else
+                {
+                   // Effect.Parameters["onhit"].SetValue(false); si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
+                }
+
+                Effect.Parameters["impacto"].SetValue(9000.0f);
+                Effect.Parameters["velocidad"].SetValue(9000.0f);
+                Effect.Parameters["TankPosition"].SetValue(Position);
+
                 mesh.Draw();
 
             }
@@ -271,7 +317,30 @@ namespace ThunderingTanks.Objects.Tanks
                 _juegoIniciado = false;
                 
             }
+            
         }
+
+        public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
+        {
+            for (int i = 0; i < verticesTanque.Count; i++)
+            {
+                Vector3 vertice = verticesTanque[i];
+
+                // Calcula la distancia entre el vértice y el punto de impacto
+                float distancia = Vector3.Distance(vertice, puntoDeImpacto);
+
+                // Si la distancia está dentro de un radio de deformación
+                if (distancia < 50)
+                {
+                    // Calcula el vector de dirección desde el punto de impacto hacia el vértice
+                    Vector3 direccion = Vector3.Normalize(vertice - puntoDeImpacto);
+
+                    // Aplica una deformación al vértice según la fuerza del impacto y la dirección
+                    verticesTanque[i] += -direccion * fuerzaImpacto;
+                }
+            }
+        }
+
 
         /// <summary>
         /// Valor X del movimiento del cursor
@@ -297,6 +366,25 @@ namespace ThunderingTanks.Objects.Tanks
             float mouseY = mouseState.Y;
 
             return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
+        }
+        List<Vector3> ObtenerVerticesModelo(Model modelo)
+        {
+            List<Vector3> vertices = new List<Vector3>();
+
+            foreach (ModelMesh mesh in modelo.Meshes)
+            {
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    // Obtener los vértices de este meshPart
+                    Vector3[] tempVertices = new Vector3[meshPart.NumVertices];
+                    meshPart.VertexBuffer.GetData(tempVertices);
+
+                    // Agregar los vértices a la lista
+                    vertices.AddRange(tempVertices);
+                }
+            }
+
+            return vertices;
         }
     }
 }
