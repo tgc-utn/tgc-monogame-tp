@@ -418,7 +418,7 @@ namespace ThunderingTanks
         protected override void Draw(GameTime gameTime)
         {
 
-            float time = (float) (1 / gameTime.ElapsedGameTime.TotalSeconds);
+            int time = (int)(gameTime.ElapsedGameTime.TotalSeconds);
             FrameCounter.Update(time);
             _hud.FPS = FrameCounter.AverageFramesPerSecond;
 
