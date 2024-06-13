@@ -101,7 +101,7 @@ namespace ThunderingTanks.Objects.Tanks
             }
             else
             {
-                TankVelocity = 100f;
+                TankVelocity = 200f;
 
                 LastPosition = Position;
 
@@ -150,7 +150,7 @@ namespace ThunderingTanks.Objects.Tanks
             Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
 
             float projectileScale = 1f;
-            float projectileSpeed = 10000f;
+            float projectileSpeed = 11000f;
 
             Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale);
 

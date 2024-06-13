@@ -21,7 +21,9 @@ namespace ThunderingTanks.Objects.Tanks
         #endregion
 
         #region Graphics
-        private GraphicsDevice graphicsDevice;
+
+        private GraphicsDevice GraphicsDevice;
+
         public float screenHeight;
         public float screenWidth;
         #endregion
@@ -71,10 +73,8 @@ namespace ThunderingTanks.Objects.Tanks
 
         private bool _isPlaying = true;
 
-        public Tank(GraphicsDevice graphicsDevice)
+        public Tank()
         {
-            this.graphicsDevice = graphicsDevice;
-
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
 
@@ -176,20 +176,18 @@ namespace ThunderingTanks.Objects.Tanks
 
         }
 
-        public void Model(GraphicsDevice graphicsDevice, List<ModelBone> bones, List<ModelMesh> meshes)
+        public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
         {
-            if (graphicsDevice == null)
-            {
-                throw new ArgumentNullException("graphicsDevice", "The GraphicsDevice must not be null when creating new resources.");
-            }
-
-            this.graphicsDevice = graphicsDevice;
             Bones = bones;
             Meshes = meshes;
         }
 
-        public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice _GraphicsDevice)
+        public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
+
+            GraphicsDevice = graphicsDevice;               
+            GraphicsDevice.RasterizerState = new RasterizerState() { CullMode = CullMode.None };    
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             foreach (var mesh in Tanque.Meshes)
             {
@@ -229,6 +227,7 @@ namespace ThunderingTanks.Objects.Tanks
                 mesh.Draw();
 
             }
+
         }
 
         // ------------ FUNCTIONS ------------ //
@@ -244,7 +243,7 @@ namespace ThunderingTanks.Objects.Tanks
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
-                float projectileSpeed = 10000f;
+                float projectileSpeed = 11000f;
 
                 Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
@@ -282,7 +281,7 @@ namespace ThunderingTanks.Objects.Tanks
         {
             MouseState mouseState = Mouse.GetState();
             float mouseX = mouseState.X;
-            screenWidth = graphicsDevice.Viewport.Width;
+            screenWidth = GraphicsDevice.Viewport.Width;
             return MathHelper.ToRadians(mouseX / screenWidth * 360f - 180f);
         }
 
@@ -292,7 +291,7 @@ namespace ThunderingTanks.Objects.Tanks
         /// <returns>Cantidad de Movimiento Y</returns>
         private float GetElevationFromCursorY()
         {
-            screenHeight = graphicsDevice.Viewport.Height;
+            screenHeight = GraphicsDevice.Viewport.Height;
 
             MouseState mouseState = Mouse.GetState();
             float mouseY = mouseState.Y;

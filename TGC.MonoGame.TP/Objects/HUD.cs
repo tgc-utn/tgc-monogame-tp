@@ -66,7 +66,7 @@ namespace ThunderingTanks.Objects
 
         public void Update(Tank Panzer, ref Viewport viewport)
         {
-            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2)));
+            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + ((ScreenHeight / 2) - 25)));
         }
 
         public void Draw(SpriteBatch spriteBatch)

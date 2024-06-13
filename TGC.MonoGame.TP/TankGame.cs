@@ -146,9 +146,7 @@ namespace ThunderingTanks
 
             IsMouseVisible = false;
 
-            MapLimit = new Vector2(20000f, 20000f);
-
-            Panzer = new Tank(GraphicsDevice)
+            Panzer = new Tank()
             {
                 TankVelocity = 200f,
                 TankRotation = 20f,
@@ -159,6 +157,8 @@ namespace ThunderingTanks
             _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
 
             Panzer.PanzerCamera = _targetCamera;
+
+            MapLimit = new Vector2(20000f, 20000f);
 
             Rocas = new List<Roca>(CantidadRocas);
             AgregarRocas(CantidadRocas);
@@ -198,6 +198,8 @@ namespace ThunderingTanks
 
             City = new MapScene(Content);
 
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+
             Panzer.LoadContent(Content);
             molino.LoadContent(Content);
             roca.LoadContent(Content);
@@ -208,13 +210,9 @@ namespace ThunderingTanks
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
 
             movingTankSound = movingTankSoundEffect.CreateInstance();
-            _shootSound = shootSoundEffect.CreateInstance();
-
-            movingTankSound.Volume = 0.5f;
-
             Panzer.MovingTankSound = movingTankSound;
 
-            AgregarAntitanques();
+            _shootSound = shootSoundEffect.CreateInstance();
 
             for (int i = 0; i < CantidadRocas; i++)
             {
@@ -235,7 +233,7 @@ namespace ThunderingTanks
                 Console.WriteLine($"Tanque enemigo {i} creado: Min={enemyTank.TankBox.Min}, Max={enemyTank.TankBox.Max}");
             }
 
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            AgregarAntitanques();
 
             _menu.LoadContent(Content);
             _hud.LoadContent(Content);
