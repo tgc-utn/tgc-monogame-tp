@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
+using SharpDX.MediaFoundation;
 
 namespace ThunderingTanks.Objects.Tanks
 {
@@ -59,6 +60,8 @@ namespace ThunderingTanks.Objects.Tanks
         public Vector3 MinBox = new(0, 0, 0);
         public Vector3 MaxBox = new(0, 0, 0);
         public bool isColliding { get; set; } = false;
+
+        public Vector3 CollidingPosition { get; set; }
 
         public Texture2D LifeBar { get; set; }
         public Rectangle _lifeBarRectangle;
@@ -255,6 +258,19 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                 }
+
+                if (isColliding)
+                {
+                    Effect.Parameters["onhit"].SetValue(true);
+                    Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
+                } else
+                {
+                   // Effect.Parameters["onhit"].SetValue(false); si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
+                }
+
+                Effect.Parameters["impacto"].SetValue(9000.0f);
+                Effect.Parameters["velocidad"].SetValue(9000.0f);
+                Effect.Parameters["TankPosition"].SetValue(Position);
 
                 mesh.Draw();
 
