@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
+using TGC.MonoGame.TP.Camaras;
 
 namespace TGC.MonoGame.TP.PowerUps
 {
@@ -104,7 +105,7 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
 
                 PowerUpListWorld.Add(PowerUpWorld);
-                PowerUpModel.Draw(PowerUpListWorld);
+                //PowerUpModel.Draw(PowerUpListWorld, Camera);
 
                 //var mesh = PowerUpModel.Model.Meshes.FirstOrDefault();
                 //if (mesh != null)

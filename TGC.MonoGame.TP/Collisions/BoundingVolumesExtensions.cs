@@ -139,6 +139,19 @@ namespace TGC.MonoGame.Samples.Collisions
         }
 
         /// <summary>
+        ///     Scales the box relative to the origin of coordinates.
+        /// </summary>
+        /// <param name="scale">The scale for every axis</param>
+        /// <param name="box">The <see cref="BoundingBox"/> to scale</param>
+        /// <returns>A new box with its extents scaled and centered on (0, 0, 0)</returns>
+        public static BoundingBox ScaleCentered(BoundingBox box, float scale)
+        {
+            var extents = GetExtents(box);
+            var scaledExtents = extents * scale;
+            return new BoundingBox(-scaledExtents, scaledExtents);
+        }
+
+        /// <summary>
         ///     Creates a <see cref="BoundingBox">BoundingBox</see> from a Model, using all its sub-meshes.
         /// </summary>
         /// <param name="model">The model to create the box</param>

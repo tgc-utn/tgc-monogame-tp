@@ -56,14 +56,14 @@ namespace TGC.MonoGame.TP.PowerUps
 
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
 
-            if(RandomPositions)
-            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, GenerateRandomPositions(20));
-            else
-            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, Position);
+            //if(RandomPositions)
+            //PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, GenerateRandomPositions(20));
+            //else
+            //PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, Position);
 
-            PowerUpListWorld = PowerUpModel.World;
+            //PowerUpListWorld = PowerUpModel.World;
 
-            PowerUpListWorld.ForEach(World => BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(1.5f, 1.5f, 1.5f) * World)));
+            //PowerUpListWorld.ForEach(World => BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(1.5f, 1.5f, 1.5f) * World)));
 
             //PowerUpTexture = ((BasicEffect)PowerUpModel.Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
 
