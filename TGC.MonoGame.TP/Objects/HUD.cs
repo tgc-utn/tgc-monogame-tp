@@ -171,7 +171,7 @@ namespace ThunderingTanks.Objects
             spriteBatch.DrawString(FontArial, (TankIsColliding) ? "Coliciona" : "No Coliciona", new Vector2(20, 80), Color.Red);
             spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
             spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
-            //spriteBatch.DrawString(FontArial, "FPS " + FPS, new Vector2(20, 140), Color.Red);
+            spriteBatch.DrawString(FontArial, "FPS " + Math.Round(FPS), new Vector2(20, 140), Color.Red);
             #endregion
 
         }
