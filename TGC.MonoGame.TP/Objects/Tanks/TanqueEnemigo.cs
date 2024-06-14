@@ -49,6 +49,8 @@ namespace ThunderingTanks.Objects.Tanks
 
         public Vector3 Dimensiones1 = new(-200, 0, -300);
         public Vector3 Dimensiones2 = new(200, 250, 300);
+        public float shootInterval;
+        public float lifeSpan;
 
         public EnemyTank(GraphicsDevice graphicsDevice)
         {

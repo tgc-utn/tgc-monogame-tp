@@ -70,6 +70,7 @@ namespace ThunderingTanks.Objects.Tanks
 
         public int _maxLife = 50;
         public int _currentLife;
+        public int _numberOfProyectiles;
 
         public bool isDestroyed = false;
         #endregion
@@ -282,6 +283,7 @@ namespace ThunderingTanks.Objects.Tanks
                 Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
                 TimeSinceLastShot = 0f;
+                _numberOfProyectiles -=1;
 
                 return projectile;
             }

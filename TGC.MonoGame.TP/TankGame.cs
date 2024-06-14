@@ -100,8 +100,6 @@ namespace ThunderingTanks
 
         #region Tanks
         private Tank Panzer { get; set; }
-        private float elapsedTime = 0f;
-        private const float shootInterval = 5f;
         #endregion
 
         #region MapScene
@@ -148,7 +146,7 @@ namespace ThunderingTanks
             MouseState = new MouseState();
             PreviousMouseState = new MouseState();
 
-            FrameCounter = new FrameCounter();  
+            FrameCounter = new FrameCounter();
 
             IsMouseVisible = false;
 
@@ -156,7 +154,8 @@ namespace ThunderingTanks
             {
                 TankVelocity = 180f,
                 TankRotation = 20f,
-                FireRate = 5f
+                FireRate = 5f,
+                _numberOfProyectiles = 3
             };
 
             _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
@@ -185,8 +184,10 @@ namespace ThunderingTanks
                 {
                     TankVelocity = 180f,
                     TankRotation = 20f,
-                    FireRate = 5,
-                    Position = new Vector3(3000 * i, 0, 9000)
+                    FireRate = 5f,
+                    Position = new Vector3(3000 * i, 0, 9000),
+                    shootInterval = 5f + ((float)Math.Pow(2, i)),
+                    lifeSpan = 0
                 };
                 EnemyTanks.Add(enemyTank);
             }
@@ -263,7 +264,8 @@ namespace ThunderingTanks
         {
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            elapsedTime += time;
+            float deltaTime = 0;
+            deltaTime += time;
 
             #region Volume
 
@@ -349,6 +351,11 @@ namespace ThunderingTanks
 
                         _shootSound.Play();
                     }
+                    if (deltaTime >= Panzer.TimeSinceLastShot)
+                    {
+                        Panzer._numberOfProyectiles += 1;
+                        deltaTime = 0;
+                    }
 
                 }
 
@@ -381,8 +388,9 @@ namespace ThunderingTanks
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Update(gameTime, Panzer.Direction);
+                    enemyTank.lifeSpan += time;
 
-                    if (elapsedTime >= shootInterval)
+                    if (enemyTank.lifeSpan >= enemyTank.shootInterval)
                     {
                         Projectile projectile = enemyTank.Shoot();
 
@@ -398,7 +406,7 @@ namespace ThunderingTanks
 
                             Console.WriteLine("Disparo Tanque enemigo");
                         }
-                        elapsedTime = 0f;
+                        enemyTank.lifeSpan = 0f;
                     }
                 }
 
