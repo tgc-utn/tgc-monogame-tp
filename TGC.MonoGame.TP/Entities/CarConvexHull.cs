@@ -75,7 +75,7 @@ public class CarConvexHull
 
     private List<List<Texture2D>> MeshPartTextures = new List<List<Texture2D>>();
 
-    public CarConvexHull(Vector3 InitialPosition, float Gravity, Simulation Simulation , NumericVector3[] vertices)
+    public CarConvexHull(Vector3 InitialPosition, float Gravity, Simulation Simulation)
     {
         NumericVector3 center;
         Position = InitialPosition;

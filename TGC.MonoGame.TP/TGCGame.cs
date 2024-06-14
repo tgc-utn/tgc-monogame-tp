@@ -134,8 +134,8 @@ namespace TGC.MonoGame.TP
         private List<Missile> Missiles { get; set; }
         private List<Matrix> SpheresWorld { get; set; }
         private bool CanShoot { get; set; }
-        private GameModel MissileModel { get; set; }
-        public GameModel Bullet { get; private set; }
+        private Model MissileModel { get; set; }
+        public Model Bullet { get; private set; }
 
         //Enemy
         private Enemy Enemy { get; set; }
@@ -242,26 +242,15 @@ namespace TGC.MonoGame.TP
             // rasterizerState.CullMode = CullMode.None;
             // GraphicsDevice.RasterizerState = rasterizerState;
 
-
             // Creo una camara para seguir a nuestro auto.
             FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
 
             //  Simulacion del auto principal 
             CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
 
-
-
-
-            var MainCarVertices = GetVerticesFromModel(CarModel);
-            var MainCarVertices2 = ConvexHullUtils.ConvertVerticesToMonoGameVertices(MainCarVertices.ToList());
-            var MainCarVertices3 = ConvexHullUtils.ConvertVerticesToNumericsVertices(MainCarVertices2.ToList());
-            hull = ConvexHullUtils.QuickHull(MainCarVertices.ToList());
-
-
             CarSimulation = new CarSimulation();
             Simulation = CarSimulation.Init();
-            MainCar = new CarConvexHull(Vector3.Zero, Gravity, Simulation, hull.ToArray());
-
+            MainCar = new CarConvexHull(Vector3.Zero, Gravity, Simulation);
 
             // Create an OBB for a model
             // First, get an AABB from the model
@@ -273,11 +262,8 @@ namespace TGC.MonoGame.TP
             // Move the center
             CarBox.Center = Vector3.Zero;
 
-            // Then set its orientation!
             MainCar.World.Decompose(out scale, out rot, out translation);
-
             CarBox.Orientation = Matrix.CreateFromQuaternion(rot);
-
             CarBoxPosition = Matrix.CreateTranslation(translation);
 
 
@@ -287,9 +273,9 @@ namespace TGC.MonoGame.TP
             // PowerUps
             PowerUps = new PowerUp[]
             {
-                new VelocityPowerUp(),
-                new MissilePowerUp(),
-                new MachineGunPowerUp()
+                new VelocityPowerUp(new Vector3(-20,2,-20)),
+                new MissilePowerUp(new Vector3(20,2,-20)),
+                new MachineGunPowerUp(new Vector3(-20,2,20))
             };
 
             SpheresWorld = new List<Matrix>();
@@ -299,7 +285,7 @@ namespace TGC.MonoGame.TP
             Sphere = new SpherePrimitive(GraphicsDevice);
 
             //Enemies
-            Enemy = new Enemy(new Box(7f, 5f, 7f), new NumericVector3(50, 0, 50), Simulation);
+            //Enemy = new Enemy(new Box(7f, 5f, 7f), new NumericVector3(50, 0, 50), Simulation);
 
             base.Initialize();
         }
@@ -310,12 +296,6 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void LoadContent()
         {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-
-            Vector3 scale;
-            Quaternion rot;
-            Vector3 translation;
-
             HUD.LoadContent();
             backgroundMusic = Content.Load<Song>(ContentFolder3D + "HUD/SoundTrack");
             soundEffect = Content.Load<SoundEffect>(ContentFolder3D + "HUD/SoundEffect");
@@ -327,7 +307,7 @@ namespace TGC.MonoGame.TP
             Gizmos.LoadContent(GraphicsDevice, Content);
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-            //Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
+            Array.ForEach(PowerUps, powerUp => powerUp.LoadContent(Content));
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -355,11 +335,6 @@ namespace TGC.MonoGame.TP
             FloorTexture = Content.Load<Texture2D>(ContentFolderTextures + "FloorTexture");
             WallTexture = Content.Load<Texture2D>(ContentFolderTextures + "stoneTexture");
             WallNormalMap = Content.Load<Texture2D>(ContentFolderTextures + "WallNormalMap");
-            NumericVector3 center;
-
-            var RampModel = Content.Load<Model>(ContentFolder3D + "ramp/RampNew");
-            var rampVertices1 = GetVerticesFromModel(RampModel);
-            var rampVertices = ConvexHullUtils.QuickHull(rampVertices1.ToList());
 
             MainCar.Load(CarModel, Effect);
 
@@ -381,21 +356,19 @@ namespace TGC.MonoGame.TP
             House = new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/House"), Effect, 0.01f, new Vector3(180f, 0, 80f), Simulation);
             Fence1 = new GameModel(Content.Load<Model>(ContentFolder3D + "Street/model/FencesNew"), Effect, 1f, new Vector3(-50, 0, 50), Simulation);
 
-
             GameModels = new GameModel[]
              {
                  Robot , Truck , Tree ,ElectronicBox,Tower,Gasoline , Car2 , Ramp , Scene , CarDBZ , Bush, House, Fence1
 
             };
 
-            //MissileModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2"), Effect, 1f, new Vector3(0, 0, 0));
-            //Bullet = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/Bullet"), Effect, 1f, new Vector3(0, 0, 0));
+            MissileModel = Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2");
+            Bullet = Content.Load<Model>(ContentFolder3D + "PowerUps/Bullet");
 
             MissileSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "MissileSoundeffect");
             MachineGunSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "MachineGunSoundEffect1Short");
             Claxon = Content.Load<SoundEffect>(ContentFolderSoundEffects + "Bocina");
             Explosion = Content.Load<SoundEffect>(ContentFolderSoundEffects + "ExplosionSoundEffect");
-
 
             //Enemy.LoadContent(Content, Simulation);
 
@@ -433,7 +406,6 @@ namespace TGC.MonoGame.TP
             );
             Simulation.Statics.Add(planeDescription);
 
-
             base.LoadContent();
         }
 
@@ -463,8 +435,6 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-
-
 
             base.Update(gameTime);
         }
@@ -506,7 +476,7 @@ namespace TGC.MonoGame.TP
 
             CarSimulation.Update();
 
-            //Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
+            Array.ForEach(PowerUps, PowerUp => PowerUp.Update());
 
             // Actualizar estado del auto
             MainCar.Update(Keyboard.GetState(), gameTime, Simulation);
@@ -514,7 +484,7 @@ namespace TGC.MonoGame.TP
             if (keyboardState.IsKeyDown(Keys.R))
                 MainCar.Restart(new NumericVector3(0f, 10f, 0f), Simulation);
 
-            Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(Simulation, MainCar));
+            Array.ForEach(PowerUps, PowerUp => PowerUp.ActivateIfBounding(CarBox, MainCar));
 
             // Actualizo la camara, enviandole la matriz de mundo del auto.
             FollowCamera.Update(gameTime, MainCar.World);
@@ -561,6 +531,14 @@ namespace TGC.MonoGame.TP
                     GameModel.Touch = false;
 
             });
+            Array.ForEach(PowerUps, PowerUp =>
+            {
+                if (CarBox.Intersects(PowerUp.BoundingSphere))
+                    PowerUp.Touch = true;
+                else
+                    PowerUp.Touch = false;
+
+            });
 
             //Enemy.Update(MainCar, gameTime, Simulation);
 
@@ -595,35 +573,47 @@ namespace TGC.MonoGame.TP
 
                     Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.Model, GameModel.World, FollowCamera));
 
-                    //Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
+                    Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime));
 
-                    //if (MainCar.MachineMissile)
-                    //{
-                    //    var missileWorlds = new List<Matrix>();
-                    //    foreach (Missile missile in Missiles)
-                    //    {
-                    //        missileWorlds.Add(missile.World);
-                    //    }
-                    //    MissileModel.Draw(missileWorlds);
-                    //}
-                    //else
-                    //{
-                    //    var missileWorlds = new List<Matrix>();
-                    //    foreach (Missile missile in Missiles)
-                    //    {
-                    //        missileWorlds.Add(missile.World);
-                    //    }
-                    //    Bullet.Draw(missileWorlds);
-                    //}
+                    if (MainCar.MachineMissile)
+                    {
+                        var missileWorlds = new List<Matrix>();
+                        foreach (Missile missile in Missiles)
+                        {
+                            missileWorlds.Add(missile.World);
+                            MissileModel.Draw(missile.World, FollowCamera.View, FollowCamera.Projection);
+                            //Gizmos.DrawCube (missile.World , Color.DarkBlue);
 
+                        }
+                    }
+                    else
+                    {
+                        var missileWorlds = new List<Matrix>();
+                        foreach (Missile missile in Missiles)
+                        {
+                            missileWorlds.Add(missile.World);
+                            Bullet.Draw(missile.World, FollowCamera.View , FollowCamera.Projection);
+                            Gizmos.DrawCube(Matrix.CreateScale(2) * missile.World, Color.DarkBlue);
+                        }
+                    }
+
+                    Array.ForEach(PowerUps, PowerUp =>
+                    {
+                        var r = PowerUp.BoundingSphere.Radius;
+                        if (PowerUp.Touch)
+                            Gizmos.DrawSphere(PowerUp.BoundingSphere.Center, new Vector3(r, r, r), Color.CornflowerBlue);
+                        else
+                            Gizmos.DrawSphere(PowerUp.BoundingSphere.Center, new Vector3(r, r, r), Color.Red);
+
+                    });
 
                     Array.ForEach(GameModels, GameModel =>
-                    {
-                        if (GameModel.Touch)
-                            Gizmos.DrawCube((GameModel.BoundingBox.Max + GameModel.BoundingBox.Min) / 2f, GameModel.BoundingBox.Max - GameModel.BoundingBox.Min, Color.Green);
-                        else
-                            Gizmos.DrawCube((GameModel.BoundingBox.Max + GameModel.BoundingBox.Min) / 2f, GameModel.BoundingBox.Max - GameModel.BoundingBox.Min, Color.Red);
-                    });
+                {
+                    if (GameModel.Touch)
+                        Gizmos.DrawCube((GameModel.BoundingBox.Max + GameModel.BoundingBox.Min) / 2f, GameModel.BoundingBox.Max - GameModel.BoundingBox.Min, Color.CornflowerBlue);
+                    else
+                        Gizmos.DrawCube((GameModel.BoundingBox.Max + GameModel.BoundingBox.Min) / 2f, GameModel.BoundingBox.Max - GameModel.BoundingBox.Min, Color.Red);
+                });
 
                     Gizmos.DrawCube(CarOBBWorld, Color.Red);
 
