@@ -18,7 +18,7 @@ using NumericVector3 = System.Numerics.Vector3;
 
 namespace TGC.MonoGame.TP;
 
-public class CarConvexHull   
+public class CarConvexHull
 {
     public bool CanShoot { get; set; }
     public bool MachineGun { get; set; }
@@ -91,7 +91,7 @@ public class CarConvexHull
        );
         CarHandle = Simulation.Bodies.Add(carBodyDescription);
 
-       
+
 
     }
 
@@ -140,7 +140,7 @@ public class CarConvexHull
         var backwardImpulse = new System.Numerics.Vector3(0, 0, braking) * elapsedTime;
         var linearVelocity = bodyReference.Velocity.Linear;
         var angularImpulse = new System.Numerics.Vector3(0f, maxTurnSpeed * wheelRotation * linearVelocity.Length() / maxSpeed, 0f) * elapsedTime;
-        var forwardDirection = NumericVector3.Transform(new NumericVector3(0,0,-1), bodyReference.Pose.Orientation);
+        var forwardDirection = NumericVector3.Transform(new NumericVector3(0, 0, -1), bodyReference.Pose.Orientation);
         float speedSign = Vector3.Dot(forwardDirection, linearVelocity) < 0 ? -3 : 3;
         var awake = bodyReference.Awake;
 
@@ -228,7 +228,7 @@ public class CarConvexHull
         rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(-45));
         rotationQuaternionZ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(-5));
 
-        var forwardDirection = NumericVector3.Transform(new NumericVector3(0,0,-1), bodyReference.Pose.Orientation);
+        var forwardDirection = NumericVector3.Transform(new NumericVector3(0, 0, -1), bodyReference.Pose.Orientation);
         Effect.Parameters["lightPosition"].SetValue(Position + 3 * forwardDirection);
 
         // if (quaternion.Y <= 0.01 && quaternion.Y >= -0.01 && quaternion.W >= MathHelper.ToRadians(179.5) && quaternion.W <= MathHelper.ToRadians(180.5))
@@ -236,13 +236,13 @@ public class CarConvexHull
         World = Matrix.CreateFromQuaternion(rotationQuaternion * quaternion /** rotationQuaternionX * rotationQuaternionZ*/) * Matrix.CreateTranslation(new Vector3(position.X, position.Y, position.Z));
     }
 
-    public void Restart(NumericVector3 pos , Simulation simulation)
+    public void Restart(NumericVector3 pos, Simulation simulation)
     {
         var bodyReference = simulation.Bodies.GetBodyReference(CarHandle);
         bodyReference.Awake = true;
         bodyReference.Pose.Position = pos;
-        bodyReference.Velocity.Linear =  NumericVector3.Zero;
-        bodyReference.Velocity.Angular =  NumericVector3.Zero;
+        bodyReference.Velocity.Linear = NumericVector3.Zero;
+        bodyReference.Velocity.Angular = NumericVector3.Zero;
         bodyReference.Pose.Orientation = new System.Numerics.Quaternion(0, 0, 0, 1);
 
     }

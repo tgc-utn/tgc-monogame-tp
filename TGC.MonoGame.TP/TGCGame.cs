@@ -250,7 +250,7 @@ namespace TGC.MonoGame.TP
 
             //  Simulacion del auto principal 
             CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
-            
+
             CarSimulation = new CarSimulation();
             Simulation = CarSimulation.Init();
             MainCar = new CarConvexHull(Vector3.Zero, Gravity, Simulation);
@@ -288,7 +288,7 @@ namespace TGC.MonoGame.TP
             Sphere = new SpherePrimitive(GraphicsDevice);
 
             //Enemies
-            Enemy = new Enemy(new Vector3(-50,0,50));
+            Enemy = new Enemy(new Vector3(-50, 0, 50));
 
             base.Initialize();
         }
@@ -570,9 +570,9 @@ namespace TGC.MonoGame.TP
                     //SpheresWorld.ForEach(sphereWorld => Sphere.Draw(sphereWorld, FollowCamera.View, FollowCamera.Projection));
 
 
-                    Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.Model, GameModel.World, FollowCamera, BoundingFrustum));
-                    
-                    Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime, BoundingFrustum));
+                    Array.ForEach(GameModels, GameModel => GameModel.Draw(GameModel.Model, GameModel.World, FollowCamera, BoundingFrustum, GameModel.BoundingBox));
+
+                    Array.ForEach(PowerUps, PowerUp => PowerUp.Draw(FollowCamera, gameTime, BoundingFrustum, PowerUp.BoundingSphere));
 
                     if (MainCar.MachineMissile)
                     {

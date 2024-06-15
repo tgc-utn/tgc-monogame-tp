@@ -92,8 +92,8 @@ namespace TGC.MonoGame.TP.PowerUps
             }
 
         }
-        
-        public void Draw(FollowCamera Camera, GameTime gameTime, BoundingFrustum boundingFrustum)
+
+        public void Draw(FollowCamera Camera, GameTime gameTime, BoundingFrustum boundingFrustum, BoundingSphere boundingSphere)
         {
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -105,21 +105,22 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
 
-                
-                if (boundingFrustum.Intersects(BoundingSphere)) {
 
-                        var mesh = PowerUpModel.Meshes.FirstOrDefault();
+                if (boundingFrustum.Intersects(boundingSphere))
+                {
 
-                          if (mesh != null)
-                          {
-                              foreach (var part in mesh.MeshParts)
-                              {
-                                  part.Effect = PowerUpEffect;
-                              }
+                    var mesh = PowerUpModel.Meshes.FirstOrDefault();
 
-                              mesh.Draw();
-                          }
-                  }
+                    if (mesh != null)
+                    {
+                        foreach (var part in mesh.MeshParts)
+                        {
+                            part.Effect = PowerUpEffect;
+                        }
+
+                        mesh.Draw();
+                    }
+                }
             }
         }
 
@@ -128,7 +129,7 @@ namespace TGC.MonoGame.TP.PowerUps
             return carBox.Intersects(BoundingSphere);
         }
 
-        public void ActivateIfBounding(OrientedBoundingBox CarBox , CarConvexHull carConvexHull)
+        public void ActivateIfBounding(OrientedBoundingBox CarBox, CarConvexHull carConvexHull)
         {
             if (IsWithinBounds(CarBox)) Activate(carConvexHull);
         }

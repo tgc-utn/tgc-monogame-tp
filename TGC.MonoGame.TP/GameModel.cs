@@ -38,16 +38,17 @@ public class GameModel : BaseModel
 
     public void Update() { }
 
-    public void Draw(Model model ,Matrix World, FollowCamera FollowCamera, BoundingFrustum boundingFrustum)
+    public void Draw(Model model, Matrix World, FollowCamera FollowCamera, BoundingFrustum boundingFrustum, BoundingBox boundingBox)
     {
-      if (boundingFrustum.Intersects(BoundingBox)) {
-        var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(World));
-        Effect.Parameters["World"]?.SetValue(World);
-        Effect.Parameters["View"].SetValue(FollowCamera.View);
-        Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
-        Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
+        if (boundingFrustum.Intersects(boundingBox))
+        {
+            var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(World));
+            Effect.Parameters["World"]?.SetValue(World);
+            Effect.Parameters["View"].SetValue(FollowCamera.View);
+            Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+            Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
 
-        model.Draw(World, FollowCamera.View, FollowCamera.Projection);
+            model.Draw(World, FollowCamera.View, FollowCamera.Projection);
         }
     }
 

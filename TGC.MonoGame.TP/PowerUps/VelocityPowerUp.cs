@@ -27,7 +27,7 @@ namespace TGC.MonoGame.TP.PowerUps
             PowerUpSound = Content.Load<SoundEffect>(ContentFolderSoundEffects + "EncenderAuto");
 
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
-            
+
             PowerUpModel = Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo");
 
             PowerUpTexture = ((BasicEffect)PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
