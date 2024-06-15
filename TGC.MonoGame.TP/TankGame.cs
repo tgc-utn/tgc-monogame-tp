@@ -109,11 +109,9 @@ namespace ThunderingTanks
 
         private SkyBox SkyBox { get; set; }
         public SpriteBatch spriteBatch { get; set; }
+
         public FrameCounter FrameCounter { get; set; }
-
-
         public bool StartGame { get; set; } = false;
-
 
 
         // ------------ GAME ------------ //
@@ -152,7 +150,7 @@ namespace ThunderingTanks
 
             Panzer = new Tank()
             {
-                TankVelocity = 180f,
+                TankVelocity = 1000f,
                 TankRotation = 20f,
                 FireRate = 5f,
                 _numberOfProyectiles = 3
@@ -756,11 +754,13 @@ namespace ThunderingTanks
                     return true;
                 }
             }
+
             /*for (int j = 0; j < Projectiles.Count; ++j)
             {
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                     Panzer.ReceiveDamage(ref _juegoIniciado);
             }*/
+
             return false;
         }
     }

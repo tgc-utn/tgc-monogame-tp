@@ -71,9 +71,10 @@ namespace ThunderingTanks.Objects
         public void LoadContent(ContentManager Content)
         {
             CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
+            FontArial = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
+
             //lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
             //e_lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar_empty");
-            FontArial = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
 
             lifeBar1 = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar/1");
             lifeBar2 = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar/2");
@@ -158,6 +159,7 @@ namespace ThunderingTanks.Objects
                 lifeBar,
                 Color.Yellow
              );
+
             /*spriteBatch.Draw(
                 e_lifeBar_t,
                 e_lifeBar,

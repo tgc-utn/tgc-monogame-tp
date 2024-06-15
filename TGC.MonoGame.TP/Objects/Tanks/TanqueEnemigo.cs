@@ -20,6 +20,7 @@ namespace ThunderingTanks.Objects.Tanks
         private Effect Effect { get; set; }
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
+        private Texture2D TrackTexture { get; set; }
         public Vector3 PanzerPosition { get; set; }
         public Matrix PanzerMatrix { get; set; }
 
@@ -61,17 +62,10 @@ namespace ThunderingTanks.Objects.Tanks
 
         public void LoadContent(ContentManager Content)
         {
-            Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
-            PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_SM");
+            Tanque = Content.Load<Model>(ContentFolder3D + "M4/M4");
+            PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "M4/M4_Sherman");
+            TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "M4/M4_Sherman");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            foreach (var mesh in Tanque.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
@@ -130,20 +124,41 @@ namespace ThunderingTanks.Objects.Tanks
 
             foreach (var mesh in Tanque.Meshes)
             {
+
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = Effect;
+                }
+
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["View"].SetValue(view);
+                    effect.Parameters["Projection"].SetValue(projection);
+                }
+
                 if (mesh.Name.Equals("Turret"))
                 {
+                    Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * turretWorld);
                 }
                 else if (mesh.Name.Equals("Cannon"))
                 {
+                    Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * cannonWorld);
+                }
+                else if (mesh.Name.Equals("Treadmill1") || mesh.Name.Equals("Treadmill2"))
+                {
+                    Effect.Parameters["ModelTexture"].SetValue(TrackTexture);
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                 }
                 else
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                 }
+
                 mesh.Draw();
+
             }
         }
 

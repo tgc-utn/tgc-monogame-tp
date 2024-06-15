@@ -55,7 +55,7 @@ float3 VersorDireccion(float3 A, float3 B)
 {
     float3 Vector = B - A;
     float moduloVector = length(Vector);
-    
+
     return Vector / moduloVector;
 }
 
@@ -74,11 +74,12 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     float4 worldPosition = mul(input.Position, World);
     // World space to View space
     float4 viewPosition = mul(worldPosition, View);
-	// View space to Projection space
+
+    // View space to Projection space
     output.Position = mul(viewPosition, Projection);
-   
+
     output.TextureCoordinate = input.TextureCoordinate;
-    
+
     if (onhit)
     {
         float3 direccion = VersorDireccion(ImpactPosition, TankPosition);
@@ -86,20 +87,18 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
         float r_Esfera = impacto;
         if (distance(c_Esfera, output.Position.xyz) <= r_Esfera)
         {
-            output.TextureCoordinate.xyz = desplazarPorRadio(output.Position.xyz, r_Esfera, c_Esfera);
+            output.Position.xyz = desplazarPorRadio(output.Position.xyz, r_Esfera, c_Esfera);
         }
     }
-	
+
     return output;
-    
-    
+
+
 }
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    
     return tex2D(TextureSampler, input.TextureCoordinate.xy);
-
 }
 
 technique BasicColorDrawing

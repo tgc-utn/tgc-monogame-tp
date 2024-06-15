@@ -1,14 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
-using SharpDX.MediaFoundation;
 
 namespace ThunderingTanks.Objects.Tanks
 {
@@ -108,7 +106,6 @@ namespace ThunderingTanks.Objects.Tanks
             //TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
             //TankBox = new OrientedBoundingBox();
 
-
             verticesTanque = ObtenerVerticesModelo(Tanque);
             BoundingBox meshBox = BoundingBox.CreateFromPoints(verticesTanque);
 
@@ -118,7 +115,7 @@ namespace ThunderingTanks.Objects.Tanks
             float factorEscala = 45f; // Escala del 20%
 
             TankBox = EscalarBoundingBox(PrevTankBox, factorEscala);
-            
+
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
 
@@ -207,8 +204,8 @@ namespace ThunderingTanks.Objects.Tanks
         public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
 
-            GraphicsDevice = graphicsDevice;               
-            GraphicsDevice.RasterizerState = new RasterizerState() { CullMode = CullMode.None };    
+            GraphicsDevice = graphicsDevice;
+            GraphicsDevice.RasterizerState = new RasterizerState() { CullMode = CullMode.None };
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             foreach (var mesh in Tanque.Meshes)
@@ -250,14 +247,14 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     Effect.Parameters["onhit"].SetValue(true);
                     Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
-                } else
+                }
+                else
                 {
-                   // Effect.Parameters["onhit"].SetValue(false); si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
+                    // Effect.Parameters["onhit"].SetValue(false); si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
                 }
 
-                Effect.Parameters["impacto"].SetValue(9000.0f);
-                Effect.Parameters["velocidad"].SetValue(9000.0f);
-                Effect.Parameters["TankPosition"].SetValue(Position);
+                Effect.Parameters["impacto"].SetValue(2000.0f);
+                Effect.Parameters["TankPosition"].SetValue(Direction);
 
                 mesh.Draw();
 
@@ -283,7 +280,7 @@ namespace ThunderingTanks.Objects.Tanks
                 Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
                 TimeSinceLastShot = 0f;
-                _numberOfProyectiles -=1;
+                _numberOfProyectiles -= 1;
 
                 return projectile;
             }
@@ -302,12 +299,12 @@ namespace ThunderingTanks.Objects.Tanks
             _currentLife -= 5;
             if (_currentLife <= 0)
             {
-                
+
                 isDestroyed = true;
                 _juegoIniciado = false;
-                
+
             }
-            
+
         }
 
         /// <summary>
