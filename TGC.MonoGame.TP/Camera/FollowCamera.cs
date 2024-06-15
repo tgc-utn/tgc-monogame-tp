@@ -32,8 +32,10 @@ namespace TGC.MonoGame.TP
         /// Crea una FollowCamera que sigue a una matriz de mundo
         /// </summary>
         /// <param name="aspectRatio"></param>
-        public FollowCamera(float aspectRatio)
+        public Point ScreenCenter;
+        public FollowCamera(float aspectRatio, Point HalfSize)
         {
+            ScreenCenter=HalfSize;
             // Orthographic camera
             // Projection = Matrix.CreateOrthographic(screenWidth, screenHeight, 0.01f, 10000f);
             //ballEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
@@ -51,6 +53,8 @@ namespace TGC.MonoGame.TP
         private Vector2 pastMousePosition=Vector2.Zero;
         private float MouseSensitivity=0.3f;
         public Vector3 CamPosition;
+        public float CamRotation=0;
+        public bool camMoving=false;
 
         public void Update(GameTime gameTime, Matrix followedWorld)
         {
@@ -61,17 +65,28 @@ namespace TGC.MonoGame.TP
 
             if (mouseState.RightButton.Equals(ButtonState.Pressed))
             {
-                var mouseDelta = mouseState.Position.ToVector2() - pastMousePosition;
+                if(!camMoving)
+                {
+                    Mouse.SetPosition(0, ScreenCenter.Y);
+                    camMoving=true;
+                }
+                var mouseDelta = mouseState.Position.ToVector2();
                 mouseDelta *= MouseSensitivity * elapsedTime;
-                followedWorld=Matrix.CreateRotationY(mouseDelta.X) * followedWorld;
+                CamRotation+=mouseDelta.X;
+                followedWorld=Matrix.CreateRotationY(CamRotation) * followedWorld;
                 //var size = GraphicsDevice.Viewport.Bounds.Size;
                 //Mouse.SetPosition(screenCenter.X, screenCenter.Y);
                 //Mouse.SetCursor(MouseCursor.Crosshair);
+                Mouse.SetPosition(0, ScreenCenter.Y);
+                Mouse.SetCursor(MouseCursor.Crosshair); 
+                pastMousePosition=mouseState.Position.ToVector2();
             }
 
             else
             {
                 Mouse.SetCursor(MouseCursor.Arrow);
+                camMoving=false;
+                //Mouse.SetPosition(ScreenCenter.X, ScreenCenter.Y);
             }
 
             // Obtengo la posicion de la matriz de mundo que estoy siguiendo
@@ -95,7 +110,7 @@ namespace TGC.MonoGame.TP
                 // Esto mueve el vector Backward para igualar al vector Backward que sigo
                 // En este caso uso la curva x^2 para hacerlo mas suave
                 // Interpolator se convertira en 1 eventualmente
-                CurrentBackwardVector = Vector3.Lerp(CurrentBackwardVector, followedBackward, BackwardVectorInterpolator * BackwardVectorInterpolator);
+                CurrentBackwardVector = Vector3.Lerp(CurrentBackwardVector, followedBackward, BackwardVectorInterpolator );
             }
             else
                 // Si el angulo no pasa de cierto limite, lo pongo de nuevo en cero

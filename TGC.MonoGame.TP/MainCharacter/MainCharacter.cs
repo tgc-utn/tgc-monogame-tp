@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,6 +38,10 @@ namespace TGC.MonoGame.TP.MainCharacter
         Matrix WorldWithBallSpin;
         //float BallPitch=0f;
         //float BallRoll=0f;
+
+        public Vector3 ForwardVector=Vector3.UnitX;
+
+        public Vector3 RightVector=Vector3.UnitZ;
 
         Vector3 LightPos{get;set;}
         public Matrix Spin;//
@@ -194,6 +199,11 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         private Vector2 pastMousePosition=Vector2.Zero;
         private float MouseSensitivity=0.3f;
+
+        public void ChangeDirection(float angle){
+            ForwardVector = Vector3.Transform(Vector3.UnitX, Matrix.CreateRotationY(angle));
+            RightVector = Vector3.Transform(Vector3.UnitZ, Matrix.CreateRotationY(angle));
+        }
         private void ProcessMovement(GameTime gameTime) 
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
@@ -211,19 +221,19 @@ namespace TGC.MonoGame.TP.MainCharacter
             var keyboardState = Keyboard.GetState();
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation);
+                Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation); //amtes unitx
             }
             if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation) * (- 1);
+                Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation) * (- 1);
             }
             if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitZ * speed, Rotation);
+                Acceleration += Vector3.Transform(RightVector * speed, Rotation); //antes unitz
             }
             if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitZ * speed, Rotation) * (-1);
+                Acceleration += Vector3.Transform(RightVector * speed, Rotation) * (-1);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Space) && Velocity.Y == 0f)
             {

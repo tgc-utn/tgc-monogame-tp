@@ -56,18 +56,20 @@ namespace TGC.MonoGame.TP
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
+        public Point screenSize;
         protected override void Initialize()
         {
 
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
+            screenSize=size;
 
 
             //var cameraPosition = new Vector3(25f, 100f, -1100f);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
             // Creo una camaar para seguir a nuestro auto.
-            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio, size);
 
 
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -122,10 +124,12 @@ namespace TGC.MonoGame.TP
 
 
             FollowCamera.Update(gameTime, MainCharacter.World);
+
+            MainCharacter.ChangeDirection(FollowCamera.CamRotation);
             BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
 
 
-            World = Matrix.CreateRotationY(Rotation);
+            //World = Matrix.CreateRotationY(Rotation);
 
             base.Update(gameTime);
         }
