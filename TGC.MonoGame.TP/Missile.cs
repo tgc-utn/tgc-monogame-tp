@@ -6,7 +6,8 @@ using Microsoft.Xna.Framework;
 using TGC.MonoGame.TP;
 using NumericVector3 = System.Numerics.Vector3;
 
-public class Missile {
+public class Missile
+{
     public Matrix World;
     private float velocityThreshold = 30f;
     private float radius = 0.5f;
@@ -14,18 +15,21 @@ public class Missile {
     private BodyHandle Handle;
     private bool firstTime;
     private Quaternion rotation;
-    private float angleRot=0;
+    private float angleRot = 0;
 
     public bool deleteFlag = false;
 
-    public Missile(Simulation Simulation, CarConvexHull Car){
+    public Missile(Simulation Simulation, CarConvexHull Car)
+    {
 
-        if (Car.MachineMissile) { 
-            radius = 0.5f;
+        if (Car.MachineMissile)
+        {
+            radius = 0.5f * 0.01f;
             angleRot = 90f;
         }
-        else { 
-            radius = 0.2f;
+        else
+        {
+            radius = 0.2f * 1.3f;
             angleRot = 0f;
         }
         BulletShape = new Sphere(radius);
@@ -40,17 +44,20 @@ public class Missile {
         Handle = Simulation.Bodies.Add(bodyDescription);
     }
 
-    public void update(Simulation Simulation, Quaternion carQuaternion) {
+    public void update(Simulation Simulation, Quaternion carQuaternion)
+    {
         var rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(angleRot));
         var rotationQuaternionY = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
 
-        if (!deleteFlag) {
+        if (!deleteFlag)
+        {
             var body = Simulation.Bodies.GetBodyReference(Handle);
             var pose = body.Pose;
             var position = pose.Position;
             var quaternion = pose.Orientation;
 
-            if (body.Velocity.Linear.LengthSquared() < Math.Pow(velocityThreshold, 2)) {
+            if (body.Velocity.Linear.LengthSquared() < Math.Pow(velocityThreshold, 2))
+            {
                 Simulation.Bodies.Remove(Handle);
                 deleteFlag = true;
             }
@@ -74,7 +81,9 @@ public class Missile {
 
             firstTime = false;
 
-        } else {
+        }
+        else
+        {
             return;
         }
     }

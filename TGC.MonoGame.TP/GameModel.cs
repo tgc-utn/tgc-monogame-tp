@@ -5,177 +5,52 @@ using BepuPhysics;
 using BepuPhysics.Collidables;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.Samples.Collisions;
+using TGC.MonoGame.TP.Camaras;
+using static System.Formats.Asn1.AsnWriter;
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
 namespace TGC.MonoGame.TP;
 
 public class GameModel : BaseModel
 {
-    public GameModel(Model model, Effect effect, float scale, Vector3 pos)
-        : base(model, effect, scale, pos, new Box(0,0,0))
+    public GameModel(Model model, Effect effect, float scale, Vector3 position, Simulation simulation)
     {
-        // Constructor sin l�gica adicional
+        Model = model;
+        Effect = effect;
+        Scale = scale;
+        Position = position;
+        World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position);
+
+        ((BasicEffect)Model.Meshes.FirstOrDefault()?.Effects.FirstOrDefault())?.EnableDefaultLighting();
+
+        BoundingBox = BoundingVolumesExtensions.CreateAABBFrom(Model);
+        BoundingBox = BoundingVolumesExtensions.ScaleCentered(BoundingBox, Scale);
+        BoundingBox = new BoundingBox(BoundingBox.Min + Position, BoundingBox.Max + Position);
+
+        var _traslation = (BoundingBox.Max + BoundingBox.Min) / 2f;
+        var _scale = BoundingBox.Max - BoundingBox.Min;
+
+        simulation.Statics.Add(new StaticDescription(Utils.Utils.ToNumericVector3(_traslation),
+        simulation.Shapes.Add(new Box(_scale.X, _scale.Y, _scale.Z))));
+
     }
 
-    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos)
-        : base(model, effect, scale, listPos, new Box(0,0,0))
-    {
-        // Constructor sin l�gica adicional
-    }
+    public void Update() { }
 
-    public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, Sphere sphere)
-        : base(model, effect, scale, pos, new Box(10,10,10))
+    public void Draw(Model model ,Matrix World, FollowCamera FollowCamera, BoundingFrustum boundingFrustum)
     {
-        AddToSimulation(simulation, sphere);
-    }
-    
-    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Sphere sphere)
-        : base(model, effect, scale, listPos, new Box(10, 10, 10))
-    {
-        AddToSimulation(simulation, sphere, listPos);
-    }
+      if (boundingFrustum.Intersects(BoundingBox)) {
+        var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(World));
+        Effect.Parameters["World"]?.SetValue(World);
+        Effect.Parameters["View"].SetValue(FollowCamera.View);
+        Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
+        Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
 
-    public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, Box box)
-       : base(model, effect, scale, pos, box)
-    {
-        AddToSimulation(simulation, box);
-    }
-
-    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, Box box)
-       : base(model, effect, scale, listPos, box)
-    {
-        AddToSimulation(simulation, box, listPos);
-    }
-
-    public GameModel(Model model, Effect effect, float scale, Vector3 pos, Simulation simulation, ConvexHull convexHull)
-       : base(model, effect, scale, pos, new Box(0,0,0))
-    {
-        AddToSimulation(simulation, convexHull);
-    }
-    
-    public GameModel(Model model, Effect effect, float scale, List<Vector3> listPos, Simulation simulation, ConvexHull convexHull)
-     : base(model, effect, scale, listPos, new Box(0,0,0))
-    {
-        AddToSimulation(simulation, convexHull , listPos);
-    }
-
-    private void AddToSimulation(Simulation simulation, Sphere sphere)
-    {
-        simulation.Statics.Add(new StaticDescription(
-            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
-            simulation.Shapes.Add(sphere)
-        ));
-    }
-    
-    private void AddToSimulation(Simulation simulation, Sphere sphere, List<Vector3> listPos)
-    {
-        foreach (var Position in listPos)
-            simulation.Statics.Add(new StaticDescription(
-                new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
-                simulation.Shapes.Add(sphere)
-            ));
-    }
-    
-    private void AddToSimulation(Simulation simulation, Box box)
-    {
-        simulation.Statics.Add(new StaticDescription(
-            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
-            simulation.Shapes.Add(box)
-        ));
-    }
-    
-    private void AddToSimulation(Simulation simulation, Box box, List<Vector3> listPos)
-    {
-        foreach (var pos in listPos)
-            simulation.Statics.Add(new StaticDescription(
-                new System.Numerics.Vector3(pos.X, pos.Y, pos.Z),
-                simulation.Shapes.Add(box)
-            ));
-    }
-    
-    private void AddToSimulation(Simulation simulation, ConvexHull convexHull)
-    {
-        simulation.Statics.Add(new StaticDescription(
-            new System.Numerics.Vector3(Position.X, Position.Y, Position.Z),
-            simulation.Shapes.Add(convexHull)
-        ));
-    }
-    
-    private void AddToSimulation(Simulation simulation, ConvexHull convexHull , List<Vector3> listPos)
-    {
-        foreach (var Position in listPos)
-        simulation.Statics.Add(new StaticDescription(
-            new System.Numerics.Vector3(Position.X + 2f, Position.Y, Position.Z ),
-            simulation.Shapes.Add(convexHull)
-        ));
-    }
-
-    public void Draw(List<Matrix> Worlds, BoundingFrustum boundingFrustum)
-    {
-        Matrix world;
-        //var texture = ((BasicEffect) Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
-        // foreach (Matrix World in Worlds)
-        for (int wi = 0; wi < Worlds.Count; wi++) 
-        {
-            Matrix World = Worlds[wi];
-            for (int mi = 0; mi < Model.Meshes.Count; mi++)
-            {
-                var mesh = Model.Meshes[mi];
-                // Verifica si la matriz de transformaci�n del hueso est� compuesta completamente de ceros
-                if (!MatrixHelper.IsZeroMatrix(mesh.ParentBone.ModelTransform))
-                {
-                    // Aplica la transformaci�n del hueso al mundo
-                    world = mesh.ParentBone.ModelTransform * Matrix.CreateScale(Scale) * World;
-                }
-                else
-                {
-                    // Si la matriz del hueso est� compuesta de ceros, utiliza solo la escala y la matriz del mundo
-                    world = Matrix.CreateScale(Scale) * World;
-                }
-
-                if (boundingFrustum.Intersects(BBox[wi])) {
-                    var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(world));
-
-                    for (int mpi = 0; mpi < mesh.MeshParts.Count; mpi++)
-                    {
-                        var meshPart = mesh.MeshParts[mpi];
-                        var texture = MeshPartTextures[mi][mpi];
-                        meshPart.Effect.Parameters["World"]?.SetValue(world);
-                        meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
-                        Effect.Parameters["ModelTexture"]?.SetValue(texture);
-                    }
-
-                    mesh.Draw();
-                }
-            }
+        model.Draw(World, FollowCamera.View, FollowCamera.Projection);
         }
     }
 
-
-    public void Update(Vector3 position, CarConvexHull car ,  List<Matrix> worlds)
-    {
-        var rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(-90));
-
-        worlds[2] = Matrix.CreateFromQuaternion(rotationQuaternion) * Matrix.CreateTranslation(position) ;
-    }
-
-}
-
-public class MatrixHelper
-{
-    // Funci�n para verificar si una matriz 4x4 est� compuesta completamente de ceros
-    public static bool IsZeroMatrix(Matrix matrix)
-    {
-        // Comprueba si todos los elementos de la matriz son cero
-        if (matrix.M11 == 0 && matrix.M12 == 0 && matrix.M13 == 0 && matrix.M14 == 0 &&
-            matrix.M21 == 0 && matrix.M22 == 0 && matrix.M23 == 0 && matrix.M24 == 0 &&
-            matrix.M31 == 0 && matrix.M32 == 0 && matrix.M33 == 0 && matrix.M34 == 0 &&
-            matrix.M41 == 0 && matrix.M42 == 0 && matrix.M43 == 0 && matrix.M44 == 0)
-        {
-            return true;
-        }
-        return false;
-    }
 }
 
 

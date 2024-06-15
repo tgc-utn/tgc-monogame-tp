@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
+using TGC.MonoGame.TP.Camaras;
+using TGC.MonoGame.Samples.Collisions;
 
 namespace TGC.MonoGame.TP.PowerUps
 {
@@ -21,17 +23,19 @@ namespace TGC.MonoGame.TP.PowerUps
         public const string ContentFolderTextures = "Textures/";
         public const string ContentFolderSoundEffects = "SoundEffects/";
 
-        public SoundEffect PowerUpSound {  get; set; }
+        public SoundEffect PowerUpSound { get; set; }
+
+        public bool Touch { get; set; }
 
         public bool RandomPositions { get; set; }
 
         public Vector3 Position { get; set; }
 
-        public List<BoundingBox> BoundingBox = new List<BoundingBox>();
+        public BoundingSphere BoundingSphere;
 
         public Matrix PowerUpWorld { get; set; }
 
-        public GameModel PowerUpModel { get; set; }
+        public Model PowerUpModel { get; set; }
 
         public Effect PowerUpEffect { get; set; }
 
@@ -44,8 +48,6 @@ namespace TGC.MonoGame.TP.PowerUps
         private bool GoingDown { get; set; }
 
         public bool Activated;
-
-        public List<Matrix> PowerUpListWorld = new List<Matrix>();
 
         private int ArenaWidth = 200;
         private int ArenaHeight = 200;
@@ -103,34 +105,34 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
 
-                // PowerUpListWorld.Add(PowerUpWorld);
-                PowerUpModel.Draw(PowerUpListWorld, boundingFrustum);
+                
+                if (boundingFrustum.Intersects(BoundingSphere)) {
 
-                //var mesh = PowerUpModel.Model.Meshes.FirstOrDefault();
-                //if (mesh != null)
-                //{
-                //    foreach (var part in mesh.MeshParts)
-                //    {
-                //        part.Effect = PowerUpEffect;
-                //    }
+                        var mesh = PowerUpModel.Meshes.FirstOrDefault();
 
-                //    mesh.Draw();
-                //}
+                          if (mesh != null)
+                          {
+                              foreach (var part in mesh.MeshParts)
+                              {
+                                  part.Effect = PowerUpEffect;
+                              }
+
+                              mesh.Draw();
+                          }
+                  }
             }
         }
 
-        public bool IsWithinBounds(Vector3 position)
+        public bool IsWithinBounds(OrientedBoundingBox carBox)
         {
-            var BoundingSphere = new BoundingSphere(position, 5f);
-            return BoundingBox.Any(Box => Box.Intersects(BoundingSphere));
+            return carBox.Intersects(BoundingSphere);
         }
 
-        public void ActivateIfBounding(Simulation Simulation, CarConvexHull carConvexHull)
+        public void ActivateIfBounding(OrientedBoundingBox CarBox , CarConvexHull carConvexHull)
         {
-            BodyReference CarBody = Simulation.Bodies.GetBodyReference(carConvexHull.CarHandle);
-            if (IsWithinBounds(CarBody.Pose.Position)) Activate(carConvexHull);
+            if (IsWithinBounds(CarBox)) Activate(carConvexHull);
         }
-       
+
         public abstract void Activate(CarConvexHull carConvexHull);
 
         public List<Vector3> GenerateRandomPositions(int count)

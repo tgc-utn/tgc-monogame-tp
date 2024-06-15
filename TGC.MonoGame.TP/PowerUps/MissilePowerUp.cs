@@ -14,21 +14,11 @@ namespace TGC.MonoGame.TP.PowerUps
     public class MissilePowerUp : PowerUp
     {
 
-        public MissilePowerUp(): base()
-        {
-            RandomPositions = true;
-        }
-
-
         public MissilePowerUp(Vector3 position) : base(position)
         {
-            RandomPositions=false;
-
-            //PowerUpWorld = Matrix.CreateScale(1f, 1f, 1f) * Matrix.CreateTranslation(position);
-
-            //var worldBounding = Matrix.CreateScale(1.5f, 1.5f, 1.5f) * Matrix.CreateTranslation(position);
-            //BoundingBox.Add( BoundingVolumesExtensions.FromMatrix(worldBounding));
-
+            Position = position;
+            
+            PowerUpWorld = Matrix.CreateScale(0.5f, 0.5f, 0.5f) * Matrix.CreateTranslation(position);
         }
 
         public override async void Activate(CarConvexHull carConvexHull )
@@ -56,21 +46,15 @@ namespace TGC.MonoGame.TP.PowerUps
 
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
 
-            if(RandomPositions) 
-            {
-                PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, GenerateRandomPositions(20));
-            }
-            else 
-            {
-                PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket"), PowerUpEffect, 0.8f, Position);
-            }
+            PowerUpModel = Content.Load<Model>(ContentFolder3D + "PowerUps/MLRS_Rocket");
 
-            PowerUpListWorld = PowerUpModel.World;
+            PowerUpTexture = ((BasicEffect) PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+            
+            BoundingSphere = BoundingVolumesExtensions.CreateSphereFrom(PowerUpModel);
 
-            PowerUpListWorld.ForEach(World => BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(1.5f, 1.5f, 1.5f) * World)));
+            BoundingSphere.Center = Position;
 
-            //PowerUpTexture = ((BasicEffect)PowerUpModel.Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
-
+            BoundingSphere.Radius = 2f;
         }
 
     }

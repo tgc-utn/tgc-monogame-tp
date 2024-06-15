@@ -15,17 +15,10 @@ namespace TGC.MonoGame.TP.PowerUps
     {
         public VelocityPowerUp(Vector3 position) : base(position)
         {
-            RandomPositions = false;
+            Position = position;
 
-            //PowerUpWorld = Matrix.CreateScale(1f, 1f, 1f) * Matrix.CreateTranslation(position);
-           
-            //var worldBounding = Matrix.CreateScale(1.5f, 1.5f, 1.5f) * Matrix.CreateTranslation(position);
-            //BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(worldBounding));
-        }
+            PowerUpWorld = Matrix.CreateScale(2f, 2f, 2f) * Matrix.CreateTranslation(position);
 
-        public VelocityPowerUp() : base()
-        {
-            RandomPositions = true;
         }
 
         public override void LoadContent(ContentManager Content)
@@ -35,17 +28,15 @@ namespace TGC.MonoGame.TP.PowerUps
 
             PowerUpEffect = Content.Load<Effect>(ContentFolderEffects + "PowerUpsShader");
             
-            if(RandomPositions)
-            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo"), PowerUpEffect, 1.5f ,GenerateRandomPositions(15));
-            else
-            PowerUpModel = new GameModel(Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo"), PowerUpEffect, 1.5f , Position);
+            PowerUpModel = Content.Load<Model>(ContentFolder3D + "PowerUps/ModeloTurbo");
 
-            PowerUpListWorld = PowerUpModel.World;
+            PowerUpTexture = ((BasicEffect)PowerUpModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
 
-            PowerUpListWorld.ForEach(World => BoundingBox.Add(BoundingVolumesExtensions.FromMatrix(Matrix.CreateScale(1.5f, 1.5f, 1.5f) * World)));
+            BoundingSphere = BoundingVolumesExtensions.CreateSphereFrom(PowerUpModel);
 
-            //PowerUpTexture = ((BasicEffect)PowerUpModel.Model.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
+            BoundingSphere.Center = Position;
 
+            BoundingSphere.Radius = 2f;
         }
 
         public override async void Activate(CarConvexHull carConvexHull)
