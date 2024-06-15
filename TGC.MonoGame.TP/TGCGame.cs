@@ -247,7 +247,7 @@ namespace TGC.MonoGame.TP
 
             //  Simulacion del auto principal 
             CarModel = Content.Load<Model>(ContentFolder3D + "car/RacingCar");
-
+            
             CarSimulation = new CarSimulation();
             Simulation = CarSimulation.Init();
             MainCar = new CarConvexHull(Vector3.Zero, Gravity, Simulation);
@@ -285,7 +285,7 @@ namespace TGC.MonoGame.TP
             Sphere = new SpherePrimitive(GraphicsDevice);
 
             //Enemies
-            //Enemy = new Enemy(new Box(7f, 5f, 7f), new NumericVector3(50, 0, 50), Simulation);
+            Enemy = new Enemy(new Vector3(-50,0,50));
 
             base.Initialize();
         }
@@ -338,10 +338,6 @@ namespace TGC.MonoGame.TP
 
             MainCar.Load(CarModel, Effect);
 
-            List<Vector3> vehiclePos = GenerateRandomPositions(10);
-            List<Vector3> weaponePos = new List<Vector3>();
-            vehiclePos.ForEach(vehiclePos => weaponePos.Add(new Vector3(vehiclePos.X, vehiclePos.Y + 6f, vehiclePos.Z)));
-
             Robot = new GameModel(Content.Load<Model>(ContentFolder3D + "tgcito-classic/tgcito-classic"), Effect, 0.1f, new Vector3(40f, 6.5f, 10f), Simulation);
             Truck = new GameModel(Content.Load<Model>(ContentFolder3D + "Truck/Caterpillar_Truck"), Effect, 0.01f, new Vector3(10f, 0, 10f), Simulation);
             Tree = new GameModel(Content.Load<Model>(ContentFolder3D + "trees/Tree4"), Effect, 0.02f, new Vector3(35f, 0f, 55f), Simulation);
@@ -359,7 +355,6 @@ namespace TGC.MonoGame.TP
             GameModels = new GameModel[]
              {
                  Robot , Truck , Tree ,ElectronicBox,Tower,Gasoline , Car2 , Ramp , Scene , CarDBZ , Bush, House, Fence1
-
             };
 
             MissileModel = Content.Load<Model>(ContentFolder3D + "PowerUps/Missile2");
@@ -370,7 +365,7 @@ namespace TGC.MonoGame.TP
             Claxon = Content.Load<SoundEffect>(ContentFolderSoundEffects + "Bocina");
             Explosion = Content.Load<SoundEffect>(ContentFolderSoundEffects + "ExplosionSoundEffect");
 
-            //Enemy.LoadContent(Content, Simulation);
+            Enemy.LoadContent(Content, Simulation);
 
             // Add walls
             WallWorlds.Add(Matrix.CreateRotationY(0f) * Matrix.CreateTranslation(200f, 0f, 0f));
@@ -462,7 +457,6 @@ namespace TGC.MonoGame.TP
                 {
                     MachineGunSound.Play();
                     Missiles.Add(new Missile(Simulation, MainCar));
-
                 }
 
             }
@@ -472,7 +466,6 @@ namespace TGC.MonoGame.TP
 
             if (keyboardState.IsKeyDown(Keys.B))
                 Claxon.Play();
-
 
             CarSimulation.Update();
 
@@ -540,7 +533,7 @@ namespace TGC.MonoGame.TP
 
             });
 
-            //Enemy.Update(MainCar, gameTime, Simulation);
+            Enemy.Update(MainCar, gameTime, Simulation);
 
             Gizmos.UpdateViewProjection(FollowCamera.View, FollowCamera.Projection);
         }
@@ -562,7 +555,6 @@ namespace TGC.MonoGame.TP
 
                 case ST_STAGE_2:
                     GraphicsDevice.Clear(Color.Beige);
-                    // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
                     Effect.Parameters["View"].SetValue(FollowCamera.View);
                     Effect.Parameters["Projection"].SetValue(FollowCamera.Projection);
 
@@ -583,7 +575,6 @@ namespace TGC.MonoGame.TP
                             missileWorlds.Add(missile.World);
                             MissileModel.Draw(missile.World, FollowCamera.View, FollowCamera.Projection);
                             //Gizmos.DrawCube (missile.World , Color.DarkBlue);
-
                         }
                     }
                     else
@@ -592,7 +583,7 @@ namespace TGC.MonoGame.TP
                         foreach (Missile missile in Missiles)
                         {
                             missileWorlds.Add(missile.World);
-                            Bullet.Draw(missile.World, FollowCamera.View , FollowCamera.Projection);
+                            Bullet.Draw(missile.World, FollowCamera.View, FollowCamera.Projection);
                             Gizmos.DrawCube(Matrix.CreateScale(2) * missile.World, Color.DarkBlue);
                         }
                     }
@@ -617,7 +608,8 @@ namespace TGC.MonoGame.TP
 
                     Gizmos.DrawCube(CarOBBWorld, Color.Red);
 
-                    //Enemy.Draw(FollowCamera, gameTime);
+                    Enemy.Draw(FollowCamera, gameTime);
+                    Gizmos.DrawCube(Enemy.EnemyOBBWorld, Color.LightGoldenrodYellow);
 
                     DrawFloor(FloorQuad);
                     DrawWalls();
