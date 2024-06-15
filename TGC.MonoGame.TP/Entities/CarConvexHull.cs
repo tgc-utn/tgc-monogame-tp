@@ -209,6 +209,8 @@ public class CarConvexHull
     public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation)
     {
 
+
+
         var bodyReference = simulation.Bodies.GetBodyReference(CarHandle);
         bodyReference.Awake = true;
 
@@ -225,6 +227,9 @@ public class CarConvexHull
         rotationQuaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathHelper.ToRadians(180));
         rotationQuaternionX = Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathHelper.ToRadians(-45));
         rotationQuaternionZ = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathHelper.ToRadians(-5));
+
+        var forwardDirection = NumericVector3.Transform(new NumericVector3(0,0,-1), bodyReference.Pose.Orientation);
+        Effect.Parameters["lightPosition"].SetValue(Position + 3 * forwardDirection);
 
         // if (quaternion.Y <= 0.01 && quaternion.Y >= -0.01 && quaternion.W >= MathHelper.ToRadians(179.5) && quaternion.W <= MathHelper.ToRadians(180.5))
 
@@ -251,11 +256,13 @@ public class CarConvexHull
 
     private void DrawCarBody()
     {
+        var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(World));
         for (int mpi = 0; mpi < MainBody.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[0][mpi];
             meshPart.Effect.Parameters["World"]?.SetValue(World);
+            meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         MainBody.Draw();
@@ -264,21 +271,25 @@ public class CarConvexHull
     private void DrawFrontWheels()
     {
         var frontLeftWorld = FrontLeftWheel.ParentBone.ModelTransform * World;
+        var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(frontLeftWorld));
         for (int mpi = 0; mpi < FrontLeftWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[2][mpi];
             meshPart.Effect.Parameters["World"]?.SetValue(Matrix.CreateRotationY(wheelRotation) * frontLeftWorld);
+            meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         FrontLeftWheel.Draw();
 
         var frontRightWorld = FrontRightWheel.ParentBone.ModelTransform * World;
+        inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(frontRightWorld));
         for (int mpi = 0; mpi < FrontRightWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[1][mpi];
             meshPart.Effect.Parameters["World"]?.SetValue(Matrix.CreateRotationY(wheelRotation) * frontRightWorld);
+            meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         FrontRightWheel.Draw();
@@ -287,21 +298,25 @@ public class CarConvexHull
     private void DrawBackWheels()
     {
         var backLeftWorld = BackLeftWheel.ParentBone.ModelTransform * World;
+        var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(backLeftWorld));
         for (int mpi = 0; mpi < BackLeftWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[3][mpi];
             meshPart.Effect.Parameters["World"]?.SetValue(backLeftWorld);
+            meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         BackLeftWheel.Draw();
 
         var backRightWorld = BackRightWheel.ParentBone.ModelTransform * World;
+        inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(backRightWorld));
         for (int mpi = 0; mpi < BackRightWheel.MeshParts.Count; mpi++)
         {
             var meshPart = MainBody.MeshParts[mpi];
             var texture = MeshPartTextures[4][mpi];
             meshPart.Effect.Parameters["World"].SetValue(backRightWorld);
+            meshPart.Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
             Effect.Parameters["ModelTexture"].SetValue(texture);
         }
         BackRightWheel.Draw();

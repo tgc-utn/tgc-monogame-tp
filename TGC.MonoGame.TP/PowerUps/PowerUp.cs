@@ -92,8 +92,8 @@ namespace TGC.MonoGame.TP.PowerUps
             }
 
         }
-
-        public void Draw(FollowCamera Camera, GameTime gameTime)
+        
+        public void Draw(FollowCamera Camera, GameTime gameTime, BoundingFrustum boundingFrustum)
         {
             time += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -105,17 +105,21 @@ namespace TGC.MonoGame.TP.PowerUps
                 PowerUpEffect.Parameters["ModelTexture"].SetValue(PowerUpTexture);
                 PowerUpEffect.Parameters["Time"].SetValue(Convert.ToSingle(time));
 
-                var mesh = PowerUpModel.Meshes.FirstOrDefault();
-                if (mesh != null)
-                {
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        part.Effect = PowerUpEffect;
-                    }
+                
+                if (boundingFrustum.Intersects(BoundingSphere)) {
 
-                    mesh.Draw();
-                }
+                        var mesh = PowerUpModel.Meshes.FirstOrDefault();
 
+                          if (mesh != null)
+                          {
+                              foreach (var part in mesh.MeshParts)
+                              {
+                                  part.Effect = PowerUpEffect;
+                              }
+
+                              mesh.Draw();
+                          }
+                  }
             }
         }
 

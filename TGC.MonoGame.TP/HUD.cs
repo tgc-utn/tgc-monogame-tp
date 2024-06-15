@@ -41,7 +41,7 @@ namespace TGC.MonoTP
 
         }
 
-        public void Draw(GameTime gameTime)
+        public void DrawMenu(GameTime gameTime)
         {
             //GraphicsDevice.Clear(Color.Black);
             //SpriteBatch.Begin();
@@ -60,6 +60,12 @@ namespace TGC.MonoTP
             DrawCenterTextY("RESTART - R", 450, 1);
             DrawCenterTextY("GOD MODE  -  G", 500, 1);
             DrawCenterTextY("Presione SPACE para comenzar...", 600, 1);
+        }
+
+        public void DrawInGameHUD(GameTime gameTime){
+            var secs = Convert.ToInt32(Math.Floor(gameTime.TotalGameTime.TotalSeconds));
+
+            DrawRightText("Tiempo: " + secs.ToString(), 25f, 1);
         }
 
         private void PrepareHud()

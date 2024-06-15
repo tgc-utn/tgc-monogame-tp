@@ -38,8 +38,9 @@ public class GameModel : BaseModel
 
     public void Update() { }
 
-    public void Draw(Model model ,Matrix World, FollowCamera FollowCamera)
+    public void Draw(Model model ,Matrix World, FollowCamera FollowCamera, BoundingFrustum boundingFrustum)
     {
+      if (boundingFrustum.Intersects(BoundingBox)) {
         var inverseTransposeWorld = Matrix.Transpose(Matrix.Invert(World));
         Effect.Parameters["World"]?.SetValue(World);
         Effect.Parameters["View"].SetValue(FollowCamera.View);
@@ -47,6 +48,7 @@ public class GameModel : BaseModel
         Effect.Parameters["InverseTransposeWorld"]?.SetValue(inverseTransposeWorld);
 
         model.Draw(World, FollowCamera.View, FollowCamera.Projection);
+        }
     }
 
 }
