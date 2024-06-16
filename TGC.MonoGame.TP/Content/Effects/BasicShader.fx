@@ -29,6 +29,9 @@ float3 TankPosition;
 float impacto; //tamaño del impacto
 float velocidad; //profundidad del impacto
 
+float TrackOffset;
+bool IsTrack;
+
 texture ModelTexture;
 sampler2D TextureSampler = sampler_state
 {
@@ -98,6 +101,11 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
+    // Desplazar la coordenada de textura de las orugas
+    if (IsTrack)
+    {
+        input.TextureCoordinate.y += TrackOffset;
+    }
     return tex2D(TextureSampler, input.TextureCoordinate.xy);
 }
 
