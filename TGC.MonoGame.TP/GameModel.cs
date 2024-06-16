@@ -31,7 +31,7 @@ public class GameModel : BaseModel
         var _traslation = (BoundingBox.Max + BoundingBox.Min) / 2f;
         var _scale = BoundingBox.Max - BoundingBox.Min;
 
-        simulation.Statics.Add(new StaticDescription(Utils.Utils.ToNumericVector3(_traslation),
+        simulation.Statics.Add(new StaticDescription(Utils.ToNumericVector3(_traslation),
         simulation.Shapes.Add(new Box(_scale.X, _scale.Y, _scale.Z))));
 
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using NumericVector3 = System.Numerics.Vector3;
 
 
-namespace TGC.MonoGame.TP.Utils
+namespace TGC.MonoGame.TP
 {
 
     public static class ConvexHullUtils
