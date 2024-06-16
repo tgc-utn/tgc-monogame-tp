@@ -114,6 +114,21 @@ namespace TGC.MonoGame.TP
 
             }
         }
+        public static void ToAxisAngle(Quaternion q, out Vector3 axis, out float angle)
+        {
+            if (q.W > 1) q.Normalize(); // Si el cuaternión no está normalizado, normalízalo
+            angle = 2 * (float)Math.Acos(q.W); // Calcular el ángulo
+            float s = (float)Math.Sqrt(1 - q.W * q.W); // Suponiendo que q.W está normalizado
 
+            if (s < 0.001f)
+            {
+                // Si s es cero, el eje se puede elegir arbitrariamente
+                axis = new Vector3(q.X, q.Y, q.Z);
+            }
+            else
+            {
+                axis = new Vector3(q.X / s, q.Y / s, q.Z / s); // Normalizar el eje
+            }
+        }
     }
 }

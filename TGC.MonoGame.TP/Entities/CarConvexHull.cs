@@ -209,8 +209,6 @@ public class CarConvexHull
     public void Update(KeyboardState keyboardState, GameTime gameTime, Simulation simulation)
     {
 
-
-
         var bodyReference = simulation.Bodies.GetBodyReference(CarHandle);
         bodyReference.Awake = true;
 

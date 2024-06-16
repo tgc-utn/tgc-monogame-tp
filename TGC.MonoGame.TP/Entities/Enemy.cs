@@ -16,6 +16,7 @@ using Vector3 = Microsoft.Xna.Framework.Vector3;
 using TGC.MonoGame.TP.Camaras;
 using static System.Formats.Asn1.AsnWriter;
 using System.Transactions;
+using Quaternion = Microsoft.Xna.Framework.Quaternion;
 
 namespace TGC.MonoGame.TP.Entities
 {
@@ -65,6 +66,9 @@ namespace TGC.MonoGame.TP.Entities
 
         public void LoadContent(ContentManager Content, Simulation simulation)
         {
+            Vector3 scale;
+            Quaternion rot;
+            Vector3 translation;
 
             EnemyEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
@@ -73,11 +77,8 @@ namespace TGC.MonoGame.TP.Entities
             EnemyTexture = ((BasicEffect)EnemyModel.Meshes.FirstOrDefault()?.MeshParts.FirstOrDefault()?.Effect)?.Texture;
 
             var temporaryCubeAABB = BoundingVolumesExtensions.CreateAABBFrom(EnemyModel);
-            // Scale it to match the model's transform
             temporaryCubeAABB = BoundingVolumesExtensions.Scale(temporaryCubeAABB, 0.001f);
-            // Create an Oriented Bounding Box from the AABB
             EnemyOBB = OrientedBoundingBox.FromAABB(temporaryCubeAABB);
-            // Move the center
             EnemyOBB.Center = Position;
 
             EnemyBox = new Box(EnemyOBB.Extents.X, EnemyOBB.Extents.Y, EnemyOBB.Extents.Z);
@@ -86,7 +87,7 @@ namespace TGC.MonoGame.TP.Entities
                BodyDescription.CreateConvexDynamic(
                   new NumericVector3(Position.X, Position.Y, Position.Z),
                   new BodyVelocity(new NumericVector3(0, 0, 0)),
-                  10,
+                  1,
                   simulation.Shapes,
                   EnemyBox
                 ));
@@ -96,34 +97,69 @@ namespace TGC.MonoGame.TP.Entities
         public void Update(CarConvexHull MainCar, GameTime gameTime, Simulation simulation)
         {
             Vector3 scale;
-            Microsoft.Xna.Framework.Quaternion rot;
+            Quaternion rot;
             Vector3 translation;
 
+            // Asume que tienes un handle de la simulación y de los cuerpos
             var bodyReference = simulation.Bodies.GetBodyReference(EnemyHandle);
             bodyReference.Awake = true;
-            bodyReference.Pose.Position = new NumericVector3(Position.X, Position.Y, Position.Z);
 
-            // Calcula la dirección hacia la que debe moverse el auto perseguidor para alcanzar al objetivo
+            // Calcula la dirección hacia la que debe moverse el auto enemigo para alcanzar al objetivo
             Vector3 direction = Vector3.Normalize(MainCar.Position - Position);
 
-            EnemyWorld =  Matrix.CreateScale(0.05f) * Matrix.CreateTranslation(Position);
-           
-            // Actualiza la posición del auto perseguidor usando el vector de dirección rotado
-            PosDirection = direction * 1f * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // Fuerza de aceleración
+            float acceleration = 10f;
+            Vector3 force = direction * acceleration;
 
-            Position  += PosDirection;
+            // Aplica la fuerza al auto enemigo
+            bodyReference.ApplyLinearImpulse(new NumericVector3(force.X, force.Y, force.Z));
 
-            EnemyWorld.Decompose(out scale, out rot, out translation);
+            // Rotación deseada para el auto enemigo
+            Matrix rotationMatrix = Matrix.CreateLookAt(Vector3.Zero, direction, Vector3.Up);
+            Quaternion targetRotation = Quaternion.CreateFromRotationMatrix(rotationMatrix);
 
+            // Calcula el torque necesario para girar el auto enemigo hacia la rotación deseada
+            Quaternion currentRotation = bodyReference.Pose.Orientation;
+            Quaternion rotationDifference = targetRotation * Quaternion.Conjugate(currentRotation);
+            Vector3 angularVelocityChange;
+            float angle;
+            Utils.ToAxisAngle(rotationDifference, out angularVelocityChange, out angle);
+
+            // Asegura que el ángulo sea el más pequeño posible
+            if (angle > MathHelper.Pi)
+                angle -= MathHelper.TwoPi;
+
+            Vector3 torque = angularVelocityChange * angle * 0.5f; // Constante de ajuste para la velocidad de rotación
+
+            // Aplica el torque al auto enemigo
+            bodyReference.ApplyAngularImpulse(new NumericVector3(torque.X, torque.Y, torque.Z));
+
+            // Simula el frenado si está cerca del objetivo
+            float distanceToTarget = Vector3.Distance(MainCar.Position, Position);
+            if (distanceToTarget < 5f)
+            {
+                // Aplica una fuerza negativa para frenar
+                bodyReference.ApplyLinearImpulse(new NumericVector3(-force.X, -force.Y, -force.Z) * 0.5f);
+            }
+
+            // Actualiza la posición y la orientación del enemigo en el mundo
+            Position = new Vector3(bodyReference.Pose.Position.X, bodyReference.Pose.Position.Y, bodyReference.Pose.Position.Z);
+            currentRotation = bodyReference.Pose.Orientation;
+            EnemyWorld = Matrix.CreateScale(0.05f) * Matrix.CreateFromQuaternion(currentRotation) * Matrix.CreateTranslation(Position);
+
+            // Descomponer la matriz del mundo del enemigo para obtener la escala, la rotación y la traslación
+            EnemyWorld.Decompose(out  scale, out  rot, out  translation);
+
+            // Actualiza la orientación y la posición del OBB (Oriented Bounding Box) del enemigo
             EnemyOBB.Orientation = Matrix.CreateFromQuaternion(rot);
-
             EnemyOBBPosition = Matrix.CreateTranslation(translation);
-
             EnemyOBB.Center = translation;
 
+            // Actualiza la matriz del mundo del OBB del enemigo
             EnemyOBBWorld = Matrix.CreateScale(EnemyOBB.Extents) *
                             EnemyOBB.Orientation *
                             EnemyOBBPosition;
+
 
         }
 
