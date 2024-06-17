@@ -13,6 +13,7 @@ namespace ThunderingTanks.Objects.Tanks
         #region Projectile
         private Model projectile { get; set; }
         public Effect Effect { get; set; }
+        public Texture2D Texture { get; set; }
         public BoundingBox ProjectileBox { get; set; }
         public Matrix PositionMatrix { get; set; }
         private Vector3 LastPosition { get; set; }
@@ -42,17 +43,11 @@ namespace ThunderingTanks.Objects.Tanks
 
         public void LoadContent(ContentManager Content)
         {
-            projectile = Content.Load<Model>(ContentFolder3D + "TankBullets/Aps-c");
+            projectile = Content.Load<Model>(ContentFolder3D + "TankBullets/Apcr");
+
+            Texture = Content.Load<Texture2D>(ContentFolder3D + "TankBullets/ApcrTexture");
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            foreach (var mesh in projectile.Meshes)
-            {
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
 
             ProjectileBox = CollisionsClass.CreateBoundingBox(projectile, Matrix.CreateScale(0.5f), PositionVector);
 
@@ -80,7 +75,21 @@ namespace ThunderingTanks.Objects.Tanks
 
             foreach (var mesh in projectile.Meshes)
             {
+
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = Effect;
+                }
+
+                foreach (Effect effect in mesh.Effects)
+                {
+                    effect.Parameters["View"].SetValue(view);
+                    effect.Parameters["Projection"].SetValue(projection);
+                }
+
+                Effect.Parameters["ModelTexture"].SetValue(Texture);
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * worldMatrix);
+
                 mesh.Draw();
             }
         }

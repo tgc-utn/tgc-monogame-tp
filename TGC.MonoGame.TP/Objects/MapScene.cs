@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace ThunderingTanks.Objects
 {
+
     /// <summary>
     /// A City Scene to be drawn
     /// </summary>
@@ -16,8 +17,8 @@ namespace ThunderingTanks.Objects
         public const string ContentFolderEffects = "Effects/";
 
         public const float DistanceBetweenParcels = 1000f;
-        public const int NumInstances = 500; // Cantidad de instancias del terreno
-        public const float ScaleFactor = 200f; // Factor de escala para agrandar cada parcela
+        public const int NumInstances = 500;
+        public const float ScaleFactor = 200f;
 
         private Model Model { get; set; }
 
@@ -29,25 +30,14 @@ namespace ThunderingTanks.Objects
         /// Creates a City Scene with a content manager to load resources.
         /// </summary>
         /// <param name="content">The Content Manager to load resources</param>
-
         public MapScene(ContentManager content)
         {
             Model = content.Load<Model>(ContentFolder3D + "Grid/ground");
 
             TexturaTerreno = content.Load<Texture2D>(ContentFolder3D + "Grid/terreno");
 
-            // Load an effect that will be used to draw the scene
             Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            // Get the first texture we find
-            // The city model only contains a single texture
-            //var effect = Model.Meshes.FirstOrDefault().Effects.FirstOrDefault() as BasicEffect;
-            //var texture = effect.Texture;
-
-            // Set the Texture to the Effect
-            //Effect.Parameters["ModelTexture"].SetValue(texture);
-
-            // Assign the mesh effect
             foreach (var mesh in Model.Meshes)
             {
                 foreach (var meshPart in mesh.MeshParts)
@@ -69,10 +59,7 @@ namespace ThunderingTanks.Objects
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            //Effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
             Effect.Parameters["ModelTexture"].SetValue(TexturaTerreno);
-
-
 
             var modelMeshesBaseTransforms = new Matrix[Model.Bones.Count];
             Model.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);

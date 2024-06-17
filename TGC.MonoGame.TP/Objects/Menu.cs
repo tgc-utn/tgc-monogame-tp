@@ -99,8 +99,6 @@ namespace ThunderingTanks.Objects
             var mouseState = Mouse.GetState();
             var mousePosition = new Point(mouseState.X, mouseState.Y);
 
-            MediaPlayer.Volume = MasterSound;
-
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 if (_playButton.Contains(mousePosition))

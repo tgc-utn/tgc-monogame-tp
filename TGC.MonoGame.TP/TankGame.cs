@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpFont.PostScript;
 using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
@@ -32,6 +33,8 @@ namespace ThunderingTanks
         public float screenWidth;
 
         Viewport viewport;
+
+        public Effect BasicShader { get; private set; }
         #endregion
 
         #region State
@@ -59,9 +62,20 @@ namespace ThunderingTanks
 
         private Molino molino;
 
-        private readonly int CantidadTanquesEnemigos = 3;
-        private EnemyTank enemyTank;
-        private List<EnemyTank> EnemyTanks = new();
+        private Grass Grass {  get; set; }
+        private Model GrassModel { get; set; }
+        private Texture2D GrassAlpha { get; set; }
+        private Texture2D GrassColor { get; set; }
+        private Texture2D GrassNormal { get; set; }
+        private Texture2D GrassSmoothness { get; set; }
+        private List<Vector3> GrassPosition { get; set; }
+
+        public int GrassCant = 200;
+
+        private GermanSoldier GermanSoldier { get; set; }
+        private Model GermanSoliderModel { get; set; }
+        private Texture2D GermanSoldierTexture { get; set; }
+
 
         public List<Projectile> Projectiles = new();
 
@@ -100,6 +114,11 @@ namespace ThunderingTanks
 
         #region Tanks
         private Tank Panzer { get; set; }
+
+        private readonly int CantidadTanquesEnemigos = 0;
+        private EnemyTank enemyTank;
+        private List<EnemyTank> EnemyTanks = new();
+
         #endregion
 
         #region MapScene
@@ -130,7 +149,7 @@ namespace ThunderingTanks
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
 
             GraphicsDevice.RasterizerState = rasterizerState;
-            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
@@ -176,6 +195,10 @@ namespace ThunderingTanks
             casa = new CasaAbandonada();
             casa.Position = new Vector3(-3300f, -700f, 7000f);
 
+            Grass = new Grass();
+
+            GermanSoldier = new GermanSoldier();
+
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
                 EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
@@ -204,6 +227,8 @@ namespace ThunderingTanks
         protected override void LoadContent()
         {
 
+            BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+    
             City = new MapScene(Content);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -213,6 +238,16 @@ namespace ThunderingTanks
             roca.LoadContent(Content);
             antitanque.LoadContent(Content);
             casa.LoadContent(Content);
+
+            GrassModel = Content.Load<Model>(ContentFolder3D + "grass/grasspatches");
+            GrassAlpha = Content.Load<Texture2D>(ContentFolder3D + "grass/grassAlphaMapped");
+            Grass.Load(GrassModel, GrassAlpha, GrassColor, GrassNormal, GrassSmoothness,BasicShader);
+            GrassPosition = LoadGrassPositions(GrassCant);
+
+            GermanSoliderModel = Content.Load<Model>(ContentFolder3D + "German_Soldier_1/German_Soldier_1");
+            GermanSoldierTexture = Content.Load<Texture2D>(ContentFolder3D + "German_Soldier_1/panzergren_low2k_diff");
+            GermanSoldier.Load(GermanSoliderModel, GermanSoldierTexture, BasicShader);
+            GermanSoldier.SpawnPosition(new Vector3(0, 0, 300));
 
             shootSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "shootSound");
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
@@ -249,7 +284,6 @@ namespace ThunderingTanks
             var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
             var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
             var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-
 
             SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
 
@@ -294,11 +328,15 @@ namespace ThunderingTanks
             if (!_juegoIniciado || Panzer.isDestroyed)
             {
 
+                Panzer.Direction = new Vector3(10, 0, 0);
+
                 Panzer.isDestroyed = false;
 
                 Panzer.PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(-10));
                 Panzer.TurretMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));
                 Panzer.CannonMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));
+
+                GermanSoldier.WorldMatrix = Matrix.CreateScale(0.025f) * Matrix.CreateTranslation(300, 0, 300);
 
                 _menu.Update(ref _juegoIniciado, gameTime);
 
@@ -440,7 +478,8 @@ namespace ThunderingTanks
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
 
                 Camera camara = _staticCamera;
-                Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
+                GermanSoldier.Draw(camara.View, camara.Projection);
 
                 spriteBatch.Begin();
                 _menu.Draw(spriteBatch);
@@ -461,40 +500,32 @@ namespace ThunderingTanks
 
                 Camera camara = _targetCamera;
 
-                Panzer.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
-
+                City.Draw(gameTime, camara.View, camara.Projection);
+                DrawSkyBox(camara.View, camara.Projection, camara.Position);
+                Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
-
                 molino.Draw(gameTime, camara.View, camara.Projection);
-
+                Grass.Draw(GrassPosition, camara.View, camara.Projection);
+                DrawProjectiles(camara.View, camara.Projection);
+                antitanque.Draw(gameTime, camara.View, camara.Projection);
+                casa.Draw(gameTime, camara.View, camara.Projection);
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
                     Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
                 }
-
-                City.Draw(gameTime, camara.View, camara.Projection);
-
-                DrawProjectiles(camara.View, camara.Projection);
-
                 foreach (var roca in Rocas)
                 {
                     roca.Draw(gameTime, camara.View, camara.Projection);
                     Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
                 }
-
-                antitanque.Draw(gameTime, camara.View, camara.Projection);
-
                 foreach (var arbol in Arboles)
                 {
                     arbol.Draw(gameTime, camara.View, camara.Projection);
                     Gizmos.DrawCube((arbol.ArbolBox.Max + arbol.ArbolBox.Min) / 2f, arbol.ArbolBox.Max - arbol.ArbolBox.Min, Color.Red);
                 }
 
-                casa.Draw(gameTime, camara.View, camara.Projection);
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
-
-                DrawSkyBox(camara.View, camara.Projection, camara.Position);
 
                 if (DrawGizmos)
                     Gizmos.Draw();
@@ -512,6 +543,7 @@ namespace ThunderingTanks
                 #endregion
 
             }
+            
             base.Draw(gameTime);
         }
 
@@ -762,6 +794,23 @@ namespace ThunderingTanks
             }*/
 
             return false;
+        }
+
+        /// <summary>
+        /// Crea posiciones aleatorias para la hierva
+        /// </summary>
+        /// <param name="Cantidad"> Cantidad de elementos que se crearan</param>
+        /// <returns>Una lista de posiciones</returns>
+        public List<Vector3> LoadGrassPositions(int Cantidad)
+        {
+            List<Vector3> grassPositions = new List<Vector3>();
+
+            Random random = new Random();
+            for (int i = 0; i < Cantidad; i++) {
+                grassPositions.Add(new Vector3(random.Next(-(int)MapLimit.X, (int)MapLimit.X),0, random.Next(-(int)MapLimit.Y,(int)MapLimit.Y)));
+            }
+
+            return grassPositions;
         }
     }
 }

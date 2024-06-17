@@ -74,7 +74,6 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     float4 worldPosition = mul(input.Position, World);
     // World space to View space
     float4 viewPosition = mul(worldPosition, View);
-
     // View space to Projection space
     output.Position = mul(viewPosition, Projection);
 
@@ -98,7 +97,10 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    return tex2D(TextureSampler, input.TextureCoordinate.xy);
+    
+    float4 color = tex2D(TextureSampler, input.TextureCoordinate.xy);
+    return color;
+
 }
 
 technique BasicColorDrawing

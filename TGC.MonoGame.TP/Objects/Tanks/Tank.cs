@@ -47,7 +47,7 @@ namespace ThunderingTanks.Objects.Tanks
         public float GunElevation { get; set; }
         public List<ModelBone> Bones { get; private set; }
         public List<ModelMesh> Meshes { get; private set; }
-        public TargetCamera PanzerCamera { get; set; }
+        public Camera PanzerCamera { get; set; }
         public SoundEffectInstance MovingTankSound { get; set; }
 
         //public BoundingBox TankboundingBox { get; set; }
@@ -201,7 +201,7 @@ namespace ThunderingTanks.Objects.Tanks
             Meshes = meshes;
         }
 
-        public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
+        public void Draw( Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
 
             GraphicsDevice = graphicsDevice;
@@ -245,7 +245,7 @@ namespace ThunderingTanks.Objects.Tanks
 
                 if (isColliding)
                 {
-                    Effect.Parameters["onhit"].SetValue(true);
+                    Effect.Parameters["onhit"].SetValue(false);
                     Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
                 }
                 else
@@ -275,7 +275,7 @@ namespace ThunderingTanks.Objects.Tanks
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
-                float projectileSpeed = 11000f;
+                float projectileSpeed = 15000f;
 
                 Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
