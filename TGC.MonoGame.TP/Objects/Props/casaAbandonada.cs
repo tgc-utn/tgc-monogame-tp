@@ -63,7 +63,6 @@ namespace ThunderingTanks.Objects.Props
         {
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
-            //Effect.Parameters["DiffuseColor"].SetValue(Color.Azure.ToVector3());
             foreach (var mesh in CasaModel.Meshes)
             {
                 Matrix _casaWorld = CasaWorld;

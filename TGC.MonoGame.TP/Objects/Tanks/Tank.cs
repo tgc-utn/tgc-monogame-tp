@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
@@ -32,6 +33,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
         private Texture2D TrackTexture { get; set; }
+        private float trackOffset = 0;
         public Matrix PanzerMatrix { get; set; }
         public Vector3 LastPosition { get; set; }
 
@@ -132,13 +134,17 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
+                trackOffset -= 0.1f;
                 isMoving = true;
+                Console.WriteLine($"trackOffset es {trackOffset}");
             }
 
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
             {
                 Direction += PanzerMatrix.Forward * TankVelocity * time;
+                trackOffset += 0.1f;
                 isMoving = true;
+                Console.WriteLine($"trackOffset es {trackOffset}");
             }
 
             if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
@@ -188,11 +194,7 @@ namespace ThunderingTanks.Objects.Tanks
             Center = CollisionsClass.GetCenter(TankBox);
             Extents = CollisionsClass.GetExtents(TankBox);
 
-            //TankBox = new OrientedBoundingBox(Center, Extents);
-            //TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
-
             LastPosition = Direction;
-
         }
 
         public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
@@ -226,21 +228,26 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
+                    Effect.Parameters["IsTrack"].SetValue(false);
                 }
                 else if (mesh.Name.Equals("Cannon"))
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
+                    Effect.Parameters["IsTrack"].SetValue(false);
                 }
-                else if (mesh.Name.Equals("Treadmill1") || mesh.Name.Equals("Treadmill2"))
+                else if(mesh.Name.Equals("Treadmill1") || mesh.Name.Equals("Treadmill2"))
                 {
                     Effect.Parameters["ModelTexture"].SetValue(TrackTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+                    Effect.Parameters["IsTrack"]?.SetValue(true);
+                    Effect.Parameters["TrackOffset"].SetValue(trackOffset);
                 }
                 else
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+                    Effect.Parameters["IsTrack"].SetValue(false);
                 }
 
                 if (isColliding)
