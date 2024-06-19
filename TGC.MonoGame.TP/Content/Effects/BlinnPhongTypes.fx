@@ -33,6 +33,8 @@ sampler2D textureSampler = sampler_state
     MIPFILTER = LINEAR;
 };
 
+
+
 //Textura para Normals
 texture NormalTexture;
 sampler2D normalSampler = sampler_state

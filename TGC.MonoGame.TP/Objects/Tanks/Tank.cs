@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
@@ -12,7 +13,18 @@ using ThunderingTanks.Collisions;
 namespace ThunderingTanks.Objects.Tanks
 {
     public class Tank : GameObject
+
     {
+
+        // Variables de color y otros parámetros10
+        Vector3 ambientColorValue = new Vector3(0.2f, 0.2f, 0.2f);  // Color ambiental (generalmente menos afectado por la dirección de la luz)
+        Vector3 diffuseColorValue = new Vector3(0.8f, 0.8f, 0.8f);  // Color difuso (más brillante en la dirección de la luz)
+        Vector3 specularColorValue = new Vector3(0.8f, 0.8f, 0.8f); // Color especular (más brillante en la dirección de la luz)
+        float KAmbientValue = 1.0f;  // Factor de ambiental
+        float KDiffuseValue = 1.0f;  // Factor difuso
+        float KSpecularValue = 1.0f; // Factor especular
+        float shininessValue = 32.0f; // Brillo especular (puede ajustarse según sea necesario)
+
         #region ContentFolders
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
@@ -247,6 +259,17 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+
+                    Effect.Parameters["diffuseColor"].SetValue(diffuseColorValue);
+                    Effect.Parameters["ambientColor"].SetValue(ambientColorValue);
+                    Effect.Parameters["specularColor"].SetValue(specularColorValue);
+                    Effect.Parameters["KAmbient"].SetValue(KAmbientValue);
+                    Effect.Parameters["KDiffuse"].SetValue(KDiffuseValue);
+                    Effect.Parameters["KSpecular"].SetValue(KSpecularValue);
+                    Effect.Parameters["shininess"].SetValue(shininessValue);
+                    //Effect.Parameters["diffuseColor"].SetValue(Color.Orange);
+
+
                     Effect.Parameters["IsTrack"].SetValue(false);
                 }
 
