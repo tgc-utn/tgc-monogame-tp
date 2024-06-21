@@ -7,9 +7,17 @@ using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.MainCharacter;
+using TGC.MonoGame.Samples.Samples.Shaders.SkyBox;
+using TGC.MonoGame.TP;
 
 abstract class Stage
 {
+    public const string ContentFolder3D = "Models/";
+    public const string ContentFolderEffects = "Effects/";
+    public const string ContentFolderMusic = "Music/";
+    public const string ContentFolderSounds = "Sounds/";
+    public const string ContentFolderSpriteFonts = "SpriteFonts/";
+    public const string ContentFolderTextures = "Textures/";
 
     protected GraphicsDevice GraphicsDevice;
     protected ContentManager Content;
@@ -35,6 +43,8 @@ abstract class Stage
 
         CharacterInitialPosition = characterPosition;
 
+        LoadSkyBox();
+
         LoadTrack();
         LoadObstacles();
         LoadSigns();
@@ -46,6 +56,7 @@ abstract class Stage
     public abstract void Update(GameTime gameTime);
 
     private SpriteFont SpriteFont { get; set; }
+    public Vector3 CamPosition{get;set;}
     
     public void Draw(Matrix view, Matrix projection)
     {
@@ -68,6 +79,7 @@ abstract class Stage
         {
             pickup.Draw(view, projection);
         }
+        SkyBox.Draw(view, projection, CamPosition);
         
         //SpriteBatch.DrawString(SpriteFont, "Launch spheres with the 'Z' key.", new Vector2(GraphicsDevice.Viewport.Width - 500, 25), Color.White);
 
@@ -84,4 +96,16 @@ abstract class Stage
     abstract protected void LoadCheckpoints();
 
 
+    public Model SkyBoxModel;
+    public TextureCube SkyBoxTexture;
+    public Effect SkyBoxEffect;
+    public SkyBox SkyBox;
+    public void LoadSkyBox(){
+        SkyBoxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
+        SkyBoxTexture =Content.Load<TextureCube>(ContentFolderTextures+"skyboxes/islands/islands");
+        SkyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+        SkyBox=new SkyBox(SkyBoxModel, SkyBoxTexture, SkyBoxEffect, 1000);
+    }
+
+    
 }

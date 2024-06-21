@@ -63,16 +63,18 @@ namespace TGC.MonoGame.TP
             
             var mouseState = Mouse.GetState();
 
-            if (mouseState.RightButton.Equals(ButtonState.Pressed))
+            if (true)
             {
+                var mouseDelta = mouseState.Position.ToVector2();
                 if(!camMoving)
                 {
-                    Mouse.SetPosition(0, ScreenCenter.Y);
+                    Mouse.SetPosition(ScreenCenter.X, ScreenCenter.Y);
+                    mouseDelta = new Vector2(0, ScreenCenter.Y);
                     camMoving=true;
                 }
-                var mouseDelta = mouseState.Position.ToVector2();
+                
                 mouseDelta *= MouseSensitivity * elapsedTime;
-                CamRotation+=mouseDelta.X;
+                CamRotation-=mouseDelta.X;
                 followedWorld=Matrix.CreateRotationY(CamRotation) * followedWorld;
                 //var size = GraphicsDevice.Viewport.Bounds.Size;
                 //Mouse.SetPosition(screenCenter.X, screenCenter.Y);
@@ -82,12 +84,13 @@ namespace TGC.MonoGame.TP
                 pastMousePosition=mouseState.Position.ToVector2();
             }
 
-            else
+            /*else
             {
                 Mouse.SetCursor(MouseCursor.Arrow);
                 camMoving=false;
+                CamRotation=0;
                 //Mouse.SetPosition(ScreenCenter.X, ScreenCenter.Y);
-            }
+            }*/
 
             // Obtengo la posicion de la matriz de mundo que estoy siguiendo
             var followedPosition = followedWorld.Translation;

@@ -26,7 +26,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Material CurrentMaterial = Material.RustedMetal;
 
-        Vector3 Position;
+        public Vector3 Position;
         Vector3 Velocity;
         Vector3 Acceleration = Vector3.Zero;
         Quaternion Rotation = Quaternion.Identity;
@@ -198,7 +198,7 @@ namespace TGC.MonoGame.TP.MainCharacter
         }
 
         private Vector2 pastMousePosition=Vector2.Zero;
-        private float MouseSensitivity=0.3f;
+        //private float MouseSensitivity=0.3f;
 
         public void ChangeDirection(float angle){
             ForwardVector = Vector3.Transform(Vector3.UnitX, Matrix.CreateRotationY(angle));

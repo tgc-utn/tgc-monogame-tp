@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Samples.Shaders.SkyBox;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.MainCharacter;
@@ -91,13 +92,18 @@ namespace TGC.MonoGame.TP
         ///     que podemos pre calcular para nuestro juego.
         /// </summary>
         public Effect BallEffect;
+
+
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
-            
+            //SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+
 
             Stage = new Stage_01(GraphicsDevice, Content);
+
+            //Stage.SkyBoxModel = Content.Load<Model>();
 
             MainCharacter = new Character(Content, Stage.CharacterInitialPosition);
 
@@ -125,6 +131,8 @@ namespace TGC.MonoGame.TP
 
             FollowCamera.Update(gameTime, MainCharacter.World);
 
+            Stage.CamPosition=FollowCamera.CamPosition;
+
             MainCharacter.ChangeDirection(FollowCamera.CamRotation);
             BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
 
@@ -140,14 +148,26 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.LightSkyBlue);
+            // Aca deberiamos poner toda la logia de renderizado del juego.
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
+            //GraphicsDevice.Clear(Color.LightSkyBlue);
+            
 
+            //
+            //Stage.SkyBox.Draw(FollowCamera.View, FollowCamera.Projection, FollowCamera.CamPosition);
             MainCharacter.Draw(FollowCamera.View, FollowCamera.Projection);
 
             Stage.Draw(FollowCamera.View, FollowCamera.Projection);
 
+            GraphicsDevice.RasterizerState = originalRasterizerState;
+
+            //base.Draw(gameTime);
         }
 
         /// <summary>
