@@ -56,7 +56,7 @@ namespace ThunderingTanks
 
         private AntiTanque antitanque;
 
-        private Arbol arbol;
+        private Trees arbol;
 
         private CasaAbandonada casa;
 
@@ -82,8 +82,8 @@ namespace ThunderingTanks
         private List<Roca> Rocas = new();
         private readonly int CantidadRocas = 40;
 
-        private List<Arbol> Arboles = new();
-        private readonly int CantidadArboles = 15;
+        private List<Trees> Arboles = new();
+        private readonly int CantidadArboles = 80;
 
         #endregion
 
@@ -189,7 +189,7 @@ namespace ThunderingTanks
 
             molino = new Molino(Matrix.CreateTranslation(new(0, 0, 0)));
 
-            Arboles = new List<Arbol>(CantidadArboles);
+            Arboles = new List<Trees>(CantidadArboles);
             AgregarArboles(CantidadArboles);
 
             casa = new CasaAbandonada();
@@ -266,7 +266,7 @@ namespace ThunderingTanks
             for (int i = 0; i < CantidadArboles; i++)
             {
                 arbol = Arboles[i];
-                arbol.LoadContent(Content);
+                arbol.LoadList(Content, BasicShader);
             }
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
@@ -505,7 +505,6 @@ namespace ThunderingTanks
                 Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
                 molino.Draw(gameTime, camara.View, camara.Projection);
-                Grass.Draw(GrassPosition, camara.View, camara.Projection);
                 DrawProjectiles(camara.View, camara.Projection);
                 antitanque.Draw(gameTime, camara.View, camara.Projection);
                 casa.Draw(gameTime, camara.View, camara.Projection);
@@ -521,9 +520,10 @@ namespace ThunderingTanks
                 }
                 foreach (var arbol in Arboles)
                 {
-                    arbol.Draw(gameTime, camara.View, camara.Projection);
-                    Gizmos.DrawCube((arbol.ArbolBox.Max + arbol.ArbolBox.Min) / 2f, arbol.ArbolBox.Max - arbol.ArbolBox.Min, Color.Red);
+                    arbol.Draw(camara.View, camara.Projection);
+                    Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
+                Grass.Draw(GrassPosition, camara.View, camara.Projection);
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
 
@@ -607,13 +607,15 @@ namespace ThunderingTanks
             {
                 Vector3 randomPosition = new Vector3(
                     (float)(random.NextDouble() * 40000 - 20000), // X entre -100 y 100
-                    200f,                                       // Y
+                    150f,                                         // Y
                     (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
                 roca = new Roca();
                 {
                     roca.Position = randomPosition;
                 }
+
+
                 Rocas.Add(roca);
             }
         }
@@ -624,7 +626,7 @@ namespace ThunderingTanks
         /// <param name="cantidad">Cantidad de Arboles</param>
         private void AgregarArboles(int cantidad)
         {
-            Random random = new Random(42); // Aquí 42 es la semilla fija
+            Random random = new Random(43); // Aquí 42 es la semilla fija
             for (int i = 0; i < cantidad; i++)
             {
                 Vector3 randomPosition = new Vector3(
@@ -632,11 +634,13 @@ namespace ThunderingTanks
                     0f,                                       // Y
                     (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
-                arbol = new Arbol();
+
+                arbol = new Trees();
                 {
-                    arbol.Position = randomPosition;
+                    arbol.SpawnPosition(randomPosition);
                 }
                 Arboles.Add(arbol);
+
             }
         }
 
@@ -761,7 +765,7 @@ namespace ThunderingTanks
 
             foreach (var arbol in Arboles)
             {
-                if (tankBox.Intersects(arbol.ArbolBox))
+                if (tankBox.Intersects(arbol.BoundingBox))
                 {
                     Console.WriteLine("Colisión detectada con un árbol.");
                     Panzer.CollidingPosition = arbol.Position;
