@@ -126,6 +126,8 @@ namespace ThunderingTanks
         public Vector2 MapLimit { get; set; }
         #endregion
 
+        public Random randomSeed = new Random(42);
+
         private SkyBox SkyBox { get; set; }
         public SpriteBatch spriteBatch { get; set; }
 
@@ -602,13 +604,12 @@ namespace ThunderingTanks
         /// <param name="cantidad">Cantidad de Rocas</param>
         private void AgregarRocas(int cantidad)
         {
-            Random random = new Random(42);
             for (int i = 0; i < cantidad; i++)
             {
                 Vector3 randomPosition = new Vector3(
-                    (float)(random.NextDouble() * 40000 - 20000), // X entre -100 y 100
+                    (float)(randomSeed.NextDouble() * 40000 - 20000), // X entre -100 y 100
                     150f,                                         // Y
-                    (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
+                    (float)(randomSeed.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
                 roca = new Roca();
                 {
@@ -626,13 +627,13 @@ namespace ThunderingTanks
         /// <param name="cantidad">Cantidad de Arboles</param>
         private void AgregarArboles(int cantidad)
         {
-            Random random = new Random(43); // Aquí 42 es la semilla fija
+            
             for (int i = 0; i < cantidad; i++)
             {
                 Vector3 randomPosition = new Vector3(
-                    (float)(random.NextDouble() * 40000 - 20000), // X entre -100 y 100
+                    (float)(randomSeed.NextDouble() * 40000 - 20000), // X entre -100 y 100
                     0f,                                       // Y
-                    (float)(random.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
+                    (float)(randomSeed.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
 
                 arbol = new Trees();
