@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
+using TGC.MonoGame.TP.Stages;
+using TGC.MonoGame.TP.Collisions;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -32,6 +34,12 @@ namespace TGC.MonoGame.TP.MainCharacter
         Vector3 RotationAxis = Vector3.UnitY;
         float RotationAngle = 0f;
 
+        // Colisiones
+        public BoundingSphere EsferaBola { get; set; }
+        public bool OnGround { get; set; }
+        public Stage ActualStage;
+        // Colisiones
+
         Vector3 BallSpinAxis=Vector3.UnitX;
         float BallSpinAngle=0f;
         Matrix WorldWithBallSpin;
@@ -39,14 +47,16 @@ namespace TGC.MonoGame.TP.MainCharacter
         //float BallRoll=0f;
 
         Vector3 LightPos{get;set;}
-        public Matrix Spin;//
-        public Character(ContentManager content, Vector3 initialPosition)
+        public Matrix Spin;
+        public Character(ContentManager content, Stage stage)
         {
             Content = content;
             Spin= Matrix.CreateFromAxisAngle(Vector3.UnitZ, 0);
 
+            ActualStage = stage;
+
             InitializeEffect();
-            InitializeSphere(initialPosition);
+            InitializeSphere(stage.CharacterInitialPosition);
             InitializeTextures();
             InitializeLight();
         }
@@ -62,6 +72,23 @@ namespace TGC.MonoGame.TP.MainCharacter
             Position = initialPosition;
             World = Scale * Matrix.CreateTranslation(Position);
             WorldWithBallSpin=World;
+
+            /* 
+            // Colisiones: ¿van en lo principal?
+            int index = 0;
+            for (; index < ActualStage.Colliders.Count; index++)
+                ActualStage.Colliders[index] = BoundingVolumesExtensions.FromMatrix(ActualStage.StairsWorld[index]);
+
+             // Instantiate a BoundingBox for the Box
+             ActualStage.Colliders[index] = BoundingVolumesExtensions.FromMatrix(ActualStage.BoxWorld);
+             index++;
+             // Instantiate a BoundingBox for the Floor. Note that the height is almost zero
+             ActualStage.Colliders[index] = new BoundingBox(new Vector3(-200f, -0.001f, -200f), new Vector3(200f, 0f, 200f));
+            // Colisiones
+            */
+
+            // Bounding Sphere asociado a la bola principal
+            EsferaBola = new BoundingSphere(Position, 10f);
 
             // Apply the effect to all mesh parts
             Sphere.Meshes.FirstOrDefault().MeshParts.FirstOrDefault().Effect = Effect;
@@ -83,6 +110,10 @@ namespace TGC.MonoGame.TP.MainCharacter
         {
             ProcessMaterialChange();
             ProcessMovement(gameTime);
+            ProcessCollision(Velocity);
+
+            // Verificar colisiones con los colliders del escenario actual
+            //ActualStage.CheckCollisions(Position);
         }
 
         public void Draw(Matrix view, Matrix projection)
@@ -120,6 +151,83 @@ namespace TGC.MonoGame.TP.MainCharacter
 
 
 
+        private void ProcessCollision(Vector3 scaledVelocity)
+        {
+            // Si la esfera tiene velocidad vertical
+            if (scaledVelocity.Y == 0f)
+                return;
+
+
+            // Empieza moviendo la esfera
+            BoundingSphere NuevaEsfera = EsferaBola; //tuvimos que crear una variable auxiliar porque no podemos modificarla directamente
+            NuevaEsfera.Center += Vector3.Up * scaledVelocity.Y;
+            EsferaBola = NuevaEsfera;
+            // Set the OnGround flag on false, update it later if we find a collision
+            OnGround = false;
+
+
+            // Collision detection
+            var collided = false;
+            var foundIndex = -1;
+            for (var index = 0; index < ActualStage.Colliders.Count; index++)
+            {
+                if (!EsferaBola.Intersects(ActualStage.Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                    continue;
+                
+                // If we collided with something, set our velocity in Y to zero to reset acceleration
+                Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
+
+                // Set our index and collision flag to true
+                // The index is to tell which collider the Robot intersects with
+                collided = true;
+                foundIndex = index;
+                break;
+            }
+
+
+            // We correct based on differences in Y until we don't collide anymore
+            // Not usual to iterate here more than once, but could happen
+            while (collided)
+            {
+                var collider = ActualStage.Colliders[foundIndex];
+                var colliderY = BoundingVolumesExtensions.GetCenter(collider).Y;
+                var sphereY = EsferaBola.Center.Y;
+                var extents = BoundingVolumesExtensions.GetExtents(collider);
+
+                float penetration;
+                // If we are on top of the collider, push up
+                // Also, set the OnGround flag to true
+                if (sphereY > colliderY)
+                {
+                    penetration = colliderY + extents.Y - sphereY + EsferaBola.Radius;
+                    OnGround = true;
+                }
+
+                // If we are on bottom of the collider, push down
+                else
+                    penetration = -sphereY - EsferaBola.Radius + colliderY - extents.Y;
+
+                // Move our Cylinder so we are not colliding anymore
+                NuevaEsfera = EsferaBola;
+                NuevaEsfera.Center += Vector3.Up * penetration;
+                EsferaBola = NuevaEsfera;
+                collided = false;
+
+                // Check for collisions again
+                for (var index = 0; index < ActualStage.Colliders.Count; index++)
+                {
+                    if (!EsferaBola.Intersects(ActualStage.Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
+                        continue;
+
+                    // Iterate until we don't collide with anything anymore
+                    collided = true;
+                    foundIndex = index;
+                    break;
+                }
+            }
+            
+        }
+        
         private void ProcessMaterialChange()
         {
             var keyboardState = Keyboard.GetState();
@@ -206,6 +314,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             var directionZ = new Vector3();
             
             bool salto = false;
+            //bool onGround = true;
             float speed = 100;
             // Capturar Input teclado
             var keyboardState = Keyboard.GetState();
@@ -229,6 +338,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             {
                 Velocity += Vector3.Up * speed;
                 salto = true;
+                ProcessCollision(Velocity);
             }
 
             Vector3 gravity = Vector3.Zero;
@@ -254,7 +364,9 @@ namespace TGC.MonoGame.TP.MainCharacter
             directionY = Vector3.Transform(Vector3.UnitY, Rotation);
             directionZ = Vector3.Transform(Vector3.UnitZ, Rotation);
 
-            if(Position.Y <= 25f)
+            
+            //if(Position.Y <= 25f)
+            if(OnGround==true)
             {
                 gravity = new Vector3(0f, 0f, 0f);
                 if (!salto)

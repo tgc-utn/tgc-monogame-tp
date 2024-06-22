@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TGC.MonoGame.Samples.Collisions
+namespace TGC.MonoGame.TP.Collisions
 {
 
     /// <summary>

@@ -35,7 +35,7 @@ namespace TGC.MonoGame.TP.Geometries
         /// <param name="diameter">Diameter of the sphere.</param>
         /// <param name="tessellation">The number of times the surface triangles are subdivided.</param>
         /// <param name="color">Color of the sphere.</param>
-        public SpherePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float diameter, int tessellation, Color color, Matrix world)
+        public SpherePrimitive(GraphicsDevice graphicsDevice, ContentManager content, float diameter, int tessellation, Color color, Matrix world, BoundingSphere? boundingSphere)
         {
             if (tessellation < 3)
                 throw new ArgumentOutOfRangeException("tessellation");

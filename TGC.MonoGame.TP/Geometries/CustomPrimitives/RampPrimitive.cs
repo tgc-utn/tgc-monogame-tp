@@ -11,6 +11,7 @@
 
 #region Using Statements
 
+using BepuPhysics.CollisionDetection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,6 +23,8 @@ namespace TGC.MonoGame.TP.Geometries
 
     public class RampPrimitive : CustomPrimitive
     {
+
+        public BoundingBox BoundingRamp { get; set; }
 
         public RampPrimitive(
                 GraphicsDevice graphicsDevice,
@@ -63,6 +66,16 @@ namespace TGC.MonoGame.TP.Geometries
             AddTriangle(vertexList[5], vertexList[3], vertexList[1], size, color);
 
             World =  Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
+
+            if (coordinates.HasValue && scale.HasValue)
+            {
+                Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
+                Vector3 regularSize = scale.Value;
+                // Ahora puedes usar regularVector, que es de tipo Vector3
+                BoundingRamp = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
+            }
+
+            
 
             InitializePrimitive(graphicsDevice, content);
         }

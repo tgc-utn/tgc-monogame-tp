@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 
-namespace TGC.MonoGame.Samples.Collisions
+namespace TGC.MonoGame.TP.Collisions
 {
     /// <summary>
     ///     Class that extends BoundingVolumes classes

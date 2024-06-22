@@ -5,7 +5,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Geometries;
+using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.MainCharacter;
+using TGC.MonoGame.TP.Stages;
 
 namespace TGC.MonoGame.TP
 {
@@ -22,6 +24,8 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSounds = "Sounds/";
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
+
+        
 
         /// <summary>
         ///     Constructor del juego.
@@ -50,6 +54,8 @@ namespace TGC.MonoGame.TP
         // BOLITA
         private Character MainCharacter;
         private Stage Stage;
+
+
         
 
         /// <summary>
@@ -97,7 +103,7 @@ namespace TGC.MonoGame.TP
 
             Stage = new Stage_01(GraphicsDevice, Content);
 
-            MainCharacter = new Character(Content, Stage.CharacterInitialPosition);
+            MainCharacter = new Character(Content, Stage);
 
             BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
 
@@ -120,12 +126,11 @@ namespace TGC.MonoGame.TP
 
             MainCharacter.Update(gameTime);
 
+            
+
 
             FollowCamera.Update(gameTime, MainCharacter.World);
             BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
-
-
-            World = Matrix.CreateRotationY(Rotation);
 
             base.Update(gameTime);
         }

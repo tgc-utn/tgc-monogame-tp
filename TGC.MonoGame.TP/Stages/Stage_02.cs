@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.MainCharacter;
+using TGC.MonoGame.TP.Stages;
 
 
 class Stage_02 : Stage
@@ -12,6 +13,48 @@ class Stage_02 : Stage
 
     public Stage_02(GraphicsDevice graphicsDevice, ContentManager content) :
         base(graphicsDevice, content, characterPosition: new Vector3(300f, 25f, 0f)) { }
+
+    protected override void LoadColliders()
+    {
+        for(int i=0; i < Track.Count; i++)
+        {
+            GeometricPrimitive objetoActual = Track[i];
+            if(objetoActual is CubePrimitive)
+            {
+                CubePrimitive aux = (CubePrimitive)objetoActual;
+                Colliders.Add(aux.BoundingCube);
+            }
+            if(objetoActual is RampPrimitive)
+            {
+                RampPrimitive aux = (RampPrimitive)objetoActual;
+                Colliders.Add(aux.BoundingRamp);
+            }
+        }
+
+        for(int i=0; i < Obstacles.Count; i++)
+        {
+        //    GeometricPrimitive cuboActual = Obstacles[i];
+        //    Colliders.Add(cuboActual.BoundingCube);
+        }
+
+        for(int i=0; i < Signs.Count; i++)
+        {
+            CubePrimitive cuboActual = (CubePrimitive)Signs[i];
+            Colliders.Add(cuboActual.BoundingCube);
+        }
+
+        for(int i=0; i < Pickups.Count; i++)
+        {
+            //Geometric cuboActual = Pickups[i];
+            //Colliders.Add(cuboActual.BoundingCube);
+        }
+
+        for(int i=0; i < Checkpoints.Count; i++)
+        {
+            //GeometricPrimitive cuboActual = Checkpoints[i];
+            //Colliders.Add(cuboActual.BoundingCube);
+        }
+    }
 
     protected override void LoadTrack()
     {

@@ -28,6 +28,8 @@ namespace TGC.MonoGame.TP.Geometries
         /// <summary>
         ///     Constructs a new cube primitive.
         /// </summary>
+        /// 
+        public BoundingBox BoundingCube { get; set; }
         public CubePrimitive(
                 GraphicsDevice graphicsDevice,
                 ContentManager content,
@@ -35,11 +37,13 @@ namespace TGC.MonoGame.TP.Geometries
                 float size = 25f,
                 Vector3? coordinates = null,
                 Vector3? scale = null,
+                //BoundingBox? boundingBox = null,
                 Matrix? rotation = null
             )
         {
 
             Color = color;
+
 
             // A cube has six faces, each one pointing in a different direction.
             Vector3[] normals =
@@ -85,6 +89,15 @@ namespace TGC.MonoGame.TP.Geometries
             }
 
             World = Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
+
+            if (coordinates.HasValue && scale.HasValue)
+            {
+                Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
+                Vector3 regularSize = scale.Value;
+                // Ahora puedes usar regularVector, que es de tipo Vector3
+                BoundingCube = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
+            }
+            
 
             InitializePrimitive(graphicsDevice, content);
         }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace TGC.MonoGame.Samples.Collisions
+namespace TGC.MonoGame.TP.Collisions
 {
     /// <summary>
     ///     Represents an Oriented-BoundingBox (OBB).
