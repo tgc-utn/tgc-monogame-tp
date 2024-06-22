@@ -24,24 +24,16 @@ namespace ThunderingTanks.Objects.Props
         public Effect Effect { get; set; }
 
         public BoundingBox CasaBox { get; set; }
+        private Vector3 MaxBox = new Vector3(100f, 1500f, 2000f);
+        private Vector3 MinBox = new Vector3(-1900f, 700f, 300f);
 
         public Matrix CasaWorld { get; set; }
 
         public CasaAbandonada()
         {
             CasaWorlds = new Matrix[] { };
-
         }
-        /*
-                public void AgregarCasa(Vector3 Position)
-                {
-                    Matrix escala = Matrix.CreateScale(500f);
-                    var nuevaCasa = new Matrix[]{
-                        escala * Matrix.CreateTranslation(Position),
-                    };
-                    CasaWorlds = CasaWorlds.Concat(nuevaCasa).ToArray();
-                }
-        */
+
         public void LoadContent(ContentManager Content)
         {
             CasaModel = Content.Load<Model>(ContentFolder3D + "casa/house");
@@ -56,7 +48,8 @@ namespace ThunderingTanks.Objects.Props
                 }
             }
             CasaWorld = Matrix.CreateScale(500f) * Matrix.CreateTranslation(Position);
-            CasaBox = CreateBoundingBox(CasaModel, Matrix.CreateScale(500f), Position);
+
+            CasaBox = new BoundingBox(Position + MinBox, Position + MaxBox);
         }
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
@@ -71,39 +64,6 @@ namespace ThunderingTanks.Objects.Props
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _casaWorld);
                 mesh.Draw();
             }
-        }
-        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
-        {
-            var minPoint = Vector3.One * float.MaxValue;
-            var maxPoint = Vector3.One * float.MinValue;
-
-            var transforms = new Matrix[model.Bones.Count];
-            model.CopyAbsoluteBoneTransformsTo(transforms);
-
-            foreach (var mesh in model.Meshes)
-            {
-                var meshParts = mesh.MeshParts;
-                foreach (var meshPart in meshParts)
-                {
-                    var vertexBuffer = meshPart.VertexBuffer;
-                    var declaration = vertexBuffer.VertexDeclaration;
-                    var vertexSize = declaration.VertexStride / sizeof(float);
-
-                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
-                    vertexBuffer.GetData(rawVertexBuffer);
-
-                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
-                    {
-                        var transform = transforms[mesh.ParentBone.Index] * escala;
-                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
-                        vertex = Vector3.Transform(vertex, transform);
-                        minPoint = Vector3.Min(minPoint, vertex);
-                        maxPoint = Vector3.Max(maxPoint, vertex);
-                    }
-                }
-            }
-
-            return new BoundingBox(minPoint + position, maxPoint + position);
         }
     }
 }

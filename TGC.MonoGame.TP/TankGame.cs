@@ -76,6 +76,8 @@ namespace ThunderingTanks
         private Model GermanSoliderModel { get; set; }
         private Texture2D GermanSoldierTexture { get; set; }
 
+        private WaterTank WaterTank { get; set; }
+
 
         public List<Projectile> Projectiles = new();
 
@@ -126,7 +128,7 @@ namespace ThunderingTanks
         public Vector2 MapLimit { get; set; }
         #endregion
 
-        public Random randomSeed = new Random(42);
+        public Random randomSeed = new Random(47);
 
         private SkyBox SkyBox { get; set; }
         public SpriteBatch spriteBatch { get; set; }
@@ -189,7 +191,8 @@ namespace ThunderingTanks
 
             antitanque = new AntiTanque();
 
-            molino = new Molino(Matrix.CreateTranslation(new(0, 0, 0)));
+            molino = new Molino(Matrix.CreateTranslation(
+                new(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))));
 
             Arboles = new List<Trees>(CantidadArboles);
             AgregarArboles(CantidadArboles);
@@ -198,8 +201,8 @@ namespace ThunderingTanks
             casa.Position = new Vector3(-3300f, -700f, 7000f);
 
             Grass = new Grass();
-
             GermanSoldier = new GermanSoldier();
+            WaterTank = new WaterTank();
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
@@ -250,6 +253,15 @@ namespace ThunderingTanks
             GermanSoldierTexture = Content.Load<Texture2D>(ContentFolder3D + "German_Soldier_1/panzergren_low2k_diff");
             GermanSoldier.Load(GermanSoliderModel, GermanSoldierTexture, BasicShader);
             GermanSoldier.SpawnPosition(new Vector3(0, 0, 300));
+
+            WaterTank.LoadContent(Content, BasicShader);
+            WaterTank.SpawnPosition(
+                new Vector3(
+                    randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 
+                    0f, 
+                    randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)
+                    )
+                );
 
             shootSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "shootSound");
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
@@ -510,6 +522,7 @@ namespace ThunderingTanks
                 DrawProjectiles(camara.View, camara.Projection);
                 antitanque.Draw(gameTime, camara.View, camara.Projection);
                 casa.Draw(gameTime, camara.View, camara.Projection);
+                WaterTank.Draw(camara.View, camara.Projection);
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
@@ -608,7 +621,7 @@ namespace ThunderingTanks
             {
                 Vector3 randomPosition = new Vector3(
                     (float)(randomSeed.NextDouble() * 40000 - 20000), // X entre -100 y 100
-                    150f,                                         // Y
+                    150f,                                             // Y
                     (float)(randomSeed.NextDouble() * 40000 - 20000)  // Z entre -100 y 100
                 );
                 roca = new Roca();

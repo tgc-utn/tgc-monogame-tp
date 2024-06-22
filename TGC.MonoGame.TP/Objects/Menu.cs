@@ -52,6 +52,7 @@ namespace ThunderingTanks.Objects
         #endregion
 
         private bool SoundIsOn = true;
+        private bool ResetMouse = true;
 
         public Menu(ContentManager contentManager)
         {
@@ -99,6 +100,9 @@ namespace ThunderingTanks.Objects
             var mouseState = Mouse.GetState();
             var mousePosition = new Point(mouseState.X, mouseState.Y);
 
+            if (mouseState.LeftButton == ButtonState.Released)
+                ResetMouse = true;
+
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
                 if (_playButton.Contains(mousePosition))
@@ -110,19 +114,21 @@ namespace ThunderingTanks.Objects
                 {
                     Environment.Exit(0); 
                 }
-                if (SoundIsOn && _soundOffButton.Contains(mousePosition))
+                if (SoundIsOn && _soundOffButton.Contains(mousePosition) && ResetMouse)
                 {
                     if (MediaPlayer.State == MediaState.Playing)
                         MediaPlayer.Pause();
 
                     SoundIsOn = false;
+                    ResetMouse = false;
                 }
-                else if (!SoundIsOn && _soundOnButton.Contains(mousePosition))
+                else if (!SoundIsOn && _soundOnButton.Contains(mousePosition) && ResetMouse)
                 {
                     if (MediaPlayer.State == MediaState.Paused)
                         MediaPlayer.Resume();
 
                     SoundIsOn = true;
+                    ResetMouse = false;
                 }
             }
 
@@ -134,6 +140,7 @@ namespace ThunderingTanks.Objects
             {
                 PlayButton = PlayButtonNormal;
             }
+
             if (_exitButton.Contains(mousePosition))
             {
                 RectangleButton = RectangleButtonHover;
@@ -142,6 +149,7 @@ namespace ThunderingTanks.Objects
             {
                 RectangleButton = RectangleButtonNormal;
             }
+
             if (_soundOnButton.Contains(mousePosition))
             {
                 SoundOnButton = SoundOnButtonHover;
@@ -150,6 +158,7 @@ namespace ThunderingTanks.Objects
             {
                 SoundOnButton = SoundOnButtonNormal;
             }
+
             if (_soundOffButton.Contains(mousePosition))
             {
                 SoundOffButton = SoundOffButtonHover;
@@ -158,6 +167,7 @@ namespace ThunderingTanks.Objects
             {
                 SoundOffButton = SoundOffButtonNormal;
             }
+
             if (_playing)
             {
                 MediaPlayer.Play(backgroundSound);
