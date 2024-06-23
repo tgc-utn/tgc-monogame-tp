@@ -18,6 +18,10 @@ namespace ThunderingTanks.Objects.Props
         public Texture2D Texture { get; set; }
         public Matrix WorldMatrix { get;  set; }
         public Effect Effect { get; set; }
+        public Vector3 Position { get; set; }
+        public BoundingBox BoundingBox { get; set; }
+        public Vector3 MaxBox;
+        public Vector3 MinBox;
 
         public GameProp()
         {
@@ -58,6 +62,7 @@ namespace ThunderingTanks.Objects.Props
         public void SpawnPosition(Vector3 position)
         {
             WorldMatrix = Matrix.CreateTranslation(position);
+            Position = position;
         }
     }
 }

@@ -31,6 +31,7 @@ namespace ThunderingTanks.Objects.Props
         {
             RocaWorld = Matrix.Identity;
         }
+
         public void LoadContent(ContentManager content)
         {
             RocaModel = content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
@@ -44,8 +45,18 @@ namespace ThunderingTanks.Objects.Props
                     meshPart.Effect = Effect;
                 }
             }
-            RocaWorld = Matrix.CreateScale(2.5f) * Matrix.CreateTranslation(Position);
+
+            Random random = new Random();
+
+            RocaWorld =
+                Matrix.CreateScale(2.5f)
+                * Matrix.CreateRotationY((float)random.NextDouble())
+                * Matrix.CreateRotationX((float)random.NextDouble())
+                * Matrix.CreateRotationZ((float)random.NextDouble())
+                * Matrix.CreateTranslation(Position);
+
             RocaBox = CreateBoundingBox(RocaModel, Matrix.CreateScale(2.5f), Position);
+
         }
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
 
