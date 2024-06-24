@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
+using ThunderingTanks.Geometries;
 using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
 using ThunderingTanks.Objects.Props;
@@ -117,7 +118,7 @@ namespace ThunderingTanks
         #region Tanks
         private Tank Panzer { get; set; }
 
-        private readonly int CantidadTanquesEnemigos = 0;
+        private readonly int CantidadTanquesEnemigos = 1;
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
@@ -135,6 +136,14 @@ namespace ThunderingTanks
 
         public FrameCounter FrameCounter { get; set; }
         public bool StartGame { get; set; } = false;
+
+        private CubePrimitive lightBox;
+
+        private float Timer { get; set; }
+
+        private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
+
+
 
 
         // ------------ GAME ------------ //
@@ -303,6 +312,9 @@ namespace ThunderingTanks
 
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "content"));
 
+            lightBox = new CubePrimitive(GraphicsDevice, 500, Color.LightGoldenrodYellow);
+
+
             base.LoadContent();
         }
 
@@ -312,6 +324,18 @@ namespace ThunderingTanks
 
             float deltaTime = 0;
             deltaTime += time;
+
+            var lightPosition = new Vector3(10000f, 50000f, 0f);
+
+            LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+
+            BasicShader.Parameters["lightPosition"].SetValue(lightPosition);
+
+            //BasicShader.Parameters["eyePosition"].SetValue(new Vector3(0.5f, 10f, 0.5f));
+
+            BasicShader.Parameters["eyePosition"].SetValue(_targetCamera.Position);
+
+
 
             #region Volume
 
@@ -530,7 +554,7 @@ namespace ThunderingTanks
                 }
                 foreach (var roca in Rocas)
                 {
-                    roca.Draw(gameTime, camara.View, camara.Projection);
+                    roca.Draw(gameTime, camara.View, camara.Projection, _targetCamera);
                     Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
                 }
                 foreach (var arbol in Arboles)
@@ -538,6 +562,9 @@ namespace ThunderingTanks
                     arbol.Draw(camara.View, camara.Projection);
                     Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
+
+                lightBox.Draw(LightBoxWorld, _targetCamera.View, _targetCamera.Projection);
+
                 Grass.Draw(GrassPosition, camara.View, camara.Projection);
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
