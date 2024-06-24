@@ -118,7 +118,7 @@ namespace ThunderingTanks
         #region Tanks
         private Tank Panzer { get; set; }
 
-        private readonly int CantidadTanquesEnemigos = 3;
+        private readonly int CantidadTanquesEnemigos = 0;
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
@@ -243,7 +243,7 @@ namespace ThunderingTanks
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            City = new MapScene(Content);
+            City = new MapScene(Content, GraphicsDevice);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -538,7 +538,7 @@ namespace ThunderingTanks
 
                 Camera camara = _targetCamera;
 
-                City.Draw(gameTime, camara.View, camara.Projection);
+                City.Draw(gameTime, camara.View, camara.Projection, GraphicsDevice);
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
                 Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);

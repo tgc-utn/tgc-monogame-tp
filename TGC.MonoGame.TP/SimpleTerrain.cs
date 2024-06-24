@@ -18,18 +18,18 @@ namespace ThunderingTanks
         private VertexBuffer vbTerrain;
 
         public SimpleTerrain(GraphicsDevice graphicsDevice, Texture2D heightMap,
-            Texture2D diffuseMap, Effect effect, Texture2D colorMap)
+            Texture2D diffuseMap, Effect effect, Texture2D colorMap, Texture2D roughness)
         {
             //Shader
             Effect = effect;
 
             // cargo el heightmap
-            LoadHeightmap(graphicsDevice, heightMap, 50, 0, Vector3.Zero);
+            LoadHeightmap(graphicsDevice, heightMap, 50, 25, Vector3.Zero);
             // textura con el color Map
             colorMapTexture = colorMap;
             // diffuse maps auxiliares
             terrainTexture = diffuseMap;
-            //terrainTexture2 = diffuseMap2;
+            terrainTexture2 = roughness;
         }
 
         /// <summary>
