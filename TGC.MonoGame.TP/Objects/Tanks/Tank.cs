@@ -51,8 +51,11 @@ namespace ThunderingTanks.Objects.Tanks
 
         public Vector3 Direction = new(0, 0, 0);
         public float TankVelocity { get; set; }
+
         public float TankRotation { get; set; }
         public float Rotation = 0;
+
+        private bool collided;
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
         public float FireRate { get; set; }
@@ -88,6 +91,9 @@ namespace ThunderingTanks.Objects.Tanks
         #endregion
 
         public float SensitivityFactor { get; set; }
+
+        public float VelocidadImpacto { get; set; }
+
 
         public Matrix ProjectileMatrix { get; private set; }
 
@@ -133,19 +139,37 @@ namespace ThunderingTanks.Objects.Tanks
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
 
+            collided = false;
+
+            Effect.Parameters["impacto"].SetValue(180.0f);
+            VelocidadImpacto = -160;
+            //Effect.Parameters["angulo"].SetValue(0);
+
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
         {
+
+
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             TimeSinceLastShot += time;
 
             bool isMoving = false;
+            bool isRotating = false;
+
+            if (isColliding)
+            {
+                collided = true;
+            }
 
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
+                if(collided)
+                {
+                    CollidingPosition -= PanzerMatrix.Forward * TankVelocity * time;
+                }
                 trackOffset -= 0.1f;
                 isMoving = true;
                 Console.WriteLine($"trackOffset es {trackOffset}");
@@ -154,6 +178,10 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
             {
                 Direction += PanzerMatrix.Forward * TankVelocity * time;
+                if (collided)
+                {
+                    CollidingPosition += PanzerMatrix.Forward * TankVelocity * time;
+                }
                 trackOffset += 0.1f;
                 isMoving = true;
                 Console.WriteLine($"trackOffset es {trackOffset}");
@@ -163,12 +191,16 @@ namespace ThunderingTanks.Objects.Tanks
             {
                 Rotation -= TankRotation * time;
                 isMoving = true;
+                isRotating = true;
+                //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
             if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
             {
                 Rotation += TankRotation * time;
                 isMoving = true;
+                isRotating = true;
+                //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
             if (isMoving)
@@ -190,6 +222,7 @@ namespace ThunderingTanks.Objects.Tanks
                 }
             }
 
+
             GunRotationFinal -= GetRotationFromCursorX() * SensitivityFactor;
             GunElevation += GetElevationFromCursorY() * SensitivityFactor;
 
@@ -207,6 +240,15 @@ namespace ThunderingTanks.Objects.Tanks
             Extents = CollisionsClass.GetExtents(TankBox);
 
             LastPosition = Direction;
+
+            Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
+            
+            Vector3 direccion_R = rotacion(direccion);
+            Vector3 c_Esfera = Direction + (direccion_R * VelocidadImpacto);
+
+            Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
+
+
         }
 
         public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
@@ -241,12 +283,14 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * TurretMatrix);
                     Effect.Parameters["IsTrack"].SetValue(false);
+
                 }
                 else if (mesh.Name.Equals("Cannon"))
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * CannonMatrix);
                     Effect.Parameters["IsTrack"].SetValue(false);
+
                 }
                 else if(mesh.Name.Equals("Treadmill1") || mesh.Name.Equals("Treadmill2"))
                 {
@@ -254,6 +298,7 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                     Effect.Parameters["IsTrack"]?.SetValue(true);
                     Effect.Parameters["TrackOffset"].SetValue(trackOffset);
+
                 }
                 else
                 {
@@ -270,20 +315,19 @@ namespace ThunderingTanks.Objects.Tanks
 
 
                     Effect.Parameters["IsTrack"].SetValue(false);
+
                 }
 
                 if (isColliding)
                 {
-                    Effect.Parameters["onhit"].SetValue(false);
-                    Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
+                    Effect.Parameters["onhit"].SetValue(true);
                 }
                 else
                 {
-                    // Effect.Parameters["onhit"].SetValue(false); si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
+                    //Effect.Parameters["onhit"].SetValue(false); //si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
                 }
 
-                Effect.Parameters["impacto"].SetValue(2000.0f);
-                Effect.Parameters["TankPosition"].SetValue(Direction);
+                Effect.CurrentTechnique = Effect.Techniques["Impacts"];
 
                 mesh.Draw();
 
@@ -416,6 +460,23 @@ namespace ThunderingTanks.Objects.Tanks
                     verticesTanque[i] += -direccion * fuerzaImpacto;
                 }
             }
+        }
+
+        public Vector3 VersorDireccion(Vector3 A, Vector3 B)
+        {
+            Vector3 Vector = B - A;
+            float moduloVector = Vector.Length();
+
+            return Vector / moduloVector;
+        }
+        public Vector3 rotacion(Vector3 direccion)
+        {
+            //derivado de los apuntes de 2D
+            Vector3 direc_R;
+            direc_R.Y = direccion.Y;
+            direc_R.Z = direccion.X * (float)Math.Cos(MathHelper.ToRadians(Rotation)) - direccion.Z * (float)Math.Sin(MathHelper.ToRadians(Rotation));
+            direc_R.X = direccion.Z * (float)Math.Cos(MathHelper.ToRadians(Rotation)) + direccion.X * (float)Math.Sin(MathHelper.ToRadians(Rotation));
+            return direc_R;
         }
     }
 }

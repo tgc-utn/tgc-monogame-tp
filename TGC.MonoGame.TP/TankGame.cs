@@ -797,13 +797,15 @@ namespace ThunderingTanks
         {
             BoundingBox tankBox = Panzer.TankBox;
 
+            Vector3 deltaY = new Vector3(0, 200f, 0);
+
             foreach (var roca in Rocas)
             {
                 if (tankBox.Intersects(roca.RocaBox))
                 {
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
-                    Panzer.CollidingPosition = roca.Position;
+                    Panzer.CollidingPosition = roca.Position + deltaY;
                     return true;
                 }
             }
@@ -813,7 +815,7 @@ namespace ThunderingTanks
                 if (tankBox.Intersects(arbol.BoundingBox))
                 {
                     Console.WriteLine("Colisión detectada con un árbol.");
-                    Panzer.CollidingPosition = arbol.Position;
+                    Panzer.CollidingPosition = arbol.Position + deltaY;
                     return true;
                 }
             }
@@ -821,7 +823,7 @@ namespace ThunderingTanks
             if (tankBox.Intersects(casa.CasaBox))
             {
                 Console.WriteLine("Colisión detectada con la casa.");
-                Panzer.CollidingPosition = casa.Position;
+                Panzer.CollidingPosition = casa.Position + deltaY;
                 return true;
             }
 
@@ -831,7 +833,7 @@ namespace ThunderingTanks
                 {
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con un tanque enemigo.");
-                    Panzer.CollidingPosition = EnemyTank.Position;
+                    Panzer.CollidingPosition = EnemyTank.Position + deltaY;
                     return true;
                 }
             }

@@ -29,7 +29,9 @@ float3 ImpactPosition;
 float3 TankPosition;
 
 float impacto; // tamaño del impacto
-float velocidad; // profundidad del impacto
+
+float3 c_Esfera; // posicion de la esfera (centro)
+
 
 float TrackOffset;
 bool IsTrack;
@@ -43,6 +45,7 @@ sampler2D TextureSampler = sampler_state
     AddressU = Wrap;
     AddressV = Wrap;
 };
+
 
 struct VertexShaderInput
 {
@@ -74,6 +77,7 @@ float3 desplazarPorRadio(float3 Posicion, float radio, float3 centro)
     return Posicion + (direccion * distancia);
 }
 
+
 VertexShaderOutput MainVS(in VertexShaderInput input)
 {
     VertexShaderOutput output;
@@ -90,17 +94,41 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     // Coordenadas de textura
     output.TextureCoordinate = input.TextureCoordinate;
 
+
+
+    return output;
+}
+
+VertexShaderOutput ImpactsVS(in VertexShaderInput input)
+{
+    VertexShaderOutput output;
+
+    // Transformaciones de espacio
+    float4 worldPosition = mul(input.Position, World);
+
     // Lógica adicional existente
     if (onhit)
     {
-        float3 direccion = VersorDireccion(ImpactPosition, TankPosition);
-        float3 c_Esfera = ImpactPosition + (direccion * velocidad);
         float r_Esfera = impacto;
-        if (distance(c_Esfera, output.WorldPosition) <= r_Esfera)
+        if (distance(c_Esfera, worldPosition.xyz) <= r_Esfera)
         {
-            output.Position.xyz = desplazarPorRadio(output.Position.xyz, r_Esfera, c_Esfera);
+            worldPosition.xyz = desplazarPorRadio(worldPosition.xyz, r_Esfera, c_Esfera);
         }
     }
+    
+    
+
+    float4 viewPosition = mul(worldPosition, View);
+    output.Position = mul(viewPosition, Projection);
+
+    // Pasar datos para el pixel shader
+    output.WorldPosition = worldPosition.xyz;
+    output.Normal = normalize(mul(input.Normal.xyz, (float3x3) World));
+
+    // Coordenadas de textura
+    output.TextureCoordinate = input.TextureCoordinate;
+
+
 
     return output;
 }
@@ -148,6 +176,15 @@ technique BasicColorDrawing
     pass P0
     {
         VertexShader = compile VS_SHADERMODEL MainVS();
+        PixelShader = compile PS_SHADERMODEL MainPS();
+    }
+};
+
+technique Impacts
+{
+    pass Pass0
+    {
+        VertexShader = compile VS_SHADERMODEL ImpactsVS();
         PixelShader = compile PS_SHADERMODEL MainPS();
     }
 };
