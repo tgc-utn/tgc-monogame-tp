@@ -58,7 +58,7 @@ namespace ThunderingTanks.Objects
         /// <param name="content">The Content Manager to load resources</param>
         public MapScene(ContentManager content, GraphicsDevice graphicsDevice)
         {
-            /*
+            
 
             //TRato de cargars texts para heightmap
             DiffuseTexture = content.Load<Texture2D>(ContentFolderTextures + "/heighmap/Diffuse");
@@ -73,9 +73,9 @@ namespace ThunderingTanks.Objects
 
             terrain = new SimpleTerrain(graphicsDevice, DisplacementTexture, DiffuseTexture, TerrainEffect, ColorMap, Roughness);
 
-            */
-            ///////////////////////////
             
+            ///////////////////////////
+            /*
                         Model = content.Load<Model>(ContentFolder3D + "Grid/ground");
                         TexturaTerreno = content.Load<Texture2D>(ContentFolder3D + "Grid/terreno");
 
@@ -96,21 +96,21 @@ namespace ThunderingTanks.Objects
                             Matrix worldMatrix = Matrix.CreateTranslation(translation) * scaleMatrix;
                             WorldMatrices.Add(worldMatrix);
                         }
-            
+            */
         }
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
-            /*
+            // Habilitar el Depth Buffer
             graphicsDevice.DepthStencilState = DepthStencilState.Default;
             var oldRasterizeState = graphicsDevice.RasterizerState;
             graphicsDevice.RasterizerState = RasterizerState.CullNone;
     
-            terrain.Draw(Matrix.Identity * Matrix.CreateTranslation(new Vector3(0f, -500f, 0f)), view, projection);
+            terrain.Draw(Matrix.Identity * Matrix.CreateTranslation(new Vector3(0f, -450f, 0f)), view, projection);
             graphicsDevice.RasterizerState = oldRasterizeState;
-            */
-
             
+
+            /*
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
             Effect.Parameters["ModelTexture"].SetValue(TexturaTerreno);
@@ -128,6 +128,7 @@ namespace ThunderingTanks.Objects
                     mesh.Draw();
                 }
             }
+            */
 
         }
     }

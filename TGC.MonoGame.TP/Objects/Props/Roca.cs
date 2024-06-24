@@ -25,6 +25,7 @@ namespace ThunderingTanks.Objects.Props
         public List<BoundingBox> BoundingBoxes { get; private set; }
 
         public bool IsDestroyed { get; private set; } // Indica si la roca ha sido destruida
+        private Vector3 originalPosition;
 
 
         public Roca()
@@ -32,7 +33,7 @@ namespace ThunderingTanks.Objects.Props
             RocaWorld = Matrix.Identity;
         }
 
-        public void LoadContent(ContentManager content)
+        public void LoadContent(ContentManager content, SimpleTerrain terrain)
         {
             RocaModel = content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
             TexturaRoca = content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasör/Rock_1_Base_Color");
@@ -48,19 +49,26 @@ namespace ThunderingTanks.Objects.Props
 
             Random random = new Random();
 
+            originalPosition = Position;
+            float terrainHeight = terrain.Height(originalPosition.X, originalPosition.Z);
+            Vector3 adjustedPosition = new Vector3(originalPosition.X, terrainHeight - 300, originalPosition.Z);
+
+            RocaWorld = Matrix.CreateTranslation(adjustedPosition);
             RocaWorld =
                 Matrix.CreateScale(2.5f)
                 * Matrix.CreateRotationY((float)random.NextDouble())
                 * Matrix.CreateRotationX((float)random.NextDouble())
                 * Matrix.CreateRotationZ((float)random.NextDouble())
-                * Matrix.CreateTranslation(Position);
+                * Matrix.CreateTranslation(adjustedPosition);
 
-            RocaBox = CreateBoundingBox(RocaModel, Matrix.CreateScale(2.5f), Position);
+            RocaBox = CreateBoundingBox(RocaModel, Matrix.CreateScale(2.5f), adjustedPosition);
 
         }
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
 
         {
+
+
             if (!IsDestroyed)
             {
                 Effect.Parameters["Projection"]?.SetValue(projection);
@@ -68,9 +76,9 @@ namespace ThunderingTanks.Objects.Props
 
                 foreach (var mesh in RocaModel.Meshes)
                 {
-                    Matrix _cartelWorld = RocaWorld;
+                    Matrix rocaWorld = RocaWorld;
                     Effect.Parameters["ModelTexture"]?.SetValue(TexturaRoca);
-                    Effect.Parameters["World"]?.SetValue(mesh.ParentBone.Transform * _cartelWorld);
+                    Effect.Parameters["World"]?.SetValue(mesh.ParentBone.Transform * rocaWorld);
                     mesh.Draw();
                 }
             }

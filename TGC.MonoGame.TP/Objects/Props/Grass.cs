@@ -16,6 +16,9 @@ namespace ThunderingTanks.Objects.Props
         private Texture2D GrassNormal { get; set; }
         private Texture2D GrassSmoothness { get; set; }
 
+        private Vector3 originalPosition;
+
+
         public void Load(Model model, Texture2D grassApha, Texture2D grassColor, Texture2D grassNormal, Texture2D grassSmoothness, Effect effect)
         {
             Model = model;
@@ -26,10 +29,14 @@ namespace ThunderingTanks.Objects.Props
             Effect = effect;
         }
 
-        public void Draw(List<Vector3> positions, Matrix view, Matrix projection)
+        public void Draw(List<Vector3> positions, Matrix view, Matrix projection, SimpleTerrain terrain)
         {
+         
             foreach (var position in positions)
             {
+                originalPosition = position;
+                float terrainHeight = terrain.Height(originalPosition.X, originalPosition.Z);
+                Vector3 adjustedPosition = new Vector3(originalPosition.X, terrainHeight - 450, originalPosition.Z);
 
                 foreach (var mesh in Model.Meshes)
                 {
@@ -46,7 +53,7 @@ namespace ThunderingTanks.Objects.Props
                     }
 
                     Effect.Parameters["ModelTexture"].SetValue(GrassApha);
-                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateTranslation(position));
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * Matrix.CreateTranslation(adjustedPosition));
 
                     mesh.Draw();
                 }

@@ -17,6 +17,8 @@ namespace ThunderingTanks.Objects.Props
         public Matrix[] AntitanqueWorlds { get; set; }
         public Effect Effect { get; set; }
 
+        private Vector3 originalPosition;
+
         public AntiTanque()
         {
             AntitanqueWorlds = new Matrix[] { };
@@ -29,6 +31,7 @@ namespace ThunderingTanks.Objects.Props
                 posicionAntitanque * Matrix.CreateScale(500),
             };
             AntitanqueWorlds = AntitanqueWorlds.Concat(nuevoAntitanque).ToArray();
+            originalPosition = Position;
         }
 
         public void LoadContent(ContentManager Content)
@@ -46,8 +49,12 @@ namespace ThunderingTanks.Objects.Props
             }
         }
 
-        public void Draw(GameTime gameTime, Matrix view, Matrix projection)
+        public void Draw(GameTime gameTime, Matrix view, Matrix projection, SimpleTerrain terrain)
         {
+            // Update the tree's position based on the terrain height
+            float terrainHeight = terrain.Height(originalPosition.X, originalPosition.Z);
+            Vector3 adjustedPosition = new Vector3(originalPosition.X, terrainHeight - 1100, originalPosition.Z);
+
             Effect.Parameters["View"].SetValue(view);
             Effect.Parameters["Projection"].SetValue(projection);
             Effect.Parameters["ModelTexture"].SetValue(TexturaAntitanque);
@@ -58,7 +65,7 @@ namespace ThunderingTanks.Objects.Props
 
                 for (int i = 0; i < AntitanqueWorlds.Length; i++)
                 {
-                    Matrix _antitanqueWorld = AntitanqueWorlds[i];
+                    Matrix _antitanqueWorld = AntitanqueWorlds[i] * Matrix.CreateTranslation(adjustedPosition);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _antitanqueWorld);
                     mesh.Draw();
                 }
