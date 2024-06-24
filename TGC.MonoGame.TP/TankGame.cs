@@ -681,7 +681,7 @@ namespace ThunderingTanks
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     //Panzer.RecibirImpacto(Projectiles[j].PositionVector, 500);
                     Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
-                    Panzer.RecieveImpact(Projectiles[j].Direction, 0);
+                    Panzer.RecibirImpacto(Projectiles[j].Direction, 0);
                     Projectiles.Remove(Projectiles[j]);
                     Console.WriteLine("Colisión detectada de proyectil con una roca.");
 

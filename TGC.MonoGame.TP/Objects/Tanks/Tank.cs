@@ -53,6 +53,8 @@ namespace ThunderingTanks.Objects.Tanks
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
         public float Rotation = 0;
+
+        private bool collided;
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
         public float FireRate { get; set; }
@@ -133,6 +135,12 @@ namespace ThunderingTanks.Objects.Tanks
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
 
+            collided = false;
+
+            Effect.Parameters["impacto"].SetValue(200.0f);
+            Effect.Parameters["velocidad"].SetValue(-300);
+            //Effect.Parameters["angulo"].SetValue(0);
+
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState)
@@ -143,9 +151,18 @@ namespace ThunderingTanks.Objects.Tanks
 
             bool isMoving = false;
 
+            if (isColliding)
+            {
+                collided = true;
+            }
+
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
                 Direction -= PanzerMatrix.Forward * TankVelocity * time;
+                if(collided)
+                {
+                    CollidingPosition -= PanzerMatrix.Forward * TankVelocity * time;
+                }
                 trackOffset -= 0.1f;
                 isMoving = true;
                 Console.WriteLine($"trackOffset es {trackOffset}");
@@ -154,6 +171,10 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
             {
                 Direction += PanzerMatrix.Forward * TankVelocity * time;
+                if (collided)
+                {
+                    CollidingPosition += PanzerMatrix.Forward * TankVelocity * time;
+                }
                 trackOffset += 0.1f;
                 isMoving = true;
                 Console.WriteLine($"trackOffset es {trackOffset}");
@@ -163,12 +184,14 @@ namespace ThunderingTanks.Objects.Tanks
             {
                 Rotation -= TankRotation * time;
                 isMoving = true;
+                //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
             if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
             {
                 Rotation += TankRotation * time;
                 isMoving = true;
+                //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
             if (isMoving)
@@ -275,16 +298,14 @@ namespace ThunderingTanks.Objects.Tanks
 
                 if (isColliding)
                 {
-                    Effect.Parameters["onhit"].SetValue(false);
-                    Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
+                    Effect.Parameters["onhit"].SetValue(true);
                 }
                 else
                 {
-                    // Effect.Parameters["onhit"].SetValue(false); si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
+                    //Effect.Parameters["onhit"].SetValue(false); //si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
                 }
-
-                Effect.Parameters["impacto"].SetValue(2000.0f);
                 Effect.Parameters["TankPosition"].SetValue(Direction);
+                Effect.Parameters["ImpactPosition"].SetValue(CollidingPosition);
 
                 mesh.Draw();
 
