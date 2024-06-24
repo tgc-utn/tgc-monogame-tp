@@ -71,7 +71,7 @@ namespace ThunderingTanks
         private Texture2D GrassSmoothness { get; set; }
         private List<Vector3> GrassPosition { get; set; }
 
-        public int GrassCant = 200;
+        public int GrassCant = 300;
 
         private GermanSoldier GermanSoldier { get; set; }
         private Model GermanSoliderModel { get; set; }
@@ -554,7 +554,7 @@ namespace ThunderingTanks
                 }
                 foreach (var roca in Rocas)
                 {
-                    roca.Draw(gameTime, camara.View, camara.Projection, _targetCamera);
+                    roca.Draw(gameTime, camara.View, camara.Projection);
                     Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
                 }
                 foreach (var arbol in Arboles)
@@ -708,7 +708,7 @@ namespace ThunderingTanks
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     //Panzer.RecibirImpacto(Projectiles[j].PositionVector, 500);
                     Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
-                    Panzer.RecieveImpact(Projectiles[j].Direction, 0);
+                    Panzer.RecibirImpacto(Projectiles[j].Direction, 0);
                     Projectiles.Remove(Projectiles[j]);
                     Console.WriteLine("Colisión detectada de proyectil con una roca.");
 
