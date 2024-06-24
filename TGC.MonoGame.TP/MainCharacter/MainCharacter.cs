@@ -7,10 +7,13 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Stages;
 using TGC.MonoGame.TP.Collisions;
+using TGC.MonoGame.TP.Geometries;
+using TGC.MonoGame.TP.MainCharacter;
+using System.Collections.Generic;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
-    public class Character
+    public class Character : Entity
     {
         const string ContentFolder3D = "3D/";
         const string ContentFolderEffects = "Effects/";
@@ -27,12 +30,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Material CurrentMaterial = Material.RustedMetal;
 
-        Vector3 Position;
-        Vector3 Velocity;
-        Vector3 Acceleration = Vector3.Zero;
-        Quaternion Rotation = Quaternion.Identity;
-        Vector3 RotationAxis = Vector3.UnitY;
-        float RotationAngle = 0f;
+       private List<Entity> myEntities;
 
         // Colisiones
         public BoundingSphere EsferaBola { get; set; }
@@ -43,14 +41,13 @@ namespace TGC.MonoGame.TP.MainCharacter
         Vector3 BallSpinAxis=Vector3.UnitX;
         float BallSpinAngle=0f;
         Matrix WorldWithBallSpin;
-        //float BallPitch=0f;
-        //float BallRoll=0f;
 
         Vector3 LightPos{get;set;}
         public Matrix Spin;
-        public Character(ContentManager content, Stage stage)
+        public Character(ContentManager content, Stage stage, List<Entity> entities)
         {
             Content = content;
+            myEntities = entities;
             Spin= Matrix.CreateFromAxisAngle(Vector3.UnitZ, 0);
 
             ActualStage = stage;
@@ -73,25 +70,16 @@ namespace TGC.MonoGame.TP.MainCharacter
             World = Scale * Matrix.CreateTranslation(Position);
             WorldWithBallSpin=World;
 
-            /* 
-            // Colisiones: Â¿van en lo principal?
-            int index = 0;
-            for (; index < ActualStage.Colliders.Count; index++)
-                ActualStage.Colliders[index] = BoundingVolumesExtensions.FromMatrix(ActualStage.StairsWorld[index]);
-
-             // Instantiate a BoundingBox for the Box
-             ActualStage.Colliders[index] = BoundingVolumesExtensions.FromMatrix(ActualStage.BoxWorld);
-             index++;
-             // Instantiate a BoundingBox for the Floor. Note that the height is almost zero
-             ActualStage.Colliders[index] = new BoundingBox(new Vector3(-200f, -0.001f, -200f), new Vector3(200f, 0f, 200f));
-            // Colisiones
-            */
-
             // Bounding Sphere asociado a la bola principal
-            EsferaBola = new BoundingSphere(Position, 10f);
+            UpdateBBSphere(Position);
 
             // Apply the effect to all mesh parts
             Sphere.Meshes.FirstOrDefault().MeshParts.FirstOrDefault().Effect = Effect;
+        }
+
+        private void UpdateBBSphere(Vector3 center)
+        {
+            EsferaBola = new BoundingSphere(center, 10f);
         }
 
         private void InitializeEffect()
@@ -110,10 +98,6 @@ namespace TGC.MonoGame.TP.MainCharacter
         {
             ProcessMaterialChange();
             ProcessMovement(gameTime);
-            ProcessCollision(Velocity);
-
-            // Verificar colisiones con los colliders del escenario actual
-            //ActualStage.CheckCollisions(Position);
         }
 
         public void Draw(Matrix view, Matrix projection)
@@ -122,13 +106,8 @@ namespace TGC.MonoGame.TP.MainCharacter
             Effect.Parameters["matWorld"].SetValue(WorldWithBallSpin);
             Effect.Parameters["matWorldViewProj"].SetValue(worldView * projection);
             Effect.Parameters["matInverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(WorldWithBallSpin)));
-            //Effect.Parameters["lightPosition"].SetValue(new Vector3(25, 180, -800));
-            //Effect.Parameters["lightPosition"].SetValue(Position + new Vector3(0, 60, 0));
             Effect.Parameters["lightPosition"].SetValue(LightPos);
             Effect.Parameters["lightColor"].SetValue(new Vector3(253, 251, 211));
-
-            //Game.Gizmos.DrawSphere(World, Vector3.One*20, Color.Red);
-            
             Sphere.Meshes.FirstOrDefault().Draw();
         }
 
@@ -147,85 +126,6 @@ namespace TGC.MonoGame.TP.MainCharacter
             Effect.Parameters["metallicTexture"]?.SetValue(metalness);
             Effect.Parameters["roughnessTexture"]?.SetValue(roughness);
             Effect.Parameters["aoTexture"]?.SetValue(ao);
-        }
-
-
-
-        private void ProcessCollision(Vector3 scaledVelocity)
-        {
-            // Si la esfera tiene velocidad vertical
-            if (scaledVelocity.Y == 0f)
-                return;
-
-
-            // Empieza moviendo la esfera
-            BoundingSphere NuevaEsfera = EsferaBola; //tuvimos que crear una variable auxiliar porque no podemos modificarla directamente
-            NuevaEsfera.Center += Vector3.Up * scaledVelocity.Y;
-            EsferaBola = NuevaEsfera;
-            // Set the OnGround flag on false, update it later if we find a collision
-            OnGround = false;
-
-
-            // Collision detection
-            var collided = false;
-            var foundIndex = -1;
-            for (var index = 0; index < ActualStage.Colliders.Count; index++)
-            {
-                if (!EsferaBola.Intersects(ActualStage.Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
-                    continue;
-                
-                // If we collided with something, set our velocity in Y to zero to reset acceleration
-                Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
-
-                // Set our index and collision flag to true
-                // The index is to tell which collider the Robot intersects with
-                collided = true;
-                foundIndex = index;
-                break;
-            }
-
-
-            // We correct based on differences in Y until we don't collide anymore
-            // Not usual to iterate here more than once, but could happen
-            while (collided)
-            {
-                var collider = ActualStage.Colliders[foundIndex];
-                var colliderY = BoundingVolumesExtensions.GetCenter(collider).Y;
-                var sphereY = EsferaBola.Center.Y;
-                var extents = BoundingVolumesExtensions.GetExtents(collider);
-
-                float penetration;
-                // If we are on top of the collider, push up
-                // Also, set the OnGround flag to true
-                if (sphereY > colliderY)
-                {
-                    penetration = colliderY + extents.Y - sphereY + EsferaBola.Radius;
-                    OnGround = true;
-                }
-
-                // If we are on bottom of the collider, push down
-                else
-                    penetration = -sphereY - EsferaBola.Radius + colliderY - extents.Y;
-
-                // Move our Cylinder so we are not colliding anymore
-                NuevaEsfera = EsferaBola;
-                NuevaEsfera.Center += Vector3.Up * penetration;
-                EsferaBola = NuevaEsfera;
-                collided = false;
-
-                // Check for collisions again
-                for (var index = 0; index < ActualStage.Colliders.Count; index++)
-                {
-                    if (!EsferaBola.Intersects(ActualStage.Colliders[index]).Equals(BoxCylinderIntersection.Intersecting))
-                        continue;
-
-                    // Iterate until we don't collide with anything anymore
-                    collided = true;
-                    foundIndex = index;
-                    break;
-                }
-            }
-            
         }
         
         private void ProcessMaterialChange()
@@ -300,31 +200,228 @@ namespace TGC.MonoGame.TP.MainCharacter
             LoadTextures();
         }
 
+        public float DistanceToGround(Vector3 pos)
+        {
+            float dist = 1000000.0f;
+            foreach (Entity entity in myEntities)
+            {
+                if (entity is CubePrimitive)
+                {
+                    CubePrimitive entityAux = (CubePrimitive)entity;
+                    Ray tempRay = new Ray(pos, -Vector3.Up);
+                    float? tempDist = tempRay.Intersects(entityAux.BoundingCube);
+
+                    if (dist > tempDist)
+                    {
+                        dist = (float)tempDist;
+                    }
+                }
+            }
+
+            return dist;
+        }
+
+        public bool IsOnGround(Vector3 pos)
+        {
+            GeometricPrimitive collidedEntity = null;
+            foreach (Entity entity in myEntities)
+            {
+                if (entity is CubePrimitive)
+                {
+                    CubePrimitive entityAux = (CubePrimitive)entity;
+                    Ray tempRay = new Ray(pos, -Vector3.Up);
+                    float? dist = tempRay.Intersects(entityAux.BoundingCube);
+
+                    if (dist.HasValue && dist < 10.2f)
+                    {
+                        collidedEntity = (CubePrimitive)entity;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool IsColliding()
+        {
+            foreach (Entity entity in myEntities)
+            {
+                if (entity is CubePrimitive)
+                {
+                    CubePrimitive entityAux = (CubePrimitive)entity;
+                    if (EsferaBola.Intersects(entityAux.BoundingCube))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void ProcessCollision_Old(Vector3 LocalVelocity, float deltaTime)
+        {
+            Vector3 oldPosition = Position;
+            Vector3 movement = LocalVelocity * deltaTime * deltaTime * 0.5f;
+            Vector3 newPosition = oldPosition + movement;
+
+            UpdateBBSphere(newPosition);
+            int steps = 1000;
+            bool neverFound = true;
+            foreach (Entity entity in myEntities)
+            {
+                if (entity is CubePrimitive)
+                {
+                    CubePrimitive entityAux = (CubePrimitive)entity;
+                    if (EsferaBola.Intersects(entityAux.BoundingCube))
+                    {
+                        neverFound = false;
+                        if (IsOnGround(newPosition))
+                        {
+                           //LocalVelocity = new Vector3(LocalVelocity.X, 0.0f, LocalVelocity.Z);
+                        }
+
+                        bool intersecting = true;
+                        float moveFactor = 1.0f;
+                        while (intersecting && steps > 0)
+                        {
+                            steps -= 1;
+                            movement = LocalVelocity * deltaTime * deltaTime * 0.5f;
+                            newPosition = oldPosition + movement * moveFactor;
+                            UpdateBBSphere(newPosition);
+                            intersecting = EsferaBola.Intersects(entityAux.BoundingCube);
+                            moveFactor = moveFactor / 2.0f;
+                        }
+
+                        Position = newPosition;
+                        UpdateBBSphere(Position);
+                    }
+                }
+            }
+
+            if (neverFound)
+            {
+                Position = newPosition;
+                UpdateBBSphere(Position);
+            }
+        }
+
+        public void ProcessCollision(Vector3 LocalVelocity, float deltaTime)
+        {
+            Vector3 oldPosition = Position;
+            Vector3 movement = LocalVelocity * deltaTime * deltaTime * 0.5f;
+            Vector3 newPosition = oldPosition + movement;
+
+            UpdateBBSphere(newPosition);
+
+            bool collisionDetected = false;
+
+            foreach (Entity entity in myEntities)
+            {
+                if (entity is CubePrimitive)
+                {
+                    CubePrimitive entityAux = (CubePrimitive)entity;
+                    if (EsferaBola.Intersects(entityAux.BoundingCube))
+                    {
+                        collisionDetected = true;
+
+                        // Manejar la colisión
+                        Vector3 collisionNormal = GetCollisionNormal(entityAux.BoundingCube);
+
+                        // Resolver la posición después de la colisión
+                        newPosition = ResolveCollision(oldPosition, newPosition, collisionNormal);
+
+                        // Actualizar la esfera de colisión
+                        UpdateBBSphere(newPosition);
+
+                        // Puedes hacer más ajustes según tu lógica específica de juego
+                        // Por ejemplo, ajustar la velocidad según la normal de la colisión
+                        // LocalVelocity = ModifyVelocity(LocalVelocity, collisionNormal);
+                    }
+                }
+            }
+
+            // Si no hubo colisión, simplemente actualizar la posición
+            if (!collisionDetected)
+            {
+                Position = newPosition;
+                UpdateBBSphere(Position);
+            }
+        }
+
+        private Vector3 GetCollisionNormal(BoundingBox boundingBox)
+        {
+            // Aquí obtienes la normal de la colisión basada en la caja de colisión
+            // Puedes implementar la lógica según tus necesidades específicas
+            // Por ejemplo, calcular la normal de la cara con la que colisiona la esfera
+            // y devolverla como un vector normalizado
+            // Este es un ejemplo simplificado, puede necesitar ajustes según tu escenario
+            return Vector3.Normalize(Position - boundingBox.Min);
+        }
+
+        private Vector3 ResolveCollision(Vector3 oldPosition, Vector3 newPosition, Vector3 collisionNormal)
+        {
+            // Calcula el vector desde la posición anterior hacia la nueva posición
+            Vector3 movementDirection = newPosition - oldPosition;
+
+            // Calcula la distancia que se movió la bola antes de la colisión
+            float movementDistance = movementDirection.Length();
+
+            // Si no se movió, no hay colisión que resolver
+            if (movementDistance == 0)
+                return newPosition;
+
+            // Normaliza la dirección del movimiento
+            Vector3 movementDirectionNormalized = movementDirection / movementDistance;
+
+            // Calcula la distancia a lo largo de la normal de la colisión
+            float distanceAlongNormal = Vector3.Dot(collisionNormal, newPosition - oldPosition);
+
+            // Si la bola se estaba moviendo hacia el objeto (distancia negativa a lo largo de la normal), la refleja
+            if (distanceAlongNormal < 0)
+            {
+                // Calcula la parte de la velocidad que va en la dirección opuesta a la normal
+                Vector3 velocityParallel = distanceAlongNormal * collisionNormal;
+
+                // Calcula la parte de la velocidad que va en la dirección perpendicular a la normal
+                Vector3 velocityPerpendicular = newPosition - oldPosition - velocityParallel;
+
+                // Invierte la parte de la velocidad paralela para simular un rebote
+                newPosition = oldPosition - velocityParallel + velocityPerpendicular;
+            }
+
+            // Retorna la nueva posición ajustada después de la resolución de la colisión
+            return newPosition;
+        }
+
         private Vector2 pastMousePosition=Vector2.Zero;
         private float MouseSensitivity=0.3f;
+
+        private Vector3 GetVelocity()
+        {
+            return Velocity;
+        }
+
         private void ProcessMovement(GameTime gameTime) 
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            
-
             var directionX = new Vector3();
             var directionY = new Vector3();
             var directionZ = new Vector3();
             
-            bool salto = false;
-            //bool onGround = true;
-            float speed = 100;
+            float speed = 100f;
+
             // Capturar Input teclado
             var keyboardState = Keyboard.GetState();
+            
+            // Procesamiento del movimiento horizontal
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
                 Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation);
             }
             if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation) * (- 1);
+                Acceleration += Vector3.Transform(Vector3.UnitX * speed, Rotation);
             }
             if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
@@ -332,30 +429,26 @@ namespace TGC.MonoGame.TP.MainCharacter
             }
             if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitZ * speed, Rotation) * (-1);
+                Acceleration += Vector3.Transform(Vector3.UnitZ * -speed, Rotation);
             }
-            if(Keyboard.GetState().IsKeyDown(Keys.Space) && Velocity.Y == 0f)
+
+            Acceleration += new Vector3(0f, -100f, 0f);
+
+            //Procesamiento del movimiento vertical
+            float distGround = DistanceToGround(Position);
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && (distGround < 12.5f || IsColliding()))
             {
-                Velocity += Vector3.Up * speed;
-                salto = true;
-                ProcessCollision(Velocity);
+                Velocity += Vector3.Up * speed * 100;
             }
-
-            Vector3 gravity = Vector3.Zero;
-
-            Vector3 SpinVelocity=Velocity;
-
 
             BallSpinAngle += Velocity.Length()*elapsedTime / (MathHelper.Pi*12.5f);
             BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
-            //DeltaX+=elapsedTime*Velocity.X/MathHelper.TwoPi;
-            //DeltaZ+=elapsedTime*Velocity.Z/MathHelper.TwoPi;
-            //Spin*=Matrix.CreateFromAxisAngle(BallSpinAxis, BallSpinAngle);
-            //BallSpinAxis.X=Math.Abs(BallSpinAxis.X);
-            //BallSpinAxis.Z=Math.Abs(BallSpinAxis.Z);
-            
-            //if(Acceleration==Vector3.Zero && Velocity!=Vector3.Zero) Velocity *= (1-(elapsedTime/2));
-            if(Acceleration==Vector3.Zero || Vector3.Dot(Acceleration, Velocity)<0) Velocity *= (1-(elapsedTime));
+
+            if (Acceleration == Vector3.Zero || Vector3.Dot(Acceleration, Velocity) < 0)
+            {
+                Velocity *= (1 - (elapsedTime));
+            }
+
             if(Velocity==Vector3.Zero) BallSpinAxis = Vector3.UnitZ;
 
             Rotation = Quaternion.CreateFromAxisAngle(RotationAxis, RotationAngle);
@@ -364,25 +457,10 @@ namespace TGC.MonoGame.TP.MainCharacter
             directionY = Vector3.Transform(Vector3.UnitY, Rotation);
             directionZ = Vector3.Transform(Vector3.UnitZ, Rotation);
 
+            Velocity += Acceleration;
+
+            ProcessCollision(Velocity * (directionX + directionY + directionZ), elapsedTime);
             
-            //if(Position.Y <= 25f)
-            if(OnGround==true)
-            {
-                gravity = new Vector3(0f, 0f, 0f);
-                if (!salto)
-                {
-                    Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
-                }
-            }
-            else
-            {
-                gravity = new Vector3(0f, -100f, 0f);
-            }
-
-            Velocity += (Acceleration + gravity) * elapsedTime;
-            Position += (directionX + directionY + directionZ) * Velocity * elapsedTime * 0.5f;
-
-
             MoveTo(Position);
 
             Acceleration = Vector3.Zero;

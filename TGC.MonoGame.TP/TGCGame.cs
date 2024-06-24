@@ -54,8 +54,7 @@ namespace TGC.MonoGame.TP
         // BOLITA
         private Character MainCharacter;
         private Stage Stage;
-
-
+        protected List<Entity> Entities;
         
 
         /// <summary>
@@ -68,7 +67,6 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-
 
             //var cameraPosition = new Vector3(25f, 100f, -1100f);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
@@ -99,15 +97,40 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            
+            Entities = new List<Entity>();
 
             Stage = new Stage_01(GraphicsDevice, Content);
 
-            MainCharacter = new Character(Content, Stage);
+            MainCharacter = new Character(Content, Stage, Entities);
 
             BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
 
+            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups);
+
             base.LoadContent();
+        }
+
+        private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups)
+        {
+            foreach(GeometricPrimitive myTrack in Track)
+            {
+                Entities.Add(myTrack);
+            }
+            
+            foreach(GeometricPrimitive myObstacle in Obstacles)
+            {
+                Entities.Add(myObstacle);
+            }
+
+            foreach(GeometricPrimitive mySign in Signs)
+            {
+                Entities.Add(mySign);
+            }
+
+            foreach(GeometricPrimitive myPickup in Pickups)
+            {
+                Entities.Add(myPickup);
+            }
         }
 
         /// <summary>

@@ -17,11 +17,11 @@ namespace TGC.MonoGame.TP.Stages
         protected GraphicsDevice GraphicsDevice;
         protected ContentManager Content;
 
-        protected List<GeometricPrimitive> Track; // circuito y obstáculos fijos 
-        protected List<GeometricPrimitive> Obstacles; // obstáculos móviles
-        protected List<GeometricPrimitive> Signs; //FIXME: eventualmente podrían ser algo distinto a GeometricPrimitive
-        protected List<GeometricPrimitive> Pickups; //FIXME: eventualmente podrían ser algo distinto a GeometricPrimitive
-        protected List<GeometricPrimitive> Checkpoints; // puntos de respawn
+        public List<GeometricPrimitive> Track { get; set; } // circuito y obstáculos fijos 
+        public List<GeometricPrimitive> Obstacles { get; set; } // obstáculos móviles
+        public List<GeometricPrimitive> Signs { get; set; } //FIXME: eventualmente podrían ser algo distinto a GeometricPrimitive
+        public List<GeometricPrimitive> Pickups { get; set; } //FIXME: eventualmente podrían ser algo distinto a GeometricPrimitive
+        public List<GeometricPrimitive> Checkpoints { get; set; } // puntos de respawn
 
         //COLISIONES
         public List<BoundingBox> Colliders;

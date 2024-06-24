@@ -11,7 +11,7 @@ class Stage_01 : Stage
 {
 
     public Stage_01(GraphicsDevice graphicsDevice, ContentManager content) : 
-        base(graphicsDevice, content, characterPosition: new Vector3(25, 25, -800)) {}
+        base(graphicsDevice, content, characterPosition: new Vector3(25, 40, -800)) {}
 
     protected override void LoadColliders()
     {
@@ -169,7 +169,6 @@ class Stage_01 : Stage
     public override void Update(GameTime gameTime)
     {
         // TODO: actualizar el estado de todas las piezas m�viles del nivel
-
     }
 
 }

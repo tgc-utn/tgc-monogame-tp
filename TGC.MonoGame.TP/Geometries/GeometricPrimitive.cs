@@ -26,7 +26,8 @@ namespace TGC.MonoGame.TP.Geometries
     ///     drawing the model. Classes for specific types of primitive (CubePrimitive, SpherePrimitive, etc.) are derived from
     ///     this common base, and use the AddVertex and AddIndex methods to specify their geometry.
     /// </summary>
-    public abstract class GeometricPrimitive : IDisposable
+    /// 
+    public abstract class GeometricPrimitive : Entity
     {
         #region Fields
 

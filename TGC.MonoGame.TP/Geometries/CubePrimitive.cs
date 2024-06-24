@@ -30,6 +30,9 @@ namespace TGC.MonoGame.TP.Geometries
         /// </summary>
         /// 
         public BoundingBox BoundingCube { get; set; }
+        private Vector3 minVert;
+        private Vector3 maxVert;
+
         public CubePrimitive(
                 GraphicsDevice graphicsDevice,
                 ContentManager content,
@@ -93,7 +96,7 @@ namespace TGC.MonoGame.TP.Geometries
             if (coordinates.HasValue && scale.HasValue)
             {
                 Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
-                Vector3 regularSize = scale.Value;
+                Vector3 regularSize = scale.Value * 25;
                 // Ahora puedes usar regularVector, que es de tipo Vector3
                 BoundingCube = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
             }
