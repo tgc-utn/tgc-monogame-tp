@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
+using ThunderingTanks.Geometries;
 using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
 using ThunderingTanks.Objects.Props;
@@ -70,7 +71,7 @@ namespace ThunderingTanks
         private Texture2D GrassSmoothness { get; set; }
         private List<Vector3> GrassPosition { get; set; }
 
-        public int GrassCant = 200;
+        public int GrassCant = 300;
 
         private GermanSoldier GermanSoldier { get; set; }
         private Model GermanSoliderModel { get; set; }
@@ -135,6 +136,14 @@ namespace ThunderingTanks
 
         public FrameCounter FrameCounter { get; set; }
         public bool StartGame { get; set; } = false;
+
+        private CubePrimitive lightBox;
+
+        private float Timer { get; set; }
+
+        private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
+
+
 
 
         // ------------ GAME ------------ //
@@ -303,6 +312,9 @@ namespace ThunderingTanks
 
             Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "content"));
 
+            lightBox = new CubePrimitive(GraphicsDevice, 500, Color.LightGoldenrodYellow);
+
+
             base.LoadContent();
         }
 
@@ -312,6 +324,18 @@ namespace ThunderingTanks
 
             float deltaTime = 0;
             deltaTime += time;
+
+            var lightPosition = new Vector3(10000f, 50000f, 0f);
+
+            LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+
+            BasicShader.Parameters["lightPosition"].SetValue(lightPosition);
+
+            //BasicShader.Parameters["eyePosition"].SetValue(new Vector3(0.5f, 10f, 0.5f));
+
+            BasicShader.Parameters["eyePosition"].SetValue(_targetCamera.Position);
+
+
 
             #region Volume
 
@@ -538,6 +562,9 @@ namespace ThunderingTanks
                     arbol.Draw(camara.View, camara.Projection);
                     Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
+
+                lightBox.Draw(LightBoxWorld, _targetCamera.View, _targetCamera.Projection);
+
                 Grass.Draw(GrassPosition, camara.View, camara.Projection);
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);

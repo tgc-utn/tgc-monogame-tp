@@ -12,14 +12,16 @@ float4x4 View;
 float4x4 Projection;
 
 float3 ambientColor = float3(0.2, 0.2, 0.2); // Color ambiental
-float3 diffuseColor;//= float3(1.0, 1.0, 1.0); // Color difuso
+float3 diffuseColor = float3(1.0, 1.0, 1.0); // Color difuso
 float3 specularColor = float3(1.0, 1.0, 1.0); // Color especular
 float KAmbient = 1.0; // Factor de ambiente
 float KDiffuse = 1.0; // Factor difuso
 float KSpecular = 1.0; // Factor especular
 float shininess = 32.0; // Brillo especular
 
-float3 eyePosition; // Posición del ojo/cámara
+float3 lightPosition;
+float3 eyePosition; // Camera position
+
 
 bool onhit;
 
@@ -145,10 +147,10 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float4 texelColor = tex2D(TextureSampler, input.TextureCoordinate.xy);
 
     // Dirección de la luz (asumiendo luz solar, puedes ajustar según necesites)
-    float3 lightDirection = normalize(float3(0.0, 1.0, 0.0));
+    float3 lightDirection = normalize(lightPosition - input.WorldPosition.xyz);
 
     // Vector de vista
-    float3 viewDirection = normalize(eyePosition - input.WorldPosition);
+    float3 viewDirection = normalize(eyePosition - input.WorldPosition.xyz);
 
     // Vector semibrillante
     float3 halfVector = normalize(lightDirection + viewDirection);

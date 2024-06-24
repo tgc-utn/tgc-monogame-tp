@@ -23,7 +23,7 @@ namespace ThunderingTanks.Objects.Tanks
         float KAmbientValue = 1.0f;  // Factor de ambiental
         float KDiffuseValue = 1.0f;  // Factor difuso
         float KSpecularValue = 1.0f; // Factor especular
-        float shininessValue = 32.0f; // Brillo especular (puede ajustarse según sea necesario)
+        float shininessValue = 40.0f; // Brillo especular (puede ajustarse según sea necesario)
 
         #region ContentFolders
         public const string ContentFolder3D = "Models/";
@@ -290,7 +290,6 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["KDiffuse"].SetValue(KDiffuseValue);
                     Effect.Parameters["KSpecular"].SetValue(KSpecularValue);
                     Effect.Parameters["shininess"].SetValue(shininessValue);
-                    //Effect.Parameters["diffuseColor"].SetValue(Color.Orange);
 
 
                     Effect.Parameters["IsTrack"].SetValue(false);
