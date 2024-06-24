@@ -23,7 +23,7 @@ float3 lightPosition;
 float3 eyePosition; // Camera position
 
 
-bool onhit;
+float onhit;
 
 float3 ImpactPosition;
 float3 TankPosition;
@@ -32,6 +32,7 @@ float impacto; // tamaño del impacto
 
 float3 c_Esfera; // posicion de la esfera (centro)
 
+float4 Plano_ST;
 
 float TrackOffset;
 bool IsTrack;
@@ -70,12 +71,38 @@ float3 VersorDireccion(float3 A, float3 B)
     return Vector / moduloVector;
 }
 
-float3 desplazarPorRadio(float3 Posicion, float radio, float3 centro)
+float passedHorizon(float3 Posicion)
+{
+    
+    /*if ((dot(Plano_ST.xyz, Posicion) + Plano_ST.w) < -30)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }*/
+    
+    return 0;
+}
+
+float3 desplazarPorRadio(float3 Posicion, float radio, float3 centro, float3 Tank)
 {
     float3 direccion = VersorDireccion(centro, Posicion);
-    float distancia = radio - distance(centro, Posicion);
-    return Posicion + (direccion * distancia);
+    float distancia;
+    if (passedHorizon(Posicion) == 1)
+    {
+        distancia = radio + distance(centro, Posicion);
+        return Posicion - (direccion * distancia);
+    }
+    else
+    {
+        distancia = radio - distance(centro, Posicion);
+        return Posicion + (direccion * distancia);
+    }
 }
+
+
 
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
@@ -107,12 +134,12 @@ VertexShaderOutput ImpactsVS(in VertexShaderInput input)
     float4 worldPosition = mul(input.Position, World);
 
     // Lógica adicional existente
-    if (onhit)
+    if (onhit == 1)
     {
         float r_Esfera = impacto;
         if (distance(c_Esfera, worldPosition.xyz) <= r_Esfera)
         {
-            worldPosition.xyz = desplazarPorRadio(worldPosition.xyz, r_Esfera, c_Esfera);
+            worldPosition.xyz = desplazarPorRadio(worldPosition.xyz, r_Esfera, c_Esfera, TankPosition);
         }
     }
     

@@ -4,9 +4,11 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using SharpDX.DirectWrite;
 using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 
@@ -119,6 +121,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
+
             TimeSinceLastShot = FireRate;
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
@@ -141,9 +144,8 @@ namespace ThunderingTanks.Objects.Tanks
 
             collided = false;
 
-            Effect.Parameters["impacto"].SetValue(180.0f);
-            VelocidadImpacto = -160;
-            //Effect.Parameters["angulo"].SetValue(0);
+            Effect.Parameters["impacto"].SetValue(200f);
+            VelocidadImpacto = -200;
 
         }
 
@@ -241,12 +243,17 @@ namespace ThunderingTanks.Objects.Tanks
 
             LastPosition = Direction;
 
+
+
             Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
             
             Vector3 direccion_R = rotacion(direccion);
             Vector3 c_Esfera = Direction + (direccion_R * VelocidadImpacto);
 
+            Vector4 Plano_ST = crearPlano(c_Esfera, Direction);
+
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
+            //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); experimental
 
 
         }
@@ -320,7 +327,7 @@ namespace ThunderingTanks.Objects.Tanks
 
                 if (isColliding)
                 {
-                    Effect.Parameters["onhit"].SetValue(true);
+                    Effect.Parameters["onhit"].SetValue(1);
                 }
                 else
                 {
@@ -477,6 +484,19 @@ namespace ThunderingTanks.Objects.Tanks
             direc_R.Z = direccion.X * (float)Math.Cos(MathHelper.ToRadians(Rotation)) - direccion.Z * (float)Math.Sin(MathHelper.ToRadians(Rotation));
             direc_R.X = direccion.Z * (float)Math.Cos(MathHelper.ToRadians(Rotation)) + direccion.X * (float)Math.Sin(MathHelper.ToRadians(Rotation));
             return direc_R;
+        }
+
+        public Vector4 crearPlano(Vector3 centro, Vector3 TankPosition)
+        {
+            Vector3 versorNormal = VersorDireccion(centro, TankPosition); // normal del plano
+            Vector4 plano;
+            plano = new Vector4( // pi = ax + by + cz + d
+            versorNormal.X, //a
+            versorNormal.Y, //b
+            versorNormal.Z, //c
+            -(versorNormal.X * centro.X + versorNormal.Y * centro.Y + versorNormal.Z * centro.Z) //d
+            );
+            return plano;
         }
     }
 }

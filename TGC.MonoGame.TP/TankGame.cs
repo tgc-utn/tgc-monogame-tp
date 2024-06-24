@@ -797,7 +797,7 @@ namespace ThunderingTanks
         {
             BoundingBox tankBox = Panzer.TankBox;
 
-            Vector3 deltaY = new Vector3(0, 200f, 0);
+            Vector3 deltaY = new Vector3(0, 600f, 0);
 
             foreach (var roca in Rocas)
             {
