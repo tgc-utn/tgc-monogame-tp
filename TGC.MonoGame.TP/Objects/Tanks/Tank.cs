@@ -149,12 +149,9 @@ namespace ThunderingTanks.Objects.Tanks
 
         }
 
-        public void Update(GameTime gameTime, KeyboardState keyboardState)
+        public void Update(GameTime gameTime, KeyboardState keyboardState, SimpleTerrain terrain)
         {
-
-
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             TimeSinceLastShot += time;
 
             bool isMoving = false;
@@ -165,10 +162,12 @@ namespace ThunderingTanks.Objects.Tanks
                 collided = true;
             }
 
+            var directionVector = Vector3.Zero;
+
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
-                Direction -= PanzerMatrix.Forward * TankVelocity * time;
-                if(collided)
+                directionVector -= Vector3.Forward * TankVelocity * time;
+                if (collided)
                 {
                     CollidingPosition -= PanzerMatrix.Forward * TankVelocity * time;
                 }
@@ -179,7 +178,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
             {
-                Direction += PanzerMatrix.Forward * TankVelocity * time;
+                directionVector += Vector3.Forward * TankVelocity * time;
                 if (collided)
                 {
                     CollidingPosition += PanzerMatrix.Forward * TankVelocity * time;
@@ -224,11 +223,21 @@ namespace ThunderingTanks.Objects.Tanks
                 }
             }
 
-
             GunRotationFinal -= GetRotationFromCursorX() * SensitivityFactor;
             GunElevation += GetElevationFromCursorY() * SensitivityFactor;
 
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
+
+            // Update Position based on direction vector and rotation
+            Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
+            Vector3 rotatedDirection = Vector3.Transform(directionVector, rotationMatrix);
+
+            var newPos = new Vector2(Direction.X, Direction.Z) + new Vector2(rotatedDirection.X, rotatedDirection.Z);
+            var X = newPos.X;
+            var Z = newPos.Y;
+            float terrainHeight = terrain.Height(X, Z);
+
+            Direction = new Vector3(X, terrainHeight-400, Z);
 
             Position = Direction + new Vector3(0f, 500f, 0f);
 
@@ -246,7 +255,7 @@ namespace ThunderingTanks.Objects.Tanks
 
 
             Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
-            
+
             Vector3 direccion_R = rotacion(direccion);
             Vector3 c_Esfera = Direction + (direccion_R * VelocidadImpacto);
 

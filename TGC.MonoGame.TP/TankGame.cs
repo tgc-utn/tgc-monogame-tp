@@ -118,7 +118,7 @@ namespace ThunderingTanks
         #region Tanks
         private Tank Panzer { get; set; }
 
-        private readonly int CantidadTanquesEnemigos = 3;
+        private readonly int CantidadTanquesEnemigos = 0;
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
@@ -243,13 +243,13 @@ namespace ThunderingTanks
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            City = new MapScene(Content);
+            City = new MapScene(Content, GraphicsDevice);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             Panzer.LoadContent(Content);
             molino.LoadContent(Content);
-            roca.LoadContent(Content);
+            roca.LoadContent(Content, City.terrain);
             antitanque.LoadContent(Content);
             casa.LoadContent(Content);
 
@@ -283,13 +283,13 @@ namespace ThunderingTanks
             for (int i = 0; i < CantidadRocas; i++)
             {
                 roca = Rocas[i];
-                roca.LoadContent(Content);
+                roca.LoadContent(Content, City.terrain);
             }
 
             for (int i = 0; i < CantidadArboles; i++)
             {
                 arbol = Arboles[i];
-                arbol.LoadList(Content, BasicShader);
+                arbol.LoadList(Content, BasicShader, City.terrain);
             }
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
@@ -435,7 +435,7 @@ namespace ThunderingTanks
 
                 _hud.TankPosition = Panzer.Position;
 
-                Panzer.Update(gameTime, keyboardState);
+                Panzer.Update(gameTime, keyboardState, City.terrain);
 
                 Panzer.isColliding = false;
                 _hud.TankIsColliding = false;
@@ -452,7 +452,7 @@ namespace ThunderingTanks
 
                     Panzer.Direction = direction;
 
-                    Panzer.Update(gameTime, keyboardState);
+                    Panzer.Update(gameTime, keyboardState, City.terrain);
                 }
 
                 screenHeight = GraphicsDevice.Viewport.Height;
@@ -538,13 +538,13 @@ namespace ThunderingTanks
 
                 Camera camara = _targetCamera;
 
-                City.Draw(gameTime, camara.View, camara.Projection);
+                City.Draw(gameTime, camara.View, camara.Projection, GraphicsDevice);
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
                 Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
                 molino.Draw(gameTime, camara.View, camara.Projection);
                 DrawProjectiles(camara.View, camara.Projection);
-                antitanque.Draw(gameTime, camara.View, camara.Projection);
+                antitanque.Draw(gameTime, camara.View, camara.Projection, City.terrain);
                 casa.Draw(gameTime, camara.View, camara.Projection);
                 WaterTank.Draw(camara.View, camara.Projection);
                 foreach (var enemyTank in EnemyTanks)
@@ -559,13 +559,13 @@ namespace ThunderingTanks
                 }
                 foreach (var arbol in Arboles)
                 {
-                    arbol.Draw(camara.View, camara.Projection);
+                    arbol.Draw(camara.View, camara.Projection, City.terrain);
                     Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
 
                 lightBox.Draw(LightBoxWorld, _targetCamera.View, _targetCamera.Projection);
 
-                Grass.Draw(GrassPosition, camara.View, camara.Projection);
+                Grass.Draw(GrassPosition, camara.View, camara.Projection, City.terrain);
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
 

@@ -16,16 +16,22 @@ namespace ThunderingTanks.Objects.Props
     {
         public List<ModelMesh> TreesModels {  get; set; }
         private ModelMesh modelMesh { get; set; }
-        
-        public void LoadList(ContentManager content, Effect effect)
+
+        private Vector3 originalPosition;
+
+
+        public void LoadList(ContentManager content, Effect effect, SimpleTerrain terrain)
         {
             TreesModels = new List<ModelMesh>();
             Model = content.Load<Model>(ContentFolder3D + "64Trees/firs_1");
             Texture = content.Load<Texture2D>(ContentFolder3D + "64Trees/nature_bark_fir_01_l_0001_b");
             Effect = effect;
 
-            MaxBox = new Vector3(Position.X + 100, Position.Y + 500, Position.Z + 100);
-            MinBox = new Vector3(Position.X - 100, 0, Position.Z - 100);
+            float terrainHeight = terrain.Height(Position.X, Position.Z);
+            Vector3 adjustedPosition = new Vector3(Position.X, terrainHeight - 400, Position.Z);
+
+            MaxBox = new Vector3(adjustedPosition.X + 100, adjustedPosition.Y + 500, adjustedPosition.Z + 100);
+            MinBox = new Vector3(adjustedPosition.X - 100, 0, adjustedPosition.Z - 100);
 
             BoundingBox = new BoundingBox(MinBox, MaxBox);      
 
@@ -41,10 +47,20 @@ namespace ThunderingTanks.Objects.Props
 
             Random random = new Random();
             modelMesh = TreesModels[random.Next(TreesModels.Count())];
+
+
         }
 
-        public override void Draw(Matrix view, Matrix projection)
+        public void Draw(Matrix view, Matrix projection, SimpleTerrain terrain)
         {
+
+            // Update the tree's position based on the terrain height
+            originalPosition = Position; // Save the initial position
+
+            float terrainHeight = terrain.Height(originalPosition.X, originalPosition.Z);
+            Vector3 adjustedPosition = new Vector3(originalPosition.X, terrainHeight-420, originalPosition.Z);
+            WorldMatrix = Matrix.CreateTranslation(adjustedPosition);
+
             foreach (Effect effect in modelMesh.Effects)
             {
                 effect.Parameters["View"].SetValue(view);

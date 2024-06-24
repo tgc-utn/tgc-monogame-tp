@@ -101,7 +101,10 @@ float4 ps_RenderTerrain(PS_INPUT input) : COLOR0
     float3 c = tex2D(colorMap, input.Texcoord).rgb;
     float3 tex1 = tex2D(diffuseMap, input.Texcoord * 31).rgb;
     float3 tex2 = tex2D(diffuseMap2, input.Texcoord * 27).rgb;
-    float3 clr = lerp(lerp(tex1, tex2, c.r), c, 0.3);
+    float3 clr = lerp(lerp(tex1, tex2, c.r), c, -1.1);
+    
+    
+    
     return float4(clr * kd, 1);
 }
 
