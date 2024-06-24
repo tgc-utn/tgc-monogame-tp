@@ -52,6 +52,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Vector3 Dimensiones2 = new(200, 250, 300);
         public float shootInterval;
         public float lifeSpan;
+        private float trackOffset = 0;
 
         public EnemyTank(GraphicsDevice graphicsDevice)
         {
@@ -102,6 +103,10 @@ namespace ThunderingTanks.Objects.Tanks
                 LastPosition = Position;
 
                 Position += Direction * TankVelocity * time;
+                if (Direction.Y > 0)
+                    trackOffset += 0.1f;
+                else
+                    trackOffset -= 0.1f;
 
                 NormalizedMovement += Position - LastPosition;
 
@@ -150,11 +155,15 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     Effect.Parameters["ModelTexture"].SetValue(TrackTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+                    Effect.Parameters["IsTrack"]?.SetValue(true);
+                    Effect.Parameters["TrackOffset"].SetValue(trackOffset);
                 }
                 else
                 {
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+
+                    Effect.Parameters["IsTrack"].SetValue(false);
                 }
 
                 mesh.Draw();

@@ -63,7 +63,7 @@ namespace ThunderingTanks
 
         private Molino molino;
 
-        private Grass Grass {  get; set; }
+        private Grass Grass { get; set; }
         private Model GrassModel { get; set; }
         private Texture2D GrassAlpha { get; set; }
         private Texture2D GrassColor { get; set; }
@@ -118,7 +118,7 @@ namespace ThunderingTanks
         #region Tanks
         private Tank Panzer { get; set; }
 
-        private readonly int CantidadTanquesEnemigos = 1;
+        private readonly int CantidadTanquesEnemigos = 3;
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
@@ -242,7 +242,7 @@ namespace ThunderingTanks
         {
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-    
+
             City = new MapScene(Content);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -255,7 +255,7 @@ namespace ThunderingTanks
 
             GrassModel = Content.Load<Model>(ContentFolder3D + "grass/grasspatches");
             GrassAlpha = Content.Load<Texture2D>(ContentFolder3D + "grass/grassAlphaMapped");
-            Grass.Load(GrassModel, GrassAlpha, GrassColor, GrassNormal, GrassSmoothness,BasicShader);
+            Grass.Load(GrassModel, GrassAlpha, GrassColor, GrassNormal, GrassSmoothness, BasicShader);
             GrassPosition = LoadGrassPositions(GrassCant);
 
             GermanSoliderModel = Content.Load<Model>(ContentFolder3D + "German_Soldier_1/German_Soldier_1");
@@ -266,8 +266,8 @@ namespace ThunderingTanks
             WaterTank.LoadContent(Content, BasicShader);
             WaterTank.SpawnPosition(
                 new Vector3(
-                    randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 
-                    0f, 
+                    randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X),
+                    0f,
                     randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)
                     )
                 );
@@ -585,7 +585,7 @@ namespace ThunderingTanks
                 #endregion
 
             }
-            
+
             base.Draw(gameTime);
         }
 
@@ -667,7 +667,7 @@ namespace ThunderingTanks
         /// <param name="cantidad">Cantidad de Arboles</param>
         private void AgregarArboles(int cantidad)
         {
-            
+
             for (int i = 0; i < cantidad; i++)
             {
                 Vector3 randomPosition = new Vector3(
@@ -707,7 +707,11 @@ namespace ThunderingTanks
 
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     //Panzer.RecibirImpacto(Projectiles[j].PositionVector, 500);
+                    Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
+                    Panzer.RecieveImpact(Projectiles[j].Direction, 0);
                     Projectiles.Remove(Projectiles[j]);
+                    Console.WriteLine("Colisión detectada de proyectil con una roca.");
+
                 }
 
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
@@ -851,8 +855,9 @@ namespace ThunderingTanks
             List<Vector3> grassPositions = new List<Vector3>();
 
             Random random = new Random();
-            for (int i = 0; i < Cantidad; i++) {
-                grassPositions.Add(new Vector3(random.Next(-(int)MapLimit.X, (int)MapLimit.X),0, random.Next(-(int)MapLimit.Y,(int)MapLimit.Y)));
+            for (int i = 0; i < Cantidad; i++)
+            {
+                grassPositions.Add(new Vector3(random.Next(-(int)MapLimit.X, (int)MapLimit.X), 0, random.Next(-(int)MapLimit.Y, (int)MapLimit.Y)));
             }
 
             return grassPositions;
