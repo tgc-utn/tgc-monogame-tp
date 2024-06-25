@@ -75,7 +75,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             foreach (var mesh in projectile.Meshes)
             {
-
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
                     part.Effect = Effect;

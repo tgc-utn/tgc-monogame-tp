@@ -226,9 +226,10 @@ namespace ThunderingTanks.Objects.Tanks
             GunRotationFinal -= GetRotationFromCursorX() * SensitivityFactor;
             GunElevation += GetElevationFromCursorY() * SensitivityFactor;
 
+            GunElevation = MathHelper.Clamp(GunElevation, MathHelper.ToRadians(-10), MathHelper.ToRadians(6));
+
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
-            // Update Position based on direction vector and rotation
             Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
             Vector3 rotatedDirection = Vector3.Transform(directionVector, rotationMatrix);
 
@@ -243,7 +244,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(new Vector3(-0.1f, 0f, 0f)) * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(new Vector3(-1f, 0f, 0f)) * Matrix.CreateTranslation(Direction);
 
             TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
 
@@ -263,7 +264,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
             //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); experimental
-
 
         }
 
@@ -329,9 +329,7 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["KSpecular"].SetValue(KSpecularValue);
                     Effect.Parameters["shininess"].SetValue(shininessValue);
 
-
                     Effect.Parameters["IsTrack"].SetValue(false);
-
                 }
 
                 if (isColliding)
@@ -343,7 +341,7 @@ namespace ThunderingTanks.Objects.Tanks
                     //Effect.Parameters["onhit"].SetValue(false); //si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
                 }
 
-                Effect.CurrentTechnique = Effect.Techniques["Impacts"];
+                //Effect.Parameters["EnableExplosionEffect"].SetValue(true);
 
                 mesh.Draw();
 
@@ -361,6 +359,8 @@ namespace ThunderingTanks.Objects.Tanks
         {
             if (TimeSinceLastShot >= FireRate)
             {
+
+
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
@@ -370,6 +370,8 @@ namespace ThunderingTanks.Objects.Tanks
 
                 TimeSinceLastShot = 0f;
                 _numberOfProyectiles -= 1;
+
+
 
                 return projectile;
             }
@@ -485,6 +487,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             return Vector / moduloVector;
         }
+
         public Vector3 rotacion(Vector3 direccion)
         {
             //derivado de los apuntes de 2D

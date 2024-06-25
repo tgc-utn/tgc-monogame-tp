@@ -15,7 +15,6 @@ float alphaValue = 1;
 float3 lightPosition = float3(1000, 1000, 1000);
 float time = 0;
 
-//Textura para DiffuseMap
 texture texDiffuseMap;
 sampler2D diffuseMap = sampler_state
 {
@@ -91,7 +90,6 @@ struct PS_INPUT
     float3 WorldNormal : TEXCOORD2;
 };
 
-//Pixel Shader
 float4 ps_RenderTerrain(PS_INPUT input) : COLOR0
 {
     float3 N = normalize(input.WorldNormal);
@@ -102,8 +100,6 @@ float4 ps_RenderTerrain(PS_INPUT input) : COLOR0
     float3 tex1 = tex2D(diffuseMap, input.Texcoord * 31).rgb;
     float3 tex2 = tex2D(diffuseMap2, input.Texcoord * 27).rgb;
     float3 clr = lerp(lerp(tex1, tex2, c.r), c, -1.1);
-    
-    
     
     return float4(clr * kd, 1);
 }

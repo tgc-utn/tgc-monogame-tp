@@ -1995,6 +1995,30 @@
 /processorParam:TextureFormat=Color
 /build:Textures/heighmap/roughness.jpg
 
+#begin Textures/heighmap/Snow.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=True
+/processorParam:TextureFormat=Color
+/build:Textures/heighmap/Snow.png
+
+#begin Textures/heighmap/Snow2.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=True
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=True
+/processorParam:TextureFormat=Color
+/build:Textures/heighmap/Snow2.jpg
+
 #begin Textures/HUD/lifebar_empty.png
 /importer:TextureImporter
 /processor:TextureProcessor
