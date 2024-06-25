@@ -31,7 +31,7 @@ namespace ThunderingTanks.Objects.Props
 
         public void Draw(List<Vector3> positions, Matrix view, Matrix projection, SimpleTerrain terrain)
         {
-         
+
             foreach (var position in positions)
             {
                 originalPosition = position;

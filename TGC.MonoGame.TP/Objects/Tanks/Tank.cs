@@ -18,15 +18,6 @@ namespace ThunderingTanks.Objects.Tanks
 
     {
 
-        // Variables de color y otros parámetros10
-        Vector3 ambientColorValue = new Vector3(0.2f, 0.2f, 0.2f);  // Color ambiental (generalmente menos afectado por la dirección de la luz)
-        Vector3 diffuseColorValue = new Vector3(0.8f, 0.8f, 0.8f);  // Color difuso (más brillante en la dirección de la luz)
-        Vector3 specularColorValue = new Vector3(0.8f, 0.8f, 0.8f); // Color especular (más brillante en la dirección de la luz)
-        float KAmbientValue = 1.0f;  // Factor de ambiental
-        float KDiffuseValue = 1.0f;  // Factor difuso
-        float KSpecularValue = 1.0f; // Factor especular
-        float shininessValue = 40.0f; // Brillo especular (puede ajustarse según sea necesario)
-
         #region ContentFolders
         public const string ContentFolder3D = "Models/";
         public const string ContentFolderEffects = "Effects/";
@@ -145,7 +136,7 @@ namespace ThunderingTanks.Objects.Tanks
             collided = false;
 
             Effect.Parameters["impacto"].SetValue(200f);
-            VelocidadImpacto = -200;
+            VelocidadImpacto = 0.1f;
 
         }
 
@@ -244,7 +235,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(new Vector3(-1f, 0f, 0f)) * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
             TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
 
@@ -253,12 +244,10 @@ namespace ThunderingTanks.Objects.Tanks
 
             LastPosition = Direction;
 
-
-
-            Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
+            Vector3 direccion = CollidingPosition;
 
             Vector3 direccion_R = rotacion(direccion);
-            Vector3 c_Esfera = Direction + (direccion_R * VelocidadImpacto);
+            Vector3 c_Esfera = Direction + (new Vector3(direccion_R.X, direccion_R.Y, direccion_R.Z));
 
             Vector4 Plano_ST = crearPlano(c_Esfera, Direction);
 
@@ -321,14 +310,6 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["ModelTexture"].SetValue(PanzerTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
 
-                    Effect.Parameters["diffuseColor"].SetValue(diffuseColorValue);
-                    Effect.Parameters["ambientColor"].SetValue(ambientColorValue);
-                    Effect.Parameters["specularColor"].SetValue(specularColorValue);
-                    Effect.Parameters["KAmbient"].SetValue(KAmbientValue);
-                    Effect.Parameters["KDiffuse"].SetValue(KDiffuseValue);
-                    Effect.Parameters["KSpecular"].SetValue(KSpecularValue);
-                    Effect.Parameters["shininess"].SetValue(shininessValue);
-
                     Effect.Parameters["IsTrack"].SetValue(false);
                 }
 
@@ -340,8 +321,6 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     //Effect.Parameters["onhit"].SetValue(false); //si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
                 }
-
-                //Effect.Parameters["EnableExplosionEffect"].SetValue(true);
 
                 mesh.Draw();
 

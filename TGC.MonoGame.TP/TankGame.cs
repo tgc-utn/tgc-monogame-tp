@@ -143,8 +143,15 @@ namespace ThunderingTanks
 
         private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
 
+        Vector3 ambientColorValue  = new(0.5f, 0.5f, 0.5f);        // Color ambiental (generalmente menos afectado por la dirección de la luz)
+        Vector3 diffuseColorValue  = new(0.6f, 0.6f, 0.6f);        // Color difuso (más brillante en la dirección de la luz)
+        Vector3 specularColorValue = new(0.3f, 0.3f, 0.3f);        // Color especular (más brillante en la dirección de la luz)
+        readonly float KAmbientValue = 0.8f;                       // Factor de ambiental
+        readonly float KDiffuseValue = 0.8f;                       // Factor difuso
+        readonly float KSpecularValue = 0.5f;                      // Factor especular
+        readonly float shininessValue = 5.0f;                      // Brillo especular (puede ajustarse según sea necesario)
 
-
+        readonly Vector3 lightPosition = new(0f, 50000f, 0f);      // Posición de la luz
 
         // ------------ GAME ------------ //
 
@@ -243,7 +250,7 @@ namespace ThunderingTanks
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            BasicShader.CurrentTechnique = BasicShader.Techniques["Impacts"];
+            BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
 
             Map = new MapScene(Content, GraphicsDevice);
 
@@ -327,9 +334,16 @@ namespace ThunderingTanks
             float deltaTime = 0;
             deltaTime += time;
 
-            var lightPosition = new Vector3(10000f, 50000f, 0f);
-
             LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+
+
+            BasicShader.Parameters["diffuseColor"].SetValue(diffuseColorValue);
+            BasicShader.Parameters["ambientColor"].SetValue(ambientColorValue);
+            BasicShader.Parameters["specularColor"].SetValue(specularColorValue);
+            BasicShader.Parameters["KAmbient"].SetValue(KAmbientValue);
+            BasicShader.Parameters["KDiffuse"].SetValue(KDiffuseValue);
+            BasicShader.Parameters["KSpecular"].SetValue(KSpecularValue);
+            BasicShader.Parameters["shininess"].SetValue(shininessValue);
 
             BasicShader.Parameters["lightPosition"].SetValue(lightPosition);
 
@@ -539,8 +553,8 @@ namespace ThunderingTanks
                 Camera camara = _targetCamera;
 
                 lightBox.Draw(LightBoxWorld, _targetCamera.View, _targetCamera.Projection);
-                Map.Draw(gameTime, camara.View, camara.Projection, GraphicsDevice);
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
+                Map.Draw(gameTime, camara.View, camara.Projection, GraphicsDevice);
                 Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
                 molino.Draw(gameTime, camara.View, camara.Projection);
@@ -548,6 +562,9 @@ namespace ThunderingTanks
                 antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
                 casa.Draw(gameTime, camara.View, camara.Projection);
                 WaterTank.Draw(camara.View, camara.Projection);
+
+                Grass.Draw(GrassPosition, camara.View, camara.Projection, Map.terrain);
+
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
@@ -563,8 +580,6 @@ namespace ThunderingTanks
                     arbol.Draw(camara.View, camara.Projection, Map.terrain);
                     Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
-
-                Grass.Draw(GrassPosition, camara.View, camara.Projection, Map.terrain);
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
 

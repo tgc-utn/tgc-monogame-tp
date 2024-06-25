@@ -65,9 +65,10 @@ namespace ThunderingTanks.Objects
         /// <param name="cameraPosition">The position of the camera</param>
         public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
         {
+
             // Go through each pass in the effect, but we know there is only one...
             foreach (var pass in Effect.CurrentTechnique.Passes)
-            {
+            {              
                 pass.Apply();
 
                 // Draw all of the components of the mesh, but we know the cube really

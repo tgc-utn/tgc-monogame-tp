@@ -7,32 +7,29 @@
 #define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
-float4x4 World;
-float4x4 View;
-float4x4 Projection;
+float4x4 World;         // Matriz de mundo
+float4x4 View;          // Matriz de vista
+float4x4 Projection;    // Matriz de proyección
 
+float3 ambientColor;    // Color ambiental
+float3 diffuseColor;    // Color difuso
+float3 specularColor;   // Color especular
+float KAmbient;         // Factor de ambiente
+float KDiffuse;         // Factor difuso
+float KSpecular;        // Factor especular
+float shininess;        // Brillo especular
 
 bool EnableTerrainDraw = false;
-
-float3 ambientColor = float3(0.2, 0.2, 0.2); // Color ambiental
-float3 diffuseColor = float3(1.0, 1.0, 1.0); // Color difuso
-float3 specularColor = float3(1.0, 1.0, 1.0); // Color especular
-float KAmbient = 1.0; // Factor de ambiente
-float KDiffuse = 1.0; // Factor difuso
-float KSpecular = 1.0; // Factor especular
-float shininess = 32.0; // Brillo especular
-
-float3 lightPosition;
-float3 eyePosition; // Camera position
-
+bool EnableGrass = false;
 float onhit;
 
+float3 lightPosition;
+float3 eyePosition; 
+
+float impacto;
 float3 ImpactPosition;
 float3 TankPosition;
-
-float impacto; // tamaño del impacto
-
-float3 c_Esfera; // posicion de la esfera (centro)
+float3 c_Esfera; 
 
 float4 Plano_ST;
 
@@ -184,7 +181,7 @@ VS_OUTPUT vs_RenderTerrain(VS_INPUT input)
 float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
 {
     if(EnableTerrainDraw == false)
-        return float4(1, 1, 1, 1);
+        return float4(0, 0, 0, 0);
     
     float3 N = normalize(input.WorldNormal);
     float3 L = normalize(lightPosition - input.WorldPos);
@@ -198,7 +195,7 @@ float4 ps_RenderTerrain(VS_OUTPUT input) : COLOR0
     return float4(clr * kd, 1);
 }
 
-VertexShaderOutput ImpactsVS(in VertexShaderInput input)
+VertexShaderOutput ImpactVS(in VertexShaderInput input)
 {
     VertexShaderOutput output;
 
@@ -266,12 +263,12 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     return finalOutput;
 }
 
-technique Impacts
+technique Impact
 
 {
     pass P0
     {
-        VertexShader = compile VS_SHADERMODEL ImpactsVS();
+        VertexShader = compile VS_SHADERMODEL ImpactVS();
         PixelShader = compile PS_SHADERMODEL ps_RenderTerrain();
     }
 
