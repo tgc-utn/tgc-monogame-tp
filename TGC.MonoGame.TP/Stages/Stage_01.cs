@@ -166,6 +166,8 @@ class Stage_01 : Stage
         Checkpoints = new List<GeometricPrimitive>();
     }
 
+
+
     public override void Update(GameTime gameTime)
     {
         // TODO: actualizar el estado de todas las piezas m�viles del nivel

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -30,7 +31,16 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Material CurrentMaterial = Material.RustedMetal;
 
+
         private List<Entity> myEntities;
+
+        //public Vector3 Position;
+        //Vector3 Velocity;
+        //Vector3 Acceleration = Vector3.Zero;
+        //Quaternion Rotation = Quaternion.Identity;
+        //Vector3 RotationAxis = Vector3.UnitY;
+        //float RotationAngle = 0f;
+
 
         // Colisiones
         public BoundingSphere EsferaBola { get; set; }
@@ -55,6 +65,11 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Vector3 LightPos { get; set; }
         public Matrix Spin;
+
+
+        public Vector3 ForwardVector=Vector3.UnitX;
+
+        public Vector3 RightVector=Vector3.UnitZ;
         public Character(ContentManager content, Stage stage, List<Entity> entities)
         {
             Content = content;
@@ -211,6 +226,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             UpdateMaterialPath();
             LoadTextures();
         }
+
 
         public float DistanceToGround(Vector3 pos)
         {
@@ -428,14 +444,19 @@ namespace TGC.MonoGame.TP.MainCharacter
 
 
         private Vector2 pastMousePosition = Vector2.Zero;
-        private float MouseSensitivity = 0.3f;
+        //private float MouseSensitivity = 0.3f;
 
         private Vector3 GetVelocity()
         {
             return Velocity;
         }
+        public void ChangeDirection(float angle){
+            ForwardVector = Vector3.Transform(Vector3.UnitX, Matrix.CreateRotationY(angle));
+            RightVector = Vector3.Transform(Vector3.UnitZ, Matrix.CreateRotationY(angle));
+        }
 
-        private void ProcessMovement(GameTime gameTime)
+        
+        private void ProcessMovement(GameTime gameTime) 
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -451,19 +472,21 @@ namespace TGC.MonoGame.TP.MainCharacter
             // Procesamiento del movimiento horizontal
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitX * -speed, Rotation);
+                Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation); //amtes unitx
             }
             if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitX * speed, Rotation);
+                Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation) * (- 1);
+
             }
             if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitZ * speed, Rotation);
+                Acceleration += Vector3.Transform(RightVector * speed, Rotation); //antes unitz
             }
             if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
             {
-                Acceleration += Vector3.Transform(Vector3.UnitZ * -speed, Rotation);
+                Acceleration += Vector3.Transform(RightVector * speed, Rotation) * (-1);
+
             }
 
             Acceleration += new Vector3(0f, -100f, 0f);
@@ -475,7 +498,7 @@ namespace TGC.MonoGame.TP.MainCharacter
                 Velocity += Vector3.Up * speed * 100;
             }
 
-            BallSpinAngle += Velocity.Length() * elapsedTime / (MathHelper.Pi * 12.5f);
+            BallSpinAngle += Velocity.Length() * elapsedTime / (MathHelper.Pi * 120.5f);
             BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
 
             if (Acceleration == Vector3.Zero || Vector3.Dot(Acceleration, Velocity) < 0)

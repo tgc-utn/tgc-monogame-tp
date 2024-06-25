@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Samples.Shaders.SkyBox;
 using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Collisions;
@@ -61,17 +62,19 @@ namespace TGC.MonoGame.TP
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
         /// </summary>
+        public Point screenSize;
         protected override void Initialize()
         {
 
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
+            screenSize=size;
 
             //var cameraPosition = new Vector3(25f, 100f, -1100f);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
             // Creo una camaar para seguir a nuestro auto.
-            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
+            FollowCamera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio, size);
 
 
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
@@ -93,15 +96,19 @@ namespace TGC.MonoGame.TP
         ///     que podemos pre calcular para nuestro juego.
         /// </summary>
         public Effect BallEffect;
+
+
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
+
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             Entities = new List<Entity>();
 
             Stage = new Stage_01(GraphicsDevice, Content);
 
             MainCharacter = new Character(Content, Stage, Entities);
+
 
             BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
 
@@ -153,7 +160,14 @@ namespace TGC.MonoGame.TP
 
 
             FollowCamera.Update(gameTime, MainCharacter.World);
+
+            Stage.CamPosition=FollowCamera.CamPosition;
+
+            MainCharacter.ChangeDirection(FollowCamera.CamRotation);
             BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
+
+            //World = Matrix.CreateRotationY(Rotation);
+
 
             base.Update(gameTime);
         }
@@ -164,14 +178,26 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Draw(GameTime gameTime)
         {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.LightSkyBlue);
+            // Aca deberiamos poner toda la logia de renderizado del juego.
+            var originalRasterizerState = GraphicsDevice.RasterizerState;
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.None;
+            Graphics.GraphicsDevice.RasterizerState = rasterizerState;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
+            //GraphicsDevice.Clear(Color.LightSkyBlue);
+            
 
+            //
+            //Stage.SkyBox.Draw(FollowCamera.View, FollowCamera.Projection, FollowCamera.CamPosition);
             MainCharacter.Draw(FollowCamera.View, FollowCamera.Projection);
 
             Stage.Draw(FollowCamera.View, FollowCamera.Projection);
 
+            GraphicsDevice.RasterizerState = originalRasterizerState;
+
+            //base.Draw(gameTime);
         }
 
         /// <summary>
