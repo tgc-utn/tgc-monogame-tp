@@ -136,7 +136,7 @@ namespace ThunderingTanks.Objects.Tanks
             collided = false;
 
             Effect.Parameters["impacto"].SetValue(200f);
-            VelocidadImpacto = 0.1f;
+            VelocidadImpacto = 100f;
 
         }
 
@@ -244,10 +244,10 @@ namespace ThunderingTanks.Objects.Tanks
 
             LastPosition = Direction;
 
-            Vector3 direccion = CollidingPosition;
+            Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
 
             Vector3 direccion_R = rotacion(direccion);
-            Vector3 c_Esfera = Direction + (new Vector3(direccion_R.X, direccion_R.Y, direccion_R.Z));
+            Vector3 c_Esfera = Direction + (new Vector3(direccion_R.X, direccion_R.Y, direccion_R.Z) * VelocidadImpacto);
 
             Vector4 Plano_ST = crearPlano(c_Esfera, Direction);
 

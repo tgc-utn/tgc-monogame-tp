@@ -76,7 +76,7 @@ namespace ThunderingTanks.Objects.Tanks
             MaxBox = TankBox.Max;
         }
 
-        public void Update(GameTime gameTime, Vector3 playerPosition)
+        public void Update(GameTime gameTime, Vector3 playerPosition, SimpleTerrain terrain)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timeSinceLastShot += time;
@@ -84,6 +84,13 @@ namespace ThunderingTanks.Objects.Tanks
             Vector3 direction = playerPosition - Position;
 
             direction.Y = 0;
+
+            var X = Position.X;
+            var Z = Position.Z;
+
+            float terrainHeight = terrain.Height(X, Z);
+
+            Position = new Vector3(Position.X, terrainHeight - 400, Position.Z);
 
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
@@ -109,6 +116,7 @@ namespace ThunderingTanks.Objects.Tanks
                     trackOffset -= 0.1f;
 
                 NormalizedMovement += Position - LastPosition;
+                NormalizedMovement = new Vector3(NormalizedMovement.X, terrainHeight - 400, NormalizedMovement.Z);
 
                 TankBox = new BoundingBox(MinBox + NormalizedMovement, MaxBox + NormalizedMovement);
 

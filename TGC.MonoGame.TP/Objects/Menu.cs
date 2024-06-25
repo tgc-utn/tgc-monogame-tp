@@ -194,9 +194,9 @@ namespace ThunderingTanks.Objects
             spriteBatch.DrawString(WarIsOver, "THUNDERING TANKS", new Vector2(450,  200), Color.SandyBrown);
             spriteBatch.DrawString(WarIsOver, "VOLUMEN = " + MasterSound.ToString("P"), new Vector2(50, ScreenHeight - 200), Color.SaddleBrown);
            
-            Vector2 exitTextPosition = new Vector2(_exitButton.X + (_exitButton.Width - _font.MeasureString("Exit").X) / 2, _exitButton.Y + (_exitButton.Height - _font.MeasureString("Exit").Y) / 2);
+            Vector2 exitTextPosition = new Vector2(_exitButton.X + (_exitButton.Width - (_font.MeasureString("Exit").X + 70)) / 2, _exitButton.Y + (_exitButton.Height - (_font.MeasureString("Exit").Y + 70)) / 2);
 
-            spriteBatch.DrawString(_font, "Exit", exitTextPosition, Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(WarIsOver, "EXIT", exitTextPosition, Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0f);
 
             var mouseState = Mouse.GetState();
 

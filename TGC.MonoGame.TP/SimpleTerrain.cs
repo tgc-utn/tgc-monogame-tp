@@ -23,7 +23,7 @@ namespace ThunderingTanks
             Effect = effect;
 
             // cargo el heightmap
-            LoadHeightmap(graphicsDevice, heightMap, 50, 10, Vector3.Zero);
+            LoadHeightmap(graphicsDevice, heightMap, 600, 150, Vector3.Zero);
             // textura con el color Map
             colorMapTexture = colorMap;
             // diffuse maps auxiliares

@@ -118,7 +118,7 @@ namespace ThunderingTanks
         #region Tanks
         private Tank Panzer { get; set; }
 
-        private readonly int CantidadTanquesEnemigos = 0;
+        private readonly int CantidadTanquesEnemigos = 3;
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
 
@@ -140,6 +140,7 @@ namespace ThunderingTanks
         private CubePrimitive lightBox;
 
         private float Timer { get; set; }
+        public float TanksEliminados { get; set; } = 0;
 
         private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
 
@@ -330,11 +331,14 @@ namespace ThunderingTanks
         protected override void Update(GameTime gameTime)
         {
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            var elapsedTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
+            _hud.elapsedTime = elapsedTime;
 
             float deltaTime = 0;
             deltaTime += time;
 
             LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+
 
 
             BasicShader.Parameters["diffuseColor"].SetValue(diffuseColorValue);
@@ -407,7 +411,7 @@ namespace ThunderingTanks
                 if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                     Exit();
 
-                _hud.Update(Panzer, ref viewport);
+                _hud.Update(Panzer, ref viewport, TanksEliminados);
 
                 if (keyboardState.IsKeyDown(Keys.C) && CTrigger)
                 {
@@ -475,7 +479,7 @@ namespace ThunderingTanks
 
                 foreach (var enemyTank in EnemyTanks)
                 {
-                    enemyTank.Update(gameTime, Panzer.Direction);
+                    enemyTank.Update(gameTime, Panzer.Direction, Map.terrain);
                     enemyTank.lifeSpan += time;
 
                     if (enemyTank.lifeSpan >= enemyTank.shootInterval)
@@ -756,6 +760,7 @@ namespace ThunderingTanks
 
                         Projectiles.Remove(Projectiles[j]);
                         EnemyTanks.Remove(EnemyTanks[i]);
+                        TanksEliminados++;
                         break;
 
                     }
@@ -811,13 +816,13 @@ namespace ThunderingTanks
         {
             BoundingBox tankBox = Panzer.TankBox;
 
-            Vector3 deltaY = new Vector3(0, 600f, 0);
+            Vector3 deltaY = new Vector3(0, 0f, 0);
 
             foreach (var roca in Rocas)
             {
                 if (tankBox.Intersects(roca.RocaBox))
                 {
-                    Panzer.ReceiveDamage(ref _juegoIniciado);
+                    //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
                     Panzer.CollidingPosition = roca.Position + deltaY;
                     return true;

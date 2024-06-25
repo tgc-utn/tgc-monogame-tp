@@ -44,7 +44,13 @@ namespace ThunderingTanks.Objects
 
         private SpriteFont FontArial;
 
+        private SpriteFont WarIsOver;
+
+        private float puntos;
+
         public int _maxLifeBarWidth;
+
+
 
         #region Debug
         public Vector3 TankPosition { get; set; }
@@ -52,6 +58,8 @@ namespace ThunderingTanks.Objects
         public bool TankIsColliding { get; set; }
         public float FPS { get; set; }
         public float TimeSinceLastShot { get; set; }
+
+        public float elapsedTime { get; set; }
         #endregion
 
         public HUD(float screenWidth, float screenHeight)
@@ -88,12 +96,14 @@ namespace ThunderingTanks.Objects
             lifeBar10 = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar/10");
             lifeBar11 = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar/11");
 
+            WarIsOver = Content.Load<SpriteFont>(ContentFolderFonts + "warisover/WarIsOver");
+
             lifeBarTexture = lifeBar1;
 
             _maxLifeBarWidth = lifeBar.Width;
         }
 
-        public void Update(Tank Panzer, ref Viewport viewport)
+        public void Update(Tank Panzer, ref Viewport viewport, float TanksEliminados)
         {
             CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2) - 25));
             lifeBarTexture = lifeBar1;
@@ -142,9 +152,8 @@ namespace ThunderingTanks.Objects
             {
                 lifeBarTexture = lifeBar11;
             }
-  
 
-
+            puntos = TanksEliminados;
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -166,6 +175,10 @@ namespace ThunderingTanks.Objects
                 Color.Yellow
              );*/
 
+            spriteBatch.DrawString(WarIsOver, "TANQUES ELIMINADOS: " + puntos, new Vector2(ScreenWidth - 250, ScreenHeight - 100), Color.Blue);
+
+            spriteBatch.DrawString(WarIsOver, "TIEMPO: " + (int)elapsedTime + " SEGS", new Vector2(ScreenWidth - 250, ScreenHeight - 50), Color.Blue);
+
             #region Debug
             spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
             spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
@@ -174,6 +187,7 @@ namespace ThunderingTanks.Objects
             spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
             spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
             spriteBatch.DrawString(FontArial, "FPS " + Math.Round(FPS), new Vector2(20, 140), Color.Red);
+
             #endregion
 
         }
