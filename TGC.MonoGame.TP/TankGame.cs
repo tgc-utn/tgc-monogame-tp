@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.DXGI;
 using SharpFont.PostScript;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,12 @@ namespace ThunderingTanks
         Viewport viewport;
 
         public Effect BasicShader { get; private set; }
+
+        public Effect TextureMerge { get; private set; }
+
+        public FullScreenQuad FSQ { get; private set; }
+
+        public RenderTarget2D SceneRenderTarget { get; private set; }
         #endregion
 
         #region State
@@ -251,6 +258,13 @@ namespace ThunderingTanks
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
+            TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
+
+            FSQ = new FullScreenQuad(GraphicsDevice);
+
+            SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
+                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
+
             BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
 
             Map = new MapScene(Content, GraphicsDevice);
@@ -324,6 +338,7 @@ namespace ThunderingTanks
 
             lightBox = new CubePrimitive(GraphicsDevice, 500, Color.LightGoldenrodYellow);
 
+            
 
             base.LoadContent();
         }
@@ -550,6 +565,10 @@ namespace ThunderingTanks
                 #region Pass 1
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+                GraphicsDevice.SetRenderTarget(SceneRenderTarget);
+
+
                 GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
@@ -594,9 +613,18 @@ namespace ThunderingTanks
 
                 #region Pass 2
 
+                GraphicsDevice.DepthStencilState = DepthStencilState.None;
+                GraphicsDevice.SetRenderTarget(null);
+
+                TextureMerge.Parameters["baseTexture"].SetValue(SceneRenderTarget);
+
+                FSQ.Draw(TextureMerge);
+
                 spriteBatch.Begin();
 
                 _hud.Draw(spriteBatch);
+
+                //spriteBatch.Draw(SceneRenderTarget, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
 
                 spriteBatch.End();
 

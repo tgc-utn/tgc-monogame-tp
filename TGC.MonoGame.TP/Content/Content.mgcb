@@ -50,6 +50,12 @@
 /processorParam:DebugMode=Auto
 /build:Effects/SkyBox.fx
 
+#begin Effects/TextureMerge.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Effects/TextureMerge.fx
+
 #begin Fonts/arial.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
