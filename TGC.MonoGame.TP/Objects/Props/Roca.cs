@@ -33,11 +33,11 @@ namespace ThunderingTanks.Objects.Props
             RocaWorld = Matrix.Identity;
         }
 
-        public void LoadContent(ContentManager content, SimpleTerrain terrain)
+        public void LoadContent(ContentManager content, Effect effect,SimpleTerrain terrain)
         {
             RocaModel = content.Load<Model>(ContentFolder3D + "nature/rock/Rock_1");
             TexturaRoca = content.Load<Texture2D>(ContentFolder3D + "nature/rock/Yeni klasör/Rock_1_Base_Color");
-            Effect = content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
 
             foreach (var mesh in RocaModel.Meshes)
             {

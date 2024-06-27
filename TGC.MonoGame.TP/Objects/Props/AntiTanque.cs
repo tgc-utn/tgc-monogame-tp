@@ -16,6 +16,7 @@ namespace ThunderingTanks.Objects.Props
         private Texture2D TexturaAntitanque { get; set; }
         public Matrix[] AntitanqueWorlds { get; set; }
         public Effect Effect { get; set; }
+        public BoundingBox AntiTanqueBox { get; set; }
 
         private Vector3 originalPosition;
 
@@ -34,12 +35,12 @@ namespace ThunderingTanks.Objects.Props
             originalPosition = Position;
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
             AntitanqueModel = Content.Load<Model>(ContentFolder3D + "assets militares/rsg_military_antitank_hedgehog_01");
 
             TexturaAntitanque = Content.Load<Texture2D>(ContentFolder3D + "assets militares/Textures/UE/T_rsg_military_sandbox_01_BC");
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
             foreach (var mesh in AntitanqueModel.Meshes)
             {
                 foreach (var meshPart in mesh.MeshParts)
@@ -47,6 +48,7 @@ namespace ThunderingTanks.Objects.Props
                     meshPart.Effect = Effect;
                 }
             }
+            AntiTanqueBox = CreateBoundingBox(AntitanqueModel, Matrix.CreateScale(2.5f), originalPosition);
         }
 
         public void Draw(GameTime gameTime, Matrix view, Matrix projection, SimpleTerrain terrain)
@@ -71,6 +73,39 @@ namespace ThunderingTanks.Objects.Props
                 }
 
             }
+        }
+        private BoundingBox CreateBoundingBox(Model model, Matrix escala, Vector3 position)
+        {
+            var minPoint = Vector3.One * float.MaxValue;
+            var maxPoint = Vector3.One * float.MinValue;
+
+            var transforms = new Matrix[model.Bones.Count];
+            model.CopyAbsoluteBoneTransformsTo(transforms);
+
+            foreach (var mesh in model.Meshes)
+            {
+                var meshParts = mesh.MeshParts;
+                foreach (var meshPart in meshParts)
+                {
+                    var vertexBuffer = meshPart.VertexBuffer;
+                    var declaration = vertexBuffer.VertexDeclaration;
+                    var vertexSize = declaration.VertexStride / sizeof(float);
+
+                    var rawVertexBuffer = new float[vertexBuffer.VertexCount * vertexSize];
+                    vertexBuffer.GetData(rawVertexBuffer);
+
+                    for (var vertexIndex = 0; vertexIndex < rawVertexBuffer.Length; vertexIndex += vertexSize)
+                    {
+                        var transform = transforms[mesh.ParentBone.Index] * escala;
+                        var vertex = new Vector3(rawVertexBuffer[vertexIndex], rawVertexBuffer[vertexIndex + 1], rawVertexBuffer[vertexIndex + 2]);
+                        vertex = Vector3.Transform(vertex, transform);
+                        minPoint = Vector3.Min(minPoint, vertex);
+                        maxPoint = Vector3.Max(maxPoint, vertex);
+                    }
+                }
+            }
+
+            return new BoundingBox(minPoint + position, maxPoint + position);
         }
     }
 }

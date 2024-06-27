@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection.Metadata;
 
 namespace ThunderingTanks.Objects.Props
 {
@@ -19,10 +20,16 @@ namespace ThunderingTanks.Objects.Props
         private Vector3 originalPosition;
 
 
-        public void Load(Model model, Texture2D grassApha, Texture2D grassColor, Texture2D grassNormal, Texture2D grassSmoothness, Effect effect)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
-            Model = model;
-            GrassApha = grassApha;
+            Model grassModel = Content.Load<Model>(ContentFolder3D + "grass/grasspatches");
+            Texture2D grassAlpha = Content.Load<Texture2D>(ContentFolder3D + "grass/grassAlphaMapped");
+            Texture2D grassColor = Content.Load<Texture2D>(ContentFolder3D + "grass/grasscolor");
+            Texture2D grassNormal = Content.Load<Texture2D>(ContentFolder3D + "grass/grassNormal");
+            Texture2D grassSmoothness = Content.Load<Texture2D>(ContentFolder3D + "grass/grassSmoothness");
+
+            Model = grassModel;
+            GrassApha = grassAlpha;
             GrassColor = grassColor;
             GrassNormal = grassNormal;
             GrassSmoothness = grassSmoothness;

@@ -38,7 +38,8 @@ namespace ThunderingTanks.Objects.Tanks
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
         private Texture2D TrackTexture { get; set; }
-        private float trackOffset = 0;
+        private float trackOffset1 = 0;
+        private float trackOffset2 = 0;
         public Matrix PanzerMatrix { get; set; }
         public Vector3 LastPosition { get; set; }
 
@@ -102,7 +103,7 @@ namespace ThunderingTanks.Objects.Tanks
             _currentLife = _maxLife;
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
 
             Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
@@ -110,7 +111,7 @@ namespace ThunderingTanks.Objects.Tanks
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
             TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
 
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
 
 
             TimeSinceLastShot = FireRate;
@@ -162,9 +163,9 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     CollidingPosition -= PanzerMatrix.Forward * TankVelocity * time;
                 }
-                trackOffset -= 0.1f;
+                trackOffset1 -= 0.1f;
+                trackOffset2 -= 0.1f;
                 isMoving = true;
-                Console.WriteLine($"trackOffset es {trackOffset}");
             }
 
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
@@ -174,9 +175,9 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     CollidingPosition += PanzerMatrix.Forward * TankVelocity * time;
                 }
-                trackOffset += 0.1f;
+                trackOffset1 += 0.1f;
+                trackOffset2 += 0.1f;
                 isMoving = true;
-                Console.WriteLine($"trackOffset es {trackOffset}");
             }
 
             if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
@@ -184,6 +185,9 @@ namespace ThunderingTanks.Objects.Tanks
                 Rotation -= TankRotation * time;
                 isMoving = true;
                 isRotating = true;
+                trackOffset1 += 0.1f;
+                trackOffset2 -= 0.1f;
+                isMoving = true;
                 //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
@@ -192,6 +196,9 @@ namespace ThunderingTanks.Objects.Tanks
                 Rotation += TankRotation * time;
                 isMoving = true;
                 isRotating = true;
+                trackOffset1 -= 0.1f;
+                trackOffset2 += 0.1f;
+                isMoving = true;
                 //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
@@ -229,7 +236,7 @@ namespace ThunderingTanks.Objects.Tanks
             var Z = newPos.Y;
             float terrainHeight = terrain.Height(X, Z);
 
-            Direction = new Vector3(X, terrainHeight-400, Z);
+            Direction = new Vector3(X, terrainHeight - 400, Z);
 
             Position = Direction + new Vector3(0f, 500f, 0f);
 
@@ -262,7 +269,7 @@ namespace ThunderingTanks.Objects.Tanks
             Meshes = meshes;
         }
 
-        public void Draw( Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
+        public void Draw(Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
 
             GraphicsDevice = graphicsDevice;
@@ -298,13 +305,19 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["IsTrack"].SetValue(false);
 
                 }
-                else if(mesh.Name.Equals("Treadmill1") || mesh.Name.Equals("Treadmill2"))
+                else if (mesh.Name.Equals("Treadmill2"))
                 {
                     Effect.Parameters["ModelTexture"].SetValue(TrackTexture);
                     Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
                     Effect.Parameters["IsTrack"]?.SetValue(true);
-                    Effect.Parameters["TrackOffset"].SetValue(trackOffset);
-
+                    Effect.Parameters["TrackOffset"].SetValue(trackOffset1);
+                }
+                else if (mesh.Name.Equals("Treadmill1"))
+                {
+                    Effect.Parameters["ModelTexture"].SetValue(TrackTexture);
+                    Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * PanzerMatrix);
+                    Effect.Parameters["IsTrack"]?.SetValue(true);
+                    Effect.Parameters["TrackOffset"].SetValue(trackOffset2);
                 }
                 else
                 {
