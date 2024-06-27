@@ -7,6 +7,7 @@ using SharpDX.DXGI;
 using SharpFont.PostScript;
 using System;
 using System.Collections.Generic;
+using System.Security;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 using ThunderingTanks.Geometries;
@@ -40,10 +41,19 @@ namespace ThunderingTanks
 
         public Effect TextureMerge { get; private set; }
 
+        public Effect Shadows { get; private set; }
+
         public FullScreenQuad FSQ { get; private set; }
 
         public RenderTarget2D SceneRenderTarget { get; private set; }
 
+        public RenderTarget2D ShadowRenderTarget { get; private set; }
+
+        private const int ShadowMapSize = 2048;
+
+        private readonly float LightCameraFarPlaneDistance = 3000f;
+
+        private readonly float LightCameraNearPlaneDistance = 5f;
         public SpriteBatch spriteBatch { get; set; }
 
         public FrameCounter FrameCounter { get; set; }
@@ -59,6 +69,7 @@ namespace ThunderingTanks
         private readonly Vector3 _cameraInitialPosition = new(0, 0, 0);
 
         private TargetCamera _targetCamera;
+        private TargetCamera TargetLightCamera;
         private StaticCamera _staticCamera;
 
         private BoundingFrustum _cameraFrustum;
@@ -80,6 +91,7 @@ namespace ThunderingTanks
         private List<Vector3> GrassPosition { get; set; }
 
         public int GrassCant = 300;
+
 
         private GermanSoldier GermanSoldier { get; set; }
 
@@ -218,9 +230,14 @@ namespace ThunderingTanks
             spriteBatch =        new SpriteBatch(GraphicsDevice);
             _targetCamera =      new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
             _staticCamera =      new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
+            TargetLightCamera =  new TargetCamera(1f, lightPosition, Vector3.Zero);
             _cameraFrustum =     new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
             SceneRenderTarget =  new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
+            ShadowRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize,false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             FSQ =                new FullScreenQuad(GraphicsDevice);
+
+            TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
+                MathHelper.PiOver2);
 
             AgregarRocas(CantidadRocas);
             AgregarArboles(CantidadArboles);
@@ -241,6 +258,8 @@ namespace ThunderingTanks
             //gameObjects.Add(EnemyTanks);
             //gameObjects.Add(AntiTanques);
 
+            
+
             base.Initialize();
         }
 
@@ -250,6 +269,7 @@ namespace ThunderingTanks
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
             BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
             TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
+            Shadows = Content.Load<Effect>(ContentFolderEffects + "Shadows");
 
             shootSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "shootSound");
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
@@ -514,7 +534,13 @@ namespace ThunderingTanks
                 #region Pass 1
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+                DrawShadowMap();
+
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
+
+                TextureMerge.CurrentTechnique = TextureMerge.Techniques["Merge"];
+
                 GraphicsDevice.BlendState = BlendState.AlphaBlend;
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
 
@@ -565,13 +591,25 @@ namespace ThunderingTanks
                 #endregion
 
                 #region Pass 2
-
+                
                 GraphicsDevice.DepthStencilState = DepthStencilState.None;
                 GraphicsDevice.SetRenderTarget(null);
 
                 TextureMerge.Parameters["baseTexture"].SetValue(SceneRenderTarget);
 
                 FSQ.Draw(TextureMerge);
+
+                //no funciona xd
+
+                Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
+                Shadows.Parameters["baseTexture"].SetValue(SceneRenderTarget);
+                Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
+                Shadows.Parameters["lightPosition"].SetValue(lightPosition);
+                Shadows.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowMapSize);
+                Shadows.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+
+                ShadowPass2();
+
 
                 spriteBatch.Begin();
 
@@ -902,10 +940,52 @@ namespace ThunderingTanks
             return grassPositions;
         }
 
+
         /// <summary>
-        ///     Dibuja los objetos que se encuentran dentro del frustum de la camara
+        /// Crea el shadow map
         /// </summary>
-        /// <param name="gameTime"></param>
+        public void DrawShadowMap()
+        {
+            GraphicsDevice.SetRenderTarget(ShadowRenderTarget);
+
+            var worldMatrix = Panzer.PanzerMatrix;
+
+            //Panzer
+            foreach (var modelMesh in Panzer.Tanque.Meshes)
+            {
+                foreach (var part in modelMesh.MeshParts)
+                    part.Effect = Shadows;
+
+                // WorldViewProjection is used to transform from model space to clip space
+                Shadows.Parameters["WorldViewProjection"]
+                    .SetValue(worldMatrix * TargetLightCamera.View * TargetLightCamera.Projection);
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
+        }
+
+        public void ShadowPass2()
+        {
+
+            //Panzer
+            foreach (var modelMesh in Panzer.Tanque.Meshes)
+            {
+                foreach (var part in modelMesh.MeshParts)
+                    part.Effect = Shadows;
+
+                // We set the main matrices for each mesh to draw
+                var worldMatrix = Panzer.PanzerMatrix;
+
+                // WorldViewProjection is used to transform from model space to clip space
+                Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
+                Shadows.Parameters["World"].SetValue(worldMatrix);
+                Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+
+                // Once we set these matrices we draw
+                modelMesh.Draw();
+            }
+        }
         public void FrustumDraw(GameTime gameTime)
         {
             Camera camara = _targetCamera;
