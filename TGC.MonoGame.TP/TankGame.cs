@@ -210,7 +210,6 @@ namespace ThunderingTanks
                 FireRate = 5f,
                 _numberOfProyectiles = 3
             };
-            _cameraFrustum =     new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
             lightBox =           new CubePrimitive(GraphicsDevice, 500, Color.Transparent);
             _menu =              new Menu(Content);
             _hud =               new HUD(screenWidth, screenHeight);
@@ -219,6 +218,7 @@ namespace ThunderingTanks
             spriteBatch =        new SpriteBatch(GraphicsDevice);
             _targetCamera =      new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
             _staticCamera =      new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
+            _cameraFrustum =     new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
             SceneRenderTarget =  new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             FSQ =                new FullScreenQuad(GraphicsDevice);
 
@@ -510,7 +510,6 @@ namespace ThunderingTanks
 
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
 
-
                 GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
@@ -682,6 +681,10 @@ namespace ThunderingTanks
             }
         }
 
+        /// <summary>
+        /// Carga la posicion de de los objetos TanquesEnemigos en posiciones pregenerdas
+        /// </summary>
+        /// <param name="cantidad"></param>
         private void AgregarTanquesEnemigos(int cantidad)
         {
             for (int i = 0; i < cantidad; i++)
@@ -897,7 +900,7 @@ namespace ThunderingTanks
             {
                 if (_cameraFrustum.Intersects(arbol.BoundingBox))
                 {
-                    arbol.Draw(camara.View, camara.Projection, Map.terrain);
+                    arbol.Draw(camara.View, camara.Projection, GraphicsDevice, Map.terrain);
                     Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
             }

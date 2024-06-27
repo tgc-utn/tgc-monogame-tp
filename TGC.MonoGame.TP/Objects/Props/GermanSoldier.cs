@@ -18,6 +18,7 @@ namespace ThunderingTanks.Objects.Props
 
             Model = GermanSoliderModel;
             Texture = GermanSoldierTexture;
+            Effect = effect;
         }
     }
 }

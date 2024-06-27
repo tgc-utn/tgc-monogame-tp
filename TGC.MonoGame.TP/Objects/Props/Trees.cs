@@ -51,11 +51,17 @@ namespace ThunderingTanks.Objects.Props
 
         }
 
-        public void Draw(Matrix view, Matrix projection, SimpleTerrain terrain)
+        public void Draw(Matrix view, Matrix projection, GraphicsDevice graphicsDevice, SimpleTerrain terrain)
         {
 
-            // Update the tree's position based on the terrain height
-            originalPosition = Position; // Save the initial position
+            var originalRasterizerState = graphicsDevice.RasterizerState;
+
+            var rasterizerState = new RasterizerState();
+            rasterizerState.CullMode = CullMode.CullClockwiseFace;
+
+            graphicsDevice.RasterizerState = rasterizerState;
+
+            originalPosition = Position; 
 
             float terrainHeight = terrain.Height(originalPosition.X, originalPosition.Z);
             Vector3 adjustedPosition = new Vector3(originalPosition.X, terrainHeight-420, originalPosition.Z);
@@ -71,7 +77,12 @@ namespace ThunderingTanks.Objects.Props
             Effect.Parameters["World"].SetValue(modelMesh.ParentBone.Transform * Matrix.CreateScale(4) * WorldMatrix);
 
             modelMesh.Draw();
+
+            graphicsDevice.RasterizerState = originalRasterizerState;   
+
         }
+
+        
 
     }
 }
