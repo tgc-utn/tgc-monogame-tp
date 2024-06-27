@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace ThunderingTanks.Objects.Props
     { 
         private Texture2D Texture2 {  get; set; }
 
+        public BoundingBox WaterTankBox;
         public void LoadContent(ContentManager Content, Effect effect)
         {
             Model = Content.Load<Model>(ContentFolder3D + "Snowy_Shack/Little_shack");
@@ -26,6 +28,8 @@ namespace ThunderingTanks.Objects.Props
                     meshPart.Effect = Effect;
                 }
             }
+
+            WaterTankBox = CreateBoundingBox(Model, Matrix.CreateScale(2.5f), Position);
         }
     }
 }
