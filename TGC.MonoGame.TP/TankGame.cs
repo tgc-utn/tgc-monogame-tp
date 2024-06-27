@@ -94,6 +94,8 @@ namespace ThunderingTanks
 
         private List<Trees> Arboles = new();
         private readonly int CantidadArboles = 80;
+        private List<AntiTanque> AntiTanques = new List<AntiTanque>();
+        private List<Object> gameObjects = new();
 
         #endregion
 
@@ -151,8 +153,8 @@ namespace ThunderingTanks
 
         private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
 
-        Vector3 ambientColorValue  = new(0.5f, 0.5f, 0.5f);        // Color ambiental (generalmente menos afectado por la dirección de la luz)
-        Vector3 diffuseColorValue  = new(0.6f, 0.6f, 0.6f);        // Color difuso (más brillante en la dirección de la luz)
+        Vector3 ambientColorValue = new(0.5f, 0.5f, 0.5f);        // Color ambiental (generalmente menos afectado por la dirección de la luz)
+        Vector3 diffuseColorValue = new(0.6f, 0.6f, 0.6f);        // Color difuso (más brillante en la dirección de la luz)
         Vector3 specularColorValue = new(0.3f, 0.3f, 0.3f);        // Color especular (más brillante en la dirección de la luz)
         readonly float KAmbientValue = 0.8f;                       // Factor de ambiental
         readonly float KDiffuseValue = 0.8f;                       // Factor difuso
@@ -160,6 +162,8 @@ namespace ThunderingTanks
         readonly float shininessValue = 5.0f;                      // Brillo especular (puede ajustarse según sea necesario)
 
         readonly Vector3 lightPosition = new(0f, 50000f, 0f);      // Posición de la luz
+
+        private BoundingFrustum _cameraFrustum;
 
         // ------------ GAME ------------ //
 
@@ -213,20 +217,36 @@ namespace ThunderingTanks
             Rocas = new List<Roca>(CantidadRocas);
             AgregarRocas(CantidadRocas);
 
+            //gameObjects.Add(Rocas);
+
             antitanque = new AntiTanque();
 
             molino = new Molino(Matrix.CreateTranslation(
                 new(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))));
 
+            //gameObjects.Add(molino);
+
             Arboles = new List<Trees>(CantidadArboles);
             AgregarArboles(CantidadArboles);
+
+            //gameObjects.Add(Arboles);
 
             casa = new CasaAbandonada();
             casa.Position = new Vector3(-3300f, -700f, 7000f);
 
+            //gameObjects.Add(casa);
+
             Grass = new Grass();
             GermanSoldier = new GermanSoldier();
+
             WaterTank = new WaterTank();
+            WaterTank.SpawnPosition(new Vector3(
+                                        randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X),
+                                        0f,
+                                        randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))
+                                    );
+
+            //gameObjects.Add(WaterTank);
 
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
@@ -242,6 +262,11 @@ namespace ThunderingTanks
                 EnemyTanks.Add(enemyTank);
             }
 
+            //gameObjects.Add(EnemyTanks);
+
+            AgregarAntitanques();
+            //gameObjects.Add(AntiTanques);
+
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
 
@@ -249,6 +274,8 @@ namespace ThunderingTanks
             _hud = new HUD(screenWidth, screenHeight);
 
             Panzer.SensitivityFactor = 0.45f;
+
+            _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
 
             base.Initialize();
         }
@@ -288,13 +315,6 @@ namespace ThunderingTanks
             GermanSoldier.SpawnPosition(new Vector3(0, 0, 300));
 
             WaterTank.LoadContent(Content, BasicShader);
-            WaterTank.SpawnPosition(
-                new Vector3(
-                    randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X),
-                    0f,
-                    randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)
-                    )
-                );
 
             shootSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "shootSound");
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
@@ -322,8 +342,6 @@ namespace ThunderingTanks
                 enemyTank.LoadContent(Content);
                 Console.WriteLine($"Tanque enemigo {i} creado: Min={enemyTank.TankBox.Min}, Max={enemyTank.TankBox.Max}");
             }
-
-            AgregarAntitanques();
 
             _menu.LoadContent(Content);
             _hud.LoadContent(Content);
@@ -574,20 +592,21 @@ namespace ThunderingTanks
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
 
                 Camera camara = _targetCamera;
-
+                FrustumDraw(gameTime);
                 lightBox.Draw(LightBoxWorld, _targetCamera.View, _targetCamera.Projection);
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
                 Map.Draw(gameTime, camara.View, camara.Projection, GraphicsDevice);
                 Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
                 Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
-                molino.Draw(gameTime, camara.View, camara.Projection);
+                //molino.Draw(gameTime, camara.View, camara.Projection);
                 DrawProjectiles(camara.View, camara.Projection);
                 antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
-                casa.Draw(gameTime, camara.View, camara.Projection);
-                WaterTank.Draw(camara.View, camara.Projection);
+                //casa.Draw(gameTime, camara.View, camara.Projection);
+                //WaterTank.Draw(camara.View, camara.Projection);
 
                 Grass.Draw(GrassPosition, camara.View, camara.Projection, Map.terrain);
 
+                /*
                 foreach (var enemyTank in EnemyTanks)
                 {
                     enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
@@ -603,6 +622,7 @@ namespace ThunderingTanks
                     arbol.Draw(camara.View, camara.Projection, Map.terrain);
                     Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
                 }
+                */
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
 
@@ -678,9 +698,16 @@ namespace ThunderingTanks
                 Vector3 Corner4 = new Vector3((-1 * DistanceToEdge), 0, (-1 * DistanceToEdge) + i);
 
                 antitanque.AgregarAntitanque(Corner1);
+                //AntiTanques.Add(antitanque);
+
                 antitanque.AgregarAntitanque(Corner2);
+                //AntiTanques.Add(antitanque);
+
                 antitanque.AgregarAntitanque(Corner3);
+                //AntiTanques.Add(antitanque);
+
                 antitanque.AgregarAntitanque(Corner4);
+                //AntiTanques.Add(antitanque);
             }
         }
 
@@ -910,6 +937,78 @@ namespace ThunderingTanks
             }
 
             return grassPositions;
+        }
+
+        public void FrustumDraw(GameTime gameTime)
+        {
+            Camera camara = _targetCamera;
+
+            foreach (var roca in Rocas)
+            {
+                if (_cameraFrustum.Intersects(roca.RocaBox))
+                {
+                    roca.Draw(gameTime, camara.View, camara.Projection);
+                    Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
+                }
+            }
+
+            foreach (var arbol in Arboles)
+            {
+                if (_cameraFrustum.Intersects(arbol.BoundingBox))
+                {
+                    arbol.Draw(camara.View, camara.Projection, Map.terrain);
+                    Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
+                }
+            }
+
+            foreach (var enemyTank in EnemyTanks)
+            {
+                if (_cameraFrustum.Intersects(enemyTank.TankBox))
+                {
+                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
+                }
+            }
+            
+            /*
+            foreach (var antiTanque in AntiTanques)
+            {
+                if (_cameraFrustum.Intersects(antiTanque.AntiTanqueBox))
+                {
+                    antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
+                    //Gizmos.DrawCube(CollisionsClass.GetCenter(antiTanque.AntiTanqueBox), CollisionsClass.GetExtents(antiTanque.AntiTanqueBox) * 2f, Color.Red);
+                }
+            }
+
+            
+            foreach (var projectile in Projectiles)
+            {
+                if (_cameraFrustum.Intersects(antiTanque.AntiTanqueBox))
+                {
+                    antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
+                    //Gizmos.DrawCube(CollisionsClass.GetCenter(antiTanque.AntiTanqueBox), CollisionsClass.GetExtents(antiTanque.AntiTanqueBox) * 2f, Color.Red);
+                }
+            }
+            */
+
+            if (_cameraFrustum.Intersects(WaterTank.WaterTankBox))
+            {
+                WaterTank.Draw(camara.View, camara.Projection);
+                //Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+            }
+
+            if (_cameraFrustum.Intersects(molino.MolinoBox))
+            {
+                molino.Draw(gameTime, camara.View, camara.Projection);
+                //Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+            }
+
+            if (_cameraFrustum.Intersects(casa.CasaBox))
+            {
+                casa.Draw(gameTime, camara.View, camara.Projection);
+                Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+            }
+
         }
     }
 }
