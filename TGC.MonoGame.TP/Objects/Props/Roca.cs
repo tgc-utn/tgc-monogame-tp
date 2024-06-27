@@ -67,8 +67,6 @@ namespace ThunderingTanks.Objects.Props
         public void Draw(GameTime gameTime, Matrix view, Matrix projection)
 
         {
-
-
             if (!IsDestroyed)
             {
                 Effect.Parameters["Projection"]?.SetValue(projection);
@@ -82,7 +80,6 @@ namespace ThunderingTanks.Objects.Props
                     mesh.Draw();
                 }
             }
-
         }
 
         public void Destroy()

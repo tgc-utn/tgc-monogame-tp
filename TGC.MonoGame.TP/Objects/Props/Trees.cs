@@ -31,7 +31,7 @@ namespace ThunderingTanks.Objects.Props
             Vector3 adjustedPosition = new Vector3(Position.X, terrainHeight - 400, Position.Z);
 
             MaxBox = new Vector3(adjustedPosition.X + 100, adjustedPosition.Y + 500, adjustedPosition.Z + 100);
-            MinBox = new Vector3(adjustedPosition.X - 100, 0, adjustedPosition.Z - 100);
+            MinBox = new Vector3(adjustedPosition.X - 100, adjustedPosition.Y, adjustedPosition.Z - 100);
 
             BoundingBox = new BoundingBox(MinBox, MaxBox);      
 
@@ -81,8 +81,6 @@ namespace ThunderingTanks.Objects.Props
             graphicsDevice.RasterizerState = originalRasterizerState;   
 
         }
-
-        
 
     }
 }

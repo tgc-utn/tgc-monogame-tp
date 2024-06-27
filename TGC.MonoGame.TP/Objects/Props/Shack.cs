@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace ThunderingTanks.Objects.Props
 {
-    public class WaterTank : GameProp
+    public class Shack : GameProp
     { 
         private Texture2D Texture2 {  get; set; }
 
-        public BoundingBox WaterTankBox;
+        public BoundingBox ShackBox;
         public void LoadContent(ContentManager Content, Effect effect)
         {
             Model = Content.Load<Model>(ContentFolder3D + "Snowy_Shack/Little_shack");
@@ -29,7 +29,7 @@ namespace ThunderingTanks.Objects.Props
                 }
             }
 
-            WaterTankBox = CreateBoundingBox(Model, Matrix.CreateScale(2.5f), Position);
+            ShackBox = CreateBoundingBox(Model, Matrix.CreateScale(2.5f), Position);
         }
     }
 }

@@ -88,7 +88,6 @@ namespace ThunderingTanks.Objects.Tanks
 
         public float VelocidadImpacto { get; set; }
 
-
         public Matrix ProjectileMatrix { get; private set; }
 
         private bool _isPlaying = true;
@@ -351,8 +350,6 @@ namespace ThunderingTanks.Objects.Tanks
         {
             if (TimeSinceLastShot >= FireRate)
             {
-
-
                 ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
@@ -362,8 +359,6 @@ namespace ThunderingTanks.Objects.Tanks
 
                 TimeSinceLastShot = 0f;
                 _numberOfProyectiles -= 1;
-
-
 
                 return projectile;
             }
