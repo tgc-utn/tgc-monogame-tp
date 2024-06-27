@@ -269,6 +269,7 @@ namespace ThunderingTanks.Objects.Tanks
             GraphicsDevice.RasterizerState = new RasterizerState() { CullMode = CullMode.None };
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
+
             foreach (var mesh in Tanque.Meshes)
             {
 
@@ -321,6 +322,7 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     //Effect.Parameters["onhit"].SetValue(false); //si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
                 }
+
 
                 mesh.Draw();
 
