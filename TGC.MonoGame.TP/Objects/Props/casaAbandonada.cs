@@ -34,12 +34,13 @@ namespace ThunderingTanks.Objects.Props
             CasaWorlds = new Matrix[] { };
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
             CasaModel = Content.Load<Model>(ContentFolder3D + "casa/house");
 
             TexturaCasa = Content.Load<Texture2D>(ContentFolderTextures + "casaAbandonada/Medieval_Brick_Texture_by_goodtextures");
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
+
             foreach (var mesh in CasaModel.Meshes)
             {
                 foreach (var meshPart in mesh.MeshParts)

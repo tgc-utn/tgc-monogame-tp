@@ -35,12 +35,12 @@ namespace ThunderingTanks.Objects.Props
             originalPosition = Position;
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
             AntitanqueModel = Content.Load<Model>(ContentFolder3D + "assets militares/rsg_military_antitank_hedgehog_01");
 
             TexturaAntitanque = Content.Load<Texture2D>(ContentFolder3D + "assets militares/Textures/UE/T_rsg_military_sandbox_01_BC");
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
             foreach (var mesh in AntitanqueModel.Meshes)
             {
                 foreach (var meshPart in mesh.MeshParts)

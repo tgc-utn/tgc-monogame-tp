@@ -43,6 +43,10 @@ namespace ThunderingTanks
         public FullScreenQuad FSQ { get; private set; }
 
         public RenderTarget2D SceneRenderTarget { get; private set; }
+
+        public SpriteBatch spriteBatch { get; set; }
+
+        public FrameCounter FrameCounter { get; set; }
         #endregion
 
         #region State
@@ -56,6 +60,8 @@ namespace ThunderingTanks
 
         private TargetCamera _targetCamera;
         private StaticCamera _staticCamera;
+
+        private BoundingFrustum _cameraFrustum;
         #endregion
 
         #region Objects
@@ -71,18 +77,11 @@ namespace ThunderingTanks
         private Molino molino;
 
         private Grass Grass { get; set; }
-        private Model GrassModel { get; set; }
-        private Texture2D GrassAlpha { get; set; }
-        private Texture2D GrassColor { get; set; }
-        private Texture2D GrassNormal { get; set; }
-        private Texture2D GrassSmoothness { get; set; }
         private List<Vector3> GrassPosition { get; set; }
 
         public int GrassCant = 300;
 
         private GermanSoldier GermanSoldier { get; set; }
-        private Model GermanSoliderModel { get; set; }
-        private Texture2D GermanSoldierTexture { get; set; }
 
         private WaterTank WaterTank { get; set; }
 
@@ -127,34 +126,30 @@ namespace ThunderingTanks
         #region Tanks
         private Tank Panzer { get; set; }
 
-        private readonly int CantidadTanquesEnemigos = 3;
+
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
+
+        public float TanksEliminados;
+        private readonly int CantidadTanquesEnemigos = 3;
 
         #endregion
 
         #region MapScene
         private MapScene Map { get; set; }
         public Vector2 MapLimit { get; set; }
-        #endregion
-
-        public Random randomSeed = new Random(47);
-
         private SkyBox SkyBox { get; set; }
-        public SpriteBatch spriteBatch { get; set; }
-
-        public FrameCounter FrameCounter { get; set; }
-        public bool StartGame { get; set; } = false;
-
+        private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
         private CubePrimitive lightBox;
 
-        private float Timer { get; set; }
-        public float TanksEliminados { get; set; } = 0;
+        public Random randomSeed = new Random(47);
+        #endregion
 
-        private Matrix LightBoxWorld { get; set; } = Matrix.Identity;
 
-        Vector3 ambientColorValue = new(0.5f, 0.5f, 0.5f);        // Color ambiental (generalmente menos afectado por la dirección de la luz)
-        Vector3 diffuseColorValue = new(0.6f, 0.6f, 0.6f);        // Color difuso (más brillante en la dirección de la luz)
+        public bool StartGame { get; set; } = false;
+
+        Vector3 ambientColorValue = new(0.5f, 0.5f, 0.5f);         // Color ambiental (generalmente menos afectado por la dirección de la luz)
+        Vector3 diffuseColorValue = new(0.6f, 0.6f, 0.6f);         // Color difuso (más brillante en la dirección de la luz)
         Vector3 specularColorValue = new(0.3f, 0.3f, 0.3f);        // Color especular (más brillante en la dirección de la luz)
         readonly float KAmbientValue = 0.8f;                       // Factor de ambiental
         readonly float KDiffuseValue = 0.8f;                       // Factor difuso
@@ -162,8 +157,6 @@ namespace ThunderingTanks
         readonly float shininessValue = 5.0f;                      // Brillo especular (puede ajustarse según sea necesario)
 
         readonly Vector3 lightPosition = new(0f, 50000f, 0f);      // Posición de la luz
-
-        private BoundingFrustum _cameraFrustum;
 
         // ------------ GAME ------------ //
 
@@ -177,6 +170,7 @@ namespace ThunderingTanks
 
         protected override void Initialize()
         {
+            #region Graphics
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
 
@@ -187,95 +181,65 @@ namespace ThunderingTanks
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
             Graphics.GraphicsProfile = GraphicsProfile.Reach;
 
-            Graphics.ApplyChanges();
-
             viewport = GraphicsDevice.Viewport;
-
-            keyboardState = new KeyboardState();
-            MouseState = new MouseState();
-            PreviousMouseState = new MouseState();
-
-            FrameCounter = new FrameCounter();
-
             IsMouseVisible = false;
 
-            Panzer = new Tank()
+            Graphics.ApplyChanges();
+            #endregion
+
+            screenHeight = GraphicsDevice.Viewport.Height;
+            screenWidth = GraphicsDevice.Viewport.Width;
+
+            keyboardState =      new KeyboardState();
+            MouseState =         new MouseState();
+            PreviousMouseState = new MouseState();
+            MapLimit =           new Vector2(20000f, 20000f);
+            FrameCounter =       new FrameCounter();
+            Rocas =              new List<Roca>(CantidadRocas);
+            Arboles =            new List<Trees>(CantidadArboles);
+            antitanque =         new AntiTanque();
+            molino =             new Molino(Matrix.CreateTranslation(new(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))));
+            casa =               new CasaAbandonada();
+            WaterTank =          new WaterTank();
+            Grass =              new Grass();
+            GermanSoldier =      new GermanSoldier();
+            Panzer =             new Tank()
             {
                 TankVelocity = 1000f,
                 TankRotation = 20f,
                 FireRate = 5f,
                 _numberOfProyectiles = 3
             };
+            _cameraFrustum =     new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
+            lightBox =           new CubePrimitive(GraphicsDevice, 500, Color.Transparent);
+            _menu =              new Menu(Content);
+            _hud =               new HUD(screenWidth, screenHeight);
+            SkyBox =             new SkyBox(25000);
+            Map =                new MapScene(Content, GraphicsDevice);
+            spriteBatch =        new SpriteBatch(GraphicsDevice);
+            _targetCamera =      new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
+            _staticCamera =      new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
+            SceneRenderTarget =  new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
+            FSQ =                new FullScreenQuad(GraphicsDevice);
 
-            _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
-            _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
+            AgregarRocas(CantidadRocas);
+            AgregarArboles(CantidadArboles);
+            AgregarTanquesEnemigos(CantidadTanquesEnemigos); 
+            AgregarAntitanques();
 
             Panzer.PanzerCamera = _targetCamera;
-
-            MapLimit = new Vector2(20000f, 20000f);
-
-            Rocas = new List<Roca>(CantidadRocas);
-            AgregarRocas(CantidadRocas);
+            Panzer.SensitivityFactor = 0.45f;
+            casa.Position = new Vector3(-3300f, -700f, 7000f);
+            WaterTank.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
+            TanksEliminados = 0;
 
             //gameObjects.Add(Rocas);
-
-            antitanque = new AntiTanque();
-
-            molino = new Molino(Matrix.CreateTranslation(
-                new(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))));
-
             //gameObjects.Add(molino);
-
-            Arboles = new List<Trees>(CantidadArboles);
-            AgregarArboles(CantidadArboles);
-
             //gameObjects.Add(Arboles);
-
-            casa = new CasaAbandonada();
-            casa.Position = new Vector3(-3300f, -700f, 7000f);
-
             //gameObjects.Add(casa);
-
-            Grass = new Grass();
-            GermanSoldier = new GermanSoldier();
-
-            WaterTank = new WaterTank();
-            WaterTank.SpawnPosition(new Vector3(
-                                        randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X),
-                                        0f,
-                                        randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))
-                                    );
-
             //gameObjects.Add(WaterTank);
-
-            for (int i = 0; i < CantidadTanquesEnemigos; i++)
-            {
-                EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
-                {
-                    TankVelocity = 180f,
-                    TankRotation = 20f,
-                    FireRate = 5f,
-                    Position = new Vector3(3000 * i, 0, 9000),
-                    shootInterval = 5f + ((float)Math.Pow(2, i)),
-                    lifeSpan = 0
-                };
-                EnemyTanks.Add(enemyTank);
-            }
-
             //gameObjects.Add(EnemyTanks);
-
-            AgregarAntitanques();
             //gameObjects.Add(AntiTanques);
-
-            screenHeight = GraphicsDevice.Viewport.Height;
-            screenWidth = GraphicsDevice.Viewport.Width;
-
-            _menu = new Menu(Content);
-            _hud = new HUD(screenWidth, screenHeight);
-
-            Panzer.SensitivityFactor = 0.45f;
-
-            _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
 
             base.Initialize();
         }
@@ -284,79 +248,45 @@ namespace ThunderingTanks
         {
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
-
-            FSQ = new FullScreenQuad(GraphicsDevice);
-
-            SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width,
-                GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
-
             BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
-
-            Map = new MapScene(Content, GraphicsDevice);
-
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            Panzer.LoadContent(Content);
-            molino.LoadContent(Content);
-            roca.LoadContent(Content, Map.terrain);
-            antitanque.LoadContent(Content);
-            casa.LoadContent(Content);
-
-            GrassModel = Content.Load<Model>(ContentFolder3D + "grass/grasspatches");
-            GrassAlpha = Content.Load<Texture2D>(ContentFolder3D + "grass/grassAlphaMapped");
-            Grass.Load(GrassModel, GrassAlpha, GrassColor, GrassNormal, GrassSmoothness, BasicShader);
-            GrassPosition = LoadGrassPositions(GrassCant);
-
-            GermanSoliderModel = Content.Load<Model>(ContentFolder3D + "German_Soldier_1/German_Soldier_1");
-            GermanSoldierTexture = Content.Load<Texture2D>(ContentFolder3D + "German_Soldier_1/panzergren_low2k_diff");
-            GermanSoldier.Load(GermanSoliderModel, GermanSoldierTexture, BasicShader);
-            GermanSoldier.SpawnPosition(new Vector3(0, 0, 300));
-
-            WaterTank.LoadContent(Content, BasicShader);
+            TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
 
             shootSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "shootSound");
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
-
             movingTankSound = movingTankSoundEffect.CreateInstance();
-            Panzer.MovingTankSound = movingTankSound;
-
             _shootSound = shootSoundEffect.CreateInstance();
 
+            Panzer.LoadContent(Content, BasicShader);
+            molino.LoadContent(Content, BasicShader);
+            antitanque.LoadContent(Content, BasicShader);
+            casa.LoadContent(Content, BasicShader);
+            Grass.LoadContent(Content, BasicShader);
+            GermanSoldier.LoadContent(Content, BasicShader);
+            WaterTank.LoadContent(Content, BasicShader);
+            _menu.LoadContent(Content);
+            _hud.LoadContent(Content);
+            SkyBox.LoadContent(Content);
+            Gizmos.LoadContent(GraphicsDevice, Content);
             for (int i = 0; i < CantidadRocas; i++)
             {
                 roca = Rocas[i];
-                roca.LoadContent(Content, Map.terrain);
+                roca.LoadContent(Content, BasicShader, Map.terrain);
             }
-
             for (int i = 0; i < CantidadArboles; i++)
             {
                 arbol = Arboles[i];
                 arbol.LoadList(Content, BasicShader, Map.terrain);
             }
-
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
                 enemyTank = EnemyTanks[i];
                 enemyTank.LoadContent(Content);
-                Console.WriteLine($"Tanque enemigo {i} creado: Min={enemyTank.TankBox.Min}, Max={enemyTank.TankBox.Max}");
             }
 
-            _menu.LoadContent(Content);
-            _hud.LoadContent(Content);
+            GrassPosition = LoadGrassPositions(GrassCant);
+            GermanSoldier.SpawnPosition(new Vector3(0, 0, 300));
 
-            var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
-            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
-            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-
-            SkyBox = new SkyBox(skyBox, skyBoxTexture, skyBoxEffect, 25000);
-
-            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "content"));
-
-            lightBox = new CubePrimitive(GraphicsDevice, 500, Color.LightGoldenrodYellow);
-
-            
+            Panzer.MovingTankSound = movingTankSound;
 
             base.LoadContent();
         }
@@ -372,8 +302,6 @@ namespace ThunderingTanks
 
             LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
-
-
             BasicShader.Parameters["diffuseColor"].SetValue(diffuseColorValue);
             BasicShader.Parameters["ambientColor"].SetValue(ambientColorValue);
             BasicShader.Parameters["specularColor"].SetValue(specularColorValue);
@@ -381,11 +309,7 @@ namespace ThunderingTanks
             BasicShader.Parameters["KDiffuse"].SetValue(KDiffuseValue);
             BasicShader.Parameters["KSpecular"].SetValue(KSpecularValue);
             BasicShader.Parameters["shininess"].SetValue(shininessValue);
-
             BasicShader.Parameters["lightPosition"].SetValue(lightPosition);
-
-            //BasicShader.Parameters["eyePosition"].SetValue(new Vector3(0.5f, 10f, 0.5f));
-
             BasicShader.Parameters["eyePosition"].SetValue(_targetCamera.Position);
 
             #region Volume
@@ -755,6 +679,23 @@ namespace ThunderingTanks
                 }
                 Arboles.Add(arbol);
 
+            }
+        }
+
+        private void AgregarTanquesEnemigos(int cantidad)
+        {
+            for (int i = 0; i < cantidad; i++)
+            {
+                EnemyTank enemyTank = new EnemyTank(GraphicsDevice)
+                {
+                    TankVelocity = 180f,
+                    TankRotation = 20f,
+                    FireRate = 5f,
+                    Position = new Vector3(3000 * i, 0, 9000),
+                    shootInterval = 5f + ((float)Math.Pow(2, i)),
+                    lifeSpan = 0
+                };
+                EnemyTanks.Add(enemyTank);
             }
         }
 

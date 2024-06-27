@@ -25,11 +25,11 @@ namespace ThunderingTanks.Objects.Props
             MolinoMatrix = molinoMatrix;
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
             MolinoModel = Content.Load<Model>(ContentFolder3D + "ModelosVarios/MolinoProp/MolinoProp");
             MolinoTexture = Content.Load<Texture2D>(ContentFolder3D + "ModelosVarios/MolinoProp/T_Windpump_D");
-            MolinoEffect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            MolinoEffect = effect;
 
             foreach (var mesh in MolinoModel.Meshes)
             {

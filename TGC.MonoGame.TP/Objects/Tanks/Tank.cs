@@ -103,7 +103,7 @@ namespace ThunderingTanks.Objects.Tanks
             _currentLife = _maxLife;
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, Effect effect)
         {
 
             Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
@@ -111,7 +111,7 @@ namespace ThunderingTanks.Objects.Tanks
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
             TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
 
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
 
 
             TimeSinceLastShot = FireRate;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace ThunderingTanks.Objects
 {
@@ -8,15 +9,10 @@ namespace ThunderingTanks.Objects
     /// </summary>
     public class SkyBox
     {
-        /// <summary>
-        ///     Creates a new SkyBox
-        /// </summary>
-        /// <param name="model">The geometry to use for SkyBox.</param>
-        /// <param name="texture">The SkyBox texture to use.</param>
-        /// <param name="effect">The size of the cube.</param>
-        public SkyBox(Model model, TextureCube texture, Effect effect) : this(model, texture, effect, 50)
-        {
-        }
+
+        public const string ContentFolder3D = "Models/";
+        public const string ContentFolderEffects = "Effects/";
+        public const string ContentFolderTextures = "Textures/";
 
         /// <summary>
         ///     Creates a new SkyBox
@@ -25,11 +21,8 @@ namespace ThunderingTanks.Objects
         /// <param name="texture">The SkyBox texture to use.</param>
         /// <param name="effect">The SkyBox fx to use.</param>
         /// <param name="size">The SkyBox fx to use.</param>
-        public SkyBox(Model model, TextureCube texture, Effect effect, float size)
+        public SkyBox(float size)
         {
-            Model = model;
-            Texture = texture;
-            Effect = effect;
             Size = size;
         }
 
@@ -37,22 +30,37 @@ namespace ThunderingTanks.Objects
         ///     The size of the cube, used so that we can resize the box
         ///     for different sized environments.
         /// </summary>
-        private float Size { get; }
+        private float Size { get; set; }
 
         /// <summary>
         ///     The effect file that the SkyBox will use to render
         /// </summary>
-        private Effect Effect { get; }
+        private Effect Effect { get; set; }
 
         /// <summary>
         ///     The actual SkyBox texture
         /// </summary>
-        private TextureCube Texture { get; }
+        private TextureCube Texture { get; set; }
 
         /// <summary>
         ///     The SkyBox model, which will just be a cube
         /// </summary>
         public Model Model { get; set; }
+
+        /// <summary>
+        ///    Loads the SkyBox texture and effect.
+        /// </summary>
+        /// <param name="Content"></param>
+        public void LoadContent(ContentManager Content)
+        {
+            var skyBox = Content.Load<Model>(ContentFolder3D + "cube");
+            var skyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "/skyboxes/mountain_skybox_hd");
+            var skyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
+
+            Model = skyBox;
+            Texture = skyBoxTexture;
+            Effect = skyBoxEffect;
+        }
 
         /// <summary>
         ///     Does the actual drawing of the SkyBox with our SkyBox effect.
