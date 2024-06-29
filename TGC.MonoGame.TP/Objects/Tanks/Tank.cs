@@ -237,9 +237,17 @@ namespace ThunderingTanks.Objects.Tanks
 
             Direction = new Vector3(X, terrainHeight - 400, Z);
 
+            // Aquí calculamos la inclinación
+            float currentHeight = terrain.Height(Direction.X, Direction.Z);
+            float previousHeight = terrain.Height(LastPosition.X, LastPosition.Z);
+            float heightDifference = -(currentHeight - previousHeight);
+
+            float pitch = (float)Math.Atan2(heightDifference, Vector3.Distance(new Vector3(Direction.X, 0, Direction.Z), new Vector3(LastPosition.X, 0, LastPosition.Z)));
+            Matrix pitchMatrix = Matrix.CreateRotationX(pitch);
+
             Position = Direction + new Vector3(0f, 500f, 0f);
 
-            PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
+            PanzerMatrix = pitchMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
@@ -259,7 +267,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
             //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); experimental
-
         }
 
         public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
