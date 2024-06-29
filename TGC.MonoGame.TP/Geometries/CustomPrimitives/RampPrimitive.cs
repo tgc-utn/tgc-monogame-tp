@@ -15,6 +15,7 @@ using BepuPhysics.CollisionDetection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 
 #endregion Using Statements
 
@@ -73,9 +74,13 @@ namespace TGC.MonoGame.TP.Geometries
                 Vector3 regularSize = scale.Value;
                 // Ahora puedes usar regularVector, que es de tipo Vector3
                 BoundingRamp = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
+                /*BoundingRamp = new OrientedBoundingBox(regularCoordinates, regularSize);
+                if(rotation.HasValue)
+                {
+                    Matrix rotationOBB = (Matrix)rotation;
+                    BoundingRamp.Rotate(rotationOBB);
+                }*/
             }
-
-            
 
             InitializePrimitive(graphicsDevice, content);
         }
