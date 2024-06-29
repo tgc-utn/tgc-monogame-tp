@@ -31,9 +31,6 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Material CurrentMaterial = Material.RustedMetal;
 
-
-        private List<Entity> myEntities;
-
         //public Vector3 Position;
         //Vector3 Velocity;
         //Vector3 Acceleration = Vector3.Zero;
@@ -75,9 +72,7 @@ namespace TGC.MonoGame.TP.MainCharacter
         public Character(ContentManager content, Stage stage, List<Entity> entities)
         {
             Content = content;
-            myEntities = entities;
             Spin = Matrix.CreateFromAxisAngle(Vector3.UnitZ, 0);
-            //startPos=stage.CharacterInitialPosition;
 
             ActualStage = stage;
 
@@ -332,9 +327,6 @@ namespace TGC.MonoGame.TP.MainCharacter
                     movement = Velocity * deltaTime * deltaTime * 0.5f;
                     newPosition = oldPosition + movement;
                     UpdateBBSphere(newPosition);
-                    // Puedes hacer más ajustes según tu lógica específica de juego
-                    // Por ejemplo, ajustar la velocidad según la normal de la colisión
-                    // LocalVelocity = ModifyVelocity(LocalVelocity, collisionNormal);
                 }
             }
 
