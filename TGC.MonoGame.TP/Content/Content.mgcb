@@ -144,6 +144,20 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/tgc-logo/tgc-logo.fbx
 
+#begin SpriteFonts/CascadiaCode/CascadiaCodePL.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/CascadiaCode/CascadiaCodePL.spritefont
+
+#begin SpriteFonts/CascadiaCode/CascadiaMonoPL.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:SpriteFonts/CascadiaCode/CascadiaMonoPL.spritefont
+
 #begin Textures/floor/tiling-base.png
 /importer:TextureImporter
 /processor:TextureProcessor
