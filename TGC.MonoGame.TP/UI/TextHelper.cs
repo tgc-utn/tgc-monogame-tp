@@ -23,6 +23,12 @@ namespace TGC.MonoGame.TP.UI
             return new Vector2((graphicsDevice.Viewport.Width - size.X * scale) / 2, yCoordinate);
         }
 
+        public static void DrawString(SpriteBatch spriteBatch, SpriteFont font, String text, Vector2 position, Color color, float scale)
+        {
+            // text
+            spriteBatch.DrawString(font, text, position, color, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+        }
+
         public static void DrawStringWithShadow(SpriteBatch spriteBatch, SpriteFont font, String text, Vector2 position, Color color, float scale)
         {
             // shadow

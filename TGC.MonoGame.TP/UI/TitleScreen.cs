@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,17 @@ namespace TGC.MonoGame.TP.UI
 {
     internal class TitleScreen
     {
-
         const string titleText = "Marble It Down!";
         const float titleScale = 3f;
 
         const string pressStartText = "Press any key";
         const float pressStartScale = 1f;
+
+        public static Boolean PressAnyKey()
+        {
+            KeyboardState keyboardState = Keyboard.GetState();
+            return keyboardState.GetPressedKeyCount() > 0;
+        }
 
         public static void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
         {

@@ -24,7 +24,6 @@ namespace TGC.MonoGame.TP.UI
 
         public void Update()
         {
-
         }
 
         public void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)

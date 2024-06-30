@@ -9,6 +9,7 @@ using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Stages;
+using TGC.MonoGame.TP.UI;
 
 namespace TGC.MonoGame.TP
 {
@@ -48,6 +49,9 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
+        private SpriteFont SpriteFont { get; set; }
+        private TextUI UIStatus = TextUI.Title;
+        private TimeSpan Timer = TimeSpan.Zero;
 
         // Camera to draw the scene
         private FollowCamera FollowCamera { get; set; }
@@ -89,7 +93,7 @@ namespace TGC.MonoGame.TP
 
             base.Initialize();
         }
-        private SpriteFont SpriteFont{get;set;}
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
         ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
@@ -97,12 +101,13 @@ namespace TGC.MonoGame.TP
         /// </summary>
         public Effect BallEffect;
 
-
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
 
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCode/CascadiaCodePL");
+
             Entities = new List<Entity>();
 
             Stage = new Stage_01(GraphicsDevice, Content);
@@ -147,27 +152,37 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            if(Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (UIStatus == TextUI.HUD)
             {
-                //Salgo del juego.
-                Exit();
+                Timer += gameTime.ElapsedGameTime;
+
+                if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                {
+                    //Salgo del juego.
+                    Exit();
+                }
+
+                MainCharacter.Update(gameTime);
+                FollowCamera.Update(gameTime, MainCharacter.World);
+
+                Stage.CamPosition = FollowCamera.CamPosition;
+
+                MainCharacter.ChangeDirection(FollowCamera.CamRotation);
+                BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
+
+                //World = Matrix.CreateRotationY(Rotation);
             }
-
-
-            MainCharacter.Update(gameTime);
-
-            
-
-
-            FollowCamera.Update(gameTime, MainCharacter.World);
-
-            Stage.CamPosition=FollowCamera.CamPosition;
-
-            MainCharacter.ChangeDirection(FollowCamera.CamRotation);
-            BallEffect.Parameters["eyePosition"].SetValue(FollowCamera.CamPosition);
-
-            //World = Matrix.CreateRotationY(Rotation);
-
+            else if (UIStatus == TextUI.Title)
+            {
+                if (TitleScreen.PressAnyKey())
+                {
+                    UIStatus = TextUI.HUD;
+                }
+            }
+            else if (UIStatus == TextUI.Menu)
+            {
+                //Menu.Update();
+            }
 
             base.Update(gameTime);
         }
@@ -197,6 +212,20 @@ namespace TGC.MonoGame.TP
 
             GraphicsDevice.RasterizerState = originalRasterizerState;
 
+
+            if (UIStatus == TextUI.HUD)
+            {
+                HUD.Draw(GraphicsDevice, SpriteBatch, SpriteFont, Timer, 0); 
+            }
+            else if (UIStatus == TextUI.Title)
+            {
+                TitleScreen.Draw(GraphicsDevice, SpriteBatch, SpriteFont);
+            }
+            else if (UIStatus == TextUI.Menu)
+            {
+                // TODO
+                // Menu.Draw();
+            }
             //base.Draw(gameTime);
         }
 
