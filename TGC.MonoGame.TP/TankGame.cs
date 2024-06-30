@@ -157,7 +157,6 @@ namespace ThunderingTanks
         public Random randomSeed = new Random(47);
         #endregion
 
-
         public bool StartGame { get; set; } = false;
 
         Vector3 ambientColorValue = new(0.5f, 0.5f, 0.5f);         // Color ambiental (generalmente menos afectado por la dirección de la luz)
@@ -185,12 +184,14 @@ namespace ThunderingTanks
             #region Graphics
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
+            rasterizerState.FillMode = FillMode.Solid;
+            rasterizerState.MultiSampleAntiAlias = true;
 
             GraphicsDevice.RasterizerState = rasterizerState;
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
 
-            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
-            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 10;
+            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 80;
             Graphics.GraphicsProfile = GraphicsProfile.Reach;
 
             viewport = GraphicsDevice.Viewport;
@@ -257,8 +258,6 @@ namespace ThunderingTanks
             //gameObjects.Add(WaterTank);
             //gameObjects.Add(EnemyTanks);
             //gameObjects.Add(AntiTanques);
-
-            
 
             base.Initialize();
         }
@@ -535,7 +534,7 @@ namespace ThunderingTanks
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
-                DrawShadowMap();
+ //               DrawShadowMap();
 
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
 
@@ -596,27 +595,21 @@ namespace ThunderingTanks
                 GraphicsDevice.SetRenderTarget(null);
 
                 TextureMerge.Parameters["baseTexture"].SetValue(SceneRenderTarget);
-
                 FSQ.Draw(TextureMerge);
 
-                //no funciona xd
-
+/*
                 Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
                 Shadows.Parameters["baseTexture"].SetValue(SceneRenderTarget);
                 Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
                 Shadows.Parameters["lightPosition"].SetValue(lightPosition);
                 Shadows.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowMapSize);
                 Shadows.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+*/
 
-                ShadowPass2();
-
+//                ShadowPass2();
 
                 spriteBatch.Begin();
-
                 _hud.Draw(spriteBatch);
-
-                //spriteBatch.Draw(SceneRenderTarget, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
-
                 spriteBatch.End();
 
                 #endregion
@@ -964,7 +957,6 @@ namespace ThunderingTanks
                 modelMesh.Draw();
             }
         }
-
         public void ShadowPass2()
         {
 
@@ -986,6 +978,11 @@ namespace ThunderingTanks
                 modelMesh.Draw();
             }
         }
+
+        /// <summary>
+        ///    Dibuja los objetos que se encuentran dentro del frustum de la camara
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void FrustumDraw(GameTime gameTime)
         {
             Camera camara = _targetCamera;
