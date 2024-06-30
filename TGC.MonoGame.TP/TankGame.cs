@@ -558,7 +558,7 @@ namespace ThunderingTanks
                 Grass.Draw(GrassPosition, camara.View, camara.Projection, Map.terrain);
 
                 Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
-                Gizmos.DrawCube(Panzer.Center, Panzer.Extents * 2f, Color.Green);
+                Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents);
                 Gizmos.DrawFrustum(_targetCamera.View, Color.White);
 
                 if (DrawGizmos)
@@ -876,7 +876,7 @@ namespace ThunderingTanks
         /// <returns>True si hay colision</returns>
         private bool CheckCollisions()
         {
-            BoundingBox tankBox = Panzer.TankBox;
+            OrientedBoundingBox tankBox = Panzer.TankBox;
 
             Vector3 deltaY = new Vector3(0, 0f, 0);
 
