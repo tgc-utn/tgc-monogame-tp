@@ -8,6 +8,7 @@ using SharpDX.DirectWrite;
 using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
@@ -46,6 +47,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Vector3 Direction = new(0, 0, 0);
         public float TankVelocity { get; set; }
 
+        public Matrix RotationMatrix { get; set; }
         public float TankRotation { get; set; }
         public float Rotation = 0;
 
@@ -63,7 +65,7 @@ namespace ThunderingTanks.Objects.Tanks
 
         //public BoundingBox TankboundingBox { get; set; }
         //public OrientedBoundingBox TankBox { get; set; }
-        public BoundingBox TankBox { get; set; }
+        public OrientedBoundingBox TankBox { get; set; }
         public BoundingBox PrevTankBox { get; set; }
 
         public Vector3 Center { get; set; }
@@ -98,6 +100,8 @@ namespace ThunderingTanks.Objects.Tanks
         {
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
+            TankBox = new OrientedBoundingBox();
+
 
             _currentLife = _maxLife;
         }
@@ -112,26 +116,14 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect = effect;
 
+            // Obtener los vértices del modelo del tanque
+            List<Vector3> verticesTanque = ObtenerVerticesModelo(Tanque).ToList();
+            TankBox = OrientedBoundingBox.ComputeFromPoints(verticesTanque.ToArray());
+            TankBox.Extents *= 90f;
 
             TimeSinceLastShot = FireRate;
 
-            PanzerMatrix = Matrix.CreateTranslation(Position);
-
-            //TankBox = new BoundingBox(new Vector3(-200, 0, -300), new Vector3(200, 250, 300));
-            //TankBox = new OrientedBoundingBox();
-
-            verticesTanque = ObtenerVerticesModelo(Tanque);
-            BoundingBox meshBox = BoundingBox.CreateFromPoints(verticesTanque);
-
-            PrevTankBox = meshBox;
-
-            //TankBox = TankBox == null ? meshBox : BoundingBox.CreateMerged(TankBox, meshBox);
-            float factorEscala = 45f; // Escala del 20%
-
-            TankBox = EscalarBoundingBox(PrevTankBox, factorEscala);
-
-            MinBox = TankBox.Min;
-            MaxBox = TankBox.Max;
+            
 
             collided = false;
 
@@ -227,8 +219,8 @@ namespace ThunderingTanks.Objects.Tanks
 
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
-            Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
-            Vector3 rotatedDirection = Vector3.Transform(directionVector, rotationMatrix);
+            RotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
+            Vector3 rotatedDirection = Vector3.Transform(directionVector, RotationMatrix);
 
             var newPos = new Vector2(Direction.X, Direction.Z) + new Vector2(rotatedDirection.X, rotatedDirection.Z);
             var X = newPos.X;
@@ -237,16 +229,24 @@ namespace ThunderingTanks.Objects.Tanks
 
             Direction = new Vector3(X, terrainHeight - 400, Z);
 
+            // Aquí calculamos la inclinación
+            float currentHeight = terrain.Height(Direction.X, Direction.Z);
+            float previousHeight = terrain.Height(LastPosition.X, LastPosition.Z);
+            float heightDifference = -(currentHeight - previousHeight);
+
+            float pitch = (float)Math.Atan2(heightDifference, Vector3.Distance(new Vector3(Direction.X, 0, Direction.Z), new Vector3(LastPosition.X, 0, LastPosition.Z)));
+            Matrix pitchMatrix = Matrix.CreateRotationX(pitch);
+
             Position = Direction + new Vector3(0f, 500f, 0f);
 
-            PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
+            PanzerMatrix = pitchMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
-            TankBox = new BoundingBox(MinBox + Direction, MaxBox + Direction);
+            // Actualizar la posición y rotación de la caja orientada
+            TankBox.Center = Direction; // Actualiza el centro de la OBB
+            TankBox.Rotate(RotationMatrix); // Actualiza la rotación de la OBB
 
-            Center = CollisionsClass.GetCenter(TankBox);
-            Extents = CollisionsClass.GetExtents(TankBox);
 
             LastPosition = Direction;
 
@@ -259,7 +259,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
             //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); experimental
-
         }
 
         public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
@@ -428,7 +427,7 @@ namespace ThunderingTanks.Objects.Tanks
             return BoundingBox.CreateFromPoints(puntosEsquina);
         }
 
-        List<Vector3> ObtenerVerticesModelo(Model modelo)
+        /*List<Vector3> ObtenerVerticesModelo(Model modelo)
         {
             List<Vector3> vertices = new List<Vector3>();
 
@@ -446,7 +445,7 @@ namespace ThunderingTanks.Objects.Tanks
             }
 
             return vertices;
-        }
+        }*/
 
         public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
         {
@@ -498,6 +497,28 @@ namespace ThunderingTanks.Objects.Tanks
             -(versorNormal.X * centro.X + versorNormal.Y * centro.Y + versorNormal.Z * centro.Z) //d
             );
             return plano;
+        }
+
+        private List<Vector3> ObtenerVerticesModelo(Model model)
+        {
+            List<Vector3> vertices = new List<Vector3>();
+
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
+                {
+                    VertexBuffer vertexBuffer = meshPart.VertexBuffer;
+                    int vertexCount = vertexBuffer.VertexCount;
+                    VertexPositionNormalTexture[] vertexData = new VertexPositionNormalTexture[vertexCount];
+                    vertexBuffer.GetData(vertexData);
+
+                    foreach (VertexPositionNormalTexture vertex in vertexData)
+                    {
+                        vertices.Add(vertex.Position);
+                    }
+                }
+            }
+            return vertices;
         }
     }
 }

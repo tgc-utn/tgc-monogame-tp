@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using ThunderingTanks.Collisions;
 using ThunderingTanks.Gizmos.Geometries;
 
 namespace ThunderingTanks.Gizmos
@@ -52,6 +53,7 @@ namespace ThunderingTanks.Gizmos
         private Matrix ViewProjection { get; set; }
         private EffectParameter WorldViewProjectionParameter { get; set; }
 
+
         public bool Enabled { get; set; } = true;
 
         /// <summary>
@@ -93,6 +95,16 @@ namespace ThunderingTanks.Gizmos
         /// <param name="type">The GizmoGeometry to be drawn.</param>
         /// <param name="color">The color of the geometry.</param>
         /// <param name="world">The world matrix to be used when drawing.</param>
+        /// 
+        public void DrawOrientedCube(Vector3 origin, Matrix orientation, Vector3 size)
+        {
+            DrawOrientedCube(origin, orientation, size, BaseColor);
+        }
+        public void DrawOrientedCube(Vector3 origin, Matrix orientation, Vector3 size, Color color)
+        {
+            var world = Matrix.CreateScale(size) * orientation * Matrix.CreateTranslation(origin);
+            AddDrawInstance(Cube, color, world);
+        }
         private void AddDrawInstance(GizmoGeometry type, Color color, Matrix world)
         {
             var instancesByType = DrawInstances[type];
