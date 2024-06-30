@@ -12,19 +12,19 @@ namespace TGC.MonoGame.TP.UI
     {
 
         const string titleText = "Marble It Down!";
-        const float titleScale = 5f;
+        const float titleScale = 3f;
 
         const string pressStartText = "Press any key";
         const float pressStartScale = 1f;
 
-        public void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
+        public static void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
         {
             spriteBatch.Begin();
 
             var titlePosition = TextHelper.CenterText(graphicsDevice, font, titleText, titleScale);
-            TextHelper.DrawStringWithShadow(spriteBatch, font, pressStartText, titlePosition, Color.Yellow, titleScale);
+            TextHelper.DrawStringWithShadow(spriteBatch, font, titleText, titlePosition, Color.Yellow, titleScale);
 
-            var pressStartPosition = TextHelper.CenterText(graphicsDevice, font, titleText, titleScale) + new Vector2(0,200);
+            var pressStartPosition = TextHelper.CenterText(graphicsDevice, font, pressStartText, pressStartScale, graphicsDevice.Viewport.Height - 100);
             TextHelper.DrawStringWithShadow(spriteBatch, font, pressStartText, pressStartPosition, Color.White, pressStartScale); 
 
             spriteBatch.End();
