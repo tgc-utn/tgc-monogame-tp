@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TGC.MonoGame.TP.UI
 {
-    internal class TitleScreen : Text
+    internal class TitleScreen
     {
 
         const string titleText = "Marble It Down!";
@@ -17,15 +17,15 @@ namespace TGC.MonoGame.TP.UI
         const string pressStartText = "Press any key";
         const float pressStartScale = 1f;
 
-        public override void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
+        public void Draw(GraphicsDevice graphicsDevice, SpriteBatch spriteBatch, SpriteFont font)
         {
             spriteBatch.Begin();
 
-            var titlePosition = CenterText(graphicsDevice, font, titleText, titleScale);
-            DrawStringWithShadow(spriteBatch, font, pressStartText, titlePosition, Color.Yellow, titleScale);
+            var titlePosition = TextHelper.CenterText(graphicsDevice, font, titleText, titleScale);
+            TextHelper.DrawStringWithShadow(spriteBatch, font, pressStartText, titlePosition, Color.Yellow, titleScale);
 
-            var pressStartPosition = CenterText(graphicsDevice, font, titleText, titleScale) + new Vector2(0,200);
-            DrawStringWithShadow(spriteBatch, font, pressStartText, pressStartPosition, Color.White, pressStartScale); 
+            var pressStartPosition = TextHelper.CenterText(graphicsDevice, font, titleText, titleScale) + new Vector2(0,200);
+            TextHelper.DrawStringWithShadow(spriteBatch, font, pressStartText, pressStartPosition, Color.White, pressStartScale); 
 
             spriteBatch.End();
         }
