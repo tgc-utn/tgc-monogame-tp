@@ -14,6 +14,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 
 #endregion Using Statements
 
@@ -29,10 +30,7 @@ namespace TGC.MonoGame.TP.Geometries
         ///     Constructs a new cube primitive.
         /// </summary>
         /// 
-        public BoundingBox BoundingCube { get; set; }
-        private Vector3 minVert;
-        private Vector3 maxVert;
-
+        public OrientedBoundingBox BoundingCube { get; set; }
         public CubePrimitive(
                 GraphicsDevice graphicsDevice,
                 ContentManager content,
@@ -98,9 +96,14 @@ namespace TGC.MonoGame.TP.Geometries
                 Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
                 Vector3 regularSize = scale.Value * 25;
                 // Ahora puedes usar regularVector, que es de tipo Vector3
-                BoundingCube = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
+                //BoundingCube = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
+                BoundingCube = new OrientedBoundingBox(regularCoordinates, regularSize / 2);
+                if (rotation.HasValue)
+                {
+                    Matrix rotationOBB = rotation.Value;
+                    BoundingCube.Rotate(rotationOBB);
+                }
             }
-            
 
             InitializePrimitive(graphicsDevice, content);
         }

@@ -218,9 +218,9 @@ namespace TGC.MonoGame.TP.Collisions
             var result = ToFloatArray(Matrix.Multiply(Orientation, box.Orientation));
 
             for (var i = 0; i < 3; i++)
-                 for (var j = 0; j < 3; j++)
-                     R[i, j] = result[i * 3 + j];
-            
+                for (var j = 0; j < 3; j++)
+                    R[i, j] = result[i * 3 + j];
+
 
             // Compute translation vector t
             var tVec = box.Center - Center;
@@ -319,7 +319,7 @@ namespace TGC.MonoGame.TP.Collisions
         /// <param name="ray">The ray to test</param>
         /// <param name="result">The length in the ray direction from the ray origin</param>
         /// <returns>True if the OBB intersects the Ray</returns>
-        public bool Intersects(Ray ray, out float? result)
+        public float? Intersects(Ray ray)
         {
             //Transform Ray to OBB-Space
             var rayOrigin = ray.Position;
@@ -335,10 +335,9 @@ namespace TGC.MonoGame.TP.Collisions
             var enclosingBox = new BoundingBox(-Extents, Extents);
 
             // Perform Ray-AABB intersection
-            var testResult = enclosingBox.Intersects(rayInOBBSpace);
-            result = testResult;
+            var result = enclosingBox.Intersects(rayInOBBSpace);
 
-            return testResult != null;
+            return result;
         }
 
 
@@ -358,7 +357,50 @@ namespace TGC.MonoGame.TP.Collisions
             return aabb.Intersects(obbSpaceSphere);
         }
 
+        public static OrientedBoundingBox ComputeOBBFromTriangle(Vector3[] vertices)
+        {
+            // Calcular el centro promedio de todos los vértices de la rampa
+            Vector3 center = Vector3.Zero;
+            foreach (var vertex in vertices)
+            {
+                center += vertex;
+            }
+            center /= vertices.Length;
 
+            // Calcular los ejes principales de la OBB
+            Vector3 axis1 = Vector3.Normalize(vertices[1] - vertices[0]);
+            Vector3 axis2 = Vector3.Normalize(Vector3.Cross(vertices[2] - vertices[0], axis1));
+            Vector3 axis3 = Vector3.Cross(axis1, axis2);
+
+            // Calcular las dimensiones de la OBB
+            float maxLength1 = 0;
+            float maxLength2 = 0;
+            float maxLength3 = 0;
+
+            foreach (var vertex in vertices)
+            {
+                float length1 = Vector3.Dot(vertex - center, axis1);
+                float length2 = Vector3.Dot(vertex - center, axis2);
+                float length3 = Vector3.Dot(vertex - center, axis3);
+
+                maxLength1 = Math.Max(maxLength1, Math.Abs(length1));
+                maxLength2 = Math.Max(maxLength2, Math.Abs(length2));
+                maxLength3 = Math.Max(maxLength3, Math.Abs(length3));
+            }
+
+            // Construir la matriz de transformación de la OBB
+            Matrix transform = Matrix.Identity;
+            transform.Right = axis1 * maxLength1;   // Eje X
+            transform.Up = axis2 * maxLength2;      // Eje Y
+            transform.Forward = axis3 * maxLength3; // Eje Z
+            transform.Translation = center;
+
+            // Crear y devolver la OBB
+            Vector3 size = new(maxLength1 * 2, maxLength2 * 2, maxLength3 * 2); // Tamaño basado en las longitudes máximas
+            OrientedBoundingBox boundingTriangle = new(center, size); //OBB auxiliar para poder rotarla
+            boundingTriangle.Rotate(transform);
+            return boundingTriangle;
+        }
 
         /// <summary>
         ///     Tests the intersection between the OBB and a Plane.
@@ -414,6 +456,52 @@ namespace TGC.MonoGame.TP.Collisions
             return true;
         }
 
+        public Vector3 ClosestPointTo(Vector3 point)
+        {
+            // vector from box centre to point
+            var directionVector = point - Center;
+
+            // for each OBB axis...
+            // ...project d onto that axis to get the distance 
+            // along the axis of d from the box center
+            // then if distance farther than the box extents, clamp to the box 
+            // then step that distance along the axis to get world coordinate
+
+
+
+            var distanceX = Vector3.Dot(directionVector, Orientation.Right);
+            if (distanceX > Extents.X)
+            {
+                distanceX = Extents.X;
+            }
+            else if (distanceX < -Extents.X)
+            {
+                distanceX = -Extents.X;
+            }
+
+            var distanceY = Vector3.Dot(directionVector, Orientation.Up);
+            if (distanceY > Extents.Y)
+            {
+                distanceY = Extents.Y;
+            }
+            else if (distanceY < -Extents.Y)
+            {
+                distanceY = -Extents.Y;
+            }
+
+            var distanceZ = Vector3.Dot(directionVector, Orientation.Forward);
+            if (distanceZ > Extents.Z)
+            {
+                distanceZ = Extents.Z;
+            }
+            else if (distanceZ < -Extents.Z)
+            {
+                distanceZ = -Extents.Z;
+            }
+
+            return Center + distanceX * Orientation.Right + distanceY * Orientation.Up + distanceZ * Orientation.Forward;
+        }
+
         /// <summary>
         ///     Converts a point from OBB-Space to World-Space.
         /// </summary>
@@ -425,5 +513,5 @@ namespace TGC.MonoGame.TP.Collisions
         }
 
     }
-    
+
 }

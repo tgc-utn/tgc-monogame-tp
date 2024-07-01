@@ -42,10 +42,7 @@ namespace TGC.MonoGame.TP.Stages;
 
 
         //COLISIONES
-        public List<BoundingBox> Colliders;
-        public Matrix BoxWorld { get; set; } //Matriz de mundo
-        public Matrix[] StairsWorld { get; set; } //Escaleras
-        public Matrix FloorWorld { get; set; } //Colisión con el piso
+        public List<OrientedBoundingBox> Colliders;
         //COLISIONES
 
 
@@ -82,7 +79,7 @@ namespace TGC.MonoGame.TP.Stages;
 
             CharacterInitialPosition = characterPosition;
 
-            Colliders = new List<BoundingBox>();
+            Colliders = new List<OrientedBoundingBox>();
 
             LoadTrack();
             LoadObstacles();

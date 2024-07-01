@@ -25,7 +25,7 @@ namespace TGC.MonoGame.TP.Geometries
     public class RampPrimitive : CustomPrimitive
     {
 
-        public BoundingBox BoundingRamp { get; set; }
+        public OrientedBoundingBox BoundingRamp { get; set; }
 
         public RampPrimitive(
                 GraphicsDevice graphicsDevice,
@@ -71,16 +71,14 @@ namespace TGC.MonoGame.TP.Geometries
             if (coordinates.HasValue && scale.HasValue)
             {
                 Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
-                Vector3 regularSize = scale.Value;
+                Vector3 regularSize = scale.Value * 25;
                 // Ahora puedes usar regularVector, que es de tipo Vector3
-                BoundingRamp = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
-                /*BoundingRamp = new OrientedBoundingBox(regularCoordinates, regularSize);
-                if(rotation.HasValue)
-                {
-                    Matrix rotationOBB = (Matrix)rotation;
-                    BoundingRamp.Rotate(rotationOBB);
-                }*/
+                //BoundingRamp = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
+                BoundingRamp = OrientedBoundingBox.ComputeOBBFromTriangle(vertexList);
+                //BoundingRamp = new OrientedBoundingBox(regularCoordinates, regularSize / 2);
             }
+
+            
 
             InitializePrimitive(graphicsDevice, content);
         }
