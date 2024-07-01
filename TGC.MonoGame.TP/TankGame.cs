@@ -141,9 +141,11 @@ namespace ThunderingTanks
 
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
-
+        private List<EnemyTank> EliminatedEnemyTanks = new();
         public float TanksEliminados;
-        private readonly int CantidadTanquesEnemigos = 0;
+        public float Oleada;
+        public float Puntos;
+        private readonly int CantidadTanquesEnemigos = 2;
 
         #endregion
 
@@ -249,6 +251,8 @@ namespace ThunderingTanks
             casa.Position = new Vector3(-3300f, -700f, 7000f);
             LittleShack.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
             TanksEliminados = 0;
+            Oleada = 1;
+            Puntos = 0;
 
             //gameObjects.Add(Rocas);
             //gameObjects.Add(molino);
@@ -316,6 +320,7 @@ namespace ThunderingTanks
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             var elapsedTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
             _hud.elapsedTime = elapsedTime;
+            _hud.Oleada = Oleada;
 
             float deltaTime = 0;
             deltaTime += time;
@@ -394,7 +399,7 @@ namespace ThunderingTanks
 
                 keyboardState = Keyboard.GetState();
 
-                _hud.Update(Panzer, ref viewport, TanksEliminados);
+                _hud.Update(Panzer, ref viewport, Puntos);
 
                 if (keyboardState.IsKeyDown(Keys.C) && CTrigger)
                 {
@@ -750,6 +755,7 @@ namespace ThunderingTanks
                     lifeSpan = 0
                 };
                 EnemyTanks.Add(enemyTank);
+                // EliminatedEnemyTanks.Add(enemyTank);
             }
         }
 
@@ -809,8 +815,25 @@ namespace ThunderingTanks
                         Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
 
                         Projectiles.Remove(Projectiles[j]);
+                        EliminatedEnemyTanks.Add(EnemyTanks[i]);
                         EnemyTanks.Remove(EnemyTanks[i]);
                         TanksEliminados++;
+                        Puntos = (i + 1) * Oleada;
+                        if(TanksEliminados == CantidadTanquesEnemigos)
+                        {
+                            for(i = 0; i < TanksEliminados; ++i)
+                            {
+                                EnemyTanks.Add(EliminatedEnemyTanks[i]);
+                                EliminatedEnemyTanks.Remove(EliminatedEnemyTanks[i]);
+                            }
+                            TanksEliminados = 0;
+                            Oleada++;
+                            if(Oleada == 10)
+                            {
+                                Panzer._currentLife = Panzer._maxLife;
+                                Exit();
+                            }
+                        }
                         break;
 
                     }
