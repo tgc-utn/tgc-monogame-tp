@@ -251,14 +251,6 @@ namespace ThunderingTanks
             LittleShack.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
             TanksEliminados = 0;
 
-            //gameObjects.Add(Rocas);
-            //gameObjects.Add(molino);
-            //gameObjects.Add(Arboles);
-            //gameObjects.Add(casa);
-            //gameObjects.Add(WaterTank);
-            //gameObjects.Add(EnemyTanks);
-            //gameObjects.Add(AntiTanques);
-
             base.Initialize();
         }
 
@@ -932,7 +924,6 @@ namespace ThunderingTanks
 
             return grassPositions;
         }
-
 
         /// <summary>
         /// Crea el shadow map
