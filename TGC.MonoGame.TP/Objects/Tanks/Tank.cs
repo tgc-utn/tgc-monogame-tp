@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using SharpDX.DirectWrite;
-using SharpDX.MediaFoundation;
+//using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +50,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Matrix RotationMatrix { get; set; }
         public float TankRotation { get; set; }
         public float Rotation = 0;
+        public float LastRotation;
 
         private bool collided;
         public Matrix TurretMatrix { get; set; }
@@ -119,11 +120,11 @@ namespace ThunderingTanks.Objects.Tanks
             // Obtener los vértices del modelo del tanque
             List<Vector3> verticesTanque = ObtenerVerticesModelo(Tanque).ToList();
             TankBox = OrientedBoundingBox.ComputeFromPoints(verticesTanque.ToArray());
-            TankBox.Extents *= 90f;
+            TankBox.Extents *= 100f;
 
             TimeSinceLastShot = FireRate;
 
-            
+
 
             collided = false;
 
@@ -174,7 +175,6 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
             {
                 Rotation -= TankRotation * time;
-                isMoving = true;
                 isRotating = true;
                 trackOffset1 += 0.1f;
                 trackOffset2 -= 0.1f;
@@ -185,7 +185,6 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
             {
                 Rotation += TankRotation * time;
-                isMoving = true;
                 isRotating = true;
                 trackOffset1 -= 0.1f;
                 trackOffset2 += 0.1f;
@@ -220,6 +219,7 @@ namespace ThunderingTanks.Objects.Tanks
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
             RotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
+
             Vector3 rotatedDirection = Vector3.Transform(directionVector, RotationMatrix);
 
             var newPos = new Vector2(Direction.X, Direction.Z) + new Vector2(rotatedDirection.X, rotatedDirection.Z);
@@ -244,11 +244,14 @@ namespace ThunderingTanks.Objects.Tanks
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
             // Actualizar la posición y rotación de la caja orientada
+            //Quaternion RotationQuaternion = Quaternion.CreateFromRotationMatrix(PanzerMatrix);
             TankBox.Center = Direction; // Actualiza el centro de la OBB
-            TankBox.Rotate(RotationMatrix); // Actualiza la rotación de la OBB
+            if (isRotating)
+                TankBox.Rotate(Matrix.CreateRotationX(MathHelper.ToRadians(-90)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation))); // Actualiza la rotación de la OBB
 
 
             LastPosition = Direction;
+            LastRotation = Rotation;
 
             Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
 

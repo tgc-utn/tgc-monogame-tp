@@ -24,7 +24,7 @@ namespace ThunderingTanks.Collisions
 
         public void Rotate(Matrix rotation)
         {
-            Orientation *= rotation;
+            Orientation = rotation;
         }
 
         public void Rotate(Quaternion rotation)
