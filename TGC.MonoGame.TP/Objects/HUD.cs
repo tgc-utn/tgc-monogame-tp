@@ -60,6 +60,7 @@ namespace ThunderingTanks.Objects
         public float TimeSinceLastShot { get; set; }
 
         public float elapsedTime { get; set; }
+        public float Oleada { get; set; }
         #endregion
 
         public HUD(float screenWidth, float screenHeight)
@@ -174,6 +175,7 @@ namespace ThunderingTanks.Objects
                 e_lifeBar,
                 Color.Yellow
              );*/
+            spriteBatch.DrawString(WarIsOver, "OLEADA: " + Oleada, new Vector2(ScreenWidth - 250, ScreenHeight - 150), Color.Blue);
 
             spriteBatch.DrawString(WarIsOver, "TANQUES ELIMINADOS: " + puntos, new Vector2(ScreenWidth - 250, ScreenHeight - 100), Color.Blue);
 

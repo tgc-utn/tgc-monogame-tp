@@ -456,6 +456,8 @@ namespace ThunderingTanks.Objects.Tanks
 
         public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
         {
+            if(verticesTanque == null)
+                return;
             for (int i = 0; i < verticesTanque.Count; i++)
             {
                 Vector3 vertice = verticesTanque[i];
@@ -465,7 +467,7 @@ namespace ThunderingTanks.Objects.Tanks
 
                 // Si la distancia está dentro de un radio de deformación
                 if (distancia < 50)
-                {
+                {                                                                            
                     // Calcula el vector de dirección desde el punto de impacto hacia el vértice
                     Vector3 direccion = Vector3.Normalize(vertice - puntoDeImpacto);
 
