@@ -159,6 +159,7 @@ namespace ThunderingTanks
         public Random randomSeed = new Random(47);
         #endregion
 
+        ParticleSystem particleSystem;
 
         public bool StartGame { get; set; } = false;
 
@@ -311,6 +312,7 @@ namespace ThunderingTanks
             GermanSoldier.SpawnPosition(new Vector3(0, 0, 300));
 
             Panzer.MovingTankSound = movingTankSound;
+            particleSystem = new ParticleSystem(GraphicsDevice);
 
             base.LoadContent();
         }
@@ -324,6 +326,11 @@ namespace ThunderingTanks
 
             float deltaTime = 0;
             deltaTime += time;
+
+            particleSystem.AddParticle(new Vector2(400, 240));
+
+
+            particleSystem.Update(time);
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -622,6 +629,8 @@ namespace ThunderingTanks
                 spriteBatch.Begin();
 
                 _hud.Draw(spriteBatch);
+
+                particleSystem.Draw(spriteBatch);
 
                 //spriteBatch.Draw(SceneRenderTarget, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
 
