@@ -70,7 +70,7 @@ namespace TGC.MonoGame.TP.Stages;
         {
             pickup.Draw(view, projection);
         }
-        //SkyBox.Draw(view, projection, CamPosition);
+        SkyBox.Draw(view, projection, CamPosition);
     }
         public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
         {
@@ -88,6 +88,7 @@ namespace TGC.MonoGame.TP.Stages;
             LoadCheckpoints();
             LoadSpriteBatch();
             LoadColliders();
+            LoadSkyBox();
         }
 
         public abstract void Update(GameTime gameTime);
@@ -113,7 +114,7 @@ namespace TGC.MonoGame.TP.Stages;
     public SkyBox SkyBox;
     public void LoadSkyBox(){
         SkyBoxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-        SkyBoxTexture =Content.Load<TextureCube>(ContentFolderTextures+"skyboxes/islands/islands");
+        SkyBoxTexture =Content.Load<TextureCube>(ContentFolderTextures+"skyboxes/skybox/skybox");
         SkyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
         SkyBox=new SkyBox(SkyBoxModel, SkyBoxTexture, SkyBoxEffect, 1000);
     }
