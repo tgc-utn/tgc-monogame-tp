@@ -50,9 +50,8 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private SpriteFont SpriteFont { get; set; }
-        private TextUI UIStatus = TextUI.Title;
-        private TimeSpan Timer = TimeSpan.Zero;
-
+        private UIManager UI;
+        
         // Camera to draw the scene
         private FollowCamera FollowCamera { get; set; }
 
@@ -107,6 +106,7 @@ namespace TGC.MonoGame.TP
 
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             SpriteFont = Content.Load<SpriteFont>(ContentFolderSpriteFonts + "CascadiaCode/CascadiaCodePL");
+            UI = new UIManager(GraphicsDevice, SpriteBatch, SpriteFont);
 
             Entities = new List<Entity>();
 
@@ -152,16 +152,15 @@ namespace TGC.MonoGame.TP
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            if (UIStatus == TextUI.HUD)
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
-                Timer += gameTime.ElapsedGameTime;
+                UI.UIStatus = GameStatus.Menu;
+            }
+            UI.Update(gameTime);
 
-                if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-                {
-                    //Salgo del juego.
-                    Exit();
-                }
-
+            // actualiza el estado solo si está jugando
+            if  (UI.UIStatus == GameStatus.Playing)
+            {
                 MainCharacter.Update(gameTime);
                 FollowCamera.Update(gameTime, MainCharacter.World);
 
@@ -172,16 +171,9 @@ namespace TGC.MonoGame.TP
 
                 //World = Matrix.CreateRotationY(Rotation);
             }
-            else if (UIStatus == TextUI.Title)
+            else if (UI.UIStatus == GameStatus.Exit)
             {
-                if (TitleScreen.PressAnyKey())
-                {
-                    UIStatus = TextUI.HUD;
-                }
-            }
-            else if (UIStatus == TextUI.Menu)
-            {
-                //Menu.Update();
+                Exit();
             }
 
             base.Update(gameTime);
@@ -213,19 +205,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = originalRasterizerState;
 
 
-            if (UIStatus == TextUI.HUD)
-            {
-                HUD.Draw(GraphicsDevice, SpriteBatch, SpriteFont, Timer, 0); 
-            }
-            else if (UIStatus == TextUI.Title)
-            {
-                TitleScreen.Draw(GraphicsDevice, SpriteBatch, SpriteFont);
-            }
-            else if (UIStatus == TextUI.Menu)
-            {
-                // TODO
-                // Menu.Draw();
-            }
+            UI.Draw();
             //base.Draw(gameTime);
         }
 
