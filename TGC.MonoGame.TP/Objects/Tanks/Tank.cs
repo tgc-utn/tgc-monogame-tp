@@ -67,7 +67,7 @@ namespace ThunderingTanks.Objects.Tanks
         //public BoundingBox TankboundingBox { get; set; }
         //public OrientedBoundingBox TankBox { get; set; }
         public OrientedBoundingBox TankBox { get; set; }
-        public BoundingBox PrevTankBox { get; set; }
+        public OrientedBoundingBox PrevTankBox { get; set; }
 
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
@@ -141,6 +141,8 @@ namespace ThunderingTanks.Objects.Tanks
             bool isMoving = false;
             bool isRotating = false;
 
+            PrevTankBox = TankBox;
+
             if (isColliding)
             {
                 collided = true;
@@ -172,7 +174,7 @@ namespace ThunderingTanks.Objects.Tanks
                 isMoving = true;
             }
 
-            if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
+            if (keyboardState.IsKeyDown(Keys.D))
             {
                 Rotation -= TankRotation * time;
                 isRotating = true;
@@ -182,7 +184,7 @@ namespace ThunderingTanks.Objects.Tanks
                 //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
-            if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
+            if (keyboardState.IsKeyDown(Keys.A))
             {
                 Rotation += TankRotation * time;
                 isRotating = true;
