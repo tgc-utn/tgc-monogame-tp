@@ -141,9 +141,11 @@ namespace ThunderingTanks
 
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
-
+        private List<EnemyTank> EliminatedEnemyTanks = new();
         public float TanksEliminados;
-        private readonly int CantidadTanquesEnemigos = 0;
+        public float Oleada;
+        public float Puntos;
+        private readonly int CantidadTanquesEnemigos = 2;
 
         #endregion
 
@@ -250,6 +252,8 @@ namespace ThunderingTanks
             casa.Position = new Vector3(-3300f, -700f, 7000f);
             LittleShack.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
             TanksEliminados = 0;
+            Oleada = 1;
+            Puntos = 0;
 
             base.Initialize();
         }
@@ -258,7 +262,7 @@ namespace ThunderingTanks
         {
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
+            //BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
             TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
             Shadows = Content.Load<Effect>(ContentFolderEffects + "Shadows");
 
@@ -307,6 +311,7 @@ namespace ThunderingTanks
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
             var elapsedTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
             _hud.elapsedTime = elapsedTime;
+            _hud.Oleada = Oleada;
 
             float deltaTime = 0;
             deltaTime += time;
@@ -385,7 +390,7 @@ namespace ThunderingTanks
 
                 keyboardState = Keyboard.GetState();
 
-                _hud.Update(Panzer, ref viewport, TanksEliminados);
+                _hud.Update(Panzer, ref viewport, Puntos);
 
                 if (keyboardState.IsKeyDown(Keys.C) && CTrigger)
                 {
@@ -735,6 +740,7 @@ namespace ThunderingTanks
                     lifeSpan = 0
                 };
                 EnemyTanks.Add(enemyTank);
+                // EliminatedEnemyTanks.Add(enemyTank);
             }
         }
 
@@ -794,8 +800,25 @@ namespace ThunderingTanks
                         Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
 
                         Projectiles.Remove(Projectiles[j]);
+                        EliminatedEnemyTanks.Add(EnemyTanks[i]);
                         EnemyTanks.Remove(EnemyTanks[i]);
                         TanksEliminados++;
+                        Puntos = (i + 1) * Oleada;
+                        if(TanksEliminados == CantidadTanquesEnemigos)
+                        {
+                            for(i = 0; i < TanksEliminados; ++i)
+                            {
+                                EnemyTanks.Add(EliminatedEnemyTanks[i]);
+                                EliminatedEnemyTanks.Remove(EliminatedEnemyTanks[i]);
+                            }
+                            TanksEliminados = 0;
+                            Oleada++;
+                            if(Oleada == 10)
+                            {
+                                Panzer._currentLife = Panzer._maxLife;
+                                Exit();
+                            }
+                        }
                         break;
 
                     }
@@ -866,7 +889,7 @@ namespace ThunderingTanks
         {
             OrientedBoundingBox tankBox = Panzer.TankBox;
 
-            Vector3 deltaY = new Vector3(0, 0f, 0);
+            Vector3 deltaY = new Vector3(2500, 4800, 200);
 
             foreach (var roca in Rocas)
             {
@@ -874,7 +897,7 @@ namespace ThunderingTanks
                 {
                     //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
-                    Panzer.CollidingPosition = roca.Position;
+                    Panzer.CollidingPosition = roca.Position + deltaY;
                     return true;
                 }
             }
@@ -940,6 +963,9 @@ namespace ThunderingTanks
             //Panzer
             foreach (var modelMesh in Panzer.Tanque.Meshes)
             {
+                worldMatrix = modelMesh.ParentBone.Transform * Panzer.PanzerMatrix;
+
+
                 foreach (var part in modelMesh.MeshParts)
                     part.Effect = Shadows;
 

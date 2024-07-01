@@ -60,6 +60,7 @@ namespace ThunderingTanks.Objects
         public float TimeSinceLastShot { get; set; }
 
         public float elapsedTime { get; set; }
+        public float Oleada { get; set; }
         #endregion
 
         public HUD(float screenWidth, float screenHeight)
@@ -174,6 +175,7 @@ namespace ThunderingTanks.Objects
                 e_lifeBar,
                 Color.Yellow
              );*/
+            spriteBatch.DrawString(WarIsOver, "OLEADA: " + Oleada, new Vector2(ScreenWidth - 250, ScreenHeight - 150), Color.Blue);
 
             spriteBatch.DrawString(WarIsOver, "TANQUES ELIMINADOS: " + puntos, new Vector2(ScreenWidth - 250, ScreenHeight - 100), Color.Blue);
 
@@ -182,7 +184,7 @@ namespace ThunderingTanks.Objects
             #region Debug
             spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
             spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
-            spriteBatch.DrawString(FontArial, "Posicion Del Tanque: " + "X:" + TankPosition.X.ToString() + " Z:" + TankPosition.Z.ToString(), new Vector2(20, 60), Color.Red);
+            spriteBatch.DrawString(FontArial, "Posicion Del Tanque: " + "X:" + TankPosition.X.ToString() + "Y:" + TankPosition.Y.ToString() + " Z:" + TankPosition.Z.ToString(), new Vector2(20, 60), Color.Red);
             spriteBatch.DrawString(FontArial, (TankIsColliding) ? "Coliciona" : "No Coliciona", new Vector2(20, 80), Color.Red);
             spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
             spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
