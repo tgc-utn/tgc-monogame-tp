@@ -4,51 +4,54 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Geometries;
-using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Stages;
 
 class Stage_01 : Stage
 {
 
-    public Stage_01(GraphicsDevice graphicsDevice, ContentManager content) : 
-        base(graphicsDevice, content, characterPosition: new Vector3(25, 40, -800)) {}
+    public Stage_01(GraphicsDevice graphicsDevice, ContentManager content) :
+        base(graphicsDevice, content, characterPosition: new Vector3(25, 40, -800))
+    { }
 
     protected override void LoadColliders()
     {
-        for(int i=0; i < Track.Count; i++)
+        for (int i = 0; i < Track.Count; i++)
         {
             GeometricPrimitive objetoActual = Track[i];
-            if(objetoActual is CubePrimitive)
+            if (objetoActual is CubePrimitive)
             {
                 CubePrimitive aux = (CubePrimitive)objetoActual;
                 Colliders.Add(aux.BoundingCube);
             }
-            if(objetoActual is RampPrimitive)
+            if (objetoActual is RampPrimitive)
             {
                 RampPrimitive aux = (RampPrimitive)objetoActual;
-                Colliders.Add(aux.BoundingRamp);
+                foreach (var boundingRamp in aux.BoundingRamps)
+                {
+                    Colliders.Add(boundingRamp);
+                }
             }
         }
 
-        for(int i=0; i < Obstacles.Count; i++)
+        for (int i = 0; i < Obstacles.Count; i++)
         {
-        //    GeometricPrimitive cuboActual = Obstacles[i];
-        //    Colliders.Add(cuboActual.BoundingCube);
+            //    GeometricPrimitive cuboActual = Obstacles[i];
+            //    Colliders.Add(cuboActual.BoundingCube);
         }
 
-        for(int i=0; i < Signs.Count; i++)
+        for (int i = 0; i < Signs.Count; i++)
         {
             CubePrimitive cuboActual = (CubePrimitive)Signs[i];
             Colliders.Add(cuboActual.BoundingCube);
         }
 
-        for(int i=0; i < Pickups.Count; i++)
+        for (int i = 0; i < Pickups.Count; i++)
         {
             //Geometric cuboActual = Pickups[i];
             //Colliders.Add(cuboActual.BoundingCube);
         }
 
-        for(int i=0; i < Checkpoints.Count; i++)
+        for (int i = 0; i < Checkpoints.Count; i++)
         {
             //GeometricPrimitive cuboActual = Checkpoints[i];
             //Colliders.Add(cuboActual.BoundingCube);
@@ -91,12 +94,12 @@ class Stage_01 : Stage
             new CubePrimitive(GraphicsDevice, Content, Color.LightPink, coordinates: new Vector3(175, 100, -100), scale: new Vector3(3f, 1f, 1f)),
 
             // RAMPA
-            new RampPrimitive(GraphicsDevice, Content, Color.Aquamarine, coordinates: new Vector3(175, 125, -125), scale: new Vector3(3f, 1f, 1f)),
+            new CubePrimitive(GraphicsDevice, Content, Color.Aquamarine, coordinates: new Vector3(175, 110, -135), scale: new Vector3(2.5f, 2.5f, 0.75f), rotation: Matrix.CreateFromYawPitchRoll(0, (float)Math.PI / (-3), 0)),
 
             // CANALETA
             new CubePrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(175, 125, -250), scale: new Vector3(3f, 1f, 9f)),
-            new RampPrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(150, 150, -250), scale: new Vector3(9f, 1f, 1f), rotation: Matrix.CreateFromYawPitchRoll((float)Math.PI / 2, 0, 0)),
-            new RampPrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(200, 150, -250), scale: new Vector3(9f, 1f, 1f), rotation: Matrix.CreateFromYawPitchRoll((float)Math.PI / (-2), 0, 0)),
+            new CubePrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(150, 145, -250), scale: new Vector3(9f, 1f, 0.25f), rotation: Matrix.CreateFromYawPitchRoll((float)Math.PI / 2, (float)Math.PI / (-6), 0)),
+            new CubePrimitive(GraphicsDevice, Content, Color.BlueViolet, coordinates: new Vector3(200, 145, -250), scale: new Vector3(9f, 1f, 0.25f), rotation: Matrix.CreateFromYawPitchRoll((float)Math.PI / (-2), (float)Math.PI / (-6), 0)),
 
             // PLANOS INCLINADOS (ROLL)
             new CubePrimitive(GraphicsDevice, Content, Color.LightPink, coordinates: new Vector3(25, 0, -75), scale: new Vector3(3f, 1f, 4f), rotation: Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / (-6))),
@@ -109,14 +112,14 @@ class Stage_01 : Stage
             new CubePrimitive(GraphicsDevice, Content, Color.Aquamarine, coordinates: new Vector3(25, 0, -775), scale: new Vector3(3f, 1f, 4f)),
 
             // RAMPA GRANDE
-            new RampPrimitive(GraphicsDevice, Content, Color.LightPink, coordinates: new Vector3(175, 125, -450), scale: new Vector3(7f, 7f, 7f), rotation: Matrix.CreateFromYawPitchRoll((float)Math.PI / 2, 0, 0)),
+            new CubePrimitive(GraphicsDevice, Content, Color.LightPink, coordinates: new Vector3(240, 80, -412), scale: new Vector3(9f, 1f, 4f), rotation: Matrix.CreateFromYawPitchRoll(0, 0, (float)Math.PI / (-6))),
 
             // CUADRADOS GRANDES 
             new CubePrimitive(GraphicsDevice, Content, Color.Red, coordinates: new Vector3(275, 25, -425), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Orange, coordinates: new Vector3(300, 0, -400), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Yellow, coordinates: new Vector3(325, -25, -375), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Green, coordinates: new Vector3(350, -50, -350), scale: new Vector3(9f, 1f, 9f)),
-            new CubePrimitive(GraphicsDevice, Content, Color.Blue, coordinates: new Vector3(375, -75, -325), scale: new Vector3(9f, 1f, 9f)),   
+            new CubePrimitive(GraphicsDevice, Content, Color.Blue, coordinates: new Vector3(375, -75, -325), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Indigo, coordinates: new Vector3(400, -100, -300), scale: new Vector3(9f, 1f, 9f)),
             new CubePrimitive(GraphicsDevice, Content, Color.Purple, coordinates: new Vector3(425, -125, -275), scale: new Vector3(9f, 1f, 9f)),
 

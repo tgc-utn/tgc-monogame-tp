@@ -381,7 +381,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             MoveTo(Position);
 
             // Resetea la posición inicial del nivel si se cae al vacío
-            if (Position.Y < -200)
+            if (Position.Y < -500)
             {
                 Position = ActualStage.CharacterInitialPosition;
                 Velocity = Vector3.Zero;

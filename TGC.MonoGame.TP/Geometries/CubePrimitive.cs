@@ -90,20 +90,10 @@ namespace TGC.MonoGame.TP.Geometries
             }
 
             World = Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
-
-            if (coordinates.HasValue && scale.HasValue)
-            {
-                Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
-                Vector3 regularSize = scale.Value * 25;
-                // Ahora puedes usar regularVector, que es de tipo Vector3
-                //BoundingCube = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
-                BoundingCube = new OrientedBoundingBox(regularCoordinates, regularSize / 2);
-                if (rotation.HasValue)
-                {
-                    Matrix rotationOBB = rotation.Value;
-                    BoundingCube.Rotate(rotationOBB);
-                }
-            }
+            BoundingCube = new OrientedBoundingBox(coordinates ?? Vector3.Zero, (scale ?? Vector3.One) * 25 / 2);
+            BoundingCube.Rotate(rotation ?? Matrix.Identity);
+                
+            
 
             InitializePrimitive(graphicsDevice, content);
         }

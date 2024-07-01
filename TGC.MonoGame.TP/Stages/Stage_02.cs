@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TGC.MonoGame.TP.Geometries;
-using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Stages;
-
 
 class Stage_02 : Stage
 {
@@ -27,7 +24,10 @@ class Stage_02 : Stage
             if(objetoActual is RampPrimitive)
             {
                 RampPrimitive aux = (RampPrimitive)objetoActual;
-                Colliders.Add(aux.BoundingRamp);
+                foreach(var boundingRamp in aux.BoundingRamps)
+                {
+                    Colliders.Add(boundingRamp);
+                }
             }
         }
 
