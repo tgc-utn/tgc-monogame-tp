@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using SharpDX.DirectWrite;
-using SharpDX.MediaFoundation;
+//using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +51,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Matrix RotationMatrix { get; set; }
         public float TankRotation { get; set; }
         public float Rotation = 0;
+        public float LastRotation;
 
         private bool collided;
         public Matrix TurretMatrix { get; set; }
@@ -64,13 +65,14 @@ namespace ThunderingTanks.Objects.Tanks
         public Camera PanzerCamera { get; set; }
         public SoundEffectInstance MovingTankSound { get; set; }
         public OrientedBoundingBox TankBox { get; set; }
-        public BoundingBox PrevTankBox { get; set; }
+        public OrientedBoundingBox PrevTankBox { get; set; }
 
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
         public Vector3 MinBox = new(0, 0, 0);
         public Vector3 MaxBox = new(0, 0, 0);
         public bool isColliding { get; set; } = false;
+        private bool isRotating { get; set; } = false;  
 
         public Vector3 CollidingPosition { get; set; }
 
@@ -115,7 +117,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             List<Vector3> verticesTanque = ObtenerVerticesModelo(Tanque).ToList();
             TankBox = OrientedBoundingBox.ComputeFromPoints(verticesTanque.ToArray());
-            TankBox.Extents *= 90f;
+            TankBox.Extents *= 100f;
 
             TimeSinceLastShot = FireRate;
 
@@ -132,6 +134,8 @@ namespace ThunderingTanks.Objects.Tanks
             TimeSinceLastShot += time;
 
             bool isMoving = false;
+
+            PrevTankBox = TankBox;
 
             if (isColliding)
             {
@@ -168,18 +172,20 @@ namespace ThunderingTanks.Objects.Tanks
                 isMoving = true;
             }
 
-            if (keyboardState.IsKeyDown(Keys.D) && !isColliding)
+            if (keyboardState.IsKeyDown(Keys.D))
             {
                 Rotation -= TankRotation * time;
+                isRotating = true;
                 isMoving = true;
                 trackOffset1 += 0.1f;
                 trackOffset2 -= 0.1f;
                 isMoving = true;
             }
 
-            if (keyboardState.IsKeyDown(Keys.A) && !isColliding)
+            if (keyboardState.IsKeyDown(Keys.A))
             {
                 Rotation += TankRotation * time;
+                isRotating = true;
                 isMoving = true;
                 trackOffset1 -= 0.1f;
                 trackOffset2 += 0.1f;
@@ -214,6 +220,7 @@ namespace ThunderingTanks.Objects.Tanks
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
 
             RotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
+
             Vector3 rotatedDirection = Vector3.Transform(directionVector, RotationMatrix);
 
             var newPos = new Vector2(Direction.X, Direction.Z) + new Vector2(rotatedDirection.X, rotatedDirection.Z);
@@ -221,26 +228,33 @@ namespace ThunderingTanks.Objects.Tanks
             var Z = newPos.Y;
             float terrainHeight = terrain.Height(X, Z);
 
-            float currentHeight = terrain.Height(Direction.X, Direction.Z);
-            float LastHeight = terrain.Height(LastPosition.X, LastPosition.Z);
-
-            float heightDifference = -(currentHeight - LastHeight);
-            float pitch = (float) Math.Atan2(heightDifference, Vector3.Distance(new Vector3(Direction.X, 0, Direction.Z), new Vector3(LastPosition.X, 0, LastPosition.Z)));
-
-            Matrix pitchMatrix = Matrix.CreateRotationX(pitch);
-
             Direction = new Vector3(X, terrainHeight - 400, Z);
+
+            // Aquí calculamos la inclinación
+            float currentHeight = terrain.Height(Direction.X, Direction.Z);
+            float previousHeight = terrain.Height(LastPosition.X, LastPosition.Z);
+            float heightDifference = -(currentHeight - previousHeight);
+
+            float pitch = (float)Math.Atan2(heightDifference, Vector3.Distance(new Vector3(Direction.X, 0, Direction.Z), new Vector3(LastPosition.X, 0, LastPosition.Z)));
+            Matrix pitchMatrix = Matrix.CreateRotationX(pitch);
 
             Position = Direction + new Vector3(0f, 500f, 0f);
 
             PanzerMatrix = pitchMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+
+            // Actualizar la posición y rotación de la caja orientada
+            //Quaternion RotationQuaternion = Quaternion.CreateFromRotationMatrix(PanzerMatrix);
+            TankBox.Center = Direction; // Actualiza el centro de la OBB
+            if (isRotating)
+                TankBox.Rotate(Matrix.CreateRotationX(MathHelper.ToRadians(-90)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation))); // Actualiza la rotación de la OBB
 
             TankBox.Center = Direction;
             TankBox.Rotate(RotationMatrix);
 
             LastPosition = Direction;
+            LastRotation = Rotation;
 
             Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
 

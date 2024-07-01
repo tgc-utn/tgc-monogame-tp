@@ -405,6 +405,7 @@ namespace ThunderingTanks
                 var turretPosition = Panzer.TurretMatrix;
                 var cannonPosition = Panzer.CannonMatrix;
                 var direction = Panzer.Direction;
+                var lastRotation = Panzer.Rotation;
 
                 if (MouseState.LeftButton == ButtonState.Pressed)
                 {
@@ -444,6 +445,8 @@ namespace ThunderingTanks
                     Panzer.CannonMatrix = cannonPosition;
 
                     Panzer.Direction = direction;
+
+                    Panzer.Rotation = lastRotation;
 
                     Panzer.Update(gameTime, keyboardState, Map.terrain);
                 }
@@ -871,7 +874,7 @@ namespace ThunderingTanks
                 {
                     //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
-                    Panzer.CollidingPosition = roca.Position + deltaY;
+                    Panzer.CollidingPosition = roca.Position;
                     return true;
                 }
             }
