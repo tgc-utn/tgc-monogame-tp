@@ -983,16 +983,17 @@ namespace ThunderingTanks
         {
             GraphicsDevice.SetRenderTarget(ShadowRenderTarget);
 
-            var worldMatrix = Panzer.PanzerMatrix;
+            var modelMeshesBaseTransforms = new Matrix[Panzer.Tanque.Bones.Count];
+            Panzer.Tanque.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
 
             //Panzer
             foreach (var modelMesh in Panzer.Tanque.Meshes)
             {
-                worldMatrix = modelMesh.ParentBone.Transform * Panzer.PanzerMatrix;
-
 
                 foreach (var part in modelMesh.MeshParts)
                     part.Effect = Shadows;
+
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
 
                 // WorldViewProjection is used to transform from model space to clip space
                 Shadows.Parameters["WorldViewProjection"]
@@ -1005,6 +1006,8 @@ namespace ThunderingTanks
 
         public void ShadowPass2()
         {
+            var modelMeshesBaseTransforms = new Matrix[Panzer.Tanque.Bones.Count];
+            Panzer.Tanque.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
 
             //Panzer
             foreach (var modelMesh in Panzer.Tanque.Meshes)
@@ -1013,7 +1016,7 @@ namespace ThunderingTanks
                     part.Effect = Shadows;
 
                 // We set the main matrices for each mesh to draw
-                var worldMatrix = Panzer.PanzerMatrix;
+                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.PanzerMatrix;
 
                 // WorldViewProjection is used to transform from model space to clip space
                 Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
