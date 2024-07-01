@@ -116,7 +116,7 @@ namespace TGC.MonoGame.TP.Stages;
         SkyBoxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
         SkyBoxTexture =Content.Load<TextureCube>(ContentFolderTextures+"skyboxes/skybox/skybox");
         SkyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-        SkyBox=new SkyBox(SkyBoxModel, SkyBoxTexture, SkyBoxEffect, 1000);
+        SkyBox=new SkyBox(SkyBoxModel, SkyBoxTexture, SkyBoxEffect, 2000);
     }
 
 
