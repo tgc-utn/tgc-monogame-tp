@@ -115,6 +115,7 @@ namespace ThunderingTanks.Objects.Tanks
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
             TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
 
+
             Effect = effect;
 
             // Obtener los vértices del modelo del tanque
@@ -128,8 +129,8 @@ namespace ThunderingTanks.Objects.Tanks
 
             collided = false;
 
-            Effect.Parameters["impacto"].SetValue(200f);
-            VelocidadImpacto = 100f;
+            Effect.Parameters["impacto"].SetValue(140f);
+            VelocidadImpacto = -320f;
 
         }
 
@@ -263,7 +264,7 @@ namespace ThunderingTanks.Objects.Tanks
             Vector4 Plano_ST = crearPlano(c_Esfera, Direction);
 
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
-            //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); experimental
+            //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); //experimental
         }
 
         public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
@@ -292,6 +293,7 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     effect.Parameters["View"].SetValue(view);
                     effect.Parameters["Projection"].SetValue(projection);
+                    effect.CurrentTechnique = effect.Techniques["Impact"];
                 }
 
                 if (mesh.Name.Equals("Turret"))

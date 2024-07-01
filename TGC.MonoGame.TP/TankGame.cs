@@ -267,7 +267,7 @@ namespace ThunderingTanks
         {
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
+            //BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
             TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
             Shadows = Content.Load<Effect>(ContentFolderEffects + "Shadows");
 
@@ -881,7 +881,7 @@ namespace ThunderingTanks
         {
             OrientedBoundingBox tankBox = Panzer.TankBox;
 
-            Vector3 deltaY = new Vector3(0, 0f, 0);
+            Vector3 deltaY = new Vector3(2500, 4800, 200);
 
             foreach (var roca in Rocas)
             {
@@ -889,7 +889,7 @@ namespace ThunderingTanks
                 {
                     //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
-                    Panzer.CollidingPosition = roca.Position;
+                    Panzer.CollidingPosition = roca.Position + deltaY;
                     return true;
                 }
             }
@@ -956,6 +956,9 @@ namespace ThunderingTanks
             //Panzer
             foreach (var modelMesh in Panzer.Tanque.Meshes)
             {
+                worldMatrix = modelMesh.ParentBone.Transform * Panzer.PanzerMatrix;
+
+
                 foreach (var part in modelMesh.MeshParts)
                     part.Effect = Shadows;
 

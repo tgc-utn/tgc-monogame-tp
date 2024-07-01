@@ -92,16 +92,16 @@ float3 VersorDireccion(float3 A, float3 B)
 
 float passedHorizon(float3 Posicion)
 {
-    
-    /*if ((dot(Plano_ST.xyz, Posicion) + Plano_ST.w) < -30)
+    /*
+    if ((dot(Plano_ST.xyz, Posicion) + Plano_ST.w) < -30)
     {
         return 1;
     }
     else
     {
         return 0;
-    }*/
-    
+    }
+    */
     return 0;
 }
 
