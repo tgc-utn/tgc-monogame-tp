@@ -1,13 +1,11 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-
 namespace ThunderingTanks.Cameras
 {
     internal class FreeCamera : Camera
     {
         private readonly bool lockMouse;
-
         private readonly Point screenCenter;
         private bool changed;
 
@@ -31,8 +29,8 @@ namespace ThunderingTanks.Cameras
             CalculateView();
         }
 
-        public float MovementSpeed { get; set; } = 100f;
-        public float MouseSensitivity { get; set; } = 5f;
+        public float MovementSpeed { get; set; } = 200f;
+        public float MouseSensitivity { get; set; } = 100f;
 
         private void CalculateView()
         {
@@ -42,7 +40,7 @@ namespace ThunderingTanks.Cameras
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            var elapsedTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
+            var elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             changed = false;
             ProcessKeyboard(elapsedTime);
             ProcessMouseMovement(elapsedTime);
@@ -57,30 +55,50 @@ namespace ThunderingTanks.Cameras
 
             var currentMovementSpeed = MovementSpeed;
             if (keyboardState.IsKeyDown(Keys.LeftShift))
-                currentMovementSpeed *= 5f;
+                currentMovementSpeed *= 51f;
 
-            if (keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left))
+            if (keyboardState.IsKeyDown(Keys.Up))
             {
-                Position += -RightDirection * currentMovementSpeed * elapsedTime;
+                Position += FrontDirection * currentMovementSpeed * elapsedTime * 50f; ;
                 changed = true;
             }
 
-            if (keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right))
+            if (keyboardState.IsKeyDown(Keys.Down))
             {
-                Position += RightDirection * currentMovementSpeed * elapsedTime;
+                Position += -FrontDirection * currentMovementSpeed * elapsedTime * 50f;
                 changed = true;
             }
 
-            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
+            if (keyboardState.IsKeyDown(Keys.W))
             {
-                Position += FrontDirection * currentMovementSpeed * elapsedTime;
+                pitch += MouseSensitivity * elapsedTime;
+                if (pitch > 89.0f)
+                    pitch = 89.0f;
                 changed = true;
+                UpdateCameraVectors();
             }
 
-            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
+            if (keyboardState.IsKeyDown(Keys.S))
             {
-                Position += -FrontDirection * currentMovementSpeed * elapsedTime;
+                pitch -= MouseSensitivity * elapsedTime;
+                if (pitch < -89.0f)
+                    pitch = -89.0f;
                 changed = true;
+                UpdateCameraVectors();
+            }
+
+            if (keyboardState.IsKeyDown(Keys.A))
+            {
+                yaw -= MouseSensitivity * elapsedTime;
+                changed = true;
+                UpdateCameraVectors();
+            }
+
+            if (keyboardState.IsKeyDown(Keys.D))
+            {
+                yaw += MouseSensitivity * elapsedTime;
+                changed = true;
+                UpdateCameraVectors();
             }
         }
 

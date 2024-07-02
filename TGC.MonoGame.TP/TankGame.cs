@@ -67,11 +67,13 @@ namespace ThunderingTanks
         #endregion
 
         #region Camera
-        private readonly Vector3 _cameraInitialPosition = new(0, 0, 0);
+        private readonly Vector3 _cameraInitialPosition = new(0, 6000, 0);
 
         private TargetCamera _targetCamera;
         private StaticCamera _lightCamera;
         private StaticCamera _staticCamera;
+
+        private FreeCamera _freeCamera;
 
         private BoundingFrustum _cameraFrustum;
         #endregion
@@ -179,6 +181,11 @@ namespace ThunderingTanks
 
         private Vector3 lightPosition;
 
+        private Point screenCenter;
+
+        public bool freeCameraIsActivated = false;
+
+
         // ------------ GAME ------------ //
 
         public TankGame()
@@ -211,6 +218,7 @@ namespace ThunderingTanks
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
 
+            screenCenter = new Point((int)Math.Round(screenWidth / 2.0), (int)Math.Round(screenHeight / 2));
             keyboardState = new KeyboardState();
             MouseState = new MouseState();
             PreviousMouseState = new MouseState();
@@ -239,6 +247,7 @@ namespace ThunderingTanks
             spriteBatch = new SpriteBatch(GraphicsDevice);
             _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
             _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
+            _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, screenCenter);
             _lightCamera = new StaticCamera(1f, lightPosition, Vector3.Normalize(Vector3.Zero - lightPosition), Vector3.Up);
             _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
             SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
@@ -389,11 +398,27 @@ namespace ThunderingTanks
                 GermanSoldier.WorldMatrix = Matrix.CreateScale(0.025f) * Matrix.CreateTranslation(300, 0, 300);
 
                 _menu.Update(ref _juegoIniciado, gameTime);
+                keyboardState = Keyboard.GetState();
+
+                if (keyboardState.IsKeyDown(Keys.G))
+                {
+                    freeCameraIsActivated = true;
+                }
             }
             else if (juegoPausado)
             {
                 _hud.Update(Panzer, ref viewport, Puntos);
                 return;
+            }
+            else if (freeCameraIsActivated)
+            {
+                _freeCamera.Update(gameTime);
+                StartGame = true;
+                keyboardState = Keyboard.GetState();
+                _hud.Update(Panzer, ref viewport, Puntos);
+
+
+
             }
             else
             {
@@ -528,9 +553,104 @@ namespace ThunderingTanks
                 #endregion
 
             }
+            else if(freeCameraIsActivated)
+            {
+                #region Pass 1
+
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+                Shadows.CurrentTechnique = Shadows.Techniques["DepthPass"];
+                DrawShadowMap();
+
+                GraphicsDevice.SetRenderTarget(SceneRenderTarget);
+
+                TextureMerge.CurrentTechnique = TextureMerge.Techniques["Merge"];
+
+                GraphicsDevice.BlendState = BlendState.AlphaBlend;
+                GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+
+                FreeCamera camara = _freeCamera;
+
+                DrawProjectiles(camara.View, camara.Projection);
+                DrawSkyBox(camara.View, camara.Projection, camara.Position);
+
+                FrustumDrawFreeCamera(gameTime);
+
+                lightBox.Draw(LightBoxWorld, _freeCamera.View, _freeCamera.Projection);
+                Map.Draw(gameTime, camara.View, camara.Projection, GraphicsDevice);
+                antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
+                Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
+                Grass.Draw(GrassPosition, camara.View, camara.Projection, Map.terrain);
+
+                Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+                Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents);
+                Gizmos.DrawFrustum(_freeCamera.View, Color.White);
+
+                if (DrawGizmos)
+                    Gizmos.Draw();
+
+                /*
+                
+                molino.Draw(gameTime, camara.View, camara.Projection);
+                casa.Draw(gameTime, camara.View, camara.Projection);
+                WaterTank.Draw(camara.View, camara.Projection);
+
+                foreach (var enemyTank in EnemyTanks)
+                {
+                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
+                }
+                foreach (var roca in Rocas)
+                {
+                    roca.Draw(gameTime, camara.View, camara.Projection);
+                    Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
+                }
+                foreach (var arbol in Arboles)
+                {
+                    arbol.Draw(camara.View, camara.Projection, Map.terrain);
+                    Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
+                }
+
+                */
+
+                #endregion
+
+                #region Pass 2
+
+                GraphicsDevice.DepthStencilState = DepthStencilState.None;
+                GraphicsDevice.SetRenderTarget(null);
+
+                TextureMerge.Parameters["baseTexture"].SetValue(SceneRenderTarget);
+
+                FSQ.Draw(TextureMerge);
+
+                //no funciona xd
+
+                Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
+                Shadows.Parameters["baseTexture"].SetValue(Panzer.PanzerTexture);
+                Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
+                Shadows.Parameters["lightPosition"].SetValue(lightPosition);
+                Shadows.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowMapSize);
+                Shadows.Parameters["LightViewProjection"].SetValue(_lightCamera.View * _lightCamera.Projection);
+
+                ShadowPass2();
+
+
+                spriteBatch.Begin();
+
+                _hud.Draw(spriteBatch);
+
+                particleSystem.Draw(spriteBatch);
+
+                //spriteBatch.Draw(SceneRenderTarget, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
+
+                spriteBatch.End();
+
+                #endregion
+
+            }
             else
             {
-
                 #region Pass 1
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -1100,10 +1220,90 @@ namespace ThunderingTanks
             }
         }
 
-
         public void FrustumDraw(GameTime gameTime)
         {
             Camera camara = _targetCamera;
+
+            foreach (var roca in Rocas)
+            {
+                if (_cameraFrustum.Intersects(roca.RocaBox))
+                {
+                    roca.Draw(gameTime, camara.View, camara.Projection);
+                    Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
+                }
+            }
+
+            foreach (var arbol in Arboles)
+            {
+                if (_cameraFrustum.Intersects(arbol.BoundingBox))
+                {
+                    arbol.Draw(camara.View, camara.Projection, GraphicsDevice, Map.terrain);
+                    Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
+                }
+            }
+
+            foreach (var enemyTank in EnemyTanks)
+            {
+                if (_cameraFrustum.Intersects(enemyTank.TankBox))
+                {
+                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
+                }
+            }
+
+            foreach (var enemyTank in EliminatedEnemyTanks)
+            {
+                if (_cameraFrustum.Intersects(enemyTank.TankBox))
+                {
+                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
+                }
+            }
+
+            if (_cameraFrustum.Intersects(LittleShack.ShackBox))
+            {
+                LittleShack.Draw(camara.View, camara.Projection);
+                //Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+            }
+
+            if (_cameraFrustum.Intersects(molino.MolinoBox))
+            {
+                molino.Draw(gameTime, camara.View, camara.Projection);
+                //Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+            }
+
+            if (_cameraFrustum.Intersects(casa.CasaBox))
+            {
+                casa.Draw(gameTime, camara.View, camara.Projection);
+                Gizmos.DrawCube((casa.CasaBox.Max + casa.CasaBox.Min) / 2f, casa.CasaBox.Max - casa.CasaBox.Min, Color.Red);
+            }
+
+            /*
+foreach (var antiTanque in AntiTanques)
+{
+    if (_cameraFrustum.Intersects(antiTanque.AntiTanqueBox))
+    {
+        antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
+        //Gizmos.DrawCube(CollisionsClass.GetCenter(antiTanque.AntiTanqueBox), CollisionsClass.GetExtents(antiTanque.AntiTanqueBox) * 2f, Color.Red);
+    }
+}
+
+
+foreach (var projectile in Projectiles)
+{
+    if (_cameraFrustum.Intersects(antiTanque.AntiTanqueBox))
+    {
+        antitanque.Draw(gameTime, camara.View, camara.Projection, Map.terrain);
+        //Gizmos.DrawCube(CollisionsClass.GetCenter(antiTanque.AntiTanqueBox), CollisionsClass.GetExtents(antiTanque.AntiTanqueBox) * 2f, Color.Red);
+    }
+}
+*/
+
+        }
+
+        public void FrustumDrawFreeCamera(GameTime gameTime)
+        {
+            FreeCamera camara = _freeCamera;
 
             foreach (var roca in Rocas)
             {
