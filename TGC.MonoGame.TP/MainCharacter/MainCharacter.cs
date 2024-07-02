@@ -12,6 +12,7 @@ using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.MainCharacter;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -378,7 +379,18 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             Vector3 HorizontalVelocity = new Vector3(Velocity.X, 0, Velocity.Z);
             BallSpinAngle += HorizontalVelocity.Length() * elapsedTime * elapsedTime / (MathHelper.Pi * 12.5f);
-            BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
+
+            // se normaliza el vector yCrossVelocity solo si alguna de componentes es distinta de 0
+            Vector3 yCrossVelocity = Vector3.Cross(Vector3.UnitY, Velocity);
+            if (Math.Abs(yCrossVelocity.X) > 0 || Math.Abs(yCrossVelocity.Y) > 0 || Math.Abs(yCrossVelocity.Z) > 0)
+            {
+                BallSpinAxis = Vector3.Normalize(yCrossVelocity);
+            }
+            else
+            {
+                BallSpinAxis = Vector3.Zero;
+            }
+           
 
             if (Acceleration == Vector3.Zero || Vector3.Dot(Acceleration, Velocity) < 0)
             {
