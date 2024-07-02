@@ -503,6 +503,12 @@ namespace ThunderingTanks
                     }
                 }
 
+                foreach (var enemyTank in EliminatedEnemyTanks)
+                {
+                    enemyTank.Update(gameTime, Panzer.Direction, Map.terrain, GraphicsDevice, _targetCamera);
+                    enemyTank.Stop = true;
+                }
+
                 UpdateProjectiles(gameTime, timeForParticles);
 
                 _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
@@ -541,7 +547,7 @@ namespace ThunderingTanks
                 spriteBatch.Begin();
                 _menu.Draw(spriteBatch);
                 spriteBatch.End();
-
+                Panzer._currentLife = Panzer._maxLife;
                 #endregion
 
             }
@@ -830,8 +836,9 @@ namespace ThunderingTanks
                         if (EnemyTanks[i].life == 0)
                         {
                             EliminatedEnemyTanks.Add(EnemyTanks[i]);
-                            EnemyTanks[i].Stop = true;
+                            //EnemyTanks[i].Stop = true;
                             TanksEliminados++;
+                            EnemyTanks.Remove(EnemyTanks[i]);
                             Puntos = (i + 1) * Oleada;
 
                         }
@@ -849,6 +856,7 @@ namespace ThunderingTanks
                             {
                                 EnemyTanks.Add(EliminatedEnemyTanks[k]);
                                 EliminatedEnemyTanks.Remove(EliminatedEnemyTanks[k]);
+                                EliminatedEnemyTanks[k].Stop = false;
                             }
                             TanksEliminados = 0;
                             Oleada++;
@@ -1065,6 +1073,15 @@ namespace ThunderingTanks
             }
 
             foreach (var enemyTank in EnemyTanks)
+            {
+                if (_cameraFrustum.Intersects(enemyTank.TankBox))
+                {
+                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
+                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
+                }
+            }
+
+            foreach (var enemyTank in EliminatedEnemyTanks)
             {
                 if (_cameraFrustum.Intersects(enemyTank.TankBox))
                 {
