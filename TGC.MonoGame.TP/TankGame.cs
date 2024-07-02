@@ -381,6 +381,9 @@ namespace ThunderingTanks
 
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
+                TargetLightCamera.Position = lightPosition;
+                TargetLightCamera.BuildView();
+
                 Panzer.Direction = new Vector3(10, 0, 0);
 
                 Panzer.isDestroyed = false;
@@ -406,6 +409,9 @@ namespace ThunderingTanks
                 }
 
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+
+                TargetLightCamera.Position = lightPosition;
+                TargetLightCamera.BuildView();
 
                 keyboardState = Keyboard.GetState();
 
