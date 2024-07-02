@@ -239,7 +239,7 @@ namespace ThunderingTanks
             spriteBatch = new SpriteBatch(GraphicsDevice);
             _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
             _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
-            _lightCamera = new StaticCamera(1f, lightPosition, Vector3.Up * -1, Vector3.Up);
+            _lightCamera = new StaticCamera(1f, lightPosition, Vector3.Normalize(Vector3.Zero - lightPosition), Vector3.Up);
             _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
             SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             ShadowRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
