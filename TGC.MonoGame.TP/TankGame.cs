@@ -305,7 +305,7 @@ namespace ThunderingTanks
             for (int i = 0; i < CantidadTanquesEnemigos; i++)
             {
                 enemyTank = EnemyTanks[i];
-                enemyTank.LoadContent(Content);
+                enemyTank.LoadContent(Content, GraphicsDevice);
             }
 
             GrassPosition = LoadGrassPositions(GrassCant);
@@ -320,17 +320,19 @@ namespace ThunderingTanks
         protected override void Update(GameTime gameTime)
         {
             var time = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            var timeForParticles = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+
             var elapsedTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
             _hud.elapsedTime = elapsedTime;
             _hud.Oleada = Oleada;
+            particleSystem.AddParticle(new Vector2(400,400));
+            particleSystem.Update(timeForParticles);
 
             float deltaTime = 0;
             deltaTime += time;
 
-            particleSystem.AddParticle(new Vector2(400, 240));
 
 
-            particleSystem.Update(time);
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -478,7 +480,7 @@ namespace ThunderingTanks
 
                 foreach (var enemyTank in EnemyTanks)
                 {
-                    enemyTank.Update(gameTime, Panzer.Direction, Map.terrain);
+                    enemyTank.Update(gameTime, Panzer.Direction, Map.terrain, GraphicsDevice, _targetCamera);
                     enemyTank.lifeSpan += time;
 
                     if (enemyTank.lifeSpan >= enemyTank.shootInterval)
@@ -501,7 +503,7 @@ namespace ThunderingTanks
                     }
                 }
 
-                UpdateProjectiles(gameTime);
+                UpdateProjectiles(gameTime, timeForParticles);
 
                 _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
 
@@ -772,7 +774,7 @@ namespace ThunderingTanks
         ///     Actualiza la posicion y verifica la colision de los projectiles disparados
         /// </summary>
         /// <param name="gameTime"></param>
-        public void UpdateProjectiles(GameTime gameTime)
+        public void UpdateProjectiles(GameTime gameTime, float timeForParticles)
         {
             for (int j = 0; j < Projectiles.Count; ++j)
             {
@@ -824,16 +826,29 @@ namespace ThunderingTanks
                         Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
 
                         Projectiles.Remove(Projectiles[j]);
-                        EliminatedEnemyTanks.Add(EnemyTanks[i]);
-                        EnemyTanks.Remove(EnemyTanks[i]);
-                        TanksEliminados++;
-                        Puntos = (i + 1) * Oleada;
+                        EnemyTanks[i].life -= 5;
+                        if (EnemyTanks[i].life == 0)
+                        {
+                            EliminatedEnemyTanks.Add(EnemyTanks[i]);
+                            EnemyTanks[i].Stop = true;
+                            TanksEliminados++;
+                            Puntos = (i + 1) * Oleada;
+
+                        }
+                        /*Vector3 screenPosition = GraphicsDevice.Viewport.Project(EnemyTanks[i].Position, _targetCamera.Projection, _targetCamera.View, Matrix.Identity);
+                        for (int l = 0; l < timeForParticles; l++)
+                        {
+                            particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
+                        }*/
+
+                        
+                        //EnemyTanks.Remove(EnemyTanks[i]);
                         if(TanksEliminados == CantidadTanquesEnemigos)
                         {
-                            for(i = 0; i < TanksEliminados; ++i)
+                            for(int k = 0; k < TanksEliminados; ++k)
                             {
-                                EnemyTanks.Add(EliminatedEnemyTanks[i]);
-                                EliminatedEnemyTanks.Remove(EliminatedEnemyTanks[i]);
+                                EnemyTanks.Add(EliminatedEnemyTanks[k]);
+                                EliminatedEnemyTanks.Remove(EliminatedEnemyTanks[k]);
                             }
                             TanksEliminados = 0;
                             Oleada++;

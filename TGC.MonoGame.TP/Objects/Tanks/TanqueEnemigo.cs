@@ -17,6 +17,7 @@ namespace ThunderingTanks.Objects.Tanks
         public const string ContentFolderEffects = "Effects/";
         public const string ContentFolderTextures = "Textures/";
 
+        public ParticleSystem particleSystem;
         private Effect Effect { get; set; }
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
@@ -48,10 +49,13 @@ namespace ThunderingTanks.Objects.Tanks
         private Vector3 NormalizedMovement { get; set; }
         private Vector3 LastPosition { get; set; }
 
+        public bool Stop { get; set; } = false;
+
         public Vector3 Dimensiones1 = new(-200, 0, -300);
         public Vector3 Dimensiones2 = new(200, 250, 300);
         public float shootInterval;
         public float lifeSpan;
+        public float life = 10;
         private float trackOffset = 0;
 
         public EnemyTank(GraphicsDevice graphicsDevice)
@@ -61,7 +65,7 @@ namespace ThunderingTanks.Objects.Tanks
             TankVelocity = 100f;
         }
 
-        public void LoadContent(ContentManager Content)
+        public void LoadContent(ContentManager Content, GraphicsDevice graphicsDevice)
         {
             Tanque = Content.Load<Model>(ContentFolder3D + "M4/M4");
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "M4/M4_Sherman");
@@ -74,12 +78,20 @@ namespace ThunderingTanks.Objects.Tanks
 
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
+
+            particleSystem = new ParticleSystem(graphicsDevice);
+
         }
 
-        public void Update(GameTime gameTime, Vector3 playerPosition, SimpleTerrain terrain)
+        public void Update(GameTime gameTime, Vector3 playerPosition, SimpleTerrain terrain, GraphicsDevice graphicsDevice, Camera camera)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
             timeSinceLastShot += time;
+            Vector3 screenPosition = graphicsDevice.Viewport.Project(Position, camera.Projection, camera.View, Matrix.Identity);
+
+         
+
+
 
             Vector3 direction = playerPosition - Position;
 
@@ -99,9 +111,17 @@ namespace ThunderingTanks.Objects.Tanks
 
             GunRotationFinal = Rotation;
 
-            if (distanceToPlayer < 2500f)
+          
+
+            if (distanceToPlayer < 2500f )
             {
                 TankVelocity = 0f;
+            }
+            else if(Stop == true)
+            {
+                TankVelocity = 0f;
+                particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
+                particleSystem.Update(time);
             }
             else
             {
@@ -179,6 +199,10 @@ namespace ThunderingTanks.Objects.Tanks
             }
         }
 
+        public void StopEnemy()
+        {
+            Stop = true;
+        }
         public Projectile Shoot()
         {
             Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
