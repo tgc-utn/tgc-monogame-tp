@@ -37,7 +37,7 @@ namespace ThunderingTanks.Objects.Tanks
         #region Tank
         private Effect Effect { get; set; }
         public Model Tanque { get; set; }
-        private Texture2D PanzerTexture { get; set; }
+        public Texture2D PanzerTexture { get; set; }
         private Texture2D TrackTexture { get; set; }
         private float trackOffset1 = 0;
         private float trackOffset2 = 0;

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.Direct2D1.Effects;
 using SharpDX.DXGI;
 using SharpFont.PostScript;
 using System;
@@ -558,6 +559,7 @@ namespace ThunderingTanks
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
+                Shadows.CurrentTechnique = Shadows.Techniques["DepthPass"];
                 DrawShadowMap();
 
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
@@ -625,7 +627,7 @@ namespace ThunderingTanks
                 //no funciona xd
 
                 Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
-                Shadows.Parameters["baseTexture"].SetValue(SceneRenderTarget);
+                Shadows.Parameters["baseTexture"].SetValue(Panzer.PanzerTexture);
                 Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
                 Shadows.Parameters["lightPosition"].SetValue(lightPosition);
                 Shadows.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowMapSize);
@@ -1031,24 +1033,72 @@ namespace ThunderingTanks
         {
             var modelMeshesBaseTransforms = new Matrix[Panzer.Tanque.Bones.Count];
             Panzer.Tanque.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
+            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
 
-            //Panzer
+            //PanzerBase
             foreach (var modelMesh in Panzer.Tanque.Meshes)
             {
-                foreach (var part in modelMesh.MeshParts)
-                    part.Effect = Shadows;
+                if(!modelMesh.Name.Equals("Turret") && !modelMesh.Name.Equals("Cannon"))
+                {
+                    foreach (var part in modelMesh.MeshParts)
+                        part.Effect = Shadows;
 
-                // We set the main matrices for each mesh to draw
-                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.PanzerMatrix;
 
-                // WorldViewProjection is used to transform from model space to clip space
-                Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
-                Shadows.Parameters["World"].SetValue(worldMatrix);
-                Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+                    // We set the main matrices for each mesh to draw
+                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.PanzerMatrix;
 
-                // Once we set these matrices we draw
-                modelMesh.Draw();
+                    // WorldViewProjection is used to transform from model space to clip space
+                    Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
+                    Shadows.Parameters["World"].SetValue(worldMatrix);
+                    Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+
+                    // Once we set these matrices we draw
+                    modelMesh.Draw();
+                }
             }
+            //PanzerTorreta
+            foreach (var modelMesh in Panzer.Tanque.Meshes)
+            {
+                if (modelMesh.Name.Equals("Turret"))
+                {
+                    foreach (var part in modelMesh.MeshParts)
+                        part.Effect = Shadows;
+
+
+                    // We set the main matrices for each mesh to draw
+                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.TurretMatrix;
+
+                    // WorldViewProjection is used to transform from model space to clip space
+                    Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
+                    Shadows.Parameters["World"].SetValue(worldMatrix);
+                    Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+
+                    // Once we set these matrices we draw
+                    modelMesh.Draw();
+                }
+            }
+            //PanzerCanion
+            foreach (var modelMesh in Panzer.Tanque.Meshes)
+            {
+                if (modelMesh.Name.Equals("Cannon"))
+                {
+                    foreach (var part in modelMesh.MeshParts)
+                        part.Effect = Shadows;
+
+
+                    // We set the main matrices for each mesh to draw
+                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.CannonMatrix;
+
+                    // WorldViewProjection is used to transform from model space to clip space
+                    Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
+                    Shadows.Parameters["World"].SetValue(worldMatrix);
+                    Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+
+                    // Once we set these matrices we draw
+                    modelMesh.Draw();
+                }
+            }
+            GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
         }
         public void FrustumDraw(GameTime gameTime)
         {
