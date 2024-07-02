@@ -18,7 +18,7 @@ namespace ThunderingTanks.Objects.Props
         public Effect Effect { get; set; }
         public BoundingBox AntiTanqueBox { get; set; }
 
-        private Vector3 originalPosition;
+        public Vector3 originalPosition;
 
         public AntiTanque()
         {
