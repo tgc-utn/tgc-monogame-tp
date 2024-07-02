@@ -50,9 +50,6 @@ namespace TGC.MonoGame.TP.MainCharacter
         Vector3 LightPos { get; set; }
         public Matrix Spin;
 
-        //Vector3 startPos;
-
-
         public Vector3 ForwardVector = Vector3.UnitX;
 
         public Vector3 RightVector = Vector3.UnitZ;
@@ -326,7 +323,25 @@ namespace TGC.MonoGame.TP.MainCharacter
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            float speed = 100f;
+            float speed;
+            switch (CurrentMaterial)
+            {
+                case Material.Grass:
+                    speed = 95f;
+                    break;
+                case Material.Gold:
+                    speed = 115f;
+                    break;
+                case Material.Marble:
+                    speed = 80f;
+                    break;
+                case Material.Metal:
+                    speed = 100f;
+                    break;
+                default:
+                    speed = 150f;
+                    break;
+            }
 
             // Capturar Input teclado
             var keyboardState = Keyboard.GetState();
