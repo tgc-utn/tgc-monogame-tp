@@ -106,25 +106,27 @@ namespace ThunderingTanks.Objects.Tanks
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
 
-            Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
-            GunElevation = (float)Math.Atan2(playerPosition.Y - Position.Y, distanceToPlayer);
 
-            GunRotationFinal = Rotation;
 
-            if (distanceToPlayer < 2500f )
+            if (distanceToPlayer < 2500f)
             {
                 TankVelocity = 0f;
             }
-            else if(Stop == true)
+            else if (Stop == true)
             {
                 TankVelocity = 0f;
                 GunRotationFinal = 0f;
 
                 particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
                 particleSystem.Update(time);
+                TankBox = new BoundingBox(TankBox.Min, TankBox.Max);
             }
             else
             {
+                Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
+                GunElevation = (float)Math.Atan2(playerPosition.Y - Position.Y, distanceToPlayer);
+
+                GunRotationFinal = Rotation;
                 TankVelocity = 180f;
 
                 LastPosition = Position;
@@ -199,6 +201,7 @@ namespace ThunderingTanks.Objects.Tanks
         public void StopEnemy()
         {
             Stop = true;
+
         }
 
         public Projectile Shoot()

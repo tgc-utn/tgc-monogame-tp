@@ -185,7 +185,8 @@ namespace ThunderingTanks.Objects
 
             if(siguienteOleada)
             {
-                spriteBatch.DrawString(WarIsOver, "SIGUIENTE OLEADA: " + Oleada, new Vector2(ScreenWidth - 1000, ScreenHeight - 500), Color.Blue);
+                spriteBatch.DrawString(WarIsOver, "OLEADA COMPLETADA", new Vector2(ScreenWidth - 1005, ScreenHeight - 525), Color.GreenYellow);
+                spriteBatch.DrawString(WarIsOver, "SIGUIENTE OLEADA: " + Oleada, new Vector2(ScreenWidth - 1000, ScreenHeight - 500), Color.GreenYellow);
             }
 
             #region Debug
