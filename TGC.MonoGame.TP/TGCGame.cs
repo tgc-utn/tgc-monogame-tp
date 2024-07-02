@@ -109,15 +109,14 @@ namespace TGC.MonoGame.TP
 
             MainCharacter = new Character(Content, Stage, Entities);
 
-
             BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
 
-            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups);
+            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups, Stage.Checkpoints);
 
             base.LoadContent();
         }
 
-        private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups)
+        private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups, List<GeometricPrimitive> Checkpoints)
         {
             foreach(GeometricPrimitive myTrack in Track)
             {
@@ -137,6 +136,10 @@ namespace TGC.MonoGame.TP
             foreach(GeometricPrimitive myPickup in Pickups)
             {
                 Entities.Add(myPickup);
+            }
+            foreach(GeometricPrimitive myCheckpoint in Checkpoints)
+            {
+                Entities.Add(myCheckpoint);
             }
         }
 

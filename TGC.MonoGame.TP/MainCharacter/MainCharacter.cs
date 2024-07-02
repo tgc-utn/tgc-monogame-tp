@@ -60,6 +60,8 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             ActualStage = stage;
 
+            LastCheckpoint = stage.CharacterInitialPosition;
+
             InitializeEffect();
             InitializeSphere(stage.CharacterInitialPosition);
             InitializeTextures();
@@ -231,6 +233,23 @@ namespace TGC.MonoGame.TP.MainCharacter
             return dist;
         }
 
+        public void ChangeLastCheckpoint()
+        {
+            foreach(OrientedBoundingBox box in ActualStage.CheckpointColliders)
+            {
+                if(box is null)
+                    continue;
+                if(box.Intersects(EsferaBola))
+                {
+                    LastCheckpoint = box.Center + (Vector3.One * EsferaBola.Radius);
+                }
+                if(ActualStage.CheckpointColliders.IndexOf(box) == ActualStage.CheckpointColliders.LastIndexOf(box))
+                {
+                    // Acá debe ir algún efecto que nos permita ir al siguiente nivel
+                }
+            }
+        }
+
         public bool IsColliding()
         {
             foreach (OrientedBoundingBox box in ActualStage.Colliders)
@@ -378,7 +397,17 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             Vector3 HorizontalVelocity = new Vector3(Velocity.X, 0, Velocity.Z);
             BallSpinAngle += HorizontalVelocity.Length() * elapsedTime * elapsedTime / (MathHelper.Pi * 12.5f);
-            BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
+
+            // se normaliza el vector yCrossVelocity solo si alguna de componentes es distinta de 0
+            Vector3 yCrossVelocity = Vector3.Cross(Vector3.UnitY, Velocity);
+            if (Math.Abs(yCrossVelocity.X) > 0 || Math.Abs(yCrossVelocity.Y) > 0 || Math.Abs(yCrossVelocity.Z) > 0)
+            {
+                BallSpinAxis = Vector3.Normalize(yCrossVelocity);
+            }
+            else
+            {
+                BallSpinAxis = Vector3.Zero;
+            }
 
             if (Acceleration == Vector3.Zero || Vector3.Dot(Acceleration, Velocity) < 0)
             {
@@ -395,10 +424,12 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             MoveTo(Position);
 
+            ChangeLastCheckpoint();
+
             // Resetea la posición inicial del nivel si se cae al vacío
             if (Position.Y < -500)
             {
-                Position = ActualStage.CharacterInitialPosition;
+                Position = LastCheckpoint;
                 Velocity = Vector3.Zero;
                 MoveTo(Position);
                 UpdateBBSphere(Position);

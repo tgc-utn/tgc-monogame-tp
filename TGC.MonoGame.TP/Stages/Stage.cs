@@ -43,6 +43,7 @@ namespace TGC.MonoGame.TP.Stages;
 
         //COLISIONES
         public List<OrientedBoundingBox> Colliders;
+        public List<OrientedBoundingBox> CheckpointColliders;
         //COLISIONES
 
 
@@ -70,6 +71,10 @@ namespace TGC.MonoGame.TP.Stages;
         {
             pickup.Draw(view, projection);
         }
+        foreach (GeometricPrimitive checkpoint in Checkpoints)
+        {
+            checkpoint.Draw(view, projection);
+        }
         SkyBox.Draw(view, projection, CamPosition);
     }
         public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
@@ -80,6 +85,7 @@ namespace TGC.MonoGame.TP.Stages;
             CharacterInitialPosition = characterPosition;
 
             Colliders = new List<OrientedBoundingBox>();
+            CheckpointColliders = new List<OrientedBoundingBox>();
 
             LoadTrack();
             LoadObstacles();
