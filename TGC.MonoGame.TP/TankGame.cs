@@ -145,7 +145,12 @@ namespace ThunderingTanks
         private List<EnemyTank> EliminatedEnemyTanks = new();
         public float TanksEliminados;
         public float Oleada;
+        public float OleadaAnterior;
         public float Puntos;
+        private float tiempoTranscurrido = 0f;
+        private bool mostrandoMensaje = false;
+        private bool juegoPausado = false;
+
         private readonly int CantidadTanquesEnemigos = 2;
 
         #endregion
@@ -206,46 +211,46 @@ namespace ThunderingTanks
             screenHeight = GraphicsDevice.Viewport.Height;
             screenWidth = GraphicsDevice.Viewport.Width;
 
-            keyboardState =      new KeyboardState();
-            MouseState =         new MouseState();
+            keyboardState = new KeyboardState();
+            MouseState = new MouseState();
             PreviousMouseState = new MouseState();
-            MapLimit =           new Vector2(20000f, 20000f);
-            FrameCounter =       new FrameCounter();
-            Rocas =              new List<Roca>(CantidadRocas);
-            Arboles =            new List<Trees>(CantidadArboles);
-            antitanque =         new AntiTanque();
-            molino =             new Molino(Matrix.CreateTranslation(new(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))));
-            casa =               new CasaAbandonada();
-            LittleShack =        new Shack();
-            Grass =              new Grass();
-            GermanSoldier =      new GermanSoldier();
-            Panzer =             new Tank()
+            MapLimit = new Vector2(20000f, 20000f);
+            FrameCounter = new FrameCounter();
+            Rocas = new List<Roca>(CantidadRocas);
+            Arboles = new List<Trees>(CantidadArboles);
+            antitanque = new AntiTanque();
+            molino = new Molino(Matrix.CreateTranslation(new(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y))));
+            casa = new CasaAbandonada();
+            LittleShack = new Shack();
+            Grass = new Grass();
+            GermanSoldier = new GermanSoldier();
+            Panzer = new Tank()
             {
                 TankVelocity = 1000f,
                 TankRotation = 20f,
                 FireRate = 5f,
                 _numberOfProyectiles = 3
             };
-            lightBox =           new CubePrimitive(GraphicsDevice, 500, Color.Transparent);
-            _menu =              new Menu(Content);
-            _hud =               new HUD(screenWidth, screenHeight);
-            SkyBox =             new SkyBox(25000);
-            Map =                new MapScene(Content, GraphicsDevice);
-            spriteBatch =        new SpriteBatch(GraphicsDevice);
-            _targetCamera =      new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
-            _staticCamera =      new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
-            TargetLightCamera =  new TargetCamera(1f, lightPosition, Vector3.Zero);
-            _cameraFrustum =     new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
-            SceneRenderTarget =  new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
-            ShadowRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize,false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
-            FSQ =                new FullScreenQuad(GraphicsDevice);
+            lightBox = new CubePrimitive(GraphicsDevice, 500, Color.Transparent);
+            _menu = new Menu(Content);
+            _hud = new HUD(screenWidth, screenHeight);
+            SkyBox = new SkyBox(25000);
+            Map = new MapScene(Content, GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
+            _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
+            TargetLightCamera = new TargetCamera(1f, lightPosition, Vector3.Zero);
+            _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
+            SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
+            ShadowRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
+            FSQ = new FullScreenQuad(GraphicsDevice);
 
             TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
                 MathHelper.PiOver2);
 
             AgregarRocas(CantidadRocas);
             AgregarArboles(CantidadArboles);
-            AgregarTanquesEnemigos(CantidadTanquesEnemigos); 
+            AgregarTanquesEnemigos(CantidadTanquesEnemigos);
             AgregarAntitanques();
 
             Panzer.PanzerCamera = _targetCamera;
@@ -254,6 +259,7 @@ namespace ThunderingTanks
             LittleShack.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
             TanksEliminados = 0;
             Oleada = 1;
+            OleadaAnterior = 1;
             Puntos = 0;
 
             //gameObjects.Add(Rocas);
@@ -263,8 +269,6 @@ namespace ThunderingTanks
             //gameObjects.Add(WaterTank);
             //gameObjects.Add(EnemyTanks);
             //gameObjects.Add(AntiTanques);
-
-            
 
             base.Initialize();
         }
@@ -326,14 +330,10 @@ namespace ThunderingTanks
             var elapsedTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
             _hud.elapsedTime = elapsedTime;
             _hud.Oleada = Oleada;
-            particleSystem.AddParticle(new Vector2(400,400));
+            particleSystem.AddParticle(new Vector2(400, 400));
             particleSystem.Update(timeForParticles);
 
-            float deltaTime = 0;
-            deltaTime += time;
-
-
-
+            UpdateOleada(time);
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -349,9 +349,7 @@ namespace ThunderingTanks
             BasicShader.Parameters["eyePosition"].SetValue(_targetCamera.Position);
 
             #region Volume
-
             PreviousMouseState = MouseState;
-
             MouseState = Mouse.GetState();
 
             int currentScrollValue = MouseState.ScrollWheelValue;
@@ -371,21 +369,17 @@ namespace ThunderingTanks
             _menu.MasterSound = MasterSound;
             _shootSound.Volume = MasterSound;
             movingTankSound.Volume = Math.Max(0, MasterSound - 0.3f);
-
             #endregion
 
             if (!_juegoIniciado || Panzer.isDestroyed)
             {
-
                 lightPosition = new Vector3(150, 500, 150);
-
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
                 TargetLightCamera.Position = lightPosition;
                 TargetLightCamera.BuildView();
 
                 Panzer.Direction = new Vector3(10, 0, 0);
-
                 Panzer.isDestroyed = false;
 
                 Panzer.PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(-10));
@@ -395,11 +389,14 @@ namespace ThunderingTanks
                 GermanSoldier.WorldMatrix = Matrix.CreateScale(0.025f) * Matrix.CreateTranslation(300, 0, 300);
 
                 _menu.Update(ref _juegoIniciado, gameTime);
-
+            }
+            else if (juegoPausado)
+            {
+                _hud.Update(Panzer, ref viewport, Puntos);
+                return;
             }
             else
             {
-
                 lightPosition = new Vector3(0, 50000, 0);
 
                 if (!StartGame)
@@ -419,13 +416,8 @@ namespace ThunderingTanks
 
                 if (keyboardState.IsKeyDown(Keys.C) && CTrigger)
                 {
-
                     CTrigger = false;
-
-                    if (DrawGizmos)
-                        DrawGizmos = false;
-                    else
-                        DrawGizmos = true;
+                    DrawGizmos = !DrawGizmos;
                 }
 
                 if (keyboardState.IsKeyUp(Keys.C))
@@ -445,16 +437,8 @@ namespace ThunderingTanks
                     {
                         projectile.LoadContent(Content);
                         Projectiles.Add(projectile);
-
                         _shootSound.Play();
                     }
-
-                    if (deltaTime >= Panzer.TimeSinceLastShot)
-                    {
-                        Panzer._numberOfProyectiles += 1;
-                        deltaTime = 0;
-                    }
-
                 }
 
                 _hud.TankPosition = Panzer.Position;
@@ -467,17 +451,13 @@ namespace ThunderingTanks
                 if (CheckCollisions())
                 {
                     _hud.TankIsColliding = true;
-
                     Panzer.isColliding = true;
 
                     Panzer.PanzerMatrix = lastMatrix;
                     Panzer.TurretMatrix = turretPosition;
                     Panzer.CannonMatrix = cannonPosition;
-
                     Panzer.Direction = direction;
-
                     Panzer.Rotation = lastRotation;
-
                     Panzer.Update(gameTime, keyboardState, Map.terrain);
                 }
 
@@ -493,18 +473,12 @@ namespace ThunderingTanks
                     if (enemyTank.lifeSpan >= enemyTank.shootInterval)
                     {
                         Projectile projectile = enemyTank.Shoot();
-
-                        Console.WriteLine("Tanque enemigo quiere disparar");
-
                         if (projectile != null)
                         {
                             Projectiles.Add(projectile);
                             projectile.LoadContent(Content);
-
                             _shootSound.Play();
                             _shootSound.Volume = 1.0f;
-
-                            Console.WriteLine("Disparo Tanque enemigo");
                         }
                         enemyTank.lifeSpan = 0f;
                     }
@@ -517,15 +491,11 @@ namespace ThunderingTanks
                 }
 
                 UpdateProjectiles(gameTime, timeForParticles);
-
                 _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
-
                 _hud.TimeSinceLastShot = Panzer.TimeSinceLastShot;
-
             }
 
             Gizmos.UpdateViewProjection(_targetCamera.View, _targetCamera.Projection);
-
             base.Update(gameTime);
         }
 
@@ -622,7 +592,7 @@ namespace ThunderingTanks
                 #endregion
 
                 #region Pass 2
-                
+
                 GraphicsDevice.DepthStencilState = DepthStencilState.None;
                 GraphicsDevice.SetRenderTarget(null);
 
@@ -702,6 +672,7 @@ namespace ThunderingTanks
                 Vector3 Corner4 = new Vector3((-1 * DistanceToEdge), 0, (-1 * DistanceToEdge) + i);
 
                 antitanque.AgregarAntitanque(Corner1);
+                Console.WriteLine($"Posicion Projectil = {antitanque.originalPosition}");
                 //AntiTanques.Add(antitanque);
 
                 antitanque.AgregarAntitanque(Corner2);
@@ -792,7 +763,6 @@ namespace ThunderingTanks
         {
             for (int j = 0; j < Projectiles.Count; ++j)
             {
-
                 _hud.BulletCount = Projectiles.Count;
 
                 if (OutOfMap(Projectiles[j].PositionVector) || HitFlor(Projectiles[j].PositionVector))
@@ -803,7 +773,6 @@ namespace ThunderingTanks
 
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                 {
-
                     Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
 
@@ -825,15 +794,13 @@ namespace ThunderingTanks
                         Projectiles.Remove(Projectiles[j]);
                         Rocas.Remove(Rocas[i]);
                         break;
-
                     }
-
                 }
 
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
                     break;
 
-                for (int i = 0; i < EnemyTanks.Count; ++i)
+                for (int i = EnemyTanks.Count - 1; i >= 0; i--)
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(EnemyTanks[i].TankBox))
                     {
@@ -841,43 +808,34 @@ namespace ThunderingTanks
 
                         Projectiles.Remove(Projectiles[j]);
                         EnemyTanks[i].life -= 5;
-                        if (EnemyTanks[i].life == 0)
+                        if (EnemyTanks[i].life <= 0)
                         {
                             EliminatedEnemyTanks.Add(EnemyTanks[i]);
-                            //EnemyTanks[i].Stop = true;
                             TanksEliminados++;
-                            EnemyTanks.Remove(EnemyTanks[i]);
-                            Puntos = (i + 1) * Oleada;
-
+                            EnemyTanks.RemoveAt(i);
+                            Puntos += (i + 1) * Oleada;
                         }
-                        /*Vector3 screenPosition = GraphicsDevice.Viewport.Project(EnemyTanks[i].Position, _targetCamera.Projection, _targetCamera.View, Matrix.Identity);
-                        for (int l = 0; l < timeForParticles; l++)
-                        {
-                            particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
-                        }*/
 
-                        
-                        //EnemyTanks.Remove(EnemyTanks[i]);
-                        if(TanksEliminados == CantidadTanquesEnemigos)
+                        if (TanksEliminados == CantidadTanquesEnemigos)
                         {
-                            for(int k = 0; k < TanksEliminados; ++k)
+                            var eliminatedEnemyTanksCopy = new List<EnemyTank>(EliminatedEnemyTanks);
+                            foreach (var enemyTank in eliminatedEnemyTanksCopy)
                             {
-                                EnemyTanks.Add(EliminatedEnemyTanks[k]);
-                                EliminatedEnemyTanks.Remove(EliminatedEnemyTanks[k]);
-                                EliminatedEnemyTanks[k].Stop = false;
+                                EnemyTanks.Add(enemyTank);
+                                EliminatedEnemyTanks.Remove(enemyTank);
+                                enemyTank.Stop = false;
+                                TanksEliminados--;
                             }
-                            TanksEliminados = 0;
+                            //TanksEliminados = 0;
                             Oleada++;
-                            if(Oleada == 10)
+                            if (Oleada == 10)
                             {
                                 Panzer._currentLife = Panzer._maxLife;
                                 Exit();
                             }
                         }
                         break;
-
                     }
-
                 }
 
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
@@ -920,7 +878,7 @@ namespace ThunderingTanks
                 return true;
             else
                 return false;
-        }   
+        }
 
         /// <summary>
         ///     Dibuja los proyectiles que fueron disparados y estan presentes en el juego
@@ -984,6 +942,11 @@ namespace ThunderingTanks
                     return true;
                 }
             }
+            if (OutOfMap(Panzer.Position))
+            {
+                Console.WriteLine("Out of map");
+                return true;
+            }
 
             return false;
         }
@@ -1044,7 +1007,7 @@ namespace ThunderingTanks
             //PanzerBase
             foreach (var modelMesh in Panzer.Tanque.Meshes)
             {
-                if(!modelMesh.Name.Equals("Turret") && !modelMesh.Name.Equals("Cannon"))
+                if (!modelMesh.Name.Equals("Turret") && !modelMesh.Name.Equals("Cannon"))
                 {
                     foreach (var part in modelMesh.MeshParts)
                         part.Effect = Shadows;
@@ -1106,6 +1069,38 @@ namespace ThunderingTanks
             }
             GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
         }
+        private void UpdateOleada(float time)
+        {
+            if (Oleada != OleadaAnterior)
+            {
+                mostrandoMensaje = true;
+                juegoPausado = true;
+                tiempoTranscurrido = 0f;
+                OleadaAnterior = Oleada;
+            }
+
+            if (mostrandoMensaje)
+            {
+                tiempoTranscurrido += time;
+                if (tiempoTranscurrido >= 3f)
+                {
+                    _hud.siguienteOleada = false;
+                    mostrandoMensaje = false;
+                    juegoPausado = false;
+                    tiempoTranscurrido = 0f;
+                }
+                else
+                {
+                    _hud.siguienteOleada = true;
+                }
+            }
+            else
+            {
+                _hud.siguienteOleada = false;
+            }
+        }
+
+
         public void FrustumDraw(GameTime gameTime)
         {
             Camera camara = _targetCamera;
