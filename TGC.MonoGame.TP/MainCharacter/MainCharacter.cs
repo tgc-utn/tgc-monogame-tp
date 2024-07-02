@@ -12,6 +12,7 @@ using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.MainCharacter;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
