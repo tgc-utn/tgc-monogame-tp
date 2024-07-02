@@ -214,6 +214,7 @@ namespace ThunderingTanks
             Graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             viewport = GraphicsDevice.Viewport;
+            Graphics.IsFullScreen = true;
             IsMouseVisible = false;
 
             Graphics.ApplyChanges();
