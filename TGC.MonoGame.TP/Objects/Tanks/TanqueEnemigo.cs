@@ -18,6 +18,7 @@ namespace ThunderingTanks.Objects.Tanks
         public const string ContentFolderTextures = "Textures/";
 
         public ParticleSystem particleSystem;
+        private int Contador;
         private Effect Effect { get; set; }
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
@@ -41,9 +42,10 @@ namespace ThunderingTanks.Objects.Tanks
         public float screenHeight;
         public float screenWidth;
         public float GunRotationFinal = 0;
+        public float GunElevation = 0;
 
         public float GunRotation { get; set; }
-        public float GunElevation { get; set; }
+
         public Matrix turretWorld { get; set; }
         public Matrix cannonWorld { get; set; }
         private Vector3 NormalizedMovement { get; set; }
@@ -53,9 +55,10 @@ namespace ThunderingTanks.Objects.Tanks
 
         public Vector3 Dimensiones1 = new(-200, 0, -300);
         public Vector3 Dimensiones2 = new(200, 250, 300);
+
         public float shootInterval;
         public float lifeSpan;
-        public float life = 10;
+        public float life = 5;
         private float trackOffset = 0;
 
         public EnemyTank(GraphicsDevice graphicsDevice)
@@ -69,7 +72,7 @@ namespace ThunderingTanks.Objects.Tanks
         {
             Tanque = Content.Load<Model>(ContentFolder3D + "M4/M4");
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "M4/M4_Sherman");
-            TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "M4/M4_Sherman");
+            TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "M4/Grant_track");
             Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
@@ -89,10 +92,6 @@ namespace ThunderingTanks.Objects.Tanks
             timeSinceLastShot += time;
             Vector3 screenPosition = graphicsDevice.Viewport.Project(Position, camera.Projection, camera.View, Matrix.Identity);
 
-         
-
-
-
             Vector3 direction = playerPosition - Position;
 
             direction.Y = 0;
@@ -108,10 +107,9 @@ namespace ThunderingTanks.Objects.Tanks
             Direction = Vector3.Normalize(direction);
 
             Rotation = (float)Math.Atan2(Direction.X, Direction.Z);
+            GunElevation = (float)Math.Atan2(playerPosition.Y - Position.Y, distanceToPlayer);
 
             GunRotationFinal = Rotation;
-
-          
 
             if (distanceToPlayer < 2500f )
             {
@@ -120,6 +118,8 @@ namespace ThunderingTanks.Objects.Tanks
             else if(Stop == true)
             {
                 TankVelocity = 0f;
+                GunRotationFinal = 0f;
+
                 particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
                 particleSystem.Update(time);
             }
@@ -139,14 +139,11 @@ namespace ThunderingTanks.Objects.Tanks
                 NormalizedMovement = new Vector3(NormalizedMovement.X, terrainHeight - 400, NormalizedMovement.Z);
 
                 TankBox = new BoundingBox(MinBox + NormalizedMovement, MaxBox + NormalizedMovement);
-
             }
 
             PanzerMatrix = Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
             turretWorld = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Position);
             cannonWorld = Matrix.CreateScale(100f) * Matrix.CreateRotationX(GunElevation) * turretWorld;
-
-            //Shoot();
         }
 
         public void Draw(Matrix world, Matrix view, Matrix projection, GraphicsDevice _GraphicsDevice)
@@ -203,6 +200,7 @@ namespace ThunderingTanks.Objects.Tanks
         {
             Stop = true;
         }
+
         public Projectile Shoot()
         {
             Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * turretWorld;
@@ -214,6 +212,8 @@ namespace ThunderingTanks.Objects.Tanks
 
             return projectile;
         }
+
+
 
     }
 }

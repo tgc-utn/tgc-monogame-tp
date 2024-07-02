@@ -135,15 +135,16 @@ namespace ThunderingTanks
         private SoundEffect shootSoundEffect { get; set; }
         private SoundEffectInstance movingTankSound { get; set; }
         private SoundEffectInstance _shootSound { get; set; }
+        private SoundEffectInstance _shootSoundPlayer { get; set; }
         #endregion
 
         #region Tanks
         private Tank Panzer { get; set; }
 
-
         private EnemyTank enemyTank;
         private List<EnemyTank> EnemyTanks = new();
         private List<EnemyTank> EliminatedEnemyTanks = new();
+
         public float TanksEliminados;
         public float Oleada;
         public float OleadaAnterior;
@@ -152,7 +153,7 @@ namespace ThunderingTanks
         private bool mostrandoMensaje = false;
         private bool juegoPausado = false;
 
-        private readonly int CantidadTanquesEnemigos = 2;
+        private readonly int CantidadTanquesEnemigos = 4;
 
         #endregion
 
@@ -261,6 +262,7 @@ namespace ThunderingTanks
             Panzer.SensitivityFactor = 0.45f;
             casa.Position = new Vector3(-3300f, -700f, 7000f);
             LittleShack.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
+
             TanksEliminados = 0;
             Oleada = 1;
             OleadaAnterior = 1;
@@ -281,6 +283,7 @@ namespace ThunderingTanks
             movingTankSoundEffect = Content.Load<SoundEffect>(ContentFolderMusic + "movingTank");
             movingTankSound = movingTankSoundEffect.CreateInstance();
             _shootSound = shootSoundEffect.CreateInstance();
+            _shootSoundPlayer = shootSoundEffect.CreateInstance();
 
             Panzer.LoadContent(Content, BasicShader);
             molino.LoadContent(Content, BasicShader);
@@ -372,8 +375,6 @@ namespace ThunderingTanks
                 lightPosition = new Vector3(150, 500, 150);
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
-             
-
                 Panzer.Direction = new Vector3(10, 0, 0);
                 Panzer.isDestroyed = false;
 
@@ -430,7 +431,7 @@ namespace ThunderingTanks
                     {
                         projectile.LoadContent(Content);
                         Projectiles.Add(projectile);
-                        _shootSound.Play();
+                        _shootSoundPlayer.Play();
                     }
                 }
 
@@ -529,7 +530,7 @@ namespace ThunderingTanks
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
                 Shadows.CurrentTechnique = Shadows.Techniques["DepthPass"];
-                DrawShadowMap();
+                //DrawShadowMap();
 
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
 
@@ -557,32 +558,26 @@ namespace ThunderingTanks
                 Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents);
                 Gizmos.DrawFrustum(_targetCamera.View, Color.White);
 
+                Ray ray = new Ray(Panzer.Direction  + new Vector3(400f, 210f, 400f) * new Vector3(-camara.View.Forward.X, 1, camara.View.Forward.Z), 
+                    new Vector3(-camara.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camara.View.Forward.Z) );
+
+                for (int i = 0; i < EnemyTanks.Count; i++)
+                {
+                    if (ray.Intersects(EnemyTanks[i].BoundingBox) != null)
+                        Gizmos.DrawLine(ray.Position, EnemyTanks[i].Position, Color.Red);
+                }
+
+                Vector3 NormalizedCanonDirection = 
+                    Vector3.Normalize(
+                        new Vector3 (-camara.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camara.View.Forward.Z));
+
+                _hud.RayDirection = ray.Position + NormalizedCanonDirection;
+                _hud.RayPosition = ray.Position;
+
+                Gizmos.DrawLine(ray.Position, (ray.Position + NormalizedCanonDirection * 1000), Color.Blue);
+
                 if (DrawGizmos)
                     Gizmos.Draw();
-
-                /*
-                
-                molino.Draw(gameTime, camara.View, camara.Projection);
-                casa.Draw(gameTime, camara.View, camara.Projection);
-                WaterTank.Draw(camara.View, camara.Projection);
-
-                foreach (var enemyTank in EnemyTanks)
-                {
-                    enemyTank.Draw(Panzer.PanzerMatrix, camara.View, camara.Projection, GraphicsDevice);
-                    Gizmos.DrawCube(CollisionsClass.GetCenter(enemyTank.TankBox), CollisionsClass.GetExtents(enemyTank.TankBox) * 2f, Color.Red);
-                }
-                foreach (var roca in Rocas)
-                {
-                    roca.Draw(gameTime, camara.View, camara.Projection);
-                    Gizmos.DrawCube((roca.RocaBox.Max + roca.RocaBox.Min) / 2f, roca.RocaBox.Max - roca.RocaBox.Min, Color.Blue);
-                }
-                foreach (var arbol in Arboles)
-                {
-                    arbol.Draw(camara.View, camara.Projection, Map.terrain);
-                    Gizmos.DrawCube((arbol.MaxBox + arbol.MinBox) / 2f, arbol.MaxBox - arbol.MinBox, Color.Red);
-                }
-
-                */
 
                 #endregion
 
@@ -594,23 +589,21 @@ namespace ThunderingTanks
                 TextureMerge.Parameters["baseTexture"].SetValue(SceneRenderTarget);
                 FSQ.Draw(TextureMerge);
 
-/*
+                /*
                 Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
                 Shadows.Parameters["baseTexture"].SetValue(Panzer.PanzerTexture);
                 Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
                 Shadows.Parameters["lightPosition"].SetValue(lightPosition);
                 Shadows.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowMapSize);
                 Shadows.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
-*/
 
-//                ShadowPass2();
+                ShadowPass2();
+                */
 
                 spriteBatch.Begin();
+
                 _hud.Draw(spriteBatch);
-
                 particleSystem.Draw(spriteBatch);
-
-                //spriteBatch.Draw(SceneRenderTarget, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
 
                 spriteBatch.End();
 
@@ -735,7 +728,6 @@ namespace ThunderingTanks
                     lifeSpan = 0
                 };
                 EnemyTanks.Add(enemyTank);
-                // EliminatedEnemyTanks.Add(enemyTank);
             }
         }
 
@@ -1051,12 +1043,16 @@ namespace ThunderingTanks
             }
             GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
         }
+
+        /// <summary>
+        ///     Actualiza los elementos cuando se cambia de oleada
+        /// </summary>
+        /// <param name="time"></param>
         private void UpdateOleada(float time)
         {
             if (Oleada != OleadaAnterior)
             {
                 mostrandoMensaje = true;
-                juegoPausado = true;
                 tiempoTranscurrido = 0f;
                 OleadaAnterior = Oleada;
             }
@@ -1068,12 +1064,16 @@ namespace ThunderingTanks
                 {
                     _hud.siguienteOleada = false;
                     mostrandoMensaje = false;
-                    juegoPausado = false;
                     tiempoTranscurrido = 0f;
                 }
                 else
                 {
                     _hud.siguienteOleada = true;
+
+                    for (int i = 0; i < EnemyTanks.Count; i++)
+                    {
+                        EnemyTanks[i].Position = new Vector3(3000 * i, 0, 9000);                   
+                    }
                 }
             }
             else
@@ -1082,7 +1082,10 @@ namespace ThunderingTanks
             }
         }
 
-
+        /// <summary>
+        ///     Dibuja los objetos que se encuentran dentro del frustum de la camara
+        /// </summary>
+        /// <param name="gameTime"></param>
         public void FrustumDraw(GameTime gameTime)
         {
             Camera camara = _targetCamera;

@@ -39,7 +39,7 @@ namespace ThunderingTanks.Objects
         private Texture2D CrossHairTexture;
 
 
-        public float Convergence { get; set; } = 1000f;
+        public float Convergence { get; set; } = 2000f;
         private Vector2 CrossHairPosition;
 
         private SpriteFont FontArial;
@@ -51,14 +51,14 @@ namespace ThunderingTanks.Objects
         public int _maxLifeBarWidth;
         public bool siguienteOleada;
 
-
-
         #region Debug
         public Vector3 TankPosition { get; set; }
         public int BulletCount { get; set; }
         public bool TankIsColliding { get; set; }
         public float FPS { get; set; }
         public float TimeSinceLastShot { get; set; }
+        public Vector3 RayPosition { get; set; }
+        public Vector3 RayDirection { get; set; }
 
         public float elapsedTime { get; set; }
         public float Oleada { get; set; }
@@ -189,13 +189,16 @@ namespace ThunderingTanks.Objects
             }
 
             #region Debug
+
             spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
             spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
             spriteBatch.DrawString(FontArial, "Posicion Del Tanque: " + "X:" + TankPosition.X.ToString() + "Y:" + TankPosition.Y.ToString() + " Z:" + TankPosition.Z.ToString(), new Vector2(20, 60), Color.Red);
             spriteBatch.DrawString(FontArial, (TankIsColliding) ? "Coliciona" : "No Coliciona", new Vector2(20, 80), Color.Red);
             spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
             spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
-            spriteBatch.DrawString(FontArial, "FPS " + Math.Round(FPS), new Vector2(20, 140), Color.Red);
+            spriteBatch.DrawString(FontArial, "Posicion Del Rayo" + " " + RayPosition.X +  " " + RayPosition.Y + " " + RayPosition.Z, new Vector2(20, 140), Color.Red);
+            spriteBatch.DrawString(FontArial, "Direccion Del Rayo" + " " + RayDirection.X + " " + RayDirection.Y + " " + RayDirection.Z, new Vector2(20, 160), Color.Red);
+            spriteBatch.DrawString(FontArial, "FPS " + Math.Round(FPS), new Vector2(20, 180), Color.Red);
 
             #endregion
 

@@ -40,7 +40,6 @@ namespace ThunderingTanks.Objects.Tanks
         private float trackOffset2 = 0;
         public Matrix PanzerMatrix { get; set; }
         public Vector3 LastPosition { get; set; }
-        private float TankPitch { get; set; }
 
         public Vector3 Direction = new(0, 0, 0);
         public float TankVelocity { get; set; }
@@ -109,7 +108,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
             TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
-
 
             Effect = effect;
 
@@ -238,8 +236,8 @@ namespace ThunderingTanks.Objects.Tanks
             Position = Direction + new Vector3(0f, 500f, 0f);
 
             PanzerMatrix = pitchMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
             TankBox.Center = Direction; 
 
@@ -378,7 +376,7 @@ namespace ThunderingTanks.Objects.Tanks
         /// <param name="_juegoIniciado">Condicion de que el juego inicio</param>
         public void ReceiveDamage(ref bool _juegoIniciado)
         {
-            _currentLife -= 5;
+            _currentLife -= 25;
             if (_currentLife <= 0)
             {
 
@@ -429,26 +427,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             return BoundingBox.CreateFromPoints(puntosEsquina);
         }
-
-        /*List<Vector3> ObtenerVerticesModelo(Model modelo)
-        {
-            List<Vector3> vertices = new List<Vector3>();
-
-            foreach (ModelMesh mesh in modelo.Meshes)
-            {
-                foreach (ModelMeshPart meshPart in mesh.MeshParts)
-                {
-                    // Obtener los vértices de este meshPart
-                    Vector3[] tempVertices = new Vector3[meshPart.NumVertices];
-                    meshPart.VertexBuffer.GetData(tempVertices);
-
-                    // Agregar los vértices a la lista
-                    vertices.AddRange(tempVertices);
-                }
-            }
-
-            return vertices;
-        }*/
 
         public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
         {
