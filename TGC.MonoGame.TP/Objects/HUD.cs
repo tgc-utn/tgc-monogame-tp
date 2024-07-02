@@ -49,6 +49,7 @@ namespace ThunderingTanks.Objects
         private float puntos;
 
         public int _maxLifeBarWidth;
+        public bool siguienteOleada;
 
 
 
@@ -102,6 +103,7 @@ namespace ThunderingTanks.Objects
             lifeBarTexture = lifeBar1;
 
             _maxLifeBarWidth = lifeBar.Width;
+            siguienteOleada = false;
         }
 
         public void Update(Tank Panzer, ref Viewport viewport, float TanksEliminados)
@@ -177,9 +179,14 @@ namespace ThunderingTanks.Objects
              );*/
             spriteBatch.DrawString(WarIsOver, "OLEADA: " + Oleada, new Vector2(ScreenWidth - 250, ScreenHeight - 150), Color.Blue);
 
-            spriteBatch.DrawString(WarIsOver, "TANQUES ELIMINADOS: " + puntos, new Vector2(ScreenWidth - 250, ScreenHeight - 100), Color.Blue);
+            spriteBatch.DrawString(WarIsOver, "PUNTOS: " + puntos, new Vector2(ScreenWidth - 250, ScreenHeight - 100), Color.Blue);
 
             spriteBatch.DrawString(WarIsOver, "TIEMPO: " + (int)elapsedTime + " SEGS", new Vector2(ScreenWidth - 250, ScreenHeight - 50), Color.Blue);
+
+            if(siguienteOleada)
+            {
+                spriteBatch.DrawString(WarIsOver, "SIGUIENTE OLEADA: " + Oleada, new Vector2(ScreenWidth - 1000, ScreenHeight - 500), Color.Blue);
+            }
 
             #region Debug
             spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
