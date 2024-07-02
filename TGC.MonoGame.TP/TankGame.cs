@@ -402,7 +402,7 @@ namespace ThunderingTanks
                     freeCameraIsActivated = true;
                 }
             }
-            else if (juegoPausado)
+            else if (mostrandoMensaje)
             {
                 _hud.Update(Panzer, ref viewport, Puntos);
                 return;
@@ -514,7 +514,7 @@ namespace ThunderingTanks
                 foreach (var enemyTank in EliminatedEnemyTanks)
                 {
                     enemyTank.Update(gameTime, Panzer.Direction, Map.terrain, GraphicsDevice, _targetCamera);
-                    enemyTank.Stop = true;
+                    enemyTank.StopEnemy();
                 }
 
                 UpdateProjectiles(gameTime, timeForParticles);
@@ -686,8 +686,8 @@ namespace ThunderingTanks
                 Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents);
                 Gizmos.DrawFrustum(_targetCamera.View, Color.White);
 
-                Ray ray = new Ray(Panzer.Direction  + new Vector3(400f, 210f, 400f) * new Vector3(-camara.View.Forward.X, 1, camara.View.Forward.Z), 
-                    new Vector3(-camara.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camara.View.Forward.Z) );
+                Ray ray = new Ray(Panzer.Direction + new Vector3(400f, 210f, 400f) * new Vector3(-camara.View.Forward.X, 1, camara.View.Forward.Z),
+                    new Vector3(-camara.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camara.View.Forward.Z));
 
                 for (int i = 0; i < EnemyTanks.Count; i++)
                 {
@@ -695,9 +695,9 @@ namespace ThunderingTanks
                         Gizmos.DrawLine(ray.Position, EnemyTanks[i].Position, Color.Red);
                 }
 
-                Vector3 NormalizedCanonDirection = 
+                Vector3 NormalizedCanonDirection =
                     Vector3.Normalize(
-                        new Vector3 (-camara.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camara.View.Forward.Z));
+                        new Vector3(-camara.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camara.View.Forward.Z));
 
                 _hud.RayDirection = ray.Position + NormalizedCanonDirection;
                 _hud.RayPosition = ray.Position;
@@ -926,15 +926,23 @@ namespace ThunderingTanks
 
                         if (TanksEliminados == CantidadTanquesEnemigos)
                         {
-                            var eliminatedEnemyTanksCopy = new List<EnemyTank>(EliminatedEnemyTanks);
-                            foreach (var enemyTank in eliminatedEnemyTanksCopy)
+                            /*
+                             var eliminatedEnemyTanksCopy = new List<EnemyTank>(EliminatedEnemyTanks);
+                             foreach (var enemyTank in eliminatedEnemyTanksCopy)
+                             {
+                                 EnemyTanks.Add(enemyTank);
+                                 EliminatedEnemyTanks.Remove(enemyTank);
+                                 enemyTank.Stop = false;
+                                 TanksEliminados--;
+                             }
+                             */
+                            AgregarTanquesEnemigos(CantidadTanquesEnemigos);
+                            for (int k = 0; k < CantidadTanquesEnemigos; k++)
                             {
-                                EnemyTanks.Add(enemyTank);
-                                EliminatedEnemyTanks.Remove(enemyTank);
-                                enemyTank.Stop = false;
-                                TanksEliminados--;
+                                enemyTank = EnemyTanks[k];
+                                enemyTank.LoadContent(Content, GraphicsDevice);
                             }
-                            //TanksEliminados = 0;
+                            TanksEliminados = 0;
                             Oleada++;
                             if (Oleada == 10)
                             {
@@ -1044,12 +1052,24 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
-                    Panzer.ReceiveDamage(ref _juegoIniciado);
+                    //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con un tanque enemigo.");
                     Panzer.CollidingPosition = EnemyTank.Position + deltaY;
                     return true;
                 }
             }
+
+            foreach (var EnemyTank in EliminatedEnemyTanks)
+            {
+                if (tankBox.Intersects(EnemyTank.TankBox))
+                {
+                    //Panzer.ReceiveDamage(ref _juegoIniciado);
+                    Console.WriteLine("Colisión detectada con un tanque enemigo.");
+                    Panzer.CollidingPosition = EnemyTank.Position + deltaY;
+                    return true;
+                }
+            }
+
             if (OutOfMap(Panzer.Position))
             {
                 Console.WriteLine("Out of map");
@@ -1204,7 +1224,7 @@ namespace ThunderingTanks
 
                     for (int i = 0; i < EnemyTanks.Count; i++)
                     {
-                        EnemyTanks[i].Position = new Vector3(3000 * i, 0, 9000);                   
+                        EnemyTanks[i].Position = new Vector3(3000 * i, 0, 9000);
                     }
                 }
             }
