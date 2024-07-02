@@ -4,12 +4,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using SharpDX.DirectWrite;
-//using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 
@@ -231,7 +228,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             Direction = new Vector3(X, terrainHeight - 400, Z);
 
-            // Aquí calculamos la inclinación
             float currentHeight = terrain.Height(Direction.X, Direction.Z);
             float previousHeight = terrain.Height(LastPosition.X, LastPosition.Z);
             float heightDifference = -(currentHeight - previousHeight);
@@ -245,9 +241,8 @@ namespace ThunderingTanks.Objects.Tanks
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
-            // Actualizar la posición y rotación de la caja orientada
-            //Quaternion RotationQuaternion = Quaternion.CreateFromRotationMatrix(PanzerMatrix);
-            TankBox.Center = Direction; // Actualiza el centro de la OBB
+            TankBox.Center = Direction; 
+
             if (isRotating)
                 TankBox.Rotate(Matrix.CreateRotationX(MathHelper.ToRadians(-90)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation))); // Actualiza la rotación de la OBB
 

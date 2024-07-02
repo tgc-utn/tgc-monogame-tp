@@ -3,10 +3,12 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using SharpDX.DXGI;
 using SharpFont.PostScript;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
@@ -194,7 +196,7 @@ namespace ThunderingTanks
 
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 10;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 80;
-            Graphics.GraphicsProfile = GraphicsProfile.Reach;
+            Graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             viewport = GraphicsDevice.Viewport;
             IsMouseVisible = false;
@@ -247,6 +249,7 @@ namespace ThunderingTanks
             AgregarTanquesEnemigos(CantidadTanquesEnemigos); 
             AgregarAntitanques();
 
+            GermanSoldier.Initialize();
             Panzer.PanzerCamera = _targetCamera;
             Panzer.SensitivityFactor = 0.45f;
             casa.Position = new Vector3(-3300f, -700f, 7000f);
@@ -362,6 +365,8 @@ namespace ThunderingTanks
 
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
+             
+
                 Panzer.Direction = new Vector3(10, 0, 0);
 
                 Panzer.isDestroyed = false;
@@ -370,21 +375,25 @@ namespace ThunderingTanks
                 Panzer.TurretMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));
                 Panzer.CannonMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(6));
 
-                GermanSoldier.WorldMatrix = Matrix.CreateScale(0.025f) * Matrix.CreateTranslation(300, 0, 300);
-
                 _menu.Update(ref _juegoIniciado, gameTime);
 
             }
             else
             {
 
+                GermanSoldier.WorldMatrix = Matrix.CreateScale(3f) * Matrix.CreateTranslation(0, 5000, 0);
+
+
                 lightPosition = new Vector3(0, 50000, 0);
 
                 if (!StartGame)
                 {
                     Panzer.Direction = new Vector3(-5000, 0, -11000);
+                    //GermanSoldier.ChangeAnimation();
                     StartGame = true;
                 }
+
+                //GermanSoldier.Model.Update(gameTime);
 
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
@@ -518,7 +527,7 @@ namespace ThunderingTanks
 
                 Camera camara = _staticCamera;
                 Panzer.Draw(camara.View, camara.Projection, GraphicsDevice);
-                GermanSoldier.Draw(camara.View, camara.Projection);
+
 
                 spriteBatch.Begin();
                 _menu.Draw(spriteBatch);
@@ -534,8 +543,8 @@ namespace ThunderingTanks
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
- //               DrawShadowMap();
-
+ //             DrawShadowMap();
+                
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
 
                 TextureMerge.CurrentTechnique = TextureMerge.Techniques["Merge"];
@@ -544,6 +553,8 @@ namespace ThunderingTanks
                 GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
 
                 Camera camara = _targetCamera;
+
+                //GermanSoldier.Draw(camara.View, camara.Projection);
 
                 DrawProjectiles(camara.View, camara.Projection);
                 DrawSkyBox(camara.View, camara.Projection, camara.Position);
@@ -662,16 +673,9 @@ namespace ThunderingTanks
                 Vector3 Corner4 = new Vector3((-1 * DistanceToEdge), 0, (-1 * DistanceToEdge) + i);
 
                 antitanque.AgregarAntitanque(Corner1);
-                //AntiTanques.Add(antitanque);
-
                 antitanque.AgregarAntitanque(Corner2);
-                //AntiTanques.Add(antitanque);
-
                 antitanque.AgregarAntitanque(Corner3);
-                //AntiTanques.Add(antitanque);
-
                 antitanque.AgregarAntitanque(Corner4);
-                //AntiTanques.Add(antitanque);
             }
         }
 

@@ -32,6 +32,9 @@
 /processorParam:TextureFormat=Compressed
 /build:3D/geometries/arrow.fbx
 
+#begin app-settings.json
+/copy:app-settings.json
+
 #begin Effects/BasicShader.fx
 /importer:EffectImporter
 /processor:EffectProcessor
@@ -468,7 +471,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/cube.fbx
 
-#begin Models/German_Soldier_1/ammopouchesgerman_ao.png
+#begin Models/GermanModel/Eye_albedo.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -478,9 +481,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/ammopouchesgerman_ao.png
+/build:Models/GermanModel/Eye_albedo.jpeg
 
-#begin Models/German_Soldier_1/ammopouchesgerman_diff.png
+#begin Models/GermanModel/Eye_AO.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -490,9 +493,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/ammopouchesgerman_diff.png
+/build:Models/GermanModel/Eye_AO.jpeg
 
-#begin Models/German_Soldier_1/ammopouchesgerman_met-ammopouchesgerman_ruff@channels=B.png
+#begin Models/GermanModel/Eye_metallic.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -502,9 +505,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/ammopouchesgerman_met-ammopouchesgerman_ruff@channels=B.png
+/build:Models/GermanModel/Eye_metallic.jpeg
 
-#begin Models/German_Soldier_1/ammopouchesgerman_met-ammopouchesgerman_ruff@channels=G.png
+#begin Models/GermanModel/Eye_normal.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -514,9 +517,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/ammopouchesgerman_met-ammopouchesgerman_ruff@channels=G.png
+/build:Models/GermanModel/Eye_normal.jpeg
 
-#begin Models/German_Soldier_1/ammopouchesgerman_norm.png
+#begin Models/GermanModel/Gear_albedo.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -526,9 +529,76 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/ammopouchesgerman_norm.png
+/build:Models/GermanModel/Gear_albedo.jpeg
 
-#begin Models/German_Soldier_1/Animations/Arm Stretching.fbx
+#begin Models/GermanModel/Gear_AO.jpeg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/GermanModel/Gear_AO.jpeg
+
+#begin Models/GermanModel/Gear_metallic.jpeg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/GermanModel/Gear_metallic.jpeg
+
+#begin Models/GermanModel/Gear_normal.jpeg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/GermanModel/Gear_normal.jpeg
+
+#begin Models/GermanModel/Gear_roughness.jpeg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Models/GermanModel/Gear_roughness.jpeg
+
+#begin Models/GermanModel/GermanSoldier_1.fbx
+/importer:FbxImporter
+/processor:ModelProcessor
+/processorParam:ColorKeyColor=0,0,0,0
+/processorParam:ColorKeyEnabled=True
+/processorParam:DefaultEffect=BasicEffect
+/processorParam:GenerateMipmaps=True
+/processorParam:GenerateTangentFrames=False
+/processorParam:PremultiplyTextureAlpha=True
+/processorParam:PremultiplyVertexColors=True
+/processorParam:ResizeTexturesToPowerOfTwo=False
+/processorParam:RotationX=0
+/processorParam:RotationY=0
+/processorParam:RotationZ=0
+/processorParam:Scale=1
+/processorParam:SwapWindingOrder=True
+/processorParam:TextureFormat=Compressed
+/build:Models/GermanModel/GermanSoldier_1.fbx
+
+#begin Models/GermanModel/GermanSoldier_2.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -545,9 +615,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/Animations/Arm Stretching.fbx
+/build:Models/GermanModel/GermanSoldier_2.fbx
 
-#begin Models/German_Soldier_1/Animations/Breathing Idle.fbx
+#begin Models/GermanModel/GermanSoldier.fbx
 /importer:FbxImporter
 /processor:ModelProcessor
 /processorParam:ColorKeyColor=0,0,0,0
@@ -564,104 +634,9 @@
 /processorParam:Scale=1
 /processorParam:SwapWindingOrder=False
 /processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/Animations/Breathing Idle.fbx
+/build:Models/GermanModel/GermanSoldier.fbx
 
-#begin Models/German_Soldier_1/Animations/Looking Behind.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/Animations/Looking Behind.fbx
-
-#begin Models/German_Soldier_1/Animations/Neck Stretching.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/Animations/Neck Stretching.fbx
-
-#begin Models/German_Soldier_1/Animations/Offensive Idle.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/Animations/Offensive Idle.fbx
-
-#begin Models/German_Soldier_1/Animations/Shoulder Rubbing.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/Animations/Shoulder Rubbing.fbx
-
-#begin Models/German_Soldier_1/German_Soldier_1.fbx
-/importer:FbxImporter
-/processor:ModelProcessor
-/processorParam:ColorKeyColor=0,0,0,0
-/processorParam:ColorKeyEnabled=True
-/processorParam:DefaultEffect=BasicEffect
-/processorParam:GenerateMipmaps=True
-/processorParam:GenerateTangentFrames=False
-/processorParam:PremultiplyTextureAlpha=True
-/processorParam:PremultiplyVertexColors=True
-/processorParam:ResizeTexturesToPowerOfTwo=False
-/processorParam:RotationX=0
-/processorParam:RotationY=0
-/processorParam:RotationZ=0
-/processorParam:Scale=1
-/processorParam:SwapWindingOrder=False
-/processorParam:TextureFormat=Compressed
-/build:Models/German_Soldier_1/German_Soldier_1.fbx
-
-#begin Models/German_Soldier_1/helmetm42_ao.png
+#begin Models/GermanModel/Skin_albedo.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -671,9 +646,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/helmetm42_ao.png
+/build:Models/GermanModel/Skin_albedo.jpeg
 
-#begin Models/German_Soldier_1/helmetm42_diff.png
+#begin Models/GermanModel/Skin_AO.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -683,9 +658,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/helmetm42_diff.png
+/build:Models/GermanModel/Skin_AO.jpeg
 
-#begin Models/German_Soldier_1/helmetm42_met-helmetm42_ruff@channels=B.png
+#begin Models/GermanModel/Skin_metallic.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -695,9 +670,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/helmetm42_met-helmetm42_ruff@channels=B.png
+/build:Models/GermanModel/Skin_metallic.jpeg
 
-#begin Models/German_Soldier_1/helmetm42_met-helmetm42_ruff@channels=G.png
+#begin Models/GermanModel/Skin_normal.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -707,9 +682,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/helmetm42_met-helmetm42_ruff@channels=G.png
+/build:Models/GermanModel/Skin_normal.jpeg
 
-#begin Models/German_Soldier_1/helmetm42_norm.png
+#begin Models/GermanModel/Skin_roughness.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -719,9 +694,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/helmetm42_norm.png
+/build:Models/GermanModel/Skin_roughness.jpeg
 
-#begin Models/German_Soldier_1/panzergren_low2k_ao.png
+#begin Models/GermanModel/Wermarcht_albedo.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -731,9 +706,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/panzergren_low2k_ao.png
+/build:Models/GermanModel/Wermarcht_albedo.jpeg
 
-#begin Models/German_Soldier_1/panzergren_low2k_diff.png
+#begin Models/GermanModel/Wermarcht_AO.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -743,9 +718,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/panzergren_low2k_diff.png
+/build:Models/GermanModel/Wermarcht_AO.jpeg
 
-#begin Models/German_Soldier_1/panzergren_low2k_met-panzergren_low2k_ruff@channels=B.png
+#begin Models/GermanModel/Wermarcht_metallic.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -755,9 +730,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/panzergren_low2k_met-panzergren_low2k_ruff@channels=B.png
+/build:Models/GermanModel/Wermarcht_metallic.jpeg
 
-#begin Models/German_Soldier_1/panzergren_low2k_met-panzergren_low2k_ruff@channels=G.png
+#begin Models/GermanModel/Wermarcht_normal.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -767,9 +742,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/panzergren_low2k_met-panzergren_low2k_ruff@channels=G.png
+/build:Models/GermanModel/Wermarcht_normal.jpeg
 
-#begin Models/German_Soldier_1/panzergren_low2k_norm.png
+#begin Models/GermanModel/Wermarcht_roughness.jpeg
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -779,103 +754,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/panzergren_low2k_norm.png
-
-#begin Models/German_Soldier_1/scrimleaves1_ao.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimleaves1_ao.png
-
-#begin Models/German_Soldier_1/scrimleaves1_diff.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimleaves1_diff.png
-
-#begin Models/German_Soldier_1/scrimleaves1_norm.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimleaves1_norm.png
-
-#begin Models/German_Soldier_1/scrimleaves1_ruff@channels=G.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimleaves1_ruff@channels=G.png
-
-#begin Models/German_Soldier_1/scrimwirem42_diff.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimwirem42_diff.png
-
-#begin Models/German_Soldier_1/scrimwirem42_met-scrimwirem42_ruff@channels=B.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimwirem42_met-scrimwirem42_ruff@channels=B.png
-
-#begin Models/German_Soldier_1/scrimwirem42_met-scrimwirem42_ruff@channels=G.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimwirem42_met-scrimwirem42_ruff@channels=G.png
-
-#begin Models/German_Soldier_1/scrimwirem42_norm.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Models/German_Soldier_1/scrimwirem42_norm.png
+/build:Models/GermanModel/Wermarcht_roughness.jpeg
 
 #begin Models/grass/grassAlphaMapped.png
 /importer:TextureImporter
