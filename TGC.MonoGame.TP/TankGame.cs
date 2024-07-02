@@ -70,7 +70,7 @@ namespace ThunderingTanks
         private readonly Vector3 _cameraInitialPosition = new(0, 0, 0);
 
         private TargetCamera _targetCamera;
-        private TargetCamera TargetLightCamera;
+        private StaticCamera _lightCamera;
         private StaticCamera _staticCamera;
 
         private BoundingFrustum _cameraFrustum;
@@ -239,13 +239,13 @@ namespace ThunderingTanks
             spriteBatch = new SpriteBatch(GraphicsDevice);
             _targetCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, Panzer.PanzerMatrix.Forward);
             _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
-            TargetLightCamera = new TargetCamera(1f, lightPosition, Vector3.Zero);
+            _lightCamera = new StaticCamera(1f, lightPosition, Vector3.Up * -1, Vector3.Up);
             _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
             SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             ShadowRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             FSQ = new FullScreenQuad(GraphicsDevice);
 
-            TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
+            _lightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
                 MathHelper.PiOver2);
 
             AgregarRocas(CantidadRocas);
@@ -376,8 +376,8 @@ namespace ThunderingTanks
                 lightPosition = new Vector3(150, 500, 150);
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
-                TargetLightCamera.Position = lightPosition;
-                TargetLightCamera.BuildView();
+                _lightCamera.Position = lightPosition;
+                _lightCamera.BuildView();
 
                 Panzer.Direction = new Vector3(10, 0, 0);
                 Panzer.isDestroyed = false;
@@ -407,8 +407,8 @@ namespace ThunderingTanks
 
                 LightBoxWorld = Matrix.CreateTranslation(lightPosition);
 
-                TargetLightCamera.Position = lightPosition;
-                TargetLightCamera.BuildView();
+                _lightCamera.Position = lightPosition;
+                _lightCamera.BuildView();
 
                 keyboardState = Keyboard.GetState();
 
@@ -607,7 +607,7 @@ namespace ThunderingTanks
                 Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
                 Shadows.Parameters["lightPosition"].SetValue(lightPosition);
                 Shadows.Parameters["shadowMapSize"].SetValue(Vector2.One * ShadowMapSize);
-                Shadows.Parameters["LightViewProjection"].SetValue(TargetLightCamera.View * TargetLightCamera.Projection);
+                Shadows.Parameters["LightViewProjection"].SetValue(_lightCamera.View * _lightCamera.Projection);
 
                 ShadowPass2();
 
@@ -991,7 +991,7 @@ namespace ThunderingTanks
 
                 // WorldViewProjection is used to transform from model space to clip space
                 Shadows.Parameters["WorldViewProjection"]
-                    .SetValue(worldMatrix * TargetLightCamera.View * TargetLightCamera.Projection);
+                    .SetValue(worldMatrix * _lightCamera.View * _lightCamera.Projection);
 
                 // Once we set these matrices we draw
                 modelMesh.Draw();
