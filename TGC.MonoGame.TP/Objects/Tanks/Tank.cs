@@ -4,12 +4,9 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using SharpDX.DirectWrite;
-//using SharpDX.MediaFoundation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 
@@ -63,9 +60,6 @@ namespace ThunderingTanks.Objects.Tanks
         public List<ModelMesh> Meshes { get; private set; }
         public Camera PanzerCamera { get; set; }
         public SoundEffectInstance MovingTankSound { get; set; }
-
-        //public BoundingBox TankboundingBox { get; set; }
-        //public OrientedBoundingBox TankBox { get; set; }
         public OrientedBoundingBox TankBox { get; set; }
         public OrientedBoundingBox PrevTankBox { get; set; }
 
@@ -74,6 +68,7 @@ namespace ThunderingTanks.Objects.Tanks
         public Vector3 MinBox = new(0, 0, 0);
         public Vector3 MaxBox = new(0, 0, 0);
         public bool isColliding { get; set; } = false;
+        private bool isRotating { get; set; } = false;  
 
         public Vector3 CollidingPosition { get; set; }
 
@@ -103,7 +98,6 @@ namespace ThunderingTanks.Objects.Tanks
             CannonMatrix = Matrix.Identity;
             TankBox = new OrientedBoundingBox();
 
-
             _currentLife = _maxLife;
         }
 
@@ -115,17 +109,13 @@ namespace ThunderingTanks.Objects.Tanks
             PanzerTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVl_Tiger_I");
             TrackTexture = Content.Load<Texture2D>(ContentFolder3D + "Panzer/PzVI_Tiger_I_track");
 
-
             Effect = effect;
 
-            // Obtener los vértices del modelo del tanque
             List<Vector3> verticesTanque = ObtenerVerticesModelo(Tanque).ToList();
             TankBox = OrientedBoundingBox.ComputeFromPoints(verticesTanque.ToArray());
             TankBox.Extents *= 100f;
 
             TimeSinceLastShot = FireRate;
-
-
 
             collided = false;
 
@@ -140,7 +130,6 @@ namespace ThunderingTanks.Objects.Tanks
             TimeSinceLastShot += time;
 
             bool isMoving = false;
-            bool isRotating = false;
 
             PrevTankBox = TankBox;
 
@@ -154,10 +143,12 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
                 directionVector -= Vector3.Forward * TankVelocity * time;
+
                 if (collided)
                 {
                     CollidingPosition -= PanzerMatrix.Forward * TankVelocity * time;
                 }
+
                 trackOffset1 -= 0.1f;
                 trackOffset2 -= 0.1f;
                 isMoving = true;
@@ -166,10 +157,12 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
             {
                 directionVector += Vector3.Forward * TankVelocity * time;
+
                 if (collided)
                 {
                     CollidingPosition += PanzerMatrix.Forward * TankVelocity * time;
                 }
+
                 trackOffset1 += 0.1f;
                 trackOffset2 += 0.1f;
                 isMoving = true;
@@ -179,26 +172,27 @@ namespace ThunderingTanks.Objects.Tanks
             {
                 Rotation -= TankRotation * time;
                 isRotating = true;
+                isMoving = true;
                 trackOffset1 += 0.1f;
                 trackOffset2 -= 0.1f;
                 isMoving = true;
-                //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
             if (keyboardState.IsKeyDown(Keys.A))
             {
                 Rotation += TankRotation * time;
                 isRotating = true;
+                isMoving = true;
                 trackOffset1 -= 0.1f;
                 trackOffset2 += 0.1f;
                 isMoving = true;
-                //Effect.Parameters["angulo"].SetValue(TankRotation);
             }
 
             if (isMoving)
             {
                 if (!_isPlaying)
                 {
+
                     MovingTankSound.Play();
                     _isPlaying = true;
                 }
@@ -232,7 +226,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             Direction = new Vector3(X, terrainHeight - 400, Z);
 
-            // Aquí calculamos la inclinación
             float currentHeight = terrain.Height(Direction.X, Direction.Z);
             float previousHeight = terrain.Height(LastPosition.X, LastPosition.Z);
             float heightDifference = -(currentHeight - previousHeight);
@@ -243,15 +236,16 @@ namespace ThunderingTanks.Objects.Tanks
             Position = Direction + new Vector3(0f, 500f, 0f);
 
             PanzerMatrix = pitchMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
+            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
+            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
-            // Actualizar la posición y rotación de la caja orientada
-            //Quaternion RotationQuaternion = Quaternion.CreateFromRotationMatrix(PanzerMatrix);
-            TankBox.Center = Direction; // Actualiza el centro de la OBB
+            TankBox.Center = Direction; 
+
             if (isRotating)
                 TankBox.Rotate(Matrix.CreateRotationX(MathHelper.ToRadians(-90)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation))); // Actualiza la rotación de la OBB
 
+            TankBox.Center = Direction;
+            TankBox.Rotate(RotationMatrix);
 
             LastPosition = Direction;
             LastRotation = Rotation;
@@ -264,7 +258,7 @@ namespace ThunderingTanks.Objects.Tanks
             Vector4 Plano_ST = crearPlano(c_Esfera, Direction);
 
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
-            //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); //experimental
+            //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); Experimental
         }
 
         public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
@@ -382,7 +376,7 @@ namespace ThunderingTanks.Objects.Tanks
         /// <param name="_juegoIniciado">Condicion de que el juego inicio</param>
         public void ReceiveDamage(ref bool _juegoIniciado)
         {
-            _currentLife -= 5;
+            _currentLife -= 25;
             if (_currentLife <= 0)
             {
 
@@ -433,26 +427,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             return BoundingBox.CreateFromPoints(puntosEsquina);
         }
-
-        /*List<Vector3> ObtenerVerticesModelo(Model modelo)
-        {
-            List<Vector3> vertices = new List<Vector3>();
-
-            foreach (ModelMesh mesh in modelo.Meshes)
-            {
-                foreach (ModelMeshPart meshPart in mesh.MeshParts)
-                {
-                    // Obtener los vértices de este meshPart
-                    Vector3[] tempVertices = new Vector3[meshPart.NumVertices];
-                    meshPart.VertexBuffer.GetData(tempVertices);
-
-                    // Agregar los vértices a la lista
-                    vertices.AddRange(tempVertices);
-                }
-            }
-
-            return vertices;
-        }*/
 
         public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
         {
