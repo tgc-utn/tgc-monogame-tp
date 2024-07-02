@@ -80,6 +80,8 @@ namespace ThunderingTanks.Objects.Tanks
         public int _numberOfProyectiles;
 
         public bool isDestroyed = false;
+
+        public bool damaged;
         #endregion
 
         public float SensitivityFactor { get; set; }
@@ -120,7 +122,7 @@ namespace ThunderingTanks.Objects.Tanks
             collided = false;
 
             Effect.Parameters["impacto"].SetValue(140f);
-            VelocidadImpacto = -320f;
+            VelocidadImpacto = -220f;
 
         }
 
@@ -326,7 +328,7 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["IsTrack"].SetValue(false);
                 }
 
-                if (isColliding)
+                if (damaged)
                 {
                     Effect.Parameters["onhit"].SetValue(1);
                 }

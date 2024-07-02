@@ -471,12 +471,14 @@ namespace ThunderingTanks
                 Panzer.Update(gameTime, keyboardState, Map.terrain);
 
                 Panzer.isColliding = false;
+                Panzer.damaged = false;
                 _hud.TankIsColliding = false;
 
                 if (CheckCollisions())
                 {
                     _hud.TankIsColliding = true;
                     Panzer.isColliding = true;
+                    Panzer.damaged = true;
 
                     Panzer.PanzerMatrix = lastMatrix;
                     Panzer.TurretMatrix = turretPosition;
@@ -864,7 +866,7 @@ namespace ThunderingTanks
         /// <param name="gameTime"></param>
         public void UpdateProjectiles(GameTime gameTime, float timeForParticles)
         {
-            Vector3 deltaY = new Vector3(2500, 4800, 200);
+            Vector3 deltaY = new Vector3(0, 5500, 0);
             for (int j = 0; j < Projectiles.Count; ++j)
             {
                 _hud.BulletCount = Projectiles.Count;
@@ -881,6 +883,7 @@ namespace ThunderingTanks
                     Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
 
                     Panzer.RecibirImpacto(Projectiles[j].Direction, 0);
+                    Panzer.damaged = true;
                     Panzer.CollidingPosition = Projectiles[j].Position + deltaY;
                     Projectiles.Remove(Projectiles[j]);
                     Console.WriteLine("Colisión detectada de proyectil con una roca.");
