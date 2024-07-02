@@ -172,7 +172,6 @@ namespace TGC.MonoGame.TP.MainCharacter
             {
                 CurrentMaterial = NewMaterial;
                 SwitchMaterial();
-                LoadTextures();
             }
 
         }
@@ -236,17 +235,21 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         public void ChangeLastCheckpoint()
         {
-            foreach(OrientedBoundingBox box in ActualStage.CheckpointColliders)
+            foreach (OrientedBoundingBox box in ActualStage.CheckpointColliders)
             {
-                if(box is null)
+                if (box is null)
                     continue;
-                if(box.Intersects(EsferaBola))
+                if (box.Intersects(EsferaBola))
                 {
                     LastCheckpoint = box.Center + (Vector3.One * EsferaBola.Radius);
-                }
-                if(ActualStage.CheckpointColliders.IndexOf(box) == ActualStage.CheckpointColliders.LastIndexOf(box))
-                {
-                    // Acá debe ir algún efecto que nos permita ir al siguiente nivel
+
+                    //El último checkpoint es el final del nivel.
+                    if (ActualStage.CheckpointColliders.IndexOf(box) == ActualStage.CheckpointColliders.LastIndexOf(box))
+                    {
+                        //Debería de imprimir algún texto en pantalla, para saber que llegamos al checkpoint final.
+                        CurrentMaterial = Material.Gold;
+                        SwitchMaterial();
+                    }
                 }
             }
         }
@@ -269,7 +272,7 @@ namespace TGC.MonoGame.TP.MainCharacter
         {
             foreach (OrientedBoundingBox box in ActualStage.Colliders)
             {
-                if(box is null)
+                if (box is null)
                     continue;
                 Ray tempRay = new Ray(pos, -Vector3.Up);
                 float? dist = box.Intersects(tempRay);
@@ -280,7 +283,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             }
             return false;
         }
-       
+
         Vector3 getCollisionNormalNEW(BoundingSphere sphere, OrientedBoundingBox box)
         {
             Vector3 puntoContacto = box.ClosestPointTo(sphere.Center);
@@ -306,7 +309,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
                 Vector3 puntoContacto = collider.ClosestPointTo(EsferaBola.Center);
                 float distanceToSquared = Vector3.DistanceSquared(puntoContacto, EsferaBola.Center);
-                if(distanceToSquared <= squareRadius)
+                if (distanceToSquared <= squareRadius)
                 {
                     contactPoint = puntoContacto;
 
@@ -386,7 +389,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             }
 
             Acceleration += new Vector3(0f, -100f, 0f);
-            
+
             //Procesamiento del movimiento vertical
             float distGround = DistanceToGround(Position);
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && (distGround <= 12.5f || (IsColliding() && IsOnGround(Position))))

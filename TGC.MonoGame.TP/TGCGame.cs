@@ -159,9 +159,6 @@ namespace TGC.MonoGame.TP
 
             MainCharacter.Update(gameTime);
 
-            
-
-
             FollowCamera.Update(gameTime, MainCharacter.World);
 
             Stage.CamPosition=FollowCamera.CamPosition;
