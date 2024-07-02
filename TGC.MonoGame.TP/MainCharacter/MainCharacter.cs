@@ -279,7 +279,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             Vector3 surfaceNormal = Vector3.Zero;
 
             float squareRadius = EsferaBola.Radius * EsferaBola.Radius;
-            foreach (OrientedBoundingBox collider in ActualStage.Colliders)
+            foreach (var collider in ActualStage.Colliders)
             {
                 if (collider is null)
                     continue;

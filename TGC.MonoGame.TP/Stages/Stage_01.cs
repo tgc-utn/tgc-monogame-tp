@@ -126,7 +126,6 @@ class Stage_01 : Stage
             // PLATAFORMA FINAL
             new CubePrimitive(GraphicsDevice, Content, Color.Aquamarine, coordinates: new Vector3(425, -125, -75), scale: new Vector3(7f, 1f, 6f))
         };
-
     }
 
     protected override void LoadObstacles()

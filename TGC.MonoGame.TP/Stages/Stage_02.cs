@@ -33,8 +33,8 @@ class Stage_02 : Stage
 
         for(int i=0; i < Obstacles.Count; i++)
         {
-        //    GeometricPrimitive cuboActual = Obstacles[i];
-        //    Colliders.Add(cuboActual.BoundingCube);
+            CubePrimitive cuboActual = (CubePrimitive)Obstacles[i];
+            Colliders.Add(cuboActual.BoundingCube);
         }
 
         for(int i=0; i < Signs.Count; i++)
@@ -51,8 +51,8 @@ class Stage_02 : Stage
 
         for(int i=0; i < Checkpoints.Count; i++)
         {
-            //GeometricPrimitive cuboActual = Checkpoints[i];
-            //Colliders.Add(cuboActual.BoundingCube);
+            CubePrimitive cuboActual = (CubePrimitive)Checkpoints[i];
+            Colliders.Add(cuboActual.BoundingCube);
         }
     }
 

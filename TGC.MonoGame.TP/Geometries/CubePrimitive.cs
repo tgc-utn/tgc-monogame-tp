@@ -90,6 +90,7 @@ namespace TGC.MonoGame.TP.Geometries
             }
 
             World = Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
+            
             BoundingCube = new OrientedBoundingBox(coordinates ?? Vector3.Zero, (scale ?? Vector3.One) * 25 / 2);
             BoundingCube.Rotate(rotation ?? Matrix.Identity);
                 
