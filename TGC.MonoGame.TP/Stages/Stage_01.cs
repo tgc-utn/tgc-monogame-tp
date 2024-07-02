@@ -53,8 +53,8 @@ class Stage_01 : Stage
 
         for (int i = 0; i < Checkpoints.Count; i++)
         {
-            //GeometricPrimitive cuboActual = Checkpoints[i];
-            //Colliders.Add(cuboActual.BoundingCube);
+            CubePrimitive cuboActual = (CubePrimitive)Checkpoints[i];
+            CheckpointColliders.Add(cuboActual.BoundingCube);
         }
     }
 
@@ -137,9 +137,6 @@ class Stage_01 : Stage
     {
         Signs = new List<GeometricPrimitive>
         {
-            // aca iria la banderita del final
-            new CubePrimitive(GraphicsDevice, Content, Color.White, coordinates: new Vector3(425, -100, -75)),
-
             // aca irian cartelitos
             //jump
             new CubePrimitive(GraphicsDevice, Content, Color.Black, coordinates: new Vector3(-25, 50, 150)),
@@ -165,7 +162,11 @@ class Stage_01 : Stage
 
     protected override void LoadCheckpoints()
     {
-        Checkpoints = new List<GeometricPrimitive>();
+        Checkpoints = new List<GeometricPrimitive>()
+        {
+            // aca iria la banderita del final
+            new CubePrimitive(GraphicsDevice, Content, Color.White, coordinates: new Vector3(425, -100, -75))
+        };
     }
 
 

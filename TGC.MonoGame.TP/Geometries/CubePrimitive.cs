@@ -38,7 +38,6 @@ namespace TGC.MonoGame.TP.Geometries
                 float size = 25f,
                 Vector3? coordinates = null,
                 Vector3? scale = null,
-                //BoundingBox? boundingBox = null,
                 Matrix? rotation = null
             )
         {
