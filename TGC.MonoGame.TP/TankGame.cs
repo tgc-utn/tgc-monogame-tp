@@ -534,10 +534,10 @@ namespace ThunderingTanks
                 #region Pass 1
 
                 GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-
+                /* //shadowMap pass 1
                 Shadows.CurrentTechnique = Shadows.Techniques["DepthPass"];
                 DrawShadowMap();
-
+                */
                 GraphicsDevice.SetRenderTarget(SceneRenderTarget);
 
                 TextureMerge.CurrentTechnique = TextureMerge.Techniques["Merge"];
@@ -600,8 +600,8 @@ namespace ThunderingTanks
 
                 FSQ.Draw(TextureMerge);
 
-                //no funciona xd
-
+                //shadowMap pass 2
+                /*
                 Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
                 Shadows.Parameters["baseTexture"].SetValue(Panzer.PanzerTexture);
                 Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
@@ -610,7 +610,7 @@ namespace ThunderingTanks
                 Shadows.Parameters["LightViewProjection"].SetValue(_lightCamera.View * _lightCamera.Projection);
 
                 ShadowPass2();
-
+                */
 
                 spriteBatch.Begin();
 
@@ -761,6 +761,7 @@ namespace ThunderingTanks
         /// <param name="gameTime"></param>
         public void UpdateProjectiles(GameTime gameTime, float timeForParticles)
         {
+            Vector3 deltaY = new Vector3(2500, 4800, 200);
             for (int j = 0; j < Projectiles.Count; ++j)
             {
                 _hud.BulletCount = Projectiles.Count;
@@ -777,6 +778,7 @@ namespace ThunderingTanks
                     Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
 
                     Panzer.RecibirImpacto(Projectiles[j].Direction, 0);
+                    Panzer.CollidingPosition = Projectiles[j].Position + deltaY;
                     Projectiles.Remove(Projectiles[j]);
                     Console.WriteLine("Colisión detectada de proyectil con una roca.");
 
