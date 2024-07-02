@@ -37,7 +37,7 @@ namespace ThunderingTanks.Objects
         //private Texture2D lifeBar_t;
         //private Texture2D e_lifeBar_t;
         private Texture2D CrossHairTexture;
-
+        public bool DrawDebug { get; set; } = false;
 
         public float Convergence { get; set; } = 2000f;
         private Vector2 CrossHairPosition;
@@ -189,19 +189,23 @@ namespace ThunderingTanks.Objects
                 spriteBatch.DrawString(WarIsOver, "SIGUIENTE OLEADA: " + Oleada, new Vector2(ScreenWidth - 1000, ScreenHeight - 500), Color.GreenYellow);
             }
 
-            #region Debug
+            if(DrawDebug)
+            {
+                #region Debug
 
-            spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
-            spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
-            spriteBatch.DrawString(FontArial, "Posicion Del Tanque: " + "X:" + TankPosition.X.ToString() + "Y:" + TankPosition.Y.ToString() + " Z:" + TankPosition.Z.ToString(), new Vector2(20, 60), Color.Red);
-            spriteBatch.DrawString(FontArial, (TankIsColliding) ? "Coliciona" : "No Coliciona", new Vector2(20, 80), Color.Red);
-            spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
-            spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
-            spriteBatch.DrawString(FontArial, "Posicion Del Rayo" + " " + RayPosition.X +  " " + RayPosition.Y + " " + RayPosition.Z, new Vector2(20, 140), Color.Red);
-            spriteBatch.DrawString(FontArial, "Direccion Del Rayo" + " " + RayDirection.X + " " + RayDirection.Y + " " + RayDirection.Z, new Vector2(20, 160), Color.Red);
-            spriteBatch.DrawString(FontArial, "FPS " + Math.Round(FPS), new Vector2(20, 180), Color.Red);
+                spriteBatch.DrawString(FontArial, "Debug", new Vector2(20, 20), Color.Red);
+                spriteBatch.DrawString(FontArial, "Cantidad De Balas: " + BulletCount.ToString(), new Vector2(20, 40), Color.Red);
+                spriteBatch.DrawString(FontArial, "Posicion Del Tanque: " + "X:" + TankPosition.X.ToString() + "Y:" + TankPosition.Y.ToString() + " Z:" + TankPosition.Z.ToString(), new Vector2(20, 60), Color.Red);
+                spriteBatch.DrawString(FontArial, (TankIsColliding) ? "Coliciona" : "No Coliciona", new Vector2(20, 80), Color.Red);
+                spriteBatch.DrawString(FontArial, "Reloading Time: " + TimeSinceLastShot, new Vector2(20, 100), Color.Red);
+                spriteBatch.DrawString(FontArial, "Distancia De Apuntado " + Convergence, new Vector2(20, 120), Color.Red);
+                spriteBatch.DrawString(FontArial, "Posicion Del Rayo" + " " + RayPosition.X + " " + RayPosition.Y + " " + RayPosition.Z, new Vector2(20, 140), Color.Red);
+                spriteBatch.DrawString(FontArial, "Direccion Del Rayo" + " " + RayDirection.X + " " + RayDirection.Y + " " + RayDirection.Z, new Vector2(20, 160), Color.Red);
+                spriteBatch.DrawString(FontArial, "FPS " + Math.Round(FPS), new Vector2(20, 180), Color.Red);
 
-            #endregion
+                #endregion
+            }
+
 
         }
     }

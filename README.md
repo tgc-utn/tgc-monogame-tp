@@ -20,6 +20,7 @@ TGC, Tgcito  |  Apellido, Nombre
 
 ## Capturas
 
-
+![Menu](/FotosGameplay/Menu.png)
+![Gameplay](/FotosGameplay/GamePlay.jpg)
 
 ## Game Play

@@ -82,7 +82,7 @@ namespace ThunderingTanks.Objects.Tanks
             MinBox = TankBox.Min;
             MaxBox = TankBox.Max;
 
-            particleSystem = new ParticleSystem(graphicsDevice);
+            //particleSystem = new ParticleSystem(graphicsDevice);
 
         }
 
@@ -117,8 +117,8 @@ namespace ThunderingTanks.Objects.Tanks
                 TankVelocity = 0f;
                 GunRotationFinal = 0f;
 
-                particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
-                particleSystem.Update(time);
+                //particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
+                //particleSystem.Update(time);
                 TankBox = new BoundingBox(TankBox.Min, TankBox.Max);
             }
             else

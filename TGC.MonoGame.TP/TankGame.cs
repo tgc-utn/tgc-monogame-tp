@@ -214,7 +214,7 @@ namespace ThunderingTanks
             Graphics.GraphicsProfile = GraphicsProfile.HiDef;
 
             viewport = GraphicsDevice.Viewport;
-            Graphics.IsFullScreen = true;
+            //Graphics.IsFullScreen = true;
             IsMouseVisible = false;
 
             Graphics.ApplyChanges();
@@ -339,8 +339,8 @@ namespace ThunderingTanks
             var elapsedTime = Convert.ToSingle(gameTime.TotalGameTime.TotalSeconds);
             _hud.elapsedTime = elapsedTime;
             _hud.Oleada = Oleada;
-            particleSystem.AddParticle(new Vector2(400, 400));
-            particleSystem.Update(timeForParticles);
+            //particleSystem.AddParticle(new Vector2(400, 400));
+            //particleSystem.Update(timeForParticles);
 
             UpdateOleada(time);
 
@@ -414,9 +414,6 @@ namespace ThunderingTanks
                 StartGame = true;
                 keyboardState = Keyboard.GetState();
                 _hud.Update(Panzer, ref viewport, Puntos);
-
-
-
             }
             else
             {
@@ -590,7 +587,14 @@ namespace ThunderingTanks
                 Gizmos.DrawFrustum(_freeCamera.View, Color.White);
 
                 if (DrawGizmos)
+                {
+                    _hud.DrawDebug = true;
                     Gizmos.Draw();
+                }
+                else
+                {
+                    _hud.DrawDebug = false;
+                }
 
                 /*
                 
@@ -627,8 +631,6 @@ namespace ThunderingTanks
 
                 FSQ.Draw(TextureMerge);
 
-                //no funciona xd
-
                 Shadows.CurrentTechnique = Shadows.Techniques["DrawShadowedPCF"];
                 Shadows.Parameters["baseTexture"].SetValue(Panzer.PanzerTexture);
                 Shadows.Parameters["shadowMap"].SetValue(ShadowRenderTarget);
@@ -643,7 +645,7 @@ namespace ThunderingTanks
 
                 _hud.Draw(spriteBatch);
 
-                particleSystem.Draw(spriteBatch);
+                //particleSystem.Draw(spriteBatch);
 
                 //spriteBatch.Draw(SceneRenderTarget, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
 
@@ -704,9 +706,16 @@ namespace ThunderingTanks
                 _hud.RayPosition = ray.Position;
 
                 Gizmos.DrawLine(ray.Position, (ray.Position + NormalizedCanonDirection * 1000), Color.Blue);
-
+                    
                 if (DrawGizmos)
+                {
+                    _hud.DrawDebug = true;
                     Gizmos.Draw();
+                }
+                else
+                {
+                    _hud.DrawDebug = false;
+                }
 
                 #endregion
 
@@ -733,7 +742,7 @@ namespace ThunderingTanks
                 spriteBatch.Begin();
 
                 _hud.Draw(spriteBatch);
-                particleSystem.Draw(spriteBatch);
+                //particleSystem.Draw(spriteBatch);
 
                 spriteBatch.End();
 
