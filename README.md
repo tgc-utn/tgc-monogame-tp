@@ -13,11 +13,13 @@ Juego de batalla de tanques creado por estudiantes de la carrera de ingenieria e
 
 TGC, Tgcito  |  Apellido, Nombre
 ------------ | -------------
-|            | Lucas Gelabert |
-|            | Santiago Saucedo |
-|            | Simon Cutrera |
-|            | Tomas Zubizarreta |
+| ![Lucas Gelabert](/FotosTGCitos/Lucas%20Gelabert.jpg)            | Lucas Gelabert |
+| ![Santiago Saucedo](/FotosTGCitos/Santiago%20Saucedo.jpg)              | Santiago Saucedo |
+| ![Simon Cutrera](/FotosTGCitos/Simon%20Cutrera.jpg)              | Simon Cutrera |
+| ![Tomas Zubizarreta](/FotosTGCitos/Tomas%20Zubizarreta.jpg)              | Tomas Zubizarreta |
 
 ## Capturas
+
+
 
 ## Game Play
