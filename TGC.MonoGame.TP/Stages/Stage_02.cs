@@ -52,7 +52,7 @@ class Stage_02 : Stage
         for(int i=0; i < Checkpoints.Count; i++)
         {
             CubePrimitive cuboActual = (CubePrimitive)Checkpoints[i];
-            Colliders.Add(cuboActual.BoundingCube);
+            CheckpointColliders.Add(cuboActual.BoundingCube);
         }
     }
 
@@ -259,12 +259,12 @@ class Stage_02 : Stage
     {
         Checkpoints = new List<GeometricPrimitive>()
             {
-                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-875, -412.5f, -1762.5f), scale: new Vector3(10, 1, 15), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)),
-                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-875, -337.5f, -1737.5f), scale: new Vector3(10, 5, 1), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)),
-                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-812.5f, -300, -575), scale: new Vector3(1, 6, 4), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)),
-                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(237.5f, -200, -625), scale: new Vector3(5, 4, 1), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)),
-                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-412.5f, -87.5f, -1250), scale: new Vector3(1, 4, 8), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)),
-                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-1250, 12.5f, -550), scale: new Vector3(8, 4, 1), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0))
+                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-1250, 12.5f, -550), scale: new Vector3(8, 4, 1), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)),  // ESTE ES EL PRIMERO
+                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-412.5f, -87.5f, -1250), scale: new Vector3(1, 4, 8), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)), // ESTE ES EL SEGUNDO
+                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(237.5f, -200, -625), scale: new Vector3(5, 4, 1), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)), // ESTE ES EL TERCERO
+                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-812.5f, -300, -575), scale: new Vector3(1, 6, 4), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)), // ESTE ES EL CUARTO
+                new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-875, -337.5f, -1737.5f), scale: new Vector3(10, 5, 1), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)) // ESTE ES EL QUINTO
+                //new CubePrimitive(GraphicsDevice, Content, Color.DarkGray, coordinates: new Vector3(-875, -412.5f, -1762.5f), scale: new Vector3(10, 1, 15), rotation: Matrix.CreateFromYawPitchRoll(0, 0, 0)) // ESTE ES EL ÚLTIMO
             };
     }
 

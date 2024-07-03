@@ -47,7 +47,7 @@ namespace TGC.MonoGame.TP
         }
 
         private GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
+        public SpriteBatch SpriteBatch { get; set; }
 
         // Camera to draw the scene
         private FollowCamera FollowCamera { get; set; }
@@ -116,6 +116,22 @@ namespace TGC.MonoGame.TP
             base.LoadContent();
         }
 
+        private void UpdateContent()
+        {
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Entities = new List<Entity>();
+
+            Stage = new Stage_02(GraphicsDevice, Content);
+
+            MainCharacter = new Character(Content, Stage, Entities);
+
+            BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
+
+            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups, Stage.Checkpoints);
+
+            base.LoadContent();
+        }
+
         private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups, List<GeometricPrimitive> Checkpoints)
         {
             foreach(GeometricPrimitive myTrack in Track)
@@ -156,6 +172,11 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
 
+            if(MainCharacter.FinishedStage)
+            {
+                UpdateContent();
+                MainCharacter.FinishedStage = false;
+            }
 
             MainCharacter.Update(gameTime);
 

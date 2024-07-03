@@ -11,6 +11,7 @@
 
 #region Using Statements
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -38,7 +39,8 @@ namespace TGC.MonoGame.TP.Geometries
                 float size = 25f,
                 Vector3? coordinates = null,
                 Vector3? scale = null,
-                Matrix? rotation = null
+                Matrix? rotation = null,
+                string? Text = ""
             )
         {
 
@@ -93,8 +95,6 @@ namespace TGC.MonoGame.TP.Geometries
             BoundingCube = new OrientedBoundingBox(coordinates ?? Vector3.Zero, (scale ?? Vector3.One) * 25 / 2);
             BoundingCube.Rotate(rotation ?? Matrix.Identity);
                 
-            
-
             InitializePrimitive(graphicsDevice, content);
         }
     }

@@ -1,18 +1,12 @@
 using System;
 using System.Linq;
-using System.Runtime.Intrinsics.Arm;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Stages;
 using TGC.MonoGame.TP.Collisions;
-using TGC.MonoGame.TP.Geometries;
-using TGC.MonoGame.TP.MainCharacter;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -35,6 +29,8 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         // Checkpoints
         public Vector3 LastCheckpoint;
+        public bool FinishedStage;
+        private OrientedBoundingBox ObbLastCheckpoint;
         // Checkpoints
 
 
@@ -62,6 +58,8 @@ namespace TGC.MonoGame.TP.MainCharacter
             ActualStage = stage;
 
             LastCheckpoint = stage.CharacterInitialPosition;
+
+            FinishedStage = false;
 
             InitializeEffect();
             InitializeSphere(stage.CharacterInitialPosition);
@@ -233,23 +231,37 @@ namespace TGC.MonoGame.TP.MainCharacter
             return dist;
         }
 
-        public void ChangeLastCheckpoint()
+        public void UpdateLastCheckpoint()
         {
+            OrientedBoundingBox nearestCheckpoint = null;
+            bool foundCheckpoint = false;
+
             foreach (OrientedBoundingBox box in ActualStage.CheckpointColliders)
             {
                 if (box is null)
                     continue;
+
                 if (box.Intersects(EsferaBola))
                 {
-                    LastCheckpoint = box.Center + (Vector3.One * EsferaBola.Radius);
-
-                    //El último checkpoint es el final del nivel.
-                    if (ActualStage.CheckpointColliders.IndexOf(box) == ActualStage.CheckpointColliders.LastIndexOf(box))
+                    if (nearestCheckpoint == null || ActualStage.CheckpointColliders.IndexOf(box) > ActualStage.CheckpointColliders.IndexOf(nearestCheckpoint))
                     {
-                        //Debería de imprimir algún texto en pantalla, para saber que llegamos al checkpoint final.
-                        CurrentMaterial = Material.Gold;
-                        SwitchMaterial();
+                        nearestCheckpoint = box;
+                        foundCheckpoint = true;
                     }
+                }
+            }
+
+            if (foundCheckpoint)
+            {
+                LastCheckpoint = nearestCheckpoint.Center + (Vector3.One * EsferaBola.Radius);
+                ObbLastCheckpoint = nearestCheckpoint;
+
+                // Verificar si es el último checkpoint
+                if (ActualStage.CheckpointColliders.IndexOf(ObbLastCheckpoint) == ActualStage.CheckpointColliders.Count - 1)
+                {
+                    // Imprimir algún mensaje o cambiar de nivel
+                    FinishedStage = true;
+                    ObbLastCheckpoint = null; // Reiniciar el último checkpoint, si es necesario
                 }
             }
         }
@@ -428,7 +440,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             MoveTo(Position);
 
-            ChangeLastCheckpoint();
+            UpdateLastCheckpoint();
 
             // Resetea la posición inicial del nivel si se cae al vacío
             if (Position.Y < -500)
