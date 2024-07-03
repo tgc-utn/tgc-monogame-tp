@@ -9,6 +9,8 @@ using TGC.MonoGame.TP.Collisions;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
+using TGC.MonoGame.TP.UI;
+using System.Net;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -29,6 +31,8 @@ namespace TGC.MonoGame.TP.MainCharacter
         public Matrix World;
         Matrix Scale = Matrix.CreateScale(12.5f);
         Effect Effect;
+
+        public GameStatus Status;
 
         Material CurrentMaterial = Material.RustedMetal;
 
@@ -139,6 +143,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         public void Update(GameTime gameTime)
         {
+
             ProcessMaterialChange();
             ProcessMovement(gameTime);
         }
@@ -286,7 +291,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             if (foundCheckpoint)
             {
-                LastCheckpoint = nearestCheckpoint.Center + (Vector3.One * EsferaBola.Radius);
+                LastCheckpoint = nearestCheckpoint.Center + new Vector3 (0f, 0f, 5f) * EsferaBola.Radius;
                 ObbLastCheckpoint = nearestCheckpoint;
 
                 CheckpointSound.Play();
@@ -397,6 +402,11 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         private void ProcessMovement(GameTime gameTime)
         {
+            if(Status != GameStatus.Playing)
+            {
+                return;
+            }
+
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -407,16 +417,16 @@ namespace TGC.MonoGame.TP.MainCharacter
                     speed = 95f;
                     break;
                 case Material.Gold:
-                    speed = 115f;
+                    speed = 105f;
                     break;
                 case Material.Marble:
-                    speed = 80f;
-                    break;
-                case Material.Metal:
                     speed = 100f;
                     break;
+                case Material.Metal:
+                    speed = 90f;
+                    break;
                 default:
-                    speed = 150f;
+                    speed = 98f;
                     break;
             }
 

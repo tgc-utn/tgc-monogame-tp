@@ -50,13 +50,14 @@ public abstract class Stage
     public List<OrientedBoundingBox> Colliders;
     public List<OrientedBoundingBox> CheckpointColliders;
     //COLISIONES
-
-
-    private SpriteFont SpriteFont { get; set; }
+    
     public Vector3 CamPosition { get; set; }
 
     public void Draw(Matrix view, Matrix projection)
     {
+
+        
+
         foreach (GeometricPrimitive primitive in Track)
         {
             primitive.Draw(view, projection);
@@ -80,8 +81,8 @@ public abstract class Stage
         {
             checkpoint.Draw(view, projection);
         }
+        
         SkyBox.Draw(view, projection, CamPosition);
-
     }
     public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
     {

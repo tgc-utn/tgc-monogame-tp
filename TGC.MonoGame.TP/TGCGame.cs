@@ -28,7 +28,7 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
 
-        
+
 
         /// <summary>
         ///     Constructor del juego.
@@ -37,10 +37,10 @@ namespace TGC.MonoGame.TP
         {
             // Maneja la configuracion y la administracion del dispositivo grafico.
             Graphics = new GraphicsDeviceManager(this);
-            
+
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            
+
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
@@ -50,11 +50,9 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         public SpriteBatch SpriteBatch { get; set; }
-
-        private SpriteBatch SpriteBatch { get; set; }
         private SpriteFont SpriteFont { get; set; }
         private UIManager UI;
-        
+
         // Camera to draw the scene
         private FollowCamera FollowCamera { get; set; }
 
@@ -62,7 +60,7 @@ namespace TGC.MonoGame.TP
         private Character MainCharacter;
         private Stage Stage;
         protected List<Entity> Entities;
-        
+
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -75,7 +73,7 @@ namespace TGC.MonoGame.TP
             var size = GraphicsDevice.Viewport.Bounds.Size;
             size.X /= 2;
             size.Y /= 2;
-            screenSize=size;
+            screenSize = size;
 
             //var cameraPosition = new Vector3(25f, 100f, -1100f);
             //Camera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, cameraPosition, size);
@@ -102,9 +100,6 @@ namespace TGC.MonoGame.TP
         ///     que podemos pre calcular para nuestro juego.
         /// </summary>
         public Effect BallEffect;
-
-
-
 
         protected override void LoadContent()
         {
@@ -145,26 +140,26 @@ namespace TGC.MonoGame.TP
 
         private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups, List<GeometricPrimitive> Checkpoints)
         {
-            foreach(GeometricPrimitive myTrack in Track)
+            foreach (GeometricPrimitive myTrack in Track)
             {
                 Entities.Add(myTrack);
             }
-            
-            foreach(GeometricPrimitive myObstacle in Obstacles)
+
+            foreach (GeometricPrimitive myObstacle in Obstacles)
             {
                 Entities.Add(myObstacle);
             }
 
-            foreach(GeometricPrimitive mySign in Signs)
+            foreach (GeometricPrimitive mySign in Signs)
             {
                 Entities.Add(mySign);
             }
 
-            foreach(GeometricPrimitive myPickup in Pickups)
+            foreach (GeometricPrimitive myPickup in Pickups)
             {
                 Entities.Add(myPickup);
             }
-            foreach(GeometricPrimitive myCheckpoint in Checkpoints)
+            foreach (GeometricPrimitive myCheckpoint in Checkpoints)
             {
                 Entities.Add(myCheckpoint);
             }
@@ -183,18 +178,20 @@ namespace TGC.MonoGame.TP
             }
             UI.Update(gameTime);
 
-            if(MainCharacter.FinishedStage)
-            {
-                UpdateContent();
-                MainCharacter.FinishedStage = false;
-            }
+            MainCharacter.Status = UI.UIStatus;
 
             MainCharacter.Update(gameTime);
 
             FollowCamera.Update(gameTime, MainCharacter.World);
             // actualiza el estado solo si está jugando
-            if  (UI.UIStatus == GameStatus.Playing)
+            if (UI.UIStatus == GameStatus.Playing)
             {
+                if (MainCharacter.FinishedStage)
+                {
+                    UpdateContent();
+                    UI.UIStatus = GameStatus.Menu;
+                }
+
                 MainCharacter.Update(gameTime);
                 FollowCamera.Update(gameTime, MainCharacter.World);
 
@@ -228,7 +225,7 @@ namespace TGC.MonoGame.TP
             //GraphicsDevice.DepthStencilState = DepthStencilState.None;
 
             //GraphicsDevice.Clear(Color.LightSkyBlue);
-            
+
 
             //
             //Stage.SkyBox.Draw(FollowCamera.View, FollowCamera.Projection, FollowCamera.CamPosition);
@@ -238,9 +235,16 @@ namespace TGC.MonoGame.TP
 
             GraphicsDevice.RasterizerState = originalRasterizerState;
 
+            // Configuramos el DepthStencilState para la UI
+            DepthStencilState depthStencilStateUI = new DepthStencilState();
+            depthStencilStateUI.DepthBufferEnable = false; // Desactivamos el uso del búfer de profundidad para la UI
+            GraphicsDevice.DepthStencilState = depthStencilStateUI;
 
+            // Dibujamos la interfaz de usuario (UI)
             UI.Draw();
-            //base.Draw(gameTime);
+
+            // Restauramos el estado original del DepthStencilState después de la UI
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         }
 
         /// <summary>
