@@ -10,15 +10,15 @@
 Juego de batalla de tanques creado por estudiantes de la carrera de ingenieria en sistemas de la UTN de buenos aires para la materia Tecnicas De Graficos Por Computadora utilizando el FrameWork Monogame.
 
 ## Controles
-W = Movimiento hacia adelante
-A = Rotacion izquierda
-S = Movimiento hacia atras
-D = Rotacion derecha
-
-C = Debug mode
-G = God mode
-
-Click Izquierdo = Disparo de cañon
+Tecla           | Accion
+-----           | -----
+W               | Movimiento hacia adelante
+A               | Rotacion izquierda
+S               | Movimiento hacia atras
+D               | Rotacion derecha
+C               | Debug mode
+G               | God mode
+Click Izquierdo | Disparo de cañon
 
 ## Integrantes
 
@@ -32,6 +32,7 @@ TGC, Tgcito  |  Apellido, Nombre
 ## Capturas
 
 ![Menu](/FotosGameplay/Menu.png)
-![Gameplay](/FotosGameplay/GamePlay.jpg)
+
+![Gameplay](/FotosGameplay/GamePlay.png)
 
 ## Game Play
