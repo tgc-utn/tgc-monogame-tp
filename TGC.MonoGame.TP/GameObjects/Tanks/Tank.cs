@@ -16,13 +16,6 @@ namespace ThunderingTanks.Objects.Tanks
 
     {
 
-        #region ContentFolders
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderTextures = "Textures/";
-        public const string ContentFolderMusic = "Music/";
-        #endregion
-
         #region Graphics
 
         private GraphicsDevice GraphicsDevice;
@@ -32,7 +25,6 @@ namespace ThunderingTanks.Objects.Tanks
         #endregion
 
         #region Tank
-        private Effect Effect { get; set; }
         public Model Tanque { get; set; }
         public Texture2D PanzerTexture { get; set; }
         private Texture2D TrackTexture { get; set; }
@@ -65,8 +57,7 @@ namespace ThunderingTanks.Objects.Tanks
 
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
-        public Vector3 MinBox = new(0, 0, 0);
-        public Vector3 MaxBox = new(0, 0, 0);
+
         public bool isColliding { get; set; } = false;
         private bool isRotating { get; set; } = false;  
 
@@ -92,7 +83,7 @@ namespace ThunderingTanks.Objects.Tanks
 
         private bool _isPlaying = true;
 
-        List<Vector3> verticesTanque;
+        List<Vector3> TankVertices = null;
 
         public Tank()
         {
@@ -103,7 +94,7 @@ namespace ThunderingTanks.Objects.Tanks
             _currentLife = _maxLife;
         }
 
-        public void LoadContent(ContentManager Content, Effect effect)
+        public override void LoadContent(ContentManager Content, Effect effect)
         {
 
             Tanque = Content.Load<Model>(ContentFolder3D + "Panzer/Panzer");
@@ -113,9 +104,8 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect = effect;
 
-            List<Vector3> verticesTanque = ObtenerVerticesModelo(Tanque).ToList();
-            TankBox = OrientedBoundingBox.ComputeFromPoints(verticesTanque.ToArray());
-            TankBox.Extents *= 100f;
+            BoundingBox = CollisionsClass.CreateBoundingBox(Tanque, Matrix.CreateScale(1f), Direction);
+            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
 
             TimeSinceLastShot = FireRate;
 
@@ -241,8 +231,6 @@ namespace ThunderingTanks.Objects.Tanks
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
-            TankBox.Center = Direction; 
-
             if (isRotating)
                 TankBox.Rotate(Matrix.CreateRotationX(MathHelper.ToRadians(-90)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation))); // Actualiza la rotación de la OBB
 
@@ -263,19 +251,12 @@ namespace ThunderingTanks.Objects.Tanks
             //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); Experimental
         }
 
-        public void Model(List<ModelBone> bones, List<ModelMesh> meshes)
-        {
-            Bones = bones;
-            Meshes = meshes;
-        }
-
         public void Draw(Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
         {
 
             GraphicsDevice = graphicsDevice;
             GraphicsDevice.RasterizerState = new RasterizerState() { CullMode = CullMode.None };
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
-
 
             foreach (var mesh in Tanque.Meshes)
             {
@@ -332,11 +313,6 @@ namespace ThunderingTanks.Objects.Tanks
                 {
                     Effect.Parameters["onhit"].SetValue(1);
                 }
-                else
-                {
-                    //Effect.Parameters["onhit"].SetValue(false); //si lo descomento el tanque resetea las deformaciones todo el rato, hay que buscar una forma de que no lo haga
-                }
-
 
                 mesh.Draw();
 
@@ -417,26 +393,13 @@ namespace ThunderingTanks.Objects.Tanks
             return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
         }
 
-        BoundingBox EscalarBoundingBox(BoundingBox originalBoundingBox, float escala)
-        {
-
-            Vector3[] puntosEsquina = originalBoundingBox.GetCorners();
-
-            for (int i = 0; i < puntosEsquina.Length; i++)
-            {
-                puntosEsquina[i] *= escala;
-            }
-
-            return BoundingBox.CreateFromPoints(puntosEsquina);
-        }
-
         public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
         {
-            if(verticesTanque == null)
+            if(TankVertices == null)
                 return;
-            for (int i = 0; i < verticesTanque.Count; i++)
+            for (int i = 0; i < TankVertices.Count; i++)
             {
-                Vector3 vertice = verticesTanque[i];
+                Vector3 vertice = TankVertices[i];
 
                 // Calcula la distancia entre el vértice y el punto de impacto
                 float distancia = Vector3.Distance(vertice, puntoDeImpacto);
@@ -448,7 +411,7 @@ namespace ThunderingTanks.Objects.Tanks
                     Vector3 direccion = Vector3.Normalize(vertice - puntoDeImpacto);
 
                     // Aplica una deformación al vértice según la fuerza del impacto y la dirección
-                    verticesTanque[i] += -direccion * fuerzaImpacto;
+                    TankVertices[i] += -direccion * fuerzaImpacto;
                 }
             }
         }

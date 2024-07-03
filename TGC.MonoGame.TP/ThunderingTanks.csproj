@@ -13,9 +13,9 @@
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Objects\NewFolder\**" />
-    <EmbeddedResource Remove="Objects\NewFolder\**" />
-    <None Remove="Objects\NewFolder\**" />
+    <Compile Remove="GameObjects\NewFolder\**" />
+    <EmbeddedResource Remove="GameObjects\NewFolder\**" />
+    <None Remove="GameObjects\NewFolder\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Icon.ico" />

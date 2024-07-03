@@ -13,13 +13,9 @@ namespace ThunderingTanks.Objects.Tanks
 {
     public class EnemyTank : GameObject
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderTextures = "Textures/";
 
         public ParticleSystem particleSystem;
-        private int Contador;
-        private Effect Effect { get; set; }
+
         public Model Tanque { get; set; }
         private Texture2D PanzerTexture { get; set; }
         private Texture2D TrackTexture { get; set; }
@@ -28,9 +24,9 @@ namespace ThunderingTanks.Objects.Tanks
 
         private Vector3 Direction = Vector3.Zero;
         public float Rotation = 0;
+
         public BoundingBox TankBox { get; set; }
-        private Vector3 MinBox { get; set; }
-        private Vector3 MaxBox { get; set; }
+
 
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }

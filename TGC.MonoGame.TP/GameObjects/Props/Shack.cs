@@ -1,20 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects.Props
 {
-    public class Shack : GameProp
-    { 
-        private Texture2D Texture2 {  get; set; }
+    public class Shack : GameObject
+    {
+        private Texture2D Texture2 { get; set; }
 
         public BoundingBox ShackBox;
-        public void LoadContent(ContentManager Content, Effect effect)
+        public override void LoadContent(ContentManager Content, Effect effect)
         {
             Model = Content.Load<Model>(ContentFolder3D + "Snowy_Shack/Little_shack");
             Texture = Content.Load<Texture2D>(ContentFolder3D + "Snowy_Shack/Little_shack_DefaultMaterial_BaseColor");
@@ -23,13 +19,13 @@ namespace ThunderingTanks.Objects.Props
 
             foreach (ModelMesh mesh in Model.Meshes)
             {
-                foreach(ModelMeshPart meshPart in mesh.MeshParts)
+                foreach (ModelMeshPart meshPart in mesh.MeshParts)
                 {
                     meshPart.Effect = Effect;
                 }
             }
 
-            ShackBox = CreateBoundingBox(Model, Matrix.CreateScale(2.5f), Position);
+            ShackBox = CollisionsClass.CreateBoundingBox(Model, Matrix.CreateScale(2.5f), Position);
         }
     }
 }

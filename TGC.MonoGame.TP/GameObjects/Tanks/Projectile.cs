@@ -7,13 +7,9 @@ namespace ThunderingTanks.Objects.Tanks
 {
     public class Projectile : GameObject
     {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
 
         #region Projectile
         private Model projectile { get; set; }
-        public Effect Effect { get; set; }
-        public Texture2D Texture { get; set; }
         public BoundingBox ProjectileBox { get; set; }
         public Matrix PositionMatrix { get; set; }
         private Vector3 LastPosition { get; set; }
@@ -41,19 +37,19 @@ namespace ThunderingTanks.Objects.Tanks
 
         }
 
-        public void LoadContent(ContentManager Content)
+        public override void LoadContent(ContentManager Content, Effect effect)
         {
             projectile = Content.Load<Model>(ContentFolder3D + "TankBullets/Apcr");
 
             Texture = Content.Load<Texture2D>(ContentFolder3D + "TankBullets/ApcrTexture");
 
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+            Effect = effect;
 
             ProjectileBox = CollisionsClass.CreateBoundingBox(projectile, Matrix.CreateScale(0.5f), PositionVector);
 
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             float time = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -66,7 +62,7 @@ namespace ThunderingTanks.Objects.Tanks
             ProjectileBox = new BoundingBox(ProjectileBox.Min + MovementVector, ProjectileBox.Max + MovementVector);
         }
 
-        public void Draw(Matrix view, Matrix projection)
+        public override void Draw(Matrix view, Matrix projection)
         {
             Matrix worldMatrix = Matrix.CreateScale(Scale) * Matrix.CreateRotationX(MathHelper.ToRadians(180)) * PositionMatrix;
 

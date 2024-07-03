@@ -10,7 +10,7 @@ using System.DirectoryServices;
 
 namespace ThunderingTanks.Objects.Props
 {
-    internal class GermanSoldier : GameProp
+    internal class GermanSoldier : GameObject
     {
         new public AnimatedModel Model { get; set; }
         public AnimatedModel Animation { get; set; }
@@ -22,13 +22,13 @@ namespace ThunderingTanks.Objects.Props
         readonly string AnimationFolder = "Models/GermanModel";
         readonly string AnimatedModelFolder = ContentFolder3D + "GermanModel/GermanSoldier";
 
-        public void Initialize()
+        public override void Initialize()
         {
             var configurationFileName = "app-settings.json";
             Configuration = new ConfigurationBuilder().AddJsonFile(configurationFileName, true, true).Build();
         }
 
-        public void LoadContent(ContentManager Content, Effect effect)
+        public override void LoadContent(ContentManager Content, Effect effect)
         {
 
             ContentManager = Content;

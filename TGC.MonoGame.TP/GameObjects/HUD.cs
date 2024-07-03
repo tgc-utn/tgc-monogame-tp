@@ -18,7 +18,6 @@ namespace ThunderingTanks.Objects
         private float ScreenHeight { get; set; }
 
         private Rectangle lifeBar;
-        //private Rectangle e_lifeBar;
 
         private Texture2D lifeBar11;
         private Texture2D lifeBar10;
@@ -34,8 +33,6 @@ namespace ThunderingTanks.Objects
 
         private Texture2D lifeBarTexture;
 
-        //private Texture2D lifeBar_t;
-        //private Texture2D e_lifeBar_t;
         private Texture2D CrossHairTexture;
         public bool DrawDebug { get; set; } = false;
 
@@ -75,16 +72,12 @@ namespace ThunderingTanks.Objects
             float barX = screenWidth - 2 * barWidth + 30;
 
             lifeBar = new Rectangle((int)barX, (int)barY, (int)barWidth, (int)barHeight);
-           // e_lifeBar = new Rectangle();
         }
 
         public void LoadContent(ContentManager Content)
         {
             CrossHairTexture = Content.Load<Texture2D>(ContentFolderTextures + "/punto-de-mira");
             FontArial = Content.Load<SpriteFont>(ContentFolderFonts + "arial");
-
-            //lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar");
-            //e_lifeBar_t = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar_empty");
 
             lifeBar1 = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar/1");
             lifeBar2 = Content.Load<Texture2D>(ContentFolderTextures + "HUD/lifebar/2");
@@ -110,6 +103,8 @@ namespace ThunderingTanks.Objects
         {
             CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2) - 25));
             lifeBarTexture = lifeBar1;
+
+            #region LifeBar
 
             if (Panzer._currentLife == 50)
             {
@@ -155,6 +150,7 @@ namespace ThunderingTanks.Objects
             {
                 lifeBarTexture = lifeBar11;
             }
+            #endregion
 
             puntos = TanksEliminados;
         }
@@ -167,16 +163,11 @@ namespace ThunderingTanks.Objects
                     null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
               );
             spriteBatch.Draw(
-                lifeBarTexture,
-                lifeBar,
-                Color.Yellow
+                    lifeBarTexture,
+                    lifeBar,
+                    Color.Yellow
              );
 
-            /*spriteBatch.Draw(
-                e_lifeBar_t,
-                e_lifeBar,
-                Color.Yellow
-             );*/
             spriteBatch.DrawString(WarIsOver, "OLEADA: " + Oleada, new Vector2(ScreenWidth - 250, ScreenHeight - 150), Color.Blue);
 
             spriteBatch.DrawString(WarIsOver, "PUNTOS: " + puntos, new Vector2(ScreenWidth - 250, ScreenHeight - 100), Color.Blue);
@@ -205,8 +196,6 @@ namespace ThunderingTanks.Objects
 
                 #endregion
             }
-
-
         }
     }
 }

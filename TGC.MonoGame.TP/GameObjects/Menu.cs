@@ -56,7 +56,6 @@ namespace ThunderingTanks.Objects
 
         public Menu(ContentManager contentManager)
         {
-
             ScreenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             ScreenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
@@ -70,9 +69,8 @@ namespace ThunderingTanks.Objects
             _playButton = new Rectangle(buttonX, buttonY, buttonWidth, buttonHeight);
             _exitButton = new Rectangle(buttonX, buttonY + buttonHeight + buttonSpacing, buttonWidth, buttonHeight);
 
-            _soundOnButton = new Rectangle(50, (int)(ScreenHeight - 300), 100, 100);
-            _soundOffButton = new Rectangle(50, (int)(ScreenHeight - 300), 100, 100);
-
+            _soundOnButton = new Rectangle(50, (int)(ScreenHeight - 150), 100, 100);
+            _soundOffButton = new Rectangle(50, (int)(ScreenHeight - 150), 100, 100);
         }
 
         public void LoadContent(ContentManager Content)
@@ -114,6 +112,7 @@ namespace ThunderingTanks.Objects
                 {
                     Environment.Exit(0); 
                 }
+
                 if (SoundIsOn && _soundOffButton.Contains(mousePosition) && ResetMouse)
                 {
                     if (MediaPlayer.State == MediaState.Playing)
@@ -179,28 +178,21 @@ namespace ThunderingTanks.Objects
         public void Draw(SpriteBatch spriteBatch)
         {
 
+            var mouseState = Mouse.GetState();
+
+            Vector2 exitTextPosition = new(_exitButton.X + (_exitButton.Width - (_font.MeasureString("Exit").X + 70)) / 2, _exitButton.Y + (_exitButton.Height - (_font.MeasureString("Exit").Y + 70)) / 2);
+
             if (SoundIsOn)
-            {
                 spriteBatch.Draw(SoundOnButton, _soundOnButton, Color.Gray);
-            }
             else
-            {
-                spriteBatch.Draw(SoundOffButton, _soundOffButton, Color.Gray);
-            }
+                spriteBatch.Draw(SoundOffButton, _soundOffButton, Color.Gray);           
 
             spriteBatch.Draw(PlayButton, _playButton, Color.Gray);
             spriteBatch.Draw(RectangleButton, _exitButton, Color.Gray);
-
+            spriteBatch.Draw(_cursorTexture, new Vector2(mouseState.X, mouseState.Y), Color.White);
             spriteBatch.DrawString(WarIsOver, "THUNDERING TANKS", new Vector2(450,  200), Color.SandyBrown);
             spriteBatch.DrawString(WarIsOver, "VOLUMEN = " + MasterSound.ToString("P"), new Vector2(50, ScreenHeight - 200), Color.SaddleBrown);
-           
-            Vector2 exitTextPosition = new Vector2(_exitButton.X + (_exitButton.Width - (_font.MeasureString("Exit").X + 70)) / 2, _exitButton.Y + (_exitButton.Height - (_font.MeasureString("Exit").Y + 70)) / 2);
-
             spriteBatch.DrawString(WarIsOver, "EXIT", exitTextPosition, Color.White, 0f, Vector2.Zero, 3f, SpriteEffects.None, 0f);
-
-            var mouseState = Mouse.GetState();
-
-            spriteBatch.Draw(_cursorTexture, new Vector2(mouseState.X, mouseState.Y), Color.White);
         }
     }
 }

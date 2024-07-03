@@ -10,7 +10,7 @@ using System.Reflection.Metadata;
 
 namespace ThunderingTanks.Objects.Props
 {
-    internal class Grass : GameProp
+    internal class Grass : GameObject
     {
         private Texture2D GrassApha {  get; set; }
         private Texture2D GrassColor { get; set; }
@@ -20,7 +20,7 @@ namespace ThunderingTanks.Objects.Props
         private Vector3 originalPosition;
 
 
-        public void LoadContent(ContentManager Content, Effect effect)
+        public override void LoadContent(ContentManager Content, Effect effect)
         {
             Model grassModel = Content.Load<Model>(ContentFolder3D + "grass/grasspatches");
             Texture2D grassAlpha = Content.Load<Texture2D>(ContentFolder3D + "grass/grassAlphaMapped");

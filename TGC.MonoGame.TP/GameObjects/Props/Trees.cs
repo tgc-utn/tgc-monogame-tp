@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ThunderingTanks.Objects.Props
 {
-    public class Trees : GameProp
+    public class Trees : GameObject
     {
         public List<ModelMesh> TreesModels {  get; set; }
         private ModelMesh modelMesh { get; set; }
