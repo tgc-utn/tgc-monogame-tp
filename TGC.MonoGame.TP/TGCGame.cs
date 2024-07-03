@@ -9,6 +9,7 @@ using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Stages;
+using Microsoft.Xna.Framework.Audio;
 using TGC.MonoGame.TP.UI;
 
 namespace TGC.MonoGame.TP
@@ -48,6 +49,8 @@ namespace TGC.MonoGame.TP
         }
 
         private GraphicsDeviceManager Graphics { get; }
+        public SpriteBatch SpriteBatch { get; set; }
+
         private SpriteBatch SpriteBatch { get; set; }
         private SpriteFont SpriteFont { get; set; }
         private UIManager UI;
@@ -100,6 +103,9 @@ namespace TGC.MonoGame.TP
         /// </summary>
         public Effect BallEffect;
 
+
+
+
         protected override void LoadContent()
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
@@ -114,15 +120,30 @@ namespace TGC.MonoGame.TP
 
             MainCharacter = new Character(Content, Stage, Entities);
 
-
             BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
 
-            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups);
+            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups, Stage.Checkpoints);
 
             base.LoadContent();
         }
 
-        private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups)
+        private void UpdateContent()
+        {
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
+            Entities = new List<Entity>();
+
+            Stage = new Stage_02(GraphicsDevice, Content);
+
+            MainCharacter = new Character(Content, Stage, Entities);
+
+            BallEffect = Content.Load<Effect>(ContentFolderEffects + "PBR");
+
+            MergeEntities(Stage.Track, Stage.Obstacles, Stage.Signs, Stage.Pickups, Stage.Checkpoints);
+
+            base.LoadContent();
+        }
+
+        private void MergeEntities(List<GeometricPrimitive> Track, List<GeometricPrimitive> Obstacles, List<GeometricPrimitive> Signs, List<GeometricPrimitive> Pickups, List<GeometricPrimitive> Checkpoints)
         {
             foreach(GeometricPrimitive myTrack in Track)
             {
@@ -143,6 +164,10 @@ namespace TGC.MonoGame.TP
             {
                 Entities.Add(myPickup);
             }
+            foreach(GeometricPrimitive myCheckpoint in Checkpoints)
+            {
+                Entities.Add(myCheckpoint);
+            }
         }
 
         /// <summary>
@@ -158,6 +183,15 @@ namespace TGC.MonoGame.TP
             }
             UI.Update(gameTime);
 
+            if(MainCharacter.FinishedStage)
+            {
+                UpdateContent();
+                MainCharacter.FinishedStage = false;
+            }
+
+            MainCharacter.Update(gameTime);
+
+            FollowCamera.Update(gameTime, MainCharacter.World);
             // actualiza el estado solo si está jugando
             if  (UI.UIStatus == GameStatus.Playing)
             {

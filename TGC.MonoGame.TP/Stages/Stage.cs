@@ -10,10 +10,11 @@ using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.Samples.Samples.Shaders.SkyBox;
 using TGC.MonoGame.TP;
+using Microsoft.Xna.Framework.Media;
 
 
 namespace TGC.MonoGame.TP.Stages;
-    public abstract class Stage
+public abstract class Stage
 {
     public const string ContentFolder3D = "Models/";
     public const string ContentFolderEffects = "Effects/";
@@ -32,26 +33,28 @@ namespace TGC.MonoGame.TP.Stages;
     public List<GeometricPrimitive> Checkpoints; // puntos de respawn
 
     public Vector3 CharacterInitialPosition;
-    //private SpriteBatch SpriteBatch;
-    
-    public void LoadSpriteBatch(){
-        //SpriteBatch=new SpriteBatch(GraphicsDevice);
-        //SpriteBatch.Begin();
-        
+    private SpriteBatch SpriteBatch;
+
+    public void LoadSpriteBatch()
+    {
+        SpriteBatch = new SpriteBatch(GraphicsDevice);
+        SpriteBatch.Begin();
+
     }
 
+    // Música de fondo
+    public Song BackgroundMusic;
 
-        //COLISIONES
-        public List<BoundingBox> Colliders;
-        public Matrix BoxWorld { get; set; } //Matriz de mundo
-        public Matrix[] StairsWorld { get; set; } //Escaleras
-        public Matrix FloorWorld { get; set; } //Colisión con el piso
-        //COLISIONES
+
+    //COLISIONES
+    public List<OrientedBoundingBox> Colliders;
+    public List<OrientedBoundingBox> CheckpointColliders;
+    //COLISIONES
 
 
     private SpriteFont SpriteFont { get; set; }
-    public Vector3 CamPosition{get;set;}
-    
+    public Vector3 CamPosition { get; set; }
+
     public void Draw(Matrix view, Matrix projection)
     {
         foreach (GeometricPrimitive primitive in Track)
@@ -73,40 +76,49 @@ namespace TGC.MonoGame.TP.Stages;
         {
             pickup.Draw(view, projection);
         }
-        //SkyBox.Draw(view, projection, CamPosition);
-    }
-        public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
+        foreach (GeometricPrimitive checkpoint in Checkpoints)
         {
-            GraphicsDevice = graphicsDevice;
-            Content = content;
-
-            CharacterInitialPosition = characterPosition;
-
-            Colliders = new List<BoundingBox>();
-
-            LoadTrack();
-            LoadObstacles();
-            LoadSigns();
-            LoadPickups();
-            LoadCheckpoints();
-            LoadSpriteBatch();
-            LoadColliders();
+            checkpoint.Draw(view, projection);
         }
+        SkyBox.Draw(view, projection, CamPosition);
 
-        public abstract void Update(GameTime gameTime);
+    }
+    public Stage(GraphicsDevice graphicsDevice, ContentManager content, Vector3 characterPosition)
+    {
+        
+
+        GraphicsDevice = graphicsDevice;
+        Content = content;
+
+        CharacterInitialPosition = characterPosition;
+
+        Colliders = new List<OrientedBoundingBox>();
+        CheckpointColliders = new List<OrientedBoundingBox>();
+
+        LoadTrack();
+        LoadObstacles();
+        LoadSigns();
+        LoadPickups();
+        LoadCheckpoints();
+        LoadSpriteBatch();
+        LoadColliders();
+        LoadSkyBox();
+    }
+
+    public abstract void Update(GameTime gameTime);
 
 
-        abstract protected void LoadTrack();
+    abstract protected void LoadTrack();
 
-        abstract protected void LoadObstacles();
+    abstract protected void LoadObstacles();
 
-        abstract protected void LoadColliders();
+    abstract protected void LoadColliders();
 
-        abstract protected void LoadPickups();
+    abstract protected void LoadPickups();
 
-        abstract protected void LoadSigns();
+    abstract protected void LoadSigns();
 
-        abstract protected void LoadCheckpoints();
+    abstract protected void LoadCheckpoints();
 
 
 
@@ -114,11 +126,12 @@ namespace TGC.MonoGame.TP.Stages;
     public TextureCube SkyBoxTexture;
     public Effect SkyBoxEffect;
     public SkyBox SkyBox;
-    public void LoadSkyBox(){
+    public void LoadSkyBox()
+    {
         SkyBoxModel = Content.Load<Model>(ContentFolder3D + "skybox/cube");
-        SkyBoxTexture =Content.Load<TextureCube>(ContentFolderTextures+"skyboxes/islands/islands");
+        SkyBoxTexture = Content.Load<TextureCube>(ContentFolderTextures + "skyboxes/skybox/skybox");
         SkyBoxEffect = Content.Load<Effect>(ContentFolderEffects + "SkyBox");
-        SkyBox=new SkyBox(SkyBoxModel, SkyBoxTexture, SkyBoxEffect, 1000);
+        SkyBox = new SkyBox(SkyBoxModel, SkyBoxTexture, SkyBoxEffect, 2000);
     }
 
 

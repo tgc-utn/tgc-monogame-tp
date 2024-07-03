@@ -92,6 +92,22 @@ namespace TGC.MonoGame.TP.Collisions
         }
 
         /// <summary>
+        ///     Gets the closest point to the box.
+        /// </summary>
+        /// <param name="box">A <see cref="OrientedBoundingBox"/> to calculate the closest point</param>
+        /// <param name="point">The point to find the closest point from</param>
+        /// <returns>The position inside the box that is closer to the given point</returns>
+        public static Vector3 ClosestPoint(OrientedBoundingBox box, Vector3 point)
+        {
+            var min = -box.Extents;
+            var max = box.Extents;
+            point.X = MathHelper.Clamp(point.X, min.X, max.X);
+            point.Y = MathHelper.Clamp(point.Y, min.Y, max.Y);
+            point.Z = MathHelper.Clamp(point.Z, min.Z, max.Z);
+            return point;
+        }
+
+        /// <summary>
         ///     Gets the normal vector from a point in the box surface.
         /// </summary>
         /// <param name="box">A <see cref="BoundingBox"/> to calculate the normal</param>
@@ -104,6 +120,43 @@ namespace TGC.MonoGame.TP.Collisions
 
             point -= GetCenter(box);
             var extents = GetExtents(box);
+
+            var distance = MathF.Abs(extents.X - Math.Abs(point.X));
+            if (distance < min)
+            {
+                min = distance;
+                normal = Math.Sign(point.X) * Vector3.UnitX;
+                // Cardinal axis for X            
+            }
+            distance = Math.Abs(extents.Y - Math.Abs(point.Y));
+            if (distance < min)
+            {
+                min = distance;
+                normal = Math.Sign(point.Y) * Vector3.UnitY;
+                // Cardinal axis for Y            
+            }
+            distance = Math.Abs(extents.Z - Math.Abs(point.Z));
+            if (distance < min)
+            {
+                normal = Math.Sign(point.Z) * Vector3.UnitZ;
+                // Cardinal axis for Z            
+            }
+            return normal;
+        }
+
+        /// <summary>
+        ///     Gets the normal vector from a point in the box surface.
+        /// </summary>
+        /// <param name="box">A <see cref="OrientedBoundingBox"/> to calculate the normal</param>
+        /// <param name="point">The point in the surface of the box</param>
+        /// <returns>The normal vector of the surface in which the point is in</returns>
+        public static Vector3 GetNormalFromPoint(OrientedBoundingBox box, Vector3 point)
+        {
+            var normal = Vector3.Zero;
+            var min = float.MaxValue;
+
+            point -= box.Center;
+            var extents = box.Extents;
 
             var distance = MathF.Abs(extents.X - Math.Abs(point.X));
             if (distance < min)

@@ -1,16 +1,14 @@
 using System;
 using System.Linq;
-using System.Runtime.Intrinsics.Arm;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using TGC.MonoGame.TP.Camera;
 using TGC.MonoGame.TP.Stages;
 using TGC.MonoGame.TP.Collisions;
-using TGC.MonoGame.TP.Geometries;
-using TGC.MonoGame.TP.MainCharacter;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -19,6 +17,9 @@ namespace TGC.MonoGame.TP.MainCharacter
         const string ContentFolder3D = "3D/";
         const string ContentFolderEffects = "Effects/";
         const string ContentFolderTextures = "Textures/";
+
+        const string ContentFolderMusic = "Music/";
+        const string ContentFolderSounds = "Sounds/";
 
         string TexturePath;
 
@@ -31,29 +32,30 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Material CurrentMaterial = Material.RustedMetal;
 
-        //public Vector3 Position;
-        //Vector3 Velocity;
-        //Vector3 Acceleration = Vector3.Zero;
-        //Quaternion Rotation = Quaternion.Identity;
-        //Vector3 RotationAxis = Vector3.UnitY;
-        //float RotationAngle = 0f;
+
+
+        // Checkpoints
+        public Vector3 LastCheckpoint;
+        public bool FinishedStage;
+        private OrientedBoundingBox ObbLastCheckpoint;
+        // Checkpoints
+
+        // Sonidos
+        public SoundEffect CheckpointSound;
+        public SoundEffectInstance CheckpointSoundInstance;
+        public SoundEffect FinalStageSound;
+        public SoundEffectInstance FinalStageSoundInstance;
+        public SoundEffect MovementSound;
+        public SoundEffectInstance MovementSoundInstance;
+        public SoundEffect JumpSound;
+        public SoundEffectInstance JumpSoundInstance;
+        // Sonidos
 
 
         // Colisiones
         public BoundingSphere EsferaBola { get; set; }
-        public bool OnGround { get; set; }
+        public Vector3 contactPoint { get; set; }
         public Stage ActualStage;
-        public struct Face
-        {
-            public Vector3 Normal;
-            public Vector3[] Vertices;
-
-            public Face(Vector3 normal, Vector3[] vertices)
-            {
-                Normal = normal;
-                Vertices = vertices;
-            }
-        }
         // Colisiones
 
         Vector3 BallSpinAxis = Vector3.UnitX;
@@ -62,9 +64,6 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Vector3 LightPos { get; set; }
         public Matrix Spin;
-
-        //Vector3 startPos;
-
 
         public Vector3 ForwardVector = Vector3.UnitX;
 
@@ -76,10 +75,29 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             ActualStage = stage;
 
+            LastCheckpoint = stage.CharacterInitialPosition;
+
+            FinishedStage = false;
+
+            InitializeSounds();
             InitializeEffect();
             InitializeSphere(stage.CharacterInitialPosition);
             InitializeTextures();
             InitializeLight();
+        }
+        void InitializeSounds()
+        {
+            CheckpointSound = Content.Load<SoundEffect>(ContentFolderSounds + "checkpoint");
+            CheckpointSoundInstance = CheckpointSound.CreateInstance();
+
+            FinalStageSound = Content.Load<SoundEffect>(ContentFolderSounds + "act_cleared");
+            FinalStageSoundInstance = FinalStageSound.CreateInstance();
+
+            MovementSound = Content.Load<SoundEffect>(ContentFolderSounds + "moving");
+            MovementSoundInstance = MovementSound.CreateInstance();
+
+            JumpSound = Content.Load<SoundEffect>(ContentFolderSounds + "jump");
+            JumpSoundInstance = JumpSound.CreateInstance();
         }
         void InitializeLight()
         {
@@ -104,7 +122,7 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         private void UpdateBBSphere(Vector3 center)
         {
-            EsferaBola = new BoundingSphere(center, 10f);
+            EsferaBola = new BoundingSphere(center, 12.5f);
         }
 
         private void InitializeEffect()
@@ -133,6 +151,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             Effect.Parameters["matInverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(WorldWithBallSpin)));
             Effect.Parameters["lightPosition"].SetValue(LightPos);
             Effect.Parameters["lightColor"].SetValue(new Vector3(253, 251, 211));
+            Effect.GraphicsDevice.BlendState = BlendState.Opaque;
             Sphere.Meshes.FirstOrDefault().Draw();
         }
 
@@ -184,7 +203,6 @@ namespace TGC.MonoGame.TP.MainCharacter
             {
                 CurrentMaterial = NewMaterial;
                 SwitchMaterial();
-                LoadTextures();
             }
 
         }
@@ -228,11 +246,14 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         public float DistanceToGround(Vector3 pos)
         {
-            float dist = 1000000.0f;
-            foreach (BoundingBox box in ActualStage.Colliders)
+            float dist = 10000000.0f;
+            //float dist = float.MaxValue;
+            foreach (OrientedBoundingBox box in ActualStage.Colliders)
             {
+                if (box is null)
+                    continue;
                 Ray tempRay = new Ray(pos, -Vector3.Up);
-                float? tempDist = tempRay.Intersects(box);
+                float? tempDist = box.Intersects(tempRay);
 
                 if (dist > tempDist)
                 {
@@ -243,12 +264,67 @@ namespace TGC.MonoGame.TP.MainCharacter
             return dist;
         }
 
+        public void UpdateLastCheckpoint()
+        {
+            OrientedBoundingBox nearestCheckpoint = null;
+            bool foundCheckpoint = false;
+
+            foreach (OrientedBoundingBox box in ActualStage.CheckpointColliders)
+            {
+                if (box is null)
+                    continue;
+
+                if (box.Intersects(EsferaBola))
+                {
+                    if (nearestCheckpoint == null || ActualStage.CheckpointColliders.IndexOf(box) > ActualStage.CheckpointColliders.IndexOf(nearestCheckpoint))
+                    {
+                        nearestCheckpoint = box;
+                        foundCheckpoint = true;
+                    }
+                }
+            }
+
+            if (foundCheckpoint)
+            {
+                LastCheckpoint = nearestCheckpoint.Center + (Vector3.One * EsferaBola.Radius);
+                ObbLastCheckpoint = nearestCheckpoint;
+
+                CheckpointSound.Play();
+
+                // Verificar si es el último checkpoint
+                if (ActualStage.CheckpointColliders.IndexOf(ObbLastCheckpoint) == ActualStage.CheckpointColliders.Count - 1)
+                {
+                    // Imprimir algún mensaje o cambiar de nivel
+                    FinishedStage = true;
+                    MediaPlayer.Stop();
+                    FinalStageSound.Play();
+                    ObbLastCheckpoint = null; // Reiniciar el último checkpoint, si es necesario
+                }
+            }
+        }
+
+        public bool IsColliding()
+        {
+            foreach (OrientedBoundingBox box in ActualStage.Colliders)
+            {
+                if (box is null)
+                    continue;
+                if (box.Intersects(EsferaBola))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public bool IsOnGround(Vector3 pos)
         {
-            foreach (BoundingBox box in ActualStage.Colliders)
+            foreach (OrientedBoundingBox box in ActualStage.Colliders)
             {
+                if (box is null)
+                    continue;
                 Ray tempRay = new Ray(pos, -Vector3.Up);
-                float? dist = tempRay.Intersects(box);
+                float? dist = box.Intersects(tempRay);
                 if (dist.HasValue && dist <= 12.5f)
                 {
                     return true;
@@ -257,46 +333,12 @@ namespace TGC.MonoGame.TP.MainCharacter
             return false;
         }
 
-        public bool IsColliding()
+        Vector3 getCollisionNormalNEW(BoundingSphere sphere, OrientedBoundingBox box)
         {
-            foreach (BoundingBox box in ActualStage.Colliders)
-            {
-                if (EsferaBola.Intersects(box))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static Vector3 GetCollisionPoint(BoundingSphere sphere, BoundingBox box)
-        {
-            // Encuentra el punto más cercano en la superficie de la caja al centro de la esfera
-            Vector3 closestPoint = Vector3.Clamp(sphere.Center, box.Min, box.Max);
-
-            // Calcula la dirección desde el punto más cercano al centro de la esfera
-            Vector3 direction = sphere.Center - closestPoint;
-
-            // Si la dirección es cero, el centro de la esfera está dentro de la caja, podemos retornar el punto más cercano
-            if (direction == Vector3.Zero)
-            {
-                return closestPoint;
-            }
-
-            // Normaliza la dirección
-            direction.Normalize();
-
-            // Calcula el punto exacto de colisión en la superficie de la esfera
-            Vector3 collisionPoint = closestPoint + direction * sphere.Radius;
-
-            return collisionPoint;
-        }
-
-        Vector3 getCollisionNormalNEW(BoundingSphere sphere, BoundingBox box)
-        {
-            Vector3 puntoContacto = GetCollisionPoint(sphere, box);
+            Vector3 puntoContacto = box.ClosestPointTo(sphere.Center);
             return Vector3.Normalize(sphere.Center - puntoContacto);
         }
+
         public void ProcessCollisionNEW(float deltaTime)
         {
             Vector3 oldPosition = Position;
@@ -305,37 +347,46 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             UpdateBBSphere(newPosition);
 
-            bool collisionDetected = false;
-            bool isOnGround = IsOnGround(newPosition); // Verificar si está en el suelo en la nueva posición
-            //bool isOnGround = false;
+            Vector3 desirePosition = newPosition;
+            Vector3 surfaceNormal = Vector3.Zero;
 
-            foreach (BoundingBox collider in ActualStage.Colliders)
+            float squareRadius = EsferaBola.Radius * EsferaBola.Radius;
+            foreach (var collider in ActualStage.Colliders)
             {
-                if (EsferaBola.Intersects(collider))
+                if (collider is null)
+                    continue;
+
+                Vector3 puntoContacto = collider.ClosestPointTo(EsferaBola.Center);
+                float distanceToSquared = Vector3.DistanceSquared(puntoContacto, EsferaBola.Center);
+                if (distanceToSquared <= squareRadius)
                 {
-                    collisionDetected = true;
+                    contactPoint = puntoContacto;
 
                     // Manejar la colisión
-                    Vector3 surfaceNormal = getCollisionNormalNEW(EsferaBola, collider);
+                    surfaceNormal = getCollisionNormalNEW(EsferaBola, collider);
 
-                    // Determinar si la colisión es con el suelo (por ejemplo, si la normal es vertical hacia arriba)
-                    if (Math.Abs(surfaceNormal.Y) > 0f) // Ajusta este valor según tu escenario
-                    {
-                        isOnGround = true;
-                    }
-                    Velocity = Vector3.Reflect(Velocity, surfaceNormal);
-                    movement = Velocity * deltaTime * deltaTime * 0.5f;
-                    newPosition = oldPosition + movement;
+                    // Determinar si la colisión es con el suelo (por ejemplo, si la normal es vertical hacia arriba)                    
+                    newPosition = contactPoint + surfaceNormal * EsferaBola.Radius;
                     UpdateBBSphere(newPosition);
                 }
             }
 
-            // Actualizar la posición solo si no hubo colisión con el suelo o está en el suelo
-            if (!collisionDetected || isOnGround)
+            // Calculamos la diferencia entre la nueva posición y la "anterior"
+            float difference = Vector3.Distance(newPosition, oldPosition);
+
+            // Modificamos la velocidad en base a la colisión
+            float newVelocity = Vector3.Dot(Velocity, -surfaceNormal);
+            Velocity += 1.5f * newVelocity * surfaceNormal;
+
+            Position = newPosition;
+
+            if (IsOnGround(newPosition) && newPosition != oldPosition && difference > 0.3f)
             {
-                Position = newPosition;
-                UpdateBBSphere(Position);
+                MovementSoundInstance.Play();
             }
+
+            UpdateBBSphere(newPosition);
+
         }
 
         public void ChangeDirection(float angle)
@@ -344,18 +395,35 @@ namespace TGC.MonoGame.TP.MainCharacter
             RightVector = Vector3.Transform(Vector3.UnitZ, Matrix.CreateRotationY(angle));
         }
 
-
         private void ProcessMovement(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            float speed = 100f;
+            float speed;
+            switch (CurrentMaterial)
+            {
+                case Material.Grass:
+                    speed = 95f;
+                    break;
+                case Material.Gold:
+                    speed = 115f;
+                    break;
+                case Material.Marble:
+                    speed = 80f;
+                    break;
+                case Material.Metal:
+                    speed = 100f;
+                    break;
+                default:
+                    speed = 150f;
+                    break;
+            }
 
             // Capturar Input teclado
             var keyboardState = Keyboard.GetState();
 
-            // Procesamiento del movimiento horizontal
+            // Procesamiento del movimiento horizontal           
             if (keyboardState.IsKeyDown(Keys.Right) || keyboardState.IsKeyDown(Keys.D))
             {
                 Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation); //amtes unitx
@@ -363,7 +431,6 @@ namespace TGC.MonoGame.TP.MainCharacter
             if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
                 Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation) * (-1);
-
             }
             if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
@@ -372,24 +439,33 @@ namespace TGC.MonoGame.TP.MainCharacter
             if (keyboardState.IsKeyDown(Keys.Down) || keyboardState.IsKeyDown(Keys.S))
             {
                 Acceleration += Vector3.Transform(RightVector * speed, Rotation) * (-1);
-
             }
 
             Acceleration += new Vector3(0f, -100f, 0f);
 
             //Procesamiento del movimiento vertical
             float distGround = DistanceToGround(Position);
-            if (Keyboard.GetState().IsKeyDown(Keys.Space) && (distGround <= 12.5f || IsColliding()))
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && (distGround <= 12.5f || (IsColliding() && IsOnGround(Position))))
             {
+                JumpSoundInstance.Play();
                 // Seteo la velocidad vertical en 0 para que el salto sea siempre a la misma distancia
                 Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
                 Velocity += Vector3.Up * speed * 100f;
             }
 
-
             Vector3 HorizontalVelocity = new Vector3(Velocity.X, 0, Velocity.Z);
             BallSpinAngle += HorizontalVelocity.Length() * elapsedTime * elapsedTime / (MathHelper.Pi * 12.5f);
-            BallSpinAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, Velocity));
+
+            // se normaliza el vector yCrossVelocity solo si alguna de componentes es distinta de 0
+            Vector3 yCrossVelocity = Vector3.Cross(Vector3.UnitY, Velocity);
+            if (Math.Abs(yCrossVelocity.X) > 0 || Math.Abs(yCrossVelocity.Y) > 0 || Math.Abs(yCrossVelocity.Z) > 0)
+            {
+                BallSpinAxis = Vector3.Normalize(yCrossVelocity);
+            }
+            else
+            {
+                BallSpinAxis = Vector3.Zero;
+            }
 
             if (Acceleration == Vector3.Zero || Vector3.Dot(Acceleration, Velocity) < 0)
             {
@@ -406,10 +482,12 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             MoveTo(Position);
 
+            UpdateLastCheckpoint();
+
             // Resetea la posición inicial del nivel si se cae al vacío
-            if (Position.Y < -200)
+            if (Position.Y < -500)
             {
-                Position = ActualStage.CharacterInitialPosition;
+                Position = LastCheckpoint;
                 Velocity = Vector3.Zero;
                 MoveTo(Position);
                 UpdateBBSphere(Position);

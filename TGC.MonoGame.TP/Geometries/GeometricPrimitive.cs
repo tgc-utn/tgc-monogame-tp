@@ -71,7 +71,7 @@ namespace TGC.MonoGame.TP.Geometries
             if (index > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            Indices.Add((ushort) index);
+            Indices.Add((ushort)index);
         }
 
         /// <summary>
@@ -83,7 +83,8 @@ namespace TGC.MonoGame.TP.Geometries
         ///     Once all the geometry has been specified by calling AddVertex and AddIndex, this method copies the vertex and index
         ///     data into GPU format buffers, ready for efficient rendering.
         /// </summary>
-         protected void InitializePrimitive(GraphicsDevice graphicsDevice, ContentManager content, Effect? primitiveEffect = null) {
+        protected void InitializePrimitive(GraphicsDevice graphicsDevice, ContentManager content, Effect? primitiveEffect = null)
+        {
             // Create a vertex declaration, describing the format of our vertex data.
 
             // Create a vertex buffer, and copy our vertex data into it.
@@ -97,9 +98,9 @@ namespace TGC.MonoGame.TP.Geometries
             IndexBuffer.SetData(Indices.ToArray());
 
             Effect = primitiveEffect ?? content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            
+
         }
-        
+
 
         /// <summary>
         ///     Finalizer.
@@ -157,7 +158,7 @@ namespace TGC.MonoGame.TP.Geometries
                 graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, primitiveCount);
             }
         }
-        
+
         public void Draw(Matrix view, Matrix projection)
         {
             // Set Effect parameters.

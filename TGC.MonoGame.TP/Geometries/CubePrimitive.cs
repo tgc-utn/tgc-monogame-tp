@@ -11,9 +11,11 @@
 
 #region Using Statements
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Collisions;
 
 #endregion Using Statements
 
@@ -29,10 +31,7 @@ namespace TGC.MonoGame.TP.Geometries
         ///     Constructs a new cube primitive.
         /// </summary>
         /// 
-        public BoundingBox BoundingCube { get; set; }
-        private Vector3 minVert;
-        private Vector3 maxVert;
-
+        public OrientedBoundingBox BoundingCube { get; set; }
         public CubePrimitive(
                 GraphicsDevice graphicsDevice,
                 ContentManager content,
@@ -40,8 +39,8 @@ namespace TGC.MonoGame.TP.Geometries
                 float size = 25f,
                 Vector3? coordinates = null,
                 Vector3? scale = null,
-                //BoundingBox? boundingBox = null,
-                Matrix? rotation = null
+                Matrix? rotation = null,
+                string? Text = ""
             )
         {
 
@@ -92,16 +91,10 @@ namespace TGC.MonoGame.TP.Geometries
             }
 
             World = Matrix.CreateScale(scale ?? Vector3.One) * (rotation ?? Matrix.Identity) * Matrix.CreateTranslation(coordinates ?? Vector3.Zero);
-
-            if (coordinates.HasValue && scale.HasValue)
-            {
-                Vector3 regularCoordinates = coordinates.Value; // Convertir Vector3? a Vector3
-                Vector3 regularSize = scale.Value * 25;
-                // Ahora puedes usar regularVector, que es de tipo Vector3
-                BoundingCube = new BoundingBox(regularCoordinates - regularSize / 2, regularCoordinates + regularSize / 2);
-            }
             
-
+            BoundingCube = new OrientedBoundingBox(coordinates ?? Vector3.Zero, (scale ?? Vector3.One) * 25 / 2);
+            BoundingCube.Rotate(rotation ?? Matrix.Identity);
+                
             InitializePrimitive(graphicsDevice, content);
         }
     }
