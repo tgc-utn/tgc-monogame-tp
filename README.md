@@ -24,10 +24,10 @@ Click Izquierdo = Disparo de cañon
 
 TGC, Tgcito  |  Apellido, Nombre
 ------------ | -------------
-| ![Lucas Gelabert](/FotosTGCitos/Lucas%20Gelabert.jpg)       | Lucas Gelabert    |
-| ![Santiago Saucedo](/FotosTGCitos/Santiago%20Saucedo.jpg)   | Santiago Saucedo  |
-| ![Simon Cutrera](/FotosTGCitos/Simon%20Cutrera.jpg)         | Simon Cutrera     |
-| ![Tomas Zubizarreta](/FotosTGCitos/Tomas%20Zubizarreta.jpg) | Tomas Zubizarreta |
+| ![Lucas Gelabert](/FotosTGCitos/Lucas%20Gelabert.png)       | Lucas Gelabert    |
+| ![Santiago Saucedo](/FotosTGCitos/Santiago%20Saucedo.png)   | Santiago Saucedo  |
+| ![Simon Cutrera](/FotosTGCitos/Simon%20Cutrera.png)         | Simon Cutrera     |
+| ![Tomas Zubizarreta](/FotosTGCitos/Tomas%20Zubizarreta.png) | Tomas Zubizarreta |
 
 ## Capturas
 
