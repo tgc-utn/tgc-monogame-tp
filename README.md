@@ -33,6 +33,6 @@ TGC, Tgcito  |  Apellido, Nombre
 
 ![Menu](/FotosGameplay/Menu.png)
 
-![Gameplay](/FotosGameplay/GamePlay.png)
+![Gameplay](/FotosGameplay/Gameplay.png)
 
 ## Game Play
