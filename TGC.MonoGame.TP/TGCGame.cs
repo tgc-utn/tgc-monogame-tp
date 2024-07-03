@@ -9,6 +9,7 @@ using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Stages;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TGC.MonoGame.TP
 {
@@ -96,6 +97,8 @@ namespace TGC.MonoGame.TP
         ///     que podemos pre calcular para nuestro juego.
         /// </summary>
         public Effect BallEffect;
+
+
 
 
         protected override void LoadContent()

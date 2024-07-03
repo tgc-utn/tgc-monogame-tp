@@ -10,6 +10,7 @@ using TGC.MonoGame.TP.MainCharacter;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.Samples.Samples.Shaders.SkyBox;
 using TGC.MonoGame.TP;
+using Microsoft.Xna.Framework.Media;
 
 
 namespace TGC.MonoGame.TP.Stages;
@@ -40,6 +41,9 @@ public abstract class Stage
         SpriteBatch.Begin();
 
     }
+
+    // Música de fondo
+    public Song BackgroundMusic;
 
 
     //COLISIONES

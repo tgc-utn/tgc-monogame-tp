@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Stages;
 
@@ -9,47 +10,52 @@ class Stage_02 : Stage
 {
 
     public Stage_02(GraphicsDevice graphicsDevice, ContentManager content) :
-        base(graphicsDevice, content, characterPosition: new Vector3(300f, 25f, 0f)) { }
+        base(graphicsDevice, content, characterPosition: new Vector3(300f, 25f, 0f))
+    {
+        BackgroundMusic = Content.Load<Song>(ContentFolderMusic + "stage_02");
+        MediaPlayer.Play(BackgroundMusic);
+        MediaPlayer.IsRepeating = true;
+    }
 
     protected override void LoadColliders()
     {
-        for(int i=0; i < Track.Count; i++)
+        for (int i = 0; i < Track.Count; i++)
         {
             GeometricPrimitive objetoActual = Track[i];
-            if(objetoActual is CubePrimitive)
+            if (objetoActual is CubePrimitive)
             {
                 CubePrimitive aux = (CubePrimitive)objetoActual;
                 Colliders.Add(aux.BoundingCube);
             }
-            if(objetoActual is RampPrimitive)
+            if (objetoActual is RampPrimitive)
             {
                 RampPrimitive aux = (RampPrimitive)objetoActual;
-                foreach(var boundingRamp in aux.BoundingRamps)
+                foreach (var boundingRamp in aux.BoundingRamps)
                 {
                     Colliders.Add(boundingRamp);
                 }
             }
         }
 
-        for(int i=0; i < Obstacles.Count; i++)
+        for (int i = 0; i < Obstacles.Count; i++)
         {
             CubePrimitive cuboActual = (CubePrimitive)Obstacles[i];
             Colliders.Add(cuboActual.BoundingCube);
         }
 
-        for(int i=0; i < Signs.Count; i++)
+        for (int i = 0; i < Signs.Count; i++)
         {
             CubePrimitive cuboActual = (CubePrimitive)Signs[i];
             Colliders.Add(cuboActual.BoundingCube);
         }
 
-        for(int i=0; i < Pickups.Count; i++)
+        for (int i = 0; i < Pickups.Count; i++)
         {
             //Geometric cuboActual = Pickups[i];
             //Colliders.Add(cuboActual.BoundingCube);
         }
 
-        for(int i=0; i < Checkpoints.Count; i++)
+        for (int i = 0; i < Checkpoints.Count; i++)
         {
             CubePrimitive cuboActual = (CubePrimitive)Checkpoints[i];
             CheckpointColliders.Add(cuboActual.BoundingCube);

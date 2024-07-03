@@ -144,6 +144,42 @@
 /processorParam:TextureFormat=Compressed
 /build:Models/tgc-logo/tgc-logo.fbx
 
+#begin Music/stage_01.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/stage_01.mp3
+
+#begin Music/stage_02.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Music/stage_02.mp3
+
+#begin Sounds/act_cleared.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/act_cleared.mp3
+
+#begin Sounds/checkpoint.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/checkpoint.mp3
+
+#begin Sounds/jump.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/jump.mp3
+
+#begin Sounds/moving.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/moving.mp3
+
 #begin Textures/floor/tiling-base.png
 /importer:TextureImporter
 /processor:TextureProcessor

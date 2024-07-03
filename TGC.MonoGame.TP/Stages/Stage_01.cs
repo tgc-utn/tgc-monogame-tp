@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Stages;
 
@@ -11,7 +12,12 @@ class Stage_01 : Stage
 
     public Stage_01(GraphicsDevice graphicsDevice, ContentManager content) :
         base(graphicsDevice, content, characterPosition: new Vector3(25, 40, -800))
-    { }
+    { 
+        BackgroundMusic = Content.Load<Song>(ContentFolderMusic + "stage_01");
+        MediaPlayer.Volume = 0.25f;
+        MediaPlayer.Play(BackgroundMusic);
+        MediaPlayer.IsRepeating = true;
+    }
 
     protected override void LoadColliders()
     {

@@ -7,6 +7,8 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Stages;
 using TGC.MonoGame.TP.Collisions;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace TGC.MonoGame.TP.MainCharacter
 {
@@ -15,6 +17,9 @@ namespace TGC.MonoGame.TP.MainCharacter
         const string ContentFolder3D = "3D/";
         const string ContentFolderEffects = "Effects/";
         const string ContentFolderTextures = "Textures/";
+
+        const string ContentFolderMusic = "Music/";
+        const string ContentFolderSounds = "Sounds/";
 
         string TexturePath;
 
@@ -27,11 +32,24 @@ namespace TGC.MonoGame.TP.MainCharacter
 
         Material CurrentMaterial = Material.RustedMetal;
 
+
+
         // Checkpoints
         public Vector3 LastCheckpoint;
         public bool FinishedStage;
         private OrientedBoundingBox ObbLastCheckpoint;
         // Checkpoints
+
+        // Sonidos
+        public SoundEffect CheckpointSound;
+        public SoundEffectInstance CheckpointSoundInstance;
+        public SoundEffect FinalStageSound;
+        public SoundEffectInstance FinalStageSoundInstance;
+        public SoundEffect MovementSound;
+        public SoundEffectInstance MovementSoundInstance;
+        public SoundEffect JumpSound;
+        public SoundEffectInstance JumpSoundInstance;
+        // Sonidos
 
 
         // Colisiones
@@ -61,10 +79,25 @@ namespace TGC.MonoGame.TP.MainCharacter
 
             FinishedStage = false;
 
+            InitializeSounds();
             InitializeEffect();
             InitializeSphere(stage.CharacterInitialPosition);
             InitializeTextures();
             InitializeLight();
+        }
+        void InitializeSounds()
+        {
+            CheckpointSound = Content.Load<SoundEffect>(ContentFolderSounds + "checkpoint");
+            CheckpointSoundInstance = CheckpointSound.CreateInstance();
+
+            FinalStageSound = Content.Load<SoundEffect>(ContentFolderSounds + "act_cleared");
+            FinalStageSoundInstance = FinalStageSound.CreateInstance();
+
+            MovementSound = Content.Load<SoundEffect>(ContentFolderSounds + "moving");
+            MovementSoundInstance = MovementSound.CreateInstance();
+
+            JumpSound = Content.Load<SoundEffect>(ContentFolderSounds + "jump");
+            JumpSoundInstance = JumpSound.CreateInstance();
         }
         void InitializeLight()
         {
@@ -256,11 +289,15 @@ namespace TGC.MonoGame.TP.MainCharacter
                 LastCheckpoint = nearestCheckpoint.Center + (Vector3.One * EsferaBola.Radius);
                 ObbLastCheckpoint = nearestCheckpoint;
 
+                CheckpointSound.Play();
+
                 // Verificar si es el último checkpoint
                 if (ActualStage.CheckpointColliders.IndexOf(ObbLastCheckpoint) == ActualStage.CheckpointColliders.Count - 1)
                 {
                     // Imprimir algún mensaje o cambiar de nivel
                     FinishedStage = true;
+                    MediaPlayer.Stop();
+                    FinalStageSound.Play();
                     ObbLastCheckpoint = null; // Reiniciar el último checkpoint, si es necesario
                 }
             }
@@ -331,18 +368,23 @@ namespace TGC.MonoGame.TP.MainCharacter
                     // Determinar si la colisión es con el suelo (por ejemplo, si la normal es vertical hacia arriba)                    
                     newPosition = contactPoint + surfaceNormal * EsferaBola.Radius;
                     UpdateBBSphere(newPosition);
-
                 }
             }
 
             // Calculamos la diferencia entre la nueva posición y la "anterior"
-            float difference = Vector3.Distance(newPosition, desirePosition);
+            float difference = Vector3.Distance(newPosition, oldPosition);
 
             // Modificamos la velocidad en base a la colisión
             float newVelocity = Vector3.Dot(Velocity, -surfaceNormal);
             Velocity += 1.5f * newVelocity * surfaceNormal;
 
             Position = newPosition;
+
+            if (IsOnGround(newPosition) && newPosition != oldPosition && difference > 0.3f)
+            {
+                MovementSoundInstance.Play();
+            }
+
             UpdateBBSphere(newPosition);
 
         }
@@ -389,7 +431,6 @@ namespace TGC.MonoGame.TP.MainCharacter
             if (keyboardState.IsKeyDown(Keys.Left) || keyboardState.IsKeyDown(Keys.A))
             {
                 Acceleration += Vector3.Transform(ForwardVector * -speed, Rotation) * (-1);
-
             }
             if (keyboardState.IsKeyDown(Keys.Up) || keyboardState.IsKeyDown(Keys.W))
             {
@@ -406,6 +447,7 @@ namespace TGC.MonoGame.TP.MainCharacter
             float distGround = DistanceToGround(Position);
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && (distGround <= 12.5f || (IsColliding() && IsOnGround(Position))))
             {
+                JumpSoundInstance.Play();
                 // Seteo la velocidad vertical en 0 para que el salto sea siempre a la misma distancia
                 Velocity = new Vector3(Velocity.X, 0f, Velocity.Z);
                 Velocity += Vector3.Up * speed * 100f;
