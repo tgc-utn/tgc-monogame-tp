@@ -580,17 +580,25 @@ namespace ThunderingTanks
 
                 Gizmos.DrawCube((casa.BoundingBox.Max + casa.BoundingBox.Min) / 2f, casa.BoundingBox.Max - casa.BoundingBox.Min, Color.Red);
                 Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents * 2, Color.Green);
-                //Gizmos.DrawPolyLine(Panzer.TankVertices, Color.Green);
                 Gizmos.DrawFrustum((_targetCamera.View * _targetCamera.Projection), Color.White);
 
-                Ray ray = new(Panzer.Direction + new Vector3(400f, 210f, 400f) * new Vector3(-camera.View.Forward.X, 1, camera.View.Forward.Z), new Vector3(-camera.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camera.View.Forward.Z));
+                var RayOrigin = Panzer.Direction + new Vector3(0f, 210f, 0f);
 
-                Vector3 NormalizedCanonDirection = Vector3.Normalize(new Vector3(-camera.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camera.View.Forward.Z));
+                Ray ray = new(RayOrigin, Panzer.CannonMatrix.Backward);
 
-                _hud.RayDirection = ray.Position + NormalizedCanonDirection;
-                _hud.RayPosition = ray.Position;
+                foreach(var enemyTank in EnemyTanks)
+                {
+                    if(ray.Intersects(enemyTank.TankBox) != null)
+                        Gizmos.DrawLine(RayOrigin, RayOrigin + Panzer.CannonMatrix.Backward * 10000f, Color.Red);
+                    else
+                        Gizmos.DrawLine(RayOrigin, RayOrigin + Panzer.CannonMatrix.Backward * 10000f, Color.Blue);
 
-                Gizmos.DrawLine(ray.Position, (ray.Position + NormalizedCanonDirection * 1000), Color.Blue);
+                }   
+
+                _hud.RayDirection = RayOrigin + Panzer.CannonMatrix.Backward;
+                _hud.RayPosition = RayOrigin;
+
+                //Gizmos.DrawLine(RayOrigin, RayOrigin + Panzer.TurretMatrix.Backward * 10000f, Color.Blue);
 
                 if (DrawGizmos)
                 {
@@ -763,14 +771,13 @@ namespace ThunderingTanks
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                 {
                     Panzer.ReceiveDamage(ref _juegoIniciado);
-                    Console.WriteLine($"Posicion Projectil = {Projectiles[j].Direction}");
+                    Panzer.damaged = true;
 
                     Panzer.RecibirImpacto(Projectiles[j].Direction, 0);
-                    Panzer.damaged = true;
                     Panzer.CollidingPosition = Projectiles[j].Position + deltaY;
-                    Projectiles.Remove(Projectiles[j]);
-                    Console.WriteLine("Colisión detectada de proyectil con una roca.");
 
+                    Projectiles.Remove(Projectiles[j]);
+                    break;
                 }
 
                 if (Projectiles.Count <= j || Projectiles.Count == 0)
@@ -780,8 +787,6 @@ namespace ThunderingTanks
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(Rocas[i].RocaBox))
                     {
-                        Console.WriteLine("Colisión detectada de proyectil con una roca.");
-
                         Projectiles.Remove(Projectiles[j]);
                         Rocas.Remove(Rocas[i]);
                         break;
@@ -795,33 +800,39 @@ namespace ThunderingTanks
                 {
                     if (Projectiles[j].ProjectileBox.Intersects(EnemyTanks[i].TankBox))
                     {
-                        Console.WriteLine("Colisión detectada de proyectil con un tanque enemigo.");
-
                         Projectiles.Remove(Projectiles[j]);
+
                         EnemyTanks[i].life -= 5;
+
                         if (EnemyTanks[i].life <= 0)
                         {
                             EliminatedEnemyTanks.Add(EnemyTanks[i]);
                             TanksEliminados++;
+
                             EnemyTanks.RemoveAt(i);
+
                             Puntos += (i + 1) * Oleada;
                         }
 
                         if (TanksEliminados == CantidadTanquesEnemigos)
                         {
                             AgregarTanquesEnemigos(CantidadTanquesEnemigos);
+
                             for (int k = 0; k < CantidadTanquesEnemigos; k++)
                             {
                                 enemyTank = EnemyTanks[k];
                                 enemyTank.LoadContent(Content, GraphicsDevice);
                             }
+
                             TanksEliminados = 0;
                             Oleada++;
+
                             if (Oleada == 10)
                             {
                                 Panzer._currentLife = Panzer._maxLife;
                                 Exit();
                             }
+
                         }
                         break;
                     }

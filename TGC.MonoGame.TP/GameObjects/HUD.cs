@@ -36,7 +36,7 @@ namespace ThunderingTanks.Objects
         private Texture2D CrossHairTexture;
         public bool DrawDebug { get; set; } = false;
 
-        public float Convergence { get; set; } = 2000f;
+        public float Convergence { get; set; } = 1000f;
         private Vector2 CrossHairPosition;
 
         private SpriteFont FontArial;
@@ -101,7 +101,7 @@ namespace ThunderingTanks.Objects
 
         public void Update(Tank Panzer, ref Viewport viewport, float TanksEliminados)
         {
-            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2) - 25));
+            CrossHairPosition = new Vector2(ScreenWidth / 2 - 25, (float)((Math.Tan(Panzer.GunElevation) * Convergence) + (ScreenHeight / 2) - 10));
             lifeBarTexture = lifeBar1;
 
             #region LifeBar

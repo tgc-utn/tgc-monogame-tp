@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 
@@ -74,6 +73,9 @@ namespace ThunderingTanks.Objects.Tanks
         public bool damaged;
         #endregion
 
+        public BoundingBox BoundingBox_2;
+        public BoundingBox BoundingBox_3;
+
         public float SensitivityFactor { get; set; }
 
         public float VelocidadImpacto { get; set; }
@@ -102,8 +104,11 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect = effect;
 
-            TankVertices = GetModelVertices(Tanque).ToArray();
-            TankBox = OrientedBoundingBox.ComputeFromPoints(TankVertices);
+            MaxBox = new Vector3(200, 250, 300);
+            MinBox = new Vector3(-200, 0, -300);
+            BoundingBox= new BoundingBox(MinBox, MaxBox);
+
+            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
 
             TimeSinceLastShot = FireRate;
 
@@ -111,7 +116,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect.Parameters["impacto"].SetValue(140f);
             VelocidadImpacto = -220f;
-
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState, SimpleTerrain terrain)
@@ -223,7 +227,7 @@ namespace ThunderingTanks.Objects.Tanks
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
-            TankBox.Center = Position;
+            TankBox.Center = Direction + new Vector3(0f, 125f, 0f);
             TankBox.Rotate( Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
             LastPosition = Direction;

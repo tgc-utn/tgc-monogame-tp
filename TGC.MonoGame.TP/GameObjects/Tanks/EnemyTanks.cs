@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using ThunderingTanks.Cameras;
+using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects.Tanks
 {
@@ -23,7 +24,6 @@ namespace ThunderingTanks.Objects.Tanks
         public float Rotation = 0;
 
         public BoundingBox TankBox { get; set; }
-
 
         public float TankVelocity { get; set; }
         public float TankRotation { get; set; }
@@ -46,9 +46,6 @@ namespace ThunderingTanks.Objects.Tanks
 
         public bool Stop { get; set; } = false;
 
-        public Vector3 Dimensiones1 = new(-200, 0, -300);
-        public Vector3 Dimensiones2 = new(200, 250, 300);
-
         public float shootInterval;
         public float lifeSpan;
         public float life = 5;
@@ -70,13 +67,11 @@ namespace ThunderingTanks.Objects.Tanks
 
             PanzerMatrix = Matrix.CreateTranslation(Position);
 
-            TankBox = new BoundingBox(Position + Dimensiones1, Position + Dimensiones2);
-
-            MinBox = TankBox.Min;
-            MaxBox = TankBox.Max;
+            MinBox = new(-200, 0, -300);
+            MaxBox = new(200, 250, 300);
+            TankBox = new BoundingBox(Position + MinBox, Position + MaxBox);
 
             //particleSystem = new ParticleSystem(graphicsDevice);
-
         }
 
         public void Update(GameTime gameTime, Vector3 playerPosition, SimpleTerrain terrain, GraphicsDevice graphicsDevice, Camera camera)
@@ -99,8 +94,6 @@ namespace ThunderingTanks.Objects.Tanks
             float distanceToPlayer = direction.Length();
             Direction = Vector3.Normalize(direction);
 
-
-
             if (distanceToPlayer < 2500f)
             {
                 TankVelocity = 0f;
@@ -109,10 +102,6 @@ namespace ThunderingTanks.Objects.Tanks
             {
                 TankVelocity = 0f;
                 GunRotationFinal = 0f;
-
-                //particleSystem.AddParticle(new Vector2(screenPosition.X, screenPosition.Y));
-                //particleSystem.Update(time);
-                TankBox = new BoundingBox(TankBox.Min, TankBox.Max);
             }
             else
             {
@@ -130,10 +119,8 @@ namespace ThunderingTanks.Objects.Tanks
                 else
                     trackOffset -= 0.1f;
 
-                NormalizedMovement += Position - LastPosition;
-                NormalizedMovement = new Vector3(NormalizedMovement.X, terrainHeight - 400, NormalizedMovement.Z);
+                TankBox = new BoundingBox(Position + MinBox, Position + MaxBox);
 
-                TankBox = new BoundingBox(MinBox + NormalizedMovement, MaxBox + NormalizedMovement);
             }
 
             PanzerMatrix = Matrix.CreateRotationY(Rotation) * Matrix.CreateTranslation(Position);
@@ -194,7 +181,6 @@ namespace ThunderingTanks.Objects.Tanks
         public void StopEnemy()
         {
             Stop = true;
-
         }
 
         public Projectile Shoot()
