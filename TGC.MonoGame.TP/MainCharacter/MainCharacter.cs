@@ -289,7 +289,7 @@ namespace TGC.MonoGame.TP.MainCharacter
                 }
             }
 
-            if (foundCheckpoint)
+            if (foundCheckpoint && ObbLastCheckpoint != nearestCheckpoint)
             {
                 LastCheckpoint = nearestCheckpoint.Center + new Vector3 (0f, 0f, 5f) * EsferaBola.Radius;
                 ObbLastCheckpoint = nearestCheckpoint;
