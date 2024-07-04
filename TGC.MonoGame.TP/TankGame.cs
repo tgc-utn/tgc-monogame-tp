@@ -1,15 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SharpDX.Direct2D1.Effects;
-using SharpDX.DXGI;
-using SharpFont.PostScript;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Security;
+using MonoGame.Framework;
 using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 using ThunderingTanks.Geometries;
@@ -17,6 +12,7 @@ using ThunderingTanks.Gizmos;
 using ThunderingTanks.Objects;
 using ThunderingTanks.Objects.Props;
 using ThunderingTanks.Objects.Tanks;
+using System.DirectoryServices;
 
 namespace ThunderingTanks
 {
@@ -258,7 +254,7 @@ namespace ThunderingTanks
             _staticCamera = new StaticCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(400, 200, 1300), Vector3.Forward, Vector3.Up);
             _freeCamera = new FreeCamera(GraphicsDevice.Viewport.AspectRatio, _cameraInitialPosition, screenCenter);
             _lightCamera = new StaticCamera(1f, lightPosition, Vector3.Normalize(Vector3.Zero - lightPosition), Vector3.Up);
-            _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection);
+            _cameraFrustum = new BoundingFrustum(_targetCamera.View * _targetCamera.Projection); 
             SceneRenderTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false, SurfaceFormat.Color, DepthFormat.Depth24, 0, RenderTargetUsage.DiscardContents);
             ShadowRenderTarget = new RenderTarget2D(GraphicsDevice, ShadowMapSize, ShadowMapSize, false, SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             FSQ = new FullScreenQuad(GraphicsDevice);
@@ -566,7 +562,7 @@ namespace ThunderingTanks
 
                 Camera camera;
 
-                if (freeCameraIsActivated) 
+                if (freeCameraIsActivated)
                     camera = _freeCamera;
                 else
                     camera = _targetCamera;
@@ -583,12 +579,13 @@ namespace ThunderingTanks
                 Grass.Draw(GrassPosition, camera.View, camera.Projection, Map.terrain);
 
                 Gizmos.DrawCube((casa.BoundingBox.Max + casa.BoundingBox.Min) / 2f, casa.BoundingBox.Max - casa.BoundingBox.Min, Color.Red);
-                Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.BoundingBox.Max, Color.Green);
-                Gizmos.DrawFrustum((camera.View * camera.Projection), Color.White);
+                Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents * 2, Color.Green);
+                //Gizmos.DrawPolyLine(Panzer.TankVertices, Color.Green);
+                Gizmos.DrawFrustum((_targetCamera.View * _targetCamera.Projection), Color.White);
 
                 Ray ray = new(Panzer.Direction + new Vector3(400f, 210f, 400f) * new Vector3(-camera.View.Forward.X, 1, camera.View.Forward.Z), new Vector3(-camera.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camera.View.Forward.Z));
 
-                Vector3 NormalizedCanonDirection = Vector3.Normalize( new Vector3(-camera.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camera.View.Forward.Z));
+                Vector3 NormalizedCanonDirection = Vector3.Normalize(new Vector3(-camera.View.Forward.X, Panzer.CannonMatrix.Backward.Y, camera.View.Forward.Z));
 
                 _hud.RayDirection = ray.Position + NormalizedCanonDirection;
                 _hud.RayPosition = ray.Position;
@@ -882,7 +879,7 @@ namespace ThunderingTanks
             foreach (Projectile projectile in Projectiles)
             {
                 projectile.Draw(view, projection);
-                Gizmos.DrawCube(CollisionsClass.GetCenter(projectile.BoundingBox), CollisionsClass.GetExtents(projectile.BoundingBox), Color.Red);
+                Gizmos.DrawCube(CollisionsClass.GetCenter(projectile.ProjectileBox), CollisionsClass.GetExtents(projectile.ProjectileBox) * 2, Color.Red);
             }
         }
 
@@ -894,13 +891,12 @@ namespace ThunderingTanks
         {
             OrientedBoundingBox tankBox = Panzer.TankBox;
 
-            Vector3 deltaY = new Vector3(2500, 4800, 200);
+            Vector3 deltaY = new(2500, 4800, 200);
 
             foreach (var roca in Rocas)
             {
                 if (tankBox.Intersects(roca.RocaBox))
                 {
-                    //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con una roca.");
                     Panzer.CollidingPosition = roca.Position + deltaY;
                     return true;
@@ -928,7 +924,6 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
-                    //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con un tanque enemigo.");
                     Panzer.CollidingPosition = EnemyTank.Position + deltaY;
                     return true;
@@ -939,14 +934,13 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
-                    //Panzer.ReceiveDamage(ref _juegoIniciado);
                     Console.WriteLine("Colisión detectada con un tanque enemigo.");
                     Panzer.CollidingPosition = EnemyTank.Position + deltaY;
                     return true;
                 }
             }
 
-            if (OutOfMap(Panzer.Position))
+            if (OutOfMap(Panzer.Direction))
             {
                 Console.WriteLine("Out of map");
                 return true;

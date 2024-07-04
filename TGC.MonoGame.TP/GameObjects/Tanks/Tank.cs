@@ -53,7 +53,6 @@ namespace ThunderingTanks.Objects.Tanks
         public Camera PanzerCamera { get; set; }
         public SoundEffectInstance MovingTankSound { get; set; }
         public OrientedBoundingBox TankBox { get; set; }
-        public OrientedBoundingBox PrevTankBox { get; set; }
 
         public Vector3 Center { get; set; }
         public Vector3 Extents { get; set; }
@@ -83,13 +82,12 @@ namespace ThunderingTanks.Objects.Tanks
 
         private bool _isPlaying = true;
 
-        List<Vector3> TankVertices = null;
+        public Vector3[] TankVertices;
 
         public Tank()
         {
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
-            TankBox = new OrientedBoundingBox();
 
             _currentLife = _maxLife;
         }
@@ -104,8 +102,8 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect = effect;
 
-            BoundingBox = CollisionsClass.CreateBoundingBox(Tanque, Matrix.CreateScale(1f), Direction);
-            TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
+            TankVertices = GetModelVertices(Tanque).ToArray();
+            TankBox = OrientedBoundingBox.ComputeFromPoints(TankVertices);
 
             TimeSinceLastShot = FireRate;
 
@@ -123,8 +121,6 @@ namespace ThunderingTanks.Objects.Tanks
 
             bool isMoving = false;
 
-            PrevTankBox = TankBox;
-
             if (isColliding)
             {
                 collided = true;
@@ -132,6 +128,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             var directionVector = Vector3.Zero;
 
+            #region Movimiento
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
                 directionVector -= Vector3.Forward * TankVelocity * time;
@@ -184,7 +181,6 @@ namespace ThunderingTanks.Objects.Tanks
             {
                 if (!_isPlaying)
                 {
-
                     MovingTankSound.Play();
                     _isPlaying = true;
                 }
@@ -192,13 +188,9 @@ namespace ThunderingTanks.Objects.Tanks
             else
             {
                 MovingTankSound.Stop();
-
-                if (_isPlaying)
-                {
-                    MediaPlayer.Stop();
-                    _isPlaying = false;
-                }
             }
+
+#endregion
 
             GunRotationFinal -= GetRotationFromCursorX() * SensitivityFactor;
             GunElevation += GetElevationFromCursorY() * SensitivityFactor;
@@ -231,15 +223,13 @@ namespace ThunderingTanks.Objects.Tanks
             TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
             CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
 
-            if (isRotating)
-                TankBox.Rotate(Matrix.CreateRotationX(MathHelper.ToRadians(-90)) * Matrix.CreateRotationZ(MathHelper.ToRadians(-90)) * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation))); // Actualiza la rotación de la OBB
-
-            TankBox.Center = Direction;
-            TankBox.Rotate(RotationMatrix);
+            TankBox.Center = Position;
+            TankBox.Rotate( Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
             LastPosition = Direction;
             LastRotation = Rotation;
 
+            #region Impacto
             Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
 
             Vector3 direccion_R = rotacion(direccion);
@@ -249,6 +239,7 @@ namespace ThunderingTanks.Objects.Tanks
 
             Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
             //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); Experimental
+            #endregion
         }
 
         public void Draw(Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
@@ -357,10 +348,8 @@ namespace ThunderingTanks.Objects.Tanks
             _currentLife -= 25;
             if (_currentLife <= 0)
             {
-
                 isDestroyed = true;
                 _juegoIniciado = false;
-
             }
 
         }
@@ -397,7 +386,7 @@ namespace ThunderingTanks.Objects.Tanks
         {
             if(TankVertices == null)
                 return;
-            for (int i = 0; i < TankVertices.Count; i++)
+            for (int i = 0; i < TankVertices.Length; i++)
             {
                 Vector3 vertice = TankVertices[i];
 
@@ -447,7 +436,7 @@ namespace ThunderingTanks.Objects.Tanks
             return plano;
         }
 
-        private List<Vector3> ObtenerVerticesModelo(Model model)
+        private List<Vector3> GetModelVertices (Model model)
         {
             List<Vector3> vertices = new List<Vector3>();
 
