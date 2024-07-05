@@ -21,6 +21,7 @@ float shininess;        // Brillo especular
 
 bool EnableTerrainDraw = false;
 bool EnableGrass = false;
+bool EnableTrees = false;
 float onhit;
 
 float3 lightPosition;
@@ -81,45 +82,6 @@ sampler2D TextureSampler = sampler_state
     AddressU = Wrap;
     AddressV = Wrap;
 };
-
-float3 VersorDireccion(float3 A, float3 B)
-{
-    float3 Vector = B - A;
-    float moduloVector = length(Vector);
-
-    return Vector / moduloVector;
-}
-
-float passedHorizon(float3 Posicion)
-{
-    /*
-    if ((dot(Plano_ST.xyz, Posicion) + Plano_ST.w) < -30)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-    */
-    return 0;
-}
-
-float3 desplazarPorRadio(float3 Posicion, float radio, float3 centro, float3 Tank)
-{
-    float3 direccion = VersorDireccion(centro, Posicion);
-    float distancia;
-    if (passedHorizon(Posicion) == 1)
-    {
-        distancia = radio + distance(centro, Posicion);
-        return Posicion - (direccion * distancia);
-    }
-    else
-    {
-        distancia = radio - distance(centro, Posicion);
-        return Posicion + (direccion * distancia);
-    }
-}
 
 struct VertexShaderInput
 {
@@ -201,16 +163,6 @@ VertexShaderOutput ImpactVS(in VertexShaderInput input)
 
     // Transformaciones de espacio
     float4 worldPosition = mul(input.Position, World);
-
-    // Lógica adicional existente
-    if (onhit == 1)
-    {
-        float r_Esfera = impacto;
-        if (distance(c_Esfera, worldPosition.xyz) <= r_Esfera)
-        {
-            worldPosition.xyz = desplazarPorRadio(worldPosition.xyz, r_Esfera, c_Esfera, TankPosition);
-        }
-    }
     
     float4 viewPosition = mul(worldPosition, View);
     output.Position = mul(viewPosition, Projection);
@@ -231,11 +183,16 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     {
         input.TextureCoordinate.y += TrackOffset;
     }
+    
+    float3 light = lightPosition;
       
     // Muestrear la textura
     float4 texelColor = tex2D(TextureSampler, input.TextureCoordinate.xy);
+    // Si es un arbol invierte la direccion de la luz devido a que los arboles se dibujan alrevez
+    if (EnableTrees)
+        light = float3(lightPosition.x * -1, lightPosition.y, lightPosition.z * -1);
     // Dirección de la luz (asumiendo luz solar, puedes ajustar según necesites)
-    float3 lightDirection = normalize(lightPosition - input.WorldPosition.xyz);
+    float3 lightDirection = normalize(light - input.WorldPosition.xyz);
     // Vector de vista
     float3 viewDirection = normalize(eyePosition - input.WorldPosition.xyz);
     // Vector semibrillante

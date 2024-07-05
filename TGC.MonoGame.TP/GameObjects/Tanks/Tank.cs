@@ -3,16 +3,11 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using System;
-using System.Collections.Generic;
-using ThunderingTanks.Cameras;
 using ThunderingTanks.Collisions;
 
 namespace ThunderingTanks.Objects.Tanks
 {
     public class Tank : GameObject
-
     {
 
         #region Graphics
@@ -24,74 +19,80 @@ namespace ThunderingTanks.Objects.Tanks
         #endregion
 
         #region Tank
+
         public Model Tanque { get; set; }
-        public Texture2D PanzerTexture { get; set; }
+
+        private Texture2D PanzerTexture { get; set; }
         private Texture2D TrackTexture { get; set; }
         private float trackOffset1 = 0;
         private float trackOffset2 = 0;
+
         public Matrix PanzerMatrix { get; set; }
-        public Vector3 LastPosition { get; set; }
-
-        public Vector3 Direction = new(0, 0, 0);
-        public float TankVelocity { get; set; }
-
-        public Matrix RotationMatrix { get; set; }
-        public float TankRotation { get; set; }
-        public float Rotation = 0;
-        public float LastRotation;
-
-        private bool collided;
+        private Matrix RotationMatrix { get; set; }
         public Matrix TurretMatrix { get; set; }
         public Matrix CannonMatrix { get; set; }
+
+        public Vector3 CameraPosition { get; set; }
+
+        public float TankVelocity { get; set; }
+        public float TankRotation { get; set; }
+        public float Rotation { get; set; } = 0f;
+
         public float FireRate { get; set; }
-        public float TimeSinceLastShot;
-        public float GunRotationFinal { get; set; }
+        public float TimeSinceLastShot { get; set; }
+
+        public float GunRotation { get; set; }
         public float GunElevation { get; set; }
-        public List<ModelBone> Bones { get; private set; }
-        public List<ModelMesh> Meshes { get; private set; }
-        public Camera PanzerCamera { get; set; }
-        public SoundEffectInstance MovingTankSound { get; set; }
+
         public OrientedBoundingBox TankBox { get; set; }
-
-        public Vector3 Center { get; set; }
-        public Vector3 Extents { get; set; }
-
         public bool isColliding { get; set; } = false;
-        private bool isRotating { get; set; } = false;  
 
-        public Vector3 CollidingPosition { get; set; }
 
-        public Texture2D LifeBar { get; set; }
-        public Rectangle _lifeBarRectangle;
 
-        public int _maxLife = 50;
-        public int _currentLife;
-        public int _numberOfProyectiles;
+        public int MaxLife { get; } = 50;
+        public int CurrentLife { get; set; }
 
-        public bool isDestroyed = false;
+        public int NumberOfProyectiles { get; set; }
 
-        public bool damaged;
         #endregion
 
-        public BoundingBox BoundingBox_2;
-        public BoundingBox BoundingBox_3;
+        #region Physics
+
+        private readonly Vector3 Gravity = new(0f, -9.8f, 0); 
+
+        private Vector3 Spring1_Position;
+        private Vector3 Spring1_Direction;
+        private float   Spring1_Length;
+
+        private Vector3 Spring2_Position;
+        private Vector3 Spring2_Direction;
+        private float   Spring2_Length;
+
+        private Vector3 Spring3_Position;
+        private Vector3 Spring3_Direction;
+        private float   Spring3_Length;
+
+        private Vector3 Spring4_Position;
+        private Vector3 Spring4_Direction;
+        private float   Spring4_Length;
+
+        #endregion
+
+        #region Sound
+        public SoundEffectInstance MovingTankSound { get; set; }
+        #endregion
 
         public float SensitivityFactor { get; set; }
 
-        public float VelocidadImpacto { get; set; }
-
-        public Matrix ProjectileMatrix { get; private set; }
-
         private bool _isPlaying = true;
-
-        public Vector3[] TankVertices;
+        public bool isDestroyed = false;
 
         public Tank()
         {
             TurretMatrix = Matrix.Identity;
             CannonMatrix = Matrix.Identity;
 
-            _currentLife = _maxLife;
+            CurrentLife = MaxLife;
         }
 
         public override void LoadContent(ContentManager Content, Effect effect)
@@ -106,16 +107,11 @@ namespace ThunderingTanks.Objects.Tanks
 
             MaxBox = new Vector3(200, 250, 300);
             MinBox = new Vector3(-200, 0, -300);
-            BoundingBox= new BoundingBox(MinBox, MaxBox);
+            BoundingBox = new BoundingBox(MinBox, MaxBox);
 
             TankBox = OrientedBoundingBox.FromAABB(BoundingBox);
 
             TimeSinceLastShot = FireRate;
-
-            collided = false;
-
-            Effect.Parameters["impacto"].SetValue(140f);
-            VelocidadImpacto = -220f;
         }
 
         public void Update(GameTime gameTime, KeyboardState keyboardState, SimpleTerrain terrain)
@@ -125,23 +121,13 @@ namespace ThunderingTanks.Objects.Tanks
 
             bool isMoving = false;
 
-            if (isColliding)
-            {
-                collided = true;
-            }
-
             var directionVector = Vector3.Zero;
 
             #region Movimiento
+
             if (keyboardState.IsKeyDown(Keys.W) && !isColliding)
             {
                 directionVector -= Vector3.Forward * TankVelocity * time;
-
-                if (collided)
-                {
-                    CollidingPosition -= PanzerMatrix.Forward * TankVelocity * time;
-                }
-
                 trackOffset1 -= 0.1f;
                 trackOffset2 -= 0.1f;
                 isMoving = true;
@@ -150,12 +136,6 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.S) && !isColliding)
             {
                 directionVector += Vector3.Forward * TankVelocity * time;
-
-                if (collided)
-                {
-                    CollidingPosition += PanzerMatrix.Forward * TankVelocity * time;
-                }
-
                 trackOffset1 += 0.1f;
                 trackOffset2 += 0.1f;
                 isMoving = true;
@@ -164,8 +144,6 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.D))
             {
                 Rotation -= TankRotation * time;
-                isRotating = true;
-                isMoving = true;
                 trackOffset1 += 0.1f;
                 trackOffset2 -= 0.1f;
                 isMoving = true;
@@ -174,8 +152,6 @@ namespace ThunderingTanks.Objects.Tanks
             if (keyboardState.IsKeyDown(Keys.A))
             {
                 Rotation += TankRotation * time;
-                isRotating = true;
-                isMoving = true;
                 trackOffset1 -= 0.1f;
                 trackOffset2 += 0.1f;
                 isMoving = true;
@@ -194,56 +170,41 @@ namespace ThunderingTanks.Objects.Tanks
                 MovingTankSound.Stop();
             }
 
-#endregion
+            #endregion
 
-            GunRotationFinal -= GetRotationFromCursorX() * SensitivityFactor;
+            GunRotation -= GetRotationFromCursorX() * SensitivityFactor;
+
             GunElevation += GetElevationFromCursorY() * SensitivityFactor;
-
             GunElevation = MathHelper.Clamp(GunElevation, MathHelper.ToRadians(-10), MathHelper.ToRadians(6));
 
             Mouse.SetPosition((int)screenWidth / 2, (int)screenHeight / 2);
+
+            #region MovimientoConRotacion
 
             RotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation));
 
             Vector3 rotatedDirection = Vector3.Transform(directionVector, RotationMatrix);
 
-            var newPos = new Vector2(Direction.X, Direction.Z) + new Vector2(rotatedDirection.X, rotatedDirection.Z);
+            var newPos = new Vector2(Position.X, Position.Z) + new Vector2(rotatedDirection.X, rotatedDirection.Z);
             var X = newPos.X;
             var Z = newPos.Y;
+
+            #endregion
+
             float terrainHeight = terrain.Height(X, Z);
 
-            Direction = new Vector3(X, terrainHeight - 400, Z);
+            Position = new Vector3(X, terrainHeight - 400, Z);
 
-            float currentHeight = terrain.Height(Direction.X, Direction.Z);
-            float previousHeight = terrain.Height(LastPosition.X, LastPosition.Z);
-            float heightDifference = -(currentHeight - previousHeight);
+            PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Position);
+            TurretMatrix = Matrix.CreateRotationY(GunRotation) * Matrix.CreateTranslation(Position);
+            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotation) * Matrix.CreateTranslation(Position);
 
-            float pitch = (float)Math.Atan2(heightDifference, Vector3.Distance(new Vector3(Direction.X, 0, Direction.Z), new Vector3(LastPosition.X, 0, LastPosition.Z)));
-            Matrix pitchMatrix = Matrix.CreateRotationX(pitch);
+            TankBox.Center = Position + new Vector3(0f, 125f, 0f);
+            TankBox.Rotate(Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
 
-            Position = Direction + new Vector3(0f, 500f, 0f);
+            CameraPosition = Position + new Vector3(0f, 500f, 0f);
 
-            PanzerMatrix = pitchMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)) * Matrix.CreateTranslation(Direction);
-            TurretMatrix = Matrix.CreateRotationY(GunRotationFinal) * pitchMatrix * Matrix.CreateTranslation(Direction);
-            CannonMatrix = Matrix.CreateTranslation(new Vector3(-15f, 0f, 0f)) * pitchMatrix * Matrix.CreateRotationX(GunElevation) * Matrix.CreateRotationY(GunRotationFinal) * Matrix.CreateTranslation(Direction);
-
-            TankBox.Center = Direction + new Vector3(0f, 125f, 0f);
-            TankBox.Rotate( Matrix.CreateRotationY(MathHelper.ToRadians(Rotation)));
-
-            LastPosition = Direction;
-            LastRotation = Rotation;
-
-            #region Impacto
-            Vector3 direccion = VersorDireccion(CollidingPosition, Direction);
-
-            Vector3 direccion_R = rotacion(direccion);
-            Vector3 c_Esfera = Direction + (new Vector3(direccion_R.X, direccion_R.Y, direccion_R.Z) * VelocidadImpacto);
-
-            Vector4 Plano_ST = crearPlano(c_Esfera, Direction);
-
-            Effect.Parameters["c_Esfera"].SetValue(c_Esfera);
-            //Effect.Parameters["Plano_ST"].SetValue(Plano_ST); Experimental
-            #endregion
+            LastPosition = Position;
         }
 
         public void Draw(Matrix view, Matrix projection, GraphicsDevice graphicsDevice)
@@ -304,11 +265,6 @@ namespace ThunderingTanks.Objects.Tanks
                     Effect.Parameters["IsTrack"].SetValue(false);
                 }
 
-                if (damaged)
-                {
-                    Effect.Parameters["onhit"].SetValue(1);
-                }
-
                 mesh.Draw();
 
             }
@@ -325,15 +281,15 @@ namespace ThunderingTanks.Objects.Tanks
         {
             if (TimeSinceLastShot >= FireRate)
             {
-                ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
+                Matrix ProjectileMatrix = Matrix.CreateTranslation(new Vector3(0f, 210f, 400f)) * Matrix.CreateRotationX(GunElevation) * TurretMatrix;
 
                 float projectileScale = 1f;
                 float projectileSpeed = 15000f;
 
-                Projectile projectile = new(ProjectileMatrix, GunRotationFinal, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
+                Projectile projectile = new(ProjectileMatrix, GunRotation, projectileSpeed, projectileScale); // Crear el proyectil con la posición y dirección correcta
 
                 TimeSinceLastShot = 0f;
-                _numberOfProyectiles -= 1;
+                NumberOfProyectiles -= 1;
 
                 return projectile;
             }
@@ -349,8 +305,8 @@ namespace ThunderingTanks.Objects.Tanks
         /// <param name="_juegoIniciado">Condicion de que el juego inicio</param>
         public void ReceiveDamage(ref bool _juegoIniciado)
         {
-            _currentLife -= 25;
-            if (_currentLife <= 0)
+            CurrentLife -= 25;
+            if (CurrentLife <= 0)
             {
                 isDestroyed = true;
                 _juegoIniciado = false;
@@ -384,82 +340,6 @@ namespace ThunderingTanks.Objects.Tanks
             float mouseY = mouseState.Y;
 
             return MathHelper.ToRadians(mouseY / screenHeight * 180f - 90f);
-        }
-
-        public void RecibirImpacto(Vector3 puntoDeImpacto, float fuerzaImpacto)
-        {
-            if(TankVertices == null)
-                return;
-            for (int i = 0; i < TankVertices.Length; i++)
-            {
-                Vector3 vertice = TankVertices[i];
-
-                // Calcula la distancia entre el vértice y el punto de impacto
-                float distancia = Vector3.Distance(vertice, puntoDeImpacto);
-
-                // Si la distancia está dentro de un radio de deformación
-                if (distancia < 50)
-                {                                                                            
-                    // Calcula el vector de dirección desde el punto de impacto hacia el vértice
-                    Vector3 direccion = Vector3.Normalize(vertice - puntoDeImpacto);
-
-                    // Aplica una deformación al vértice según la fuerza del impacto y la dirección
-                    TankVertices[i] += -direccion * fuerzaImpacto;
-                }
-            }
-        }
-
-        public Vector3 VersorDireccion(Vector3 A, Vector3 B)
-        {
-            Vector3 Vector = B - A;
-            float moduloVector = Vector.Length();
-
-            return Vector / moduloVector;
-        }
-
-        public Vector3 rotacion(Vector3 direccion)
-        {
-            //derivado de los apuntes de 2D
-            Vector3 direc_R;
-            direc_R.Y = direccion.Y;
-            direc_R.Z = direccion.X * (float)Math.Cos(MathHelper.ToRadians(Rotation)) - direccion.Z * (float)Math.Sin(MathHelper.ToRadians(Rotation));
-            direc_R.X = direccion.Z * (float)Math.Cos(MathHelper.ToRadians(Rotation)) + direccion.X * (float)Math.Sin(MathHelper.ToRadians(Rotation));
-            return direc_R;
-        }
-
-        public Vector4 crearPlano(Vector3 centro, Vector3 TankPosition)
-        {
-            Vector3 versorNormal = VersorDireccion(centro, TankPosition); // normal del plano
-            Vector4 plano;
-            plano = new Vector4( // pi = ax + by + cz + d
-            versorNormal.X, //a
-            versorNormal.Y, //b
-            versorNormal.Z, //c
-            -(versorNormal.X * centro.X + versorNormal.Y * centro.Y + versorNormal.Z * centro.Z) //d
-            );
-            return plano;
-        }
-
-        private List<Vector3> GetModelVertices (Model model)
-        {
-            List<Vector3> vertices = new List<Vector3>();
-
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (ModelMeshPart meshPart in mesh.MeshParts)
-                {
-                    VertexBuffer vertexBuffer = meshPart.VertexBuffer;
-                    int vertexCount = vertexBuffer.VertexCount;
-                    VertexPositionNormalTexture[] vertexData = new VertexPositionNormalTexture[vertexCount];
-                    vertexBuffer.GetData(vertexData);
-
-                    foreach (VertexPositionNormalTexture vertex in vertexData)
-                    {
-                        vertices.Add(vertex.Position);
-                    }
-                }
-            }
-            return vertices;
         }
     }
 }

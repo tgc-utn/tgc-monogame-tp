@@ -106,43 +106,43 @@ namespace ThunderingTanks.Objects
 
             #region LifeBar
 
-            if (Panzer._currentLife == 50)
+            if (Panzer.CurrentLife == 50)
             {
                 lifeBarTexture = lifeBar1;
             }
-            else if (Panzer._currentLife == 45)
+            else if (Panzer.CurrentLife == 45)
             {
                 lifeBarTexture = lifeBar2;
             }
-            else if (Panzer._currentLife == 40)
+            else if (Panzer.CurrentLife == 40)
             {
                 lifeBarTexture = lifeBar3;
             }
-            else if (Panzer._currentLife == 35)
+            else if (Panzer.CurrentLife == 35)
             {
                 lifeBarTexture = lifeBar4;
             }
-            else if (Panzer._currentLife == 30)
+            else if (Panzer.CurrentLife == 30)
             {
                 lifeBarTexture = lifeBar5;
             }
-            else if (Panzer._currentLife == 25)
+            else if (Panzer.CurrentLife == 25)
             {
                 lifeBarTexture = lifeBar6;
             }
-            else if (Panzer._currentLife == 20)
+            else if (Panzer.CurrentLife == 20)
             {
                 lifeBarTexture = lifeBar7;
             }
-            else if (Panzer._currentLife == 15)
+            else if (Panzer.CurrentLife == 15)
             {
                 lifeBarTexture = lifeBar8;
             }
-            else if (Panzer._currentLife == 10)
+            else if (Panzer.CurrentLife == 10)
             {
                 lifeBarTexture = lifeBar9;
             }
-            else if(Panzer._currentLife == 5)
+            else if(Panzer.CurrentLife == 5)
             {
                 lifeBarTexture = lifeBar10;
             }
@@ -162,6 +162,7 @@ namespace ThunderingTanks.Objects
                     CrossHairPosition,
                     null, Color.Black, 0f, Vector2.Zero, 0.1f, SpriteEffects.None, 0.8f
               );
+
             spriteBatch.Draw(
                     lifeBarTexture,
                     lifeBar,

@@ -21,7 +21,9 @@ namespace ThunderingTanks.Objects
         public Effect Effect { get; set; }
 
         public Matrix WorldMatrix { get; set; }
+
         public Vector3 Position { get; set; }
+        public Vector3 LastPosition { get; set; }
 
         public BoundingBox BoundingBox { get; set; }
         public Vector3 MaxBox;

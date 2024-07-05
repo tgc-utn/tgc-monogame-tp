@@ -12,7 +12,6 @@ namespace ThunderingTanks.Objects.Tanks
         private Model projectile { get; set; }
         public BoundingBox ProjectileBox { get; set; }
         public Matrix PositionMatrix { get; set; }
-        private Vector3 LastPosition { get; set; }
         private Vector3 MovementVector { get; set; }
 
         public Vector3 PositionVector = new(0, 0, 0);

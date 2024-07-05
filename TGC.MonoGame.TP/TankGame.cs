@@ -32,6 +32,7 @@ namespace ThunderingTanks
 
         public float screenHeight;
         public float screenWidth;
+        private Point screenCenter;
 
         Viewport viewport;
 
@@ -57,6 +58,8 @@ namespace ThunderingTanks
 
         public SpriteBatch spriteBatch { get; set; }
 
+        ParticleSystem particleSystem;
+
         public FrameCounter FrameCounter { get; set; }
         #endregion
 
@@ -71,6 +74,7 @@ namespace ThunderingTanks
 
         private TargetCamera _targetCamera;
         private StaticCamera _lightCamera;
+        private Vector3 lightPosition;
         private StaticCamera _staticCamera;
 
         private FreeCamera _freeCamera;
@@ -157,8 +161,6 @@ namespace ThunderingTanks
         private float tiempoTranscurrido = 0f;
         private bool mostrandoMensaje = false;
 
-        private readonly int CantidadTanquesEnemigos = 4;
-
         #endregion
 
         #region MapScene
@@ -171,21 +173,17 @@ namespace ThunderingTanks
         public Random randomSeed = new Random(47);
         #endregion
 
-        ParticleSystem particleSystem;
-
         public bool StartGame { get; set; } = false;
 
-        Vector3 ambientColorValue = new(0.5f, 0.5f, 0.5f);         // Color ambiental (generalmente menos afectado por la dirección de la luz)
-        Vector3 diffuseColorValue = new(0.5f, 0.5f, 0.5f);         // Color difuso (más brillante en la dirección de la luz)
-        Vector3 specularColorValue = new(0.3f, 0.3f, 0.3f);        // Color especular (más brillante en la dirección de la luz)
-        readonly float KAmbientValue = 0.7f;                       // Factor de ambiental
+        Vector3 ambientColorValue = new(0.7f, 0.7f, 0.7f);         // Color ambiental (generalmente menos afectado por la dirección de la luz)
+        Vector3 diffuseColorValue = new(0.6f, 0.6f, 0.6f);         // Color difuso (más brillante en la dirección de la luz)
+        Vector3 specularColorValue = new(0.5f, 0.5f, 0.5f);        // Color especular (más brillante en la dirección de la luz)
+        readonly float KAmbientValue = 0.8f;                       // Factor de ambiental
         readonly float KDiffuseValue = 0.8f;                       // Factor difuso
         readonly float KSpecularValue = 0.5f;                      // Factor especular
-        readonly float shininessValue = 5.0f;                      // Brillo especular (puede ajustarse según sea necesario)
+        readonly float shininessValue = 20.0f;                     // Brillo especular (puede ajustarse según sea necesario)
 
-        private Vector3 lightPosition;
-
-        private Point screenCenter;
+        private readonly int CantidadTanquesEnemigos = 0;
 
 
         // ------------ GAME ------------ //
@@ -242,7 +240,7 @@ namespace ThunderingTanks
                 TankVelocity = 1000f,
                 TankRotation = 20f,
                 FireRate = 5f,
-                _numberOfProyectiles = 3
+                NumberOfProyectiles = 3
             };
             lightBox = new CubePrimitive(GraphicsDevice, 500, Color.Transparent);
             _menu = new Menu(Content);
@@ -268,7 +266,6 @@ namespace ThunderingTanks
             AgregarAntitanques();
 
             GermanSoldier.Initialize();
-            Panzer.PanzerCamera = _targetCamera;
             Panzer.SensitivityFactor = 0.45f;
             casa.Position = new Vector3(-3300f, -700f, 7000f);
             LittleShack.SpawnPosition(new Vector3(randomSeed.Next((int)-MapLimit.X, (int)MapLimit.X), 0f, randomSeed.Next((int)-MapLimit.Y, (int)MapLimit.Y)));
@@ -285,7 +282,7 @@ namespace ThunderingTanks
         {
 
             BasicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-            //BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
+            BasicShader.CurrentTechnique = BasicShader.Techniques["Impact"];
             TextureMerge = Content.Load<Effect>(ContentFolderEffects + "TextureMerge");
             Shadows = Content.Load<Effect>(ContentFolderEffects + "Shadows");
 
@@ -355,6 +352,7 @@ namespace ThunderingTanks
             BasicShader.Parameters["eyePosition"].SetValue(_targetCamera.Position);
 
             #region Volume
+
             PreviousMouseState = MouseState;
             MouseState = Mouse.GetState();
 
@@ -374,7 +372,8 @@ namespace ThunderingTanks
 
             _menu.MasterSound = MasterSound;
             _shootSound.Volume = MasterSound;
-            movingTankSound.Volume = Math.Max(0, MasterSound - 0.3f);
+            movingTankSound.Volume = MasterSound;
+
             #endregion
 
             if (!_juegoIniciado || Panzer.isDestroyed)
@@ -385,7 +384,7 @@ namespace ThunderingTanks
                 _lightCamera.Position = lightPosition;
                 _lightCamera.BuildView();
 
-                Panzer.Direction = new Vector3(10, 0, 0);
+                Panzer.Position = new Vector3(10, 0, 0);
                 Panzer.isDestroyed = false;
 
                 Panzer.PanzerMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(-10));
@@ -399,18 +398,16 @@ namespace ThunderingTanks
 
             else
             {
-                lightPosition = new Vector3(0, 50000, 0);
+                lightPosition = new Vector3(20000, 5000, 0);
+                LightBoxWorld = Matrix.CreateTranslation(lightPosition);
+                _lightCamera.Position = lightPosition;
+                _lightCamera.BuildView();
 
                 if (!StartGame)
                 {
-                    Panzer.Direction = new Vector3(-5000, 0, -11000);
+                    Panzer.Position = new Vector3(-5000, 0, -11000);
                     StartGame = true;
                 }
-
-                LightBoxWorld = Matrix.CreateTranslation(lightPosition);
-
-                _lightCamera.Position = lightPosition;
-                _lightCamera.BuildView();
 
                 keyboardState = Keyboard.GetState();
 
@@ -441,7 +438,7 @@ namespace ThunderingTanks
                 var lastMatrix = Panzer.PanzerMatrix;
                 var turretPosition = Panzer.TurretMatrix;
                 var cannonPosition = Panzer.CannonMatrix;
-                var direction = Panzer.Direction;
+                var position = Panzer.Position;
                 var lastRotation = Panzer.Rotation;
 
                 if (MouseState.LeftButton == ButtonState.Pressed)
@@ -461,19 +458,17 @@ namespace ThunderingTanks
                 Panzer.Update(gameTime, keyboardState, Map.terrain);
 
                 Panzer.isColliding = false;
-                Panzer.damaged = false;
                 _hud.TankIsColliding = false;
 
                 if (CheckCollisions())
                 {
                     _hud.TankIsColliding = true;
                     Panzer.isColliding = true;
-                    Panzer.damaged = true;
 
                     Panzer.PanzerMatrix = lastMatrix;
                     Panzer.TurretMatrix = turretPosition;
                     Panzer.CannonMatrix = cannonPosition;
-                    Panzer.Direction = direction;
+                    Panzer.Position = position;
                     Panzer.Rotation = lastRotation;
                     Panzer.Update(gameTime, keyboardState, Map.terrain);
                 }
@@ -484,7 +479,7 @@ namespace ThunderingTanks
 
                 foreach (var enemyTank in EnemyTanks)
                 {
-                    enemyTank.Update(gameTime, Panzer.Direction, Map.terrain, GraphicsDevice, _targetCamera);
+                    enemyTank.Update(gameTime, Panzer.Position, Map.terrain, GraphicsDevice, _targetCamera);
                     enemyTank.lifeSpan += time;
 
                     if (enemyTank.lifeSpan >= enemyTank.shootInterval)
@@ -503,15 +498,15 @@ namespace ThunderingTanks
 
                 foreach (var enemyTank in EliminatedEnemyTanks)
                 {
-                    enemyTank.Update(gameTime, Panzer.Direction, Map.terrain, GraphicsDevice, _targetCamera);
+                    enemyTank.Update(gameTime, Panzer.Position, Map.terrain, GraphicsDevice, _targetCamera);
                     enemyTank.StopEnemy();
                 }
 
-                UpdateProjectiles(gameTime, timeForParticles);
+                UpdateProjectiles(gameTime);
 
                 _hud.TimeSinceLastShot = Panzer.TimeSinceLastShot;
 
-                _targetCamera.Update(Panzer.Position, Panzer.GunRotationFinal + MathHelper.ToRadians(180));
+                _targetCamera.Update(Panzer.CameraPosition, Panzer.GunRotation + MathHelper.ToRadians(180));
                 _freeCamera.Update(gameTime);
             }
 
@@ -543,7 +538,7 @@ namespace ThunderingTanks
                 spriteBatch.Begin();
                 _menu.Draw(spriteBatch);
                 spriteBatch.End();
-                Panzer._currentLife = Panzer._maxLife;
+                Panzer.CurrentLife = Panzer.MaxLife;
                 #endregion
 
             }
@@ -574,7 +569,7 @@ namespace ThunderingTanks
 
                 lightBox.Draw(LightBoxWorld, _targetCamera.View, _targetCamera.Projection);
                 Map.Draw(gameTime, camera.View, camera.Projection, GraphicsDevice);
-                antitanque.Draw(gameTime, camera.View, camera.Projection, Map.terrain);
+                //antitanque.Draw(gameTime, camera.View, camera.Projection, Map.terrain);
                 Panzer.Draw(camera.View, camera.Projection, GraphicsDevice);
                 Grass.Draw(GrassPosition, camera.View, camera.Projection, Map.terrain);
 
@@ -582,10 +577,11 @@ namespace ThunderingTanks
                 Gizmos.DrawOrientedCube(Panzer.TankBox.Center, Panzer.TankBox.Orientation, Panzer.TankBox.Extents * 2, Color.Green);
                 Gizmos.DrawFrustum((_targetCamera.View * _targetCamera.Projection), Color.White);
 
-                var RayOrigin = Panzer.Direction + new Vector3(0f, 210f, 0f);
-
+                var RayOrigin = Panzer.Position + new Vector3(0f, 210f, 0f);
                 Ray ray = new(RayOrigin, Panzer.CannonMatrix.Backward);
+                Gizmos.DrawLine(RayOrigin, RayOrigin + Panzer.TurretMatrix.Backward * 10000f, Color.Blue);
 
+                /*
                 foreach(var enemyTank in EnemyTanks)
                 {
                     if(ray.Intersects(enemyTank.TankBox) != null)
@@ -594,11 +590,10 @@ namespace ThunderingTanks
                         Gizmos.DrawLine(RayOrigin, RayOrigin + Panzer.CannonMatrix.Backward * 10000f, Color.Blue);
 
                 }   
+                */ // Rayo de colision con los tanques enemigos
 
                 _hud.RayDirection = RayOrigin + Panzer.CannonMatrix.Backward;
                 _hud.RayPosition = RayOrigin;
-
-                //Gizmos.DrawLine(RayOrigin, RayOrigin + Panzer.TurretMatrix.Backward * 10000f, Color.Blue);
 
                 if (DrawGizmos)
                 {
@@ -628,7 +623,6 @@ namespace ThunderingTanks
                 spriteBatch.End();
 
                 #endregion
-
             }
 
             base.Draw(gameTime);
@@ -755,9 +749,8 @@ namespace ThunderingTanks
         ///     Actualiza la posicion y verifica la colision de los projectiles disparados
         /// </summary>
         /// <param name="gameTime"></param>
-        public void UpdateProjectiles(GameTime gameTime, float timeForParticles)
+        public void UpdateProjectiles(GameTime gameTime)
         {
-            Vector3 deltaY = new Vector3(0, 5500, 0);
             for (int j = 0; j < Projectiles.Count; ++j)
             {
                 _hud.BulletCount = Projectiles.Count;
@@ -771,10 +764,6 @@ namespace ThunderingTanks
                 if (Panzer.TankBox.Intersects(Projectiles[j].ProjectileBox))
                 {
                     Panzer.ReceiveDamage(ref _juegoIniciado);
-                    Panzer.damaged = true;
-
-                    Panzer.RecibirImpacto(Projectiles[j].Direction, 0);
-                    Panzer.CollidingPosition = Projectiles[j].Position + deltaY;
 
                     Projectiles.Remove(Projectiles[j]);
                     break;
@@ -829,7 +818,7 @@ namespace ThunderingTanks
 
                             if (Oleada == 10)
                             {
-                                Panzer._currentLife = Panzer._maxLife;
+                                Panzer.CurrentLife = Panzer.MaxLife;
                                 Exit();
                             }
 
@@ -908,8 +897,6 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(roca.RocaBox))
                 {
-                    Console.WriteLine("Colisión detectada con una roca.");
-                    Panzer.CollidingPosition = roca.Position + deltaY;
                     return true;
                 }
             }
@@ -918,16 +905,12 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(arbol.BoundingBox))
                 {
-                    Console.WriteLine("Colisión detectada con un árbol.");
-                    Panzer.CollidingPosition = arbol.Position + deltaY;
                     return true;
                 }
             }
 
             if (tankBox.Intersects(casa.BoundingBox))
             {
-                Console.WriteLine("Colisión detectada con la casa.");
-                Panzer.CollidingPosition = casa.Position + deltaY;
                 return true;
             }
 
@@ -935,8 +918,6 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
-                    Console.WriteLine("Colisión detectada con un tanque enemigo.");
-                    Panzer.CollidingPosition = EnemyTank.Position + deltaY;
                     return true;
                 }
             }
@@ -945,15 +926,12 @@ namespace ThunderingTanks
             {
                 if (tankBox.Intersects(EnemyTank.TankBox))
                 {
-                    Console.WriteLine("Colisión detectada con un tanque enemigo.");
-                    Panzer.CollidingPosition = EnemyTank.Position + deltaY;
                     return true;
                 }
             }
 
-            if (OutOfMap(Panzer.Direction))
+            if (OutOfMap(Panzer.Position))
             {
-                Console.WriteLine("Out of map");
                 return true;
             }
 
@@ -976,105 +954,6 @@ namespace ThunderingTanks
             }
 
             return grassPositions;
-        }
-
-        /// <summary>
-        /// Crea el shadow map
-        /// </summary>
-        public void DrawShadowMap()
-        {
-            GraphicsDevice.SetRenderTarget(ShadowRenderTarget);
-
-            var modelMeshesBaseTransforms = new Matrix[Panzer.Tanque.Bones.Count];
-            Panzer.Tanque.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-
-            //Panzer
-            foreach (var modelMesh in Panzer.Tanque.Meshes)
-            {
-
-                foreach (var part in modelMesh.MeshParts)
-                    part.Effect = Shadows;
-
-                var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index];
-
-                // WorldViewProjection is used to transform from model space to clip space
-                Shadows.Parameters["WorldViewProjection"]
-                    .SetValue(worldMatrix * _lightCamera.View * _lightCamera.Projection);
-
-                // Once we set these matrices we draw
-                modelMesh.Draw();
-            }
-        }
-        public void ShadowPass2()
-        {
-            var modelMeshesBaseTransforms = new Matrix[Panzer.Tanque.Bones.Count];
-            Panzer.Tanque.CopyAbsoluteBoneTransformsTo(modelMeshesBaseTransforms);
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-
-            //PanzerBase
-            foreach (var modelMesh in Panzer.Tanque.Meshes)
-            {
-                if (!modelMesh.Name.Equals("Turret") && !modelMesh.Name.Equals("Cannon"))
-                {
-                    foreach (var part in modelMesh.MeshParts)
-                        part.Effect = Shadows;
-
-
-                    // We set the main matrices for each mesh to draw
-                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.PanzerMatrix;
-
-                    // WorldViewProjection is used to transform from model space to clip space
-                    Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
-                    Shadows.Parameters["World"].SetValue(worldMatrix);
-                    Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-
-                    // Once we set these matrices we draw
-                    modelMesh.Draw();
-                }
-            }
-            //PanzerTorreta
-            foreach (var modelMesh in Panzer.Tanque.Meshes)
-            {
-                if (modelMesh.Name.Equals("Turret"))
-                {
-                    foreach (var part in modelMesh.MeshParts)
-                        part.Effect = Shadows;
-
-
-                    // We set the main matrices for each mesh to draw
-                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.TurretMatrix;
-
-                    // WorldViewProjection is used to transform from model space to clip space
-                    Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
-                    Shadows.Parameters["World"].SetValue(worldMatrix);
-                    Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-
-                    // Once we set these matrices we draw
-                    modelMesh.Draw();
-                }
-            }
-            //PanzerCanion
-            foreach (var modelMesh in Panzer.Tanque.Meshes)
-            {
-                if (modelMesh.Name.Equals("Cannon"))
-                {
-                    foreach (var part in modelMesh.MeshParts)
-                        part.Effect = Shadows;
-
-
-                    // We set the main matrices for each mesh to draw
-                    var worldMatrix = modelMeshesBaseTransforms[modelMesh.ParentBone.Index] * Panzer.CannonMatrix;
-
-                    // WorldViewProjection is used to transform from model space to clip space
-                    Shadows.Parameters["WorldViewProjection"].SetValue(worldMatrix * _targetCamera.View * _targetCamera.Projection);
-                    Shadows.Parameters["World"].SetValue(worldMatrix);
-                    Shadows.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
-
-                    // Once we set these matrices we draw
-                    modelMesh.Draw();
-                }
-            }
-            GraphicsDevice.RasterizerState = RasterizerState.CullClockwise;
         }
 
         /// <summary>

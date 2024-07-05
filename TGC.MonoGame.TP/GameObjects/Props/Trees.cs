@@ -57,7 +57,7 @@ namespace ThunderingTanks.Objects.Props
             var originalRasterizerState = graphicsDevice.RasterizerState;
 
             var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.CullClockwiseFace;
+            rasterizerState.CullMode = CullMode.None;
 
             graphicsDevice.RasterizerState = rasterizerState;
 
@@ -72,11 +72,13 @@ namespace ThunderingTanks.Objects.Props
                 effect.Parameters["View"].SetValue(view);
                 effect.Parameters["Projection"].SetValue(projection);
             }
-
+ 
             Effect.Parameters["ModelTexture"].SetValue(Texture);
             Effect.Parameters["World"].SetValue(modelMesh.ParentBone.Transform * Matrix.CreateScale(4) * WorldMatrix);
 
+            Effect.Parameters["EnableTrees"].SetValue(true);
             modelMesh.Draw();
+            Effect.Parameters["EnableTrees"].SetValue(false);
 
             graphicsDevice.RasterizerState = originalRasterizerState;   
 

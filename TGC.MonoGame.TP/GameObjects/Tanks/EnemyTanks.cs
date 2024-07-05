@@ -41,8 +41,6 @@ namespace ThunderingTanks.Objects.Tanks
 
         public Matrix turretWorld { get; set; }
         public Matrix cannonWorld { get; set; }
-        private Vector3 NormalizedMovement { get; set; }
-        private Vector3 LastPosition { get; set; }
 
         public bool Stop { get; set; } = false;
 
