@@ -1,4 +1,5 @@
 ﻿using System;
+using Escenografia.TESTS;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -39,14 +40,11 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private Effect Effect { get; set; }
-        private float Rotation { get; set; }
-        private Matrix World { get; set; }
-        private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
-        LogoTest logo;
+        Escenografia.TESTS.LogoTest logo;
+        Escenografia.TESTS.Auto autoTest;
+        Control.Camera camara;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -64,12 +62,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
-            logo = new LogoTest();
-            // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+            logo = new Escenografia.TESTS.LogoTest();
+            autoTest = new Escenografia.TESTS.Auto(new Vector3(0f,0f, 0f));
+            camara = new Control.Camera(Vector3.UnitZ * 150f, Vector3.Zero);
             Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 2500);
 
             base.Initialize();
         }
@@ -83,25 +80,8 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
-
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
             logo.loadModel(ContentFolder3D + "tgc-logo/tgc-logo", ContentFolderEffects + "BasicShader", Content);
+            autoTest.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
             base.LoadContent();
         }
 
@@ -121,10 +101,7 @@ namespace TGC.MonoGame.TP
                 Exit();
             }
             
-            // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-            World = Matrix.CreateRotationY(Rotation);
+            camara.getInputs(Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds));
 
             base.Update(gameTime);
         }
@@ -138,22 +115,8 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-            //le cargamos la vie de la camara
-            Effect.Parameters["View"].SetValue(View);
-            // le cargamos el como quedaria projectado en la pantalla
-            Effect.Parameters["Projection"].SetValue(Projection);
-            // le pasamos el color ( repasar esto )
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-
-            foreach (var mesh in Model.Meshes)
-            {
-                //le pasamos la posicion en el mundo
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                //dibujamos cada mesh individualmente
-                mesh.Draw();
-            }
-            logo.dibujar(View,Projection, Color.Red);
+            logo.dibujar(camara.getViewMatrix(),Projection, Color.Red);
+            autoTest.dibujar(camara.getViewMatrix(), Projection, Color.Yellow);
         }
 
         /// <summary>

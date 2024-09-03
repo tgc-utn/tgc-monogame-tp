@@ -2,11 +2,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+namespace Escenografia
+{
     abstract class Escenografia
     {
-        Model modelo;
-        Vector2 posicion;
-        Effect efecto;
+        protected Model modelo; 
+        protected Effect efecto;
+        public Vector3 posicion;
         float rotacionX, rotacionY, rotacionZ;
         /// <summary>
         /// Usado para obtener la matriz mundo de cada objeto
@@ -58,3 +60,4 @@ using System;
             }
         }
     }
+}
