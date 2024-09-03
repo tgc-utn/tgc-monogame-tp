@@ -46,6 +46,8 @@ namespace TGC.MonoGame.TP
         private Matrix View { get; set; }
         private Matrix Projection { get; set; }
 
+        LogoTest logo;
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
@@ -62,6 +64,7 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
 
+            logo = new LogoTest();
             // Configuramos nuestras matrices de la escena.
             World = Matrix.Identity;
             View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
@@ -98,7 +101,7 @@ namespace TGC.MonoGame.TP
                     meshPart.Effect = Effect;
                 }
             }
-
+            logo.loadModel(ContentFolder3D + "tgc-logo/tgc-logo", ContentFolderEffects + "BasicShader", Content);
             base.LoadContent();
         }
 
@@ -136,15 +139,21 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+            //le cargamos la vie de la camara
             Effect.Parameters["View"].SetValue(View);
+            // le cargamos el como quedaria projectado en la pantalla
             Effect.Parameters["Projection"].SetValue(Projection);
+            // le pasamos el color ( repasar esto )
             Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
 
             foreach (var mesh in Model.Meshes)
             {
+                //le pasamos la posicion en el mundo
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
+                //dibujamos cada mesh individualmente
                 mesh.Draw();
             }
+            logo.dibujar(View,Projection, Color.Red);
         }
 
         /// <summary>
