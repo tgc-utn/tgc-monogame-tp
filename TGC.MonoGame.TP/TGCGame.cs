@@ -40,6 +40,7 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
         private Model Model { get; set; }
+        private Model Cube{get; set;}
         private Effect Effect { get; set; }
         private float Rotation { get; set; }
         private Matrix World { get; set; }
@@ -82,7 +83,8 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Cargo el modelo del logo.
-            Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+          //  Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+            Cube = Content.Load<Model>(ContentFolder3D + "basic/cube");
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
@@ -90,7 +92,7 @@ namespace TGC.MonoGame.TP
 
             // Asigno el efecto que cargue a cada parte del mesh.
             // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Model.Meshes)
+            foreach (var mesh in Cube.Meshes)
             {
                 // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
                 foreach (var meshPart in mesh.MeshParts)
@@ -119,9 +121,11 @@ namespace TGC.MonoGame.TP
             }
             
             // Basado en el tiempo que paso se va generando una rotacion.
-            Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+            //  Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-            World = Matrix.CreateRotationY(Rotation);
+            // World = Matrix.CreateRotationY(Rotation);
+            
+            World = Matrix.CreateScale(4.0f) ;
 
             base.Update(gameTime);
         }
@@ -136,15 +140,21 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+
             Effect.Parameters["View"].SetValue(View);
             Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+            Effect.Parameters["DiffuseColor"].SetValue(Color.SkyBlue.ToVector3());
 
-            foreach (var mesh in Model.Meshes)
+            foreach (var mesh in Cube.Meshes)
             {
                 Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
                 mesh.Draw();
             }
+
+            // Cube.Draw(World, View, Projection);
+
+            // base.Draw(gameTime);
+
         }
 
         /// <summary>
