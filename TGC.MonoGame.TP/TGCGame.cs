@@ -60,7 +60,7 @@ public class TGCGame : Game {
     SpriteBatch = new SpriteBatch(GraphicsDevice);
     PlayerSphere = new Tp.SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
     Box = new Tp.CubePrimitive(GraphicsDevice, 1, Color.Red);
-    elevator = new Tp.Elevator(GraphicsDevice,Vector3.Zero,1,2,Color.Green,5);
+    elevator = new Tp.Elevator(GraphicsDevice,-Vector3.UnitY,1,2,Color.Green,5);
 
 
     Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");

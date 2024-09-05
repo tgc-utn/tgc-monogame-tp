@@ -15,6 +15,7 @@ public class Elevator : IDisposable {
   private float Max_height;
   private float Min_height;
   private Color Color;
+  private float scale_y = 0.1f;
 
   public Elevator(GraphicsDevice graphicsDevice, Vector3 position, float speed,
                   float size, Color color, float max_height) {
@@ -23,7 +24,7 @@ public class Elevator : IDisposable {
     Size = size;
     Color = color;
     Max_height = max_height;
-    Min_height = position.Y;
+    Min_height = position.Y - scale_y * Size / 2;
     Model = new Tp.CubePrimitive(graphicsDevice, 1, color);
   }
 
@@ -34,7 +35,8 @@ public class Elevator : IDisposable {
 
     Position.Y += Speed * dt;
 
-    World = Matrix.CreateScale(Size) * Matrix.CreateTranslation(Position);
+    World = Matrix.CreateScale(new Vector3(Size, scale_y * Size, Size)) *
+            Matrix.CreateTranslation(Position);
   }
 
   public void Draw(Effect Effect) {
