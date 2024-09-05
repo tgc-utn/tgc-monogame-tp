@@ -1,5 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Models.Primitives;
+using Models.Obstacles;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -30,13 +32,13 @@ public class TGCGame : Game {
   private Matrix View;
   private Matrix Projection;
 
-  private Tp.SpherePrimitive PlayerSphere;
+  private SpherePrimitive PlayerSphere;
   private Vector3 PlayerPosition = Vector3.Zero;
   private float PlayerSpeed = 4f;
   private Matrix PlayerWorld;
 
-  private Tp.CubePrimitive Box; 
-  private Tp.Elevator elevator; 
+  private CubePrimitive Box; 
+  private Elevator[] Elevators = new Elevator[10];
 
   private int PlayerRadius = 1;
   private int FloorUnitHeight = 6;
@@ -58,9 +60,19 @@ public class TGCGame : Game {
 
   protected override void LoadContent() {
     SpriteBatch = new SpriteBatch(GraphicsDevice);
-    PlayerSphere = new Tp.SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
-    Box = new Tp.CubePrimitive(GraphicsDevice, 1, Color.Red);
-    elevator = new Tp.Elevator(GraphicsDevice,-Vector3.UnitY,1,2,Color.Green,5);
+    PlayerSphere = new SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
+    Box = new CubePrimitive(GraphicsDevice, 1, Color.Red);
+
+      Random rand = new Random(0);
+    for (int i = 0; i < Elevators.Length; i++)
+    {
+      // float x = rand.NextSingle() * 10 - 10;
+      // float y = rand.NextSingle() * 20 - 10;
+      // float z = rand.NextSingle() * 20 - 10;
+      // Vector3 position = new Vector3(x,y,z); 
+      // float speed = rand.NextSingle() * 3 + 1;
+    }
+      Elevators[0] = new Elevator(Box, -Vector3.UnitY, 1, 2, Color.Green, 5);
 
 
     Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -90,7 +102,9 @@ public class TGCGame : Game {
 
     PlayerWorld = Matrix.CreateTranslation(PlayerPosition);
 
-   elevator.Update(dt);
+    for (int i = 0; i < Elevators.Length; i++) { 
+    }
+      Elevators[0].Update(dt); 
     View = Matrix.CreateLookAt(CameraPosition + PlayerPosition, PlayerPosition,
                                Vector3.Up);
 
@@ -118,7 +132,10 @@ public class TGCGame : Game {
       Box.Draw(Effect);
     }
 
-    elevator.Draw(Effect);
+    for (int i = 0; i < Elevators.Length; i++)
+    {
+    }
+      Elevators[0].Draw(Effect);
 
   }
 
