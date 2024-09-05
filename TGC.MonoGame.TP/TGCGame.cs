@@ -20,6 +20,19 @@ namespace TGC.MonoGame.TP
         public const string ContentFolderSpriteFonts = "SpriteFonts/";
         public const string ContentFolderTextures = "Textures/";
 
+        private GraphicsDeviceManager Graphics { get; }
+        private SpriteBatch SpriteBatch { get; set; }
+        private Matrix Projection { get; set; }
+
+        Escenografia.TESTS.LogoTest logo;
+        Escenografia.TESTS.Auto autoTest;
+        //Control.Camera camara;
+        Control.Camara camara;
+        Escenografia.AutoJugador auto;
+        Control.AdministradorNPCs generadorPrueba;
+
+        private Plane _plane { get; set; }
+
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -30,21 +43,12 @@ namespace TGC.MonoGame.TP
             
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
         }
-
-        private GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
-        private Matrix Projection { get; set; }
-
-        Escenografia.TESTS.LogoTest logo;
-        Escenografia.TESTS.Auto autoTest;
-        Control.Camera camara;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -58,15 +62,19 @@ namespace TGC.MonoGame.TP
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
             var rasterizerState = new RasterizerState();
+            generadorPrueba = new Control.AdministradorNPCs();
+            generadorPrueba.generarNPCsV1(new Vector3(-1000f,0f,-1000f), new Vector3(1000f,0f,1000f));
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
             // Seria hasta aca.
-
+            auto = new Escenografia.AutoJugador(Vector3.Zero, 1000f);
             logo = new Escenografia.TESTS.LogoTest();
-            autoTest = new Escenografia.TESTS.Auto(new Vector3(0f,0f, 0f));
-            camara = new Control.Camera(Vector3.UnitZ * 150f, Vector3.Zero);
+            autoTest = new Escenografia.TESTS.Auto(new Vector3(0f, 0f, 0f));
+            camara = new Control.Camara(new Vector3(1f,1f,1f) * 1000f, Vector3.Zero);
             Projection =
                 Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 2500);
+
+            _plane = new Plane(GraphicsDevice, Content.Load<Effect>(ContentFolderEffects + "BasicShader"));
 
             base.Initialize();
         }
@@ -80,8 +88,10 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
+            generadorPrueba.loadModelosAutos(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
             logo.loadModel(ContentFolder3D + "tgc-logo/tgc-logo", ContentFolderEffects + "BasicShader", Content);
             autoTest.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
+            auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
             base.LoadContent();
         }
 
@@ -100,9 +110,10 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            
-            camara.getInputs(Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds));
-
+            auto.mover(Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds));
+            camara.PuntoAtencion = auto.getWorldMatrix().Translation;
+            camara.posicion = camara.PuntoAtencion + new Vector3(1f,1f,1f) * 1000f;
+            //camara.getInputs(Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds));
             base.Update(gameTime);
         }
 
@@ -117,6 +128,9 @@ namespace TGC.MonoGame.TP
 
             logo.dibujar(camara.getViewMatrix(),Projection, Color.Red);
             autoTest.dibujar(camara.getViewMatrix(), Projection, Color.Yellow);
+            auto.dibujar(camara.getViewMatrix(), Projection, Color.White);
+            _plane.dibujar(camara.getViewMatrix(), Projection, Color.Red);
+            generadorPrueba.drawAutos(camara.getViewMatrix(), Projection, Color.Crimson);
         }
 
         /// <summary>

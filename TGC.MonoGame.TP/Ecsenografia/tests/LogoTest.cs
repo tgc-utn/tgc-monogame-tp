@@ -3,7 +3,7 @@ namespace Escenografia
 {
     namespace TESTS
     {
-        class LogoTest : Escenografia
+        class LogoTest : Escenografia3D
         {
             public override Matrix getWorldMatrix()
             {

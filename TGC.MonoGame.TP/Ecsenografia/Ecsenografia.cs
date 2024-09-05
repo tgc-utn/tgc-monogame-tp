@@ -4,12 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 namespace Escenografia
 {
-    abstract class Escenografia
+    public abstract class Escenografia3D
     {
         protected Model modelo; 
         protected Effect efecto;
         public Vector3 posicion;
-        float rotacionX, rotacionY, rotacionZ;
+        protected float rotacionX, rotacionY, rotacionZ;
         /// <summary>
         /// Usado para obtener la matriz mundo de cada objeto
         /// </summary>
@@ -21,7 +21,11 @@ namespace Escenografia
         /// <param name="direcionModelo"> Direccion en el sistema de archivos para el modelo</param>
         /// <param name="direccionEfecto"> Direccion en el sistema de archivos para el efecto</param>
         /// <param name="contManager"> Content Manager del juego </param>
-        public void loadModel(String direcionModelo,
+        /// <remarks> 
+        /// Este metodo es virtual, para permitir sobre escribirlo, en caso de que
+        /// necesitemos que algun modelo tenga diferentes efectos por mesh
+        /// </remarks>
+        virtual public void loadModel(String direcionModelo,
                         String direccionEfecto, ContentManager contManager)
         {
             //asignamos el modelo deseado
@@ -32,6 +36,8 @@ namespace Escenografia
             //por ahora cada modelo, carga una misma textura para todo el modelo
             //luego podemos re escribir esto para hacerlo de otra forma
             //podria mover esta parte a los hijos de la clase y solo dejar la carga generica
+            //esto sera aplicado por cada clase hija
+            /*
             foreach ( ModelMesh mesh in modelo.Meshes )
             {
                 foreach ( ModelMeshPart meshPart in mesh.MeshParts)
@@ -39,6 +45,7 @@ namespace Escenografia
                     meshPart.Effect = efecto;
                 }
             }
+            */
         }
         /// <summary>
         /// Funcion para dibujar los modelos
@@ -46,7 +53,7 @@ namespace Escenografia
         /// <param name="view">la matriz de la camara</param>
         /// <param name="projection">la matriz que define el como se projecta sobre la camara</param>
         /// <param name="color">el color que queremos que tenga el modelo de base</param>
-        public void dibujar(Matrix view, Matrix projection, Color color)
+        virtual public void dibujar(Matrix view, Matrix projection, Color color)
         {
             efecto.Parameters["View"].SetValue(view);
             // le cargamos el como quedaria projectado en la pantalla
