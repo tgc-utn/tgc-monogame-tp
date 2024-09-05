@@ -27,18 +27,20 @@ public class TGCGame : Game {
   }
 
   private GraphicsDeviceManager Graphics;
-  private SpriteBatch SpriteBatch;
   private Effect Effect;
   private Matrix View;
   private Matrix Projection;
 
-  private SpherePrimitive PlayerSphere;
+  private SpherePrimitive Sphere;
+  private CubePrimitive Cube; 
+  private CylinderPrimitive Cylinder; 
+
   private Vector3 PlayerPosition = Vector3.Zero;
   private float PlayerSpeed = 4f;
   private Matrix PlayerWorld;
 
-  private CubePrimitive Box; 
-  private Elevator[] Elevators = new Elevator[10];
+  private Elevator Elevator;
+  private Pendulum Pendulum;
 
   private int PlayerRadius = 1;
   private int FloorUnitHeight = 6;
@@ -59,20 +61,14 @@ public class TGCGame : Game {
   }
 
   protected override void LoadContent() {
-    SpriteBatch = new SpriteBatch(GraphicsDevice);
-    PlayerSphere = new SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
-    Box = new CubePrimitive(GraphicsDevice, 1, Color.Red);
+    Sphere = new SpherePrimitive(GraphicsDevice);
+    Cube = new CubePrimitive(GraphicsDevice);
+    Cylinder = new CylinderPrimitive(GraphicsDevice);
 
-      Random rand = new Random(0);
-    for (int i = 0; i < Elevators.Length; i++)
-    {
-      // float x = rand.NextSingle() * 10 - 10;
-      // float y = rand.NextSingle() * 20 - 10;
-      // float z = rand.NextSingle() * 20 - 10;
-      // Vector3 position = new Vector3(x,y,z); 
-      // float speed = rand.NextSingle() * 3 + 1;
-    }
-      Elevators[0] = new Elevator(Box, -Vector3.UnitY, 1, 2, Color.Green, 5);
+    Elevator = new Elevator(Cube, -Vector3.UnitY, 1, 2, Color.Green, 5);
+    float starting_angle = MathF.PI/4;
+    Pendulum = new Pendulum(Cylinder, Sphere, new Vector3(0,11,3), starting_angle
+        ,starting_angle,-starting_angle, 10, 3, Color.DarkGreen,Color.Yellow, 0.5f);
 
 
     Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -100,11 +96,17 @@ public class TGCGame : Game {
     if (keyboardState.IsKeyDown(Keys.A))
       PlayerPosition.X += PlayerSpeed * dt;
 
+    if (keyboardState.IsKeyDown(Keys.Space))
+      PlayerPosition.Y += PlayerSpeed * dt;
+
+    if (keyboardState.IsKeyDown(Keys.LeftShift))
+      PlayerPosition.Y -= PlayerSpeed * dt;
+
     PlayerWorld = Matrix.CreateTranslation(PlayerPosition);
 
-    for (int i = 0; i < Elevators.Length; i++) { 
-    }
-      Elevators[0].Update(dt); 
+    Elevator.Update(dt); 
+    Pendulum.Update(dt); 
+
     View = Matrix.CreateLookAt(CameraPosition + PlayerPosition, PlayerPosition,
                                Vector3.Up);
 
@@ -118,7 +120,7 @@ public class TGCGame : Game {
     Effect.Parameters["View"].SetValue(View);
     Effect.Parameters["Projection"].SetValue(Projection);
     Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
-    PlayerSphere.Draw(Effect);
+    Sphere.Draw(Effect);
 
     Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
     Matrix initial_floor = Matrix.Identity;
@@ -129,19 +131,17 @@ public class TGCGame : Game {
               0, -PlayerRadius - (FloorUnitHeight) / 2, i * FloorUnitHeight)) *
           initial_floor;
       Effect.Parameters["World"].SetValue(floor_world);
-      Box.Draw(Effect);
+      Cube.Draw(Effect);
     }
 
-    for (int i = 0; i < Elevators.Length; i++)
-    {
-    }
-      Elevators[0].Draw(Effect);
+    Elevator.Draw(Effect);
+    Pendulum.Draw(Effect);
 
   }
 
   protected override void UnloadContent() {
     Content.Unload();
-    PlayerSphere.Dispose();
+    Sphere.Dispose();
     base.UnloadContent();
   }
 }
