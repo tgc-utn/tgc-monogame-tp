@@ -8,18 +8,20 @@ namespace Control
     class Camara
     {
         public Vector3 posicion;
-        //a si a donde este mirando la camara
-        public Vector3 PuntoAtencion; 
-        
-        public Camara(Vector3 posicion, Vector3 PuntoAtencion)
+        private Vector3 puntoAtencion;
+        //queremos que al cambiar el punto de atencion, la camara siga manteniendose en el mismo lugar relativo
+        //no se si queda limpio a si, probablemente seria mas legible con un metodo dedicado
+        public Vector3 PuntoAtencion {get {return puntoAtencion;} set {posicion += (value - puntoAtencion); puntoAtencion = value;}}
+
+        public Camara(Vector3 posicion, Vector3 puntoAtencion)
         {
             this.posicion = posicion;
-            this.PuntoAtencion = PuntoAtencion;
+            this.puntoAtencion = puntoAtencion;
         }
         //para obtener la vision de la camara
         public Matrix getViewMatrix()
         {
-            return Matrix.CreateLookAt(posicion, PuntoAtencion, Vector3.Up);
+            return Matrix.CreateLookAt(posicion, puntoAtencion, Vector3.Up);
         }
     }
     /*

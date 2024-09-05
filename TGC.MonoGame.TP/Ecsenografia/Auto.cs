@@ -8,22 +8,27 @@ namespace Escenografia
     abstract class Auto : Escenografia3D
     {
         protected float velocidad;
-        protected float celeracion;
+        protected float aceleracion;
+        protected float velocidadGiro;
         protected float peso;
+        //vector unitario
+        protected Vector3 direccion;
 
         //esto lo implementan los hijos de la clase
         abstract public void mover(float deltaTime);
     }
     class AutoJugador : Auto
     {
-        public AutoJugador(Vector3 posicion, float velocidad)
+        public AutoJugador(Vector3 posicion, Vector3 direccion, float aceleracion, float velocidadGiro)
         {
+            this.direccion = direccion;
             this.posicion = posicion;
-            this.velocidad = velocidad;
+            this.aceleracion = aceleracion;
+            this.velocidadGiro = velocidadGiro;
         }
         public override Matrix getWorldMatrix()
         {
-            return Matrix.CreateFromYawPitchRoll(rotacionX, rotacionY, rotacionZ) * Matrix.CreateTranslation(posicion);
+            return Matrix.CreateFromYawPitchRoll(rotacionY, rotacionX, rotacionZ) * Matrix.CreateTranslation(posicion);
         }
 
         public override void loadModel(string direcionModelo, string direccionEfecto, ContentManager contManager)
@@ -39,22 +44,29 @@ namespace Escenografia
         }
         public override void mover(float deltaTime)
         {
-            if ( Keyboard.GetState().IsKeyDown(Keys.A))
-            {
-                posicion += Vector3.Left * velocidad * deltaTime;
-            }
             if ( Keyboard.GetState().IsKeyDown(Keys.S))
             {
-                posicion += Vector3.Backward * velocidad * deltaTime;
+                velocidad -= aceleracion * deltaTime;
+            }
+            else if ( Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                velocidad += aceleracion * deltaTime;
+            }
+            //la velocidad siempre se reducira por algun facot, en este caso por 10%
+            else 
+            {
+                velocidad *= 0.9f;
+            }
+            if ( Keyboard.GetState().IsKeyDown(Keys.A))
+            {
+                rotacionY += velocidadGiro * deltaTime;
             }
             if ( Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                posicion += Vector3.Right * velocidad * deltaTime;
+                rotacionY -= velocidadGiro * deltaTime;
             }
-            if ( Keyboard.GetState().IsKeyDown(Keys.W))
-            {
-                posicion += Vector3.Forward * velocidad * deltaTime;
-            }
+            posicion += Vector3.Transform(direccion, Matrix.CreateFromYawPitchRoll(
+                rotacionY, rotacionX, rotacionZ) ) * velocidad * deltaTime;
         }
     }
 
