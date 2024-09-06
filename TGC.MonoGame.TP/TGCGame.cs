@@ -25,25 +25,31 @@ public class TGCGame : Game {
     IsMouseVisible = true;
   }
 
-  private GraphicsDeviceManager Graphics;
-  private SpriteBatch SpriteBatch;
-  private Effect Effect;
-  private Matrix View;
-  private Matrix Projection;
+    private GraphicsDeviceManager Graphics;
+    private SpriteBatch SpriteBatch;
+    private Effect Effect;
+    private Matrix View;
+    private Matrix Projection;
 
-  private SpherePrimitive PlayerSphere;
-  private Vector3 PlayerPosition = Vector3.Zero;
-  private float PlayerSpeed = 4f;
-  private Matrix PlayerWorld;
-  private CubePrimitive Box; 
-  private Elevator elevator; 
+    private SpherePrimitive PlayerSphere;
+    private Vector3 PlayerPosition = Vector3.Zero;
+    private float PlayerSpeed = 4f;
+    private Matrix PlayerWorld;
+    private CubePrimitive Box; 
+    private Elevator elevator; 
+    private TeapotPrimitive teapot;
+    private CylinderPrimitive cylinder;
 
-  private TrianglePrimitive triangle;
+    private TrianglePrimitive triangle;
 
-  private int PlayerRadius = 1;
-  private int FloorUnitHeight = 6;
+    private int PlayerRadius = 1;
+    private int FloorUnitHeight = 6;
 
-  private Vector3 CameraPosition = new Vector3(0, 3, -15);
+    private Vector3 CameraPosition = new Vector3(0, 3, -15);
+
+    private float Yaw { get; set; }
+    private float Pitch { get; set; }
+    private float Roll { get; set; }
 
   protected override void Initialize() {
     var rasterizerState = new RasterizerState();
@@ -59,14 +65,16 @@ public class TGCGame : Game {
   }
 
   protected override void LoadContent() {
-    SpriteBatch = new SpriteBatch(GraphicsDevice);
-    PlayerSphere = new SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
-    Box = new CubePrimitive(GraphicsDevice, 1, Color.Red);
-    elevator = new Elevator(GraphicsDevice,-Vector3.UnitY,1,2,Color.Green,5);
-    triangle = new TrianglePrimitive(GraphicsDevice, 
-    new Vector3(-1f, 1f, 1f), 
-    new Vector3(0f, 2f, 1f), 
-    new Vector3(1f, 1f, 1f), Color.Black, Color.Cyan, Color.Magenta);
+        SpriteBatch = new SpriteBatch(GraphicsDevice);
+        PlayerSphere = new SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
+        Box = new CubePrimitive(GraphicsDevice, 1, Color.Red);
+        elevator = new Elevator(GraphicsDevice,-Vector3.UnitY,1,2,Color.Green,5);
+        triangle = new TrianglePrimitive(GraphicsDevice,  new Vector3(-1f, 1f, 1f), new Vector3(0f, 2f, 1f), new Vector3(1f, 1f, 1f), Color.Black, Color.Cyan, Color.Magenta);
+        teapot = new TeapotPrimitive(GraphicsDevice, 1);
+        cylinder = new CylinderPrimitive(GraphicsDevice, 10, 7, 8);
+
+
+
      Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
     base.LoadContent();
@@ -119,6 +127,7 @@ public class TGCGame : Game {
 
   protected override void Draw(GameTime gameTime) {
     GraphicsDevice.Clear(Color.Black);
+    DrawGeometry(teapot, new Vector3(2, 0, 10), Yaw, -Pitch, Roll);
 
     Effect.Parameters["World"].SetValue(PlayerWorld);
     Effect.Parameters["View"].SetValue(View);
@@ -139,13 +148,35 @@ public class TGCGame : Game {
     }
 
     elevator.Draw(Effect);
-   var triangleEffect = triangle.Effect;
-            triangleEffect.World = Matrix.Identity;
-            triangleEffect.View = View;
-            triangleEffect.Projection = Projection;
-            triangleEffect.LightingEnabled = false;
-            triangle.Draw(triangleEffect);
+    var triangleEffect = triangle.Effect;
+    triangleEffect.World = Matrix.Identity;
+    triangleEffect.View = View;
+    triangleEffect.Projection = Projection;
+    triangleEffect.LightingEnabled = false;
+    triangle.Draw(triangleEffect);
+
+     var cylinderEffect = cylinder.Effect;
+
+    Matrix rotation = Matrix.CreateRotationX(MathHelper.PiOver2); 
+
+    cylinderEffect.World = rotation * Matrix.CreateFromYawPitchRoll(Yaw, Pitch, Roll) * Matrix.CreateTranslation(new Vector3(0, 0, 30));
+    cylinderEffect.View = View;
+    cylinderEffect.Projection = Projection;
+
+    cylinder.Draw(cylinderEffect);
+
   }
+
+   private void DrawGeometry(GeometricPrimitive geometry, Vector3 position, float yaw, float pitch, float roll)
+        {
+            var effect = geometry.Effect;
+
+            effect.World = Matrix.CreateFromYawPitchRoll(yaw, pitch, roll) * Matrix.CreateTranslation(position);
+            effect.View = View;
+            effect.Projection = Projection;
+
+            geometry.Draw(effect);
+        }
 
   protected override void UnloadContent() {
     Content.Unload();
