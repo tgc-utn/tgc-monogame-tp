@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Escenografia
 {
@@ -57,13 +58,14 @@ namespace Escenografia
             {
                 velocidad *= 0.9f;
             }
+            //los elvis operators/ ifinlines / ternaris. Estan solo para que el auto se mueva como un auto de verdad
             if ( Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                rotacionY += velocidadGiro * deltaTime;
+                rotacionY += (velocidad >= 0 ? velocidadGiro : -velocidadGiro) * deltaTime;
             }
             if ( Keyboard.GetState().IsKeyDown(Keys.D))
             {
-                rotacionY -= velocidadGiro * deltaTime;
+                rotacionY += (velocidad >= 0 ? -velocidadGiro : velocidadGiro) * deltaTime;
             }
             posicion += Vector3.Transform(direccion, Matrix.CreateFromYawPitchRoll(
                 rotacionY, rotacionX, rotacionZ) ) * velocidad * deltaTime;

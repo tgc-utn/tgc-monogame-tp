@@ -29,7 +29,7 @@ namespace TGC.MonoGame.TP
         Escenografia.AutoJugador auto;
         Control.AdministradorNPCs generadorPrueba;
 
-        private Plane _plane { get; set; }
+        private Escenografia.Plane _plane { get; set; }
 
         /// <summary>
         ///     Constructor del juego.
@@ -56,6 +56,7 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
+ 
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
@@ -68,8 +69,8 @@ namespace TGC.MonoGame.TP
             generadorPrueba.generarNPCsV1(new Vector3(-1000f,0f,-1000f), new Vector3(1000f,0f,1000f));
             auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/6f);
             camarografo = new Control.Camarografo(
-                new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1, 3500);
-            _plane = new Plane(GraphicsDevice, Content.Load<Effect>(ContentFolderEffects + "BasicShader"));
+                new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
+            _plane = new Escenografia.Plane(GraphicsDevice, Content.Load<Effect>(ContentFolderEffects + "BasicShader"));
 
             base.Initialize();
         }
@@ -119,8 +120,8 @@ namespace TGC.MonoGame.TP
             // Aca deberiamos poner toda la logia de renderizado del juego.
             GraphicsDevice.Clear(Color.Black);
 
-            auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Red);
+            auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
         }
 
