@@ -2,170 +2,155 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.TP.Geometries;
 
-namespace TGC.MonoGame.TP
-{
-    /// <summary>
-    ///     Esta es la clase principal del juego.
-    ///     Inicialmente puede ser renombrado o copiado para hacer mas ejemplos chicos, en el caso de copiar para que se
-    ///     ejecute el nuevo ejemplo deben cambiar la clase que ejecuta Program <see cref="Program.Main()" /> linea 10.
-    /// </summary>
-    public class TGCGame : Game
-    {
-        public const string ContentFolder3D = "Models/";
-        public const string ContentFolderEffects = "Effects/";
-        public const string ContentFolderMusic = "Music/";
-        public const string ContentFolderSounds = "Sounds/";
-        public const string ContentFolderSpriteFonts = "SpriteFonts/";
-        public const string ContentFolderTextures = "Textures/";
+namespace TGC.MonoGame.TP {
+public class TGCGame : Game {
+  public const string ContentFolder3D = "Models/";
+  public const string ContentFolderEffects = "Effects/";
+  public const string ContentFolderMusic = "Music/";
+  public const string ContentFolderSounds = "Sounds/";
+  public const string ContentFolderSpriteFonts = "SpriteFonts/";
+  public const string ContentFolderTextures = "Textures/";
 
-        /// <summary>
-        ///     Constructor del juego.
-        /// </summary>
-        public TGCGame()
-        {
-            // Maneja la configuracion y la administracion del dispositivo grafico.
-            Graphics = new GraphicsDeviceManager(this);
-            
-            Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
-            Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
-            
-            // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
-            // Carpeta raiz donde va a estar toda la Media.
-            Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
-            IsMouseVisible = true;
-        }
+  public TGCGame() {
+    Graphics = new GraphicsDeviceManager(this);
 
-        private GraphicsDeviceManager Graphics { get; }
-        private SpriteBatch SpriteBatch { get; set; }
-        private Model Model { get; set; }
-        private Model Cube{get; set;}
-        private Effect Effect { get; set; }
-        private float Rotation { get; set; }
-        private Matrix World { get; set; }
-        private Matrix View { get; set; }
-        private Matrix Projection { get; set; }
+    Graphics.PreferredBackBufferWidth =
+        GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
+    Graphics.PreferredBackBufferHeight =
+        GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
 
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
-        ///     Escribir aqui el codigo de inicializacion: el procesamiento que podemos pre calcular para nuestro juego.
-        /// </summary>
-        protected override void Initialize()
-        {
-            // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
+    Content.RootDirectory = "Content";
+    IsMouseVisible = true;
+  }
 
-            // Apago el backface culling.
-            // Esto se hace por un problema en el diseno del modelo del logo de la materia.
-            // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
-            var rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-            // Seria hasta aca.
+  private GraphicsDeviceManager Graphics;
+  private SpriteBatch SpriteBatch;
+  private Effect Effect;
+  private Matrix View;
+  private Matrix Projection;
 
-            // Configuramos nuestras matrices de la escena.
-            World = Matrix.Identity;
-            View = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-            Projection =
-                Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+  private SpherePrimitive PlayerSphere;
+  private Vector3 PlayerPosition = Vector3.Zero;
+  private float PlayerSpeed = 4f;
+  private Matrix PlayerWorld;
+  private CubePrimitive Box; 
+  private Elevator elevator; 
 
-            base.Initialize();
-        }
+  private TrianglePrimitive triangle;
 
-        /// <summary>
-        ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo, despues de Initialize.
-        ///     Escribir aqui el codigo de inicializacion: cargar modelos, texturas, estructuras de optimizacion, el procesamiento
-        ///     que podemos pre calcular para nuestro juego.
-        /// </summary>
-        protected override void LoadContent()
-        {
-            // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
+  private int PlayerRadius = 1;
+  private int FloorUnitHeight = 6;
 
-            // Cargo el modelo del logo.
-          //  Model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
-            Cube = Content.Load<Model>(ContentFolder3D + "basic/cube");
+  private Vector3 CameraPosition = new Vector3(0, 3, -15);
 
-            // Cargo un efecto basico propio declarado en el Content pipeline.
-            // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+  protected override void Initialize() {
+    var rasterizerState = new RasterizerState();
+    rasterizerState.CullMode = CullMode.None;
+    GraphicsDevice.RasterizerState = rasterizerState;
+    PlayerWorld = Matrix.Identity;
+    View = Matrix.CreateLookAt(CameraPosition + PlayerPosition, PlayerPosition,
+                               Vector3.Up);
+    Projection = Matrix.CreatePerspectiveFieldOfView(
+        MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
-            // Asigno el efecto que cargue a cada parte del mesh.
-            // Un modelo puede tener mas de 1 mesh internamente.
-            foreach (var mesh in Cube.Meshes)
-            {
-                // Un mesh puede tener mas de 1 mesh part (cada 1 puede tener su propio efecto).
-                foreach (var meshPart in mesh.MeshParts)
-                {
-                    meshPart.Effect = Effect;
-                }
-            }
+    base.Initialize();
+  }
 
-            base.LoadContent();
-        }
+  protected override void LoadContent() {
+    SpriteBatch = new SpriteBatch(GraphicsDevice);
+    PlayerSphere = new SpherePrimitive(GraphicsDevice, PlayerRadius, 16);
+    Box = new CubePrimitive(GraphicsDevice, 1, Color.Red);
+    elevator = new Elevator(GraphicsDevice,-Vector3.UnitY,1,2,Color.Green,5);
+    triangle = new TrianglePrimitive(GraphicsDevice, 
+    new Vector3(-1f, 1f, 1f), 
+    new Vector3(0f, 2f, 1f), 
+    new Vector3(1f, 1f, 1f), Color.Black, Color.Cyan, Color.Magenta);
+     Effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-        /// <summary>
-        ///     Se llama en cada frame.
-        ///     Se debe escribir toda la logica de computo del modelo, asi como tambien verificar entradas del usuario y reacciones
-        ///     ante ellas.
-        /// </summary>
-        protected override void Update(GameTime gameTime)
-        {
-            // Aca deberiamos poner toda la logica de actualizacion del juego.
+    base.LoadContent();
+  }
 
-            // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
-                //Salgo del juego.
-                Exit();
-            }
-            
-            // Basado en el tiempo que paso se va generando una rotacion.
-            //  Rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+  protected override void Update(GameTime gameTime) {
 
-            // World = Matrix.CreateRotationY(Rotation);
-            
-            World = Matrix.CreateScale(4.0f) ;
+    float dt = Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+    var keyboardState = Keyboard.GetState();
 
-            base.Update(gameTime);
-        }
+    if (keyboardState.IsKeyDown(Keys.Escape))
+      Exit();
 
-        /// <summary>
-        ///     Se llama cada vez que hay que refrescar la pantalla.
-        ///     Escribir aqui el codigo referido al renderizado.
-        /// </summary>
-        protected override void Draw(GameTime gameTime)
-        {
-            // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+    if (keyboardState.IsKeyDown(Keys.W))
+      PlayerPosition.Z += PlayerSpeed * dt;
 
-            // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
+    if (keyboardState.IsKeyDown(Keys.S))
+      PlayerPosition.Z -= PlayerSpeed * dt;
 
-            Effect.Parameters["View"].SetValue(View);
-            Effect.Parameters["Projection"].SetValue(Projection);
-            Effect.Parameters["DiffuseColor"].SetValue(Color.SkyBlue.ToVector3());
+    if (keyboardState.IsKeyDown(Keys.D))
+      PlayerPosition.X -= PlayerSpeed * dt;
 
-            foreach (var mesh in Cube.Meshes)
-            {
-                Effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * World);
-                mesh.Draw();
-            }
+    if (keyboardState.IsKeyDown(Keys.A))
+      PlayerPosition.X += PlayerSpeed * dt;
 
-            // Cube.Draw(World, View, Projection);
+       // Movimiento de la cámara con las flechas para facilidad de ver las cosas
+    float cameraSpeed = 5f;  // Velocidad de la cámara
+    if (keyboardState.IsKeyDown(Keys.Up))
+        CameraPosition.Z += cameraSpeed * dt;  // Mover la cámara hacia adelante
 
-            // base.Draw(gameTime);
+    if (keyboardState.IsKeyDown(Keys.Down))
+        CameraPosition.Z -= cameraSpeed * dt;  // Mover la cámara hacia atrás
 
-        }
+    if (keyboardState.IsKeyDown(Keys.Left))
+        CameraPosition.X -= cameraSpeed * dt;  // Mover la cámara hacia la izquierda
 
-        /// <summary>
-        ///     Libero los recursos que se cargaron en el juego.
-        /// </summary>
-        protected override void UnloadContent()
-        {
-            // Libero los recursos.
-            Content.Unload();
+    if (keyboardState.IsKeyDown(Keys.Right))
+        CameraPosition.X += cameraSpeed * dt;  // Mover la cámara hacia la derecha
 
-            base.UnloadContent();
-        }
+    base.Update(gameTime);
+
+    PlayerWorld = Matrix.CreateTranslation(PlayerPosition);
+
+    elevator.Update(dt);
+    View = Matrix.CreateLookAt(CameraPosition + PlayerPosition, PlayerPosition,
+                               Vector3.Up);
+
+    base.Update(gameTime);
+  }
+
+  protected override void Draw(GameTime gameTime) {
+    GraphicsDevice.Clear(Color.Black);
+
+    Effect.Parameters["World"].SetValue(PlayerWorld);
+    Effect.Parameters["View"].SetValue(View);
+    Effect.Parameters["Projection"].SetValue(Projection);
+    Effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+    PlayerSphere.Draw(Effect);
+
+    Effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+    Matrix initial_floor = Matrix.Identity;
+    for (int i = 0; i < 10; i++) {
+      Matrix floor_world =
+          Matrix.CreateScale(FloorUnitHeight) *
+          Matrix.CreateTranslation(new Vector3(
+              0, -PlayerRadius - (FloorUnitHeight) / 2, i * FloorUnitHeight)) *
+          initial_floor;
+      Effect.Parameters["World"].SetValue(floor_world);
+      Box.Draw(Effect);
     }
+
+    elevator.Draw(Effect);
+   var triangleEffect = triangle.Effect;
+            triangleEffect.World = Matrix.Identity;
+            triangleEffect.View = View;
+            triangleEffect.Projection = Projection;
+            triangleEffect.LightingEnabled = false;
+            triangle.Draw(triangleEffect);
+  }
+
+  protected override void UnloadContent() {
+    Content.Unload();
+    PlayerSphere.Dispose();
+    base.UnloadContent();
+  }
+}
 }

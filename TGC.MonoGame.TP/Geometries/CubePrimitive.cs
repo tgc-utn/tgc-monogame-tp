@@ -1,4 +1,4 @@
-﻿#region File Description
+#region File Description
 
 //-----------------------------------------------------------------------------
 // CubePrimitive.cs
@@ -16,7 +16,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
 
-namespace TGC.MonoGame.Samples.Geometries
+namespace TGC.MonoGame.TP.Geometries
 {
     /// <summary>
     ///     Geometric primitive class for drawing cubes.

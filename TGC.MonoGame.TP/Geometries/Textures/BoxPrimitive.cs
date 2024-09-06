@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TGC.MonoGame.Samples.Geometries.Textures
+namespace TGC.MonoGame.TP.Geometries.Textures
 {
     /// <summary>
     ///     Textured 3D box or cube.

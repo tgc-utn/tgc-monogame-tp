@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TGC.MonoGame.Tp {
+namespace TGC.MonoGame.TP.Geometries {
 public class Elevator : IDisposable {
-  private Tp.CubePrimitive Model;
+  private CubePrimitive Model;
   private Matrix World;
   private float Size;
 
@@ -25,7 +25,7 @@ public class Elevator : IDisposable {
     Color = color;
     Max_height = max_height;
     Min_height = position.Y - scale_y * Size / 2;
-    Model = new Tp.CubePrimitive(graphicsDevice, 1, color);
+    Model = new CubePrimitive(graphicsDevice, 1, color);
   }
 
   public void Update(float dt) {

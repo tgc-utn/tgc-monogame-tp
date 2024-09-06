@@ -18,7 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 #endregion Using Statements
 
-namespace TGC.MonoGame.Samples.Geometries
+namespace TGC.MonoGame.TP.Geometries
 {
     /// <summary>
     ///     Base class for simple geometric primitive models. This provides a vertex buffer, an index buffer, plus methods for

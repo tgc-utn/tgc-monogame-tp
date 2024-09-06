@@ -17,7 +17,7 @@ using Microsoft.Xna.Framework;
 
 #endregion Using Statements
 
-namespace TGC.MonoGame.Samples.Geometries
+namespace TGC.MonoGame.TP.Geometries
 {
     /// <summary>
     ///     Base class for primitives that are made out of cubic bezier patches (a type of curved surface).
