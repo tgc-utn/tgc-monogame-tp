@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+
 namespace TGC.MonoGame.TP
 {
     /// <summary>
@@ -31,7 +32,7 @@ namespace TGC.MonoGame.TP
         Control.AdministradorNPCs generadorPrueba;
 
         private Escenografia.Plane _plane { get; set; }
-        private Model _plant;
+        private Model _plant { get; set; }
 
         /// <summary>
         ///     Constructor del juego.
@@ -72,7 +73,7 @@ namespace TGC.MonoGame.TP
             auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/6f);
             camarografo = new Control.Camarografo(
                 new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
-        
+            //_plant = new Model(GraphicsDevice, );
             _plane = new Escenografia.Plane(GraphicsDevice, Content.Load<Effect>(ContentFolderEffects + "BasicShader"));
             base.Initialize();
         }
@@ -88,7 +89,7 @@ namespace TGC.MonoGame.TP
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             generadorPrueba.loadModelosAutos(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
-            //Arbol
+            
             _plant = Content.Load<Model>(ContentFolder3D + "Model/Plant/indoor plant_02_fbx/plant");
             base.LoadContent();
         }
@@ -120,7 +121,7 @@ namespace TGC.MonoGame.TP
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
         /// 
-        //Camaras para el Poste
+        //Camaras para la planta
         private Matrix _world, _view, _projection;
         protected override void Draw(GameTime gameTime)
         {
@@ -128,7 +129,9 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
 
             _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Red);
-            _plant.Draw(_world, _view, _projection);
+            _plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
+            Content.Load<Effect>(ContentFolderEffects + "BasicShader").Parameters["View"].SetValue(camarografo.getViewMatrix());
+
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
         }
