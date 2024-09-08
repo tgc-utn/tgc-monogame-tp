@@ -37,6 +37,10 @@ namespace TGC.MonoGame.TP
         private PrismaRectangularEditable _edificio {get; set;}
         private Model _plant { get; set; }
 
+        private Cono _cono { get; set; }
+        private Rampa _rampa { get; set; }
+        
+
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -77,7 +81,10 @@ namespace TGC.MonoGame.TP
                 new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
             //_plant = new Model(GraphicsDevice, );
             _plane = new Escenografia.Plane(GraphicsDevice);
-            _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(100f, 400f, 100f));
+            _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
+            _cono = new Cono();
+
+            _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f));
 
             base.Initialize();
         }
@@ -100,8 +107,15 @@ namespace TGC.MonoGame.TP
             _plane.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(-5f, 0f, -5f)));
             _plane.SetEffect(_basicShader);
 
-            _edificio.SetWorldMatrix(Matrix.CreateTranslation(Vector3.Zero));
+            _cono.loadModel(ContentFolder3D + "Cono/Traffic Cone/Models and Textures/1", ContentFolderEffects + "BasicShader", Content);
+
             _edificio.SetEffect(_basicShader);
+            _edificio.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(800f, 150f, 0)));
+
+            _rampa.SetEffect(_basicShader);
+            _rampa.SetWorldMatrix(Matrix.CreateRotationZ(-MathF.PI/2) * Matrix.CreateTranslation(new Vector3( 0, 100, 350)));
+
+            _cono.SetWorldMatrix(Matrix.CreateTranslation(Vector3.UnitZ * 80f) * Matrix.CreateScale(16f));
 
             base.LoadContent();
         }
@@ -145,8 +159,12 @@ namespace TGC.MonoGame.TP
             
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
+            
+            _cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
 
             _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.DarkGray);
+
+            _rampa.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.SaddleBrown);
 
         }
 
