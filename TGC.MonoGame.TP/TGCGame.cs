@@ -1,5 +1,5 @@
 ﻿using System;
-using Escenografia.TESTS;
+using Escenografia;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -23,6 +23,8 @@ namespace TGC.MonoGame.TP
 
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
+
+        private Effect _basicShader;
         
 
 
@@ -32,6 +34,7 @@ namespace TGC.MonoGame.TP
         Control.AdministradorNPCs generadorPrueba;
 
         private Escenografia.Plane _plane { get; set; }
+        private PrismaRectangularEditable _edificio {get; set;}
         private Model _plant { get; set; }
 
         /// <summary>
@@ -67,14 +70,15 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-
             generadorPrueba = new Control.AdministradorNPCs();
             generadorPrueba.generarNPCsV1(new Vector3(-1000f,0f,-1000f), new Vector3(1000f,0f,1000f));
             auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/6f);
             camarografo = new Control.Camarografo(
                 new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
             //_plant = new Model(GraphicsDevice, );
-            _plane = new Escenografia.Plane(GraphicsDevice, Content.Load<Effect>(ContentFolderEffects + "BasicShader"));
+            _plane = new Escenografia.Plane(GraphicsDevice);
+            _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(100f, 400f, 100f));
+
             base.Initialize();
         }
 
@@ -90,7 +94,15 @@ namespace TGC.MonoGame.TP
             generadorPrueba.loadModelosAutos(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
             
-            _plant = Content.Load<Model>(ContentFolder3D + "Model/Plant/indoor plant_02_fbx/plant");
+            _plant = Content.Load<Model>(ContentFolder3D + "Plant/indoor plant_02_fbx/plant");
+            _basicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
+            _plane.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(-5f, 0f, -5f)));
+            _plane.SetEffect(_basicShader);
+
+            _edificio.SetWorldMatrix(Matrix.CreateTranslation(Vector3.Zero));
+            _edificio.SetEffect(_basicShader);
+
             base.LoadContent();
         }
 
@@ -120,20 +132,22 @@ namespace TGC.MonoGame.TP
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
-        /// 
-        //Camaras para la planta
-        private Matrix _world, _view, _projection;
+        ///
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.LightBlue);
 
-            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Red);
-            _plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
-            Content.Load<Effect>(ContentFolderEffects + "BasicShader").Parameters["View"].SetValue(camarografo.getViewMatrix());
-
+            
+            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.LightGray);
+            //_plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
+            
+            
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
+
+            _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.DarkGray);
+
         }
 
         /// <summary>

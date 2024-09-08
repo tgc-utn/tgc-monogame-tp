@@ -8,11 +8,14 @@ namespace Escenografia
     public class Plane : Escenografia3D, System.IDisposable{
         private GraphicsDevice _graphicsDevice;private VertexBuffer _vertexBuffer;private IndexBuffer _indexBuffer;
 
-        public Plane(GraphicsDevice graphicsDevice, Effect effect)
+        public Plane(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
-            this.efecto = effect;  // Asignamos el Effect personalizado
             CreatePlaneMesh(8, 8);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
+        }
+
+        public void SetEffect (Effect effect){
+            this.efecto = effect;
         }
 
         private void CreatePlaneMesh(int width, int height)
@@ -77,7 +80,7 @@ namespace Escenografia
         public override void dibujar(Matrix view, Matrix projection, Color color)
         {
             // Establece los parámetros de transformación en el Effect personalizado.
-            //efecto.Parameters["World"].SetValue(getWorldMatrix());
+            efecto.Parameters["World"].SetValue(getWorldMatrix());
             efecto.Parameters["View"].SetValue(view);
             efecto.Parameters["Projection"].SetValue(projection);
 
@@ -113,7 +116,7 @@ namespace Escenografia
         public override Matrix getWorldMatrix()
         {   
             //posicion = new Vector3(0, -5, 0);
-            return Matrix.Identity;
+            return world;
         }
 
         public void Dispose()
