@@ -6,7 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Escenografia
 {
     public class Plane : Escenografia3D, System.IDisposable{
-        private GraphicsDevice _graphicsDevice;private VertexBuffer _vertexBuffer;private IndexBuffer _indexBuffer;
+        private GraphicsDevice _graphicsDevice;
+        private VertexBuffer _vertexBuffer;
+        private IndexBuffer _indexBuffer;
 
         public Plane(GraphicsDevice graphicsDevice, Effect effect)
         {

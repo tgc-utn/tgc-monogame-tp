@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Timers;
 using Escenografia;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -8,6 +9,7 @@ namespace Control
 {
     class AdministradorNPCs
     {
+        static Random RNG = new Random();
         List<AutoNPC> npcs;
         //genera un monton de npcs al azar en el mapa ( suponiendo que es plano por ahora )
         public void generarNPCsV1(Vector3 minPos,Vector3 maxPos)
@@ -41,18 +43,45 @@ namespace Control
             }
         }
         //crea un monton de autos identicos
-        public void loadModelosAutos(String direccionModelo, String direccionEfecto, ContentManager content)
+        //este los genera en un circulo ( me gustan mas los escenarios circulares, todavia mas para este caso )
+        public void generadorNPCsV2(Vector3 centro, float radio, int numeroNPCs)
         {
-            foreach( AutoNPC auto in npcs)
+            float distanciaCentro, anguloDesdeCentro;
+            Vector3 puntoPlano;
+            npcs = new List<AutoNPC>(numeroNPCs);
+            AutoNPC holder;
+            for ( int i=0; i< numeroNPCs; i++)
             {
-                auto.loadModel(direccionModelo,direccionEfecto,content);
+                distanciaCentro = (float)(RNG.NextDouble() * radio);
+                anguloDesdeCentro = (float)(RNG.NextDouble() * Math.Tau);
+                puntoPlano = Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(anguloDesdeCentro)) * distanciaCentro;
+                //Console.WriteLine(distanciaCentro);
+                holder = new AutoNPC(puntoPlano + centro, 
+                Convert.ToSingle(RNG.NextDouble() * Math.PI), 
+                Convert.ToSingle(RNG.NextDouble() * Math.PI),
+                Convert.ToSingle(RNG.NextDouble() * Math.PI), 
+                new Color( (float)RNG.NextDouble(), (float)RNG.NextDouble(), (float)RNG.NextDouble()));
+                //Console.WriteLine(holder.getWorldMatrix());
+                npcs.Add(holder);
             }
         }
-        public void drawAutos(Matrix view, Matrix projeccion, Color color)
+        public void loadModelosAutos(String[] direccionesModelos, String[] direccionesEfectos, ContentManager content)
         {
+            //cargamos todos los modelos al azar
+            foreach( AutoNPC auto in npcs)
+            {
+                Random rangen = new Random();
+                
+                auto.loadModel(direccionesModelos[rangen.Next(direccionesModelos.Length)],
+                direccionesEfectos[rangen.Next(direccionesEfectos.Length)],content);
+            }
+        }
+        public void drawAutos(Matrix view, Matrix projeccion)
+        {
+            
             foreach( AutoNPC auto in npcs )
             {
-                auto.dibujar(view, projeccion, color);
+                auto.dibujar(view, projeccion, auto.color);
             }
         }
     }

@@ -74,13 +74,29 @@ namespace Escenografia
 
     class AutoNPC : Auto
     {
+        public Color color;
         public AutoNPC(Vector3 posicion)
         {
             this.posicion = posicion;
         }
+        public AutoNPC(Vector3 posicion, float rotacionX, float rotacionY, float rotacionZ)
+        {
+            this.posicion = posicion;
+            this.rotacionX = rotacionX;
+            this.rotacionY = rotacionY;
+            this.rotacionZ = rotacionZ;
+        }
+        public AutoNPC(Vector3 posicion, float rotacionX, float rotacionY, float rotacionZ, Color color)
+        {
+            this.posicion = posicion;
+            this.rotacionX = rotacionX;
+            this.rotacionY = rotacionY;
+            this.rotacionZ = rotacionZ;
+            this.color = color;
+        }
         public override Matrix getWorldMatrix()
         {
-            return Matrix.CreateTranslation(posicion);
+            return Matrix.CreateFromYawPitchRoll(rotacionY,rotacionX,rotacionZ) * Matrix.CreateTranslation(this.posicion);
         }
 
         public override void mover(float deltaTime)
