@@ -66,12 +66,12 @@ public class PrismaRectangularEditable : Escenografia3D
 
     public override Matrix getWorldMatrix()
     {
-        return world;
+        return Matrix.CreateRotationZ(rotacionZ) * Matrix.CreateTranslation(posicion);
     }
 
     public override void dibujar(Matrix view, Matrix projection, Color color)
     {
-        efecto.Parameters["World"].SetValue(world);
+        efecto.Parameters["World"].SetValue(getWorldMatrix());
         efecto.Parameters["View"].SetValue(view);
         efecto.Parameters["Projection"].SetValue(projection);
         efecto.Parameters["DiffuseColor"].SetValue(color.ToVector3());

@@ -10,8 +10,13 @@ namespace Escenografia
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indexBuffer;
 
+<<<<<<< HEAD
         public Plano(GraphicsDevice graphicsDevice)
+=======
+        public Plano(GraphicsDevice graphicsDevice, Vector3 posicion)
+>>>>>>> ace047aa6f08cb3567b0c5ae28dbcc7c4af7f3f7
         {
+            this.posicion = posicion;
             _graphicsDevice = graphicsDevice;
             CreatePlaneMesh(8, 8);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
         }
@@ -41,7 +46,11 @@ namespace Escenografia
                     float posZ = y;
 
                     vertices[indiceVertice] = new VertexPositionNormalTexture(
+<<<<<<< HEAD
                         new Vector3(posX, posY, posZ) * 2,  // Posición del vértice
+=======
+                        new Vector3(posX, posY, posZ),  // Posición del vértice
+>>>>>>> ace047aa6f08cb3567b0c5ae28dbcc7c4af7f3f7
                         Vector3.Up,                    // Normal (hacia arriba)
                         new Vector2(x / (float)width, y / (float)height) // Coordenadas UV
                     );
@@ -120,7 +129,7 @@ namespace Escenografia
         {   
             //posicion = new Vector3(0, -5, 0);
 
-            return world;
+            return Matrix.CreateTranslation(posicion);
 
         }
 

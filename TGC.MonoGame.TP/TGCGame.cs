@@ -87,11 +87,15 @@ namespace TGC.MonoGame.TP
 
 
             //_plant = new Model(GraphicsDevice, );
+<<<<<<< HEAD
             _plane = new Escenografia.Plano(GraphicsDevice);
+=======
+            _plane = new Escenografia.Plano(GraphicsDevice, Vector3.Zero);
+>>>>>>> ace047aa6f08cb3567b0c5ae28dbcc7c4af7f3f7
             _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
             _cono = new Cono();
 
-            _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f));
+            _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f), Vector3.Backward * 1000f);
 
 
             base.Initialize();
@@ -113,28 +117,23 @@ namespace TGC.MonoGame.TP
             generadorPrueba.loadModelosAutos(modelos, efectos, Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
 
-            cuadrado = new Escenografia.Primitiva(GraphicsDevice, Vector3.Zero, 
-            new Vector3(1f,0f,1f), new Vector3(1f,0f,-1f), new Vector3(-1f,0f,-1f), new Vector3(-1f,0f,1f),
-            Color.Brown, 10000f );
+            cuadrado = new Escenografia.Primitiva(GraphicsDevice, Content.Load<Effect>(efectos[0]), 
+            new Vector3(1f,0f,1f), new Vector3(1f,0f,-1f), new Vector3(-1f,0f,-1f), new Vector3(-1f,0f,1f));
 
 
             
             _plant = Content.Load<Model>(ContentFolder3D + "Plant/indoor plant_02_fbx/plant");
             _basicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
-            _plane.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(-5f, 0f, -5f)));
             _plane.SetEffect(_basicShader);
 
             _cono.loadModel(ContentFolder3D + "Cono/Traffic Cone/Models and Textures/1", ContentFolderEffects + "BasicShader", Content);
 
             _edificio.SetEffect(_basicShader);
-            _edificio.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(800f, 150f, 0)));
 
             _rampa.SetEffect(_basicShader);
-            _rampa.SetWorldMatrix(Matrix.CreateRotationZ(-MathF.PI/2) * Matrix.CreateTranslation(new Vector3( 0, 100, 350)));
-
-            _cono.SetWorldMatrix(Matrix.CreateTranslation(Vector3.UnitZ * 80f) * Matrix.CreateScale(16f));
-
+            _rampa.SetRotacion(0f,0f,Convert.ToSingle(Math.PI/2));
+            _cono.SetScale(16f);
 
             base.LoadContent();
         }
@@ -170,7 +169,7 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
 
-            GraphicsDevice.Clear(Color.LightBlue);
+            GraphicsDevice.Clear(Color.DarkGray);
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             cuadrado.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Brown);
@@ -179,8 +178,8 @@ namespace TGC.MonoGame.TP
 
 
             
-            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.LightGray);
-            //_plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
+            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Red);
+            _plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             
             
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
@@ -188,7 +187,7 @@ namespace TGC.MonoGame.TP
             
             _cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
 
-            _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.DarkGray);
+            _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.BlanchedAlmond);
 
             _rampa.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.SaddleBrown);
 

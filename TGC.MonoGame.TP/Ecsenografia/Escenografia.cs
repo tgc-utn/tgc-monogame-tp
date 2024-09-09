@@ -4,16 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 namespace Escenografia
 {
-    interface Dibujable
-    {
-        public abstract void dibujar(Matrix view, Matrix projection, Color color);
-    }
-    public abstract class Escenografia3D : Dibujable
+    public abstract class Escenografia3D 
     {
         protected Model modelo; 
         protected Effect efecto;
 
-        public Matrix world {get; set;}
         public Vector3 posicion;
         protected float rotacionX, rotacionY, rotacionZ;
         /// <summary>
@@ -21,9 +16,6 @@ namespace Escenografia
         /// </summary>
         /// <returns>La matriz "world" asociada al objeto que llamo</returns>
         abstract public Matrix getWorldMatrix();
-        public void SetWorldMatrix(Matrix matrix){
-            world = matrix;
-        }
         /// <summary>
         /// Inicializa un modelo junto a sus efectos dado una direccion de archivo para este
         /// </summary>
@@ -76,29 +68,19 @@ namespace Escenografia
             }
         }
     }
-    class Primitiva : Dibujable
+    class Primitiva 
     {
-        private Vector3 posicionCentro;
+        private readonly GraphicsDevice device;
         private VertexBuffer vertices;
         private IndexBuffer indices;
-        private float scala;
+        private Effect effect;
 
-        GraphicsDevice graphics;
-        public Color color;
-
-        public Primitiva(GraphicsDevice graphics, Vector3 posicionCentro,
-        Vector3 vertice1, Vector3 vertice2, Vector3 vertice3, Vector3 vertice4,
-        Color color, float scala)
+        public Primitiva(GraphicsDevice device, Effect effect,
+        Vector3 vertice1, Vector3 vertice2, Vector3 vertice3, Vector3 vertice4)
         {
-            vertice1 *= scala;
-            vertice2 *= scala;
-            vertice3 *= scala;
-            vertice4 *= scala;
-            this.posicionCentro = posicionCentro;
-            this.scala = scala;
-            this.graphics = graphics;
-            this.color = color;
-            
+            this.effect = effect;
+            this.device = device;
+            Color color = Color.Black;
             int[] indicesTemp = new int[6];
             VertexPositionColor[] dataVertices = new VertexPositionColor[4];
             dataVertices[0] = new VertexPositionColor(vertice1, color);
@@ -113,18 +95,30 @@ namespace Escenografia
             indicesTemp[1] = 3;
             indicesTemp[1] = 0;
 
-            vertices = new VertexBuffer(graphics, typeof(VertexPositionColor), dataVertices.Length, BufferUsage.WriteOnly);
+            vertices = new VertexBuffer(device, typeof(VertexPositionColor), dataVertices.Length, BufferUsage.WriteOnly);
             vertices.SetData(dataVertices);
-            indices = new IndexBuffer(graphics, IndexElementSize.ThirtyTwoBits, indicesTemp.Length, BufferUsage.WriteOnly);
+            indices = new IndexBuffer(device, IndexElementSize.ThirtyTwoBits, indicesTemp.Length, BufferUsage.WriteOnly);
             indices.SetData(indicesTemp);
         }
 
         public void dibujar(Matrix view, Matrix projection, Color color)
         {
-            graphics.SetVertexBuffer(vertices);
-            
-            graphics.Indices = indices;
-            graphics.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
+            device.SetVertexBuffer(vertices);
+            device.Indices = indices;
+            effect.Parameters["World"].SetValue(Matrix.CreateTranslation(Vector3.Zero) * Matrix.CreateScale(1000f));
+            effect.Parameters["View"].SetValue(view);
+            effect.Parameters["Projection"].SetValue(projection);
+            effect.Parameters["DiffuseColor"].SetValue(color.ToVector3());
+
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
+            }
+        }
+        public void Dispose()
+        {
+
         } 
     }
 }
