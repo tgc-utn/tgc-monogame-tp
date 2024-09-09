@@ -38,7 +38,7 @@ namespace TGC.MonoGame.TP
         Escenografia.Primitiva cuadrado;
 
 
-        private Escenografia.Plane _plane { get; set; }
+        private Escenografia.Plano _plane { get; set; }
         private PrismaRectangularEditable _edificio {get; set;}
         private Model _plant { get; set; }
 
@@ -87,7 +87,7 @@ namespace TGC.MonoGame.TP
 
 
             //_plant = new Model(GraphicsDevice, );
-            _plane = new Escenografia.Plane(GraphicsDevice);
+            _plane = new Escenografia.Plano(GraphicsDevice);
             _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
             _cono = new Cono();
 
@@ -184,7 +184,7 @@ namespace TGC.MonoGame.TP
             
             
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
-            generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
+            generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             
             _cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
 
