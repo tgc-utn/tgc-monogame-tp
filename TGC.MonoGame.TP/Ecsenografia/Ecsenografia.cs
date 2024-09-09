@@ -85,6 +85,10 @@ namespace Escenografia
         Vector3 vertice1, Vector3 vertice2, Vector3 vertice3, Vector3 vertice4,
         Color color, float scala)
         {
+            vertice1 *= scala;
+            vertice2 *= scala;
+            vertice3 *= scala;
+            vertice4 *= scala;
             this.posicionCentro = posicionCentro;
             this.scala = scala;
             this.graphics = graphics;
@@ -113,6 +117,7 @@ namespace Escenografia
         public void dibujar(Matrix view, Matrix projection, Color color)
         {
             graphics.SetVertexBuffer(vertices);
+            
             graphics.Indices = indices;
             graphics.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
         } 

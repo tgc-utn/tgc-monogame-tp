@@ -5,19 +5,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Escenografia
 {
-    public class Plane : Escenografia3D, System.IDisposable{
+    public class Plano : Escenografia3D, System.IDisposable{
         private GraphicsDevice _graphicsDevice;
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indexBuffer;
 
-        public Plane(GraphicsDevice graphicsDevice, Effect effect)
+        public Plano(GraphicsDevice graphicsDevice, Effect efecto,Vector3 posicion, float scala)
         {
             _graphicsDevice = graphicsDevice;
-            this.efecto = effect;  // Asignamos el Effect personalizado
-            CreatePlaneMesh(8, 8);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
+            this.efecto = efecto;  // Asignamos el Effect personalizado
+            this.posicion = posicion;
+            CreatePlaneMesh(8, 8, scala);  // Crea un plano con 8x8 cuadrículas, es decir, 64 cuads, o 128 triangulos.
         }
 
-        private void CreatePlaneMesh(int width, int height)
+        private void CreatePlaneMesh(int width, int height,float scala)
         {
             int numeroVertices = (width + 1) * (height + 1);
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numeroVertices];
@@ -37,7 +38,7 @@ namespace Escenografia
                     float posZ = y;
 
                     vertices[indiceVertice] = new VertexPositionNormalTexture(
-                        new Vector3(posX, posY, posZ),  // Posición del vértice
+                        new Vector3(posX, posY, posZ) * scala,  // Posición del vértice
                         Vector3.Up,                    // Normal (hacia arriba)
                         new Vector2(x / (float)width, y / (float)height) // Coordenadas UV
                     );
@@ -91,11 +92,11 @@ namespace Escenografia
             _graphicsDevice.SetVertexBuffer(_vertexBuffer);
             _graphicsDevice.Indices = _indexBuffer;
 
-            efecto.Parameters["World"].SetValue(getWorldMatrix() * Matrix.CreateScale(1000f));
             foreach (var pass in efecto.CurrentTechnique.Passes)
             {
                 //Que es esto?
                 pass.Apply();
+                efecto.Parameters["World"].SetValue(getWorldMatrix());
                 //dibujamos la primitiva, pero ¿Como sabe donde?
                 _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, _indexBuffer.IndexCount / 3);
             }
@@ -115,7 +116,7 @@ namespace Escenografia
         public override Matrix getWorldMatrix()
         {   
             //posicion = new Vector3(0, -5, 0);
-            return Matrix.Identity;
+            return Matrix.CreateTranslation(posicion);
         }
 
         public void Dispose()

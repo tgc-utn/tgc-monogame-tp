@@ -1,6 +1,7 @@
 ﻿using System;
 using Escenografia.TESTS;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -27,7 +28,8 @@ namespace TGC.MonoGame.TP
         Control.Camarografo camarografo;
         Escenografia.AutoJugador auto;
         Control.AdministradorNPCs generadorPrueba;
-        private Escenografia.Plane _plane { get; set; }
+        private Escenografia.Plano _plane { get; set; }
+        Escenografia.Primitiva cuadrado;
 
         /// <summary>
         ///     Constructor del juego.
@@ -58,15 +60,17 @@ namespace TGC.MonoGame.TP
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.RasterizerState = rasterizerState; 
 
 
             generadorPrueba = new Control.AdministradorNPCs();
-            generadorPrueba.generadorNPCsV2(Vector3.Zero, 10000f, 120);
-            auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/6f);
+            generadorPrueba.generadorNPCsV2(Vector3.Zero, 20000f, 200);
+            auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/3.5f);
             camarografo = new Control.Camarografo(
-                new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
+                new Vector3(1f,1f,1f) * 1500f, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
             base.Initialize();
+
+
         }
 
         /// <summary>
@@ -82,6 +86,10 @@ namespace TGC.MonoGame.TP
             String[] efectos = {ContentFolderEffects + "BasicShader"};
             generadorPrueba.loadModelosAutos(modelos, efectos, Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
+            cuadrado = new Escenografia.Primitiva(GraphicsDevice, Vector3.Zero, 
+            new Vector3(1f,0f,1f), new Vector3(1f,0f,-1f), new Vector3(-1f,0f,-1f), new Vector3(-1f,0f,1f),
+            Color.Brown, 10000f );
+            _plane = new Escenografia.Plano(GraphicsDevice, Content.Load<Effect>(efectos[0]), Vector3.Zero, 1f);
             base.LoadContent();
         }
 
@@ -117,6 +125,8 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.Clear(Color.Black);
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
+            cuadrado.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Brown);
+            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Brown);
         }
 
         /// <summary>
