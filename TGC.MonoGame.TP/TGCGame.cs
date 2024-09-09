@@ -1,9 +1,10 @@
 ﻿using System;
-using Escenografia.TESTS;
+using Escenografia;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 
 namespace TGC.MonoGame.TP
 {
@@ -24,12 +25,27 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
 
+
+        private Effect _basicShader;
+        
+
         //Control.Camera camara;
         Control.Camarografo camarografo;
         Escenografia.AutoJugador auto;
         Control.AdministradorNPCs generadorPrueba;
-        private Escenografia.Plano _plane { get; set; }
+
+        
         Escenografia.Primitiva cuadrado;
+
+
+        private Escenografia.Plane _plane { get; set; }
+        private PrismaRectangularEditable _edificio {get; set;}
+        private Model _plant { get; set; }
+
+        private Cono _cono { get; set; }
+        private Rampa _rampa { get; set; }
+        
+
 
         /// <summary>
         ///     Constructor del juego.
@@ -62,12 +78,22 @@ namespace TGC.MonoGame.TP
             rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState; 
 
-
             generadorPrueba = new Control.AdministradorNPCs();
             generadorPrueba.generadorNPCsV2(Vector3.Zero, 20000f, 200);
             auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/3.5f);
             camarografo = new Control.Camarografo(
+
                 new Vector3(1f,1f,1f) * 1500f, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
+
+
+            //_plant = new Model(GraphicsDevice, );
+            _plane = new Escenografia.Plane(GraphicsDevice);
+            _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
+            _cono = new Cono();
+
+            _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f));
+
+
             base.Initialize();
 
 
@@ -86,10 +112,30 @@ namespace TGC.MonoGame.TP
             String[] efectos = {ContentFolderEffects + "BasicShader"};
             generadorPrueba.loadModelosAutos(modelos, efectos, Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
+
             cuadrado = new Escenografia.Primitiva(GraphicsDevice, Vector3.Zero, 
             new Vector3(1f,0f,1f), new Vector3(1f,0f,-1f), new Vector3(-1f,0f,-1f), new Vector3(-1f,0f,1f),
             Color.Brown, 10000f );
-            _plane = new Escenografia.Plano(GraphicsDevice, Content.Load<Effect>(efectos[0]), Vector3.Zero, 1f);
+
+
+            
+            _plant = Content.Load<Model>(ContentFolder3D + "Plant/indoor plant_02_fbx/plant");
+            _basicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
+            _plane.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(-5f, 0f, -5f)));
+            _plane.SetEffect(_basicShader);
+
+            _cono.loadModel(ContentFolder3D + "Cono/Traffic Cone/Models and Textures/1", ContentFolderEffects + "BasicShader", Content);
+
+            _edificio.SetEffect(_basicShader);
+            _edificio.SetWorldMatrix(Matrix.CreateTranslation(new Vector3(800f, 150f, 0)));
+
+            _rampa.SetEffect(_basicShader);
+            _rampa.SetWorldMatrix(Matrix.CreateRotationZ(-MathF.PI/2) * Matrix.CreateTranslation(new Vector3( 0, 100, 350)));
+
+            _cono.SetWorldMatrix(Matrix.CreateTranslation(Vector3.UnitZ * 80f) * Matrix.CreateScale(16f));
+
+
             base.LoadContent();
         }
 
@@ -119,14 +165,34 @@ namespace TGC.MonoGame.TP
         ///     Se llama cada vez que hay que refrescar la pantalla.
         ///     Escribir aqui el codigo referido al renderizado.
         /// </summary>
+        ///
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.Black);
+
+            GraphicsDevice.Clear(Color.LightBlue);
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             cuadrado.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Brown);
-            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Brown);
+
+
+
+
+            
+            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.LightGray);
+            //_plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
+            
+            
+            auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
+            generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
+            
+            _cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
+
+            _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.DarkGray);
+
+            _rampa.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.SaddleBrown);
+
+
         }
 
         /// <summary>

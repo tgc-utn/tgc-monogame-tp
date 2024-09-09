@@ -10,15 +10,18 @@ namespace Escenografia
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indexBuffer;
 
-        public Plano(GraphicsDevice graphicsDevice, Effect efecto,Vector3 posicion, float scala)
+        public Plane(GraphicsDevice graphicsDevice)
         {
             _graphicsDevice = graphicsDevice;
-            this.efecto = efecto;  // Asignamos el Effect personalizado
-            this.posicion = posicion;
-            CreatePlaneMesh(8, 8, scala);  // Crea un plano con 8x8 cuadrículas, es decir, 64 cuads, o 128 triangulos.
+            CreatePlaneMesh(8, 8);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
         }
 
-        private void CreatePlaneMesh(int width, int height,float scala)
+        public void SetEffect (Effect effect){
+            this.efecto = effect;
+        }
+
+        private void CreatePlaneMesh(int width, int height)
+
         {
             int numeroVertices = (width + 1) * (height + 1);
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numeroVertices];
@@ -80,7 +83,7 @@ namespace Escenografia
         public override void dibujar(Matrix view, Matrix projection, Color color)
         {
             // Establece los parámetros de transformación en el Effect personalizado.
-            //efecto.Parameters["World"].SetValue(getWorldMatrix());
+            efecto.Parameters["World"].SetValue(getWorldMatrix());
             efecto.Parameters["View"].SetValue(view);
             efecto.Parameters["Projection"].SetValue(projection);
 
@@ -116,7 +119,9 @@ namespace Escenografia
         public override Matrix getWorldMatrix()
         {   
             //posicion = new Vector3(0, -5, 0);
-            return Matrix.CreateTranslation(posicion);
+
+            return world;
+
         }
 
         public void Dispose()

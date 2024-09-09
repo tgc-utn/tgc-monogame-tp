@@ -12,6 +12,8 @@ namespace Escenografia
     {
         protected Model modelo; 
         protected Effect efecto;
+
+        public Matrix world {get; set;}
         public Vector3 posicion;
         protected float rotacionX, rotacionY, rotacionZ;
         /// <summary>
@@ -19,6 +21,9 @@ namespace Escenografia
         /// </summary>
         /// <returns>La matriz "world" asociada al objeto que llamo</returns>
         abstract public Matrix getWorldMatrix();
+        public void SetWorldMatrix(Matrix matrix){
+            world = matrix;
+        }
         /// <summary>
         /// Inicializa un modelo junto a sus efectos dado una direccion de archivo para este
         /// </summary>
