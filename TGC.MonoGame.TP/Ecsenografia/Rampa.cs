@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Escenografia;
+using System;
 
 public class Rampa : Escenografia3D
 {
@@ -9,15 +10,23 @@ public class Rampa : Escenografia3D
     private IndexBuffer _indexBuffer;
     private Vector3 _dimensiones;
 
-    public Rampa(GraphicsDevice graphicsDevice, Vector3 dimensiones)
+    public Rampa(GraphicsDevice graphicsDevice, Vector3 dimensiones, Vector3 posicion)
     {
         _graphicsDevice = graphicsDevice;
         _dimensiones = dimensiones;
         CrearPrismaRectangular(dimensiones);
+        this.posicion = posicion;
     }
 
     public void SetEffect (Effect effect){
         this.efecto = effect;
+    }
+
+    public void SetRotacion(float rotacionX, float rotacionY, float rotacionZ)
+    {
+        this.rotacionX = rotacionX;
+        this.rotacionY = rotacionY;
+        this.rotacionZ = rotacionZ;
     }
 
     private void CrearPrismaRectangular(Vector3 dimensiones)
@@ -66,12 +75,12 @@ public class Rampa : Escenografia3D
 
     public override Matrix getWorldMatrix()
     {
-        return world;
+        return Matrix.CreateRotationZ(-rotacionZ) * Matrix.CreateTranslation(posicion);
     }
 
     public override void dibujar(Matrix view, Matrix projection, Color color)
     {
-        efecto.Parameters["World"].SetValue(world);
+        efecto.Parameters["World"].SetValue(getWorldMatrix());
         efecto.Parameters["View"].SetValue(view);
         efecto.Parameters["Projection"].SetValue(projection);
         efecto.Parameters["DiffuseColor"].SetValue(color.ToVector3());

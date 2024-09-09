@@ -8,9 +8,14 @@ namespace Escenografia
 {
     public class Cono : Escenografia3D
     {
+        float scale;
         public override Matrix getWorldMatrix()
         {
-           return world;
+           return Matrix.CreateScale(scale) * Matrix.CreateTranslation(posicion);
+        }
+        public void SetScale(float scale)
+        {
+            this.scale = scale;
         }
         public override void loadModel(string direcionModelo, string direccionEfecto, ContentManager contManager)
         {
