@@ -1,6 +1,7 @@
 ﻿using System;
 using Escenografia;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -24,14 +25,18 @@ namespace TGC.MonoGame.TP
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
 
+
         private Effect _basicShader;
         
-
 
         //Control.Camera camara;
         Control.Camarografo camarografo;
         Escenografia.AutoJugador auto;
         Control.AdministradorNPCs generadorPrueba;
+
+        
+        Escenografia.Primitiva cuadrado;
+
 
         private Escenografia.Plane _plane { get; set; }
         private PrismaRectangularEditable _edificio {get; set;}
@@ -40,6 +45,7 @@ namespace TGC.MonoGame.TP
         private Cono _cono { get; set; }
         private Rampa _rampa { get; set; }
         
+
 
         /// <summary>
         ///     Constructor del juego.
@@ -54,7 +60,7 @@ namespace TGC.MonoGame.TP
             // Para que el juego sea pantalla completa se puede usar Graphics IsFullScreen.
             // Carpeta raiz donde va a estar toda la Media.
             Content.RootDirectory = "Content";
-            // Hace que el mouse sea visible.
+            // Hace que el mous e sea visible.
             IsMouseVisible = true;
         }
 
@@ -65,20 +71,21 @@ namespace TGC.MonoGame.TP
         protected override void Initialize()
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
-
- 
             // Apago el backface culling.
             // Esto se hace por un problema en el diseno del modelo del logo de la materia.
             // Una vez que empiecen su juego, esto no es mas necesario y lo pueden sacar.
             var rasterizerState = new RasterizerState();
             rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.RasterizerState = rasterizerState; 
 
             generadorPrueba = new Control.AdministradorNPCs();
-            generadorPrueba.generarNPCsV1(new Vector3(-1000f,0f,-1000f), new Vector3(1000f,0f,1000f));
-            auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/6f);
+            generadorPrueba.generadorNPCsV2(Vector3.Zero, 20000f, 200);
+            auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/3.5f);
             camarografo = new Control.Camarografo(
-                new Vector3(1f,1f,1f) * 1500, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
+
+                new Vector3(1f,1f,1f) * 1500f, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
+
+
             //_plant = new Model(GraphicsDevice, );
             _plane = new Escenografia.Plane(GraphicsDevice);
             _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
@@ -86,7 +93,10 @@ namespace TGC.MonoGame.TP
 
             _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f));
 
+
             base.Initialize();
+
+
         }
 
         /// <summary>
@@ -98,8 +108,16 @@ namespace TGC.MonoGame.TP
         {
             // Aca es donde deberiamos cargar todos los contenido necesarios antes de iniciar el juego.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            generadorPrueba.loadModelosAutos(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
+            String[] modelos = {ContentFolder3D + "Auto/RacingCar"};
+            String[] efectos = {ContentFolderEffects + "BasicShader"};
+            generadorPrueba.loadModelosAutos(modelos, efectos, Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
+
+            cuadrado = new Escenografia.Primitiva(GraphicsDevice, Vector3.Zero, 
+            new Vector3(1f,0f,1f), new Vector3(1f,0f,-1f), new Vector3(-1f,0f,-1f), new Vector3(-1f,0f,1f),
+            Color.Brown, 10000f );
+
+
             
             _plant = Content.Load<Model>(ContentFolder3D + "Plant/indoor plant_02_fbx/plant");
             _basicShader = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
@@ -116,6 +134,7 @@ namespace TGC.MonoGame.TP
             _rampa.SetWorldMatrix(Matrix.CreateRotationZ(-MathF.PI/2) * Matrix.CreateTranslation(new Vector3( 0, 100, 350)));
 
             _cono.SetWorldMatrix(Matrix.CreateTranslation(Vector3.UnitZ * 80f) * Matrix.CreateScale(16f));
+
 
             base.LoadContent();
         }
@@ -150,7 +169,14 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
+
             GraphicsDevice.Clear(Color.LightBlue);
+            auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
+            generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
+            cuadrado.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Brown);
+
+
+
 
             
             _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.LightGray);
@@ -165,6 +191,7 @@ namespace TGC.MonoGame.TP
             _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.DarkGray);
 
             _rampa.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.SaddleBrown);
+
 
         }
 

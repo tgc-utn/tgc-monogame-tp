@@ -4,7 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 namespace Escenografia
 {
-    public abstract class Escenografia3D
+    interface Dibujable
+    {
+        public abstract void dibujar(Matrix view, Matrix projection, Color color);
+    }
+    public abstract class Escenografia3D : Dibujable
     {
         protected Model modelo; 
         protected Effect efecto;
@@ -52,7 +56,7 @@ namespace Escenografia
             }
             */
         }
-        /// <summary>
+        /// <summary>+
         /// Funcion para dibujar los modelos
         /// </summary>
         /// <param name="view">la matriz de la camara</param>
@@ -71,5 +75,56 @@ namespace Escenografia
                 mesh.Draw();
             }
         }
+    }
+    class Primitiva : Dibujable
+    {
+        private Vector3 posicionCentro;
+        private VertexBuffer vertices;
+        private IndexBuffer indices;
+        private float scala;
+
+        GraphicsDevice graphics;
+        public Color color;
+
+        public Primitiva(GraphicsDevice graphics, Vector3 posicionCentro,
+        Vector3 vertice1, Vector3 vertice2, Vector3 vertice3, Vector3 vertice4,
+        Color color, float scala)
+        {
+            vertice1 *= scala;
+            vertice2 *= scala;
+            vertice3 *= scala;
+            vertice4 *= scala;
+            this.posicionCentro = posicionCentro;
+            this.scala = scala;
+            this.graphics = graphics;
+            this.color = color;
+            
+            int[] indicesTemp = new int[6];
+            VertexPositionColor[] dataVertices = new VertexPositionColor[4];
+            dataVertices[0] = new VertexPositionColor(vertice1, color);
+            dataVertices[1] = new VertexPositionColor(vertice2, color);
+            dataVertices[2] = new VertexPositionColor(vertice3, color);
+            dataVertices[3] = new VertexPositionColor(vertice4, color);
+
+            indicesTemp[0] = 0;
+            indicesTemp[1] = 1;
+            indicesTemp[1] = 2;
+            indicesTemp[1] = 2;
+            indicesTemp[1] = 3;
+            indicesTemp[1] = 0;
+
+            vertices = new VertexBuffer(graphics, typeof(VertexPositionColor), dataVertices.Length, BufferUsage.WriteOnly);
+            vertices.SetData(dataVertices);
+            indices = new IndexBuffer(graphics, IndexElementSize.ThirtyTwoBits, indicesTemp.Length, BufferUsage.WriteOnly);
+            indices.SetData(indicesTemp);
+        }
+
+        public void dibujar(Matrix view, Matrix projection, Color color)
+        {
+            graphics.SetVertexBuffer(vertices);
+            
+            graphics.Indices = indices;
+            graphics.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
+        } 
     }
 }
