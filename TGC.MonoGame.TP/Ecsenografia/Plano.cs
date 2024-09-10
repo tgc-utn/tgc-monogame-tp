@@ -10,15 +10,11 @@ namespace Escenografia
         private VertexBuffer _vertexBuffer;
         private IndexBuffer _indexBuffer;
 
-<<<<<<< HEAD
-        public Plano(GraphicsDevice graphicsDevice)
-=======
         public Plano(GraphicsDevice graphicsDevice, Vector3 posicion)
->>>>>>> ace047aa6f08cb3567b0c5ae28dbcc7c4af7f3f7
         {
             this.posicion = posicion;
             _graphicsDevice = graphicsDevice;
-            CreatePlaneMesh(8, 8);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
+            CreatePlaneMesh(16, 16);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
         }
 
         public void SetEffect (Effect effect){
@@ -26,13 +22,12 @@ namespace Escenografia
         }
 
         private void CreatePlaneMesh(int width, int height)
-
         {
             int numeroVertices = (width + 1) * (height + 1);
-            VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numeroVertices];
+            VertexPosition[] vertices = new VertexPosition[numeroVertices];
 
-            // Cada cuadrado tiene 2 triángulos, y cada triángulo tiene 3 índices ( uno por vertice ).
-            int numeroIndices = width * height * 6; 
+            // Cada cuadrado tiene 2 triángulos, y cada triángulo tiene 3 índices.
+            int numeroIndices = width * height * 6;
             int[] indices = new int[numeroIndices];
 
             // Crear los vértices.
@@ -42,17 +37,11 @@ namespace Escenografia
                 for (int x = 0; x <= width; x++)
                 {
                     float posX = x;
-                    float posY = 0;//altura
+                    float posY = 0;  // altura del plano
                     float posZ = y;
 
-                    vertices[indiceVertice] = new VertexPositionNormalTexture(
-<<<<<<< HEAD
-                        new Vector3(posX, posY, posZ) * 2,  // Posición del vértice
-=======
-                        new Vector3(posX, posY, posZ),  // Posición del vértice
->>>>>>> ace047aa6f08cb3567b0c5ae28dbcc7c4af7f3f7
-                        Vector3.Up,                    // Normal (hacia arriba)
-                        new Vector2(x / (float)width, y / (float)height) // Coordenadas UV
+                    vertices[indiceVertice] = new VertexPosition(
+                        new Vector3(posX, posY, posZ)  // Posición del vértice
                     );
                     indiceVertice++;
                 }
@@ -82,7 +71,7 @@ namespace Escenografia
             }
 
             // Crear el VertexBuffer y el IndexBuffer.
-            _vertexBuffer = new VertexBuffer(_graphicsDevice, typeof(VertexPositionNormalTexture), vertices.Length, BufferUsage.WriteOnly);
+            _vertexBuffer = new VertexBuffer(_graphicsDevice, typeof(VertexPosition), vertices.Length, BufferUsage.WriteOnly);
             _vertexBuffer.SetData(vertices);
 
             _indexBuffer = new IndexBuffer(_graphicsDevice, IndexElementSize.ThirtyTwoBits, indices.Length, BufferUsage.WriteOnly);
@@ -91,25 +80,21 @@ namespace Escenografia
 
         public override void dibujar(Matrix view, Matrix projection, Color color)
         {
-            // Establece los parámetros de transformación en el Effect personalizado.
+            // Establece los parámetros de transformación en el Effect.
             efecto.Parameters["World"].SetValue(getWorldMatrix());
             efecto.Parameters["View"].SetValue(view);
             efecto.Parameters["Projection"].SetValue(projection);
 
-            // Si tu shader tiene más parámetros, configúralos aquí:
+            // Configuración del color
             efecto.Parameters["DiffuseColor"].SetValue(color.ToVector3());
 
-            
-
+            // Establecer los buffers.
             _graphicsDevice.SetVertexBuffer(_vertexBuffer);
             _graphicsDevice.Indices = _indexBuffer;
 
             foreach (var pass in efecto.CurrentTechnique.Passes)
             {
-                //Que es esto?
-                pass.Apply();
-                efecto.Parameters["World"].SetValue(getWorldMatrix());
-                //dibujamos la primitiva, pero ¿Como sabe donde?
+                pass.Apply();  // Aplica la técnica del Effect.
                 _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, _indexBuffer.IndexCount / 3);
             }
         }
@@ -129,7 +114,7 @@ namespace Escenografia
         {   
             //posicion = new Vector3(0, -5, 0);
 
-            return Matrix.CreateTranslation(posicion);
+            return Matrix.CreateScale(1000f) * Matrix.CreateTranslation(posicion);
 
         }
 

@@ -87,15 +87,11 @@ namespace TGC.MonoGame.TP
 
 
             //_plant = new Model(GraphicsDevice, );
-<<<<<<< HEAD
-            _plane = new Escenografia.Plano(GraphicsDevice);
-=======
-            _plane = new Escenografia.Plano(GraphicsDevice, Vector3.Zero);
->>>>>>> ace047aa6f08cb3567b0c5ae28dbcc7c4af7f3f7
+            _plane = new Plano(GraphicsDevice, new Vector3(-11000, -200, -11000));
             _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
-            _cono = new Cono();
+            _cono = new Cono(new Vector3(0, 0 , 1000));
 
-            _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f), Vector3.Backward * 1000f);
+            _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f), Vector3.Backward * -1000f);
 
 
             base.Initialize();
@@ -133,7 +129,7 @@ namespace TGC.MonoGame.TP
 
             _rampa.SetEffect(_basicShader);
             _rampa.SetRotacion(0f,0f,Convert.ToSingle(Math.PI/2));
-            _cono.SetScale(16f);
+            _cono.SetScale(20f);
 
             base.LoadContent();
         }
@@ -169,25 +165,19 @@ namespace TGC.MonoGame.TP
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
 
-            GraphicsDevice.Clear(Color.DarkGray);
-            auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
-            generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
-            cuadrado.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Brown);
+            GraphicsDevice.Clear(Color.LightBlue);
 
-
-
-
+            //cuadrado.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Brown);
             
-            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Red);
-            _plant.Draw(_plane.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
-            
+            _plane.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.DarkGray);
+            //_plant.Draw(camarografo.getWorldMatrix(), camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             
             _cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
 
-            _edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.BlanchedAlmond);
+            //_edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.BlanchedAlmond);
 
             _rampa.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.SaddleBrown);
 

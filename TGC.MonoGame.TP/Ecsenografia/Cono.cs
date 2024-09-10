@@ -9,6 +9,10 @@ namespace Escenografia
     public class Cono : Escenografia3D
     {
         float scale;
+
+        public Cono(Vector3 posicion){
+            this.posicion = posicion;
+        }
         public override Matrix getWorldMatrix()
         {
            return Matrix.CreateScale(scale) * Matrix.CreateTranslation(posicion);
