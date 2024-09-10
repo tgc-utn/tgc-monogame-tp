@@ -14,7 +14,7 @@ namespace Escenografia
         {
             this.posicion = posicion;
             _graphicsDevice = graphicsDevice;
-            CreatePlaneMesh(16, 16);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
+            CreatePlaneMesh(32, 32);  // Crea un plano con 8x8 cuadrículas, es decir, 64 triángulos.
         }
 
         public void SetEffect (Effect effect){

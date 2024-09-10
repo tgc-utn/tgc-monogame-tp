@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using Control;
 using Escenografia;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -33,6 +35,8 @@ namespace TGC.MonoGame.TP
         Control.Camarografo camarografo;
         Escenografia.AutoJugador auto;
         Control.AdministradorNPCs generadorPrueba;
+
+        AdministradorConos generadorConos;
 
         
         Escenografia.Primitiva cuadrado;
@@ -80,7 +84,11 @@ namespace TGC.MonoGame.TP
             GraphicsDevice.RasterizerState = rasterizerState; 
 
             generadorPrueba = new Control.AdministradorNPCs();
-            generadorPrueba.generadorNPCsV2(Vector3.Zero, 20000f, 200);
+            generadorPrueba.generadorNPCsV2(Vector3.Zero, 16000f, 50);
+
+            generadorConos = new AdministradorConos();
+            generadorConos.generarConos(Vector3.Zero, 16000f, 200);
+
             auto = new Escenografia.AutoJugador(Vector3.Zero, Vector3.Backward, 1000f, Convert.ToSingle(Math.PI)/3.5f);
             camarografo = new Control.Camarografo(
 
@@ -116,6 +124,7 @@ namespace TGC.MonoGame.TP
             generadorPrueba.loadModelosAutos(modelos, efectos, Content);
             auto.loadModel(ContentFolder3D + "Auto/RacingCar", ContentFolderEffects + "BasicShader", Content);
 
+            generadorConos.loadModelosConos(ContentFolder3D + "Cono/Traffic Cone/Models and Textures/1", ContentFolderEffects + "BasicShader", Content);
             cuadrado = new Escenografia.Primitiva(GraphicsDevice, Content.Load<Effect>(efectos[0]), 
             new Vector3(1f,0f,1f), new Vector3(1f,0f,-1f), new Vector3(-1f,0f,-1f), new Vector3(-1f,0f,1f));
 
@@ -189,7 +198,8 @@ namespace TGC.MonoGame.TP
             auto.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.White);
             generadorPrueba.drawAutos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
             
-            _cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
+            //_cono.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
+            generadorConos.drawConos(camarografo.getViewMatrix(), camarografo.getProjectionMatrix());
 
             //_edificio.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.BlanchedAlmond);
 

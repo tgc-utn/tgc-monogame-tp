@@ -57,9 +57,9 @@ namespace Control
                 puntoPlano = Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(anguloDesdeCentro)) * distanciaCentro;
                 //Console.WriteLine(distanciaCentro);
                 holder = new AutoNPC(puntoPlano + centro, 
-                Convert.ToSingle(RNG.NextDouble() * Math.PI), 
+                0, 
                 Convert.ToSingle(RNG.NextDouble() * Math.PI),
-                Convert.ToSingle(RNG.NextDouble() * Math.PI), 
+                0, 
                 new Color( (float)RNG.NextDouble(), (float)RNG.NextDouble(), (float)RNG.NextDouble()));
                 //Console.WriteLine(holder.getWorldMatrix());
                 npcs.Add(holder);
@@ -85,4 +85,49 @@ namespace Control
             }
         }
     }
+
+    public class AdministradorConos{
+        static Random RNG = new Random();
+        List<Cono> conos;
+
+        public void generarConos(Vector3 centro, float radio, int numeroNPCs)
+        {
+            float distanciaCentro, anguloDesdeCentro;
+            Vector3 puntoPlano;
+            conos = new List<Cono>(numeroNPCs);
+            Cono holder;
+            for ( int i=0; i< numeroNPCs; i++)
+            {
+                distanciaCentro = (float)(Math.Clamp(RNG.NextDouble() + 0.05f, 0.05f, 1f) * radio);
+                anguloDesdeCentro = (float)(RNG.NextDouble() * Math.Tau);
+                puntoPlano = Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(anguloDesdeCentro)) * distanciaCentro;
+                //Console.WriteLine(distanciaCentro);
+                holder = new Cono(puntoPlano + centro);
+                //Console.WriteLine(holder.getWorldMatrix());
+                conos.Add(holder);
+            }
+        }
+        public void loadModelosConos(String direccionesModelos, String direccionesEfectos, ContentManager content)
+        {
+            //cargamos todos los modelos al azar
+            foreach( Cono cono in conos)
+            {
+                Random rangen = new Random();
+                
+                cono.loadModel(direccionesModelos,
+                direccionesEfectos,content);
+            }
+        }
+        public void drawConos(Matrix view, Matrix projeccion)
+        {
+            
+            foreach( Cono cono in conos )
+            {
+                cono.SetScale(20f);
+                cono.dibujar(view, projeccion, Color.Orange);
+            }
+        }
+    }
 }
+
+    
