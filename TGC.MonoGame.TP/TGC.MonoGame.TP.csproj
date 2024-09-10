@@ -12,6 +12,17 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Content\Models\Palmera2\**" />
+    <Compile Remove="Content\Models\Rueda\**" />
+    <Compile Remove="Content\obj\DesktopGL\net6.0\Content\Models\NewFolder\**" />
+    <EmbeddedResource Remove="Content\Models\Palmera2\**" />
+    <EmbeddedResource Remove="Content\Models\Rueda\**" />
+    <EmbeddedResource Remove="Content\obj\DesktopGL\net6.0\Content\Models\NewFolder\**" />
+    <None Remove="Content\Models\Palmera2\**" />
+    <None Remove="Content\Models\Rueda\**" />
+    <None Remove="Content\obj\DesktopGL\net6.0\Content\Models\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>

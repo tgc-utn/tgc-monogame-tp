@@ -44,9 +44,8 @@ namespace TGC.MonoGame.TP
 
         private Cono _cono { get; set; }
         private Rampa _rampa { get; set; }
-        
         private Cilindro _cilindro { get; set; }
-
+        private Palmera _palmera { get; set; }
 
 
         /// <summary>
@@ -96,7 +95,8 @@ namespace TGC.MonoGame.TP
             _rampa = new Rampa(GraphicsDevice, new Vector3(200f, 500f, 500f), Vector3.Backward * -1000f);
             //Inicializo Cilindro(graphics, radio  alto);
             _cilindro = new Cilindro(GraphicsDevice, 2, 12);
-            
+
+            _palmera = new Palmera(GraphicsDevice, new Vector3(0, 0, 1000));
             base.Initialize();
 
 
@@ -140,6 +140,10 @@ namespace TGC.MonoGame.TP
             //4.75f son 90º aprox.
             _cilindro.SetRotacion(0, 4.75f,4.75f);
 
+            
+            _palmera.loadModel(ContentFolder3D + "Palmera/palmera2", ContentFolderEffects + "BasicShader", Content);
+            _palmera.SetPosition(new Vector3(1500f, 0f, 1000f));
+            _palmera.SetScale(0.5f);
 
             base.LoadContent();
         }
@@ -193,6 +197,7 @@ namespace TGC.MonoGame.TP
 
             _cilindro.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
 
+            _palmera.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Green);
         }
 
         /// <summary>
