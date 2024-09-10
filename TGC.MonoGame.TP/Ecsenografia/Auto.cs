@@ -13,7 +13,7 @@ namespace Escenografia
         protected float velocidad;
         protected float aceleracion;
         protected float velocidadGiro;
-        protected float peso;
+        //protected float peso;
         protected Vector3 direccion;
 
         //para limitar el movimiento de objetos
