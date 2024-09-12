@@ -51,6 +51,8 @@ namespace TGC.MonoGame.TP
         private Cilindro _cilindro { get; set; }
         private Palmera _palmera { get; set; }
 
+        private Escenografia.Plataforma _plataforma { get; set;}
+
 
         /// <summary>
         ///     Constructor del juego.
@@ -94,7 +96,6 @@ namespace TGC.MonoGame.TP
 
                 new Vector3(1f,1f,1f) * 1500f, Vector3.Zero, GraphicsDevice.Viewport.AspectRatio, 1f, 6000f);
 
-
             //_plant = new Model(GraphicsDevice, );
             _plane = new Plano(GraphicsDevice, new Vector3(-11000, -200, -11000));
             _edificio = new PrismaRectangularEditable(GraphicsDevice, new Vector3(200f, 500f, 200f));
@@ -105,6 +106,8 @@ namespace TGC.MonoGame.TP
             _cilindro = new Cilindro(GraphicsDevice, 2, 12);
 
             _palmera = new Palmera(GraphicsDevice, new Vector3(0, 0, 1000));
+            _plataforma = new Plataforma(Convert.ToSingle(Math.PI / 2f), new Vector3(1000f,0f,1000f));
+            Escenografia.Plataforma.setGScale(10f);
             base.Initialize();
 
 
@@ -153,6 +156,8 @@ namespace TGC.MonoGame.TP
             _palmera.loadModel(ContentFolder3D + "Palmera/palmera2", ContentFolderEffects + "BasicShader", Content);
             _palmera.SetPosition(new Vector3(1500f, 0f, 1000f));
             _palmera.SetScale(0.5f);
+
+            _plataforma.loadModel(ContentFolder3D+"Plataforma/Plataforma", ContentFolderEffects + "BasicShader", Content);
 
             base.LoadContent();
         }
@@ -208,6 +213,8 @@ namespace TGC.MonoGame.TP
             _cilindro.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Orange);
 
             _palmera.dibujar(camarografo.getViewMatrix(),camarografo.getProjectionMatrix(), Color.Green);
+
+            _plataforma.dibujar(camarografo.getViewMatrix(), camarografo.getProjectionMatrix(), Color.Crimson);
         }
 
         /// <summary>
