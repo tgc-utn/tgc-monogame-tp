@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.3.32819.101
+VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TGC.MonoGame.TP", "TGC.MonoGame.TP\TGC.MonoGame.TP.csproj", "{B72B2451-88F2-4BFA-A3CB-4A45C96B3F78}"
 EndProject
