@@ -28,6 +28,13 @@ public class TGCGame : Game
     private SpriteBatch _spriteBatch;
     private Matrix _view;
     private Matrix _world;
+    
+    private VertexBuffer _vertexBuffer; // Como son mis vertices
+    private IndexBuffer _indexBuffer; // Como forman triangulos
+
+    private Matrix[] _translations;
+    private float[] _angles;
+    private Color[] _colors;
 
     /// <summary>
     ///     Constructor del juego.
@@ -65,11 +72,36 @@ public class TGCGame : Game
 
         // Configuramos nuestras matrices de la escena.
         _world = Matrix.Identity;
-        _view = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+        // _view = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+        _view = Matrix.CreateLookAt(new Vector3(10f, 10f, 20f), Vector3.Zero, Vector3.Up);
+        // _projection =
+        //     Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
         _projection =
-            Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.1f, 2500f);
+
+        Random random = new Random();
+
+        _translations = new Matrix[100];
+        _colors = new Color[100];
+        _angles =  new float[100];
+        
+        for (int i = 0; i < 100; i++)
+        {
+            _translations[i] = Matrix.CreateTranslation(
+                ScaleRange(random.NextSingle(), -10f, 10f),
+                ScaleRange(random.NextSingle(), -10f, 10f),
+                random.NextSingle() * 0.1f);
+                // 0f); // Esto produce Z-Fighting
+            _colors[i] = new Color(new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle()));
+            _angles[i] = ScaleRange(random.NextSingle(), 0f, MathF.PI * 2f);
+        }
 
         base.Initialize();
+    }
+
+    private float ScaleRange(float value, float min, float max)
+    {
+        return value * (max - min) + min;
     }
 
     /// <summary>
@@ -100,6 +132,40 @@ public class TGCGame : Game
             }
         }
 
+        // El QUAD tienen 4 vértices
+        var vertices = new VertexPosition[4]
+        {
+            new VertexPosition(new Vector3(-1f, -1f, 0f)),
+            new VertexPosition(new Vector3(-1f, 1f, 0f)),
+            new VertexPosition(new Vector3(1f, -1f, 0f)),
+            new VertexPosition(new Vector3(1f, 1f, 0f))
+            // new (new Vector3(-1f, -1f, 0f)),
+            // new (new Vector3(-1f, 1f, 0f)),
+            // new (new Vector3(1f, -1f, 0f)),
+            // new (new Vector3(1f, 1f, 0f))
+        };
+        
+        // Creando un VertxBuffer
+        _vertexBuffer = new VertexBuffer(
+            GraphicsDevice, // Clase que se usa en todo Monogame para crear cosas de gráficos
+            VertexPosition.VertexDeclaration, // De que TIPO es el vértice
+            vertices.Length, // Cantidad de vértices (El Quad tienen 4 vértices)
+            BufferUsage.None // Este parámetro siempre es "None"
+            );
+        // Rellenando los datos del VertexBuffer
+        _vertexBuffer.SetData(vertices); // A este VertexBuffer le voy a asignar los datos
+        
+        // Creando IndexBuffer
+        var indices = new ushort[]
+        {
+            0, 1, 2, // Triangulo 1 (Horario)
+            // 0, 2, 1, // Triangulo 1 (Antihorario)
+            3, 2, 1  // Triangulo 2 (Horario)
+            // 1, 2, 3  // Triangulo 2 (Antihorario)
+        };
+        _indexBuffer = new IndexBuffer(GraphicsDevice, IndexElementSize.SixteenBits, indices.Length, BufferUsage.None);
+        _indexBuffer.SetData(indices);
+
         base.LoadContent();
     }
 
@@ -124,6 +190,11 @@ public class TGCGame : Game
 
         _world = Matrix.CreateRotationY(_rotation);
 
+        for (int i = 0; i < 100; i++)
+        {
+            _angles[i] += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
+        }
+
         base.Update(gameTime);
     }
 
@@ -136,16 +207,60 @@ public class TGCGame : Game
         // Aca deberiamos poner toda la logia de renderizado del juego.
         GraphicsDevice.Clear(Color.Black);
 
+        /*
         // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
         _effect.Parameters["View"].SetValue(_view);
         _effect.Parameters["Projection"].SetValue(_projection);
-        _effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+        _effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3()); // Estamos dibujándolo de azul
 
         foreach (var mesh in _model.Meshes)
         {
             _effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _world);
             mesh.Draw();
         }
+        */
+        
+        // Esto prende el BackFace Culling ======================================
+        // Que es una técnica para descartar triángulos que miran para el otro lado.
+        //==========================================================================
+        // >>Descarta: Triángulos en sentido Antihorario - Cuando estás fuera del objeto (Normal)
+        // GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise; // Antihorario
+        // =========================================================================
+        
+        
+        // Alpha Blending ==========================================================
+        // Para aplicar transparencias - Se necesita mas pasos en el video - Clase 04
+        // GraphicsDevice.BlendState = BlendState.AlphaBlend;
+        // =========================================================================
+        
+        // Como dibujar un modelo de la forma mas primitiva posible
+        GraphicsDevice.SetVertexBuffer(_vertexBuffer);
+        GraphicsDevice.Indices = _indexBuffer;
+        
+        _effect.Parameters["View"].SetValue(_view);
+        _effect.Parameters["Projection"].SetValue(_projection);
+        _effect.Parameters["DiffuseColor"].SetValue(Color.Red.ToVector3());
+
+        for (int i = 0; i < 100; i++)
+        {
+            _effect.Parameters["World"].SetValue(Matrix.CreateRotationY(_angles[i]) * _translations[i]);
+            _effect.Parameters["DiffuseColor"].SetValue(_colors[i].ToVector3());
+            foreach (var pass in _effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
+            }
+        }
+        
+        // _effect.Parameters["World"].SetValue(Matrix.CreateTranslation(0f, 3f, 0f));
+        // _effect.Parameters["DiffuseColor"].SetValue(Color.Green.ToVector3());
+        //
+        // foreach (var pass in _effect.CurrentTechnique.Passes)
+        // {
+        //     pass.Apply();
+        //     GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, 2);
+        // }
+        
     }
 
     /// <summary>
