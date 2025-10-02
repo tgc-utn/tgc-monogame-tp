@@ -65,9 +65,15 @@ public class TGCGame : Game
 
         // Configuramos nuestras matrices de la escena.
         _world = Matrix.Identity;
-        _view = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+        // _view = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+        _view = Matrix.CreateLookAt(new Vector3(100f, 100f, 200f), Vector3.Zero, Vector3.Up);
         _projection =
-            Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.PiOver4, 
+                GraphicsDevice.Viewport.AspectRatio, 
+                0.1f, 
+                2500f);
+            // Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
 
         base.Initialize();
     }
@@ -122,7 +128,7 @@ public class TGCGame : Game
         // Basado en el tiempo que paso se va generando una rotacion.
         _rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
 
-        _world = Matrix.CreateRotationY(_rotation);
+        // _world = Matrix.CreateRotationY(_rotation);
 
         base.Update(gameTime);
     }
@@ -137,13 +143,14 @@ public class TGCGame : Game
         GraphicsDevice.Clear(Color.Black);
 
         // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
-        _effect.Parameters["View"].SetValue(_view);
-        _effect.Parameters["Projection"].SetValue(_projection);
-        _effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+        _effect.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+        _effect.Parameters["View"]?.SetValue(_view);
+        _effect.Parameters["Projection"]?.SetValue(_projection);
+        _effect.Parameters["DiffuseColor"]?.SetValue(Color.Blue.ToVector3());
 
         foreach (var mesh in _model.Meshes)
         {
-            _effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _world);
+            _effect.Parameters["World"]?.SetValue(mesh.ParentBone.Transform * _world);
             mesh.Draw();
         }
     }

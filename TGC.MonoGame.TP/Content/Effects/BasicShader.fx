@@ -23,12 +23,15 @@ float Time = 0;
 
 struct VertexShaderInput
 {
-	float4 Position : POSITION0;
+	float4 LocalPosition : POSITION0;
+	float4 Normal : NORMAL0;
 };
 
 struct VertexShaderOutput
 {
-	float4 Position : SV_POSITION;
+	float4 ProjectionPosition : SV_POSITION;
+	float3 WorldPosition : TEXCOORD0;
+	float4 Normal : TEXCOORD1;
 };
 
 VertexShaderOutput MainVS(in VertexShaderInput input)
@@ -36,18 +39,24 @@ VertexShaderOutput MainVS(in VertexShaderInput input)
     // Clear the output
 	VertexShaderOutput output = (VertexShaderOutput)0;
     // Model space to World space
-    float4 worldPosition = mul(input.Position, World);
+    float4 worldPosition = mul(input.LocalPosition, World);
+
+	output.WorldPosition = worldPosition;
+	output.Normal = input.Normal;
+	
     // World space to View space
-    float4 viewPosition = mul(worldPosition, View);	
+    float4 viewPosition = mul(worldPosition, View);
+
 	// View space to Projection space
-    output.Position = mul(viewPosition, Projection);
+    output.ProjectionPosition = mul(viewPosition, Projection);
 
     return output;
 }
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-    return float4(DiffuseColor, 1.0);
+	float color = sin(input.WorldPosition.y + Time) * 100.0;
+	return float4(color, color, color, 1.0);
 }
 
 technique BasicColorDrawing
