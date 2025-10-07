@@ -28,6 +28,8 @@ public class TGCGame : Game
     private SpriteBatch _spriteBatch;
     private Matrix _view;
     private Matrix _world;
+    
+    private Texture _texture;
 
     /// <summary>
     ///     Constructor del juego.
@@ -66,7 +68,8 @@ public class TGCGame : Game
         // Configuramos nuestras matrices de la escena.
         _world = Matrix.Identity;
         // _view = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
-        _view = Matrix.CreateLookAt(new Vector3(100f, 100f, 200f), Vector3.Zero, Vector3.Up);
+        // _view = Matrix.CreateLookAt(new Vector3(100f, 100f, 200f), Vector3.Zero, Vector3.Up); // 
+        _view = Matrix.CreateLookAt(new Vector3(50f, 50f, 100f), Vector3.Zero, Vector3.Up);
         _projection =
             Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.PiOver4, 
@@ -94,6 +97,8 @@ public class TGCGame : Game
         // Cargo un efecto basico propio declarado en el Content pipeline.
         // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
         _effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
+
+        _texture = Content.Load<Texture>(ContentFolderTextures + "color");
 
         // Asigno el efecto que cargue a cada parte del mesh.
         // Un modelo puede tener mas de 1 mesh internamente.
@@ -140,13 +145,15 @@ public class TGCGame : Game
     protected override void Draw(GameTime gameTime)
     {
         // Aca deberiamos poner toda la logia de renderizado del juego.
-        GraphicsDevice.Clear(Color.Black);
+        // GraphicsDevice.Clear(Color.Black);
+        GraphicsDevice.Clear(Color.CornflowerBlue);
 
         // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
         _effect.Parameters["Time"]?.SetValue((float)gameTime.TotalGameTime.TotalSeconds);
         _effect.Parameters["View"]?.SetValue(_view);
         _effect.Parameters["Projection"]?.SetValue(_projection);
         _effect.Parameters["DiffuseColor"]?.SetValue(Color.Blue.ToVector3());
+        _effect.Parameters["ModelTexture"]?.SetValue(_texture);
 
         foreach (var mesh in _model.Meshes)
         {
