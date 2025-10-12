@@ -75,7 +75,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	float2 textureCoordinates = input.TextureCoordinates.xy;
 	float4 textureColor = tex2D(TextureSampler, textureCoordinates); // text2d(.., ..) Que hace exactamente???
 	// if (textureColor.g < frac(Time * 0.25))
-	if (textureColor.g < frac(Time * 0.25)) // Esta era para hacer desaparecer, creo
+	if (textureColor.g < frac(Time * 0.25)) // Esto hace desaparecer al modelo !!!
 		discard; // <- Este comando es para descartar
 	return textureColor;
 }
