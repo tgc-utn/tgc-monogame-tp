@@ -75,7 +75,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	float2 textureCoordinates = input.TextureCoordinates.xy;
 	float4 textureColor = tex2D(TextureSampler, textureCoordinates);
 	// if (textureColor.g < frac(Time * 0.25))
-	if (textureColor.g < frac(Time * 0.25))
+	if (textureColor.g < frac(Time * 0.25)) // Truco para hacer desaparecer
 		discard; // <- Este comando es para descartar
 	return textureColor;
 }
