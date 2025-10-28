@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TGC.MonoGame.Samples.Geometries;
 
 namespace TGC.MonoGame.TP;
 
@@ -28,7 +29,17 @@ public class TGCGame : Game
     private SpriteBatch _spriteBatch;
     private Matrix _view;
     private Matrix _world;
+    
+    private Texture2D _robotTexture;
+    
+    private Texture2D _boxTexture;
+    
+    private BoxPrimitive _boxPrimitive;
 
+    private FullScreenQuad _fullScreenQuad;
+    
+    private RenderTarget2D _renderTarget;
+    
     /// <summary>
     ///     Constructor del juego.
     /// </summary>
@@ -64,10 +75,10 @@ public class TGCGame : Game
         // Seria hasta aca.
 
         // Configuramos nuestras matrices de la escena.
-        _world = Matrix.Identity;
-        _view = Matrix.CreateLookAt(Vector3.UnitZ * 150, Vector3.Zero, Vector3.Up);
+        _world = Matrix.CreateScale(0.1f);
+        _view = Matrix.CreateLookAt(new Vector3(20f, 30f, 40f), Vector3.Zero, Vector3.Up);
         _projection =
-            Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 1, 250);
+            Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, GraphicsDevice.Viewport.AspectRatio, 0.1f, 2500f);
 
         base.Initialize();
     }
@@ -83,12 +94,23 @@ public class TGCGame : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // Cargo el modelo del logo.
-        _model = Content.Load<Model>(ContentFolder3D + "tgc-logo/tgc-logo");
+        _model = Content.Load<Model>(ContentFolder3D + "tgcito-classic/tgcito-classic");
 
         // Cargo un efecto basico propio declarado en el Content pipeline.
         // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
         _effect = Content.Load<Effect>(ContentFolderEffects + "BasicShader");
 
+        _boxTexture = Content.Load<Texture2D>("caja-madera-4");
+        
+        _robotTexture = ((BasicEffect)_model.Meshes[0].Effects[0]).Texture;
+        
+        _boxPrimitive = new BoxPrimitive(GraphicsDevice, Vector3.One, null);
+        
+        _renderTarget =  new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, false,
+            SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.DiscardContents);
+
+        _fullScreenQuad = new FullScreenQuad(GraphicsDevice);
+        
         // Asigno el efecto que cargue a cada parte del mesh.
         // Un modelo puede tener mas de 1 mesh internamente.
         foreach (var mesh in _model.Meshes)
@@ -119,11 +141,6 @@ public class TGCGame : Game
             Exit();
         }
 
-        // Basado en el tiempo que paso se va generando una rotacion.
-        _rotation += Convert.ToSingle(gameTime.ElapsedGameTime.TotalSeconds);
-
-        _world = Matrix.CreateRotationY(_rotation);
-
         base.Update(gameTime);
     }
 
@@ -134,18 +151,37 @@ public class TGCGame : Game
     protected override void Draw(GameTime gameTime)
     {
         // Aca deberiamos poner toda la logia de renderizado del juego.
-        GraphicsDevice.Clear(Color.Black);
 
+        GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+        GraphicsDevice.BlendState = BlendState.Opaque;
+        
+        GraphicsDevice.SetRenderTarget(_renderTarget);
+        
+        GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.CornflowerBlue, 1f, 0);
+        
+        _effect.CurrentTechnique = _effect.Techniques[0];
         // Para dibujar le modelo necesitamos pasarle informacion que el efecto esta esperando.
         _effect.Parameters["View"].SetValue(_view);
         _effect.Parameters["Projection"].SetValue(_projection);
-        _effect.Parameters["DiffuseColor"].SetValue(Color.DarkBlue.ToVector3());
+        _effect.Parameters["ModelTexture"].SetValue(_robotTexture);
 
         foreach (var mesh in _model.Meshes)
         {
             _effect.Parameters["World"].SetValue(mesh.ParentBone.Transform * _world);
             mesh.Draw();
         }
+
+        _effect.Parameters["ModelTexture"].SetValue(_boxTexture);
+        _effect.Parameters["World"].SetValue(Matrix.CreateScale(10f) * Matrix.CreateTranslation(10f, 0f, 0f));
+        _boxPrimitive.Draw(_effect);
+        
+        
+        GraphicsDevice.SetRenderTarget(null);
+        GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
+        
+        _effect.CurrentTechnique = _effect.Techniques[1];
+        _effect.Parameters["ModelTexture"].SetValue(_renderTarget);
+        _fullScreenQuad.Draw(_effect);
     }
 
     /// <summary>
